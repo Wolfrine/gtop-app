@@ -39,11 +39,10 @@ jobs:
           ls -l gtop-app/dist/gtop-app
           ls -l gtop-app/dist/gtop-app/browser || echo "dist/gtop-app/browser does not exist"
 
-      # Step 6: Deploy to Firebase Hosting (Fix `entryPoint`)
+      # Step 6: Deploy to Firebase Hosting (Fix: Remove `channelId`)
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-          projectId: "gtop-app"
-          entryPoint: "gtop-app"  # ✅ Fix: Removes extra nesting
+          projectId: "gtop-app"  # ✅ Deploys directly to production

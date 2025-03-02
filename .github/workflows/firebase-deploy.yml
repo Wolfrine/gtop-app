@@ -10,30 +10,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Check out the repo (root is /home/runner/work/gtop-app/gtop-app)
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # Step 2: Setup Node
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Move Into Nested Folder Once
-        run: cd gtop-app
-
+      # Step 3: Install Dependencies inside the second "gtop-app" folder
       - name: Install Dependencies
+        working-directory: gtop-app
         run: npm install
 
+      # Step 4: Build Angular App
       - name: Build Angular App
+        working-directory: gtop-app
         run: npm run build -- --configuration production
 
+      # Step 5: Debug - List Build Directory
       - name: Debug Build Output
-        run: ls -l dist/gtop-app/browser || echo "Build folder not found"
+        working-directory: gtop-app
+        run: |
+          echo "Current path: $(pwd)"
+          ls -l dist/
+          ls -l dist/gtop-app
+          ls -l dist/gtop-app/browser || echo "dist/gtop-app/browser does not exist"
 
+      # Step 6: Deploy to Firebase Hosting
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           projectId: "gtop-app"
-          entryPoint: "."  # Now '.' is the same folder that has firebase.json
+          entryPoint: "."
+        working-directory: gtop-app

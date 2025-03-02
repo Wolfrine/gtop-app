@@ -10,42 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository into /home/runner/work/gtop-app/gtop-app
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # Step 3: Install Dependencies
-      # "gtop-app" is the *single* nested folder that has package.json, firebase.json, etc.
+      # Example: We assume your Angular + Firebase is in gtop-app folder
       - name: Install Dependencies
         run: npm install
         working-directory: gtop-app
 
-      # Step 4: Build Angular App
       - name: Build Angular App
         run: npm run build -- --configuration production
         working-directory: gtop-app
 
-      # Step 5: Debug - List Build Directory
-      - name: Debug Build Output
-        run: |
-          echo "Currently in: $(pwd)"
-          ls -l dist/
-          ls -l dist/gtop-app
-          ls -l dist/gtop-app/browser || echo "dist/gtop-app/browser does not exist"
-        working-directory: gtop-app
-
-      # Step 6: Deploy to Firebase Hosting
-      - name: Deploy to Firebase Hosting
+      - name: Deploy to Production
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           projectId: "gtop-app"
-          # `entryPoint` must match the folder containing firebase.json (relative to *repo root*).
           entryPoint: "gtop-app"
+          channelId: "live"  # ✅ Deploys directly to production, no preview

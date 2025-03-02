@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repo -> /home/runner/work/gtop-app/gtop-app
+      # Step 1: Check out the repository into /home/runner/work/gtop-app/gtop-app
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -20,15 +20,16 @@ jobs:
         with:
           node-version: 18
 
-      # Step 3: Install Dependencies inside the nested folder
+      # Step 3: Install Dependencies
+      # "gtop-app" is the *single* nested folder that has package.json, firebase.json, etc.
       - name: Install Dependencies
         run: npm install
-        working-directory: gtop-app/gtop-app
+        working-directory: gtop-app
 
       # Step 4: Build Angular App
       - name: Build Angular App
         run: npm run build -- --configuration production
-        working-directory: gtop-app/gtop-app
+        working-directory: gtop-app
 
       # Step 5: Debug - List Build Directory
       - name: Debug Build Output
@@ -37,7 +38,7 @@ jobs:
           ls -l dist/
           ls -l dist/gtop-app
           ls -l dist/gtop-app/browser || echo "dist/gtop-app/browser does not exist"
-        working-directory: gtop-app/gtop-app
+        working-directory: gtop-app
 
       # Step 6: Deploy to Firebase Hosting
       - name: Deploy to Firebase Hosting
@@ -46,6 +47,5 @@ jobs:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           projectId: "gtop-app"
-          # IMPORTANT: from the repository root's perspective,
-          # `firebase.json` is at "gtop-app/gtop-app/firebase.json"
-          entryPoint: "gtop-app/gtop-app"
+          # `entryPoint` must match the folder containing firebase.json (relative to *repo root*).
+          entryPoint: "gtop-app"

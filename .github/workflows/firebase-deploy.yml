@@ -20,34 +20,30 @@ jobs:
         with:
           node-version: 18
 
-      # Step 3: Move into the correct Angular project directory
-      - name: Change to Angular Project Directory
-        run: cd gtop-app
-
-      # Step 4: Install Dependencies
+      # Step 3: Install Dependencies
       - name: Install Dependencies
         run: |
           cd gtop-app
           npm install
 
-      # Step 5: Build Angular App
+      # Step 4: Build Angular App
       - name: Build Angular App
         run: |
           cd gtop-app
           npm run build -- --configuration production
 
-      # Step 6: Debug - List Build Directory
+      # Step 5: Debug - List Build Directory
       - name: Debug - List Build Directory
         run: |
           ls -l gtop-app/dist/
           ls -l gtop-app/dist/gtop-app
           ls -l gtop-app/dist/gtop-app/browser || echo "dist/gtop-app/browser does not exist"
 
-      # Step 7: Deploy to Firebase Hosting (Fix: Set correct `entryPoint`)
+      # Step 6: Deploy to Firebase Hosting (Fix `entryPoint`)
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           projectId: "gtop-app"
-          entryPoint: "gtop-app/gtop-app"  # ✅ This tells Firebase CLI where to find `firebase.json`
+          entryPoint: "gtop-app"  # ✅ Fix: Removes extra nesting

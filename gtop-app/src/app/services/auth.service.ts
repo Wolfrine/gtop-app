@@ -23,7 +23,7 @@ declare global {
 export class AuthService {
     private userSubject = new BehaviorSubject<any>(null);
     user$ = this.userSubject.asObservable();
-    googleClientId = 'YOUR_GOOGLE_CLIENT_ID'; // Replace with Firebase OAuth Client ID
+    googleClientId = '120622375082-4161ki3qobd7mc4m2as3e19qb0ef3dkh.apps.googleusercontent.com'; // Replace with Firebase OAuth Client ID
 
     constructor(
         private auth: Auth,
@@ -64,19 +64,25 @@ export class AuthService {
 
         this.loadGoogleScript().then(() => {
             if (window.google?.accounts) {
-                window.google.accounts.id.initialize({
-                    client_id: this.googleClientId,
-                    callback: (response: { credential: string }) => this.handleCredentialResponse(response),
-                    auto_select: true,
-                    cancel_on_tap_outside: false,
-                });
+                const isLocalhost = window.location.hostname === 'localhost';
 
-                window.google.accounts.id.prompt();
+                if (!isLocalhost) { // ✅ Only enable One Tap in production
+                    window.google.accounts.id.initialize({
+                        client_id: this.googleClientId,
+                        callback: (response: { credential: string }) => this.handleCredentialResponse(response),
+                        auto_select: true,
+                        cancel_on_tap_outside: false,
+                    });
+                    window.google.accounts.id.prompt();
+                } else {
+                    console.warn("One Tap is disabled in localhost. Use popup login instead.");
+                }
             }
         }).catch((error) => {
             console.error('Google One Tap failed to initialize:', error);
         });
     }
+
 
     // ✅ Handle One Tap Credential Response
     async handleCredentialResponse(response: { credential: string }) {

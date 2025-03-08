@@ -1,4 +1,5 @@
 <div class="content">
+    <app-header *ngIf="!isLandingPage"></app-header>
     <router-outlet />
 </div>
 <app-footer></app-footer>

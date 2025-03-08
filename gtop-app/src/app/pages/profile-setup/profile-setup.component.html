@@ -1,0 +1,28 @@
+<div class="profile-setup-container">
+    <h2>Complete Your Profile</h2>
+
+    <!-- Standard Selection -->
+    <mat-form-field appearance="outline">
+        <mat-label>Select Your Standard</mat-label>
+        <mat-select [(ngModel)]="selectedStandard">
+            <mat-option *ngFor="let standard of standards" [value]="standard">
+                {{ standard }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <!-- Board Selection -->
+    <mat-form-field appearance="outline">
+        <mat-label>Select Your Board</mat-label>
+        <mat-select [(ngModel)]="selectedBoard">
+            <mat-option *ngFor="let board of boards" [value]="board">
+                {{ board }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <!-- Continue Button -->
+    <button mat-raised-button color="primary" (click)="continue()" [disabled]="isDisabled()">
+        Continue
+    </button>
+</div>

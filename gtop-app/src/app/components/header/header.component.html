@@ -1,0 +1,15 @@
+<header class="header">
+    <div class="logo-container">
+        <!-- Back Button (Hidden on Dashboard) -->
+        <button *ngIf="showBackButton" class="back-btn" mat-button (click)="goBack()">←</button>
+        <!-- Hamburger Menu (Only on Dashboard) -->
+        <button *ngIf="showHamburgerMenu" mat-icon-button (click)="openMenu()">
+            <mat-icon>menu</mat-icon>
+        </button>
+
+        <!-- Logo -->
+        <div class="logo">GTOP</div>
+
+    </div>
+
+</header>

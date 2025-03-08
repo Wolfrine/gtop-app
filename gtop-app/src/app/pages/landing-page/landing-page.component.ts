@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { MATERIAL_MODULES } from '../../material.module';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
     selector: 'app-landing-page',
     standalone: true,
-    imports: [...MATERIAL_MODULES, CommonModule],
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule],
     templateUrl: './landing-page.component.html',
     styleUrl: './landing-page.component.scss'
 })
@@ -40,39 +42,22 @@ export class LandingPageComponent {
 
     // Dynamic style binding for each button
     getButtonStyle(optionValue: string): { [klass: string]: any } {
-        // No selection yet? No styles
         if (!this.selectedAnswer) return {};
 
-        // If user chose correctly:
         if (this.selectedAnswer === this.correctAnswer) {
-            // Highlight only the selected button as green
-            if (optionValue === this.selectedAnswer) {
-                return { 'background-color': '#4CAF50' }; // Green
-            }
-            // Others remain unstyled
-            return {};
-        }
-        // If user chose incorrectly:
-        else {
-            // Red for the selected wrong button
-            if (optionValue === this.selectedAnswer) {
-                return { 'background-color': '#e36f66' }; // Red
-            }
-            // Green for the correct answer
-            if (optionValue === this.correctAnswer) {
-                return { 'background-color': '#4CAF50' };
-            }
-            // Others remain unstyled
-            return {};
+            return optionValue === this.selectedAnswer
+                ? { 'background-color': '#4CAF50' }  // Green
+                : {};
+        } else {
+            return optionValue === this.selectedAnswer
+                ? { 'background-color': '#e36f66' }  // Red
+                : optionValue === this.correctAnswer
+                    ? { 'background-color': '#4CAF50' }  // Green
+                    : {};
         }
     }
 
     signUp() {
-        this.router.navigate(['/auth']);
+        this.router.navigate(['/profile-setup']);
     }
 }
-
-
-
-
-

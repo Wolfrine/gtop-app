@@ -27,6 +27,6 @@ export const appConfig: ApplicationConfig = {
         provideRouter(routes),
         provideFirebaseApp(() => initializeApp(firebaseConfig)), // ✅ Initialize Firebase
         provideFirestore(() => getFirestore()), // ✅ Provide Firestore
-        provideAuth(() => getAuth()), provideAnimationsAsync() // ✅ Add Firebase Auth (Fixes the "No provider for Auth!" error)
+        provideAuth(() => getAuth()), provideAnimationsAsync(), provideAnimationsAsync() // ✅ Add Firebase Auth (Fixes the "No provider for Auth!" error)
     ]
 };

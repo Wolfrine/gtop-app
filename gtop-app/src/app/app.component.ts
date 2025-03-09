@@ -19,9 +19,7 @@ export class AppComponent implements OnInit {
     constructor(private authService: AuthService, private router: Router) {
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationEnd) {
-                console.log(event.url);
                 this.isLandingPage = event.url === '/';
-                console.log(this.isLandingPage);
             }
         });
     }

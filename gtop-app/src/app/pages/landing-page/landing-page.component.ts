@@ -27,7 +27,16 @@ export class LandingPageComponent {
     ];
     correctAnswer = 'C';
 
-    constructor(private router: Router) { }
+    constructor(private router: Router) {
+        const localUser = localStorage.getItem('user');
+        if (localUser) {
+            const userData = JSON.parse(localUser);
+            if (userData.board && userData.standard) {
+                this.router.navigate(['/dashboard']);
+            }
+        }
+    }
+
 
     // Called when an option is clicked
     checkAnswer(optionValue: string) {

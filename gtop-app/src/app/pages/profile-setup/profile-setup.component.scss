@@ -6,11 +6,44 @@
     margin-top: 40px;
 }
 
-mat-form-field {
+mat-card {
     width: 100%;
-    max-width: 320px;
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
 }
 
-button {
+.sign-in-card {
+    background-color: #f3f3f3;
+}
+
+.profile-selection-card {
     margin-top: 16px;
+}
+
+.profile-pic {
+    width: 96px; // Ensure image has a visible size
+    height: 96px;
+    object-fit: cover; // Prevent stretching
+    border-radius: 50%; // Circular image
+    display: block; // Ensure it renders properly
+    margin: 0 auto; // Center align
+}
+
+
+mat-form-field {
+    width: 100%;
+}
+
+.switch-user {
+    color: #007bff; // Standard link color
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 14px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.switch-user:hover {
+    color: #0056b3; // Slightly darker on hover
 }

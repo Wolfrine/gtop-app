@@ -1,28 +1,48 @@
 <div class="profile-setup-container">
-    <h2>Complete Your Profile</h2>
+    <!-- Stage 1: Sign-In -->
+    <mat-card class="sign-in-card">
+        <h2 *ngIf="!user">Sign In to Continue</h2>
+        <h2 *ngIf="user">Welcome, {{ user.displayName }}</h2>
 
-    <!-- Standard Selection -->
-    <mat-form-field appearance="outline">
-        <mat-label>Select Your Standard</mat-label>
-        <mat-select [(ngModel)]="selectedStandard">
-            <mat-option *ngFor="let standard of standards" [value]="standard">
-                {{ standard }}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
+        <div *ngIf="user">
+            <img *ngIf="user?.photoURL" [attr.src]="user.photoURL" alt="Profile Picture" class="profile-pic" />
 
-    <!-- Board Selection -->
-    <mat-form-field appearance="outline">
-        <mat-label>Select Your Board</mat-label>
-        <mat-select [(ngModel)]="selectedBoard">
-            <mat-option *ngFor="let board of boards" [value]="board">
-                {{ board }}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
 
-    <!-- Continue Button -->
-    <button mat-raised-button color="primary" (click)="continue()" [disabled]="isDisabled()">
-        Continue
-    </button>
+            <p>{{ user.email }}</p>
+            <a class="switch-user" (click)="switchUser()">Switch Account</a>
+        </div>
+
+        <button mat-raised-button color="primary" *ngIf="!user" (click)="signInWithGoogle()">
+            Sign in with Google
+        </button>
+    </mat-card>
+
+    <!-- Stage 2: Profile Selection -->
+    <mat-card *ngIf="user" class="profile-selection-card">
+        <h2>Complete Your Profile</h2>
+
+        <!-- Standard Selection -->
+        <mat-form-field appearance="outline">
+            <mat-label>Select Your Standard</mat-label>
+            <mat-select [(ngModel)]="selectedStandard">
+                <mat-option *ngFor="let standard of standards" [value]="standard">
+                    {{ standard }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Board Selection -->
+        <mat-form-field appearance="outline">
+            <mat-label>Select Your Board</mat-label>
+            <mat-select [(ngModel)]="selectedBoard">
+                <mat-option *ngFor="let board of boards" [value]="board">
+                    {{ board }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" (click)="continue()" [disabled]="isDisabled()">
+            Continue
+        </button>
+    </mat-card>
 </div>

@@ -6,6 +6,7 @@ import {
     signOut,
     onAuthStateChanged,
     signInWithCredential,
+    User,
 } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
@@ -114,35 +115,64 @@ export class AuthService {
     }
 
     // ✅ Store User in Firestore (Fix: Preserve `createdOn` date)
-    private async storeUserInFirestore(user: any): Promise<void> {
+    async storeUserInFirestore(user: User, board?: string, standard?: string): Promise<void> {
         const userRef = doc(this.firestore, `users/${user.uid}`);
         const userSnapshot = await getDoc(userRef);
 
+        const existingData = userSnapshot.exists() ? userSnapshot.data() : {};
+
         const userData = {
+            // Always keep the user’s basic auth info
             uid: user.uid,
             displayName: user.displayName,
             email: user.email,
             photoURL: user.photoURL,
-            createdOn: userSnapshot.exists()
-                ? userSnapshot.data()?.['createdOn']
-                : new Date(), // ✅ Preserve createdOn if exists
+            createdOn: existingData['createdOn'] || new Date(),
+
+            // Merge new board & standard if provided, otherwise keep existing
+            board: board ?? existingData['board'] ?? null,
+            standard: standard ?? existingData['standard'] ?? null
         };
 
+        // Write to Firestore (merge: true ensures existing data is preserved)
         await setDoc(userRef, userData, { merge: true });
+
+        // Also store in LocalStorage for quick access
+        localStorage.setItem('user', JSON.stringify(userData));
     }
 
+
     // ✅ Auto Login Check
-    checkUserSession() {
-        onAuthStateChanged(this.auth, (user) => {
-            this.ngZone.run(() => { // ✅ Ensures Firebase updates inside Angular zone
+    async checkUserSession() {
+        onAuthStateChanged(this.auth, async (user) => {
+            this.ngZone.run(async () => {
                 if (user) {
                     this.userSubject.next(user);
+
+                    // ✅ Fetch user data from Firestore ONLY if NOT in localStorage
+                    if (!localStorage.getItem('user')) {
+                        const userRef = doc(this.firestore, `users/${user.uid}`);
+                        const userSnapshot = await getDoc(userRef);
+
+                        if (userSnapshot.exists()) {
+                            localStorage.setItem('user', JSON.stringify(userSnapshot.data()));
+                        }
+                    }
+
+                    // ✅ Auto-Redirect to Dashboard if board & standard exist
+                    const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+                    if (localUser.board && localUser.standard) {
+                        this.router.navigate(['/dashboard']);
+                    }
+
                 } else {
                     this.userSubject.next(null);
+                    localStorage.removeItem('user');
                 }
             });
         });
     }
+
 
     // ✅ Sign out
     async signOut(): Promise<void> {

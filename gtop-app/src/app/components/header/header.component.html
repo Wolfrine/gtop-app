@@ -1,7 +1,11 @@
 <header class="header">
     <div class="logo-container">
         <!-- Back Button (Hidden on Dashboard) -->
-        <button *ngIf="showBackButton" class="back-btn" mat-button (click)="goBack()">←</button>
+        <button *ngIf="showBackButton" class="back-btn" mat-button (click)="goBack()">
+            <mat-icon>
+                arrow_back_ios_new
+            </mat-icon>
+        </button>
         <!-- Hamburger Menu (Only on Dashboard) -->
         <button *ngIf="showHamburgerMenu" mat-icon-button (click)="openMenu()">
             <mat-icon>menu</mat-icon>

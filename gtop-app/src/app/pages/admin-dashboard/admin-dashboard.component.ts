@@ -1,11 +1,9 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -15,28 +13,26 @@ import { RouterModule } from '@angular/router';
     styleUrls: ['./admin-dashboard.component.scss'],
     imports: [
         CommonModule,
-        MatSidenavModule,
-        MatToolbarModule,
-        MatIconModule,
-        MatButtonModule,
-        MatListModule,
         MatCardModule,
+        MatListModule,
+        MatButtonModule,
+        MatIconModule,
         RouterModule
     ]
 })
-export class AdminDashboardComponent {
-    isDesktop = window.innerWidth > 768; // Default sidebar state
-    totalUsers = 0;
-    totalMCQs = 0;
-    activeQuizzes = 0;
+export class AdminDashboardComponent implements OnInit {
+    activeUsers = 0; // 🔥 Placeholder for now
+    totalMCQs = 0; // 🔥 Placeholder for now
+    activeQuizzes = 0; // 🔥 Placeholder for now
+
     recentActivities: string[] = [
         "User X added a new MCQ",
         "Quiz Y was completed by 50 students",
         "MCQ Z was edited by Admin"
     ];
 
-    toggleSidenav() {
-        this.isDesktop = !this.isDesktop;
+    ngOnInit() {
+        console.log("Admin Dashboard Loaded");
     }
 
     addNewMCQ() {
@@ -47,10 +43,5 @@ export class AdminDashboardComponent {
     createQuiz() {
         console.log("Redirecting to Create Quiz page...");
         // Future: Implement navigation logic
-    }
-
-    @HostListener('window:resize', ['$event'])
-    onResize(event: any) {
-        this.isDesktop = event.target.innerWidth > 768;
     }
 }

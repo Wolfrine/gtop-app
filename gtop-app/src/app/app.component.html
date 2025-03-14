@@ -1,6 +1,10 @@
+<!-- ✅ Header remains full-width & independent -->
+<app-header (toggleSidebar)="sidenav.toggle()" *ngIf="!isLandingPage"></app-header>
+
+<!-- ✅ SideNav & Main Content Inside Drawer Container -->
 <mat-drawer-container class="main-container">
 
-    <!-- Side Navigation (Hidden on Non-Dashboard Pages) -->
+    <!-- Side Navigation -->
     <mat-drawer #sidenav mode="side" class="sidenav">
         <app-side-nav></app-side-nav>
     </mat-drawer>
@@ -8,7 +12,6 @@
     <!-- Main Content -->
     <mat-drawer-content>
         <div class="content">
-            <app-header (toggleMenu)="sidenav.toggle()" *ngIf="!isLandingPage"></app-header>
             <router-outlet></router-outlet>
         </div>
 

@@ -1,52 +1,38 @@
-<mat-sidenav-container class="dashboard-container">
-    <!-- Sidebar -->
-    <mat-sidenav #sidenav mode="side" class="sidenav" [opened]="isDesktop">
-        <mat-nav-list>
-            <a mat-list-item routerLink="/admin" routerLinkActive="active">🏠 Dashboard</a>
-            <a mat-list-item routerLink="/admin/mcqs" routerLinkActive="active">📖 Manage MCQs</a>
-            <a mat-list-item routerLink="/admin/quizzes" routerLinkActive="active">📊 Live Quizzes</a>
-            <a mat-list-item routerLink="/admin/users" routerLinkActive="active">👥 User Management</a>
-            <a mat-list-item routerLink="/admin/reports" routerLinkActive="active">📈 Reports & Analytics</a>
-        </mat-nav-list>
-    </mat-sidenav>
+<div class="admin-dashboard-container">
+    <!-- Overview Cards -->
+    <div class="overview-container">
+        <mat-card class="overview-card">
+            <mat-card-title>📌 Active Users</mat-card-title>
+            <mat-card-content>{{ activeUsers }}</mat-card-content>
+        </mat-card>
+        <mat-card class="overview-card">
+            <mat-card-title>📖 Total MCQs</mat-card-title>
+            <mat-card-content>{{ totalMCQs }}</mat-card-content>
+        </mat-card>
+        <mat-card class="overview-card">
+            <mat-card-title>📊 Total Users</mat-card-title>
+            <mat-card-content>{{ activeQuizzes }}</mat-card-content>
+        </mat-card>
+    </div>
 
-    <!-- Main Content Area -->
-    <mat-sidenav-content class="main-content">
-        <!-- Overview Cards -->
-        <div class="overview-container">
-            <mat-card class="overview-card">
-                <mat-card-title>📌 Total Users</mat-card-title>
-                <mat-card-content>{{ totalUsers }}</mat-card-content>
-            </mat-card>
-            <mat-card class="overview-card">
-                <mat-card-title>📖 Total MCQs</mat-card-title>
-                <mat-card-content>{{ totalMCQs }}</mat-card-content>
-            </mat-card>
-            <mat-card class="overview-card">
-                <mat-card-title>📊 Active Quizzes</mat-card-title>
-                <mat-card-content>{{ activeQuizzes }}</mat-card-content>
-            </mat-card>
-        </div>
+    <!-- Recent Activity Section -->
+    <div class="recent-activity">
+        <h3>Recent Activity</h3>
+        <mat-list>
+            <mat-list-item *ngFor="let activity of recentActivities">
+                <mat-icon>history</mat-icon>
+                <span>{{ activity }}</span>
+            </mat-list-item>
+        </mat-list>
+    </div>
 
-        <!-- Recent Activity Section -->
-        <div class="recent-activity">
-            <h3>Recent Activity</h3>
-            <mat-list>
-                <mat-list-item *ngFor="let activity of recentActivities">
-                    <mat-icon>history</mat-icon>
-                    <span>{{ activity }}</span>
-                </mat-list-item>
-            </mat-list>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <button mat-fab color="accent" class="fab-button" (click)="addNewMCQ()">
-                <mat-icon>add</mat-icon>
-            </button>
-            <button mat-fab color="primary" class="fab-button" (click)="createQuiz()">
-                <mat-icon>quiz</mat-icon>
-            </button>
-        </div>
-    </mat-sidenav-content>
-</mat-sidenav-container>
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button mat-fab color="accent" class="fab-button" (click)="addNewMCQ()">
+            <mat-icon>add</mat-icon>
+        </button>
+        <button mat-fab color="primary" class="fab-button" (click)="createQuiz()">
+            <mat-icon>quiz</mat-icon>
+        </button>
+    </div>
+</div>

@@ -1,25 +1,20 @@
-.dashboard-container {
-    height: 100vh;
-}
-
-.sidenav {
-    width: 250px;
-    background-color: #f8f9fa;
-    /* Subtle contrast for better visibility */
-}
-
-.sidenav .active {
-    background-color: #e0e0e0;
-    border-left: 4px solid #1976d2;
-}
-
-.main-content {
+.admin-dashboard-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
     padding: 20px;
+    transition: margin-left 0.3s ease-in-out; // Smooth transition when toggling sidebar
+
+    /* ✅ Full width when sidebar is collapsed */
+    margin-left: 0;
 }
 
+/* ✅ Add padding when sidebar is open */
+.sidebar-open .admin-dashboard-container {
+    margin-left: 250px; // Adjust this based on your sidebar width
+}
+
+/* ✅ Ensure cards are properly spaced */
 .overview-container {
     display: flex;
     justify-content: space-around;
@@ -43,6 +38,7 @@
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* ✅ Floating Action Button (FAB) Position */
 .fab-button {
     position: fixed;
     bottom: 20px;
@@ -50,9 +46,9 @@
     margin-right: 10px;
 }
 
-/* Responsive: Full-width sidebar on mobile */
+/* ✅ Full width content when sidebar is closed (Mobile View) */
 @media (max-width: 768px) {
-    .sidenav {
-        width: 100%;
+    .admin-dashboard-container {
+        margin-left: 0;
     }
 }

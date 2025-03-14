@@ -24,7 +24,8 @@ export class ActiveUsersService {
         });
 
         // Fetch the active users on load
-        this.fetchActiveUsers();
+        //this.fetchActiveUsers();
+        this.listenToActiveUsers();
     }
 
     // Set user as active and update their status in the database
@@ -73,6 +74,7 @@ export class ActiveUsersService {
                 console.log('No active users found.');
             }
         });
+
     }
 
     // Update the user's last active time (for user inactivity tracking)
@@ -89,10 +91,15 @@ export class ActiveUsersService {
         onValue(activeUsersRef, (snapshot) => {
             const usersData = snapshot.val();
             if (usersData) {
-                this.activeUsers.set(Object.values(usersData));
+                // Convert object to array and filter only online users
+                const onlineUsers = Object.values(usersData).filter((user: any) => user.isOnline);
+                this.activeUsers.set(onlineUsers); // Store only online users
+            } else {
+                this.activeUsers.set([]); // Set empty array if no data
             }
         });
     }
+
 
     // You can create a function to manually mark a user as offline (if needed)
     setUserOffline(userId: string) {

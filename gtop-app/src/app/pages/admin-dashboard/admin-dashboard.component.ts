@@ -25,6 +25,7 @@ export class AdminDashboardComponent implements OnInit {
     activeUsers = 0; // Will hold count of active users
     totalMCQs = 0;   // Placeholder for now
     activeQuizzes = 0; // Placeholder for now
+    totalUsers = 0;
 
     recentActivities: string[] = [
         "User X added a new MCQ",
@@ -36,6 +37,7 @@ export class AdminDashboardComponent implements OnInit {
         // Effect runs whenever activeUsersService.activeUsers() changes
         effect(() => {
             this.activeUsers = this.activeUsersService.activeUsers().length;
+            this.totalUsers = this.activeUsersService.totalUsers();
         });
     }
 

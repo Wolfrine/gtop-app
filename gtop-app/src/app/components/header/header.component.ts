@@ -4,13 +4,13 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatMenuModule } from '@angular/material/menu'; // ✅ Import MatMenuModule
 import { AuthService } from '../../services/auth.service';
-
 
 @Component({
     selector: 'app-header',
     standalone: true,
-    imports: [CommonModule, MatButtonModule, MatIconModule, MatToolbarModule],
+    imports: [CommonModule, MatButtonModule, MatIconModule, MatToolbarModule, MatMenuModule], // ✅ Add MatMenuModule
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.scss']
 })
@@ -54,5 +54,12 @@ export class HeaderComponent {
 
     goBack() {
         this.router.navigate(['/']);
+    }
+
+    // ✅ Sign out user
+    signOut() {
+        this.authService.signOut().then(() => {
+            this.router.navigate(['/']);
+        });
     }
 }

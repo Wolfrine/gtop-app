@@ -1,4 +1,4 @@
-<mat-toolbar color="primary" class="header">
+<mat-toolbar class="header">
     <!-- Back Button (Hidden on Dashboard) -->
     <button *ngIf="showBackButton" mat-icon-button (click)="goBack()">
         <mat-icon>arrow_back_ios_new</mat-icon>
@@ -12,7 +12,18 @@
     <!-- Logo -->
     <span class="logo">GTOP</span>
 
-    <!-- Profile Picture -->
+    <!-- Profile Picture with Mat-Menu -->
     <span class="spacer"></span>
-    <img *ngIf="user?.photoURL" [attr.src]="user.photoURL" alt="Profile Picture" class="profile-pic" />
+
+    <img [matMenuTriggerFor]="profileMenu" *ngIf="user?.photoURL" [attr.src]="user.photoURL" alt="Profile Picture"
+        class="profile-pic" />
+
+
+    <!-- Profile Menu -->
+    <mat-menu #profileMenu="matMenu">
+        <button mat-menu-item (click)="signOut()">
+            <mat-icon>logout</mat-icon>
+            Sign Out
+        </button>
+    </mat-menu>
 </mat-toolbar>

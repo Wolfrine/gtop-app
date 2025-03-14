@@ -1,28 +1,23 @@
 .header {
+    background-color: #1976d3 !important; // ✅ Updated toolbar color
+    color: white;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 12px 20px;
+    padding: 0 16px;
+}
 
-    mat-toolbar {
-        width: 100%;
-    }
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+}
 
-    .logo {
-        font-size: 20px;
-        font-weight: bold;
-        color: #fff;
-    }
+.spacer {
+    flex-grow: 1;
+}
 
-    .profile-pic {
-        width: 40px;
-        height: 40px;
-        object-fit: cover;
-        border-radius: 50%;
-        display: block;
-    }
-
-    .spacer {
-        flex: 1;
-    }
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
 }

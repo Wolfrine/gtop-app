@@ -3,23 +3,26 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 20px;
-    background-color: white;
-    border-bottom: 1px solid #ddd;
-    margin: 0 0 16px;
-}
 
-.logo-container {
-    display: flex;
-    align-items: center;
-}
+    mat-toolbar {
+        width: 100%;
+    }
 
-.logo {
-    font-size: 20px;
-    font-weight: bold;
-    color: #333;
-}
+    .logo {
+        font-size: 20px;
+        font-weight: bold;
+        color: #fff;
+    }
 
-.back-btn {
-    font-size: 16px;
-    color: #555;
+    .profile-pic {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+    }
+
+    .spacer {
+        flex: 1;
+    }
 }

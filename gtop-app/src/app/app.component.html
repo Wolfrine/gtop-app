@@ -1,5 +1,18 @@
-<div class="content">
-    <app-header *ngIf="!isLandingPage"></app-header>
-    <router-outlet />
-</div>
-<app-footer></app-footer>
+<mat-drawer-container class="main-container">
+
+    <!-- Side Navigation (Hidden on Non-Dashboard Pages) -->
+    <mat-drawer #sidenav mode="side" class="sidenav">
+        <app-side-nav></app-side-nav>
+    </mat-drawer>
+
+    <!-- Main Content -->
+    <mat-drawer-content>
+        <div class="content">
+            <app-header (toggleMenu)="sidenav.toggle()" *ngIf="!isLandingPage"></app-header>
+            <router-outlet></router-outlet>
+        </div>
+
+        <app-footer></app-footer>
+    </mat-drawer-content>
+
+</mat-drawer-container>

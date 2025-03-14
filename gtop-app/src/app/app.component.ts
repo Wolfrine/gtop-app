@@ -1,21 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { CommonModule } from '@angular/common';
+import { MatSidenavModule } from '@angular/material/sidenav';  // ✅ Correct Import
+import { SideNavComponent } from './components/side-nav/side-nav.component';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterOutlet, HeaderComponent, FooterComponent, CommonModule],
+    imports: [
+        RouterOutlet,
+        HeaderComponent,
+        FooterComponent,
+        CommonModule,
+        MatSidenavModule, // ✅ Corrected: Import MatSidenavModule instead of MatDrawer
+        SideNavComponent
+    ],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
+    @ViewChild('sidenav') sidenav!: any;  // ✅ Ensure ViewChild properly detects the sidenav
     title = "GTOP - APP"
     isLandingPage = false;
+
     constructor(private authService: AuthService, private router: Router) {
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationEnd) {
@@ -28,6 +39,9 @@ export class AppComponent implements OnInit {
         this.authService.initGoogleOneTap(); // 🔥 Ensure One Tap runs on load
     }
 
-
-
+    toggleSidebar() {
+        if (this.sidenav) {
+            this.sidenav.toggle(); // ✅ Toggle the SideNav
+        }
+    }
 }

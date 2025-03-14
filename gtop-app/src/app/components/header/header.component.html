@@ -1,19 +1,18 @@
-<header class="header">
-    <div class="logo-container">
-        <!-- Back Button (Hidden on Dashboard) -->
-        <button *ngIf="showBackButton" class="back-btn" mat-button (click)="goBack()">
-            <mat-icon>
-                arrow_back_ios_new
-            </mat-icon>
-        </button>
-        <!-- Hamburger Menu (Only on Dashboard) -->
-        <button *ngIf="showHamburgerMenu" mat-icon-button (click)="openMenu()">
-            <mat-icon>menu</mat-icon>
-        </button>
+<mat-toolbar color="primary" class="header">
+    <!-- Back Button (Hidden on Dashboard) -->
+    <button *ngIf="showBackButton" mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back_ios_new</mat-icon>
+    </button>
 
-        <!-- Logo -->
-        <div class="logo">GTOP</div>
+    <!-- Hamburger Menu (Only on Dashboard) -->
+    <button *ngIf="showHamburgerMenu" mat-icon-button (click)="onMenuClick()">
+        <mat-icon>menu</mat-icon>
+    </button>
 
-    </div>
+    <!-- Logo -->
+    <span class="logo">GTOP</span>
 
-</header>
+    <!-- Profile Picture -->
+    <span class="spacer"></span>
+    <img *ngIf="user?.photoURL" [attr.src]="user.photoURL" alt="Profile Picture" class="profile-pic" />
+</mat-toolbar>

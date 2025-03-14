@@ -121,24 +121,30 @@ export class AuthService {
 
         const existingData = userSnapshot.exists() ? userSnapshot.data() : {};
 
+        // ✅ Now includes role-based storage & redirects
         const userData = {
-            // Always keep the user’s basic auth info
             uid: user.uid,
             displayName: user.displayName,
             email: user.email,
             photoURL: user.photoURL,
             createdOn: existingData['createdOn'] || new Date(),
 
-            // Merge new board & standard if provided, otherwise keep existing
             board: board ?? existingData['board'] ?? null,
-            standard: standard ?? existingData['standard'] ?? null
+            standard: standard ?? existingData['standard'] ?? null,
+
+            // ✅ Store role from Firestore or default to 'user'
+            role: existingData['role'] ?? 'user'
         };
 
-        // Write to Firestore (merge: true ensures existing data is preserved)
+        // ✅ Store in Firestore
         await setDoc(userRef, userData, { merge: true });
 
-        // Also store in LocalStorage for quick access
+        // ✅ Store in LocalStorage
         localStorage.setItem('user', JSON.stringify(userData));
+
+        // ✅ Redirect Based on Role
+        this.redirectToDashboard(userData.role);
+
     }
 
 
@@ -159,11 +165,12 @@ export class AuthService {
                         }
                     }
 
-                    // ✅ Auto-Redirect to Dashboard if board & standard exist
+                    // ✅ Auto-Redirect Based on Role if board & standard exist
                     const localUser = JSON.parse(localStorage.getItem('user') || '{}');
                     if (localUser.board && localUser.standard) {
-                        this.router.navigate(['/dashboard']);
+                        this.redirectToDashboard(localUser.role);
                     }
+
 
                 } else {
                     this.userSubject.next(null);
@@ -184,5 +191,18 @@ export class AuthService {
     // ✅ Get User as Observable
     getUser(): Observable<any> {
         return this.user$;
+    }
+
+    // ✅ Centralized redirect function for future scalability
+    private redirectToDashboard(role: string) {
+        let targetRoute = '/dashboard'; // Default for users
+
+        if (role === 'admin') {
+            targetRoute = '/admin';
+        } else if (role === 'institute-admin') {
+            targetRoute = '/institute-admin'; // Future-proofing
+        }
+
+        this.router.navigate([targetRoute]);
     }
 }

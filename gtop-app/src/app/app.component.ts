@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';  // ✅ Correct Import
 import { SideNavComponent } from './components/side-nav/side-nav.component';
 import { MatDrawer } from '@angular/material/sidenav';
+import { ActiveUsersService } from './services/active-users.service';
 
 @Component({
     selector: 'app-root',
@@ -24,6 +25,7 @@ import { MatDrawer } from '@angular/material/sidenav';
     styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
+    private activeUsersService = inject(ActiveUsersService);
     @ViewChild('sidenav') sidenav!: MatDrawer;   // ✅ Ensure ViewChild properly detects the sidenav
     title = "GTOP - APP"
     isLandingPage = false;

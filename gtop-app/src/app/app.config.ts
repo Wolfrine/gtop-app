@@ -10,6 +10,7 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideServiceWorker } from '@angular/service-worker'; // ✅ Import Auth
+import { provideDatabase, getDatabase } from '@angular/fire/database'; // ✅ Add this
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -24,15 +25,16 @@ const firebaseConfig = {
 
 export const appConfig: ApplicationConfig = {
     providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
-    provideFirebaseApp(() => initializeApp(firebaseConfig)), // ✅ Initialize Firebase
-    provideFirestore(() => getFirestore()), // ✅ Provide Firestore
-    provideAuth(() => getAuth()), provideAnimationsAsync(), provideAnimationsAsync() // ✅ Add Firebase Auth (Fixes the "No provider for Auth!" error)
-    ,
-    provideServiceWorker('ngsw-worker.js', {
-        enabled: !isDevMode(),
-        registrationStrategy: 'registerWhenStable:30000'
-    })
-]
+        provideZoneChangeDetection({ eventCoalescing: true }),
+        provideRouter(routes),
+        provideFirebaseApp(() => initializeApp(firebaseConfig)), // ✅ Initialize Firebase
+        provideFirestore(() => getFirestore()), // ✅ Provide Firestore
+        provideAuth(() => getAuth()), provideAnimationsAsync(), provideAnimationsAsync() // ✅ Add Firebase Auth (Fixes the "No provider for Auth!" error)
+        ,
+        provideDatabase(() => getDatabase()),
+        provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+        })
+    ]
 };

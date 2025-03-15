@@ -1,0 +1,34 @@
+<div class="mcq-container">
+    <mat-toolbar color="primary">
+        <span>Manage MCQs</span>
+    </mat-toolbar>
+
+    <div class="mcq-list">
+        <mat-accordion>
+            <mat-expansion-panel *ngFor="let mcq of mcqs">
+                <!-- ✅ HEADER (Collapsible Title & Actions) -->
+                <mat-expansion-panel-header>
+                    <mat-checkbox [(ngModel)]="mcq.selected"></mat-checkbox>
+                    <span class="mcq-title">{{ mcq.title }}</span>
+                    <span class="mcq-category">{{ mcq.subject }}</span>
+                    <div class="mcq-actions">
+                        <button mat-icon-button (click)="editMcq(mcq)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="deleteMcq(mcq)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </mat-expansion-panel-header>
+
+                <!-- ✅ EXPANDED CONTENT -->
+                <div class="mcq-details">
+                    <p class="mcq-question">{{ mcq.question }}</p>
+                    <ul>
+                        <li *ngFor="let option of mcq.options">{{ option }}</li>
+                    </ul>
+                </div>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </div>
+</div>

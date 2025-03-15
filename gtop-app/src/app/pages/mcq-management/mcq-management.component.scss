@@ -1,0 +1,33 @@
+/* ✅ Ensure icons & text align properly */
+.mcq-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+    padding-right: 16px;
+    /* Add spacing so icons don’t push text */
+}
+
+/* ✅ Align category text properly */
+.mcq-category {
+    font-size: 12px;
+    color: gray;
+    margin-left: auto;
+    /* Push category to the right */
+}
+
+/* ✅ Fix action icons alignment */
+.mcq-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: 12px;
+}
+
+/* ✅ Ensure question & options are clearly visible */
+.mcq-details {
+    padding: 12px;
+    background: #f8f9fa;
+    border-left: 4px solid #1976d2;
+    border-radius: 4px;
+}

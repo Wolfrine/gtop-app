@@ -27,13 +27,26 @@ export class AppComponent implements OnInit {
 
     title = "GTOP - APP"
     isLandingPage = false;
+    isLandingAndProfile = false;
     isDesktop: boolean = window.innerWidth > 768;
     sidenavMode: 'side' | 'over' = this.isDesktop ? 'side' : 'over';
 
     constructor(private authService: AuthService, private router: Router) {
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationEnd) {
-                this.isLandingPage = event.url === '/';
+                if (event.url === '/') {
+                    this.isLandingPage = true;
+                    this.isLandingAndProfile = true;
+                }
+                else if (event.url === '/profile-setup') {
+                    this.isLandingPage = false;
+                    this.isLandingAndProfile = true;
+                }
+                else {
+                    this.isLandingPage = false;
+                    this.isLandingAndProfile = false;
+                }
+
             }
         });
     }

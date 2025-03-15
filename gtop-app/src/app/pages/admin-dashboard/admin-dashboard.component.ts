@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { ActiveUsersService } from '../../services/active-users.service';
+import { McqService } from '../../services/mcq.service';
 
 @Component({
     selector: 'app-admin-dashboard',
@@ -33,7 +34,7 @@ export class AdminDashboardComponent implements OnInit {
         "MCQ Z was edited by Admin"
     ];
 
-    constructor(private activeUsersService: ActiveUsersService) {
+    constructor(private activeUsersService: ActiveUsersService, private mcqService: McqService) {
         // Effect runs whenever activeUsersService.activeUsers() changes
         effect(() => {
             this.activeUsers = this.activeUsersService.activeUsers().length;
@@ -41,8 +42,10 @@ export class AdminDashboardComponent implements OnInit {
         });
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         console.log("Admin Dashboard Loaded");
+
+        this.totalMCQs = await this.mcqService.getTotalMCQCount();
     }
 
     addNewMCQ() {

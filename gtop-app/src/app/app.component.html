@@ -4,7 +4,7 @@
 <mat-drawer-container class="main-container">
 
     <!-- Side Navigation -->
-    <mat-drawer #sidenav [mode]="sidenavMode" [opened]="isDesktop" class="sidenav">
+    <mat-drawer #sidenav [mode]="sidenavMode" [opened]="isDesktop" class="sidenav" *ngIf="!isLandingAndProfile">
         <app-side-nav></app-side-nav>
     </mat-drawer>
 

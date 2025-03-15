@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, orderBy, limit, getDocs, doc, updateDoc, deleteDoc, setDoc, addDoc, startAfter, serverTimestamp } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, orderBy, limit, getDocs, doc, updateDoc, deleteDoc, setDoc, addDoc, startAfter, serverTimestamp, getCountFromServer, collectionSnapshots } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
+import { Observable, map } from 'rxjs';
 
 export interface MCQ {
     id: string;
@@ -118,4 +119,14 @@ export class McqService {
             await deleteDoc(mcqRef);
         }
     }
+
+    async getTotalMCQCount(): Promise<number> {
+        const mcqCollectionRef = collection(this.firestore, 'questions');
+        const snapshot = await getCountFromServer(mcqCollectionRef);
+        return snapshot.data().count;
+    }
+
+
+
+
 }

@@ -13,16 +13,16 @@
             <mat-expansion-panel *ngFor="let mcq of mcqs; let j = index" hideToggle>
                 <!-- ✅ HEADER (Collapsible Title & Actions) -->
                 <mat-expansion-panel-header>
-                    <mat-checkbox [(ngModel)]="mcq.selected"></mat-checkbox>
-                    <span class="mcq-title">{{ j + 1}}. {{ mcq.question.length > 50 ? (mcq.question | slice:0:50) +
+                    <!-- <mat-checkbox [(ngModel)]="mcq.selected"></mat-checkbox> -->
+                    <span class="mcq-title">{{ j + 1}}. {{ mcq.question.length > 70 ? (mcq.question | slice:0:50) +
                         '...' : mcq.question }}</span>
                     <div class="mcq-actions">
                         <button mat-icon-button (click)="editMcq(mcq)">
                             <mat-icon>edit</mat-icon>
                         </button>
-                        <button mat-icon-button (click)="deleteMcq(mcq)">
+                        <!-- <button mat-icon-button (click)="deleteMcq(mcq)">
                             <mat-icon>delete</mat-icon>
-                        </button>
+                        </button> -->
                     </div>
                 </mat-expansion-panel-header>
 

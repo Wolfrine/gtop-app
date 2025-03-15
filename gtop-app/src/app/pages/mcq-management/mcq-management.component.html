@@ -2,6 +2,9 @@
     <mat-toolbar>
         <span>Manage MCQs</span>
         <span class="spacer"></span>
+        <button mat-flat-button color="primary" (click)="refreshSyllabus()">
+            Refresh Syllabus
+        </button>&nbsp;
         <button mat-flat-button color="primary" class="add-mcq-btn" (click)="navigateToAddMCQ()">
             <mat-icon class="add-icon">add</mat-icon> Add
         </button>
@@ -13,16 +16,18 @@
             <mat-expansion-panel *ngFor="let mcq of mcqs; let j = index" hideToggle>
                 <!-- ✅ HEADER (Collapsible Title & Actions) -->
                 <mat-expansion-panel-header>
-                    <!-- <mat-checkbox [(ngModel)]="mcq.selected"></mat-checkbox> -->
-                    <span class="mcq-title">{{ j + 1}}. {{ mcq.question.length > 70 ? (mcq.question | slice:0:50) +
-                        '...' : mcq.question }}</span>
-                    <div class="mcq-actions">
-                        <button mat-icon-button (click)="editMcq(mcq)">
-                            <mat-icon>edit</mat-icon>
-                        </button>
-                        <!-- <button mat-icon-button (click)="deleteMcq(mcq)">
+                    <div class="mat-content">
+                        <!-- <mat-checkbox [(ngModel)]="mcq.selected"></mat-checkbox> -->
+                        <span class="mcq-title">{{ j + 1}}. {{ mcq.question.length > 100 ? (mcq.question | slice:0:50) +
+                            '...' : mcq.question }}</span>
+                        <div class="mcq-actions">
+                            <button mat-icon-button (click)="editMcq(mcq)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <!-- <button mat-icon-button (click)="deleteMcq(mcq)">
                             <mat-icon>delete</mat-icon>
                         </button> -->
+                        </div>
                     </div>
                 </mat-expansion-panel-header>
 

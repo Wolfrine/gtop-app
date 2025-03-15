@@ -2,8 +2,19 @@
 mat-expansion-panel-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     /* Ensure everything is vertically centered */
     padding: 12px;
+}
+
+.mat-toolbar {
+    position: sticky;
+}
+
+.mat-content {
+
+    justify-content: space-between !important;
+    padding-top: 6px;
 }
 
 /* ✅ Ensure Checkbox & Title Align Properly */
@@ -28,7 +39,7 @@ mat-expansion-panel-header {
 }
 
 mat-expansion-panel:hover {
-    background: #f5f5f5;
+    background: #fdfdfd;
     /* ✅ Light hover effect for better UX */
 }
 

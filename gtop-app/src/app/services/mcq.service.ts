@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, orderBy, limit, getDocs, doc, updateDoc, deleteDoc, setDoc, addDoc, startAfter, serverTimestamp, getCountFromServer, collectionSnapshots } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, orderBy, limit, getDocs, doc, updateDoc, deleteDoc, setDoc, addDoc, startAfter, serverTimestamp, getCountFromServer, collectionSnapshots, writeBatch } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable, map } from 'rxjs';
 
@@ -35,10 +35,12 @@ export class McqService {
             if (!user) throw new Error('User not authenticated');
 
             const mcqCollectionRef = collection(this.firestore, 'questions');
+            const syllabusCollectionRef = collection(this.firestore, 'syllabus');
+            const batch = writeBatch(this.firestore);
 
-            // ✅ Ensure correct format before adding to Firestore
-            const promises = mcqs.map(mcq =>
-                addDoc(mcqCollectionRef, {
+            for (const mcq of mcqs) {
+                // ✅ Ensure correct format before adding to Firestore
+                const mcqData = {
                     board: mcq.board || 'Unknown',
                     standard: mcq.standard || 'Unknown',
                     subject: mcq.subject || 'Unknown',
@@ -50,15 +52,40 @@ export class McqService {
                     solutions: Array.isArray(mcq.solutions) ? mcq.solutions : [],
                     createdAt: serverTimestamp(),
                     createdBy: user.uid
-                })
-            );
+                };
 
-            await Promise.all(promises);
+                // ✅ Add MCQ to Firestore
+                batch.set(doc(mcqCollectionRef), mcqData);
+
+                // ✅ Check if syllabus entry exists, if not add it
+                const syllabusQuery = query(syllabusCollectionRef,
+                    where('board', '==', mcqData.board),
+                    where('standard', '==', mcqData.standard),
+                    where('subject', '==', mcqData.subject),
+                    where('chapter', '==', mcqData.chapter)
+                );
+
+                const existingSyllabus = await getDocs(syllabusQuery);
+                if (existingSyllabus.empty) {
+                    batch.set(doc(syllabusCollectionRef), {
+                        board: mcqData.board,
+                        standard: mcqData.standard,
+                        subject: mcqData.subject,
+                        chapter: mcqData.chapter,
+                        createdAt: serverTimestamp()
+                    });
+                }
+            }
+
+            // ✅ Commit batch write for efficiency
+            await batch.commit();
+            console.log("MCQs and syllabus updated successfully!");
         } catch (error) {
-            console.error('Error adding MCQs:', error);
+            console.error('Error adding MCQs and updating syllabus:', error);
             throw error;
         }
     }
+
 
     /**
      * ✅ Fetch MCQs with correct format and optional filters.
@@ -126,6 +153,34 @@ export class McqService {
         return snapshot.data().count;
     }
 
+    async updateSyllabusFromQuestions() {
+        try {
+            const syllabusRef = collection(this.firestore, 'syllabus');
+            const questionsSnapshot = await getDocs(collection(this.firestore, 'questions'));
+
+            const syllabusMap = new Map();
+
+            questionsSnapshot.forEach(doc => {
+                const { board, standard, subject, chapter } = doc.data();
+                const key = `${board}-${standard}-${subject}-${chapter}`;
+
+                if (!syllabusMap.has(key)) {
+                    syllabusMap.set(key, { board, standard, subject, chapter, createdAt: serverTimestamp() });
+                }
+            });
+
+            const batch = writeBatch(this.firestore);
+            syllabusMap.forEach((data) => {
+                const newDocRef = doc(syllabusRef);
+                batch.set(newDocRef, data);
+            });
+
+            await batch.commit();
+            console.log("Syllabus manually updated from questions!");
+        } catch (error) {
+            console.error('Error updating syllabus:', error);
+        }
+    }
 
 
 

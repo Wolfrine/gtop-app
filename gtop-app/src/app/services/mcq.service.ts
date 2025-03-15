@@ -1,0 +1,121 @@
+import { Injectable } from '@angular/core';
+import { Firestore, collection, query, where, orderBy, limit, getDocs, doc, updateDoc, deleteDoc, setDoc, addDoc, startAfter, serverTimestamp } from '@angular/fire/firestore';
+import { Auth } from '@angular/fire/auth';
+
+export interface MCQ {
+    id: string;
+    board: string;
+    standard: string;
+    subject: string;
+    chapter: string;
+    title: string;
+    question: string;
+    options: string[];
+    correctIndex: number;
+    solutions: string[];
+    selected: boolean;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class McqService {
+    private mcqCollection = collection(this.firestore, 'questions');
+    private deletedMcqCollection = collection(this.firestore, 'deletedQuestions');
+
+    constructor(private firestore: Firestore, private auth: Auth) { }
+
+    /**
+     * ✅ Add multiple MCQs to Firestore with proper format.
+     */
+    async addMCQs(mcqs: any[]) {
+        try {
+            const user = this.auth.currentUser;
+            if (!user) throw new Error('User not authenticated');
+
+            const mcqCollectionRef = collection(this.firestore, 'questions');
+
+            // ✅ Ensure correct format before adding to Firestore
+            const promises = mcqs.map(mcq =>
+                addDoc(mcqCollectionRef, {
+                    board: mcq.board || 'Unknown',
+                    standard: mcq.standard || 'Unknown',
+                    subject: mcq.subject || 'Unknown',
+                    chapter: mcq.chapter || 'Unknown',
+                    title: mcq.title || 'Untitled',
+                    question: mcq.question || 'No question',
+                    options: Array.isArray(mcq.options) && mcq.options.length >= 2 ? mcq.options : [],
+                    correctIndex: typeof mcq.correctIndex === 'number' && mcq.correctIndex >= 0 && mcq.correctIndex < mcq.options.length ? mcq.correctIndex : -1,
+                    solutions: Array.isArray(mcq.solutions) ? mcq.solutions : [],
+                    createdAt: serverTimestamp(),
+                    createdBy: user.uid
+                })
+            );
+
+            await Promise.all(promises);
+        } catch (error) {
+            console.error('Error adding MCQs:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * ✅ Fetch MCQs with correct format and optional filters.
+     */
+    async fetchMCQs(filters: { board?: string; standard?: string; subject?: string; chapter?: string }, lastVisible?: any) {
+        let mcqQuery = query(this.mcqCollection, orderBy('createdAt', 'desc'), limit(50));
+
+        if (filters.board) mcqQuery = query(mcqQuery, where('board', '==', filters.board));
+        if (filters.standard) mcqQuery = query(mcqQuery, where('standard', '==', filters.standard));
+        if (filters.subject) mcqQuery = query(mcqQuery, where('subject', '==', filters.subject));
+        if (filters.chapter) mcqQuery = query(mcqQuery, where('chapter', '==', filters.chapter));
+        if (lastVisible) mcqQuery = query(mcqQuery, startAfter(lastVisible));
+
+        const snapshot = await getDocs(mcqQuery);
+
+        // ✅ Ensure fetched MCQs match the correct format
+        const mcqs: MCQ[] = snapshot.docs.map(doc => ({
+            id: doc.id,
+            board: doc.data()['board'] || 'Unknown',
+            standard: doc.data()['standard'] || 'Unknown',
+            subject: doc.data()['subject'] || 'Unknown',
+            chapter: doc.data()['chapter'] || 'Unknown',
+            title: doc.data()['title'] || 'Untitled',
+            question: doc.data()['question'] || 'No question',
+            options: Array.isArray(doc.data()['options']) ? doc.data()['options'] : [],
+            correctIndex: typeof doc.data()['correctIndex'] === 'number' ? doc.data()['correctIndex'] : -1,
+            solutions: Array.isArray(doc.data()['solutions']) ? doc.data()['solutions'] : [],
+            selected: false
+        }));
+
+        return { mcqs, lastVisible: snapshot.docs[snapshot.docs.length - 1] || null };
+    }
+
+    /**
+     * ✅ Edit an existing MCQ.
+     */
+    async updateMCQ(mcqId: string, updatedData: any) {
+        const mcqRef = doc(this.firestore, `questions/${mcqId}`);
+        await updateDoc(mcqRef, updatedData);
+    }
+
+    /**
+     * ✅ Soft delete an MCQ (move to `deletedQuestions` and remove from `questions`).
+     */
+    async deleteMCQ(mcqId: string) {
+        const mcqRef = doc(this.firestore, `questions/${mcqId}`);
+        const deletedRef = doc(this.firestore, `deletedQuestions/${mcqId}`);
+
+        // Get current MCQ data
+        const mcqSnapshot = await getDocs(query(this.mcqCollection, where('__name__', '==', mcqId)));
+        if (!mcqSnapshot.empty) {
+            const mcqData = mcqSnapshot.docs[0].data();
+
+            // ✅ Move to DeletedQuestions
+            await setDoc(deletedRef, { ...mcqData, deletedAt: serverTimestamp() });
+
+            // ✅ Delete from Questions
+            await deleteDoc(mcqRef);
+        }
+    }
+}

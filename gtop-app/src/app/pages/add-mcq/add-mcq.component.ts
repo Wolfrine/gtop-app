@@ -8,7 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatAccordion } from '@angular/material/expansion';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { McqService } from '../../services/mcq.service';
 
 @Component({
     selector: 'app-add-mcq',
@@ -21,15 +22,20 @@ import { MatAccordion } from '@angular/material/expansion';
         MatIconModule,
         MatFormFieldModule,
         MatInputModule,
-        MatExpansionModule
+        MatExpansionModule,
+        MatSnackBarModule
     ],
     templateUrl: './add-mcq.component.html',
     styleUrls: ['./add-mcq.component.scss']
 })
 export class AddMcqComponent {
-    router = signal(new Router());
-    chatGptPrompt = signal(`
-Generate MCQs in the following format:
+    constructor(
+        private router: Router,
+        private snackBar: MatSnackBar,
+        private mcqService: McqService
+    ) { }
+
+    chatGptPrompt = signal(`Generate MCQs in the following format:
 [
   {
     "board": "CBSE",
@@ -50,34 +56,67 @@ Generate MCQs in the following format:
 
     pastedMCQs = signal('');
     parsedMCQs = signal<any[]>([]);
+    isSaving = signal(false);
     optionLabels = ['A', 'B', 'C', 'D'];
 
     goBack() {
-        this.router().navigate(['/admin/mcq-management']);
+        this.router.navigate(['/admin/mcq-management']);
     }
 
     copyPrompt() {
         navigator.clipboard.writeText(this.chatGptPrompt());
-        alert('Prompt copied to clipboard!');
+        this.snackBar.open('Prompt copied to clipboard!', 'Close', { duration: 2000 });
     }
 
     parseMCQs() {
         try {
             const data = JSON.parse(this.pastedMCQs());
-            if (Array.isArray(data)) {
+            if (Array.isArray(data) && data.every(this.isValidMCQ)) {
                 this.parsedMCQs.set(data);
+                this.snackBar.open('MCQs parsed successfully!', 'Close', { duration: 2000 });
             } else {
-                alert('Invalid format! Please paste a valid JSON array.');
+                this.snackBar.open('Invalid format! Please paste a valid JSON array.', 'Close', { duration: 3000 });
             }
         } catch (error) {
-            alert('Error parsing JSON. Please check your format.');
+            this.snackBar.open('Error parsing JSON. Please check your format.', 'Close', { duration: 3000 });
         }
     }
 
-    saveMCQs() {
-        alert('MCQs saved successfully! (Firestore integration will be added later.)');
-        this.pastedMCQs.set('');
-        this.parsedMCQs.set([]);
+    async saveMCQs() {
+        if (this.parsedMCQs().length === 0) {
+            this.snackBar.open('No MCQs to save!', 'Close', { duration: 2000 });
+            return;
+        }
+
+        this.isSaving.set(true);
+
+        try {
+            await this.mcqService.addMCQs(this.parsedMCQs());
+            this.snackBar.open('MCQs saved successfully!', 'Close', { duration: 3000 });
+            this.pastedMCQs.set('');
+            this.parsedMCQs.set([]);
+        } catch (error) {
+            console.error('Error saving MCQs:', error);
+            this.snackBar.open('Error saving MCQs. Try again later.', 'Close', { duration: 3000 });
+        } finally {
+            this.isSaving.set(false);
+        }
+    }
+
+    isValidMCQ(mcq: any): boolean {
+        return (
+            mcq &&
+            typeof mcq.board === 'string' &&
+            typeof mcq.standard === 'string' &&
+            typeof mcq.subject === 'string' &&
+            typeof mcq.chapter === 'string' &&
+            typeof mcq.question === 'string' &&
+            Array.isArray(mcq.options) &&
+            mcq.options.length >= 2 &&
+            typeof mcq.correctIndex === 'number' &&
+            mcq.correctIndex >= 0 &&
+            mcq.correctIndex < mcq.options.length
+        );
     }
 
     // ✅ Getter for input binding
@@ -92,6 +131,6 @@ Generate MCQs in the following format:
 
     handleInputChange(event: Event) {
         const target = event.target as HTMLTextAreaElement;
-        this.setPastedMCQs(target.value);
+        this.pastedMCQs.set(target.value);
     }
 }

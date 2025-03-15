@@ -10,12 +10,12 @@
 
     <div class="mcq-list">
         <mat-accordion>
-            <mat-expansion-panel *ngFor="let mcq of mcqs" hideToggle>
+            <mat-expansion-panel *ngFor="let mcq of mcqs; let j = index" hideToggle>
                 <!-- ✅ HEADER (Collapsible Title & Actions) -->
                 <mat-expansion-panel-header>
                     <mat-checkbox [(ngModel)]="mcq.selected"></mat-checkbox>
-                    <span class="mcq-title">{{ mcq.title }}</span>
-                    <span class="mcq-category">{{ mcq.subject }}</span>
+                    <span class="mcq-title">{{ j + 1}}. {{ mcq.question.length > 50 ? (mcq.question | slice:0:50) +
+                        '...' : mcq.question }}</span>
                     <div class="mcq-actions">
                         <button mat-icon-button (click)="editMcq(mcq)">
                             <mat-icon>edit</mat-icon>
@@ -28,6 +28,9 @@
 
                 <!-- ✅ EXPANDED CONTENT -->
                 <div class="mcq-details">
+
+                    <span class="mcq-category">{{mcq.board}}, {{mcq.standard}} - {{ mcq.subject }} | {{mcq.chapter}}
+                    </span>
                     <p><strong>{{ mcq.question }}</strong></p>
                     <div class="mcq-options">
                         <div *ngFor="let option of mcq.options; let i = index" class="mcq-option">

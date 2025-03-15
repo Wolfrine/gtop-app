@@ -33,10 +33,11 @@
     <!-- ✅ MCQ Preview List -->
     <div *ngIf="parsedMCQs().length > 0" class="mcq-preview">
         <p><strong>Preview MCQs:</strong></p>
+        <p>MCQs parsed successfully! Review before saving.</p>
         <mat-accordion>
-            <mat-expansion-panel *ngFor="let mcq of parsedMCQs()">
+            <mat-expansion-panel *ngFor="let mcq of parsedMCQs(); let j = index">
                 <mat-expansion-panel-header>
-                    <span>{{ mcq.question }}</span>
+                    <span>{{j+1}}. {{ mcq.question }}</span>
                 </mat-expansion-panel-header>
                 <div class="mcq-options">
                     <p *ngFor="let option of mcq.options; let i = index">

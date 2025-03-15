@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -7,15 +7,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router } from '@angular/router';
+import { McqService } from '../../services/mcq.service';
+import { MCQ } from '../../services/mcq.service';
 
-interface MCQ {
-    title: string;
-    question: string;
-    options: string[];
-    correctIndex: number,
-    subject: string;
-    selected: boolean;
-}
+
 
 @Component({
     selector: 'app-mcq-management',
@@ -32,44 +27,62 @@ interface MCQ {
         MatToolbarModule
     ]
 })
-export class McqManagementComponent {
-
-    constructor(private router: Router) { }
+export class McqManagementComponent implements OnInit {
+    mcqs: MCQ[] = [];
     optionLabels = ['A)', 'B)', 'C)', 'D)'];
-    mcqs: MCQ[] = [
-        {
-            title: 'What is the capital of France?',
-            question: 'Which city is the capital of France?',
-            options: ['Paris', 'Berlin', 'Madrid', 'Rome'],
-            correctIndex: 0,
-            subject: 'Geography',
-            selected: false
-        },
-        {
-            title: 'Solve: 5 + 3',
-            question: 'What is 5 + 3?',
-            options: ['6', '7', '8', '9'],
-            correctIndex: 2,
-            subject: 'Mathematics',
-            selected: false
-        }
-    ];
+    loading = true;
+    lastVisible: any = null;
+    filters = { subject: '' };
 
-    toggleExpand(event: Event, mcq: any) {
+    constructor(private router: Router, private mcqService: McqService) { }
+
+    async ngOnInit() {
+        await this.fetchMCQs();
+    }
+
+    async fetchMCQs(loadMore = false) {
+        this.loading = true;
+        try {
+            const response = await this.mcqService.fetchMCQs(this.filters, loadMore ? this.lastVisible : null);
+            if (loadMore) {
+                this.mcqs = [...this.mcqs, ...response.mcqs];
+            } else {
+                this.mcqs = response.mcqs;
+            }
+            this.lastVisible = response.lastVisible;
+        } catch (error) {
+            console.error('Error fetching MCQs:', error);
+        } finally {
+            this.loading = false;
+        }
+    }
+
+    toggleExpand(event: Event, mcq: MCQ) {
         const target = event.target as HTMLElement;
-        if (target.closest('.mcq-actions')) return; // ✅ Prevents expansion when clicking icons
-        mcq.expanded = !mcq.expanded;
+        if (target.closest('.mcq-actions')) return;
+        mcq.selected = !mcq.selected;
     }
 
     editMcq(mcq: MCQ) {
         console.log('Edit MCQ:', mcq);
     }
 
-    deleteMcq(mcq: MCQ) {
-        this.mcqs = this.mcqs.filter(item => item !== mcq);
+    async deleteMcq(mcq: MCQ) {
+        if (confirm('Are you sure you want to delete this MCQ?')) {
+            try {
+                await this.mcqService.deleteMCQ(mcq.id);
+                this.mcqs = this.mcqs.filter(item => item.id !== mcq.id);
+            } catch (error) {
+                console.error('Error deleting MCQ:', error);
+            }
+        }
     }
 
     navigateToAddMCQ() {
         this.router.navigate(['/admin/add-mcq']);
+    }
+
+    loadMore() {
+        if (this.lastVisible) this.fetchMCQs(true);
     }
 }

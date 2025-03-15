@@ -6,6 +6,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { Router } from '@angular/router';
 
 interface MCQ {
     title: string;
@@ -32,6 +33,8 @@ interface MCQ {
     ]
 })
 export class McqManagementComponent {
+
+    constructor(private router: Router) { }
     optionLabels = ['A)', 'B)', 'C)', 'D)'];
     mcqs: MCQ[] = [
         {
@@ -64,5 +67,9 @@ export class McqManagementComponent {
 
     deleteMcq(mcq: MCQ) {
         this.mcqs = this.mcqs.filter(item => item !== mcq);
+    }
+
+    navigateToAddMCQ() {
+        this.router.navigate(['/admin/add-mcq']);
     }
 }

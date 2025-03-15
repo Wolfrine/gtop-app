@@ -1,7 +1,12 @@
 <div class="mcq-container">
-    <mat-toolbar color="primary">
+    <mat-toolbar>
         <span>Manage MCQs</span>
+        <span class="spacer"></span>
+        <button mat-flat-button color="primary" class="add-mcq-btn" (click)="navigateToAddMCQ()">
+            <mat-icon class="add-icon">add</mat-icon> Add
+        </button>
     </mat-toolbar>
+
 
     <div class="mcq-list">
         <mat-accordion>
@@ -33,12 +38,11 @@
                     <!-- ✅ Display Correct Answer -->
                     <div class="mcq-solution">
                         <strong>Correct Answer:</strong>
-                        <span class="correct-answer">{{ optionLabels[mcq.correctIndex] }} {{
-                            mcq.options[mcq.correctIndex] }}</span>
+                        <span class="correct-answer">
+                            {{ optionLabels[mcq.correctIndex] }} {{ mcq.options[mcq.correctIndex] }}
+                        </span>
                     </div>
                 </div>
-
-
             </mat-expansion-panel>
         </mat-accordion>
     </div>

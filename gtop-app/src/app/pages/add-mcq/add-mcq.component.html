@@ -1,0 +1,52 @@
+<!-- ✅ Toolbar -->
+<mat-toolbar>
+    <button mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span>Add MCQ</span>
+</mat-toolbar>
+<div class="add-mcq-container">
+
+    <!-- ✅ AI Prompt & Instructions -->
+    <div class="ai-prompt">
+        <p><strong>Use this prompt in ChatGPT:</strong></p>
+        <mat-form-field appearance="outline" class="full-width">
+            <textarea matInput readonly [value]="chatGptPrompt()"></textarea>
+        </mat-form-field>
+        <p>*Note : Modify the Board, Standard, Subject and Chapter before prompting to Chat GPT</p>
+        <button mat-raised-button (click)="copyPrompt()">Copy Prompt</button>
+    </div>
+
+    <!-- ✅ Paste AI-generated MCQs -->
+    <div class="paste-section">
+        <p><strong>Paste AI-Generated MCQs Below:</strong></p>
+        <mat-form-field appearance="outline" class="full-width">
+            <textarea matInput placeholder="Paste MCQs here..." [value]="getPastedMCQs()"
+                (input)="handleInputChange($event)">
+            </textarea>
+        </mat-form-field>
+
+
+        <button mat-raised-button color="primary" (click)="parseMCQs()">Parse MCQs</button>
+    </div>
+
+    <!-- ✅ MCQ Preview List -->
+    <div *ngIf="parsedMCQs().length > 0" class="mcq-preview">
+        <p><strong>Preview MCQs:</strong></p>
+        <mat-accordion>
+            <mat-expansion-panel *ngFor="let mcq of parsedMCQs()">
+                <mat-expansion-panel-header>
+                    <span>{{ mcq.question }}</span>
+                </mat-expansion-panel-header>
+                <div class="mcq-options">
+                    <p *ngFor="let option of mcq.options; let i = index">
+                        <strong>{{ optionLabels[i] }})</strong> {{ option }}
+                    </p>
+                </div>
+                <p><strong>Correct Answer:</strong> {{ optionLabels[mcq.correctIndex] }}) {{
+                    mcq.options[mcq.correctIndex] }}</p>
+            </mat-expansion-panel>
+        </mat-accordion>
+        <button mat-raised-button color="accent" (click)="saveMCQs()">Save MCQs</button>
+    </div>
+</div>

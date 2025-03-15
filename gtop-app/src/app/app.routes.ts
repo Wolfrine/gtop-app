@@ -4,6 +4,7 @@ import { ProfileSetupComponent } from './pages/profile-setup/profile-setup.compo
 import { UserDashboardComponent } from './pages/user-dashboard/user-dashboard.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { McqManagementComponent } from './pages/mcq-management/mcq-management.component'; // ✅ Import MCQ Management
+import { AddMcqComponent } from './pages/add-mcq/add-mcq.component';
 import { AuthGuard } from './services/auth.guard';
 import { RoleGuard } from './services/role.guard';
 
@@ -27,6 +28,12 @@ export const routes: Routes = [
         component: McqManagementComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['admin'] } // ❌ Only admins can access
+    },
+    {
+        path: 'admin/add-mcq',
+        component: AddMcqComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'] }
     },
     { path: '**', redirectTo: '' } // Redirect unknown routes
 ];

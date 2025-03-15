@@ -11,6 +11,7 @@ interface MCQ {
     title: string;
     question: string;
     options: string[];
+    correctIndex: number,
     subject: string;
     selected: boolean;
 }
@@ -31,11 +32,13 @@ interface MCQ {
     ]
 })
 export class McqManagementComponent {
+    optionLabels = ['A)', 'B)', 'C)', 'D)'];
     mcqs: MCQ[] = [
         {
             title: 'What is the capital of France?',
             question: 'Which city is the capital of France?',
             options: ['Paris', 'Berlin', 'Madrid', 'Rome'],
+            correctIndex: 0,
             subject: 'Geography',
             selected: false
         },
@@ -43,10 +46,17 @@ export class McqManagementComponent {
             title: 'Solve: 5 + 3',
             question: 'What is 5 + 3?',
             options: ['6', '7', '8', '9'],
+            correctIndex: 2,
             subject: 'Mathematics',
             selected: false
         }
     ];
+
+    toggleExpand(event: Event, mcq: any) {
+        const target = event.target as HTMLElement;
+        if (target.closest('.mcq-actions')) return; // ✅ Prevents expansion when clicking icons
+        mcq.expanded = !mcq.expanded;
+    }
 
     editMcq(mcq: MCQ) {
         console.log('Edit MCQ:', mcq);

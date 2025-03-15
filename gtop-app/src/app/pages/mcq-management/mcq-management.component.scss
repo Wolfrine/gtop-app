@@ -1,22 +1,46 @@
-/* ✅ Ensure icons & text align properly */
+/* ✅ Fix Vertical Alignment in Expansion Panel Header */
+mat-expansion-panel-header {
+    display: flex;
+    align-items: center;
+    /* Ensure everything is vertically centered */
+    padding: 12px;
+}
+
+/* ✅ Ensure Checkbox & Title Align Properly */
 .mcq-header {
     display: flex;
     align-items: center;
+    /* Fix alignment */
     width: 100%;
     justify-content: space-between;
     padding-right: 16px;
-    /* Add spacing so icons don’t push text */
 }
 
-/* ✅ Align category text properly */
+/* ✅ Ensure Question Title & Checkbox are Aligned */
+.mcq-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-left: 12px;
+    line-height: 1.5;
+    /* Ensure better spacing */
+    display: flex;
+    align-items: center;
+}
+
+mat-expansion-panel:hover {
+    background: #f5f5f5;
+    /* ✅ Light hover effect for better UX */
+}
+
+/* ✅ Align Category & Actions */
 .mcq-category {
     font-size: 12px;
     color: gray;
     margin-left: auto;
-    /* Push category to the right */
+    display: flex;
+    align-items: center;
 }
 
-/* ✅ Fix action icons alignment */
 .mcq-actions {
     display: flex;
     gap: 8px;
@@ -30,4 +54,81 @@
     background: #f8f9fa;
     border-left: 4px solid #1976d2;
     border-radius: 4px;
+}
+
+.mcq-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.mcq-option {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.option-label {
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.mcq-solution {
+    margin-top: 12px;
+    padding: 8px;
+    background: #e8f5e9;
+    /* Light green background */
+    border-left: 4px solid #2e7d32;
+    /* Dark green border */
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.correct-answer {
+    color: #2e7d32;
+    /* Green text for correct answer */
+    font-weight: bold;
+}
+
+/* 📌 Fix Excess Icon Spacing & Reduce Size */
+@media (max-width: 600px) {
+    .mcq-actions {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        /* Reduce extra spacing */
+    }
+
+    .mcq-actions button.mat-mdc-icon-button {
+        width: 32px !important;
+        /* Reduce width */
+        height: 32px !important;
+        /* Reduce height */
+    }
+
+    .mcq-actions button mat-icon {
+        font-size: 16px !important;
+        /* Reduce icon size */
+    }
+
+    .mcq-category {
+        font-size: 10px;
+        white-space: nowrap;
+        /* Prevents breaking */
+    }
+
+    .mcq-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        /* Ensures vertical alignment */
+    }
+
+    .mcq-title {
+        flex-grow: 1;
+        font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }

@@ -1,14 +1,12 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { CommonModule } from '@angular/common';
-import { MatSidenavModule } from '@angular/material/sidenav';  // ✅ Correct Import
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { SideNavComponent } from './components/side-nav/side-nav.component';
-import { MatDrawer } from '@angular/material/sidenav';
-import { ActiveUsersService } from './services/active-users.service';
 
 @Component({
     selector: 'app-root',
@@ -18,17 +16,19 @@ import { ActiveUsersService } from './services/active-users.service';
         HeaderComponent,
         FooterComponent,
         CommonModule,
-        MatSidenavModule, // ✅ Corrected: Import MatSidenavModule instead of MatDrawer
+        MatSidenavModule,
         SideNavComponent
     ],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-    private activeUsersService = inject(ActiveUsersService);
-    @ViewChild('sidenav') sidenav!: MatDrawer;   // ✅ Ensure ViewChild properly detects the sidenav
+    @ViewChild('sidenav') sidenav!: any;
+
     title = "GTOP - APP"
     isLandingPage = false;
+    isDesktop: boolean = window.innerWidth > 768;
+    sidenavMode: 'side' | 'over' = this.isDesktop ? 'side' : 'over';
 
     constructor(private authService: AuthService, private router: Router) {
         this.router.events.subscribe((event) => {
@@ -39,12 +39,22 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.authService.initGoogleOneTap(); // 🔥 Ensure One Tap runs on load
+        this.authService.initGoogleOneTap();
+    }
+
+    @HostListener('window:resize', ['$event'])
+    onResize(event: any) {
+        this.isDesktop = event.target.innerWidth > 768;
+        this.sidenavMode = this.isDesktop ? 'side' : 'over';
+
+        if (!this.isDesktop && this.sidenav) {
+            this.sidenav.close(); // Close menu on small screens
+        }
     }
 
     toggleSidebar() {
         if (this.sidenav) {
-            this.sidenav.toggle(); // ✅ Toggle the SideNav
+            this.sidenav.toggle();
         }
     }
 }

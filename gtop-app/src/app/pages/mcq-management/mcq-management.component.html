@@ -5,7 +5,7 @@
 
     <div class="mcq-list">
         <mat-accordion>
-            <mat-expansion-panel *ngFor="let mcq of mcqs">
+            <mat-expansion-panel *ngFor="let mcq of mcqs" hideToggle>
                 <!-- ✅ HEADER (Collapsible Title & Actions) -->
                 <mat-expansion-panel-header>
                     <mat-checkbox [(ngModel)]="mcq.selected"></mat-checkbox>
@@ -23,11 +23,22 @@
 
                 <!-- ✅ EXPANDED CONTENT -->
                 <div class="mcq-details">
-                    <p class="mcq-question">{{ mcq.question }}</p>
-                    <ul>
-                        <li *ngFor="let option of mcq.options">{{ option }}</li>
-                    </ul>
+                    <p><strong>{{ mcq.question }}</strong></p>
+                    <div class="mcq-options">
+                        <div *ngFor="let option of mcq.options; let i = index" class="mcq-option">
+                            <span class="option-label">{{ optionLabels[i] }}</span> {{ option }}
+                        </div>
+                    </div>
+
+                    <!-- ✅ Display Correct Answer -->
+                    <div class="mcq-solution">
+                        <strong>Correct Answer:</strong>
+                        <span class="correct-answer">{{ optionLabels[mcq.correctIndex] }} {{
+                            mcq.options[mcq.correctIndex] }}</span>
+                    </div>
                 </div>
+
+
             </mat-expansion-panel>
         </mat-accordion>
     </div>

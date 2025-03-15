@@ -1,11 +1,10 @@
 <!-- ✅ Header remains full-width & independent -->
 <app-header (toggleSidebar)="sidenav.toggle()" *ngIf="!isLandingPage"></app-header>
 
-<!-- ✅ SideNav & Main Content Inside Drawer Container -->
 <mat-drawer-container class="main-container">
 
     <!-- Side Navigation -->
-    <mat-drawer #sidenav mode="side" class="sidenav">
+    <mat-drawer #sidenav [mode]="sidenavMode" [opened]="isDesktop" class="sidenav">
         <app-side-nav></app-side-nav>
     </mat-drawer>
 
@@ -14,7 +13,6 @@
         <div class="content">
             <router-outlet></router-outlet>
         </div>
-
         <app-footer></app-footer>
     </mat-drawer-content>
 

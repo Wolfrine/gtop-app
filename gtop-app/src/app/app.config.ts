@@ -1,18 +1,17 @@
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, isDevMode, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
 import { routes } from './app.routes';
-import { provideClientHydration } from '@angular/platform-browser';
 
-// Import Firebase services
-import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+// Firebase imports
+import { provideFirebaseApp, initializeApp, FirebaseApp } from '@angular/fire/app';
+import { provideFirestore, initializeFirestore, persistentLocalCache } from '@angular/fire/firestore';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideServiceWorker } from '@angular/service-worker'; // ✅ Import Auth
-import { provideDatabase, getDatabase } from '@angular/fire/database'; // ✅ Add this
+import { provideServiceWorker } from '@angular/service-worker';
+import { provideDatabase, getDatabase } from '@angular/fire/database';
+import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
 
-// Firebase Configuration
+// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyATxEIUYY7rPgJriy_0q7yjfcP-QyBMZkM",
     authDomain: "gtop-app.firebaseapp.com",
@@ -27,11 +26,20 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
-        provideFirebaseApp(() => initializeApp(firebaseConfig)), // ✅ Initialize Firebase
-        provideFirestore(() => getFirestore()), // ✅ Provide Firestore
-        provideAuth(() => getAuth()), provideAnimationsAsync(), provideAnimationsAsync() // ✅ Add Firebase Auth (Fixes the "No provider for Auth!" error)
-        ,
+        provideFirebaseApp(() => initializeApp(firebaseConfig)),
+
+        // Firestore Persistence Fix
+        provideFirestore(() =>
+            initializeFirestore(inject(FirebaseApp), { localCache: persistentLocalCache() })
+        ),
+
+        provideAuth(() => getAuth()),
         provideDatabase(() => getDatabase()),
+
+        // Conditionally enable Analytics
+        ...(isDevMode() ? [] : [provideAnalytics(() => getAnalytics())]),
+
+        provideAnimationsAsync(),
         provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode(),
             registrationStrategy: 'registerWhenStable:30000'

@@ -1,0 +1,52 @@
+<div class="syllabus-container">
+    <mat-toolbar>
+        <span>Manage Syllabus</span>
+    </mat-toolbar>
+
+    <div class="syllabus-list">
+        <mat-accordion multi>
+            <mat-expansion-panel *ngFor="let board of syllabusData">
+                <mat-expansion-panel-header>
+                    <span class="syllabus-title">{{ board.name }}</span>
+                </mat-expansion-panel-header>
+
+                <!-- Standards -->
+                <mat-accordion multi>
+                    <mat-expansion-panel *ngFor="let standard of board.standards">
+                        <mat-expansion-panel-header>
+                            <span class="syllabus-title">{{ standard.name }} Standard</span>
+                        </mat-expansion-panel-header>
+
+                        <!-- Subjects -->
+                        <mat-accordion multi>
+                            <mat-expansion-panel *ngFor="let subject of standard.subjects">
+                                <mat-expansion-panel-header>
+                                    <span class="syllabus-title">{{ subject.name }}</span>
+                                </mat-expansion-panel-header>
+
+                                <!-- Chapters -->
+                                <div class="chapter-list">
+                                    <div class="chapter-item" *ngFor="let chapter of subject.chapters">
+
+                                        <!-- ✅ Left side: Chapter Name -->
+                                        <div class="chapter-name">{{ chapter.name }}</div>
+
+                                        <!-- ✅ Right side: Badge + Eye Icon -->
+                                        <div class="chapter-actions">
+                                            <mat-chip class="mcq-badge">{{ chapter.mcqCount }} MCQs</mat-chip>
+                                            <button mat-icon-button class="view-btn">
+                                                <mat-icon>visibility</mat-icon>
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </mat-expansion-panel>
+                        </mat-accordion>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </div>
+</div>

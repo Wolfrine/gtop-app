@@ -10,6 +10,47 @@
         </button>
     </mat-toolbar>
 
+    <mat-expansion-panel>
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                Filter MCQs
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <!-- Filters -->
+        <div class="filter-row">
+            <mat-form-field appearance="fill">
+                <mat-label>Board</mat-label>
+                <mat-select [(ngModel)]="selectedBoard" (selectionChange)="filterMCQs()">
+                    <mat-option *ngFor="let board of boardList" [value]="board">{{board}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <mat-label>Standard</mat-label>
+                <mat-select [(ngModel)]="selectedStandard" (selectionChange)="filterMCQs()">
+                    <mat-option *ngFor="let std of standardList" [value]="std">{{std}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <mat-label>Subject</mat-label>
+                <mat-select [(ngModel)]="selectedSubject" (selectionChange)="filterMCQs()">
+                    <mat-option *ngFor="let subj of subjectList" [value]="subj">{{subj}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <mat-label>Chapter</mat-label>
+                <mat-select [(ngModel)]="selectedChapter" (selectionChange)="filterMCQs()">
+                    <mat-option *ngFor="let ch of chapterList" [value]="ch">{{ch}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+        </div>
+    </mat-expansion-panel>
+
+
 
     <div class="mcq-list">
         <mat-accordion>

@@ -6,11 +6,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router } from '@angular/router';
-import { McqService } from '../../services/mcq.service';
-import { MCQ } from '../../services/mcq.service';
-
-
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { McqService, MCQ } from '../../services/mcq.service';
 
 @Component({
     selector: 'app-mcq-management',
@@ -24,7 +24,10 @@ import { MCQ } from '../../services/mcq.service';
         MatCheckboxModule,
         MatButtonModule,
         MatIconModule,
-        MatToolbarModule
+        MatToolbarModule,
+        MatFormFieldModule, // ✅ Added
+        MatSelectModule, // ✅ Added
+        MatOptionModule // ✅ Optional
     ]
 })
 export class McqManagementComponent implements OnInit {
@@ -32,12 +35,46 @@ export class McqManagementComponent implements OnInit {
     optionLabels = ['A)', 'B)', 'C)', 'D)'];
     loading = true;
     lastVisible: any = null;
-    filters = { subject: '' };
 
-    constructor(private router: Router, private mcqService: McqService) { }
+    // Filter-related
+    boardList: string[] = ['CBSE', 'ICSE'];
+    standardList: string[] = ['6th', '7th', '8th'];
+    subjectList: string[] = ['Science', 'Mathematics'];
+    chapterList: string[] = [];
+
+    selectedBoard = '';
+    selectedStandard = '';
+    selectedSubject = '';
+    selectedChapter = '';
+
+    filters = {
+        board: '',
+        standard: '',
+        subject: '',
+        chapter: ''
+    };
+
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute,
+        private mcqService: McqService
+    ) { }
 
     async ngOnInit() {
-        await this.fetchMCQs();
+        this.route.queryParams.subscribe(async (params) => {
+            if (params['board']) this.filters.board = params['board'];
+            if (params['standard']) this.filters.standard = params['standard'];
+            if (params['subject']) this.filters.subject = params['subject'];
+            if (params['chapter']) this.filters.chapter = params['chapter'];
+
+            // Pre-select dropdowns if query params present
+            this.selectedBoard = this.filters.board;
+            this.selectedStandard = this.filters.standard;
+            this.selectedSubject = this.filters.subject;
+            this.selectedChapter = this.filters.chapter;
+
+            await this.fetchMCQs();
+        });
     }
 
     async fetchMCQs(loadMore = false) {
@@ -92,5 +129,15 @@ export class McqManagementComponent implements OnInit {
         }).catch(error => {
             console.error("Error refreshing syllabus:", error);
         });
+    }
+
+    filterMCQs() {
+        this.filters = {
+            board: this.selectedBoard,
+            standard: this.selectedStandard,
+            subject: this.selectedSubject,
+            chapter: this.selectedChapter
+        };
+        this.fetchMCQs();
     }
 }

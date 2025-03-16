@@ -1,0 +1,37 @@
+.syllabus-container {
+    padding: 1rem;
+}
+
+.syllabus-title {
+    font-weight: bold;
+}
+
+.chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+.chapter-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 0;
+}
+
+.chapter-name {
+    flex: 1;
+}
+
+.chapter-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mcq-badge {
+    min-width: 80px;
+    text-align: center;
+}

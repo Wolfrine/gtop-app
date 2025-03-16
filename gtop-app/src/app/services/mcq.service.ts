@@ -3,6 +3,7 @@ import { Firestore, collection, query, where, orderBy, limit, getDocs, doc, upda
 import { Auth } from '@angular/fire/auth';
 import { Observable, map } from 'rxjs';
 
+
 export interface MCQ {
     id: string;
     board: string;
@@ -74,7 +75,13 @@ export class McqService {
      * ✅ Fetch MCQs with correct format and optional filters.
      */
     async fetchMCQs(filters: { board?: string; standard?: string; subject?: string; chapter?: string }, lastVisible?: any) {
-        let mcqQuery = query(this.mcqCollection, orderBy('createdAt', 'desc'), limit(50));
+        // 🚀 Check: If all filters are empty, skip fetching
+        const noFiltersApplied = !filters.board && !filters.standard && !filters.subject && !filters.chapter;
+        if (noFiltersApplied) {
+            return { mcqs: [], lastVisible: null };
+        }
+
+        let mcqQuery = query(this.mcqCollection, orderBy('createdAt', 'desc'), limit(10));
 
         if (filters.board) mcqQuery = query(mcqQuery, where('board', '==', filters.board));
         if (filters.standard) mcqQuery = query(mcqQuery, where('standard', '==', filters.standard));
@@ -84,7 +91,6 @@ export class McqService {
 
         const snapshot = await getDocs(mcqQuery);
 
-        // ✅ Ensure fetched MCQs match the correct format
         const mcqs: MCQ[] = snapshot.docs.map(doc => ({
             id: doc.id,
             board: doc.data()['board'] || 'Unknown',
@@ -101,6 +107,7 @@ export class McqService {
 
         return { mcqs, lastVisible: snapshot.docs[snapshot.docs.length - 1] || null };
     }
+
 
     /**
      * ✅ Edit an existing MCQ.

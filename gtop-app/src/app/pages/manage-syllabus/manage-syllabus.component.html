@@ -39,7 +39,8 @@
                                         <!-- ✅ Right side: Badge + Eye Icon -->
                                         <div class="chapter-actions">
                                             <mat-chip class="mcq-badge">{{ chapter.mcqCount }} MCQs</mat-chip>
-                                            <button mat-icon-button class="view-btn">
+                                            <button mat-icon-button class="view-btn"
+                                                (click)="viewChapterMCQs(board.name, standard.name, subject.name, chapter.name)">
                                                 <mat-icon>visibility</mat-icon>
                                             </button>
                                         </div>

@@ -87,4 +87,15 @@ export class ManageSyllabusComponent {
             });
     }
 
+    viewChapterMCQs(board: string, standard: string, subject: string, chapter: string) {
+        this.router.navigate(['/admin/mcq-management'], {
+            queryParams: {
+                board: board,
+                standard: standard,
+                subject: subject,
+                chapter: chapter
+            }
+        });
+    }
+
 }

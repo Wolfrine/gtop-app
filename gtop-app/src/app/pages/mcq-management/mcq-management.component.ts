@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { McqService, MCQ } from '../../services/mcq.service';
+import { SyllabusService, SyllabusItem } from '../../services/syllabus.service'
 
 @Component({
     selector: 'app-mcq-management',
@@ -57,25 +58,86 @@ export class McqManagementComponent implements OnInit {
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private mcqService: McqService
+        private mcqService: McqService,
+        private syllabusService: SyllabusService
     ) { }
 
-    async ngOnInit() {
-        this.route.queryParams.subscribe(async (params) => {
-            if (params['board']) this.filters.board = params['board'];
-            if (params['standard']) this.filters.standard = params['standard'];
-            if (params['subject']) this.filters.subject = params['subject'];
-            if (params['chapter']) this.filters.chapter = params['chapter'];
+    syllabusData: SyllabusItem[] = [];
 
-            // Pre-select dropdowns if query params present
-            this.selectedBoard = this.filters.board;
-            this.selectedStandard = this.filters.standard;
-            this.selectedSubject = this.filters.subject;
-            this.selectedChapter = this.filters.chapter;
+    ngOnInit() {
+        // Fetch syllabus data
+        this.syllabusService.syllabus$.subscribe((syllabusItems) => {
+            this.syllabusData = syllabusItems;
+
+            // Ensure dropdowns populated AFTER params applied
+            this.populateDropdowns(syllabusItems);
+        });
+
+
+        // Query params
+        this.route.queryParams.subscribe(async (params) => {
+            if (params['board']) this.selectedBoard = params['board'];
+            if (params['standard']) this.selectedStandard = params['standard'];
+            if (params['subject']) this.selectedSubject = params['subject'];
+            if (params['chapter']) this.selectedChapter = params['chapter'];
+
+            // Reapply filters
+            this.filters = {
+                board: this.selectedBoard,
+                standard: this.selectedStandard,
+                subject: this.selectedSubject,
+                chapter: this.selectedChapter
+            };
+
+            // Populate dropdowns AFTER syllabus data arrives
+            if (this.syllabusData.length > 0) {
+                this.populateDropdowns(this.syllabusData);
+            }
 
             await this.fetchMCQs();
         });
+
     }
+
+    populateDropdowns(syllabusItems: SyllabusItem[]) {
+        // Populate Board List
+        this.boardList = [...new Set(syllabusItems.map(item => item.board))];
+
+        // Populate Standard List based on Board selection
+        if (this.selectedBoard) {
+            this.standardList = [...new Set(
+                syllabusItems.filter(item => item.board === this.selectedBoard)
+                    .map(item => item.standard)
+            )];
+        } else {
+            this.standardList = [];
+        }
+
+        // Populate Subject List based on Standard selection
+        if (this.selectedStandard) {
+            this.subjectList = [...new Set(
+                syllabusItems.filter(item => item.board === this.selectedBoard &&
+                    item.standard === this.selectedStandard)
+                    .map(item => item.subject)
+            )];
+        } else {
+            this.subjectList = [];
+        }
+
+        // Populate Chapter List based on Subject selection
+        if (this.selectedSubject) {
+            this.chapterList = [...new Set(
+                syllabusItems.filter(item => item.board === this.selectedBoard &&
+                    item.standard === this.selectedStandard &&
+                    item.subject === this.selectedSubject)
+                    .map(item => item.chapter)
+            )];
+        } else {
+            this.chapterList = [];
+        }
+    }
+
+
 
     async fetchMCQs(loadMore = false) {
         this.loading = true;
@@ -138,6 +200,25 @@ export class McqManagementComponent implements OnInit {
             subject: this.selectedSubject,
             chapter: this.selectedChapter
         };
+
+        // Repopulate dependent dropdowns
+        this.populateDropdowns(this.syllabusData);
+
+        // Reset lower levels if parent is cleared
+        if (!this.selectedBoard) {
+            this.selectedStandard = '';
+            this.selectedSubject = '';
+            this.selectedChapter = '';
+        }
+        if (!this.selectedStandard) {
+            this.selectedSubject = '';
+            this.selectedChapter = '';
+        }
+        if (!this.selectedSubject) {
+            this.selectedChapter = '';
+        }
+
         this.fetchMCQs();
     }
+
 }

@@ -53,6 +53,9 @@
 
 
     <div class="mcq-list">
+        <div *ngIf="mcqs.length === 0 && !loading">
+            <p>Select filters to view MCQs.</p>
+        </div>
         <mat-accordion>
             <mat-expansion-panel *ngFor="let mcq of mcqs; let j = index" hideToggle>
                 <!-- ✅ HEADER (Collapsible Title & Actions) -->

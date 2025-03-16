@@ -1,16 +1,18 @@
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode, inject } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
+
 import { routes } from './app.routes';
+import { provideClientHydration } from '@angular/platform-browser';
 
-// Firebase imports
-import { provideFirebaseApp, initializeApp, FirebaseApp } from '@angular/fire/app';
-import { provideFirestore, initializeFirestore, persistentLocalCache } from '@angular/fire/firestore';
-import { provideAuth, initializeAuth, indexedDBLocalPersistence } from '@angular/fire/auth';
+// Import Firebase services
+import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideServiceWorker } from '@angular/service-worker';
-import { provideDatabase, getDatabase } from '@angular/fire/database';
-import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
+import { provideServiceWorker } from '@angular/service-worker'; // ✅ Import Auth
+import { provideDatabase, getDatabase } from '@angular/fire/database'; // ✅ Add this
 
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyATxEIUYY7rPgJriy_0q7yjfcP-QyBMZkM",
     authDomain: "gtop-app.firebaseapp.com",
@@ -25,45 +27,11 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
-
-        // ✅ Firebase Initialization
-        provideFirebaseApp(() => {
-            const app = initializeApp(firebaseConfig);
-            console.log('[Firebase Init] Firebase App Initialized:', app.name, app.options);
-            return app;
-        }),
-
-        // ✅ Firestore Initialization
-        provideFirestore(() => {
-            const app = inject(FirebaseApp);
-            console.log('[Firestore Init] App:', app.name);
-            return initializeFirestore(app, { localCache: persistentLocalCache() });
-        }),
-
-        // ✅ Auth Initialization (Fix potential timing issue)
-        provideAuth(() => {
-            const app = inject(FirebaseApp);
-            console.log('[Auth Init]');
-            return initializeAuth(app, { persistence: indexedDBLocalPersistence });
-        }),
-
-        // ✅ Realtime Database Initialization
-        provideDatabase(() => {
-            const app = inject(FirebaseApp);
-            console.log('[Database Init]');
-            return getDatabase(app);
-        }),
-
-        // // ✅ Analytics in Production
-        // ...(isDevMode() ? [] : [
-        //     provideAnalytics(() => {
-        //         const app = inject(FirebaseApp);
-        //         console.log('[Analytics Init]');
-        //         return getAnalytics(app);
-        //     })
-        // ]),
-
-        provideAnimationsAsync(),
+        provideFirebaseApp(() => initializeApp(firebaseConfig)), // ✅ Initialize Firebase
+        provideFirestore(() => getFirestore()), // ✅ Provide Firestore
+        provideAuth(() => getAuth()), provideAnimationsAsync(), provideAnimationsAsync() // ✅ Add Firebase Auth (Fixes the "No provider for Auth!" error)
+        ,
+        provideDatabase(() => getDatabase()),
         provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode(),
             registrationStrategy: 'registerWhenStable:30000'

@@ -57,24 +57,7 @@ export class McqService {
                 // ✅ Add MCQ to Firestore
                 batch.set(doc(mcqCollectionRef), mcqData);
 
-                // ✅ Check if syllabus entry exists, if not add it
-                const syllabusQuery = query(syllabusCollectionRef,
-                    where('board', '==', mcqData.board),
-                    where('standard', '==', mcqData.standard),
-                    where('subject', '==', mcqData.subject),
-                    where('chapter', '==', mcqData.chapter)
-                );
 
-                const existingSyllabus = await getDocs(syllabusQuery);
-                if (existingSyllabus.empty) {
-                    batch.set(doc(syllabusCollectionRef), {
-                        board: mcqData.board,
-                        standard: mcqData.standard,
-                        subject: mcqData.subject,
-                        chapter: mcqData.chapter,
-                        createdAt: serverTimestamp()
-                    });
-                }
             }
 
             // ✅ Commit batch write for efficiency

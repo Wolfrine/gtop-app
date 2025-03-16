@@ -26,17 +26,20 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
+
+        // ✅ Correct Firebase Initialization
         provideFirebaseApp(() => initializeApp(firebaseConfig)),
 
-        // Firestore Persistence Fix
-        provideFirestore(() =>
-            initializeFirestore(inject(FirebaseApp), { localCache: persistentLocalCache() })
-        ),
+        // ✅ FIX: Wrap inject(FirebaseApp) inside a lambda
+        provideFirestore(() => {
+            const app = inject(FirebaseApp); // SAFE way
+            return initializeFirestore(app, { localCache: persistentLocalCache() });
+        }),
 
         provideAuth(() => getAuth()),
         provideDatabase(() => getDatabase()),
 
-        // Conditionally enable Analytics
+        // Conditionally enable Analytics in Prod
         ...(isDevMode() ? [] : [provideAnalytics(() => getAnalytics())]),
 
         provideAnimationsAsync(),

@@ -29,9 +29,7 @@ export class AdminDashboardComponent implements OnInit {
     totalUsers = 0;
 
     recentActivities: string[] = [
-        "User X added a new MCQ",
-        "Quiz Y was completed by 50 students",
-        "MCQ Z was edited by Admin"
+        "No activity tracked yet",
     ];
 
     constructor(private activeUsersService: ActiveUsersService, private mcqService: McqService) {

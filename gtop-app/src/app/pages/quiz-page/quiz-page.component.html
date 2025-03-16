@@ -8,22 +8,24 @@
 
     <!-- Metadata -->
     <div class="meta-info">
-        <p><strong>Board:</strong> {{ questions[currentQuestionIndex].board }}</p>
-        <p><strong>Standard:</strong> {{ questions[currentQuestionIndex].standard }}</p>
-        <p><strong>Subject:</strong> {{ questions[currentQuestionIndex].subject }}</p>
-        <p><strong>Chapter:</strong> {{ questions[currentQuestionIndex].chapter }}</p>
+        <p>{{ questions[currentQuestionIndex].board }} >
+            {{ questions[currentQuestionIndex].standard }}<sup>th</sup> Standard :
+            {{ questions[currentQuestionIndex].subject }},
+            {{ questions[currentQuestionIndex].chapter }}
+        </p>
     </div>
 
     <!-- Question -->
     <mat-card class="question-card">
-        <h4>{{ questions[currentQuestionIndex].question }}</h4>
+        <h4>Q{{currentQuestionIndex+1}}. {{ questions[currentQuestionIndex].question }}</h4>
     </mat-card>
 
     <!-- Options -->
+    <p>Options : <i>(Select any one from below)</i></p>
     <div class="options-container">
         <mat-card *ngFor="let option of questions[currentQuestionIndex].options; let i = index" class="option-card"
             [class.selected]="questions[currentQuestionIndex].selectedIndex === i" (click)="selectOption(i)">
-            {{ option }}
+            {{optionsLabel[i]}}) {{ option }}
         </mat-card>
     </div>
 

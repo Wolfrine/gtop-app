@@ -20,6 +20,8 @@ import { QuizService } from '../../services/quiz.service';
 })
 export class QuizPageComponent {
 
+    optionsLabel = ['A', 'B', 'C', 'D'];
+
     // Dummy Firestore-style data
     questions = [
         {
@@ -60,10 +62,21 @@ export class QuizPageComponent {
         }
     ];
 
-
     currentQuestionIndex = 0;
 
     constructor(private quizService: QuizService, private router: Router) { }
+
+    ngOnInit(): void {
+        this.quizService.fetchQuestionsFromRandomChapter()
+            .then(fetchedQuestions => {
+                this.questions = fetchedQuestions;
+            })
+            .catch(error => {
+                console.error('Error fetching quiz questions:', error);
+            });
+    }
+
+
 
     selectOption(optionIndex: number) {
         this.questions[this.currentQuestionIndex].selectedIndex = optionIndex;

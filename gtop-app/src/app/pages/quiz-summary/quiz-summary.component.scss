@@ -2,7 +2,7 @@
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
 
     .score-card,
     .insight-card {
@@ -17,6 +17,10 @@
 
     .solution-details {
         padding: 1rem;
+        padding: 12px;
+        background: #f8f9fa;
+        border-left: 4px solid #1976d2;
+        border-radius: 4px;
 
         p {
             margin: 0.5rem 0;

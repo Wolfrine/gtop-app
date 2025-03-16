@@ -2,27 +2,27 @@
 
     <!-- Score Overview -->
     <mat-card class="score-card">
-        <h2>Quiz Summary</h2>
+        <h2>Summary</h2>
         <p>Total Questions: {{ totalQuestions }}</p>
         <p>Correct Answers: {{ correctAnswers }}</p>
         <p>Accuracy: {{ accuracyPercent }}%</p>
     </mat-card>
 
     <!-- Performance Insights -->
-    <mat-card class="insight-card">
+    <!-- <mat-card class="insight-card">
         <h3>Performance Insights</h3>
         <p>Suggestions will appear here. (Phase 2)</p>
-    </mat-card>
+    </mat-card> -->
 
     <!-- Retry Incorrect Questions -->
-    <div class="retry-btn">
+    <!-- <div class="retry-btn">
         <button mat-raised-button color="accent">
-            <!-- (click)="retryIncorrect()" -->
             Retry Incorrect Questions
         </button>
-    </div>
+    </div> -->
 
     <!-- Detailed Solutions -->
+    <p>Details :</p>
     <mat-accordion>
         <mat-expansion-panel *ngFor="let q of questions; let i = index">
             <mat-expansion-panel-header>

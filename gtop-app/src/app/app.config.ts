@@ -1,16 +1,16 @@
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, isDevMode, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 
-// Import Firebase services
-import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+// Firebase services
+import { provideFirebaseApp, initializeApp, FirebaseApp } from '@angular/fire/app';
+import { provideFirestore, initializeFirestore, persistentLocalCache } from '@angular/fire/firestore';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideServiceWorker } from '@angular/service-worker'; // ✅ Import Auth
-import { provideDatabase, getDatabase } from '@angular/fire/database'; // ✅ Add this
+import { provideServiceWorker } from '@angular/service-worker';
+import { provideDatabase, getDatabase } from '@angular/fire/database';
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -27,11 +27,20 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
-        provideFirebaseApp(() => initializeApp(firebaseConfig)), // ✅ Initialize Firebase
-        provideFirestore(() => getFirestore()), // ✅ Provide Firestore
-        provideAuth(() => getAuth()), provideAnimationsAsync(), provideAnimationsAsync() // ✅ Add Firebase Auth (Fixes the "No provider for Auth!" error)
-        ,
+
+        // Initialize Firebase App
+        provideFirebaseApp(() => initializeApp(firebaseConfig)),
+
+        // Enable Firestore Persistence
+        provideFirestore(() => {
+            const app = inject(FirebaseApp);
+            return initializeFirestore(app, { localCache: persistentLocalCache() });
+        }),
+
+        provideAuth(() => getAuth()),
+        provideAnimationsAsync(),
         provideDatabase(() => getDatabase()),
+
         provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode(),
             registrationStrategy: 'registerWhenStable:30000'

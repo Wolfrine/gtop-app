@@ -27,20 +27,44 @@ export const appConfig: ApplicationConfig = {
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
 
-        // ✅ Correct Firebase Initialization
-        provideFirebaseApp(() => initializeApp(firebaseConfig)),
-
-        // ✅ FIX: Wrap inject(FirebaseApp) inside a lambda
-        provideFirestore(() => {
-            const app = inject(FirebaseApp); // SAFE way
-            return initializeFirestore(app, { localCache: persistentLocalCache() });
+        // ✅ Correct Firebase Initialization with Debug Log
+        provideFirebaseApp(() => {
+            const app = initializeApp(firebaseConfig);
+            console.log('[Firebase Init] Firebase App Initialized:', app.name, app.options);
+            return app;
         }),
 
-        provideAuth(() => getAuth()),
-        provideDatabase(() => getDatabase()),
+        // ✅ Firestore Persistence with Debug Log
+        provideFirestore(() => {
+            const app = inject(FirebaseApp);
+            console.log('[Firestore Init] Firebase App Injected:', app.name);
+            const firestore = initializeFirestore(app, { localCache: persistentLocalCache() });
+            console.log('[Firestore Init] Firestore Initialized');
+            return firestore;
+        }),
+
+        // ✅ Auth Debug Log
+        provideAuth(() => {
+            const auth = getAuth();
+            console.log('[Auth Init] Auth Initialized');
+            return auth;
+        }),
+
+        // ✅ Database Debug Log
+        provideDatabase(() => {
+            const db = getDatabase();
+            console.log('[Database Init] Realtime Database Initialized');
+            return db;
+        }),
 
         // Conditionally enable Analytics in Prod
-        ...(isDevMode() ? [] : [provideAnalytics(() => getAnalytics())]),
+        ...(isDevMode() ? [] : [
+            provideAnalytics(() => {
+                const analytics = getAnalytics();
+                console.log('[Analytics Init] Analytics Initialized');
+                return analytics;
+            })
+        ]),
 
         provideAnimationsAsync(),
         provideServiceWorker('ngsw-worker.js', {

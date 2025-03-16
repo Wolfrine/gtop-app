@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>Manual Quiz Setup</h2>
+
+<div mat-dialog-content class="modal-content">
+    <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Board</mat-label>
+        <input matInput [value]="board" disabled />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Standard</mat-label>
+        <input matInput [value]="standard" disabled />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Subjects</mat-label>
+        <mat-select multiple [(ngModel)]="selectedSubjects">
+            <mat-option *ngFor="let subject of subjects" [value]="subject">
+                {{ subject }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Chapters</mat-label>
+        <mat-select multiple [(ngModel)]="selectedChapters">
+            <mat-option *ngFor="let chapter of chapters" [value]="chapter">
+                {{ chapter }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Number of Questions</mat-label>
+        <input matInput type="number" [(ngModel)]="questionCount" />
+    </mat-form-field>
+
+    <div class="difficulty-section">
+        <p>Difficulty Level:</p>
+        <mat-radio-group [(ngModel)]="difficultyLevel">
+            <mat-radio-button value="easy">Easy</mat-radio-button>
+            <mat-radio-button value="medium">Medium</mat-radio-button>
+            <mat-radio-button value="hard">Hard</mat-radio-button>
+            <mat-radio-button value="adaptive">AI Adaptive</mat-radio-button>
+        </mat-radio-group>
+    </div>
+</div>
+
+<div mat-dialog-actions align="end">
+    <button mat-stroked-button color="warn" (click)="closeDialog()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="startQuiz()">Start Quiz</button>
+</div>

@@ -1,1 +1,39 @@
-<p>user-dashboard works!</p>
+<div class="dashboard-container">
+
+    <!-- Welcome Message -->
+    <mat-card class="welcome-card">
+        <h2>Welcome, {{ userName }}!</h2>
+        <p>Standard: {{ userStandard }}</p>
+        <p>Subjects: {{ userSubjects }}</p>
+    </mat-card>
+
+    <!-- Quick Start CTA -->
+    <div class="quick-start">
+        <button mat-raised-button color="primary" (click)="startQuickQuiz()">Start Practice Quiz</button>
+    </div>
+
+    <!-- Current Stats Overview -->
+    <div class="stats-overview">
+        <mat-card class="stat-card">
+            <h3>Total Quizzes Attempted</h3>
+            <p>{{ totalQuizzes }}</p>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <h3>Accuracy</h3>
+            <p>{{ accuracyPercent }}%</p>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <h3>Last Quiz Score</h3>
+            <p>{{ lastQuizScore }}%</p>
+        </mat-card>
+    </div>
+
+    <!-- Quick Access Buttons -->
+    <div class="quick-access">
+        <button mat-stroked-button color="accent" (click)="openManualQuiz()">Select Subject & Chapter</button>
+        <button mat-stroked-button color="accent" [routerLink]="['/reports']">View Reports</button>
+    </div>
+
+</div>

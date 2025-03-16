@@ -8,6 +8,9 @@ import { AddMcqComponent } from './pages/add-mcq/add-mcq.component';
 import { AuthGuard } from './services/auth.guard';
 import { RoleGuard } from './services/role.guard';
 import { ManageSyllabusComponent } from './pages/manage-syllabus/manage-syllabus.component'; // ✅ Import Manage Syllabus Component
+import { QuizPageComponent } from './pages/quiz-page/quiz-page.component';
+import { QuizSummaryComponent } from './pages/quiz-summary/quiz-summary.component';
+
 
 export const routes: Routes = [
     { path: '', component: LandingPageComponent },
@@ -42,5 +45,18 @@ export const routes: Routes = [
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['admin'] }
     },
+    {
+        path: 'quiz',
+        component: QuizPageComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user', 'admin'] }
+    },
+    {
+        path: 'quiz-summary',
+        component: QuizSummaryComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user', 'admin'] }
+    },
+
     { path: '**', redirectTo: '' }
 ];

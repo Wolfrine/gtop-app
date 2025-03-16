@@ -1,0 +1,14 @@
+.full-width {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.difficulty-section {
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+
+    mat-radio-button {
+        margin-right: 1rem;
+    }
+}

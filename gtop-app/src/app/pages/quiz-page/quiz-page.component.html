@@ -1,0 +1,38 @@
+<div class="quiz-container">
+
+    <!-- Header -->
+    <div class="quiz-header">
+        <h3>Question {{ currentQuestionIndex + 1 }} of {{ questions.length }}</h3>
+        <mat-progress-bar mode="determinate" [value]="getProgressPercent()"></mat-progress-bar>
+    </div>
+
+    <!-- Metadata -->
+    <div class="meta-info">
+        <p><strong>Board:</strong> {{ questions[currentQuestionIndex].board }}</p>
+        <p><strong>Standard:</strong> {{ questions[currentQuestionIndex].standard }}</p>
+        <p><strong>Subject:</strong> {{ questions[currentQuestionIndex].subject }}</p>
+        <p><strong>Chapter:</strong> {{ questions[currentQuestionIndex].chapter }}</p>
+    </div>
+
+    <!-- Question -->
+    <mat-card class="question-card">
+        <h4>{{ questions[currentQuestionIndex].question }}</h4>
+    </mat-card>
+
+    <!-- Options -->
+    <div class="options-container">
+        <mat-card *ngFor="let option of questions[currentQuestionIndex].options; let i = index" class="option-card"
+            [class.selected]="questions[currentQuestionIndex].selectedIndex === i" (click)="selectOption(i)">
+            {{ option }}
+        </mat-card>
+    </div>
+
+    <!-- Next/Submit Button -->
+    <div class="next-button">
+        <button mat-raised-button color="primary" (click)="nextQuestion()"
+            [disabled]="questions[currentQuestionIndex].selectedIndex === null">
+            {{ currentQuestionIndex + 1 === questions.length ? 'Submit' : 'Next' }}
+        </button>
+    </div>
+
+</div>

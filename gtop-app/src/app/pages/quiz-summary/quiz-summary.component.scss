@@ -1,0 +1,39 @@
+.summary-container {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    .score-card,
+    .insight-card {
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .retry-btn {
+        display: flex;
+        justify-content: center;
+    }
+
+    .solution-details {
+        padding: 1rem;
+
+        p {
+            margin: 0.5rem 0;
+        }
+    }
+
+    .cta-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .summary-container {
+        padding: 1rem;
+    }
+}

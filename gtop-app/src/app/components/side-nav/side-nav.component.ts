@@ -28,6 +28,8 @@ export class SideNavComponent implements OnInit {
         this.menuItems = this.role === 'admin' ? this.getAdminMenu() : this.getUserMenu();
     }
 
+
+
     getAdminMenu() {
         return [
             { label: 'Dashboard', icon: 'dashboard', route: '/admin' },
@@ -36,7 +38,7 @@ export class SideNavComponent implements OnInit {
             { label: 'User Dashboard', icon: 'dashboard', route: '/dashboard' },
             { label: 'Live Quizzes', icon: 'quiz', route: '/admin/quizzes' },
             { label: 'User Management', icon: 'group', route: '/admin/users' },
-            { label: 'Reports & Analytics', icon: 'bar_chart', route: '/admin/reports' }
+            { label: 'Reports & Analytics', icon: 'bar_chart', route: '/admin/reports' },
         ];
     }
 

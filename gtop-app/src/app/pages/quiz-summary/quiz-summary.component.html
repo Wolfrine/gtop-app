@@ -27,7 +27,8 @@
         <mat-expansion-panel *ngFor="let q of questions; let i = index">
             <mat-expansion-panel-header>
                 <mat-panel-title>
-                    Q{{ i + 1 }}: {{ q.question }}
+                    Q{{ i + 1 }}: {{ q.question.length > 100 ? (q.question | slice:0:50) +
+                    '...' : q.question }}
                 </mat-panel-title>
             </mat-expansion-panel-header>
 

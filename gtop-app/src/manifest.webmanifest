@@ -1,7 +1,7 @@
 {
     "name": "GTOP - Growth Tutorials Objective Practice",
     "short_name": "GTOP",
-    "theme_color": "#673AB7",
+    "theme_color": "#3f51b5",
     "background_color": "#FFFFFF",
     "display": "standalone",
     "scope": "/",

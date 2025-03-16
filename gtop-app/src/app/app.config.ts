@@ -35,12 +35,10 @@ export const appConfig: ApplicationConfig = {
         }),
 
         // ✅ Firestore Persistence with Debug Log
-        provideFirestore(() => {
-            const app = inject(FirebaseApp);
-            console.log('[Firestore Init] Firebase App Injected:', app.name);
-            const firestore = initializeFirestore(app, { localCache: persistentLocalCache() });
-            console.log('[Firestore Init] Firestore Initialized');
-            return firestore;
+        provideFirestore((injector) => {
+            const app = injector.get(FirebaseApp);
+            console.log('[Firestore Init] App:', app.name);
+            return initializeFirestore(app, { localCache: persistentLocalCache() });
         }),
 
         // ✅ Auth Debug Log

@@ -54,14 +54,14 @@ export const appConfig: ApplicationConfig = {
             return getDatabase(app);
         }),
 
-        // ✅ Analytics in Production
-        ...(isDevMode() ? [] : [
-            provideAnalytics(() => {
-                const app = inject(FirebaseApp);
-                console.log('[Analytics Init]');
-                return getAnalytics(app);
-            })
-        ]),
+        // // ✅ Analytics in Production
+        // ...(isDevMode() ? [] : [
+        //     provideAnalytics(() => {
+        //         const app = inject(FirebaseApp);
+        //         console.log('[Analytics Init]');
+        //         return getAnalytics(app);
+        //     })
+        // ]),
 
         provideAnimationsAsync(),
         provideServiceWorker('ngsw-worker.js', {

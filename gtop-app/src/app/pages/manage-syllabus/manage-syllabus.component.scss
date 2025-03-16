@@ -7,28 +7,39 @@
 }
 
 .chapter-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
     padding: 0.5rem 1rem;
 }
 
 .chapter-item {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    width: 100%;
+    align-items: center;
     padding: 8px 0;
-}
-
-.chapter-name {
-    flex: 1;
+    border-bottom: 1px solid #e0e0e0; // Optional: For separation
 }
 
 .chapter-actions {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+.mcq-badge {
+    min-width: 70px;
+    text-align: center;
+}
+
+.view-btn {
+    min-width: 40px;
+}
+
+
+.chapter-name {
+    flex: 1;
+}
+
+::ng-deep .mat-expansion-panel-body {
+    padding: 4px !important;
 }
 
 .mcq-badge {

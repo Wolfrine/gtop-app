@@ -5,13 +5,12 @@ import { routes } from './app.routes';
 // Firebase imports
 import { provideFirebaseApp, initializeApp, FirebaseApp } from '@angular/fire/app';
 import { provideFirestore, initializeFirestore, persistentLocalCache } from '@angular/fire/firestore';
-import { provideAuth, getAuth } from '@angular/fire/auth';
+import { provideAuth, initializeAuth, indexedDBLocalPersistence } from '@angular/fire/auth';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideDatabase, getDatabase } from '@angular/fire/database';
 import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
 
-// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyATxEIUYY7rPgJriy_0q7yjfcP-QyBMZkM",
     authDomain: "gtop-app.firebaseapp.com",
@@ -27,40 +26,40 @@ export const appConfig: ApplicationConfig = {
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
 
-        // ✅ Correct Firebase Initialization with Debug Log
+        // ✅ Firebase Initialization
         provideFirebaseApp(() => {
             const app = initializeApp(firebaseConfig);
             console.log('[Firebase Init] Firebase App Initialized:', app.name, app.options);
             return app;
         }),
 
-        // ✅ Firestore Persistence with Debug Log
-        provideFirestore((injector) => {
-            const app = injector.get(FirebaseApp);
+        // ✅ Firestore Initialization
+        provideFirestore(() => {
+            const app = inject(FirebaseApp);
             console.log('[Firestore Init] App:', app.name);
             return initializeFirestore(app, { localCache: persistentLocalCache() });
         }),
 
-        // ✅ Auth Debug Log
+        // ✅ Auth Initialization (Fix potential timing issue)
         provideAuth(() => {
-            const auth = getAuth();
-            console.log('[Auth Init] Auth Initialized');
-            return auth;
+            const app = inject(FirebaseApp);
+            console.log('[Auth Init]');
+            return initializeAuth(app, { persistence: indexedDBLocalPersistence });
         }),
 
-        // ✅ Database Debug Log
+        // ✅ Realtime Database Initialization
         provideDatabase(() => {
-            const db = getDatabase();
-            console.log('[Database Init] Realtime Database Initialized');
-            return db;
+            const app = inject(FirebaseApp);
+            console.log('[Database Init]');
+            return getDatabase(app);
         }),
 
-        // Conditionally enable Analytics in Prod
+        // ✅ Analytics in Production
         ...(isDevMode() ? [] : [
             provideAnalytics(() => {
-                const analytics = getAnalytics();
-                console.log('[Analytics Init] Analytics Initialized');
-                return analytics;
+                const app = inject(FirebaseApp);
+                console.log('[Analytics Init]');
+                return getAnalytics(app);
             })
         ]),
 

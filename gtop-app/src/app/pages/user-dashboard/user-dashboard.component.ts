@@ -6,6 +6,7 @@ import { RouterModule, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ManualQuizModalComponent } from '../../components/manual-quiz-modal/manual-quiz-modal.component';
 import { AuthService } from '../../services/auth.service';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
     selector: 'app-user-dashboard',
@@ -14,7 +15,8 @@ import { AuthService } from '../../services/auth.service';
         CommonModule,
         MatCardModule,
         MatButtonModule,
-        RouterModule
+        RouterModule,
+
     ],
     templateUrl: './user-dashboard.component.html',
     styleUrls: ['./user-dashboard.component.scss']

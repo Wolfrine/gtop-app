@@ -38,6 +38,8 @@ export class ManualQuizModalComponent implements OnInit {
     selectedSubjects: string[] = [];
     selectedChapters: string[] = [];
 
+    filteredSyllabus: SyllabusItem[] = [];
+
     questionCount: number = 10;
     difficultyLevel: string = 'adaptive';
 
@@ -50,25 +52,33 @@ export class ManualQuizModalComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        // ✅ Fetch real-time user
         this.authService.getUser().subscribe(user => {
             if (user) {
                 this.board = user.board || '';
                 this.standard = user.standard || '';
 
-                // ✅ Filter syllabus for this user's board + standard
+                // ✅ Filter syllabus
                 this.syllabusService.syllabus$.subscribe((syllabusData: SyllabusItem[]) => {
-                    const filtered = syllabusData.filter(item =>
+                    this.filteredSyllabus = syllabusData.filter(item =>
                         item.board === this.board && item.standard === this.standard
                     );
 
-                    // ✅ Extract unique subjects & chapters
-                    this.subjects = [...new Set(filtered.map(item => item.subject))];
-                    this.chapters = [...new Set(filtered.map(item => item.chapter))];
+                    // ✅ Extract unique subjects
+                    this.subjects = [...new Set(this.filteredSyllabus.map(item => item.subject))];
                 });
             }
         });
     }
+
+    onSubjectsChange() {
+        // ✅ When subject(s) selected → filter chapters accordingly
+        const filteredChapters = this.filteredSyllabus
+            .filter(item => this.selectedSubjects.includes(item.subject))
+            .map(item => item.chapter);
+
+        this.chapters = [...new Set(filteredChapters)];
+    }
+
 
     startQuiz() {
         this.dialogRef.close();

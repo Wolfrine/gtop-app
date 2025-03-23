@@ -9,7 +9,19 @@
 
     <!-- Quick Start CTA -->
     <div class="quick-start">
-        <button mat-raised-button color="primary" (click)="startQuickQuiz()">Start Practice Quiz</button>
+        <div>
+            <button mat-raised-button color="primary" (click)="openManualQuiz()"
+                matTooltip="Customize your quiz: select subject, chapter & number of questions">
+                Practice Builder
+            </button>
+        </div>
+        <div>
+            <button mat-raised-button color="primary" (click)="startQuickQuiz()"
+                matTooltip="10 random questions from your subjects. Quick session to test skills!">
+                Surprise Session
+            </button>
+
+        </div>
     </div>
 
     <!-- Current Stats Overview -->
@@ -32,7 +44,7 @@
 
     <!-- Quick Access Buttons -->
     <div class="quick-access">
-        <button mat-stroked-button color="accent" (click)="openManualQuiz()">Select Subject & Chapter</button>
+
         <button mat-stroked-button color="accent" [routerLink]="['/reports']">View Reports</button>
     </div>
 

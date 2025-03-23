@@ -35,7 +35,7 @@ export class SideNavComponent implements OnInit {
 
     getAdminMenu() {
         return [
-            { label: 'Dashboard', icon: 'dashboard', route: '/admin' },
+            { label: 'Admin Dashboard', icon: 'dashboard', route: '/admin' },
             { label: 'Manage Syllabus', icon: 'library_books', route: '/admin/manage-syllabus' },
             { label: 'Manage MCQs', icon: 'library_books', route: '/admin/mcq-management' },
             { label: 'User Dashboard', icon: 'dashboard', route: '/dashboard' },

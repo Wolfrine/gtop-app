@@ -38,22 +38,14 @@ export class UserDashboardComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        // ✅ Pull from LocalStorage (already maintained in AuthService)
-        const localUser = JSON.parse(localStorage.getItem('user') || '{}');
-
-        this.userName = localUser.displayName || '';
-        this.userStandard = localUser.standard || '';
-        this.userSubjects = localUser.board || ''; // Temporarily showing board (subjects can be added later)
-
-        // 🔽 Optionally, subscribe to observable (if real-time sync needed)
-        // this.authService.getUser().subscribe(user => {
-        //   if (user) {
-        //     const localUser = JSON.parse(localStorage.getItem('user') || '{}');
-        //     this.userName = localUser.displayName || '';
-        //     this.userStandard = localUser.standard || '';
-        //     this.userSubjects = localUser.board || '';
-        //   }
-        // });
+        // ✅ Subscribe to real-time user data (Firestore + IndexedDB synced)
+        this.authService.getUser().subscribe(user => {
+            if (user) {
+                this.userName = user.displayName || '';
+                this.userStandard = user.standard || '';
+                this.userSubjects = user.board || ''; // Temporarily showing board (can adjust later)
+            }
+        });
     }
 
     startQuickQuiz() {

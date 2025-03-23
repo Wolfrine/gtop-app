@@ -14,30 +14,22 @@ export class RoleGuard implements CanActivate {
             map(user => {
                 let role = 'user'; // Default role
 
-                // ✅ Read role from LocalStorage first
-                const localUser = JSON.parse(localStorage.getItem('user') || '{}');
-                if (localUser?.role) {
-                    role = localUser.role;
-                } else if (user?.role) {
+                if (user?.role) {
                     role = user.role;
                 }
 
-                const allowedRoles: string[] = route.data['roles']; // Allowed roles for this route
+                const allowedRoles: string[] = route.data['roles'];
 
                 console.log(`RoleGuard Check - User Role: ${role}, Allowed Roles: ${allowedRoles}`);
 
                 if (allowedRoles.includes(role)) {
-                    return true; // ✅ Allow access if the role matches any allowed roles
+                    return true;
                 }
 
-                console.log("Unauthorized Access - Redirecting to /dashboard");
-                this.router.navigate(['/unauthorized']); // ❌ Redirect unauthorized users
+                console.log("Unauthorized Access - Redirecting to /unauthorized");
+                this.router.navigate(['/unauthorized']);
                 return false;
             })
         );
     }
-
-
-
-
 }

@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
 
 @Component({
@@ -64,16 +64,39 @@ export class QuizPageComponent {
 
     currentQuestionIndex = 0;
 
-    constructor(private quizService: QuizService, private router: Router) { }
+    constructor(
+        private quizService: QuizService,
+        private router: Router,
+        private route: ActivatedRoute
+    ) { }
 
     ngOnInit(): void {
-        this.quizService.fetchQuestionsFromRandomChapter()
-            .then(fetchedQuestions => {
-                this.questions = fetchedQuestions;
-            })
-            .catch(error => {
-                console.error('Error fetching quiz questions:', error);
-            });
+
+        this.route.queryParams.subscribe(params => {
+            const subjects: string[] = params['subjects'] || [];
+            const chapters: string[] = params['chapters'] || [];
+            const count = params['count'] ? +params['count'] : 10;
+
+            if (subjects.length > 0 || chapters.length > 0) {
+                // Custom quiz
+                this.quizService.fetchCustomQuizQuestions(subjects, chapters, count)
+                    .then(fetchedQuestions => {
+                        this.questions = fetchedQuestions;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching custom quiz:', error);
+                    });
+            } else {
+                // Quick quiz
+                this.quizService.fetchQuestionsFromRandomChapter()
+                    .then(fetchedQuestions => {
+                        this.questions = fetchedQuestions;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching quiz questions:', error);
+                    });
+            }
+        });
     }
 
 

@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-landing-page',
@@ -12,7 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
     templateUrl: './landing-page.component.html',
     styleUrl: './landing-page.component.scss'
 })
-export class LandingPageComponent {
+export class LandingPageComponent implements OnInit {
+
     // Track selected answer + feedback
     selectedAnswer: string | null = null;
     answerFeedback: string | null = null;
@@ -27,16 +29,18 @@ export class LandingPageComponent {
     ];
     correctAnswer = 'C';
 
-    constructor(private router: Router) {
-        const localUser = localStorage.getItem('user');
-        if (localUser) {
-            const userData = JSON.parse(localUser);
-            if (userData.board && userData.standard) {
+    constructor(
+        private router: Router,
+        private authService: AuthService
+    ) { }
+
+    ngOnInit(): void {
+        this.authService.getUser().subscribe(user => {
+            if (user && user.board && user.standard) {
                 this.router.navigate(['/dashboard']);
             }
-        }
+        });
     }
-
 
     // Called when an option is clicked
     checkAnswer(optionValue: string) {

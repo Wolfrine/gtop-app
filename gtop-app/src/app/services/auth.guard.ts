@@ -13,16 +13,15 @@ export class AuthGuard implements CanActivate {
         return this.authService.user$.pipe(
             map(user => {
                 if (user) {
-                    const localUser = JSON.parse(localStorage.getItem('user') || '{}');
-                    if (localUser.board && localUser.standard) {
-                        return true; // Allow access
+                    if (user.board && user.standard) {
+                        return true; // ✅ Allow access if profile is complete
                     } else {
                         this.router.navigate(['/profile-setup']);
-                        return false; // Redirect to complete profile setup
+                        return false; // ❌ Redirect to complete profile setup
                     }
                 }
                 this.router.navigate(['/']);
-                return false; // Redirect to Landing Page if not authenticated
+                return false; // ❌ Redirect to Landing Page if not authenticated
             })
         );
     }

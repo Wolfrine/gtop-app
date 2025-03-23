@@ -6,9 +6,9 @@ import {
     signOut,
     onAuthStateChanged,
     signInWithCredential,
-    User,
+    User
 } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, getDoc } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, getDoc, onSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 
@@ -19,12 +19,14 @@ declare global {
 }
 
 @Injectable({
-    providedIn: 'root',
+    providedIn: 'root'
 })
 export class AuthService {
     private userSubject = new BehaviorSubject<any>(null);
     user$ = this.userSubject.asObservable();
     googleClientId = '120622375082-4161ki3qobd7mc4m2as3e19qb0ef3dkh.apps.googleusercontent.com'; // Replace with Firebase OAuth Client ID
+
+    private snapshotUnsubscribe: any = null;
 
     constructor(
         private auth: Auth,
@@ -35,7 +37,7 @@ export class AuthService {
         this.checkUserSession();
     }
 
-    private oneTapInitialized = false; // ✅ Prevent duplicate One Tap calls
+    private oneTapInitialized = false;
 
     private loadGoogleScript(): Promise<void> {
         return new Promise((resolve, reject) => {
@@ -60,19 +62,17 @@ export class AuthService {
             console.log('Skipping One Tap: Already initialized or user logged in.');
             return;
         }
-
         this.oneTapInitialized = true;
 
         this.loadGoogleScript().then(() => {
             if (window.google?.accounts) {
                 const isLocalhost = window.location.hostname === 'localhost';
-
-                if (!isLocalhost) { // ✅ Only enable One Tap in production
+                if (!isLocalhost) {
                     window.google.accounts.id.initialize({
                         client_id: this.googleClientId,
                         callback: (response: { credential: string }) => this.handleCredentialResponse(response),
                         auto_select: true,
-                        cancel_on_tap_outside: false,
+                        cancel_on_tap_outside: false
                     });
                     window.google.accounts.id.prompt();
                 } else {
@@ -84,8 +84,7 @@ export class AuthService {
         });
     }
 
-
-    // ✅ Handle One Tap Credential Response
+    // ✅ Handle One Tap Credential
     async handleCredentialResponse(response: { credential: string }) {
         try {
             const credential = GoogleAuthProvider.credential(response.credential);
@@ -94,12 +93,14 @@ export class AuthService {
 
             await this.storeUserInFirestore(user);
             this.userSubject.next(user);
+            await this.setupUserSnapshot(user.uid);
+
         } catch (error) {
-            console.error('Google One Tap Sign-In Error:', error);
+            console.error('One Tap Error:', error);
         }
     }
 
-    // ✅ Sign in with Google Popup
+    // ✅ Google Popup Login
     async signInWithGoogle(): Promise<void> {
         try {
             const provider = new GoogleAuthProvider();
@@ -108,101 +109,98 @@ export class AuthService {
 
             await this.storeUserInFirestore(user);
             this.userSubject.next(user);
+            await this.setupUserSnapshot(user.uid);
+
             this.router.navigate(['/dashboard']);
         } catch (error) {
             console.error('Login Error:', error);
         }
     }
 
-    // ✅ Store User in Firestore (Fix: Preserve `createdOn` date)
+    // ✅ Store User in Firestore
     async storeUserInFirestore(user: User, board?: string, standard?: string): Promise<void> {
         const userRef = doc(this.firestore, `users/${user.uid}`);
         const userSnapshot = await getDoc(userRef);
 
         const existingData = userSnapshot.exists() ? userSnapshot.data() : {};
 
-        // ✅ Now includes role-based storage & redirects
         const userData = {
             uid: user.uid,
             displayName: user.displayName,
             email: user.email,
             photoURL: user.photoURL,
             createdOn: existingData['createdOn'] || new Date(),
-
             board: board ?? existingData['board'] ?? null,
             standard: standard ?? existingData['standard'] ?? null,
-
-            // ✅ Store role from Firestore or default to 'user'
             role: existingData['role'] ?? 'user'
         };
 
-        // ✅ Store in Firestore
         await setDoc(userRef, userData, { merge: true });
-
-        // ✅ Store in LocalStorage
-        localStorage.setItem('user', JSON.stringify(userData));
-
-        // ✅ Redirect Based on Role
         this.redirectToDashboard(userData.role);
-
     }
 
+    // ✅ Firestore Snapshot Listener
+    private async setupUserSnapshot(uid: string) {
+        if (this.snapshotUnsubscribe) {
+            this.snapshotUnsubscribe(); // Remove previous
+        }
 
-    // ✅ Auto Login Check
+        const userDoc = doc(this.firestore, `users/${uid}`);
+        this.snapshotUnsubscribe = onSnapshot(userDoc, (snapshot) => {
+            if (snapshot.exists()) {
+                const updatedUser = snapshot.data();
+                console.log('User updated in Firestore:', updatedUser);
+                this.userSubject.next(updatedUser);
+            }
+        });
+    }
+
+    // ✅ Session Check
     async checkUserSession() {
         onAuthStateChanged(this.auth, async (user) => {
             this.ngZone.run(async () => {
                 if (user) {
-                    this.userSubject.next(user);
+                    const userRef = doc(this.firestore, `users/${user.uid}`);
+                    const userSnapshot = await getDoc(userRef);
+                    if (userSnapshot.exists()) {
+                        const userData = userSnapshot.data();
+                        this.userSubject.next(userData);
+                        await this.setupUserSnapshot(user.uid);
 
-                    // ✅ Fetch user data from Firestore ONLY if NOT in localStorage
-                    if (!localStorage.getItem('user')) {
-                        const userRef = doc(this.firestore, `users/${user.uid}`);
-                        const userSnapshot = await getDoc(userRef);
-
-                        if (userSnapshot.exists()) {
-                            localStorage.setItem('user', JSON.stringify(userSnapshot.data()));
+                        if (userData['board'] && userData['standard']) {
+                            this.redirectToDashboard(userData['role']);
                         }
                     }
-
-                    // ✅ Auto-Redirect Based on Role if board & standard exist
-                    const localUser = JSON.parse(localStorage.getItem('user') || '{}');
-                    if (localUser.board && localUser.standard) {
-                        this.redirectToDashboard(localUser.role);
-                    }
-
-
                 } else {
                     this.userSubject.next(null);
-                    localStorage.removeItem('user');
+                    if (this.snapshotUnsubscribe) {
+                        this.snapshotUnsubscribe();
+                    }
                 }
             });
         });
     }
 
-
-    // ✅ Sign out
     async signOut(): Promise<void> {
         await signOut(this.auth);
         this.userSubject.next(null);
+        if (this.snapshotUnsubscribe) {
+            this.snapshotUnsubscribe();
+        }
         this.router.navigate(['/']);
     }
 
-    // ✅ Get User as Observable
     getUser(): Observable<any> {
         return this.user$;
     }
 
-    // ✅ Centralized redirect function for future scalability
     private redirectToDashboard(role: string) {
-        let targetRoute = '/dashboard'; // Default for users
-
+        let targetRoute = '/dashboard';
         if (role === 'admin') {
             targetRoute = '/admin';
         } else if (role === 'institute-admin') {
-            targetRoute = '/institute-admin'; // Future-proofing
+            targetRoute = '/institute-admin';
         }
-
         this.router.navigate([targetRoute]);
     }
 }

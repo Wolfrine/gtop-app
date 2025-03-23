@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, limit, getDocs } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, onSnapshot } from '@angular/fire/firestore';
 import { SyllabusService, SyllabusItem } from './syllabus.service';
 
 @Injectable({
@@ -25,19 +25,20 @@ export class QuizService {
         this.quizQuestions = [];
     }
 
-    // ✅ Fetch questions from a random chapter (no filter by board/standard)
+    /**
+     * ✅ Quick Quiz → Random chapter
+     */
     async fetchQuestionsFromRandomChapter(): Promise<any[]> {
         return new Promise((resolve, reject) => {
-            this.syllabusService.syllabus$.subscribe(async (syllabusData: SyllabusItem[]) => {
+            const syllabusSub = this.syllabusService.syllabus$.subscribe((syllabusData: SyllabusItem[]) => {
                 try {
                     const filtered = syllabusData.filter(item => item.mcqCount > 0);
-
                     if (filtered.length === 0) {
-                        reject('No syllabus entries with MCQs found!');
+                        syllabusSub.unsubscribe();
+                        reject('No chapters with MCQs found.');
                         return;
                     }
 
-                    // ✅ Random chapter selection
                     const randomIndex = Math.floor(Math.random() * filtered.length);
                     const selected = filtered[randomIndex];
 
@@ -47,26 +48,84 @@ export class QuizService {
                         where('board', '==', selected.board),
                         where('standard', '==', selected.standard),
                         where('subject', '==', selected.subject),
-                        where('chapter', '==', selected.chapter),
-                        limit(50)
+                        where('chapter', '==', selected.chapter)
                     );
 
-                    const snapshot = await getDocs(fetchQuery);
+                    const unsubscribe = onSnapshot(fetchQuery, (snapshot) => {
+                        let questions = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data(),
+                            selectedIndex: null
+                        }));
+
+                        unsubscribe(); // ✅ Immediately unsubscribe Firestore listener
+                        syllabusSub.unsubscribe(); // ✅ Unsubscribe syllabus listener too
+
+                        // Shuffle + pick 10
+                        questions = questions.sort(() => 0.5 - Math.random());
+                        resolve(questions.slice(0, 10));
+                    }, (error) => {
+                        unsubscribe();
+                        syllabusSub.unsubscribe();
+                        reject(error);
+                    });
+
+                } catch (error) {
+                    syllabusSub.unsubscribe();
+                    reject(error);
+                }
+            });
+        });
+    }
+
+
+
+
+    /**
+     * ✅ Custom Quiz → Based on selected subjects, chapters, count
+     */
+    async fetchCustomQuizQuestions(selectedSubjects: string[], selectedChapters: string[], questionCount: number): Promise<any[]> {
+        return new Promise((resolve, reject) => {
+            try {
+                const questionsCollection = collection(this.firestore, 'questions');
+
+                let fetchQuery = query(questionsCollection);
+
+                if (selectedSubjects.length > 0) {
+                    fetchQuery = query(fetchQuery, where('subject', 'in', selectedSubjects));
+                }
+                if (selectedChapters.length > 0) {
+                    fetchQuery = query(fetchQuery, where('chapter', 'in', selectedChapters));
+                }
+
+                const unsubscribe = onSnapshot(fetchQuery, (snapshot) => {
                     let questions = snapshot.docs.map(doc => ({
                         id: doc.id,
                         ...doc.data(),
                         selectedIndex: null
                     }));
 
-                    // ✅ Shuffle client-side
+                    unsubscribe(); // ✅ Immediately unsubscribe after fetch
+
+                    // Shuffle & apply limit
                     questions = questions.sort(() => 0.5 - Math.random());
-
-                    resolve(questions.slice(0, 10));
-
-                } catch (error) {
+                    resolve(questions.slice(0, questionCount));
+                }, (error) => {
+                    unsubscribe();
                     reject(error);
-                }
-            });
+                });
+
+            } catch (error) {
+                reject(error);
+            }
         });
+    }
+
+
+    /**
+     * 🚀 Future → Save Quiz Result
+     */
+    async saveQuizResult(userId: string, resultData: any) {
+        // Stub - Will integrate post-MVP
     }
 }

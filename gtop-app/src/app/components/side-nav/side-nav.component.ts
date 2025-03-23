@@ -20,15 +20,18 @@ export class SideNavComponent implements OnInit {
     constructor(private authService: AuthService) { }
 
     ngOnInit() {
-        // Fetch user role from LocalStorage or AuthService
-        const localUser = JSON.parse(localStorage.getItem('user') || '{}');
-        this.role = localUser.role || 'user'; // Default to 'user' if role is missing
+        // Fetch user data from AuthService (Firestore snapshot + IndexedDB cache)
+        this.authService.getUser().subscribe(user => {
+            if (user) {
+                this.role = user.role || 'user';
+            } else {
+                this.role = 'user'; // Default if null
+            }
 
-        // Define menu items based on role
-        this.menuItems = this.role === 'admin' ? this.getAdminMenu() : this.getUserMenu();
+            // Define menu items based on role
+            this.menuItems = this.role === 'admin' ? this.getAdminMenu() : this.getUserMenu();
+        });
     }
-
-
 
     getAdminMenu() {
         return [

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,7 +6,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
+import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 
 @Component({
     selector: 'app-manual-quiz-modal',
@@ -19,20 +22,18 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         MatInputModule,
         MatRadioModule,
         MatButtonModule,
-        FormsModule,
-        ReactiveFormsModule
+        FormsModule
     ],
     templateUrl: './manual-quiz-modal.component.html',
     styleUrls: ['./manual-quiz-modal.component.scss']
 })
-export class ManualQuizModalComponent {
+export class ManualQuizModalComponent implements OnInit {
 
-    // Dummy/pre-filled data (will later bind from Firestore)
-    board: string = 'CBSE';
-    standard: string = '8th Standard';
+    board: string = '';
+    standard: string = '';
 
-    subjects = ['Math', 'Science', 'English']; // To be fetched dynamically
-    chapters = ['Chapter 1', 'Chapter 2', 'Chapter 3']; // Dummy
+    subjects: string[] = [];
+    chapters: string[] = [];
 
     selectedSubjects: string[] = [];
     selectedChapters: string[] = [];
@@ -42,17 +43,42 @@ export class ManualQuizModalComponent {
 
     constructor(
         public dialogRef: MatDialogRef<ManualQuizModalComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: any
+        @Inject(MAT_DIALOG_DATA) public data: any,
+        private authService: AuthService,
+        private router: Router,
+        private syllabusService: SyllabusService
     ) { }
 
-    startQuiz() {
-        console.log('Starting manual quiz with:', {
-            selectedSubjects: this.selectedSubjects,
-            selectedChapters: this.selectedChapters,
-            questionCount: this.questionCount,
-            difficultyLevel: this.difficultyLevel
+    ngOnInit(): void {
+        // ✅ Fetch real-time user
+        this.authService.getUser().subscribe(user => {
+            if (user) {
+                this.board = user.board || '';
+                this.standard = user.standard || '';
+
+                // ✅ Filter syllabus for this user's board + standard
+                this.syllabusService.syllabus$.subscribe((syllabusData: SyllabusItem[]) => {
+                    const filtered = syllabusData.filter(item =>
+                        item.board === this.board && item.standard === this.standard
+                    );
+
+                    // ✅ Extract unique subjects & chapters
+                    this.subjects = [...new Set(filtered.map(item => item.subject))];
+                    this.chapters = [...new Set(filtered.map(item => item.chapter))];
+                });
+            }
         });
-        this.dialogRef.close(); // Close modal
+    }
+
+    startQuiz() {
+        this.dialogRef.close();
+        this.router.navigate(['/quiz'], {
+            queryParams: {
+                subjects: this.selectedSubjects,
+                chapters: this.selectedChapters,
+                count: this.questionCount
+            }
+        });
     }
 
     closeDialog() {

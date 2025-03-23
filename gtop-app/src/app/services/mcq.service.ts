@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, orderBy, limit, getDocs, doc, updateDoc, deleteDoc, setDoc, addDoc, startAfter, serverTimestamp, getCountFromServer, collectionSnapshots, writeBatch } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, orderBy, limit, getDocs, doc, updateDoc, deleteDoc, setDoc, addDoc, startAfter, serverTimestamp, getCountFromServer, collectionSnapshots, writeBatch, onSnapshot } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable, map } from 'rxjs';
+import { SyllabusService } from './syllabus.service';
 
 
 export interface MCQ {
@@ -25,7 +26,7 @@ export class McqService {
     private mcqCollection = collection(this.firestore, 'questions');
     private deletedMcqCollection = collection(this.firestore, 'deletedQuestions');
 
-    constructor(private firestore: Firestore, private auth: Auth) { }
+    constructor(private firestore: Firestore, private auth: Auth, private syllabusService: SyllabusService) { }
 
     /**
      * ✅ Add multiple MCQs to Firestore with proper format.
@@ -107,6 +108,101 @@ export class McqService {
 
         return { mcqs, lastVisible: snapshot.docs[snapshot.docs.length - 1] || null };
     }
+
+    async fetchQuickQuizQuestions(): Promise<any[]> {
+        return new Promise((resolve, reject) => {
+            this.syllabusService.syllabus$.subscribe(async (syllabusData: any[]) => {
+                try {
+                    // Filter chapters with at least 1 MCQ
+                    const validChapters = syllabusData.filter(item => item.mcqCount > 0);
+                    if (validChapters.length === 0) {
+                        reject('No chapters with MCQs found.');
+                        return;
+                    }
+
+                    // Pick random chapter
+                    const randomIndex = Math.floor(Math.random() * validChapters.length);
+                    const selected = validChapters[randomIndex];
+
+                    // Firestore Query
+                    const chapterQuery = query(
+                        this.mcqCollection,
+                        where('board', '==', selected.board),
+                        where('standard', '==', selected.standard),
+                        where('subject', '==', selected.subject),
+                        where('chapter', '==', selected.chapter)
+                    );
+
+                    // OnSnapshot fetch + unsubscribe immediately
+                    const unsubscribe = onSnapshot(chapterQuery, (snapshot) => {
+                        let mcqs = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data(),
+                            selectedIndex: null
+                        }));
+
+                        unsubscribe(); // ✅ Unsubscribe immediately!
+
+                        // Shuffle & return
+                        mcqs = mcqs.sort(() => 0.5 - Math.random());
+                        resolve(mcqs.slice(0, 10));
+                    });
+
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    /**
+     * ✅ Fetch Custom Quiz Questions based on selected subjects & chapters.
+     */
+    async fetchCustomQuizQuestions(filters: { board: string; standard: string; subjects: string[]; chapters: string[] }): Promise<MCQ[]> {
+        try {
+            // Defensive check
+            if (!filters.board || !filters.standard || filters.subjects.length === 0 || filters.chapters.length === 0) {
+                throw new Error('Invalid filters provided for custom quiz!');
+            }
+
+            // Firestore Query - Multiple OR conditions (subject IN, chapter IN)
+            const mcqQuery = query(
+                this.mcqCollection,
+                where('board', '==', filters.board),
+                where('standard', '==', filters.standard),
+                where('subject', 'in', filters.subjects),
+                where('chapter', 'in', filters.chapters)
+            );
+
+            const snapshot = await getDocs(mcqQuery);
+
+            const mcqs: MCQ[] = snapshot.docs.map(doc => ({
+                id: doc.id,
+                board: doc.data()['board'] || 'Unknown',
+                standard: doc.data()['standard'] || 'Unknown',
+                subject: doc.data()['subject'] || 'Unknown',
+                chapter: doc.data()['chapter'] || 'Unknown',
+                title: doc.data()['title'] || 'Untitled',
+                question: doc.data()['question'] || 'No question',
+                options: Array.isArray(doc.data()['options']) ? doc.data()['options'] : [],
+                correctIndex: typeof doc.data()['correctIndex'] === 'number' ? doc.data()['correctIndex'] : -1,
+                solutions: Array.isArray(doc.data()['solutions']) ? doc.data()['solutions'] : [],
+                selected: false
+            }));
+
+            // ✅ Shuffle client-side
+            const shuffled = mcqs.sort(() => 0.5 - Math.random());
+
+            return shuffled; // No slice limit → you can slice later if needed in quiz page
+
+        } catch (error) {
+            console.error('Error fetching custom quiz MCQs:', error);
+            throw error;
+        }
+    }
+
+
+
 
 
     /**

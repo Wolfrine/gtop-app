@@ -16,15 +16,23 @@ export class FooterComponent {
             for (let registration of registrations) {
                 registration.unregister();
             }
+
             // Clear caches
             if ('caches' in window) {
-                caches.keys().then(function (names) {
+                caches.keys().then(names => {
                     for (let name of names) caches.delete(name);
                 });
             }
-            // Reload page
-            location.reload(); // true = force reload
+
+            // Clear LocalStorage
+            localStorage.clear();
+
+            // Reload page after small delay to ensure everything is cleared
+            setTimeout(() => {
+                location.reload();
+            }, 500);
         });
     }
+
 
 }

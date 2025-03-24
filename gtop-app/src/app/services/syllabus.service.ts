@@ -43,7 +43,7 @@ export class SyllabusService {
         this.syllabus$.next(snapshot as SyllabusItem[]);
     }
 
-async updateSyllabusCountsEfficient() {
+async updateSyllabusCountsFromIndexedDB() {
     const syllabusCollection = collection(this.firestore, 'syllabus');
     const syllabusSnapshot = await getDocs(syllabusCollection);
     const batch = writeBatch(this.firestore);
@@ -54,10 +54,10 @@ async updateSyllabusCountsEfficient() {
 
         const mcqQuery = query(
             collection(this.firestore, 'questions'),
-            where('board', '==', syllabusData.board),
-            where('standard', '==', syllabusData.standard),
-            where('subject', '==', syllabusData.subject),
-            where('chapter', '==', syllabusData.chapter)
+            where('board', '==', syllabusData['board']),
+            where('standard', '==', syllabusData['standard']),
+            where('subject', '==', syllabusData['subject']),
+            where('chapter', '==', syllabusData['chapter'])
         );
 
         const mcqSnapshot = await getCountFromServer(mcqQuery);

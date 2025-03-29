@@ -8,26 +8,27 @@ import { Auth, User, onAuthStateChanged } from '@angular/fire/auth';
 export class ActiveUsersService {
     private db = inject(Database);
     private auth = inject(Auth);
-    private user = signal<User | null>(null); // Holds the current user
-    activeUsers = signal<any[]>([]); // Holds only online users
-    totalUsers = signal<number>(0);  // ✅ Should be a number, not an array
+    private user = signal<User | null>(null);
+    activeUsers = signal<any[]>([]);
+    totalUsers = signal<number>(0);
 
     constructor() {
-        // Track user login/logout status
         onAuthStateChanged(this.auth, (user) => {
-            this.user.set(user);
             if (user) {
+                this.user.set(user);
                 this.setUserActive(user);
             } else {
-                this.removeUser();
+                const previousUser = this.user();
+                if (previousUser) {
+                    this.removeUser(previousUser.uid);
+                }
+                this.user.set(null);
             }
         });
 
-        // Listen for real-time updates
         this.listenToActiveUsers();
     }
 
-    // Set user as active and update status in the database
     private setUserActive(user: User) {
         const userRef = ref(this.db, `activeUsers/${user.uid}`);
         const userData = {
@@ -38,41 +39,38 @@ export class ActiveUsersService {
             isOnline: true
         };
 
+        // First set the user data, then bind onDisconnect
         set(userRef, userData).then(() => {
             console.log('User active status set.');
-        });
 
-        // Mark user as offline when they disconnect
-        onDisconnect(userRef).update({
-            isOnline: false,
-            lastActive: Date.now()
-        }).then(() => {
-            console.log('User will be marked offline on disconnect.');
-        });
-    }
-
-    // Remove user from the active users list when they log out
-    private removeUser() {
-        if (this.user()) {
-            const userRef = ref(this.db, `activeUsers/${this.user()?.uid}`);
-            remove(userRef).then(() => {
-                console.log('User removed from active users.');
+            onDisconnect(userRef).update({
+                isOnline: false,
+                lastActive: Date.now()
+            }).then(() => {
+                console.log('User will be marked offline on disconnect.');
             });
-        }
+        }).catch((err) => {
+            console.error('Failed to set active user:', err);
+        });
     }
 
-    // ✅ Fetch both active and total users in real-time
+    // Remove user from active list on logout
+    private removeUser(uid: string) {
+        const userRef = ref(this.db, `activeUsers/${uid}`);
+        remove(userRef).then(() => {
+            console.log('User removed from active users.');
+        }).catch((err) => {
+            console.error('Failed to remove user:', err);
+        });
+    }
+
     listenToActiveUsers() {
         const activeUsersRef = ref(this.db, 'activeUsers');
         onValue(activeUsersRef, (snapshot) => {
             const usersData = snapshot.val();
             if (usersData) {
                 const usersArray = Object.values(usersData);
-
-                // ✅ Track the total number of users
                 this.totalUsers.set(usersArray.length);
-
-                // ✅ Filter only online users
                 const onlineUsers = usersArray.filter((user: any) => user.isOnline);
                 this.activeUsers.set(onlineUsers);
             } else {
@@ -82,18 +80,13 @@ export class ActiveUsersService {
         });
     }
 
-    // ✅ Fetch once (used only if needed for a one-time fetch)
     fetchActiveUsers() {
         const activeUsersRef = ref(this.db, 'activeUsers');
         get(activeUsersRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const usersData = snapshot.val();
                 const usersArray = Object.values(usersData);
-
-                // ✅ Set total users
                 this.totalUsers.set(usersArray.length);
-
-                // ✅ Set only online users
                 const onlineUsers = usersArray.filter((user: any) => user.isOnline);
                 this.activeUsers.set(onlineUsers);
             } else {
@@ -101,18 +94,21 @@ export class ActiveUsersService {
                 this.totalUsers.set(0);
                 this.activeUsers.set([]);
             }
+        }).catch((err) => {
+            console.error('Failed to fetch active users:', err);
         });
     }
 
-    // ✅ Update last active time (user inactivity tracking)
     updateUserLastActive() {
-        const userRef = ref(this.db, `activeUsers/${this.user()?.uid}`);
+        const currentUser = this.user();
+        if (!currentUser || !navigator.onLine) return;
+
+        const userRef = ref(this.db, `activeUsers/${currentUser.uid}`);
         update(userRef, { lastActive: Date.now() }).then(() => {
             console.log('User last active time updated.');
         });
     }
 
-    // ✅ Mark user as offline (if needed)
     setUserOffline(userId: string) {
         const userRef = ref(this.db, `activeUsers/${userId}`);
         update(userRef, { isOnline: false, lastActive: Date.now() }).then(() => {
@@ -120,7 +116,6 @@ export class ActiveUsersService {
         });
     }
 
-    // ✅ Update user data if needed
     updateUserData(userId: string, data: any) {
         const userRef = ref(this.db, `activeUsers/${userId}`);
         update(userRef, data).then(() => {

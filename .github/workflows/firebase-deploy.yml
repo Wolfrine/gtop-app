@@ -1,4 +1,4 @@
-name: 🚀 Deploy GTOP App to Firebase Hosting
+name: Deploy Angular App to Firebase Hosting
 
 on:
   push:
@@ -9,30 +9,28 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: gtop-app/gtop-app  # ✅ Your real project folder
-
     steps:
-      - name: 🔄 Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🛠️ Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20  # ✅ Updated to match Firebase CLI compatibility
 
-      - name: 📦 Install Dependencies (Production Only)
+      - name: Install Dependencies (Production Only)
         run: npm ci --omit=dev
+        working-directory: gtop-app
 
-      - name: 🏗️ Build Angular App
+      - name: Build Angular App
         run: npm run build -- --configuration production
+        working-directory: gtop-app
 
-      - name: 🚀 Deploy to Firebase Hosting (Live)
+      - name: Deploy to Production
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           projectId: "gtop-app"
-          entryPoint: "gtop-app/gtop-app"  # ✅ Points to correct Firebase project folder
+          entryPoint: "gtop-app"
           channelId: "live"

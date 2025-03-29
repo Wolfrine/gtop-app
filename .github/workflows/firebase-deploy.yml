@@ -16,10 +16,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20  # ✅ Updated to match Firebase CLI compatibility
+          node-version: 20  # ✅ Updated for Firebase CLI v14+ compatibility
 
-      - name: Install Dependencies (Production Only)
-        run: npm ci --omit=dev
+      - name: Install Dependencies
+        run: npm install
         working-directory: gtop-app
 
       - name: Build Angular App

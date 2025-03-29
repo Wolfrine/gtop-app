@@ -25,4 +25,8 @@ mat-list-item.active {
     .sidenav {
         width: 100%; // ✅ Full-width on mobile
     }
+
+    .mat-drawer {
+        width: 80% !important;
+    }
 }

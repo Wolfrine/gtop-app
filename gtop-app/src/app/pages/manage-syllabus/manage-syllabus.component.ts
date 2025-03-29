@@ -78,7 +78,7 @@ export class ManageSyllabusComponent {
     }
 
     refreshSyllabusCounts() {
-        this.syllabusService.updateSyllabusCountsFromIndexedDB(this.syllabusData)
+        this.syllabusService.updateSyllabusCountsFromIndexedDB()
             .then(() => {
                 console.log("Syllabus counts refreshed successfully!");
             })

@@ -43,60 +43,33 @@ export class SyllabusService {
         this.syllabus$.next(snapshot as SyllabusItem[]);
     }
 
-    async updateSyllabusCountsFromIndexedDB(syllabusData: any[]) {
-        const syllabusCollection = collection(this.firestore, 'syllabus');
-        const batch = writeBatch(this.firestore);
+async updateSyllabusCountsFromIndexedDB() {
+    const syllabusCollection = collection(this.firestore, 'syllabus');
+    const syllabusSnapshot = await getDocs(syllabusCollection);
+    const batch = writeBatch(this.firestore);
 
-        for (const boardItem of syllabusData) {
-            const board = boardItem.name;
-            if (!board) continue; // Defensive check
+    for (const docSnap of syllabusSnapshot.docs) {
+        const syllabusDoc = docSnap.ref;
+        const syllabusData = docSnap.data();
 
-            for (const standardItem of boardItem.standards) {
-                const standard = standardItem.name;
-                if (!standard) continue;
+        const mcqQuery = query(
+            collection(this.firestore, 'questions'),
+            where('board', '==', syllabusData['board']),
+            where('standard', '==', syllabusData['standard']),
+            where('subject', '==', syllabusData['subject']),
+            where('chapter', '==', syllabusData['chapter'])
+        );
 
-                for (const subjectItem of standardItem.subjects) {
-                    const subject = subjectItem.name;
-                    if (!subject) continue;
+        const mcqSnapshot = await getCountFromServer(mcqQuery);
+        const count = mcqSnapshot.data().count;
 
-                    for (const chapterItem of subjectItem.chapters) {
-                        const chapter = chapterItem.name;
-                        if (!chapter) continue;
-
-                        // ✅ Query MCQ count for this syllabus combo
-                        const mcqQuery = query(
-                            collection(this.firestore, 'questions'),
-                            where('board', '==', board),
-                            where('standard', '==', standard),
-                            where('subject', '==', subject),
-                            where('chapter', '==', chapter)
-                        );
-
-                        const mcqSnapshot = await getCountFromServer(mcqQuery);
-                        const count = mcqSnapshot.data().count;
-
-                        // ✅ Find syllabus doc by board-standard-subject-chapter key
-                        const syllabusQuery = query(
-                            syllabusCollection,
-                            where('board', '==', board),
-                            where('standard', '==', standard),
-                            where('subject', '==', subject),
-                            where('chapter', '==', chapter)
-                        );
-
-                        const syllabusDocs = await getDocs(syllabusQuery);
-                        if (!syllabusDocs.empty) {
-                            const syllabusDoc = syllabusDocs.docs[0].ref;
-                            batch.update(syllabusDoc, { mcqCount: count });
-                        }
-                    }
-                }
-            }
-        }
-
-        await batch.commit();
-        console.log('Syllabus counts updated successfully!');
+        batch.update(syllabusDoc, { mcqCount: count });
     }
+
+    await batch.commit();
+    console.log('Optimized syllabus counts updated!');
+}
+
 
 
 }

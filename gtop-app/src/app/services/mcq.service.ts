@@ -243,30 +243,53 @@ export class McqService {
         try {
             const syllabusRef = collection(this.firestore, 'syllabus');
             const questionsSnapshot = await getDocs(collection(this.firestore, 'questions'));
-
-            const syllabusMap = new Map();
-
+    
+            const syllabusMap = new Map<string, { board: string; standard: string; subject: string; chapter: string; createdAt: any }>();
+    
             questionsSnapshot.forEach(doc => {
                 const { board, standard, subject, chapter } = doc.data();
                 const key = `${board}-${standard}-${subject}-${chapter}`;
-
+    
                 if (!syllabusMap.has(key)) {
                     syllabusMap.set(key, { board, standard, subject, chapter, createdAt: serverTimestamp() });
                 }
             });
-
-            const batch = writeBatch(this.firestore);
-            syllabusMap.forEach((data) => {
-                const newDocRef = doc(syllabusRef);
-                batch.set(newDocRef, data);
+    
+            const existingSyllabusSnapshot = await getDocs(syllabusRef);
+            const existingSyllabusKeys = new Set<string>();
+    
+            existingSyllabusSnapshot.forEach(doc => {
+                const { board, standard, subject, chapter } = doc.data();
+                const key = `${board}-${standard}-${subject}-${chapter}`;
+                existingSyllabusKeys.add(key);
             });
-
-            await batch.commit();
+    
+            const batch = writeBatch(this.firestore);
+            let batchCount = 0;
+    
+            for (const [key, data] of syllabusMap.entries()) {
+                if (!existingSyllabusKeys.has(key)) {
+                    const newDocRef = doc(syllabusRef);
+                    batch.set(newDocRef, data);
+                    batchCount++;
+    
+                    if (batchCount === 500) {
+                        await batch.commit();
+                        batchCount = 0;
+                    }
+                }
+            }
+    
+            if (batchCount > 0) {
+                await batch.commit();
+            }
+    
             console.log("Syllabus manually updated from questions!");
         } catch (error) {
             console.error('Error updating syllabus:', error);
         }
     }
+    
 
 
 

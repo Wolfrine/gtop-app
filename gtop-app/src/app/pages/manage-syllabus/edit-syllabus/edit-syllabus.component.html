@@ -1,0 +1,99 @@
+<div class="edit-syllabus-wrapper">
+
+    <!-- Header Row with Filters -->
+    <div class="syllabus-row header">
+
+        <!-- Board -->
+        <div class="cell">
+            <mat-form-field appearance="outline" class="mini-header-field">
+                <mat-label>Board</mat-label>
+                <mat-select [(ngModel)]="selectedBoard" (selectionChange)="onBoardChange()">
+                    <mat-option [value]="null">All</mat-option>
+                    <mat-option *ngFor="let board of uniqueBoards" [value]="board">{{ board }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <!-- Standard -->
+        <div class="cell">
+            <mat-form-field appearance="outline" class="mini-header-field">
+                <mat-label>Standard</mat-label>
+                <mat-select [(ngModel)]="selectedStandard" (selectionChange)="onStandardChange()">
+                    <mat-option [value]="null">All</mat-option>
+                    <mat-option *ngFor="let std of uniqueStandards" [value]="std">{{ std }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <!-- Subject -->
+        <div class="cell">
+            <mat-form-field appearance="outline" class="mini-header-field">
+                <mat-label>Subject</mat-label>
+                <mat-select [(ngModel)]="selectedSubject" (selectionChange)="applyFilters()">
+                    <mat-option [value]="null">All</mat-option>
+                    <mat-option *ngFor="let sub of uniqueSubjects" [value]="sub">{{ sub }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <!-- Chapter (no filter) -->
+        <div class="cell">
+            <strong>Chapter</strong>
+        </div>
+
+        <!-- Actions -->
+        <div class="cell action-cell">
+            <strong>Actions</strong>
+        </div>
+    </div>
+
+    <!-- Main Syllabus Rows -->
+    <div class="syllabus-row" *ngFor="let row of filteredSyllabus; let i = index">
+
+        <!-- Actions -->
+        <div class="cell action-cell">
+            <button mat-icon-button color="primary" *ngIf="editingRowIndex !== i" (click)="onStartEdit(i)">
+                <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" *ngIf="editingRowIndex === i" (click)="onEditComplete(i)">
+                <mat-icon>check</mat-icon>
+            </button>
+        </div>
+
+        <!-- Board -->
+        <div class="cell">
+            <ng-container *ngIf="editingRowIndex === i; else boardDisplay">
+                <input matInput [(ngModel)]="editedRow.board" />
+            </ng-container>
+            <ng-template #boardDisplay>{{ row.board }}</ng-template>
+        </div>
+
+        <!-- Standard -->
+        <div class="cell">
+            <ng-container *ngIf="editingRowIndex === i; else standardDisplay">
+                <input matInput [(ngModel)]="editedRow.standard" />
+            </ng-container>
+            <ng-template #standardDisplay>{{ row.standard }}</ng-template>
+        </div>
+
+        <!-- Subject -->
+        <div class="cell">
+            <ng-container *ngIf="editingRowIndex === i; else subjectDisplay">
+                <input matInput [(ngModel)]="editedRow.subject" />
+            </ng-container>
+            <ng-template #subjectDisplay>{{ row.subject }}</ng-template>
+        </div>
+
+        <!-- Chapter -->
+        <div class="cell chapter-cell">
+            <ng-container *ngIf="editingRowIndex === i; else chapterDisplay">
+                <input matInput [(ngModel)]="editedRow.chapter" />
+            </ng-container>
+            <ng-template #chapterDisplay>
+                {{ row.chapter }}
+                <span *ngIf="row.mcqCount > 0">({{ row.mcqCount }})</span>
+            </ng-template>
+        </div>
+    </div>
+
+</div>

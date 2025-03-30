@@ -77,6 +77,10 @@ export class ManageSyllabusComponent {
         });
     }
 
+    editSyllabus() {
+        this.router.navigate(['/admin/manage-syllabus/edit']);
+    }
+
     refreshSyllabusCounts() {
         this.syllabusService.updateSyllabusCountsFromIndexedDB()
             .then(() => {

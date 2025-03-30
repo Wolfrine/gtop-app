@@ -10,6 +10,8 @@ import { RoleGuard } from './services/role.guard';
 import { ManageSyllabusComponent } from './pages/manage-syllabus/manage-syllabus.component'; // ✅ Import Manage Syllabus Component
 import { QuizPageComponent } from './pages/quiz-page/quiz-page.component';
 import { QuizSummaryComponent } from './pages/quiz-summary/quiz-summary.component';
+import { EditSyllabusComponent } from './pages/manage-syllabus/edit-syllabus/edit-syllabus.component';
+
 
 
 export const routes: Routes = [
@@ -56,6 +58,12 @@ export const routes: Routes = [
         component: QuizSummaryComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['user', 'admin'] }
+    },
+    {
+        path: 'admin/manage-syllabus/edit',
+        component: EditSyllabusComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'] }
     },
 
     { path: '**', redirectTo: '' }

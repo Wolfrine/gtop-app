@@ -1,0 +1,94 @@
+.edit-syllabus-wrapper {
+    padding: 16px;
+
+    .syllabus-row {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        background-color: #fff;
+        box-sizing: border-box;
+
+        &.header {
+            background-color: #f4f4f4;
+            font-weight: 600;
+            border: none;
+            padding-bottom: 8px;
+        }
+    }
+
+    .cell {
+        flex: 1 1 20%;
+        min-width: 150px;
+        padding: 0 8px;
+        box-sizing: border-box;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &.action-cell {
+            flex: 0 0 80px;
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        input {
+            width: 100%;
+            padding: 4px 8px;
+            font-size: 14px;
+        }
+    }
+
+    .chapter-cell {
+        white-space: normal !important;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        line-height: 1.4;
+    }
+
+    .mini-header-field {
+        width: 100%;
+
+        ::ng-deep .mat-form-field-wrapper {
+            padding: 0 !important;
+        }
+
+        ::ng-deep .mat-form-field-infix {
+            padding: 0 8px !important;
+            min-height: 36px;
+        }
+
+        ::ng-deep .mat-select-trigger {
+            font-size: 13px;
+        }
+
+        ::ng-deep .mat-select-arrow {
+            margin-right: 4px;
+        }
+    }
+
+    // Optional: hover effect for rows
+    .syllabus-row:not(.header):hover {
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
+    }
+
+    @media (max-width: 768px) {
+        .syllabus-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .cell {
+            width: 100%;
+            padding: 8px 0;
+        }
+
+        .cell.action-cell {
+            justify-content: flex-end;
+        }
+    }
+}

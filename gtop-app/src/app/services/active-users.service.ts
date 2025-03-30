@@ -13,6 +13,7 @@ export class ActiveUsersService {
     totalUsers = signal<number>(0);
 
     constructor() {
+        // Firebase auth state change handler
         onAuthStateChanged(this.auth, (user) => {
             if (user) {
                 this.user.set(user);
@@ -26,7 +27,45 @@ export class ActiveUsersService {
             }
         });
 
+        // Re-check and reinitialize presence
+        this.reinitializePresenceIfNeeded();
+
+        // Re-add presence if manually removed from DB
+        this.watchOwnPresenceInRealtimeDB();
+
+        // Set active when tab regains visibility
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                const current = this.auth.currentUser;
+                if (current) this.setUserActive(current);
+            }
+        });
+
+        // Listen for all active user changes
         this.listenToActiveUsers();
+    }
+
+    // Ensure presence is set even if onAuthStateChanged is skipped
+    private async reinitializePresenceIfNeeded() {
+        const user = this.auth.currentUser;
+        if (user) {
+            await this.setUserActive(user);
+        }
+    }
+
+    // Watch own presence record; re-add if manually deleted
+    private watchOwnPresenceInRealtimeDB() {
+        setTimeout(() => {
+            const currentUser = this.auth.currentUser;
+            if (!currentUser) return;
+
+            const userRef = ref(this.db, `activeUsers/${currentUser.uid}`);
+            onValue(userRef, (snapshot) => {
+                if (!snapshot.exists()) {
+                    this.setUserActive(currentUser);
+                }
+            });
+        }, 1000); // Wait for auth to initialize
     }
 
     private setUserActive(user: User) {
@@ -39,7 +78,6 @@ export class ActiveUsersService {
             isOnline: true
         };
 
-        // First set the user data, then bind onDisconnect
         set(userRef, userData).then(() => {
             console.log('User active status set.');
 
@@ -54,7 +92,6 @@ export class ActiveUsersService {
         });
     }
 
-    // Remove user from active list on logout
     private removeUser(uid: string) {
         const userRef = ref(this.db, `activeUsers/${uid}`);
         remove(userRef).then(() => {

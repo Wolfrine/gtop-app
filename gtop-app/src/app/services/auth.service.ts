@@ -11,6 +11,7 @@ import {
 import { Firestore, doc, setDoc, getDoc, onSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { ActiveUsersService } from './active-users.service';
 
 declare global {
     interface Window {
@@ -32,7 +33,8 @@ export class AuthService {
         private auth: Auth,
         private firestore: Firestore,
         private router: Router,
-        private ngZone: NgZone
+        private ngZone: NgZone,
+        private activeUsersService: ActiveUsersService
     ) {
         this.checkUserSession();
     }
@@ -166,6 +168,9 @@ export class AuthService {
                         const userData = userSnapshot.data();
                         this.userSubject.next(userData);
                         await this.setupUserSnapshot(user.uid);
+
+                        // ✅ Update Realtime DB presence
+                        this.activeUsersService.setPresenceForUser(user);
 
                         if (userData['board'] && userData['standard']) {
                             this.redirectToDashboard(userData['role']);

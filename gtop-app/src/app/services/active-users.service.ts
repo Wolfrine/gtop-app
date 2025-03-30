@@ -159,4 +159,9 @@ export class ActiveUsersService {
             console.log('User data updated.');
         });
     }
+
+    public setPresenceForUser(user: User) {
+        this.user.set(user);
+        this.setUserActive(user);
+    }
 }

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, doc, getCountFromServer, getDocs, onSnapshot, query, where, writeBatch } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, doc, getCountFromServer, getDocs, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from '@angular/fire/firestore';
 import { BehaviorSubject } from 'rxjs';
 
 export interface SyllabusItem {
+    id?: string;
     board: string;
     standard: string;
     subject: string;
@@ -25,6 +26,7 @@ export class SyllabusService {
     private loadSyllabus() {
         onSnapshot(this.syllabusCollection, (snapshot) => {
             const syllabus: SyllabusItem[] = snapshot.docs.map(doc => ({
+                id: doc.id,
                 board: doc.data()['board'],
                 standard: doc.data()['standard'],
                 subject: doc.data()['subject'],
@@ -70,57 +72,76 @@ export class SyllabusService {
         console.log('Optimized syllabus counts updated!');
     }
 
-    async editSyllabus(oldPath: SyllabusItem, newPath: SyllabusItem, editedBy: string): Promise<void> {
-        const syllabusCollRef = collection(this.firestore, 'syllabus');
-        const oldDocRef = doc(this.firestore, `syllabus/${oldPath.board}_${oldPath.standard}_${oldPath.subject}_${oldPath.chapter}`);
-        const newDocRef = doc(this.firestore, `syllabus/${newPath.board}_${newPath.standard}_${newPath.subject}_${newPath.chapter}`);
+    async editSyllabus(
+        syllabusId: string,
+        oldPath: SyllabusItem,
+        newPath: Partial<SyllabusItem>,
+        editedBy: string
+    ): Promise<void> {
+        const syllabusDocRef = doc(this.firestore, `syllabus/${syllabusId}`);
 
-        const questionsRef = collection(this.firestore, 'questions');
-        const q = query(
-            questionsRef,
-            where('board', '==', oldPath.board),
-            where('standard', '==', oldPath.standard),
-            where('subject', '==', oldPath.subject),
-            where('chapter', '==', oldPath.chapter)
-        );
+        // 🔍 1. Detect what changed
+        const changedFields: Partial<SyllabusItem> = {};
+        (['board', 'standard', 'subject', 'chapter'] as const).forEach(key => {
+            if (newPath[key] && newPath[key] !== oldPath[key]) {
+                changedFields[key] = newPath[key]!;
+            }
+        });
 
-        const questionSnapshot = await getDocs(q);
-        const totalQuestions = questionSnapshot.docs.length;
-        const questionIds = questionSnapshot.docs.map(doc => doc.id);
-
-        // Step 1: Create or update new syllabus doc
-        await writeBatch(this.firestore).set(newDocRef, {
-            ...newPath,
-            mcqCount: totalQuestions
-        }).delete(oldDocRef).commit();
-
-        // Step 2: Batch update questions
-        const batchSize = 500;
-        for (let i = 0; i < totalQuestions; i += batchSize) {
-            const batch = writeBatch(this.firestore);
-            const slice = questionSnapshot.docs.slice(i, i + batchSize);
-            slice.forEach(docSnap => {
-                const docRef = doc(this.firestore, `questions/${docSnap.id}`);
-                batch.update(docRef, {
-                    subject: newPath.subject,
-                    chapter: newPath.chapter
-                });
-            });
-            await batch.commit();
+        // ⚡️ 2. Update Syllabus (only changed fields)
+        if (Object.keys(changedFields).length > 0) {
+            await updateDoc(syllabusDocRef, changedFields);
         }
 
-        // Step 3: Log the update
-        const logRef = doc(collection(this.firestore, 'AdminLogs/edits'));
-        await writeBatch(this.firestore).set(logRef, {
+        // 🔃 3. If subject/chapter changed, update MCQs
+        const shouldUpdateMCQs = changedFields.subject || changedFields.chapter;
+        const updatedMCQIds: string[] = [];
+
+        if (shouldUpdateMCQs) {
+            const questionsRef = collection(this.firestore, 'questions');
+            const q = query(
+                questionsRef,
+                where('board', '==', oldPath.board),
+                where('standard', '==', oldPath.standard),
+                where('subject', '==', oldPath.subject),
+                where('chapter', '==', oldPath.chapter)
+            );
+
+            const snapshot = await getDocs(q);
+            const total = snapshot.docs.length;
+
+            const batchSize = 500;
+            for (let i = 0; i < total; i += batchSize) {
+                const batch = writeBatch(this.firestore);
+                const slice = snapshot.docs.slice(i, i + batchSize);
+
+                slice.forEach(docSnap => {
+                    const ref = doc(this.firestore, `questions/${docSnap.id}`);
+                    updatedMCQIds.push(docSnap.id);
+                    batch.update(ref, {
+                        ...(changedFields.subject && { subject: changedFields.subject }),
+                        ...(changedFields.chapter && { chapter: changedFields.chapter })
+                    });
+                });
+
+                await batch.commit();
+            }
+        }
+
+        // 📝 4. Create Admin Log (single write)
+        const logId = `log_${Date.now()}`;
+        const logRef = doc(this.firestore, `activity/${logId}`);
+        await setDoc(logRef, {
             type: 'syllabus-edit',
             editedBy,
-            timestamp: new Date(), // You can replace with serverTimestamp() if Firestore admin SDK is used
+            timestamp: serverTimestamp(),
+            syllabusId,
             originalValue: oldPath,
-            newValue: newPath,
-            affectedDocuments: questionIds
-        }).commit();
+            newValue: { ...oldPath, ...changedFields },
+            affectedDocuments: updatedMCQIds
+        });
 
-        console.log(`✔ Syllabus edited and ${totalQuestions} questions updated.`);
+        console.log(`✔ Syllabus updated. MCQs updated: ${updatedMCQIds.length}`);
     }
 
 

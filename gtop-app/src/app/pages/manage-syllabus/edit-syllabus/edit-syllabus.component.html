@@ -45,6 +45,11 @@
         <div class="cell action-cell">
             <strong>Actions</strong>
         </div>
+
+        <!-- Filtered Count Info -->
+        <div class="syllabus-count" *ngIf="filteredSyllabus.length">
+            Showing {{ filteredSyllabus.length }} syllabus item{{ filteredSyllabus.length > 1 ? 's' : '' }}
+        </div>
     </div>
 
     <!-- Main Syllabus Rows -->

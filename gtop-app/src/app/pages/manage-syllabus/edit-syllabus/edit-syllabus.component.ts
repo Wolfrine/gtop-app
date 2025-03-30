@@ -8,6 +8,7 @@ import { MatOption } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { SyllabusService, SyllabusItem } from '../../../services/syllabus.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
     selector: 'app-edit-syllabus',
@@ -42,7 +43,10 @@ export class EditSyllabusComponent implements OnInit {
     uniqueStandards: string[] = [];
     uniqueSubjects: string[] = [];
 
-    constructor(private syllabusService: SyllabusService) { }
+    constructor(
+        private syllabusService: SyllabusService,
+        private authService: AuthService
+    ) { }
 
     ngOnInit(): void {
         this.syllabusService.syllabus$.subscribe((data) => {
@@ -103,7 +107,8 @@ export class EditSyllabusComponent implements OnInit {
             board: oldRow.board,
             standard: oldRow.standard,
             subject: oldRow.subject,
-            chapter: oldRow.chapter
+            chapter: oldRow.chapter,
+            mcqCount: oldRow.mcqCount
         };
 
         const newPath = {
@@ -115,12 +120,32 @@ export class EditSyllabusComponent implements OnInit {
 
         if (JSON.stringify(oldPath) !== JSON.stringify(newPath)) {
             console.log('Syllabus Edited:', { oldPath, newPath });
-            // 🔗 TODO: Firestore Integrator service call goes here
 
+            if (!oldRow.id) {
+                console.error('Missing syllabus document ID.');
+                return;
+            }
 
+            this.authService.getUser().subscribe((user) => {
+                if (user && user.uid) {
+                    this.syllabusService.editSyllabus(
+                        oldRow.id!,           // Firestore doc ID
+                        oldPath,
+                        newPath,
+                        user.uid             // Editor's UID from auth service
+                    ).then(() => {
+                        console.log('Edit complete');
+                    }).catch(err => {
+                        console.error('Edit failed', err);
+                    });
+                } else {
+                    console.error('No logged in user found.');
+                }
+            });
         }
 
         this.editingRowIndex = null;
         this.editedRow = {};
     }
+
 }

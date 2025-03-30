@@ -71,15 +71,16 @@ export class QuizPageComponent {
     ) { }
 
     ngOnInit(): void {
-
         this.route.queryParams.subscribe(params => {
+            const board = params['board'] || null;
+            const standard = params['standard'] || null;
             const subjects: string[] = params['subjects'] || [];
             const chapters: string[] = params['chapters'] || [];
             const count = params['count'] ? +params['count'] : 10;
 
-            if (subjects.length > 0 || chapters.length > 0) {
+            if (board && standard && (subjects.length > 0 || chapters.length > 0)) {
                 // Custom quiz
-                this.quizService.fetchCustomQuizQuestions(subjects, chapters, count)
+                this.quizService.fetchCustomQuizQuestions(board, standard, subjects, chapters, count)
                     .then(fetchedQuestions => {
                         this.questions = fetchedQuestions;
                     })
@@ -98,6 +99,7 @@ export class QuizPageComponent {
             }
         });
     }
+
 
 
 

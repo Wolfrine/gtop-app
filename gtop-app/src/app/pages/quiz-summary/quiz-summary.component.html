@@ -29,21 +29,46 @@
                 <mat-panel-title>
                     Q{{ i + 1 }}: {{ q.question.length > 100 ? (q.question | slice:0:50) +
                     '...' : q.question }}
+                    <span class="measure-quiz" *ngIf="q.selectedIndex == q.correctIndex"> ✅ </span>
+                    <span class="measure-quiz" *ngIf="q.selectedIndex !== q.correctIndex"> ❌ </span>
                 </mat-panel-title>
             </mat-expansion-panel-header>
 
-            <div class="solution-details">
-                <p><strong>Your Answer:</strong> {{ q.options[q.selectedIndex] || 'Not Answered' }}</p>
-                <p><strong>Correct Answer:</strong> {{ q.options[q.correctIndex] }}</p>
-                <p><strong>Explanation:</strong> {{ q.solutions[q.correctIndex] }}</p>
+            <div class="mcq-details">
+                <span class="mcq-category">{{q.board}}, {{q.standard}} - {{ q.subject }} | {{q.chapter}}
+                </span>
+                <p><strong>{{ q.question }}</strong></p>
+                <div class="mcq-options">
+                    <div *ngFor="let option of q.options; let i = index" class="mcq-option">
+                        <span class="option-label">{{ optionLabels[i] }}</span> {{ option }}
+                    </div>
+                </div>
+
+                <div class="mcq-incorrect" *ngIf="q.selectedIndex !== q.correctIndex">
+                    <span class="option-label">Your Answer:</span>
+                    <span class="incorrect-answer">
+                        {{ q.selectedIndex !== undefined ? optionLabels[q.selectedIndex] : 'Not Answered' }}
+                        {{ q.options[q.selectedIndex] || 'Not Answered' }}
+                    </span>
+                    <p><strong>Explanation:</strong> {{ q.solutions[q.correctIndex] }}</p>
+                </div>
+
+                <!-- ✅ Display Correct Answer -->
+                <div class="mcq-solution" *ngIf="q.selectedIndex == q.correctIndex">
+                    <strong>Correct Answer:</strong>
+                    <span class="correct-answer">
+                        {{ optionLabels[q.correctIndex] }} {{ q.options[q.correctIndex] }}
+                    </span>
+                    <!-- <p><strong>Explanation:</strong> {{ q.solutions[q.correctIndex] }}</p> -->
+                </div>
             </div>
         </mat-expansion-panel>
     </mat-accordion>
 
     <!-- CTA Buttons -->
     <div class="cta-buttons">
-        <button mat-stroked-button color="primary">Retry Quiz</button>
-        <button mat-stroked-button>Practice More Questions</button>
+        <!-- <button mat-stroked-button color="primary">Retry Quiz</button> -->
+        <!-- <button mat-stroked-button>Practice More Questions</button> -->
         <button mat-stroked-button routerLink="/dashboard">Back to Dashboard</button>
     </div>
 

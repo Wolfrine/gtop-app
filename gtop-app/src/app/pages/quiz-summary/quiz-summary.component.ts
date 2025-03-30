@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
+import { Subject } from 'rxjs';
 
 @Component({
     selector: 'app-quiz-summary',
@@ -24,6 +25,10 @@ export class QuizSummaryComponent {
     // Dummy quiz result data (later will be passed from quiz page)
     questions = [
         {
+            board: 'CBSE',
+            standard: '10',
+            subject: 'Maths',
+            chapter: 'Algebra',
             question: 'What is the difference between 4.5 and 1.2?',
             options: ['3.3', '3.5', '3.0', '4.7'],
             correctIndex: 0,
@@ -36,6 +41,8 @@ export class QuizSummaryComponent {
             ]
         }
     ];
+
+    optionLabels = ['A)', 'B)', 'C)', 'D)'];
 
     constructor(private quizService: QuizService) {
         this.questions = this.quizService.getQuestions(); // Get quiz data

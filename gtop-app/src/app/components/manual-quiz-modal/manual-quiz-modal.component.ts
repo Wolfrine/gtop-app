@@ -82,14 +82,19 @@ export class ManualQuizModalComponent implements OnInit {
 
     startQuiz() {
         this.dialogRef.close();
+
         this.router.navigate(['/quiz'], {
             queryParams: {
+                board: this.board,               // ✅ fixed
+                standard: this.standard,         // ✅ fixed
                 subjects: this.selectedSubjects,
                 chapters: this.selectedChapters,
                 count: this.questionCount
             }
         });
     }
+
+
 
     closeDialog() {
         this.dialogRef.close();

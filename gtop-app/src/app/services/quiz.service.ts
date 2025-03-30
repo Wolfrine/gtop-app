@@ -84,16 +84,27 @@ export class QuizService {
     /**
      * ✅ Custom Quiz → Based on selected subjects, chapters, count
      */
-    async fetchCustomQuizQuestions(selectedSubjects: string[], selectedChapters: string[], questionCount: number): Promise<any[]> {
+    async fetchCustomQuizQuestions(
+        board: string,
+        standard: string,
+        selectedSubjects: string[],
+        selectedChapters: string[],
+        questionCount: number
+    ): Promise<any[]> {
         return new Promise((resolve, reject) => {
             try {
                 const questionsCollection = collection(this.firestore, 'questions');
 
-                let fetchQuery = query(questionsCollection);
+                let fetchQuery = query(
+                    questionsCollection,
+                    where('board', '==', board),
+                    where('standard', '==', standard)
+                );
 
                 if (selectedSubjects.length > 0) {
                     fetchQuery = query(fetchQuery, where('subject', 'in', selectedSubjects));
                 }
+
                 if (selectedChapters.length > 0) {
                     fetchQuery = query(fetchQuery, where('chapter', 'in', selectedChapters));
                 }
@@ -105,9 +116,9 @@ export class QuizService {
                         selectedIndex: null
                     }));
 
-                    unsubscribe(); // ✅ Immediately unsubscribe after fetch
+                    unsubscribe(); // 🔄 Detach after one-time fetch
 
-                    // Shuffle & apply limit
+                    // 🔀 Shuffle & limit
                     questions = questions.sort(() => 0.5 - Math.random());
                     resolve(questions.slice(0, questionCount));
                 }, (error) => {
@@ -120,6 +131,7 @@ export class QuizService {
             }
         });
     }
+
 
 
     /**

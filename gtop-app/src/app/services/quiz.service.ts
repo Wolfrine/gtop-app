@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Firestore, collection, query, where, getDocs, onSnapshot } from '@angular/fire/firestore';
 import { SyllabusService, SyllabusItem } from './syllabus.service';
+import { doc, setDoc } from '@angular/fire/firestore';
+import { Timestamp } from '@angular/fire/firestore';
 
 @Injectable({
     providedIn: 'root'
@@ -137,7 +139,52 @@ export class QuizService {
     /**
      * 🚀 Future → Save Quiz Result
      */
-    async saveQuizResult(userId: string, resultData: any) {
-        // Stub - Will integrate post-MVP
+    async saveQuizResult(userId: string, resultData: {
+        userName: string;
+        standard: string;
+        subject: string;
+        chapter: string;
+        quizType: string;
+        questions: {
+            id: string;
+            selectedIndex: number;
+            correctIndex: number;
+        }[];
+    }) {
+        try {
+            const quizId = doc(collection(this.firestore, 'QuizResults')).id; // auto-generated ID
+
+            const totalQuestions = resultData.questions.length;
+            const correctAnswers = resultData.questions.filter(q => q.selectedIndex === q.correctIndex).length;
+            const wrongAnswers = totalQuestions - correctAnswers;
+            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+
+            const quizDoc = {
+                userId,
+                userName: resultData.userName,
+                standard: resultData.standard,
+                subject: resultData.subject,
+                chapter: resultData.chapter,
+                quizType: resultData.quizType,
+                totalQuestions,
+                correctAnswers,
+                wrongAnswers,
+                percentage,
+                timestamp: Timestamp.now(),
+                questions: resultData.questions.map(q => ({
+                    questionId: q.id,
+                    selectedIndex: q.selectedIndex,
+                    correctIndex: q.correctIndex,
+                    isCorrect: q.selectedIndex === q.correctIndex
+                }))
+            };
+
+            const resultRef = doc(this.firestore, `QuizResults/${quizId}`);
+            await setDoc(resultRef, quizDoc);
+
+            console.log('✅ Quiz result saved:', quizId);
+        } catch (error) {
+            console.error('❌ Error saving quiz result:', error);
+        }
     }
 }

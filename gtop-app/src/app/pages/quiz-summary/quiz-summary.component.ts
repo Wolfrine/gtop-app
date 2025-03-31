@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
-import { Subject } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-quiz-summary',
@@ -20,32 +21,44 @@ import { Subject } from 'rxjs';
     templateUrl: './quiz-summary.component.html',
     styleUrls: ['./quiz-summary.component.scss']
 })
-export class QuizSummaryComponent {
-
-    // Dummy quiz result data (later will be passed from quiz page)
-    questions = [
-        {
-            board: 'CBSE',
-            standard: '10',
-            subject: 'Maths',
-            chapter: 'Algebra',
-            question: 'What is the difference between 4.5 and 1.2?',
-            options: ['3.3', '3.5', '3.0', '4.7'],
-            correctIndex: 0,
-            selectedIndex: 1,
-            solutions: [
-                'Option A is correct because 4.5 – 1.2 = 3.3.',
-                'Option B is incorrect because 4.5 – 1.2 ≠ 3.5.',
-                'Option C is incorrect because 4.5 – 1.2 ≠ 3.0.',
-                'Option D is incorrect because 4.5 – 1.2 ≠ 4.7.'
-            ]
-        }
-    ];
-
+export class QuizSummaryComponent implements OnInit, OnDestroy {
+    questions: any[] = [];
     optionLabels = ['A)', 'B)', 'C)', 'D)'];
+    private userSub!: Subscription;
+    private saved = false;
 
-    constructor(private quizService: QuizService) {
-        this.questions = this.quizService.getQuestions(); // Get quiz data
+    constructor(
+        private quizService: QuizService,
+        private authService: AuthService
+    ) { }
+
+    ngOnInit() {
+        this.questions = this.quizService.getQuestions();
+
+        this.userSub = this.authService.getUser().subscribe(user => {
+            if (user && this.questions.length > 0 && !this.saved) {
+                const sample = this.questions[0];
+
+                this.quizService.saveQuizResult(user.uid, {
+                    userName: user.displayName || 'Unknown',
+                    standard: sample.standard,
+                    subject: sample.subject,
+                    chapter: sample.chapter,
+                    quizType: 'quick', // Make dynamic if needed
+                    questions: this.questions.map(q => ({
+                        id: q.id,
+                        selectedIndex: q.selectedIndex,
+                        correctIndex: q.correctIndex
+                    }))
+                });
+
+                this.saved = true;
+            }
+        });
+    }
+
+    ngOnDestroy() {
+        if (this.userSub) this.userSub.unsubscribe();
     }
 
     get totalQuestions() {

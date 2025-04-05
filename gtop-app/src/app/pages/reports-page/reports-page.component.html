@@ -1,0 +1,71 @@
+<div class="reports-container">
+
+    <!-- Single Summary Tile with Dividers -->
+    <mat-card class="summary-tile">
+        <div class="summary-row">
+            <div class="summary-item">
+                <div class="label">Total Quizzes</div>
+                <div class="value">12</div>
+            </div>
+            <div class="divider"></div>
+            <div class="summary-item">
+                <div class="label">Accuracy</div>
+                <div class="value">78%</div>
+            </div>
+            <div class="divider"></div>
+            <div class="summary-item">
+                <div class="label">Last Score</div>
+                <div class="value">8/10</div>
+            </div>
+        </div>
+    </mat-card>
+
+    <!-- Charts Section: 70 / 30 -->
+    <div class="charts-section">
+        <mat-card class="chart-card">
+            <div class="chart-title">Accuracy Over Time</div>
+            <canvas baseChart [data]="accuracyChartData" [options]="chartOptions" [type]="'line'">
+            </canvas>
+        </mat-card>
+
+        <mat-card class="chart-card pie-chart">
+            <div class="chart-title">Quiz Type Distribution</div>
+            <canvas baseChart [data]="quizTypeChartData" [options]="chartOptions" [type]="'pie'">
+            </canvas>
+        </mat-card>
+    </div>
+
+    <!-- Session History Section -->
+    <mat-card class="session-history">
+        <div class="section-title">Session History</div>
+        <div class="session-list">
+            <div class="session-item" *ngFor="let session of mockSessions">
+                <div class="session-content">
+                    <!-- Top row: Board/Std/... + Retry -->
+                    <div class="session-details">
+                        <div class="header-row">
+                            <div class="path">{{ session.board }} > {{ session.standard }} > {{ session.subject }} > {{
+                                session.chapter }}</div>
+                        </div>
+
+                        <!-- Middle row: Title -->
+                        <div class="quiz-title">
+                            {{ session.quizType }} | {{ session.date }} | {{ session.time }}
+                        </div>
+
+                        <!-- Bottom row: stats -->
+                        <div class="quiz-stats">
+                            Questions: {{ session.total }} |
+                            Correct: {{ session.correct }} |
+                            Time: {{ session.duration }}
+                        </div>
+                    </div>
+
+                    <button mat-button color="primary" class="retry-btn">Retry</button>
+                </div>
+            </div>
+        </div>
+    </mat-card>
+
+
+</div>

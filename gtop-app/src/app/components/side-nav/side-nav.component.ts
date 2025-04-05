@@ -40,7 +40,8 @@ export class SideNavComponent implements OnInit {
             { label: 'Manage MCQs', icon: 'library_books', route: '/admin/mcq-management' },
             { label: 'User Dashboard', icon: 'dashboard', route: '/dashboard' },
             { label: 'Live Quizzes', icon: 'quiz', route: '/admin/quizzes' },
-            { label: 'User Management', icon: 'group', route: '/admin/users' },
+            { label: 'User Management', icon: 'group', route: '/admin/user-list' },
+            { label: 'Performance Reports', icon: 'bar_chart', route: '/reports' },
             { label: 'Reports & Analytics', icon: 'bar_chart', route: '/admin/reports' },
         ];
     }

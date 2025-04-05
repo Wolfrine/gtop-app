@@ -1,0 +1,30 @@
+<div class="user-cards-wrapper">
+
+    <div class="user-card" *ngFor="let user of users">
+
+        <div class="user-card-inner">
+
+            <!-- Profile -->
+            <div class="profile-pic">
+                <img [src]="user.photoURL" alt="avatar" />
+            </div>
+
+            <!-- Details Section -->
+            <div class="user-details">
+                <div class="top-row">
+                    <div class="name-email">
+                        <div class="name">{{ user.name }}</div>
+                        <div class="email">{{ user.email }}</div>
+                    </div>
+                    <div class="online-status">
+                        {{ user.isOnline ? 'Online' : 'Last seen: ' + (user.lastSeen | date:'short') }}
+                    </div>
+                </div>
+
+                <div class="meta-line">User: {{ user.role }} | {{ user.board }} | {{ user.standard }}</div>
+                <div class="meta-line">Started On: {{ user.createdAt | date:'MMM d, y' }}</div>
+                <div class="meta-line">Account Status: {{ user.subscriptionStatus }}</div>
+            </div>
+
+        </div>
+    </div>

@@ -11,6 +11,9 @@ import { ManageSyllabusComponent } from './pages/manage-syllabus/manage-syllabus
 import { QuizPageComponent } from './pages/quiz-page/quiz-page.component';
 import { QuizSummaryComponent } from './pages/quiz-summary/quiz-summary.component';
 import { EditSyllabusComponent } from './pages/manage-syllabus/edit-syllabus/edit-syllabus.component';
+import { ReportsPageComponent } from './pages/reports-page/reports-page.component';
+import { UserListComponent } from './pages/admin-dashboard/user-list/user-list.component';
+
 
 
 
@@ -60,8 +63,21 @@ export const routes: Routes = [
         data: { roles: ['user', 'admin'] }
     },
     {
+        path: 'reports',
+        component: ReportsPageComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user', 'admin'] }
+    },
+
+    {
         path: 'admin/manage-syllabus/edit',
         component: EditSyllabusComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'] }
+    },
+    {
+        path: 'admin/user-list',
+        component: UserListComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['admin'] }
     },

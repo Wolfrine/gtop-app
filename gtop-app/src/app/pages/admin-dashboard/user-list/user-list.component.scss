@@ -3,12 +3,21 @@
     gap: 20px;
     padding: 24px;
 
+    @media (min-width: 1024px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     @media (min-width: 768px) {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    @media (min-width: 1024px) {
+    @media (min-width: 1440px) {
         grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 375px) {
+        gap: 12px;
+        padding: 12px;
     }
 }
 
@@ -33,6 +42,16 @@
             }
         }
 
+        @media screen and (max-width: 375px) {
+            .profile-pic {
+                img {
+                    width: 50px;
+                    height: 50px;
+                }
+            }
+
+        }
+
         .user-details {
             flex: 1;
             display: flex;
@@ -47,6 +66,7 @@
 
                 .name {
                     font-weight: 600;
+                    text-transform: capitalize;
                 }
 
                 .email {
@@ -57,7 +77,13 @@
                 .online-status {
                     font-size: 12px;
                     color: #555;
-                    white-space: nowrap;
+
+                    .online-icon {
+                        font-size: 12px;
+                        height: 12px;
+                        width: 12px;
+                        color: #4CAF50;
+                    }
                 }
             }
 

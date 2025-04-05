@@ -1,8 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatIcon } from '@angular/material/icon';
+import { ActiveUsersService } from '../../../services/active-users.service';
 
 @Component({
     selector: 'app-user-list',
@@ -11,68 +13,71 @@ import { MatChipsModule } from '@angular/material/chips';
         CommonModule,
         FormsModule,
         MatCardModule,
-        MatChipsModule
+        MatChipsModule,
+        MatIcon
     ],
     templateUrl: './user-list.component.html',
     styleUrls: ['./user-list.component.scss']
 })
 export class UserListComponent {
-    users = [
-        {
-            name: 'John Doe',
-            email: 'john@example.com',
-            photoURL: 'https://i.pravatar.cc/150?img=11',
-            role: 'user',
-            board: 'CBSE',
-            standard: '10',
-            createdAt: new Date('2024-11-15'),
-            subscriptionStatus: 'premium',
-            isOnline: true,
-            lastSeen: new Date()
-        },
-        {
-            name: 'Alice Sharma',
-            email: 'alice@school.org',
-            photoURL: 'https://i.pravatar.cc/150?img=32',
-            role: 'admin',
-            board: 'ICSE',
-            standard: '12',
-            createdAt: new Date('2024-12-01'),
-            subscriptionStatus: 'free',
-            isOnline: false,
-            lastSeen: new Date('2025-04-05T19:40:00')
-        },
-        {
-            name: 'Ravi Kumar',
-            email: 'ravi.kumar@gmail.com',
-            photoURL: 'https://i.pravatar.cc/150?img=25',
-            role: 'user',
-            board: 'State Board',
-            standard: '9',
-            createdAt: new Date('2025-01-08'),
-            subscriptionStatus: 'premium',
-            isOnline: false,
-            lastSeen: new Date('2025-04-05T18:12:00')
-        }
-    ];
+    users: any[] = [];
+    selectedUsers: any[] = [];
 
-    selectedUsers = signal<any[]>([]);
+    constructor(private activeUsersService: ActiveUsersService) {
+        this.activeUsersService.listenToUsersCollection();
+        this.activeUsersService.listenToActiveUsers();
+
+        effect(() => {
+            const userList = this.activeUsersService.allUsers();
+            const realtimeUsers = this.activeUsersService.activeInactiveUsers();
+
+            const enrichedUsers = userList.map(user => {
+                const match = realtimeUsers.find(o => o.userId === user.userId);
+
+                return {
+                    ...user,
+                    isOnline: !!match?.isOnline,
+                    lastSeen: match?.lastActive ? new Date(Number(match.lastActive)) : null,
+                    createdAt: user.createdAt?.toDate
+                        ? user.createdAt.toDate()
+                        : user.createdOn?.toDate
+                            ? user.createdOn.toDate()
+                            : user.createdAt
+                                ? new Date(user.createdAt)
+                                : user.createdOn
+                                    ? new Date(user.createdOn)
+                                    : null
+                };
+            });
+
+            // ✅ Sort: online first, then by latest lastSeen
+            this.users = enrichedUsers.sort((a, b) => {
+                if (a.isOnline && !b.isOnline) return -1;
+                if (!a.isOnline && b.isOnline) return 1;
+
+                // Both are same online status → compare lastSeen
+                const timeA = a.lastSeen?.getTime?.() || 0;
+                const timeB = b.lastSeen?.getTime?.() || 0;
+                return timeB - timeA;
+            });
+        });
+
+    }
 
     onUserSelect(user: any) {
-        const selected = this.selectedUsers();
-        const index = selected.findIndex(u => u.email === user.email);
+        const index = this.selectedUsers.findIndex(u => u.email === user.email);
         if (index > -1) {
-            this.selectedUsers.set([...selected.slice(0, index), ...selected.slice(index + 1)]);
+            this.selectedUsers.splice(index, 1);
         } else {
-            this.selectedUsers.set([...selected, user]);
+            this.selectedUsers.push(user);
         }
     }
 
     toggleAll(event: any) {
         if (event.checked) {
-            this.selectedUsers.set([...this.users]);
+            this.selectedUsers = [...this.users];
         } else {
-            this.selectedUsers.set([]);
+            this.selectedUsers = [];
         }
     }
 }

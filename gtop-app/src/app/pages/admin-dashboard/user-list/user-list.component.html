@@ -13,11 +13,15 @@
             <div class="user-details">
                 <div class="top-row">
                     <div class="name-email">
-                        <div class="name">{{ user.name }}</div>
+                        <div class="name">{{ user.displayName }}</div>
                         <div class="email">{{ user.email }}</div>
                     </div>
                     <div class="online-status">
-                        {{ user.isOnline ? 'Online' : 'Last seen: ' + (user.lastSeen | date:'short') }}
+                        <mat-icon *ngIf="user.isOnline" class="online-icon">adjust</mat-icon>
+                        {{ user.isOnline ? 'Online' : user.lastSeen ? 'Last seen: '
+                        + (user.lastSeen | date:'dd MMM, y |EEE')
+                        + ' at ' +
+                        (user.lastSeen | date:'HH:MM') : 'Offline' }}
                     </div>
                 </div>
 

@@ -1,6 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Database, ref, set, remove, onDisconnect, update, get, onValue } from '@angular/fire/database';
 import { Auth, User, onAuthStateChanged } from '@angular/fire/auth';
+import { Firestore, collection, onSnapshot, CollectionReference, DocumentData } from '@angular/fire/firestore';
+
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +12,10 @@ export class ActiveUsersService {
     private auth = inject(Auth);
     private user = signal<User | null>(null);
     activeUsers = signal<any[]>([]);
+    activeInactiveUsers = signal<any[]>([]);
     totalUsers = signal<number>(0);
+    allUsers = signal<any[]>([]);
+    private firestore = inject(Firestore);
 
     constructor() {
         // Firebase auth state change handler
@@ -44,6 +49,22 @@ export class ActiveUsersService {
         // Listen for all active user changes
         this.listenToActiveUsers();
     }
+
+    listenToUsersCollection() {
+        const usersCollection = collection(this.firestore, 'users') as CollectionReference<DocumentData>;
+
+        onSnapshot(usersCollection, (snapshot) => {
+            const userList = snapshot.docs.map(doc => ({
+                userId: doc.id,
+                ...doc.data()
+            }));
+            this.allUsers.set(userList);
+        }, (error) => {
+            console.error('Error listening to Users collection:', error);
+        });
+    }
+
+
 
     // Ensure presence is set even if onAuthStateChanged is skipped
     private async reinitializePresenceIfNeeded() {
@@ -107,6 +128,7 @@ export class ActiveUsersService {
             const usersData = snapshot.val();
             if (usersData) {
                 const usersArray = Object.values(usersData);
+                this.activeInactiveUsers.set(usersArray);
                 this.totalUsers.set(usersArray.length);
                 const onlineUsers = usersArray.filter((user: any) => user.isOnline);
                 this.activeUsers.set(onlineUsers);

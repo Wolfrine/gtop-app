@@ -34,6 +34,9 @@ export class AppComponent implements OnInit {
 
     constructor(private authService: AuthService, private router: Router) {
         this.router.events.subscribe((event) => {
+            // 🚀 SCROLL TO TOP on every route change
+            window.scrollTo({ top: 0 });
+
             if (event instanceof NavigationEnd) {
                 if (event.url === '/') {
                     this.isLandingPage = true;
@@ -69,6 +72,13 @@ export class AppComponent implements OnInit {
     toggleSidebar() {
         if (this.sidenav) {
             this.sidenav.toggle();
+        }
+    }
+
+    onNavItemClick() {
+        // Only auto-close in over mode (i.e. mobile/tablet)
+        if (this.sidenavMode === 'over' && this.sidenav) {
+            this.sidenav.close();
         }
     }
 }

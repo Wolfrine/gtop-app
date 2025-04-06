@@ -1,5 +1,6 @@
 <mat-nav-list class="sidenav">
-    <a mat-list-item *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="active">
+    <a mat-list-item *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="active"
+        (click)="itemClicked.emit()">
         <mat-icon>{{ item.icon }}</mat-icon>
         <span>{{ item.label }}</span>
     </a>

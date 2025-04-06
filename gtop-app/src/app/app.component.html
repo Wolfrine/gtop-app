@@ -5,7 +5,7 @@
 
     <!-- Side Navigation -->
     <mat-drawer #sidenav [mode]="sidenavMode" [opened]="isDesktop" class="sidenav" *ngIf="!isLandingAndProfile">
-        <app-side-nav></app-side-nav>
+        <app-side-nav (itemClicked)="onNavItemClick()"></app-side-nav>
     </mat-drawer>
 
     <!-- Main Content -->

@@ -41,6 +41,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
 
                 this.quizService.saveQuizResult(user.uid, {
                     userName: user.displayName || 'Unknown',
+                    board: sample.board,
                     standard: sample.standard,
                     subject: sample.subject,
                     chapter: sample.chapter,

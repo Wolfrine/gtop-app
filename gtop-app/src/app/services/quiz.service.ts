@@ -141,6 +141,7 @@ export class QuizService {
      */
     async saveQuizResult(userId: string, resultData: {
         userName: string;
+        board: string;
         standard: string;
         subject: string;
         chapter: string;
@@ -187,4 +188,30 @@ export class QuizService {
             console.error('❌ Error saving quiz result:', error);
         }
     }
+
+    //*** 🚀 Future → Fetch Quiz Results
+    async fetchUserQuizResults(userId: string): Promise<any[]> {
+        try {
+            const quizResultsRef = collection(this.firestore, 'QuizResults');
+            const fetchQuery = query(
+                quizResultsRef,
+                where('userId', '==', userId)
+            );
+
+            const snapshot = await getDocs(fetchQuery);
+
+            return snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    timestamp: data['timestamp']?.toDate?.() || null
+                };
+            });
+        } catch (error) {
+            console.error('❌ Error fetching quiz results:', error);
+            return [];
+        }
+    }
+
 }

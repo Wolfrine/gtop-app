@@ -29,19 +29,27 @@ import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 })
 export class ManualQuizModalComponent implements OnInit {
 
+    // Role Check
+    isAdmin: boolean = false;
+
+    // Dropdowns
     board: string = '';
     standard: string = '';
+    boards: string[] = [];
+    standards: string[] = [];
 
+    // Dynamic Subjects/Chapters
     subjects: string[] = [];
     chapters: string[] = [];
-
     selectedSubjects: string[] = [];
     selectedChapters: string[] = [];
 
-    filteredSyllabus: SyllabusItem[] = [];
-
+    // Quiz Setup
     questionCount: number = 10;
     difficultyLevel: string = 'adaptive';
+
+    // All syllabus matching selected board/standard
+    filteredSyllabus: SyllabusItem[] = [];
 
     constructor(
         public dialogRef: MatDialogRef<ManualQuizModalComponent>,
@@ -54,24 +62,58 @@ export class ManualQuizModalComponent implements OnInit {
     ngOnInit(): void {
         this.authService.getUser().subscribe(user => {
             if (user) {
+                this.isAdmin = user.role === 'admin';
                 this.board = user.board || '';
                 this.standard = user.standard || '';
 
-                // ✅ Filter syllabus
                 this.syllabusService.syllabus$.subscribe((syllabusData: SyllabusItem[]) => {
-                    this.filteredSyllabus = syllabusData.filter(item =>
-                        item.board === this.board && item.standard === this.standard
-                    );
+                    const allBoards = syllabusData.map(s => s.board);
+                    this.boards = [...new Set(allBoards)];
 
-                    // ✅ Extract unique subjects
-                    this.subjects = [...new Set(this.filteredSyllabus.map(item => item.subject))];
+                    if (this.isAdmin && this.board) {
+                        this.onBoardChange();
+                    }
+
+                    if (!this.isAdmin) {
+                        // Direct filtering for users (fixed board & standard)
+                        this.filteredSyllabus = syllabusData.filter(item =>
+                            item.board === this.board && item.standard === this.standard
+                        );
+                        this.subjects = [...new Set(this.filteredSyllabus.map(item => item.subject))];
+                    }
                 });
             }
         });
     }
 
-    onSubjectsChange() {
-        // ✅ When subject(s) selected → filter chapters accordingly
+    onBoardChange(): void {
+        // Reset everything downstream
+        this.standard = '';
+        this.standards = [];
+        this.subjects = [];
+        this.selectedSubjects = [];
+        this.selectedChapters = [];
+        this.chapters = [];
+
+        const syllabusData = this.syllabusService.syllabus$.getValue();
+        const filtered = syllabusData.filter(item => item.board === this.board);
+        this.standards = [...new Set(filtered.map(item => item.standard))];
+    }
+
+    onStandardChange(): void {
+        const syllabusData = this.syllabusService.syllabus$.getValue();
+
+        this.filteredSyllabus = syllabusData.filter(item =>
+            item.board === this.board && item.standard === this.standard
+        );
+
+        this.subjects = [...new Set(this.filteredSyllabus.map(item => item.subject))];
+        this.selectedSubjects = [];
+        this.selectedChapters = [];
+        this.chapters = [];
+    }
+
+    onSubjectsChange(): void {
         const filteredChapters = this.filteredSyllabus
             .filter(item => this.selectedSubjects.includes(item.subject))
             .map(item => item.chapter);
@@ -79,14 +121,12 @@ export class ManualQuizModalComponent implements OnInit {
         this.chapters = [...new Set(filteredChapters)];
     }
 
-
-    startQuiz() {
+    startQuiz(): void {
         this.dialogRef.close();
-
         this.router.navigate(['/quiz'], {
             queryParams: {
-                board: this.board,               // ✅ fixed
-                standard: this.standard,         // ✅ fixed
+                board: this.board,
+                standard: this.standard,
                 subjects: this.selectedSubjects,
                 chapters: this.selectedChapters,
                 count: this.questionCount
@@ -94,9 +134,7 @@ export class ManualQuizModalComponent implements OnInit {
         });
     }
 
-
-
-    closeDialog() {
+    closeDialog(): void {
         this.dialogRef.close();
     }
 }

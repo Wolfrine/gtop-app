@@ -2,7 +2,7 @@
 
     <div class="user-card" *ngFor="let user of users">
 
-        <div class="user-card-inner">
+        <div class="user-card-inner" (click)="viewReport(user)">
 
             <!-- Profile -->
             <div class="profile-pic">

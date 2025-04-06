@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
 import { ActiveUsersService } from '../../../services/active-users.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-user-list',
@@ -23,7 +24,7 @@ export class UserListComponent {
     users: any[] = [];
     selectedUsers: any[] = [];
 
-    constructor(private activeUsersService: ActiveUsersService) {
+    constructor(private activeUsersService: ActiveUsersService, private router: Router) {
         this.activeUsersService.listenToUsersCollection();
         this.activeUsersService.listenToActiveUsers();
 
@@ -79,5 +80,9 @@ export class UserListComponent {
         } else {
             this.selectedUsers = [];
         }
+    }
+
+    viewReport(user: any) {
+        this.router.navigate(['/reports'], { queryParams: { userId: user.userId } });
     }
 }

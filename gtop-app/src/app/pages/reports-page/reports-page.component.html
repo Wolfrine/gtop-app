@@ -5,17 +5,17 @@
         <div class="summary-row">
             <div class="summary-item">
                 <div class="label">Total Quizzes</div>
-                <div class="value">12</div>
+                <div class="value">{{summary[0].value}}</div>
             </div>
             <div class="divider"></div>
             <div class="summary-item">
                 <div class="label">Accuracy</div>
-                <div class="value">78%</div>
+                <div class="value">{{summary[1].value}}</div>
             </div>
             <div class="divider"></div>
             <div class="summary-item">
                 <div class="label">Last Score</div>
-                <div class="value">8/10</div>
+                <div class="value">{{summary[2].value}}</div>
             </div>
         </div>
     </mat-card>
@@ -57,7 +57,7 @@
                         <div class="quiz-stats">
                             Questions: {{ session.total }} |
                             Correct: {{ session.correct }} |
-                            Time: {{ session.duration }}
+                            <span *ngIf="session.time > 0">Time: {{ session.duration }}</span>
                         </div>
                     </div>
 

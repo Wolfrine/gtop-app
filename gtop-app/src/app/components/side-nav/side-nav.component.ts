@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Output, EventEmitter } from '@angular/core';
 
 @Component({
     selector: 'app-side-nav',
@@ -14,6 +15,7 @@ import { AuthService } from '../../services/auth.service';
     imports: [CommonModule, MatListModule, MatIconModule, MatButtonModule, RouterModule]
 })
 export class SideNavComponent implements OnInit {
+    @Output() itemClicked = new EventEmitter<void>();
     role: string = 'user'; // Default role
     menuItems: { label: string; icon: string; route: string }[] = [];
 

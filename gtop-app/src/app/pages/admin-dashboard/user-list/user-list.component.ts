@@ -38,7 +38,14 @@ export class UserListComponent {
                 return {
                     ...user,
                     isOnline: !!match?.isOnline,
-                    lastSeen: match?.lastActive ? new Date(Number(match.lastActive)) : null,
+                    lastSeen: match?.lastActive
+                        ? new Date(
+                            typeof match.lastActive === 'string' || typeof match.lastActive === 'number'
+                                ? Number(match.lastActive)
+                                : match.lastActive.toDate?.() || match.lastActive
+                        )
+                        : null,
+
                     createdAt: user.createdAt?.toDate
                         ? user.createdAt.toDate()
                         : user.createdOn?.toDate

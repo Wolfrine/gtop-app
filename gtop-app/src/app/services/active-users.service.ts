@@ -104,7 +104,7 @@ export class ActiveUsersService {
 
             onDisconnect(userRef).update({
                 isOnline: false,
-                lastActive: Date.now()
+                lastActive: { ".sv": "timestamp" }
             }).then(() => {
                 console.log('User will be marked offline on disconnect.');
             });

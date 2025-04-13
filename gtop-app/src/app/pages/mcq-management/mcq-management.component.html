@@ -65,12 +65,12 @@
                         <span class="mcq-title">{{ j + 1}}. {{ mcq.question.length > 100 ? (mcq.question | slice:0:50) +
                             '...' : mcq.question }}</span>
                         <div class="mcq-actions">
-                            <button mat-icon-button (click)="editMcq(mcq)">
+                            <button mat-icon-button (click)="editMcq(mcq, $event)">
                                 <mat-icon>edit</mat-icon>
                             </button>
-                            <!-- <button mat-icon-button (click)="deleteMcq(mcq)">
-                            <mat-icon>delete</mat-icon>
-                        </button> -->
+                            <button mat-icon-button color="warn" (click)="deleteMcq(mcq, $event)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
                         </div>
                     </div>
                 </mat-expansion-panel-header>
@@ -93,8 +93,39 @@
                         <span class="correct-answer">
                             {{ optionLabels[mcq.correctIndex] }} {{ mcq.options[mcq.correctIndex] }}
                         </span>
+                        <br>
+                        <span><strong>Explanation:</strong> {{ mcq.solutions[mcq.correctIndex] }}</span>
                     </div>
                 </div>
+
+                <!-- ✅ EDIT MODE BLOCK -->
+                <div *ngIf="mcq.editMode" class="mcq-edit-container">
+
+                    <!-- ✅ Existing MCQ JSON (readonly) -->
+                    <div class="edit-label-with-icon">
+                        <label class="edit-label">Existing MCQ (JSON)</label>
+                        <button mat-icon-button class="copy-icon" (click)="copyJson(mcq)">
+                            <mat-icon>content_copy</mat-icon>
+                        </button>
+                    </div>
+                    <textarea class="json-box readonly" readonly>{{ getJson(mcq) }}</textarea>
+
+
+                    <!-- ✅ Editable Paste Box -->
+                    <label class="edit-label">Paste updated JSON here</label>
+                    <textarea class="json-box" [(ngModel)]="mcq.updatedJson"
+                        placeholder="Paste your ChatGPT-corrected MCQ JSON here"></textarea>
+
+                    <!-- ✅ Actions -->
+                    <div class="edit-actions">
+                        <button mat-flat-button color="primary" (click)="saveUpdatedMcq(mcq)">Save</button>
+                        <button mat-stroked-button color="warn" (click)="mcq.editMode = false">Cancel</button>
+                    </div>
+                </div>
+
+
+
+
             </mat-expansion-panel>
         </mat-accordion>
     </div>

@@ -144,7 +144,53 @@ export class SyllabusService {
         console.log(`✔ Syllabus updated. MCQs updated: ${updatedMCQIds.length}`);
     }
 
+    async insertComboIfNotExists(board: string, standard: string, subject: string, chapter: string): Promise<void> {
+        const existing = this.syllabus$.value.find(item =>
+            item.board === board &&
+            item.standard === standard &&
+            item.subject === subject &&
+            item.chapter === chapter
+        );
 
+        if (!existing) {
+            const syllabusRef = doc(collection(this.firestore, 'syllabus'));
+            await setDoc(syllabusRef, {
+                board,
+                standard,
+                subject,
+                chapter,
+                mcqCount: 0, // We'll update count separately
+                createdAt: serverTimestamp()
+            });
+            console.log(`Inserted new syllabus combo: ${board} - ${standard} - ${subject} - ${chapter}`);
+        }
+    }
 
+    async updateMcqCountForCombo(board: string, standard: string, subject: string, chapter: string): Promise<void> {
+        const syllabusQuery = query(
+            collection(this.firestore, 'questions'),
+            where('board', '==', board),
+            where('standard', '==', standard),
+            where('subject', '==', subject),
+            where('chapter', '==', chapter)
+        );
+
+        const countSnap = await getCountFromServer(syllabusQuery);
+        const count = countSnap.data().count;
+
+        // Find existing syllabus doc ID from cached value
+        const match = this.syllabus$.value.find(item =>
+            item.board === board &&
+            item.standard === standard &&
+            item.subject === subject &&
+            item.chapter === chapter
+        );
+
+        if (match?.id) {
+            const syllabusDoc = doc(this.firestore, `syllabus/${match.id}`);
+            await updateDoc(syllabusDoc, { mcqCount: count });
+            console.log(`Updated syllabus count → ${count} for ${board} > ${standard} > ${subject} > ${chapter}`);
+        }
+    }
 
 }

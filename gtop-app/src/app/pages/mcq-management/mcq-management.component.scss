@@ -117,6 +117,57 @@ mat-expansion-panel:hover {
     }
 }
 
+.mcq-edit-container {
+    margin-top: 16px;
+
+    .edit-label {
+        font-weight: 600;
+        margin: 8px 0 4px;
+        display: block;
+    }
+
+    .json-box {
+        width: 100%;
+        font-family: monospace;
+        font-size: 13px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        resize: vertical;
+        min-height: 140px;
+        margin-bottom: 12px;
+        background: #fff;
+    }
+
+    .readonly {
+        background: #f9f9f9;
+    }
+
+    .edit-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+    }
+}
+
+.edit-label-with-icon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+
+    .edit-label {
+        font-weight: 600;
+    }
+
+    .copy-icon {
+        padding: 4px;
+        font-size: 18px;
+    }
+}
+
+
+
 /* 📌 Fix Excess Icon Spacing & Reduce Size */
 @media (max-width: 600px) {
     .mcq-actions {

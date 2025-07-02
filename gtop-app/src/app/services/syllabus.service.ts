@@ -145,26 +145,37 @@ export class SyllabusService {
     }
 
     async insertComboIfNotExists(board: string, standard: string, subject: string, chapter: string): Promise<void> {
-        const existing = this.syllabus$.value.find(item =>
-            item.board === board &&
-            item.standard === standard &&
-            item.subject === subject &&
-            item.chapter === chapter
-        );
+    const existing = this.syllabus$.value.find(item =>
+        item.board === board &&
+        item.standard === standard &&
+        item.subject === subject &&
+        item.chapter === chapter
+    );
 
-        if (!existing) {
-            const syllabusRef = doc(collection(this.firestore, 'syllabus'));
-            await setDoc(syllabusRef, {
+    if (!existing) {
+        if (!board || !standard || !subject || !chapter) {
+            console.error('Cannot insert syllabus combo. One or more fields are undefined:', {
                 board,
                 standard,
                 subject,
-                chapter,
-                mcqCount: 0, // We'll update count separately
-                createdAt: serverTimestamp()
+                chapter
             });
-            console.log(`Inserted new syllabus combo: ${board} - ${standard} - ${subject} - ${chapter}`);
+            return;
         }
+
+        const syllabusRef = doc(collection(this.firestore, 'syllabus'));
+        await setDoc(syllabusRef, {
+            board,
+            standard,
+            subject,
+            chapter,
+            mcqCount: 0,
+            createdAt: serverTimestamp()
+        });
+        console.log(`Inserted new syllabus combo: ${board} - ${standard} - ${subject} - ${chapter}`);
     }
+}
+
 
     async updateMcqCountForCombo(board: string, standard: string, subject: string, chapter: string): Promise<void> {
         const syllabusQuery = query(

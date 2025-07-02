@@ -319,55 +319,71 @@ export class McqService {
     }
 
     async updateSyllabusFromQuestions() {
-        try {
-            const syllabusRef = collection(this.firestore, 'syllabus');
-            const questionsSnapshot = await getDocs(collection(this.firestore, 'questions'));
+    try {
+        const syllabusRef = collection(this.firestore, 'syllabus');
+        const questionsSnapshot = await getDocs(collection(this.firestore, 'questions'));
 
-            const syllabusMap = new Map<string, { board: string; standard: string; subject: string; chapter: string; createdAt: any }>();
+        const syllabusMap = new Map<string, { board: string; standard: string; subject: string; chapter: string; createdAt: any }>();
+        const invalidMCQs: any[] = [];
 
-            questionsSnapshot.forEach(doc => {
-                const { board, standard, subject, chapter } = doc.data();
-                const key = `${board}-${standard}-${subject}-${chapter}`;
+        // 📌 Step 1: Build syllabus combos from valid MCQs
+        questionsSnapshot.forEach(docSnap => {
+            const { board, standard, subject, chapter } = docSnap.data();
 
-                if (!syllabusMap.has(key)) {
-                    syllabusMap.set(key, { board, standard, subject, chapter, createdAt: serverTimestamp() });
-                }
-            });
-
-            const existingSyllabusSnapshot = await getDocs(syllabusRef);
-            const existingSyllabusKeys = new Set<string>();
-
-            existingSyllabusSnapshot.forEach(doc => {
-                const { board, standard, subject, chapter } = doc.data();
-                const key = `${board}-${standard}-${subject}-${chapter}`;
-                existingSyllabusKeys.add(key);
-            });
-
-            const batch = writeBatch(this.firestore);
-            let batchCount = 0;
-
-            for (const [key, data] of syllabusMap.entries()) {
-                if (!existingSyllabusKeys.has(key)) {
-                    const newDocRef = doc(syllabusRef);
-                    batch.set(newDocRef, data);
-                    batchCount++;
-
-                    if (batchCount === 500) {
-                        await batch.commit();
-                        batchCount = 0;
-                    }
-                }
+            if (!board || !standard || !subject || !chapter) {
+                // 🔴 Skip malformed entries
+                invalidMCQs.push({ id: docSnap.id, ...docSnap.data() });
+                return;
             }
 
-            if (batchCount > 0) {
-                await batch.commit();
+            const key = `${board}-${standard}-${subject}-${chapter}`;
+            if (!syllabusMap.has(key)) {
+                syllabusMap.set(key, { board, standard, subject, chapter, createdAt: serverTimestamp() });
             }
+        });
 
-            console.log("Syllabus manually updated from questions!");
-        } catch (error) {
-            console.error('Error updating syllabus:', error);
+        // 🧼 Optional: Log invalid MCQs
+        if (invalidMCQs.length > 0) {
+            console.warn(`⚠️ Skipped ${invalidMCQs.length} invalid MCQs with missing fields:`, invalidMCQs);
         }
+
+        // 📌 Step 2: Check existing syllabus entries
+        const existingSyllabusSnapshot = await getDocs(syllabusRef);
+        const existingSyllabusKeys = new Set<string>();
+
+        existingSyllabusSnapshot.forEach(doc => {
+            const { board, standard, subject, chapter } = doc.data();
+            const key = `${board}-${standard}-${subject}-${chapter}`;
+            existingSyllabusKeys.add(key);
+        });
+
+        // 🧾 Step 3: Add new syllabus combos via batched writes
+        const batch = writeBatch(this.firestore);
+        let batchCount = 0;
+
+        for (const [key, data] of syllabusMap.entries()) {
+            if (!existingSyllabusKeys.has(key)) {
+                const newDocRef = doc(syllabusRef);
+                batch.set(newDocRef, data);
+                batchCount++;
+
+                if (batchCount === 500) {
+                    await batch.commit();
+                    batchCount = 0;
+                }
+            }
+        }
+
+        if (batchCount > 0) {
+            await batch.commit();
+        }
+
+        console.log("✅ Syllabus manually updated from questions!");
+    } catch (error) {
+        console.error('❌ Error updating syllabus:', error);
+        throw error;
     }
+}
 
 
 

@@ -1,0 +1,82 @@
+{
+  "board": "CBSE",
+  "year": "2024-25",
+  "standard": "6",
+  "subjects": [
+    {
+      "subject": "English",
+      "chapters": [
+        { "chapterNo": 1, "title": "Who Did Patrick’s Homework?" },
+        { "chapterNo": 2, "title": "How the Dog Found Himself a New Master!" },
+        { "chapterNo": 3, "title": "Taro’s Reward" },
+        { "chapterNo": 4, "title": "An Indian – American Woman in Space: Kalpana Chawla" },
+        { "chapterNo": 5, "title": "A Different Kind of School" },
+        { "chapterNo": 6, "title": "Who I Am" },
+        { "chapterNo": 7, "title": "Fair Play" },
+        { "chapterNo": 8, "title": "A Game of Chance" },
+        { "chapterNo": 9, "title": "Desert Animals" },
+        { "chapterNo": 10, "title": "The Banyan Tree" }
+      ]
+    },
+    {
+      "subject": "Hindi",
+      "chapters": [
+        { "chapterNo": 1, "title": "वह चिड़िया जो" },
+        { "chapterNo": 2, "title": "बचपन" },
+        { "chapterNo": 3, "title": "नादान दोस्त" },
+        { "chapterNo": 4, "title": "चाँद से थोड़ी सी गप्पें" },
+        { "chapterNo": 5, "title": "अक्ल बड़ी या भैंस" },
+        { "chapterNo": 6, "title": "मैं सबसे छोटी होऊं" },
+        { "chapterNo": 7, "title": "सात पूँछों वाला चूहा" },
+        { "chapterNo": 8, "title": "ऐसा मेरा परिवार" },
+        { "chapterNo": 9, "title": "एक टोकरी भर मिट्टी" },
+        { "chapterNo": 10, "title": "परीक्षा का डर" }
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "chapters": [
+        { "chapterNo": 1, "title": "Knowing Our Numbers" },
+        { "chapterNo": 2, "title": "Whole Numbers" },
+        { "chapterNo": 3, "title": "Playing with Numbers" },
+        { "chapterNo": 4, "title": "Basic Geometrical Ideas" },
+        { "chapterNo": 5, "title": "Understanding Elementary Shapes" },
+        { "chapterNo": 6, "title": "Integers" },
+        { "chapterNo": 7, "title": "Fractions" },
+        { "chapterNo": 8, "title": "Decimals" },
+        { "chapterNo": 9, "title": "Data Handling" },
+        { "chapterNo": 10, "title": "Mensuration" }
+      ]
+    },
+    {
+      "subject": "Science",
+      "chapters": [
+        { "chapterNo": 1, "title": "Food: Where Does It Come From?" },
+        { "chapterNo": 2, "title": "Components of Food" },
+        { "chapterNo": 3, "title": "Fibre to Fabric" },
+        { "chapterNo": 4, "title": "Sorting Materials Into Groups" },
+        { "chapterNo": 5, "title": "Separation of Substances" },
+        { "chapterNo": 6, "title": "Changes Around Us" },
+        { "chapterNo": 7, "title": "Getting to Know Plants" },
+        { "chapterNo": 8, "title": "Body Movements" },
+        { "chapterNo": 9, "title": "The Living Organisms and Their Surroundings" },
+        { "chapterNo": 10, "title": "Motion and Measurement of Distances" }
+      ]
+    },
+    {
+      "subject": "Social Science",
+      "chapters": [
+        { "chapterNo": 1, "title": "What, Where, How and When?" },
+        { "chapterNo": 2, "title": "On The Trail of the Earliest People" },
+        { "chapterNo": 3, "title": "From Gathering to Growing Food" },
+        { "chapterNo": 4, "title": "In the Earliest Cities" },
+        { "chapterNo": 5, "title": "What Books and Burials Tell Us" },
+        { "chapterNo": 6, "title": "Kingdoms, Kings and an Early Republic" },
+        { "chapterNo": 7, "title": "New Questions and Ideas" },
+        { "chapterNo": 8, "title": "Ashoka, The Emperor Who Gave Up War" },
+        { "chapterNo": 9, "title": "Vital Villages, Thriving Towns" },
+        { "chapterNo": 10, "title": "Traders, Kings and Pilgrims" }
+      ]
+    }
+  ]
+}

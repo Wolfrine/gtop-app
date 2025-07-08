@@ -1,0 +1,80 @@
+{
+  "board": "ICSE",
+  "year": "2024-25",
+  "standard": "5",
+  "subjects": [
+    {
+      "subject": "English",
+      "chapters": [
+        { "chapterNo": 1, "title": "Reading Comprehension" },
+        { "chapterNo": 2, "title": "Nouns and Pronouns" },
+        { "chapterNo": 3, "title": "Verbs and Tenses" },
+        { "chapterNo": 4, "title": "Adjectives and Adverbs" },
+        { "chapterNo": 5, "title": "Subject-Verb Agreement" },
+        { "chapterNo": 6, "title": "Punctuation and Capitalisation" },
+        { "chapterNo": 7, "title": "Formal and Informal Letter Writing" },
+        { "chapterNo": 8, "title": "Story Writing" },
+        { "chapterNo": 9, "title": "Poetry Appreciation" },
+        { "chapterNo": 10, "title": "Descriptive Paragraphs" }
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "chapters": [
+        { "chapterNo": 1, "title": "Numbers up to 99,99,999" },
+        { "chapterNo": 2, "title": "Operations on Large Numbers" },
+        { "chapterNo": 3, "title": "Factors and Multiples" },
+        { "chapterNo": 4, "title": "Fractions and Decimals" },
+        { "chapterNo": 5, "title": "Geometry – Lines, Angles, Shapes" },
+        { "chapterNo": 6, "title": "Perimeter, Area and Volume" },
+        { "chapterNo": 7, "title": "Time and Temperature" },
+        { "chapterNo": 8, "title": "Money and Bills" },
+        { "chapterNo": 9, "title": "Data Handling and Graphs" },
+        { "chapterNo": 10, "title": "Patterns and Logical Thinking" }
+      ]
+    },
+    {
+      "subject": "Science",
+      "chapters": [
+        { "chapterNo": 1, "title": "Living and Non-Living Things" },
+        { "chapterNo": 2, "title": "Plants – Structure and Function" },
+        { "chapterNo": 3, "title": "Animals – Habitats and Adaptations" },
+        { "chapterNo": 4, "title": "The Human Body – Systems" },
+        { "chapterNo": 5, "title": "Food and Health" },
+        { "chapterNo": 6, "title": "Matter and Materials" },
+        { "chapterNo": 7, "title": "Force, Work and Energy" },
+        { "chapterNo": 8, "title": "Light and Shadow" },
+        { "chapterNo": 9, "title": "The Moon and the Solar System" },
+        { "chapterNo": 10, "title": "Safety and First Aid" }
+      ]
+    },
+    {
+      "subject": "Social Studies",
+      "chapters": [
+        { "chapterNo": 1, "title": "The Earth and the Solar System" },
+        { "chapterNo": 2, "title": "Latitudes and Longitudes" },
+        { "chapterNo": 3, "title": "Major Landforms and Water Bodies" },
+        { "chapterNo": 4, "title": "Climate and Weather" },
+        { "chapterNo": 5, "title": "Natural Resources" },
+        { "chapterNo": 6, "title": "Indian States and Union Territories" },
+        { "chapterNo": 7, "title": "The Freedom Struggle" },
+        { "chapterNo": 8, "title": "Our Government" },
+        { "chapterNo": 9, "title": "Rights and Duties of Citizens" },
+        { "chapterNo": 10, "title": "Transport and Communication in India" }
+      ]
+    },
+    {
+      "subject": "Computer Studies",
+      "chapters": [
+        { "chapterNo": 1, "title": "Basics of a Computer System" },
+        { "chapterNo": 2, "title": "Parts and Functions of a Computer" },
+        { "chapterNo": 3, "title": "Input and Output Devices" },
+        { "chapterNo": 4, "title": "MS Word – Formatting Tools" },
+        { "chapterNo": 5, "title": "MS PowerPoint – Slides and Design" },
+        { "chapterNo": 6, "title": "MS Excel – Basics of Data Entry" },
+        { "chapterNo": 7, "title": "Introduction to the Internet" },
+        { "chapterNo": 8, "title": "Cyber Safety and Security" }
+      ]
+    }
+  ]
+}

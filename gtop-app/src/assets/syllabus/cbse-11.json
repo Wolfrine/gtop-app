@@ -1,0 +1,142 @@
+{
+  "board": "CBSE",
+  "year": "2024-25",
+  "standard": "11",
+  "subjects": [
+    {
+      "subject": "English",
+      "stream": ["Common"],
+      "chapters": [
+        { "chapterNo": 1, "title": "The Portrait of a Lady" },
+        { "chapterNo": 2, "title": "We're Not Afraid to Die... if We Can All Be Together" },
+        { "chapterNo": 3, "title": "Discovering Tut: the Saga Continues" },
+        { "chapterNo": 4, "title": "Landscape of the Soul" },
+        { "chapterNo": 5, "title": "The Ailing Planet: the Green Movement's Role" },
+        { "chapterNo": 6, "title": "The Browning Version" }
+      ]
+    },
+    {
+      "subject": "Physics",
+      "stream": ["Science"],
+      "chapters": [
+        { "chapterNo": 1, "title": "Physical World" },
+        { "chapterNo": 2, "title": "Units and Measurements" },
+        { "chapterNo": 3, "title": "Motion in a Straight Line" },
+        { "chapterNo": 4, "title": "Motion in a Plane" },
+        { "chapterNo": 5, "title": "Laws of Motion" },
+        { "chapterNo": 6, "title": "Work, Energy and Power" },
+        { "chapterNo": 7, "title": "System of Particles and Rotational Motion" },
+        { "chapterNo": 8, "title": "Gravitation" },
+        { "chapterNo": 9, "title": "Mechanical Properties of Solids" },
+        { "chapterNo": 10, "title": "Mechanical Properties of Fluids" }
+      ]
+    },
+    {
+      "subject": "Chemistry",
+      "stream": ["Science"],
+      "chapters": [
+        { "chapterNo": 1, "title": "Some Basic Concepts of Chemistry" },
+        { "chapterNo": 2, "title": "Structure of Atom" },
+        { "chapterNo": 3, "title": "Classification of Elements and Periodicity in Properties" },
+        { "chapterNo": 4, "title": "Chemical Bonding and Molecular Structure" },
+        { "chapterNo": 5, "title": "States of Matter: Gases and Liquids" },
+        { "chapterNo": 6, "title": "Thermodynamics" },
+        { "chapterNo": 7, "title": "Equilibrium" },
+        { "chapterNo": 8, "title": "Redox Reactions" },
+        { "chapterNo": 9, "title": "Hydrogen" },
+        { "chapterNo": 10, "title": "The s-Block Element" }
+      ]
+    },
+    {
+      "subject": "Biology",
+      "stream": ["Science"],
+      "chapters": [
+        { "chapterNo": 1, "title": "The Living World" },
+        { "chapterNo": 2, "title": "Biological Classification" },
+        { "chapterNo": 3, "title": "Plant Kingdom" },
+        { "chapterNo": 4, "title": "Animal Kingdom" },
+        { "chapterNo": 5, "title": "Morphology of Flowering Plants" },
+        { "chapterNo": 6, "title": "Anatomy of Flowering Plants" },
+        { "chapterNo": 7, "title": "Structural Organisation in Animals" },
+        { "chapterNo": 8, "title": "Cell - The Unit of Life" },
+        { "chapterNo": 9, "title": "Biomolecules" },
+        { "chapterNo": 10, "title": "Cell Cycle and Cell Division" }
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "stream": ["Science", "Commerce"],
+      "chapters": [
+        { "chapterNo": 1, "title": "Sets" },
+        { "chapterNo": 2, "title": "Relations and Functions" },
+        { "chapterNo": 3, "title": "Trigonometric Functions" },
+        { "chapterNo": 4, "title": "Principle of Mathematical Induction" },
+        { "chapterNo": 5, "title": "Complex Numbers and Quadratic Equations" },
+        { "chapterNo": 6, "title": "Linear Inequalities" },
+        { "chapterNo": 7, "title": "Permutations and Combinations" },
+        { "chapterNo": 8, "title": "Binomial Theorem" },
+        { "chapterNo": 9, "title": "Sequences and Series" },
+        { "chapterNo": 10, "title": "Straight Lines" }
+      ]
+    },
+    {
+      "subject": "Business Studies",
+      "stream": ["Commerce"],
+      "chapters": [
+        { "chapterNo": 1, "title": "Nature and Purpose of Business" },
+        { "chapterNo": 2, "title": "Forms of Business Organisations" },
+        { "chapterNo": 3, "title": "Private, Public and Global Enterprises" },
+        { "chapterNo": 4, "title": "Business Services" },
+        { "chapterNo": 5, "title": "Emerging Modes of Business" },
+        { "chapterNo": 6, "title": "Social Responsibilities of Business and Business Ethics" }
+      ]
+    },
+    {
+      "subject": "Accountancy",
+      "stream": ["Commerce"],
+      "chapters": [
+        { "chapterNo": 1, "title": "Introduction to Accounting" },
+        { "chapterNo": 2, "title": "Theory Base of Accounting" },
+        { "chapterNo": 3, "title": "Recording of Transactions – I" },
+        { "chapterNo": 4, "title": "Recording of Transactions – II" },
+        { "chapterNo": 5, "title": "Bank Reconciliation Statement" },
+        { "chapterNo": 6, "title": "Trial Balance and Rectification of Errors" },
+        { "chapterNo": 7, "title": "Depreciation, Provisions and Reserves" },
+        { "chapterNo": 8, "title": "Bill of Exchange" }
+      ]
+    },
+    {
+      "subject": "Economics",
+      "stream": ["Commerce", "Humanities"],
+      "chapters": [
+        { "chapterNo": 1, "title": "Introduction to Microeconomics" },
+        { "chapterNo": 2, "title": "Consumer's Behaviour and Demand" },
+        { "chapterNo": 3, "title": "Producer Behaviour and Supply" },
+        { "chapterNo": 4, "title": "Forms of Market and Price Determination" },
+        { "chapterNo": 5, "title": "Simple Applications of Tools of Demand and Supply" }
+      ]
+    },
+    {
+      "subject": "History",
+      "stream": ["Humanities"],
+      "chapters": [
+        { "chapterNo": 1, "title": "From the Beginning of Time" },
+        { "chapterNo": 2, "title": "Writing and City Life" },
+        { "chapterNo": 3, "title": "An Empire Across Three Continents" },
+        { "chapterNo": 4, "title": "The Central Islamic Lands" },
+        { "chapterNo": 5, "title": "Nomadic Empires" }
+      ]
+    },
+    {
+      "subject": "Political Science",
+      "stream": ["Humanities"],
+      "chapters": [
+        { "chapterNo": 1, "title": "Constitution: Why and How?" },
+        { "chapterNo": 2, "title": "Rights in the Indian Constitution" },
+        { "chapterNo": 3, "title": "Election and Representation" },
+        { "chapterNo": 4, "title": "Executive" },
+        { "chapterNo": 5, "title": "Legislature" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "board": "CBSE",
+  "year": "2024-25",
+  "standard": "7",
+  "subjects": [
+    {
+      "subject": "English",
+      "chapters": [
+        { "chapterNo": 1, "title": "Three Questions" },
+        { "chapterNo": 2, "title": "A Gift of Chappals" },
+        { "chapterNo": 3, "title": "Gopal and the Hilsa Fish" },
+        { "chapterNo": 4, "title": "The Ashes That Made Trees Bloom" },
+        { "chapterNo": 5, "title": "Quality" },
+        { "chapterNo": 6, "title": "Expert Detectives" },
+        { "chapterNo": 7, "title": "The Invention of Vita-Wonk" },
+        { "chapterNo": 8, "title": "Fire: Friend and Foe" },
+        { "chapterNo": 9, "title": "A Bicycle in Good Repair" },
+        { "chapterNo": 10, "title": "The Story of Cricket" }
+      ]
+    },
+    {
+      "subject": "Hindi",
+      "chapters": [
+        { "chapterNo": 1, "title": "हम पंछी उन्मुक्त गगन के" },
+        { "chapterNo": 2, "title": "दादी माँ" },
+        { "chapterNo": 3, "title": "हिमालय की बेटियाँ" },
+        { "chapterNo": 4, "title": "कठपुतली" },
+        { "chapterNo": 5, "title": "मीठाईवाला" },
+        { "chapterNo": 6, "title": "रेखाएँ" },
+        { "chapterNo": 7, "title": "पापा खो गए" },
+        { "chapterNo": 8, "title": "शहीद झलकारीबाई" },
+        { "chapterNo": 9, "title": "चिड़िया की बच्ची" },
+        { "chapterNo": 10, "title": "अपना भारत" }
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "chapters": [
+        { "chapterNo": 1, "title": "Integers" },
+        { "chapterNo": 2, "title": "Fractions and Decimals" },
+        { "chapterNo": 3, "title": "Data Handling" },
+        { "chapterNo": 4, "title": "Simple Equations" },
+        { "chapterNo": 5, "title": "Lines and Angles" },
+        { "chapterNo": 6, "title": "The Triangle and Its Properties" },
+        { "chapterNo": 7, "title": "Congruence of Triangles" },
+        { "chapterNo": 8, "title": "Comparing Quantities" },
+        { "chapterNo": 9, "title": "Rational Numbers" },
+        { "chapterNo": 10, "title": "Practical Geometry" }
+      ]
+    },
+    {
+      "subject": "Science",
+      "chapters": [
+        { "chapterNo": 1, "title": "Nutrition in Plants" },
+        { "chapterNo": 2, "title": "Nutrition in Animals" },
+        { "chapterNo": 3, "title": "Fibre to Fabric" },
+        { "chapterNo": 4, "title": "Heat" },
+        { "chapterNo": 5, "title": "Acids, Bases and Salts" },
+        { "chapterNo": 6, "title": "Physical and Chemical Changes" },
+        { "chapterNo": 7, "title": "Weather, Climate and Adaptations of Animals" },
+        { "chapterNo": 8, "title": "Winds, Storms and Cyclones" },
+        { "chapterNo": 9, "title": "Soil" },
+        { "chapterNo": 10, "title": "Respiration in Organisms" }
+      ]
+    },
+    {
+      "subject": "Social Science - History",
+      "chapters": [
+        { "chapterNo": 1, "title": "Tracing Changes Through a Thousand Years" },
+        { "chapterNo": 2, "title": "New Kings and Kingdoms" },
+        { "chapterNo": 3, "title": "The Delhi Sultans" },
+        { "chapterNo": 4, "title": "The Mughal Empire" },
+        { "chapterNo": 5, "title": "Rulers and Buildings" },
+        { "chapterNo": 6, "title": "Towns, Traders and Craftspersons" },
+        { "chapterNo": 7, "title": "Tribes, Nomads and Settled Communities" },
+        { "chapterNo": 8, "title": "Devotional Paths to the Divine" },
+        { "chapterNo": 9, "title": "The Making of Regional Cultures" },
+        { "chapterNo": 10, "title": "Eighteenth-Century Political Formations" }
+      ]
+    },
+    {
+      "subject": "Social Science - Geography",
+      "chapters": [
+        { "chapterNo": 1, "title": "Environment" },
+        { "chapterNo": 2, "title": "Inside Our Earth" },
+        { "chapterNo": 3, "title": "Our Changing Earth" },
+        { "chapterNo": 4, "title": "Air" },
+        { "chapterNo": 5, "title": "Water" },
+        { "chapterNo": 6, "title": "Natural Vegetation and Wildlife" },
+        { "chapterNo": 7, "title": "Human Environment – Settlement, Transport and Communication" },
+        { "chapterNo": 8, "title": "Human-Environment Interactions: The Tropical and the Subtropical Region" },
+        { "chapterNo": 9, "title": "Life in the Deserts" }
+      ]
+    },
+    {
+      "subject": "Social Science - Civics",
+      "chapters": [
+        { "chapterNo": 1, "title": "On Equality" },
+        { "chapterNo": 2, "title": "Role of the Government in Health" },
+        { "chapterNo": 3, "title": "How the State Government Works" },
+        { "chapterNo": 4, "title": "Growing Up as Boys and Girls" },
+        { "chapterNo": 5, "title": "Women Change the World" },
+        { "chapterNo": 6, "title": "Understanding Media" },
+        { "chapterNo": 7, "title": "Understanding Advertising" },
+        { "chapterNo": 8, "title": "Markets Around Us" },
+        { "chapterNo": 9, "title": "A Shirt in the Market" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "board": "CBSE",
+  "year": "2024-25",
+  "standard": "10",
+  "subjects": [
+    {
+      "subject": "English",
+      "chapters": [
+        { "chapterNo": 1, "title": "A Letter to God" },
+        { "chapterNo": 2, "title": "Nelson Mandela: Long Walk to Freedom" },
+        { "chapterNo": 3, "title": "Two Stories about Flying" },
+        { "chapterNo": 4, "title": "From the Diary of Anne Frank" },
+        { "chapterNo": 5, "title": "The Hundred Dresses – I" },
+        { "chapterNo": 6, "title": "The Hundred Dresses – II" },
+        { "chapterNo": 7, "title": "Glimpses of India" },
+        { "chapterNo": 8, "title": "Mijbil the Otter" },
+        { "chapterNo": 9, "title": "Madam Rides the Bus" },
+        { "chapterNo": 10, "title": "The Sermon at Benares" }
+      ]
+    },
+    {
+      "subject": "Hindi",
+      "chapters": [
+        { "chapterNo": 1, "title": "साखियाँ और सबद (कबीर)" },
+        { "chapterNo": 2, "title": "पद्यांश – मीरा" },
+        { "chapterNo": 3, "title": "बिहारी के दोहे" },
+        { "chapterNo": 4, "title": "गीत अगीत (अज्ञेय)" },
+        { "chapterNo": 5, "title": "अतीत में दबे पाँव (जैनेन्द्र)" },
+        { "chapterNo": 6, "title": "पत्र (श्यामचरण दुबे)" },
+        { "chapterNo": 7, "title": "गद्यांश – रामवृक्ष बेनीपुरी" },
+        { "chapterNo": 8, "title": "दीपदान (भगवती चरण वर्मा)" },
+        { "chapterNo": 9, "title": "नेताजी का चश्मा" },
+        { "chapterNo": 10, "title": "ठेले पर हिमालय (सत्येन नाथ बोस)" }
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "chapters": [
+        { "chapterNo": 1, "title": "Real Numbers" },
+        { "chapterNo": 2, "title": "Polynomials" },
+        { "chapterNo": 3, "title": "Pair of Linear Equations in Two Variables" },
+        { "chapterNo": 4, "title": "Quadratic Equations" },
+        { "chapterNo": 5, "title": "Arithmetic Progressions" },
+        { "chapterNo": 6, "title": "Triangles" },
+        { "chapterNo": 7, "title": "Coordinate Geometry" },
+        { "chapterNo": 8, "title": "Introduction to Trigonometry" },
+        { "chapterNo": 9, "title": "Applications of Trigonometry" },
+        { "chapterNo": 10, "title": "Circles" }
+      ]
+    },
+    {
+      "subject": "Science",
+      "chapters": [
+        { "chapterNo": 1, "title": "Chemical Reactions and Equations" },
+        { "chapterNo": 2, "title": "Acids, Bases and Salts" },
+        { "chapterNo": 3, "title": "Metals and Non-metals" },
+        { "chapterNo": 4, "title": "Carbon and Its Compounds" },
+        { "chapterNo": 5, "title": "Periodic Classification of Elements" },
+        { "chapterNo": 6, "title": "Life Processes" },
+        { "chapterNo": 7, "title": "Control and Coordination" },
+        { "chapterNo": 8, "title": "How Do Organisms Reproduce?" },
+        { "chapterNo": 9, "title": "Heredity and Evolution" },
+        { "chapterNo": 10, "title": "Light – Reflection and Refraction" }
+      ]
+    },
+    {
+      "subject": "Social Science - History",
+      "chapters": [
+        { "chapterNo": 1, "title": "The Rise of Nationalism in Europe" },
+        { "chapterNo": 2, "title": "Nationalism in India" },
+        { "chapterNo": 3, "title": "The Making of a Global World" },
+        { "chapterNo": 4, "title": "The Age of Industrialisation" },
+        { "chapterNo": 5, "title": "Print Culture and the Modern World" }
+      ]
+    },
+    {
+      "subject": "Social Science - Geography",
+      "chapters": [
+        { "chapterNo": 1, "title": "Resources and Development" },
+        { "chapterNo": 2, "title": "Forest and Wildlife Resources" },
+        { "chapterNo": 3, "title": "Water Resources" },
+        { "chapterNo": 4, "title": "Agriculture" },
+        { "chapterNo": 5, "title": "Minerals and Energy Resources" },
+        { "chapterNo": 6, "title": "Manufacturing Industries" },
+        { "chapterNo": 7, "title": "Lifelines of National Economy" }
+      ]
+    },
+    {
+      "subject": "Social Science - Civics",
+      "chapters": [
+        { "chapterNo": 1, "title": "Power Sharing" },
+        { "chapterNo": 2, "title": "Federalism" },
+        { "chapterNo": 3, "title": "Gender, Religion and Caste" },
+        { "chapterNo": 4, "title": "Political Parties" },
+        { "chapterNo": 5, "title": "Outcomes of Democracy" }
+      ]
+    },
+    {
+      "subject": "Social Science - Economics",
+      "chapters": [
+        { "chapterNo": 1, "title": "Development" },
+        { "chapterNo": 2, "title": "Sectors of the Indian Economy" },
+        { "chapterNo": 3, "title": "Money and Credit" },
+        { "chapterNo": 4, "title": "Globalisation and the Indian Economy" },
+        { "chapterNo": 5, "title": "Consumer Rights" }
+      ]
+    }
+  ]
+}

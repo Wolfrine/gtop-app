@@ -1,0 +1,108 @@
+{
+  "board": "CBSE",
+  "year": "2024-25",
+  "standard": "8",
+  "subjects": [
+    {
+      "subject": "English",
+      "chapters": [
+        { "chapterNo": 1, "title": "The Best Christmas Present in the World" },
+        { "chapterNo": 2, "title": "The Tsunami" },
+        { "chapterNo": 3, "title": "Glimpses of the Past" },
+        { "chapterNo": 4, "title": "Bepin Choudhury’s Lapse of Memory" },
+        { "chapterNo": 5, "title": "The Summit Within" },
+        { "chapterNo": 6, "title": "This is Jody’s Fawn" },
+        { "chapterNo": 7, "title": "A Visit to Cambridge" },
+        { "chapterNo": 8, "title": "A Short Monsoon Diary" },
+        { "chapterNo": 9, "title": "The Great Stone Face – I" },
+        { "chapterNo": 10, "title": "The Great Stone Face – II" }
+      ]
+    },
+    {
+      "subject": "Hindi",
+      "chapters": [
+        { "chapterNo": 1, "title": "ध्वनि" },
+        { "chapterNo": 2, "title": "लाख की चूड़ियाँ" },
+        { "chapterNo": 3, "title": "बस की यात्रा" },
+        { "chapterNo": 4, "title": "दीवानों की हस्ती" },
+        { "chapterNo": 5, "title": "चिट्ठियों की अनूठी दुनिया" },
+        { "chapterNo": 6, "title": "भगवान के डाकिये" },
+        { "chapterNo": 7, "title": "क्या निराश हुआ जाए" },
+        { "chapterNo": 8, "title": "यह सबसे कठिन समय नहीं" },
+        { "chapterNo": 9, "title": "एक खिलाड़ी की कुछ यादें" },
+        { "chapterNo": 10, "title": "संजय गांधी का बचपन" }
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "chapters": [
+        { "chapterNo": 1, "title": "Rational Numbers" },
+        { "chapterNo": 2, "title": "Linear Equations in One Variable" },
+        { "chapterNo": 3, "title": "Understanding Quadrilaterals" },
+        { "chapterNo": 4, "title": "Practical Geometry" },
+        { "chapterNo": 5, "title": "Data Handling" },
+        { "chapterNo": 6, "title": "Squares and Square Roots" },
+        { "chapterNo": 7, "title": "Cubes and Cube Roots" },
+        { "chapterNo": 8, "title": "Comparing Quantities" },
+        { "chapterNo": 9, "title": "Algebraic Expressions and Identities" },
+        { "chapterNo": 10, "title": "Visualising Solid Shapes" }
+      ]
+    },
+    {
+      "subject": "Science",
+      "chapters": [
+        { "chapterNo": 1, "title": "Crop Production and Management" },
+        { "chapterNo": 2, "title": "Microorganisms: Friend and Foe" },
+        { "chapterNo": 3, "title": "Synthetic Fibres and Plastics" },
+        { "chapterNo": 4, "title": "Materials: Metals and Non-Metals" },
+        { "chapterNo": 5, "title": "Coal and Petroleum" },
+        { "chapterNo": 6, "title": "Combustion and Flame" },
+        { "chapterNo": 7, "title": "Conservation of Plants and Animals" },
+        { "chapterNo": 8, "title": "Cell – Structure and Functions" },
+        { "chapterNo": 9, "title": "Reproduction in Animals" },
+        { "chapterNo": 10, "title": "Reaching the Age of Adolescence" }
+      ]
+    },
+    {
+      "subject": "Social Science - History",
+      "chapters": [
+        { "chapterNo": 1, "title": "How, When and Where" },
+        { "chapterNo": 2, "title": "From Trade to Territory" },
+        { "chapterNo": 3, "title": "Ruling the Countryside" },
+        { "chapterNo": 4, "title": "Tribals, Dikus and the Vision of a Golden Age" },
+        { "chapterNo": 5, "title": "When People Rebel 1857 and After" },
+        { "chapterNo": 6, "title": "Colonialism and the City" },
+        { "chapterNo": 7, "title": "Weavers, Iron Smelters and Factory Owners" },
+        { "chapterNo": 8, "title": "Civilising the Native, Educating the Nation" },
+        { "chapterNo": 9, "title": "Women, Caste and Reform" },
+        { "chapterNo": 10, "title": "The Changing World of Visual Arts" }
+      ]
+    },
+    {
+      "subject": "Social Science - Geography",
+      "chapters": [
+        { "chapterNo": 1, "title": "Resources" },
+        { "chapterNo": 2, "title": "Land, Soil, Water, Natural Vegetation and Wildlife Resources" },
+        { "chapterNo": 3, "title": "Mineral and Power Resources" },
+        { "chapterNo": 4, "title": "Agriculture" },
+        { "chapterNo": 5, "title": "Industries" },
+        { "chapterNo": 6, "title": "Human Resources" }
+      ]
+    },
+    {
+      "subject": "Social Science - Civics",
+      "chapters": [
+        { "chapterNo": 1, "title": "The Indian Constitution" },
+        { "chapterNo": 2, "title": "Understanding Secularism" },
+        { "chapterNo": 3, "title": "Why Do We Need a Parliament?" },
+        { "chapterNo": 4, "title": "Understanding Laws" },
+        { "chapterNo": 5, "title": "Judiciary" },
+        { "chapterNo": 6, "title": "Understanding Our Criminal Justice System" },
+        { "chapterNo": 7, "title": "Understanding Marginalisation" },
+        { "chapterNo": 8, "title": "Confronting Marginalisation" },
+        { "chapterNo": 9, "title": "Public Facilities" },
+        { "chapterNo": 10, "title": "Law and Social Justice" }
+      ]
+    }
+  ]
+}

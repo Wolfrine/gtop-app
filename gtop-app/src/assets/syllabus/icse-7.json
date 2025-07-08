@@ -1,0 +1,87 @@
+{
+  "board": "ICSE",
+  "year": "2024-25",
+  "standard": "7",
+  "subjects": [
+    {
+      "subject": "English",
+      "chapters": [
+        { "chapterNo": 1, "title": "Reading Comprehension – Factual and Inferential" },
+        { "chapterNo": 2, "title": "Parts of Speech – Review and Application" },
+        { "chapterNo": 3, "title": "Tenses – Advanced Usage" },
+        { "chapterNo": 4, "title": "Voice – Active and Passive" },
+        { "chapterNo": 5, "title": "Direct and Indirect Speech" },
+        { "chapterNo": 6, "title": "Adjectives and Adverbs – Degrees and Usage" },
+        { "chapterNo": 7, "title": "Formal and Informal Letters" },
+        { "chapterNo": 8, "title": "Essay Writing – Descriptive and Narrative" },
+        { "chapterNo": 9, "title": "Notice and Email Writing" },
+        { "chapterNo": 10, "title": "Poetry Interpretation and Figurative Language" }
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "chapters": [
+        { "chapterNo": 1, "title": "Integers and Rational Numbers" },
+        { "chapterNo": 2, "title": "Fractions, Decimals and Percentages" },
+        { "chapterNo": 3, "title": "Simple and Compound Interest" },
+        { "chapterNo": 4, "title": "Algebraic Expressions and Linear Equations" },
+        { "chapterNo": 5, "title": "Lines and Angles – Properties and Theorems" },
+        { "chapterNo": 6, "title": "Triangles – Types and Properties" },
+        { "chapterNo": 7, "title": "Mensuration – Area, Perimeter, Volume" },
+        { "chapterNo": 8, "title": "Data Handling and Probability Basics" },
+        { "chapterNo": 9, "title": "Ratio, Proportion and Unitary Method" },
+        { "chapterNo": 10, "title": "Symmetry and Visual Geometry" }
+      ]
+    },
+    {
+      "subject": "Science",
+      "chapters": [
+        { "chapterNo": 1, "title": "Nutrition in Plants and Animals" },
+        { "chapterNo": 2, "title": "Respiration and Circulation" },
+        { "chapterNo": 3, "title": "Heat and Temperature" },
+        { "chapterNo": 4, "title": "Motion and Time" },
+        { "chapterNo": 5, "title": "Acids, Bases and Salts" },
+        { "chapterNo": 6, "title": "Physical and Chemical Changes" },
+        { "chapterNo": 7, "title": "Electricity and Its Effects" },
+        { "chapterNo": 8, "title": "Light – Reflection and Refraction" },
+        { "chapterNo": 9, "title": "Water – A Precious Resource" },
+        { "chapterNo": 10, "title": "Waste Management and Pollution" }
+      ]
+    },
+    {
+      "subject": "History and Civics",
+      "chapters": [
+        { "chapterNo": 1, "title": "Medieval Indian History – Early Kingdoms" },
+        { "chapterNo": 2, "title": "Delhi Sultanate" },
+        { "chapterNo": 3, "title": "The Mughal Empire – Establishment & Expansion" },
+        { "chapterNo": 4, "title": "Religious Movements – Bhakti and Sufi" },
+        { "chapterNo": 5, "title": "The Constitution and Its Importance" },
+        { "chapterNo": 6, "title": "Role of Government in Our Lives" },
+        { "chapterNo": 7, "title": "Public Services and Responsibilities" }
+      ]
+    },
+    {
+      "subject": "Geography",
+      "chapters": [
+        { "chapterNo": 1, "title": "Our Environment – Components and Interactions" },
+        { "chapterNo": 2, "title": "Interior of the Earth and Earthquakes" },
+        { "chapterNo": 3, "title": "Rocks and Minerals" },
+        { "chapterNo": 4, "title": "Atmosphere and Weather" },
+        { "chapterNo": 5, "title": "Water Resources and Ocean Circulation" },
+        { "chapterNo": 6, "title": "Natural Vegetation and Wildlife" },
+        { "chapterNo": 7, "title": "Human Settlements and Transportation" }
+      ]
+    },
+    {
+      "subject": "Computer Studies",
+      "chapters": [
+        { "chapterNo": 1, "title": "Hardware and Software – Classification and Functions" },
+        { "chapterNo": 2, "title": "Number Systems and Binary Conversion" },
+        { "chapterNo": 3, "title": "Spreadsheet Calculations – Formulas and Charts" },
+        { "chapterNo": 4, "title": "Programming Basics – Algorithms and Flowcharts" },
+        { "chapterNo": 5, "title": "Introduction to Scratch Programming" },
+        { "chapterNo": 6, "title": "Networking and the Internet – Concepts and Safety" }
+      ]
+    }
+  ]
+}

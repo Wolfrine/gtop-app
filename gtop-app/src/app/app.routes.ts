@@ -13,6 +13,7 @@ import { QuizSummaryComponent } from './pages/quiz-summary/quiz-summary.componen
 import { EditSyllabusComponent } from './pages/manage-syllabus/edit-syllabus/edit-syllabus.component';
 import { ReportsPageComponent } from './pages/reports-page/reports-page.component';
 import { UserListComponent } from './pages/admin-dashboard/user-list/user-list.component';
+import { SyllabusPreviewComponent } from './pages/syllabus-preview/syllabus-preview.component';
 
 
 
@@ -67,6 +68,12 @@ export const routes: Routes = [
         component: ReportsPageComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['user', 'admin'] }
+    },
+    {
+        path: 'syllabus-preview',
+        component: SyllabusPreviewComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'] }
     },
 
     {

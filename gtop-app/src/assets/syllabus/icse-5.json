@@ -1,0 +1,12 @@
+{
+  "subjects": [
+    {
+      "name": "English",
+      "chapters": ["Grammar", "Comprehension"]
+    },
+    {
+      "name": "History",
+      "chapters": ["Ancient", "Modern"]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "subjects": [
+    {
+      "name": "Mathematics",
+      "chapters": ["Numbers", "Algebra", "Geometry"]
+    },
+    {
+      "name": "Science",
+      "chapters": ["Physics", "Chemistry"]
+    }
+  ]
+}

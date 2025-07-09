@@ -1,0 +1,31 @@
+<mat-toolbar>
+  <span>Syllabus Preview</span>
+</mat-toolbar>
+
+<div class="preview-container">
+  <mat-form-field appearance="fill">
+    <mat-label>Board</mat-label>
+    <mat-select [(ngModel)]="selectedBoard" (selectionChange)="onBoardChange($event.value)">
+      <mat-option *ngFor="let b of boardList" [value]="b">{{ b }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" *ngIf="selectedBoard">
+    <mat-label>Standard</mat-label>
+    <mat-select [(ngModel)]="selectedStandard" (selectionChange)="onStandardChange($event.value)">
+      <mat-option *ngFor="let s of standardList" [value]="s">{{ s }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="subjects" *ngIf="subjects.length">
+    <mat-card *ngFor="let subj of subjects" (click)="onSubjectSelect(subj)" class="subject-card">
+      {{ subj.name }}
+    </mat-card>
+  </div>
+
+  <div class="chapters" *ngIf="chapters.length">
+    <mat-list>
+      <mat-list-item *ngFor="let ch of chapters">{{ ch }}</mat-list-item>
+    </mat-list>
+  </div>
+</div>

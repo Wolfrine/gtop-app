@@ -1,39 +1,33 @@
-name: Deploy Angular App to Firebase Hosting
+name: Deploy to Firebase Hosting
 
 on:
   push:
     branches:
-      - main
-      - dev
+      - '**'
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      CHANNEL_ID: ${{ github.ref == 'refs/heads/main' && 'live' || 'dev' }}
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20  # ✅ Updated for Firebase CLI v14+ compatibility
+          node-version: 20
 
-      - name: Install Dependencies
-        run: npm install
+      - run: npm ci
         working-directory: gtop-app
 
-      - name: Build Angular App
-        run: npm run build -- --configuration production
+      - run: npm run build -- --configuration production
         working-directory: gtop-app
 
-      - name: Deploy to Firebase
+      - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
-          projectId: "gtop-app"
-          entryPoint: "gtop-app"
-          channelId: "${{ env.CHANNEL_ID }}"
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          entryPoint: gtop-app
+          projectId: gtop-app
+          channelId: live
+          target: ${{ github.ref_name == 'main' && 'prod-gtop-app' || 'dev-gtop-app' }}

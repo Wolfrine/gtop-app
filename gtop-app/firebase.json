@@ -1,35 +1,40 @@
 {
-    "hosting": {
-        "headers": [
-            {
-                "source": "/**",
-                "headers": [
-                    {
-                        "key": "Access-Control-Allow-Origin",
-                        "value": "*"
-                    },
-                    {
-                        "key": "Access-Control-Allow-Credentials",
-                        "value": "true"
-                    },
-                    {
-                        "key": "Set-Cookie",
-                        "value": "SameSite=None; Secure"
-                    }
-                ]
-            }
-        ],
-        "public": "dist/gtop-app/browser",
-        "ignore": [
-            "firebase.json",
-            "**/.*",
-            "**/node_modules/**"
-        ],
-        "rewrites": [
-            {
-                "source": "**",
-                "destination": "/index.html"
-            }
-        ]
+  "hosting": [
+    {
+      "target": "dev-gtop-app",
+      "public": "dist/gtop-app/browser",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "headers": [
+        {
+          "source": "/**",
+          "headers": [
+            {"key": "Access-Control-Allow-Origin", "value": "*"},
+            {"key": "Access-Control-Allow-Credentials", "value": "true"},
+            {"key": "Set-Cookie", "value": "SameSite=None; Secure"}
+          ]
+        }
+      ],
+      "rewrites": [
+        {"source": "**", "destination": "/index.html"}
+      ]
+    },
+    {
+      "target": "prod-gtop-app",
+      "public": "dist/gtop-app/browser",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "headers": [
+        {
+          "source": "/**",
+          "headers": [
+            {"key": "Access-Control-Allow-Origin", "value": "*"},
+            {"key": "Access-Control-Allow-Credentials", "value": "true"},
+            {"key": "Set-Cookie", "value": "SameSite=None; Secure"}
+          ]
+        }
+      ],
+      "rewrites": [
+        {"source": "**", "destination": "/index.html"}
+      ]
     }
+  ]
 }

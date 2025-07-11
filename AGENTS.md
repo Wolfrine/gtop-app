@@ -3,6 +3,7 @@
 This repository contains an Angular application called **gtop-app** (Growth Tutorials Objective Practice). It is generated with Angular CLI 17.3 and uses Firebase for backend services. The project is located inside the `gtop-app/` folder and includes components for quiz management, dashboards, and other learning features. Angular Material and Chart.js are used for UI and charts.
 
 Useful commands (run inside `gtop-app/`):
+- Always run `npm run build -- --configuration production` at the end of development to ensure the project builds successfully.
 - `npm install` – install dependencies
 - `npm start` or `ng serve` – run the development server
 - `npm run build` – create a production build

@@ -25,6 +25,8 @@ interface SyllabusFile {
     subjects: Subject[];
 }
 
+declare const require: any;
+
 @Component({
     selector: 'app-syllabus-preview',
     standalone: true,
@@ -53,19 +55,15 @@ export class SyllabusPreviewComponent implements OnInit {
     private syllabusMap: Record<string, SyllabusFile> = {};
 
     ngOnInit() {
-        const modules = import.meta.glob('../../../assets/syllabus/*.json', {
-            eager: true,
-            import: 'default'
-        }) as Record<string, SyllabusFile>;
-
-        for (const path in modules) {
-            const data = modules[path];
+        const req = (require as any).context('../../../assets/syllabus', false, /\.json$/);
+        req.keys().forEach((path: string) => {
+            const data = req(path) as SyllabusFile;
             const key = `${data.board.toLowerCase()}-${data.standard}`;
             this.syllabusMap[key] = data;
             if (!this.boards.includes(data.board)) {
                 this.boards.push(data.board);
             }
-        }
+        });
         this.boards.sort();
     }
 

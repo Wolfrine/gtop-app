@@ -1,0 +1,57 @@
+[
+  {
+    "board": "CBSE",
+    "standard": "5",
+    "file": "assets/syllabus/cbse-5.json"
+  },
+  {
+    "board": "CBSE",
+    "standard": "6",
+    "file": "assets/syllabus/cbse-6.json"
+  },
+  {
+    "board": "CBSE",
+    "standard": "7",
+    "file": "assets/syllabus/cbse-7.json"
+  },
+  {
+    "board": "CBSE",
+    "standard": "8",
+    "file": "assets/syllabus/cbse-8.json"
+  },
+  {
+    "board": "CBSE",
+    "standard": "10",
+    "file": "assets/syllabus/cbse-10.json"
+  },
+  {
+    "board": "CBSE",
+    "standard": "11",
+    "file": "assets/syllabus/cbse-11.json"
+  },
+  {
+    "board": "CBSE",
+    "standard": "12",
+    "file": "assets/syllabus/cbse-12.json"
+  },
+  {
+    "board": "ICSE",
+    "standard": "5",
+    "file": "assets/syllabus/icse-5.json"
+  },
+  {
+    "board": "ICSE",
+    "standard": "6",
+    "file": "assets/syllabus/icse-6.json"
+  },
+  {
+    "board": "ICSE",
+    "standard": "7",
+    "file": "assets/syllabus/icse-7.json"
+  },
+  {
+    "board": "ICSE",
+    "standard": "8",
+    "file": "assets/syllabus/icse-8.json"
+  }
+]

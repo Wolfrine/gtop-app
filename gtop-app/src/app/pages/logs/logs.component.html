@@ -1,0 +1,14 @@
+<div class="logs-container">
+    <mat-toolbar>
+        <span>Logs</span>
+        <span class="spacer"></span>
+        <button mat-button color="warn" (click)="clearLogs()">Clear</button>
+    </mat-toolbar>
+
+    <mat-list>
+        <mat-list-item *ngFor="let log of logs" [ngClass]="log.level">
+            <span class="timestamp">{{ log.timestamp | date:'mediumTime' }}</span>
+            <span class="message">{{ log.message }}</span>
+        </mat-list-item>
+    </mat-list>
+</div>

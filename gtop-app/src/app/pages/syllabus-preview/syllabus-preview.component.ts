@@ -1,12 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
+
+interface SyllabusIndexEntry {
+    board: string;
+    standard: string;
+    file: string;
+}
 
 interface Chapter {
     chapterNo?: number;
@@ -25,7 +32,6 @@ interface SyllabusFile {
     subjects: Subject[];
 }
 
-declare const require: any;
 
 @Component({
     selector: 'app-syllabus-preview',
@@ -33,6 +39,7 @@ declare const require: any;
     imports: [
         CommonModule,
         FormsModule,
+        HttpClientModule,
         MatToolbarModule,
         MatFormFieldModule,
         MatSelectModule,
@@ -52,19 +59,16 @@ export class SyllabusPreviewComponent implements OnInit {
     selectedSubjectName: string | null = null;
     selectedSubject: Subject | null = null;
 
-    private syllabusMap: Record<string, SyllabusFile> = {};
+    private indexEntries: SyllabusIndexEntry[] = [];
+    private syllabusCache: Record<string, SyllabusFile> = {};
+
+    constructor(private http: HttpClient) { }
 
     ngOnInit() {
-        const req = (require as any).context('../../../assets/syllabus', false, /\.json$/);
-        req.keys().forEach((path: string) => {
-            const data = req(path) as SyllabusFile;
-            const key = `${data.board.toLowerCase()}-${data.standard}`;
-            this.syllabusMap[key] = data;
-            if (!this.boards.includes(data.board)) {
-                this.boards.push(data.board);
-            }
+        this.http.get<SyllabusIndexEntry[]>('assets/syllabus/index.json').subscribe(entries => {
+            this.indexEntries = entries;
+            this.boards = Array.from(new Set(entries.map(e => e.board))).sort();
         });
-        this.boards.sort();
     }
 
     onBoardChange() {
@@ -78,22 +82,25 @@ export class SyllabusPreviewComponent implements OnInit {
             return;
         }
 
-        for (const key in this.syllabusMap) {
-            const item = this.syllabusMap[key];
-            if (item.board === this.selectedBoard && !this.standards.includes(item.standard)) {
-                this.standards.push(item.standard);
-            }
-        }
-        this.standards.sort();
+        const related = this.indexEntries.filter(e => e.board === this.selectedBoard);
+        this.standards = Array.from(new Set(related.map(r => r.standard))).sort();
     }
 
     onStandardChange() {
         this.selectedSubjectName = null;
         this.selectedSubject = null;
         if (this.selectedBoard && this.selectedStandard) {
-            const key = `${this.selectedBoard.toLowerCase()}-${this.selectedStandard}`;
-            const data = this.syllabusMap[key];
-            this.subjects = data ? data.subjects : [];
+            const entry = this.indexEntries.find(e => e.board === this.selectedBoard && e.standard === this.selectedStandard);
+            if (entry) {
+                if (this.syllabusCache[entry.file]) {
+                    this.subjects = this.syllabusCache[entry.file].subjects;
+                } else {
+                    this.http.get<SyllabusFile>(entry.file).subscribe(data => {
+                        this.syllabusCache[entry.file] = data;
+                        this.subjects = data.subjects;
+                    });
+                }
+            }
         } else {
             this.subjects = [];
         }

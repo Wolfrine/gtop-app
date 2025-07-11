@@ -46,6 +46,7 @@ export class SideNavComponent implements OnInit {
             { label: 'User Management', icon: 'group', route: '/admin/user-list' },
             { label: 'Performance Reports', icon: 'bar_chart', route: '/reports' },
             { label: 'Reports & Analytics', icon: 'bar_chart', route: '/admin/reports' },
+            { label: 'Logs', icon: 'bug_report', route: '/logs' },
         ];
     }
 

@@ -14,6 +14,7 @@ import { EditSyllabusComponent } from './pages/manage-syllabus/edit-syllabus/edi
 import { ReportsPageComponent } from './pages/reports-page/reports-page.component';
 import { UserListComponent } from './pages/admin-dashboard/user-list/user-list.component';
 import { SyllabusPreviewComponent } from './pages/syllabus-preview/syllabus-preview.component';
+import { LogsComponent } from './pages/logs/logs.component';
 
 
 
@@ -54,6 +55,12 @@ export const routes: Routes = [
     {
         path: 'syllabus-preview',
         component: SyllabusPreviewComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'] }
+    },
+    {
+        path: 'logs',
+        component: LogsComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['admin'] }
     },

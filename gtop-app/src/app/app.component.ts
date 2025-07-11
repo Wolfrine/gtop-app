@@ -7,6 +7,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { SideNavComponent } from './components/side-nav/side-nav.component';
+import { LoggingService } from './services/logging.service';
 
 
 @Component({
@@ -32,7 +33,7 @@ export class AppComponent implements OnInit {
     isDesktop: boolean = window.innerWidth > 768;
     sidenavMode: 'side' | 'over' = this.isDesktop ? 'side' : 'over';
 
-    constructor(private authService: AuthService, private router: Router) {
+    constructor(private authService: AuthService, private router: Router, private loggingService: LoggingService) {
         this.router.events.subscribe((event) => {
             // 🚀 SCROLL TO TOP on every route change
             window.scrollTo({ top: 0 });

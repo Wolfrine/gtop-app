@@ -24,6 +24,9 @@ export class LoggingService {
             const original = console[level].bind(console);
             console[level] = (...args: any[]) => {
                 const message = args.map(a => {
+                    if (a instanceof Error) {
+                        return a.stack || a.message;
+                    }
                     if (typeof a === 'object') {
                         try { return JSON.stringify(a); } catch { return String(a); }
                     }

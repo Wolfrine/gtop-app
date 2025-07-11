@@ -30,3 +30,14 @@
 .info {
     color: blue;
 }
+
+mat-list-item {
+    height: auto;
+    white-space: normal;
+}
+
+.message {
+    flex: 1;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}

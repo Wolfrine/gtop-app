@@ -40,3 +40,10 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Sample UI artifacts
+/src/sample/dist
+/src/sample/node_modules
+/src/sample/bun.lockb
+/src/sample/package-lock.json
+/src/sample/public/favicon.ico

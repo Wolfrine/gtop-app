@@ -1,37 +1,63 @@
 <div class="preview-container">
-    <mat-toolbar>
-        <span>Syllabus Preview</span>
-    </mat-toolbar>
+  <mat-toolbar color="primary">
+    <span>Syllabus Preview</span>
+    <span class="spacer"></span>
+    <span class="legend">
+      <mat-chip color="primary" selected>New</mat-chip>
+      <mat-chip color="accent" selected>Existing</mat-chip>
+    </span>
+  </mat-toolbar>
 
-    <div class="controls">
-        <mat-form-field appearance="fill">
-            <mat-label>Board</mat-label>
-            <mat-select [(ngModel)]="selectedBoard" (selectionChange)="onBoardChange()">
-                <mat-option *ngFor="let b of boards" [value]="b">{{ b }}</mat-option>
-            </mat-select>
-        </mat-form-field>
+  <p class="subtitle">Compare new syllabus with existing data</p>
 
-        <mat-form-field appearance="fill" *ngIf="standards.length">
-            <mat-label>Standard</mat-label>
-            <mat-select [(ngModel)]="selectedStandard" (selectionChange)="onStandardChange()">
-                <mat-option *ngFor="let s of standards" [value]="s">{{ s }}</mat-option>
-            </mat-select>
-        </mat-form-field>
+  <div class="controls">
+    <mat-form-field appearance="fill">
+      <mat-label>Board</mat-label>
+      <mat-select [(ngModel)]="selectedBoard" (selectionChange)="onBoardChange()">
+        <mat-option *ngFor="let b of boards" [value]="b">{{ b }}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-        <mat-form-field appearance="fill" *ngIf="subjects.length">
-            <mat-label>Subject</mat-label>
-            <mat-select [(ngModel)]="selectedSubjectName" (selectionChange)="onSubjectChange()">
-                <mat-option *ngFor="let sub of subjects" [value]="sub.subject">{{ sub.subject }}</mat-option>
-            </mat-select>
-        </mat-form-field>
-    </div>
+    <mat-form-field appearance="fill" *ngIf="standards.length">
+      <mat-label>Standard</mat-label>
+      <mat-select [(ngModel)]="selectedStandard" (selectionChange)="onStandardChange()">
+        <mat-option *ngFor="let s of standards" [value]="s">{{ s }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
 
-    <div *ngIf="selectedSubject" class="chapter-section">
-        <h3>Chapters</h3>
-        <mat-list>
-            <mat-list-item *ngFor="let ch of selectedSubject.chapters">
-                {{ ch.chapterNo ? (ch.chapterNo + '. ') : ''}}{{ ch.title }}
-            </mat-list-item>
-        </mat-list>
-    </div>
+  <div class="subjects" *ngIf="selectedBoard && selectedStandard">
+    <mat-card class="subject-card" *ngFor="let sub of subjects" (click)="selectedSubjectName=sub.subject; onSubjectChange()" [class.selected]="selectedSubjectName===sub.subject">
+      <mat-card-title>{{ sub.subject }}</mat-card-title>
+      <mat-card-subtitle>{{ sub.chapters.length }} chapters</mat-card-subtitle>
+    </mat-card>
+  </div>
+
+  <div class="summary" *ngIf="selectedSubject">
+    <mat-card>
+      <mat-card-title>Changes Summary</mat-card-title>
+      <mat-card-content class="summary-content">
+        <div class="count new">{{ getChangesSummary(selectedSubject).new }}</div>
+        <div class="label">New</div>
+        <div class="count existing">{{ getChangesSummary(selectedSubject).existing }}</div>
+        <div class="label">Existing</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="chapters" *ngIf="selectedSubject">
+    <mat-card class="chapter-card" *ngFor="let ch of selectedSubject.chapters">
+      <mat-card-title>
+        {{ ch.chapterNo ? ch.chapterNo + '. ' : '' }}{{ ch.title }}
+        <span class="status" [ngClass]="ch.status">{{ ch.status }}</span>
+      </mat-card-title>
+    </mat-card>
+  </div>
+
+  <div class="empty" *ngIf="!selectedBoard || !selectedStandard">
+    Select Board and Standard to view subjects
+  </div>
+  <div class="empty" *ngIf="selectedBoard && selectedStandard && !selectedSubject">
+    Select a Subject to view chapters
+  </div>
 </div>

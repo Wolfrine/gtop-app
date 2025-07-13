@@ -3,7 +3,8 @@
     <h1>Syllabus Preview</h1>
     <p>Compare new syllabus changes with current system</p>
     <div class="legend">
-      <mat-chip color="primary" selected>New</mat-chip>
+      <mat-chip color="primary" selected><mat-icon>add</mat-icon>New</mat-chip>
+      <mat-chip color="warn" selected><mat-icon>swap_vert</mat-icon>Modified</mat-chip>
       <mat-chip color="accent" selected>Existing</mat-chip>
     </div>
   </header>
@@ -34,13 +35,22 @@
 
   <div class="subjects-grid" *ngIf="selectedBoard && selectedStandard">
     <mat-card class="subject-card" *ngFor="let sub of subjects" (click)="selectedSubjectName=sub.subject; onSubjectChange()" [class.selected]="selectedSubjectName===sub.subject">
-      <mat-card-title>{{ sub.subject }}</mat-card-title>
-      <mat-card-subtitle>{{ sub.chapters.length }} chapters</mat-card-subtitle>
+      <mat-card-title>
+        <mat-icon>menu_book</mat-icon>
+        {{ sub.subject }}
+      </mat-card-title>
+      <mat-card-subtitle>{{ sub.chapters.length }} chapters available</mat-card-subtitle>
+      <mat-card-content>
+        <div class="subject-info">
+          <span>Total Questions</span>
+          <mat-chip>{{ getSubjectQuestionCount(sub) }}</mat-chip>
+        </div>
+      </mat-card-content>
     </mat-card>
   </div>
 
   <mat-card class="summary-card" *ngIf="selectedSubject">
-    <mat-card-title>Changes Summary</mat-card-title>
+    <mat-card-title><mat-icon>swap_vert</mat-icon>Changes Summary</mat-card-title>
     <mat-card-content>
       <div class="summary-grid">
         <div class="summary-item">
@@ -58,9 +68,18 @@
   <div class="chapters-grid" *ngIf="selectedSubject">
     <mat-card class="chapter-card" *ngFor="let ch of selectedSubject.chapters">
       <mat-card-title>
-        {{ ch.chapterNo ? ch.chapterNo + '. ' : '' }}{{ ch.title }}
-        <span class="status" [ngClass]="ch.status">{{ ch.status }}</span>
+        <span>{{ ch.chapterNo ? ch.chapterNo + '. ' : '' }}{{ ch.title }}</span>
+        <mat-chip [color]="ch.status === 'new' ? 'primary' : undefined" selected>{{ ch.status }}</mat-chip>
       </mat-card-title>
+      <mat-card-content>
+        <div class="chapter-count">
+          <mat-icon>article</mat-icon>
+          <div>{{ ch.mcqCount || 0 }}</div>
+        </div>
+        <div *ngIf="ch.status === 'new'" class="chapter-new">
+          ✨ New chapter - needs mapping to current system
+        </div>
+      </mat-card-content>
     </mat-card>
   </div>
 

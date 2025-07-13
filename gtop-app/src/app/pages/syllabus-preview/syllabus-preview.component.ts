@@ -9,6 +9,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 
 interface SyllabusIndexEntry {
@@ -21,6 +22,7 @@ interface Chapter {
     chapterNo?: number;
     title: string;
     status?: 'new' | 'existing' | 'removed';
+    mcqCount?: number;
 }
 
 interface Subject {
@@ -49,7 +51,8 @@ interface SyllabusFile {
         MatOptionModule,
         MatListModule,
         MatCardModule,
-        MatChipsModule
+        MatChipsModule,
+        MatIconModule
     ],
     templateUrl: './syllabus-preview.component.html',
     styleUrls: ['./syllabus-preview.component.scss']
@@ -130,8 +133,22 @@ export class SyllabusPreviewComponent implements OnInit {
             sub.chapters.forEach(ch => {
                 const match = filtered.find(f => f.subject === sub.subject && f.chapter === ch.title);
                 ch.status = match ? 'existing' : 'new';
+                ch.mcqCount = match ? match.mcqCount : 0;
             });
         });
+    }
+
+    private getQuestionCount(subject: string, chapter: string): number {
+        const match = this.syllabusData.find(item =>
+            item.board === this.selectedBoard &&
+            item.standard === this.selectedStandard &&
+            item.subject === subject &&
+            item.chapter === chapter);
+        return match ? match.mcqCount : 0;
+    }
+
+    getSubjectQuestionCount(sub: Subject): number {
+        return sub.chapters.reduce((sum, ch) => sum + (ch.mcqCount ?? this.getQuestionCount(sub.subject, ch.title)), 0);
     }
 
     getChangesSummary(subject: Subject | null) {

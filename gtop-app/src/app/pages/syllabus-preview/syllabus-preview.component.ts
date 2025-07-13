@@ -8,6 +8,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 
 interface SyllabusIndexEntry {
     board: string;
@@ -18,6 +20,7 @@ interface SyllabusIndexEntry {
 interface Chapter {
     chapterNo?: number;
     title: string;
+    status?: 'new' | 'existing' | 'removed';
 }
 
 interface Subject {
@@ -45,7 +48,8 @@ interface SyllabusFile {
         MatSelectModule,
         MatOptionModule,
         MatListModule,
-        MatCardModule
+        MatCardModule,
+        MatChipsModule
     ],
     templateUrl: './syllabus-preview.component.html',
     styleUrls: ['./syllabus-preview.component.scss']
@@ -61,13 +65,18 @@ export class SyllabusPreviewComponent implements OnInit {
 
     private indexEntries: SyllabusIndexEntry[] = [];
     private syllabusCache: Record<string, SyllabusFile> = {};
+    private syllabusData: SyllabusItem[] = [];
 
-    constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient, private syllabusService: SyllabusService) { }
 
     ngOnInit() {
         this.http.get<SyllabusIndexEntry[]>('assets/syllabus/index.json').subscribe(entries => {
             this.indexEntries = entries;
             this.boards = Array.from(new Set(entries.map(e => e.board))).sort();
+        });
+
+        this.syllabusService.syllabus$.subscribe(data => {
+            this.syllabusData = data;
         });
     }
 
@@ -94,10 +103,12 @@ export class SyllabusPreviewComponent implements OnInit {
             if (entry) {
                 if (this.syllabusCache[entry.file]) {
                     this.subjects = this.syllabusCache[entry.file].subjects;
+                    this.computeChapterStatuses();
                 } else {
                     this.http.get<SyllabusFile>(entry.file).subscribe(data => {
                         this.syllabusCache[entry.file] = data;
                         this.subjects = data.subjects;
+                        this.computeChapterStatuses();
                     });
                 }
             }
@@ -108,5 +119,29 @@ export class SyllabusPreviewComponent implements OnInit {
 
     onSubjectChange() {
         this.selectedSubject = this.subjects.find(s => s.subject === this.selectedSubjectName) || null;
+    }
+
+    private computeChapterStatuses() {
+        const filtered = this.syllabusData.filter(item =>
+            item.board === this.selectedBoard &&
+            item.standard === this.selectedStandard);
+
+        this.subjects.forEach(sub => {
+            sub.chapters.forEach(ch => {
+                const match = filtered.find(f => f.subject === sub.subject && f.chapter === ch.title);
+                ch.status = match ? 'existing' : 'new';
+            });
+        });
+    }
+
+    getChangesSummary(subject: Subject | null) {
+        if (!subject) { return { new: 0, existing: 0 }; }
+        let newCount = 0;
+        let existing = 0;
+        subject.chapters.forEach(ch => {
+            if (ch.status === 'new') newCount++;
+            else existing++;
+        });
+        return { new: newCount, existing };
     }
 }

@@ -3,94 +3,81 @@
     <h1>Syllabus Preview</h1>
     <p>Compare new syllabus changes with current system</p>
     <div class="legend">
-      <mat-chip color="primary" selected><mat-icon>add</mat-icon>New</mat-chip>
-      <mat-chip color="warn" selected><mat-icon>swap_vert</mat-icon>Modified</mat-chip>
-      <mat-chip color="accent" selected>Existing</mat-chip>
+      <app-status-pill type="new"></app-status-pill>
+      <app-status-pill type="modified"></app-status-pill>
+      <app-status-pill type="existing"></app-status-pill>
     </div>
   </header>
 
   <div class="selection-grid">
-    <mat-card class="selection-card">
-      <mat-card-title>Board</mat-card-title>
-      <mat-card-content>
-        <mat-form-field appearance="fill">
-          <mat-select [(ngModel)]="selectedBoard" (selectionChange)="onBoardChange()" placeholder="Choose board">
-            <mat-option *ngFor="let b of boards" [value]="b">{{ b }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
+    <div class="selection-card">
+      <h2>Board</h2>
+      <div class="field-wrapper">
+        <select [(ngModel)]="selectedBoard" (change)="onBoardChange()">
+          <option value="" disabled selected>Choose board</option>
+          <option *ngFor="let b of boards" [value]="b">{{ b }}</option>
+        </select>
+      </div>
+    </div>
 
-    <mat-card class="selection-card">
-      <mat-card-title>Standard</mat-card-title>
-      <mat-card-content>
-        <mat-form-field appearance="fill">
-          <mat-select [(ngModel)]="selectedStandard" (selectionChange)="onStandardChange()" placeholder="Choose class" [disabled]="!standards.length">
-            <mat-option *ngFor="let s of standards" [value]="s">{{ s }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
+    <div class="selection-card">
+      <h2>Standard</h2>
+      <div class="field-wrapper">
+        <select [(ngModel)]="selectedStandard" (change)="onStandardChange()" [disabled]="!standards.length">
+          <option value="" disabled selected>Choose class</option>
+          <option *ngFor="let s of standards" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+    </div>
   </div>
 
   <div class="subjects-grid" *ngIf="selectedBoard && selectedStandard">
-    <mat-card class="subject-card" *ngFor="let sub of subjects" (click)="selectedSubjectName=sub.subject; onSubjectChange()" [class.selected]="selectedSubjectName===sub.subject">
-      <mat-card-title>
-        <mat-icon>menu_book</mat-icon>
-        {{ sub.subject }}
-      </mat-card-title>
-      <mat-card-subtitle>{{ sub.chapters.length }} chapters available</mat-card-subtitle>
-      <mat-card-content>
-        <div class="subject-info">
-          <span>Total Questions</span>
-          <mat-chip>{{ getSubjectQuestionCount(sub) }}</mat-chip>
-        </div>
-      </mat-card-content>
-    </mat-card>
+    <app-subject-card
+      *ngFor="let sub of subjects"
+      (click)="selectedSubjectName=sub.subject; onSubjectChange()"
+      [selected]="selectedSubjectName===sub.subject"
+      [name]="sub.subject"
+      [chapterCount]="sub.chapters.length"
+      [questionCount]="getSubjectQuestionCount(sub)">
+    </app-subject-card>
   </div>
 
-  <mat-card class="summary-card" *ngIf="selectedSubject">
-    <mat-card-title><mat-icon>swap_vert</mat-icon>Changes Summary</mat-card-title>
-    <mat-card-content>
-      <div class="summary-grid">
-        <div class="summary-item">
-          <div class="summary-count new">{{ getChangesSummary(selectedSubject).new }}</div>
-          <div class="summary-label">New</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-count existing">{{ getChangesSummary(selectedSubject).existing }}</div>
-          <div class="summary-label">Existing</div>
-        </div>
+  <div class="summary-card" *ngIf="selectedSubject">
+    <app-section-title title="Changes Summary" icon="↕"></app-section-title>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="summary-count new">{{ getChangesSummary(selectedSubject).new }}</div>
+        <div class="summary-label">New Chapters</div>
       </div>
-    </mat-card-content>
-  </mat-card>
+      <div class="summary-item">
+        <div class="summary-count existing">{{ getChangesSummary(selectedSubject).existing }}</div>
+        <div class="summary-label">Existing</div>
+      </div>
+    </div>
+  </div>
 
   <div class="chapters-grid" *ngIf="selectedSubject">
-    <mat-card class="chapter-card" *ngFor="let ch of selectedSubject.chapters">
-      <mat-card-title>
+    <div class="chapter-card" *ngFor="let ch of selectedSubject.chapters">
+      <div class="chapter-title">
         <span>{{ ch.chapterNo ? ch.chapterNo + '. ' : '' }}{{ ch.title }}</span>
-        <mat-chip [color]="ch.status === 'new' ? 'primary' : undefined" selected>{{ ch.status }}</mat-chip>
-      </mat-card-title>
-      <mat-card-content>
+        <app-status-pill [type]="ch.status || 'existing'"></app-status-pill>
+      </div>
+      <div class="chapter-content">
         <div class="chapter-count">
-          <mat-icon>article</mat-icon>
+          <span class="icon">📄</span>
           <div>{{ ch.mcqCount || 0 }}</div>
         </div>
         <div *ngIf="ch.status === 'new'" class="chapter-new">
           ✨ New chapter - needs mapping to current system
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
   </div>
 
-  <mat-card class="empty" *ngIf="!selectedBoard || !selectedStandard">
-    <mat-card-content class="text-center">
-      Select Board and Standard to view subjects
-    </mat-card-content>
-  </mat-card>
-  <mat-card class="empty" *ngIf="selectedBoard && selectedStandard && !selectedSubject">
-    <mat-card-content class="text-center">
-      Select a Subject to view chapters
-    </mat-card-content>
-  </mat-card>
+  <div class="empty" *ngIf="!selectedBoard || !selectedStandard">
+    Select Board and Standard to view subjects
+  </div>
+  <div class="empty" *ngIf="selectedBoard && selectedStandard && !selectedSubject">
+    Select a Subject to view chapters
+  </div>
 </div>

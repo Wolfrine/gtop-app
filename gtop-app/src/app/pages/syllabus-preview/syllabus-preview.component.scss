@@ -4,7 +4,7 @@
   flex-direction: column;
   gap: 1.5rem;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: hsl(var(--background));
   max-width: 72rem;
   margin: 0 auto;
 }
@@ -34,10 +34,17 @@
 
 .selection-card {
   padding: 1rem;
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
 }
 
-.selection-card mat-form-field {
+.selection-card select {
   width: 100%;
+  padding: 0.5rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--card));
 }
 
 .subjects-grid {
@@ -46,32 +53,11 @@
   gap: 1rem;
 }
 
-.subject-card {
-  cursor: pointer;
-  transition: box-shadow 0.3s;
-  padding: 1rem;
-  text-align: center;
-}
-.subject-card mat-card-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  justify-content: center;
-}
-.subject-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.subject-card.selected {
-  box-shadow: 0 0 0 2px #3f51b5;
-}
-
 .summary-card {
   padding: 1rem;
-  background-color: #e3f2fd;
-  border: 1px solid rgba(63, 81, 181, 0.2);
+  background-color: hsl(var(--primary-container));
+  border: 1px solid hsl(var(--primary) / 0.2);
+  border-radius: var(--radius);
 }
 
 .summary-card .summary-grid {
@@ -86,11 +72,11 @@
 }
 
 .summary-count.new {
-  color: #4caf50;
+  color: hsl(var(--success));
 }
 
 .summary-count.existing {
-  color: #607d8b;
+  color: hsl(var(--muted-foreground));
 }
 
 .chapters-grid {
@@ -101,8 +87,11 @@
 
 .chapter-card {
   padding: 1rem;
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
 }
-.chapter-card mat-card-title {
+.chapter-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -112,38 +101,30 @@
   flex-direction: column;
   align-items: center;
   padding: 1rem;
-  background-color: #f1f1f1;
-  border-radius: 4px;
-}
-.chapter-count mat-icon {
-  margin-bottom: 0.25rem;
+  background-color: hsl(var(--muted));
+  border-radius: var(--radius);
 }
 .chapter-new {
   text-align: center;
   padding: 0.5rem;
-  background-color: #e8f5e9;
-  border: 1px solid #c8e6c9;
-  border-radius: 4px;
-  color: #4caf50;
+  background-color: hsl(var(--success-container));
+  border: 1px solid hsl(var(--success));
+  border-radius: var(--radius);
+  color: hsl(var(--success));
   font-size: 0.875rem;
 }
 
-.chapter-card .status {
-  margin-left: 0.5rem;
-  font-size: 0.8rem;
-  text-transform: capitalize;
-}
-
-.chapter-card .status.new {
-  color: #4caf50;
-}
-
-.chapter-card .status.existing {
-  color: #607d8b;
-}
 
 .empty {
   margin-top: 1rem;
-  color: gray;
+  color: hsl(var(--muted-foreground));
   padding: 2rem 1rem;
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.field-wrapper {
+  margin-top: 0.5rem;
 }

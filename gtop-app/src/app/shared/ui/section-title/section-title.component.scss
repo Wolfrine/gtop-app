@@ -1,0 +1,17 @@
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.section-title h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.section-title p {
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+}

@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
+import { StatusPillComponent } from '../../shared/ui/status-pill/status-pill.component';
+import { SubjectCardComponent } from '../../shared/ui/subject-card/subject-card.component';
+import { SectionTitleComponent } from '../../shared/ui/section-title/section-title.component';
 
 interface SyllabusIndexEntry {
     board: string;
@@ -36,7 +39,10 @@ interface SyllabusFile {
     imports: [
         CommonModule,
         FormsModule,
-        HttpClientModule
+        HttpClientModule,
+        StatusPillComponent,
+        SubjectCardComponent,
+        SectionTitleComponent
     ],
     templateUrl: './syllabus-preview.component.html',
     styleUrls: ['./syllabus-preview.component.scss']

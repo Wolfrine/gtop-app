@@ -3,9 +3,9 @@
     <h1>Syllabus Preview</h1>
     <p>Compare new syllabus changes with current system</p>
     <div class="legend">
-      <span class="badge badge-new">+ New</span>
-      <span class="badge badge-modified">&#8597; Modified</span>
-      <span class="badge badge-existing">Existing</span>
+      <app-status-pill type="new"></app-status-pill>
+      <app-status-pill type="modified"></app-status-pill>
+      <app-status-pill type="existing"></app-status-pill>
     </div>
   </header>
 
@@ -32,24 +32,18 @@
   </div>
 
   <div class="subjects-grid" *ngIf="selectedBoard && selectedStandard">
-    <div class="subject-card" *ngFor="let sub of subjects" (click)="selectedSubjectName=sub.subject; onSubjectChange()" [class.selected]="selectedSubjectName===sub.subject">
-      <div class="subject-title">
-        <span class="icon">📖</span>
-        {{ sub.subject }}
-      </div>
-      <div class="subject-subtitle">{{ sub.chapters.length }} chapters available</div>
-      <div class="subject-info">
-        <span>Total Questions</span>
-        <span class="badge">{{ getSubjectQuestionCount(sub) }}</span>
-      </div>
-    </div>
+    <app-subject-card
+      *ngFor="let sub of subjects"
+      (click)="selectedSubjectName=sub.subject; onSubjectChange()"
+      [selected]="selectedSubjectName===sub.subject"
+      [name]="sub.subject"
+      [chapterCount]="sub.chapters.length"
+      [questionCount]="getSubjectQuestionCount(sub)">
+    </app-subject-card>
   </div>
 
   <div class="summary-card" *ngIf="selectedSubject">
-    <div class="summary-title">
-      <span class="icon">&#8597;</span>
-      Changes Summary
-    </div>
+    <app-section-title title="Changes Summary" icon="↕"></app-section-title>
     <div class="summary-grid">
       <div class="summary-item">
         <div class="summary-count new">{{ getChangesSummary(selectedSubject).new }}</div>
@@ -66,7 +60,7 @@
     <div class="chapter-card" *ngFor="let ch of selectedSubject.chapters">
       <div class="chapter-title">
         <span>{{ ch.chapterNo ? ch.chapterNo + '. ' : '' }}{{ ch.title }}</span>
-        <span class="status" [ngClass]="ch.status">{{ ch.status }}</span>
+        <app-status-pill [type]="ch.status || 'existing'"></app-status-pill>
       </div>
       <div class="chapter-content">
         <div class="chapter-count">

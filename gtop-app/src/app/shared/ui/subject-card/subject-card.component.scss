@@ -1,0 +1,35 @@
+.subject-card {
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+  padding: 1rem;
+  text-align: center;
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+}
+
+.subject-card.selected {
+  box-shadow: var(--shadow-md);
+  border-color: hsl(var(--primary));
+}
+
+.subject-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.subject-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge {
+  background-color: hsl(var(--muted));
+  border-radius: var(--radius);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  border: 1px solid hsl(var(--muted-foreground));
+}

@@ -1,0 +1,33 @@
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.status-pill.new {
+  background-color: hsl(var(--success-container));
+  color: hsl(var(--success));
+  border-color: hsl(var(--success));
+}
+
+.status-pill.modified {
+  background-color: hsl(var(--warning-container));
+  color: hsl(var(--warning));
+  border-color: hsl(var(--warning));
+}
+
+.status-pill.existing {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border-color: hsl(var(--border));
+}
+
+.status-pill.removed {
+  background-color: hsl(var(--destructive-container));
+  color: hsl(var(--destructive));
+  border-color: hsl(var(--destructive));
+}

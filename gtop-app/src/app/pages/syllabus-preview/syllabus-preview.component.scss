@@ -34,10 +34,17 @@
 
 .selection-card {
   padding: 1rem;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
 }
 
-.selection-card mat-form-field {
+.selection-card select {
   width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
 }
 
 .subjects-grid {
@@ -51,8 +58,11 @@
   transition: box-shadow 0.3s;
   padding: 1rem;
   text-align: center;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
 }
-.subject-card mat-card-title {
+.subject-title {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -72,6 +82,7 @@
   padding: 1rem;
   background-color: #e3f2fd;
   border: 1px solid rgba(63, 81, 181, 0.2);
+  border-radius: 4px;
 }
 
 .summary-card .summary-grid {
@@ -101,8 +112,11 @@
 
 .chapter-card {
   padding: 1rem;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
 }
-.chapter-card mat-card-title {
+.chapter-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -114,9 +128,6 @@
   padding: 1rem;
   background-color: #f1f1f1;
   border-radius: 4px;
-}
-.chapter-count mat-icon {
-  margin-bottom: 0.25rem;
 }
 .chapter-new {
   text-align: center;
@@ -146,4 +157,43 @@
   margin-top: 1rem;
   color: gray;
   padding: 2rem 1rem;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.badge-new {
+  @extend .badge;
+  background-color: #e8f5e9;
+  border-color: #c8e6c9;
+  color: #4caf50;
+}
+
+.badge-modified {
+  @extend .badge;
+  background-color: #fff8e1;
+  border-color: #ffe0b2;
+  color: #ff9800;
+}
+
+.badge-existing {
+  @extend .badge;
+  background-color: #e0e0e0;
+  border-color: #c7c7c7;
+  color: #424242;
+}
+
+.field-wrapper {
+  margin-top: 0.5rem;
 }

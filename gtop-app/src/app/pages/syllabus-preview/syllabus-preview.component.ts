@@ -2,14 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatOptionModule } from '@angular/material/core';
-import { MatListModule } from '@angular/material/list';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
 import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 
 interface SyllabusIndexEntry {
@@ -44,15 +36,7 @@ interface SyllabusFile {
     imports: [
         CommonModule,
         FormsModule,
-        HttpClientModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatOptionModule,
-        MatListModule,
-        MatCardModule,
-        MatChipsModule,
-        MatIconModule
+        HttpClientModule
     ],
     templateUrl: './syllabus-preview.component.html',
     styleUrls: ['./syllabus-preview.component.scss']

@@ -62,10 +62,20 @@
 
   <div class="chapters-grid" *ngIf="selectedSubject">
     <div class="chapter-card" *ngFor="let ch of selectedSubject.chapters">
-      <div class="chapter-title">
-        <span>{{ ch.chapterNo ? ch.chapterNo + '. ' : '' }}{{ ch.title }}</span>
-        <app-status-pill [type]="ch.status || 'existing'"></app-status-pill>
-      </div>
+        <div class="chapter-title">
+          <span>{{ ch.chapterNo ? ch.chapterNo + '. ' : '' }}{{ ch.title }}</span>
+          <div class="title-actions">
+            <button
+              *ngIf="ch.status === 'new'"
+              class="add-btn"
+              (click)="addChapter(ch)"
+              title="Add chapter"
+            >
+              ➕
+            </button>
+            <app-status-pill [type]="ch.status || 'existing'"></app-status-pill>
+          </div>
+        </div>
       <div class="chapter-content">
         <div class="chapter-count">
           <span class="icon">📄</span>

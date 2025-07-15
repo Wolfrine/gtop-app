@@ -193,4 +193,14 @@ export class SyllabusPreviewComponent implements OnInit {
         });
         return { new: newCount, existing, absent };
     }
+
+    addChapter(ch: Chapter) {
+        if (!this.selectedBoard || !this.selectedStandard || !this.selectedSubjectName) {
+            return;
+        }
+        this.syllabusService
+            .insertComboIfNotExists(this.selectedBoard, this.selectedStandard, this.selectedSubjectName, ch.title)
+            .then(() => console.log('Chapter added to syllabus'))
+            .catch(err => console.error('Failed to add chapter', err));
+    }
 }

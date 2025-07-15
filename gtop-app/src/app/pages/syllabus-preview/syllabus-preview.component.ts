@@ -59,6 +59,7 @@ export class SyllabusPreviewComponent implements OnInit {
     private indexEntries: SyllabusIndexEntry[] = [];
     private syllabusCache: Record<string, SyllabusFile> = {};
     private syllabusData: SyllabusItem[] = [];
+    private currentFile: string | null = null;
 
     private normalizeSyllabusFile(raw: any): SyllabusFile {
         const subjects: Subject[] = (raw.subjects || []).map((sub: any) => ({
@@ -85,6 +86,9 @@ export class SyllabusPreviewComponent implements OnInit {
 
         this.syllabusService.syllabus$.subscribe(data => {
             this.syllabusData = data;
+            if (this.subjects.length) {
+                this.computeChapterStatuses();
+            }
         });
     }
 
@@ -109,19 +113,21 @@ export class SyllabusPreviewComponent implements OnInit {
         if (this.selectedBoard && this.selectedStandard) {
             const entry = this.indexEntries.find(e => e.board === this.selectedBoard && e.standard === this.selectedStandard);
             if (entry) {
+                this.currentFile = entry.file;
                 if (this.syllabusCache[entry.file]) {
-                    this.subjects = this.syllabusCache[entry.file].subjects;
+                    this.subjects = JSON.parse(JSON.stringify(this.syllabusCache[entry.file].subjects));
                     this.computeChapterStatuses();
                 } else {
                     this.http.get<any>(entry.file).subscribe(data => {
                         const normalized = this.normalizeSyllabusFile(data);
                         this.syllabusCache[entry.file] = normalized;
-                        this.subjects = normalized.subjects;
+                        this.subjects = JSON.parse(JSON.stringify(normalized.subjects));
                         this.computeChapterStatuses();
                     });
                 }
             }
         } else {
+            this.currentFile = null;
             this.subjects = [];
         }
     }
@@ -131,6 +137,13 @@ export class SyllabusPreviewComponent implements OnInit {
     }
 
     private computeChapterStatuses() {
+        if (!this.currentFile) {
+            return;
+        }
+
+        // Reset chapters to original definition before applying statuses
+        this.subjects = JSON.parse(JSON.stringify(this.syllabusCache[this.currentFile].subjects));
+
         const filtered = this.syllabusData.filter(item =>
             item.board === this.selectedBoard &&
             item.standard === this.selectedStandard);
@@ -141,6 +154,13 @@ export class SyllabusPreviewComponent implements OnInit {
                 ch.status = match ? 'existing' : 'new';
                 ch.mcqCount = match ? match.mcqCount : 0;
             });
+
+            const existingTitles = new Set(sub.chapters.map(c => c.title));
+            filtered
+                .filter(f => f.subject === sub.subject && !existingTitles.has(f.chapter))
+                .forEach(f => {
+                    sub.chapters.push({ title: f.chapter, status: 'removed', mcqCount: f.mcqCount });
+                });
         });
     }
 

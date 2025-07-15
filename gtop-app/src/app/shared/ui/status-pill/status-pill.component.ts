@@ -18,7 +18,7 @@ export class StatusPillComponent {
       case 'modified':
         return 'Modified';
       case 'removed':
-        return 'Removed';
+        return 'Absent';
       default:
         return 'Existing';
     }

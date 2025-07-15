@@ -79,6 +79,10 @@
   color: hsl(var(--muted-foreground));
 }
 
+.summary-count.absent {
+  color: hsl(var(--warning));
+}
+
 .chapters-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

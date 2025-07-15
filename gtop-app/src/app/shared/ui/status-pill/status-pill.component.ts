@@ -9,14 +9,12 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./status-pill.component.scss']
 })
 export class StatusPillComponent {
-  @Input() type: 'new' | 'modified' | 'existing' | 'removed' = 'existing';
+  @Input() type: 'new' | 'existing' | 'removed' = 'existing';
 
   get label() {
     switch (this.type) {
       case 'new':
         return 'New';
-      case 'modified':
-        return 'Modified';
       case 'removed':
         return 'Absent';
       default:

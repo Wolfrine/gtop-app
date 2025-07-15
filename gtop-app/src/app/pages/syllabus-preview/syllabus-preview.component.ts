@@ -178,13 +178,19 @@ export class SyllabusPreviewComponent implements OnInit {
     }
 
     getChangesSummary(subject: Subject | null) {
-        if (!subject) { return { new: 0, existing: 0 }; }
+        if (!subject) { return { new: 0, existing: 0, absent: 0 }; }
         let newCount = 0;
         let existing = 0;
+        let absent = 0;
         subject.chapters.forEach(ch => {
-            if (ch.status === 'new') newCount++;
-            else existing++;
+            if (ch.status === 'new') {
+                newCount++;
+            } else if (ch.status === 'removed') {
+                absent++;
+            } else {
+                existing++;
+            }
         });
-        return { new: newCount, existing };
+        return { new: newCount, existing, absent };
     }
 }

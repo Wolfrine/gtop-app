@@ -4,7 +4,6 @@
     <p>Compare new syllabus changes with current system</p>
     <div class="legend">
       <app-status-pill type="new"></app-status-pill>
-      <app-status-pill type="modified"></app-status-pill>
       <app-status-pill type="existing"></app-status-pill>
       <app-status-pill type="removed"></app-status-pill>
     </div>
@@ -53,6 +52,10 @@
       <div class="summary-item">
         <div class="summary-count existing">{{ getChangesSummary(selectedSubject).existing }}</div>
         <div class="summary-label">Existing</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-count absent">{{ getChangesSummary(selectedSubject).absent }}</div>
+        <div class="summary-label">Absent</div>
       </div>
     </div>
   </div>

@@ -14,12 +14,6 @@
   border-color: hsl(var(--success));
 }
 
-.status-pill.modified {
-  background-color: hsl(var(--warning-container));
-  color: hsl(var(--warning));
-  border-color: hsl(var(--warning));
-}
-
 .status-pill.existing {
   background-color: hsl(var(--muted));
   color: hsl(var(--muted-foreground));
@@ -27,7 +21,7 @@
 }
 
 .status-pill.removed {
-  background-color: hsl(var(--destructive-container));
-  color: hsl(var(--destructive));
-  border-color: hsl(var(--destructive));
+  background-color: hsl(var(--warning-container));
+  color: hsl(var(--warning));
+  border-color: hsl(var(--warning));
 }

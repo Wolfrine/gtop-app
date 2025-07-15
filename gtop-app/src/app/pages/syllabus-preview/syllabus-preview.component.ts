@@ -60,6 +60,21 @@ export class SyllabusPreviewComponent implements OnInit {
     private syllabusCache: Record<string, SyllabusFile> = {};
     private syllabusData: SyllabusItem[] = [];
 
+    private normalizeSyllabusFile(raw: any): SyllabusFile {
+        const subjects: Subject[] = (raw.subjects || []).map((sub: any) => ({
+            subject: sub.subject,
+            chapters: (sub.chapters || []).map((ch: any) =>
+                typeof ch === 'string' ? { title: ch } : { chapterNo: ch.chapterNo, title: ch.title }
+            )
+        }));
+        return {
+            board: raw.board,
+            year: raw.year,
+            standard: raw.standard,
+            subjects
+        };
+    }
+
     constructor(private http: HttpClient, private syllabusService: SyllabusService) { }
 
     ngOnInit() {
@@ -98,9 +113,10 @@ export class SyllabusPreviewComponent implements OnInit {
                     this.subjects = this.syllabusCache[entry.file].subjects;
                     this.computeChapterStatuses();
                 } else {
-                    this.http.get<SyllabusFile>(entry.file).subscribe(data => {
-                        this.syllabusCache[entry.file] = data;
-                        this.subjects = data.subjects;
+                    this.http.get<any>(entry.file).subscribe(data => {
+                        const normalized = this.normalizeSyllabusFile(data);
+                        this.syllabusCache[entry.file] = normalized;
+                        this.subjects = normalized.subjects;
                         this.computeChapterStatuses();
                     });
                 }

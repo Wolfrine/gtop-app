@@ -59,6 +59,22 @@ export class SyllabusPreviewComponent implements OnInit {
     private indexEntries: SyllabusIndexEntry[] = [];
     private syllabusCache: Record<string, SyllabusFile> = {};
     private syllabusData: SyllabusItem[] = [];
+    private currentFile: string | null = null;
+
+    private normalizeSyllabusFile(raw: any): SyllabusFile {
+        const subjects: Subject[] = (raw.subjects || []).map((sub: any) => ({
+            subject: sub.subject,
+            chapters: (sub.chapters || []).map((ch: any) =>
+                typeof ch === 'string' ? { title: ch } : { chapterNo: ch.chapterNo, title: ch.title }
+            )
+        }));
+        return {
+            board: raw.board,
+            year: raw.year,
+            standard: raw.standard,
+            subjects
+        };
+    }
 
     constructor(private http: HttpClient, private syllabusService: SyllabusService) { }
 
@@ -70,6 +86,9 @@ export class SyllabusPreviewComponent implements OnInit {
 
         this.syllabusService.syllabus$.subscribe(data => {
             this.syllabusData = data;
+            if (this.subjects.length) {
+                this.computeChapterStatuses();
+            }
         });
     }
 
@@ -94,18 +113,21 @@ export class SyllabusPreviewComponent implements OnInit {
         if (this.selectedBoard && this.selectedStandard) {
             const entry = this.indexEntries.find(e => e.board === this.selectedBoard && e.standard === this.selectedStandard);
             if (entry) {
+                this.currentFile = entry.file;
                 if (this.syllabusCache[entry.file]) {
-                    this.subjects = this.syllabusCache[entry.file].subjects;
+                    this.subjects = JSON.parse(JSON.stringify(this.syllabusCache[entry.file].subjects));
                     this.computeChapterStatuses();
                 } else {
-                    this.http.get<SyllabusFile>(entry.file).subscribe(data => {
-                        this.syllabusCache[entry.file] = data;
-                        this.subjects = data.subjects;
+                    this.http.get<any>(entry.file).subscribe(data => {
+                        const normalized = this.normalizeSyllabusFile(data);
+                        this.syllabusCache[entry.file] = normalized;
+                        this.subjects = JSON.parse(JSON.stringify(normalized.subjects));
                         this.computeChapterStatuses();
                     });
                 }
             }
         } else {
+            this.currentFile = null;
             this.subjects = [];
         }
     }
@@ -115,6 +137,13 @@ export class SyllabusPreviewComponent implements OnInit {
     }
 
     private computeChapterStatuses() {
+        if (!this.currentFile) {
+            return;
+        }
+
+        // Reset chapters to original definition before applying statuses
+        this.subjects = JSON.parse(JSON.stringify(this.syllabusCache[this.currentFile].subjects));
+
         const filtered = this.syllabusData.filter(item =>
             item.board === this.selectedBoard &&
             item.standard === this.selectedStandard);
@@ -125,6 +154,13 @@ export class SyllabusPreviewComponent implements OnInit {
                 ch.status = match ? 'existing' : 'new';
                 ch.mcqCount = match ? match.mcqCount : 0;
             });
+
+            const existingTitles = new Set(sub.chapters.map(c => c.title));
+            filtered
+                .filter(f => f.subject === sub.subject && !existingTitles.has(f.chapter))
+                .forEach(f => {
+                    sub.chapters.push({ title: f.chapter, status: 'removed', mcqCount: f.mcqCount });
+                });
         });
     }
 
@@ -142,13 +178,29 @@ export class SyllabusPreviewComponent implements OnInit {
     }
 
     getChangesSummary(subject: Subject | null) {
-        if (!subject) { return { new: 0, existing: 0 }; }
+        if (!subject) { return { new: 0, existing: 0, absent: 0 }; }
         let newCount = 0;
         let existing = 0;
+        let absent = 0;
         subject.chapters.forEach(ch => {
-            if (ch.status === 'new') newCount++;
-            else existing++;
+            if (ch.status === 'new') {
+                newCount++;
+            } else if (ch.status === 'removed') {
+                absent++;
+            } else {
+                existing++;
+            }
         });
-        return { new: newCount, existing };
+        return { new: newCount, existing, absent };
+    }
+
+    addChapter(ch: Chapter) {
+        if (!this.selectedBoard || !this.selectedStandard || !this.selectedSubjectName) {
+            return;
+        }
+        this.syllabusService
+            .insertComboIfNotExists(this.selectedBoard, this.selectedStandard, this.selectedSubjectName, ch.title)
+            .then(() => console.log('Chapter added to syllabus'))
+            .catch(err => console.error('Failed to add chapter', err));
     }
 }

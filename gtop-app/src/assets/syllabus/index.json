@@ -21,6 +21,11 @@
   },
   {
     "board": "CBSE",
+    "standard": "9",
+    "file": "assets/syllabus/cbse-9.json"
+  },
+  {
+    "board": "CBSE",
     "standard": "10",
     "file": "assets/syllabus/cbse-10.json"
   },

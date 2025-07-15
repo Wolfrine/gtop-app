@@ -1,14 +1,14 @@
 {
   "board": "CBSE",
-  "year": "2024-25",
   "standard": "11",
+  "year": "2025-26",
   "subjects": [
     {
       "subject": "English",
       "stream": ["Common"],
       "chapters": [
         { "chapterNo": 1, "title": "The Portrait of a Lady" },
-        { "chapterNo": 2, "title": "We're Not Afraid to Die... if We Can All Be Together" },
+        { "chapterNo": 2, "title": "We're Not Afraid to Die… if We Can All Be Together" },
         { "chapterNo": 3, "title": "Discovering Tut: the Saga Continues" },
         { "chapterNo": 4, "title": "Landscape of the Soul" },
         { "chapterNo": 5, "title": "The Ailing Planet: the Green Movement's Role" },
@@ -19,16 +19,16 @@
       "subject": "Physics",
       "stream": ["Science"],
       "chapters": [
-        { "chapterNo": 1, "title": "Physical World" },
-        { "chapterNo": 2, "title": "Units and Measurements" },
-        { "chapterNo": 3, "title": "Motion in a Straight Line" },
-        { "chapterNo": 4, "title": "Motion in a Plane" },
-        { "chapterNo": 5, "title": "Laws of Motion" },
-        { "chapterNo": 6, "title": "Work, Energy and Power" },
-        { "chapterNo": 7, "title": "System of Particles and Rotational Motion" },
-        { "chapterNo": 8, "title": "Gravitation" },
-        { "chapterNo": 9, "title": "Mechanical Properties of Solids" },
-        { "chapterNo": 10, "title": "Mechanical Properties of Fluids" }
+        { "chapterNo": 1, "title": "Physical World and Measurement" },
+        { "chapterNo": 2, "title": "Kinematics" },
+        { "chapterNo": 3, "title": "Laws of Motion" },
+        { "chapterNo": 4, "title": "Work, Energy and Power" },
+        { "chapterNo": 5, "title": "Motion of System of Particles and Rigid Body" },
+        { "chapterNo": 6, "title": "Gravitation" },
+        { "chapterNo": 7, "title": "Properties of Bulk Matter" },
+        { "chapterNo": 8, "title": "Thermodynamics" },
+        { "chapterNo": 9, "title": "Behaviour of Perfect Gases and Kinetic Theory of Gases" },
+        { "chapterNo": 10, "title": "Oscillations and Waves" }
       ]
     },
     {
@@ -39,35 +39,29 @@
         { "chapterNo": 2, "title": "Structure of Atom" },
         { "chapterNo": 3, "title": "Classification of Elements and Periodicity in Properties" },
         { "chapterNo": 4, "title": "Chemical Bonding and Molecular Structure" },
-        { "chapterNo": 5, "title": "States of Matter: Gases and Liquids" },
-        { "chapterNo": 6, "title": "Thermodynamics" },
-        { "chapterNo": 7, "title": "Equilibrium" },
-        { "chapterNo": 8, "title": "Redox Reactions" },
-        { "chapterNo": 9, "title": "Hydrogen" },
-        { "chapterNo": 10, "title": "The s-Block Element" }
+        { "chapterNo": 5, "title": "Chemical Thermodynamics" },
+        { "chapterNo": 6, "title": "Equilibrium" },
+        { "chapterNo": 7, "title": "Redox Reactions" },
+        { "chapterNo": 8, "title": "Organic Chemistry: Some Basic Principles and Techniques" },
+        { "chapterNo": 9, "title": "Hydrocarbons" }
       ]
     },
     {
       "subject": "Biology",
       "stream": ["Science"],
       "chapters": [
-        { "chapterNo": 1, "title": "The Living World" },
-        { "chapterNo": 2, "title": "Biological Classification" },
-        { "chapterNo": 3, "title": "Plant Kingdom" },
-        { "chapterNo": 4, "title": "Animal Kingdom" },
-        { "chapterNo": 5, "title": "Morphology of Flowering Plants" },
-        { "chapterNo": 6, "title": "Anatomy of Flowering Plants" },
-        { "chapterNo": 7, "title": "Structural Organisation in Animals" },
-        { "chapterNo": 8, "title": "Cell - The Unit of Life" },
-        { "chapterNo": 9, "title": "Biomolecules" },
-        { "chapterNo": 10, "title": "Cell Cycle and Cell Division" }
+        { "chapterNo": 1, "title": "Diversity of Living Organisms" },
+        { "chapterNo": 2, "title": "Structural Organisation in Plants and Animals" },
+        { "chapterNo": 3, "title": "Cell: Structure and Function" },
+        { "chapterNo": 4, "title": "Plant Physiology" },
+        { "chapterNo": 5, "title": "Human Physiology" }
       ]
     },
     {
       "subject": "Mathematics",
       "stream": ["Science", "Commerce"],
       "chapters": [
-        { "chapterNo": 1, "title": "Sets" },
+        { "chapterNo": 1, "title": "Sets and Functions" },
         { "chapterNo": 2, "title": "Relations and Functions" },
         { "chapterNo": 3, "title": "Trigonometric Functions" },
         { "chapterNo": 4, "title": "Principle of Mathematical Induction" },
@@ -77,18 +71,6 @@
         { "chapterNo": 8, "title": "Binomial Theorem" },
         { "chapterNo": 9, "title": "Sequences and Series" },
         { "chapterNo": 10, "title": "Straight Lines" }
-      ]
-    },
-    {
-      "subject": "Business Studies",
-      "stream": ["Commerce"],
-      "chapters": [
-        { "chapterNo": 1, "title": "Nature and Purpose of Business" },
-        { "chapterNo": 2, "title": "Forms of Business Organisations" },
-        { "chapterNo": 3, "title": "Private, Public and Global Enterprises" },
-        { "chapterNo": 4, "title": "Business Services" },
-        { "chapterNo": 5, "title": "Emerging Modes of Business" },
-        { "chapterNo": 6, "title": "Social Responsibilities of Business and Business Ethics" }
       ]
     },
     {
@@ -106,11 +88,23 @@
       ]
     },
     {
+      "subject": "Business Studies",
+      "stream": ["Commerce"],
+      "chapters": [
+        { "chapterNo": 1, "title": "Nature and Purpose of Business" },
+        { "chapterNo": 2, "title": "Forms of Business Organisations" },
+        { "chapterNo": 3, "title": "Private, Public and Global Enterprises" },
+        { "chapterNo": 4, "title": "Business Services" },
+        { "chapterNo": 5, "title": "Emerging Modes of Business" },
+        { "chapterNo": 6, "title": "Social Responsibility of Business and Business Ethics" }
+      ]
+    },
+    {
       "subject": "Economics",
       "stream": ["Commerce", "Humanities"],
       "chapters": [
         { "chapterNo": 1, "title": "Introduction to Microeconomics" },
-        { "chapterNo": 2, "title": "Consumer's Behaviour and Demand" },
+        { "chapterNo": 2, "title": "Consumer Behaviour and Demand" },
         { "chapterNo": 3, "title": "Producer Behaviour and Supply" },
         { "chapterNo": 4, "title": "Forms of Market and Price Determination" },
         { "chapterNo": 5, "title": "Simple Applications of Tools of Demand and Supply" }
@@ -136,6 +130,16 @@
         { "chapterNo": 3, "title": "Election and Representation" },
         { "chapterNo": 4, "title": "Executive" },
         { "chapterNo": 5, "title": "Legislature" }
+      ]
+    },
+    {
+      "subject": "Informatics Practices",
+      "stream": ["Humanities", "Commerce"],
+      "chapters": [
+        { "chapterNo": 1, "title": "Introduction to Computer System" },
+        { "chapterNo": 2, "title": "Introduction to Python" },
+        { "chapterNo": 3, "title": "Database Concepts and the Structured Query Language" },
+        { "chapterNo": 4, "title": "Society, Law, and Ethics" }
       ]
     }
   ]

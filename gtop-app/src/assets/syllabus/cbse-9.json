@@ -1,0 +1,131 @@
+{
+  "board": "CBSE",
+  "standard": "9",
+  "year": "2025-26",
+  "subjects": [
+    {
+      "subject": "English",
+      "chapters": [
+        "A Letter to God",
+        "Nelson Mandela: Long Walk to Freedom",
+        "Two Stories about Flying",
+        "From the Diary of Anne Frank",
+        "The Hundred Dresses – I & II",
+        "Glimpses of India",
+        "Mijbil the Otter",
+        "Madam Rides the Bus",
+        "The Sermon at Benares",
+        "The Proposal",
+        "Dust of Snow",
+        "Fire and Ice",
+        "A Tiger in the Zoo",
+        "How to Tell Wild Animals",
+        "The Ball Poem",
+        "Amanda!",
+        "Animals",
+        "The Trees",
+        "Fog",
+        "The Tale of Custard the Dragon",
+        "For Anne Gregory"
+      ]
+    },
+    {
+      "subject": "Hindi",
+      "chapters_prose": [
+        "प्रेमचंद – ईदगाह",
+        "राहुल सांकृत्यायन – चाँद के पार एक दिन",
+        "श्यामाचरण डूबे – दुनिया का सबसे तेज़ रेलवे स्टेशन",
+        "जाबिर हुसैन – ऐक्सएन्यूएमएक्स",
+        "हरिशंकर परसाई – माता का आँचल",
+        "महादेवी वर्मा – पच्चीस अप्रैल",
+        "यशपाल – अन्तराल",
+        "बचेन्द्री पाल – उजाला",
+        "शरद जोशी – ठेठरा!",
+        "धीरांजन मालवे – संसार कहाँ बज़ा?"
+      ],
+      "chapters_poetry": [
+        "कबीर – कबीर मर गये",
+        "लल्ञाद्यद – दुःख समेरा",
+        "रसखान – एक नदी धीरे बहती है",
+        "माखनलाल चतुर्वेदी – दीप",
+        "सुमित्रानंदन पंत – भोर का एक सपना",
+        "सर्वेश्वर दयाल सक्सेना – वर्धा",
+        "राजेश जोशी – समाचार"
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "chapters": [
+        "Number Systems",
+        "Polynomials",
+        "Coordinate Geometry",
+        "Linear Equations in Two Variables",
+        "Introduction to Euclid’s Geometry",
+        "Lines and Angles",
+        "Triangles and its Properties",
+        "Congruence of Triangles",
+        "Comparing Quantities",
+        "Rational Numbers",
+        "Perimeter and Area",
+        "Algebraic Expressions and Identities",
+        "Surface Areas and Volumes",
+        "Statistics",
+        "Probability"
+      ]
+    },
+    {
+      "subject": "Science",
+      "chapters": [
+        "Matter – Its Nature and Behaviour",
+        "Organization in the Living World",
+        "Motion, Force and Work",
+        "Sound",
+        "Why Do We Fall Ill?",
+        "Natural Resources"
+      ],
+      "assessment": {
+        "theoryMarks": 80,
+        "internalMarks": 20,
+        "sources": ["NCERT iesc1ps.pdf", "CBSE Civics PDF"]
+      }
+    },
+    {
+      "subject": "History",
+      "chapters": [
+        "The French Revolution",
+        "Socialism in Europe and the Russian Revolution",
+        "Nazism and the Rise of Hitler",
+        "Forest Society and Colonialism",
+        "Pastoralists in the Modern World",
+        "Peasants, Zamindars and the State",
+        "Kings and the Kingship",
+        "Colonialism and the Countryside",
+        "Rebels and the Raj",
+        "Bhakti-Sufi Traditions",
+        "An Imperial Capital – Vijayanagara",
+        "Peasants, Zamindars and the State"
+      ]
+    },
+    {
+      "subject": "Geography",
+      "chapters": [
+        "India – Size and Location",
+        "Physical Features of India",
+        "Drainage",
+        "Climate",
+        "Vegetation",
+        "Population"
+      ]
+    },
+    {
+      "subject": "Civics",
+      "chapters": [
+        "What is Democracy? Why Democracy?",
+        "Constitutional Design",
+        "Electoral Politics",
+        "Working of Institutions",
+        "Democratic Rights"
+      ]
+    }
+  ]
+}

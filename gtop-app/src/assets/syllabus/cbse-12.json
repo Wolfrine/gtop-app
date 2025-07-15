@@ -1,149 +1,367 @@
 {
   "board": "CBSE",
-  "year": "2024-25",
+  "year": "2025-26",
   "standard": "12",
   "subjects": [
     {
       "subject": "English",
-      "stream": ["Common"],
+      "stream": [
+        "Common"
+      ],
       "chapters": [
-        { "chapterNo": 1, "title": "The Last Lesson" },
-        { "chapterNo": 2, "title": "Lost Spring" },
-        { "chapterNo": 3, "title": "Deep Water" },
-        { "chapterNo": 4, "title": "The Rattrap" },
-        { "chapterNo": 5, "title": "Indigo" },
-        { "chapterNo": 6, "title": "Poets and Pancakes" },
-        { "chapterNo": 7, "title": "The Interview" },
-        { "chapterNo": 8, "title": "Going Places" }
+        {
+          "chapterNo": 1,
+          "title": "The Last Lesson"
+        },
+        {
+          "chapterNo": 2,
+          "title": "Lost Spring"
+        },
+        {
+          "chapterNo": 3,
+          "title": "Deep Water"
+        },
+        {
+          "chapterNo": 4,
+          "title": "The Rattrap"
+        },
+        {
+          "chapterNo": 5,
+          "title": "Indigo"
+        },
+        {
+          "chapterNo": 6,
+          "title": "Poets and Pancakes"
+        },
+        {
+          "chapterNo": 7,
+          "title": "The Interview"
+        },
+        {
+          "chapterNo": 8,
+          "title": "Going Places"
+        },
+        {
+          "chapterNo": 9,
+          "title": "My Mother at Sixty-Six"
+        },
+        {
+          "chapterNo": 10,
+          "title": "An Elementary School Classroom in a Slum"
+        },
+        {
+          "chapterNo": 11,
+          "title": "Keeping Quiet"
+        },
+        {
+          "chapterNo": 12,
+          "title": "A Thing of Beauty"
+        },
+        {
+          "chapterNo": 13,
+          "title": "A Roadside Stand"
+        },
+        {
+          "chapterNo": 14,
+          "title": "Aunt Jennifer\u2019s Tigers"
+        },
+        {
+          "chapterNo": 15,
+          "title": "The Third Level"
+        },
+        {
+          "chapterNo": 16,
+          "title": "The Tiger King"
+        },
+        {
+          "chapterNo": 17,
+          "title": "Journey to the End of the Earth"
+        },
+        {
+          "chapterNo": 18,
+          "title": "The Enemy"
+        },
+        {
+          "chapterNo": 19,
+          "title": "Should Wizard Hit Mommy?"
+        },
+        {
+          "chapterNo": 20,
+          "title": "On the Face of It"
+        },
+        {
+          "chapterNo": 21,
+          "title": "Evans Tries an O-Level"
+        },
+        {
+          "chapterNo": 22,
+          "title": "Memories of Childhood"
+        }
       ]
     },
     {
       "subject": "Physics",
-      "stream": ["Science"],
+      "stream": [
+        "Science"
+      ],
       "chapters": [
-        { "chapterNo": 1, "title": "Electric Charges and Fields" },
-        { "chapterNo": 2, "title": "Electrostatic Potential and Capacitance" },
-        { "chapterNo": 3, "title": "Current Electricity" },
-        { "chapterNo": 4, "title": "Moving Charges and Magnetism" },
-        { "chapterNo": 5, "title": "Magnetism and Matter" },
-        { "chapterNo": 6, "title": "Electromagnetic Induction" },
-        { "chapterNo": 7, "title": "Alternating Current" },
-        { "chapterNo": 8, "title": "Electromagnetic Waves" },
-        { "chapterNo": 9, "title": "Ray Optics and Optical Instruments" },
-        { "chapterNo": 10, "title": "Wave Optics" }
+        {
+          "chapterNo": 1,
+          "title": "Electric Charges and Fields"
+        },
+        {
+          "chapterNo": 2,
+          "title": "Electrostatic Potential and Capacitance"
+        },
+        {
+          "chapterNo": 3,
+          "title": "Current Electricity"
+        },
+        {
+          "chapterNo": 4,
+          "title": "Moving Charges and Magnetism"
+        },
+        {
+          "chapterNo": 5,
+          "title": "Magnetism and Matter"
+        },
+        {
+          "chapterNo": 6,
+          "title": "Electromagnetic Induction"
+        },
+        {
+          "chapterNo": 7,
+          "title": "Alternating Current"
+        },
+        {
+          "chapterNo": 8,
+          "title": "Electromagnetic Waves"
+        },
+        {
+          "chapterNo": 9,
+          "title": "Ray Optics and Optical Instruments"
+        },
+        {
+          "chapterNo": 10,
+          "title": "Wave Optics"
+        },
+        {
+          "chapterNo": 11,
+          "title": "Dual Nature of Radiation and Matter"
+        },
+        {
+          "chapterNo": 12,
+          "title": "Atoms"
+        },
+        {
+          "chapterNo": 13,
+          "title": "Nuclei"
+        },
+        {
+          "chapterNo": 14,
+          "title": "Semiconductor Electronics: Materials, Devices and Simple Circuits"
+        }
       ]
     },
     {
       "subject": "Chemistry",
-      "stream": ["Science"],
+      "stream": [
+        "Science"
+      ],
       "chapters": [
-        { "chapterNo": 1, "title": "The Solid State" },
-        { "chapterNo": 2, "title": "Solutions" },
-        { "chapterNo": 3, "title": "Electrochemistry" },
-        { "chapterNo": 4, "title": "Chemical Kinetics" },
-        { "chapterNo": 5, "title": "Surface Chemistry" },
-        { "chapterNo": 6, "title": "The p-Block Element" },
-        { "chapterNo": 7, "title": "The d- and f-Block Elements" },
-        { "chapterNo": 8, "title": "Coordination Compounds" },
-        { "chapterNo": 9, "title": "Haloalkanes and Haloarenes" },
-        { "chapterNo": 10, "title": "Alcohols, Phenols and Ethers" }
-      ]
-    },
-    {
-      "subject": "Biology",
-      "stream": ["Science"],
-      "chapters": [
-        { "chapterNo": 1, "title": "Reproduction in Organisms" },
-        { "chapterNo": 2, "title": "Sexual Reproduction in Flowering Plants" },
-        { "chapterNo": 3, "title": "Human Reproduction" },
-        { "chapterNo": 4, "title": "Reproductive Health" },
-        { "chapterNo": 5, "title": "Principles of Inheritance and Variation" },
-        { "chapterNo": 6, "title": "Molecular Basis of Inheritance" },
-        { "chapterNo": 7, "title": "Evolution" },
-        { "chapterNo": 8, "title": "Human Health and Disease" },
-        { "chapterNo": 9, "title": "Strategies for Enhancement in Food Production" },
-        { "chapterNo": 10, "title": "Microbes in Human Welfare" }
+        {
+          "chapterNo": 1,
+          "title": "The Solid State"
+        },
+        {
+          "chapterNo": 2,
+          "title": "Solutions"
+        },
+        {
+          "chapterNo": 3,
+          "title": "Electrochemistry"
+        },
+        {
+          "chapterNo": 4,
+          "title": "Chemical Kinetics"
+        },
+        {
+          "chapterNo": 5,
+          "title": "Surface Chemistry"
+        },
+        {
+          "chapterNo": 6,
+          "title": "The p-Block Element"
+        },
+        {
+          "chapterNo": 7,
+          "title": "The d- and f-Block Elements"
+        },
+        {
+          "chapterNo": 8,
+          "title": "Coordination Compounds"
+        },
+        {
+          "chapterNo": 9,
+          "title": "Haloalkanes and Haloarenes"
+        },
+        {
+          "chapterNo": 10,
+          "title": "Alcohols, Phenols and Ethers"
+        },
+        {
+          "chapterNo": 11,
+          "title": "Aldehydes, Ketones and Carboxylic Acids"
+        },
+        {
+          "chapterNo": 12,
+          "title": "Organic Compounds Containing Nitrogen"
+        },
+        {
+          "chapterNo": 13,
+          "title": "Biomolecules"
+        },
+        {
+          "chapterNo": 14,
+          "title": "Polymers"
+        },
+        {
+          "chapterNo": 15,
+          "title": "Chemistry in Everyday Life"
+        }
       ]
     },
     {
       "subject": "Mathematics",
-      "stream": ["Science", "Commerce"],
+      "stream": [
+        "Science",
+        "Commerce"
+      ],
       "chapters": [
-        { "chapterNo": 1, "title": "Relations and Functions" },
-        { "chapterNo": 2, "title": "Inverse Trigonometric Functions" },
-        { "chapterNo": 3, "title": "Matrices" },
-        { "chapterNo": 4, "title": "Determinants" },
-        { "chapterNo": 5, "title": "Continuity and Differentiability" },
-        { "chapterNo": 6, "title": "Application of Derivatives" },
-        { "chapterNo": 7, "title": "Integrals" },
-        { "chapterNo": 8, "title": "Application of Integrals" },
-        { "chapterNo": 9, "title": "Differential Equations" },
-        { "chapterNo": 10, "title": "Vector Algebra" }
+        {
+          "chapterNo": 1,
+          "title": "Relations and Functions"
+        },
+        {
+          "chapterNo": 2,
+          "title": "Inverse Trigonometric Functions"
+        },
+        {
+          "chapterNo": 3,
+          "title": "Matrices"
+        },
+        {
+          "chapterNo": 4,
+          "title": "Determinants"
+        },
+        {
+          "chapterNo": 5,
+          "title": "Continuity and Differentiability"
+        },
+        {
+          "chapterNo": 6,
+          "title": "Applications of Derivatives"
+        },
+        {
+          "chapterNo": 7,
+          "title": "Integrals"
+        },
+        {
+          "chapterNo": 8,
+          "title": "Applications of Integrals"
+        },
+        {
+          "chapterNo": 9,
+          "title": "Differential Equations"
+        },
+        {
+          "chapterNo": 10,
+          "title": "Vector Algebra"
+        },
+        {
+          "chapterNo": 11,
+          "title": "Three-dimensional Geometry"
+        },
+        {
+          "chapterNo": 12,
+          "title": "Linear Programming"
+        },
+        {
+          "chapterNo": 13,
+          "title": "Probability"
+        }
       ]
     },
     {
-      "subject": "Business Studies",
-      "stream": ["Commerce"],
+      "subject": "Biology",
+      "stream": [
+        "Science"
+      ],
       "chapters": [
-        { "chapterNo": 1, "title": "Nature and Significance of Management" },
-        { "chapterNo": 2, "title": "Principles of Management" },
-        { "chapterNo": 3, "title": "Business Environment" },
-        { "chapterNo": 4, "title": "Planning" },
-        { "chapterNo": 5, "title": "Organising" },
-        { "chapterNo": 6, "title": "Staffing" },
-        { "chapterNo": 7, "title": "Directing" },
-        { "chapterNo": 8, "title": "Controlling" },
-        { "chapterNo": 9, "title": "Financial Management" },
-        { "chapterNo": 10, "title": "Financial Markets" }
-      ]
-    },
-    {
-      "subject": "Accountancy",
-      "stream": ["Commerce"],
-      "chapters": [
-        { "chapterNo": 1, "title": "Accounting for Not-for-Profit Organisation" },
-        { "chapterNo": 2, "title": "Accounting for Partnership Firms – Fundamentals" },
-        { "chapterNo": 3, "title": "Goodwill: Nature and Valuation" },
-        { "chapterNo": 4, "title": "Change in Profit Sharing Ratio" },
-        { "chapterNo": 5, "title": "Admission of a Partner" },
-        { "chapterNo": 6, "title": "Retirement and Death of a Partner" },
-        { "chapterNo": 7, "title": "Dissolution of a Partnership Firm" },
-        { "chapterNo": 8, "title": "Accounting for Share Capital" },
-        { "chapterNo": 9, "title": "Issue and Redemption of Debentures" },
-        { "chapterNo": 10, "title": "Financial Statements of a Company" }
-      ]
-    },
-    {
-      "subject": "Economics",
-      "stream": ["Commerce", "Humanities"],
-      "chapters": [
-        { "chapterNo": 1, "title": "Introduction to Macroeconomics" },
-        { "chapterNo": 2, "title": "National Income and Related Aggregates" },
-        { "chapterNo": 3, "title": "Money and Banking" },
-        { "chapterNo": 4, "title": "Government Budget and the Economy" },
-        { "chapterNo": 5, "title": "Balance of Payments" }
-      ]
-    },
-    {
-      "subject": "History",
-      "stream": ["Humanities"],
-      "chapters": [
-        { "chapterNo": 1, "title": "Bricks, Beads and Bones" },
-        { "chapterNo": 2, "title": "Kings, Farmers and Towns" },
-        { "chapterNo": 3, "title": "Kinship, Caste and Class" },
-        { "chapterNo": 4, "title": "Thinkers, Beliefs and Buildings" },
-        { "chapterNo": 5, "title": "Through the Eyes of Travellers" }
-      ]
-    },
-    {
-      "subject": "Political Science",
-      "stream": ["Humanities"],
-      "chapters": [
-        { "chapterNo": 1, "title": "The Cold War Era" },
-        { "chapterNo": 2, "title": "The End of Bipolarity" },
-        { "chapterNo": 3, "title": "US Hegemony in World Politics" },
-        { "chapterNo": 4, "title": "Alternative Centres of Power" },
-        { "chapterNo": 5, "title": "Contemporary South Asia" }
+        {
+          "chapterNo": 1,
+          "title": "Reproduction in Organisms"
+        },
+        {
+          "chapterNo": 2,
+          "title": "Sexual Reproduction in Flowering Plants"
+        },
+        {
+          "chapterNo": 3,
+          "title": "Human Reproduction"
+        },
+        {
+          "chapterNo": 4,
+          "title": "Reproductive Health"
+        },
+        {
+          "chapterNo": 5,
+          "title": "Principles of Inheritance and Variation"
+        },
+        {
+          "chapterNo": 6,
+          "title": "Molecular Basis of Inheritance"
+        },
+        {
+          "chapterNo": 7,
+          "title": "Evolution"
+        },
+        {
+          "chapterNo": 8,
+          "title": "Human Health and Disease"
+        },
+        {
+          "chapterNo": 9,
+          "title": "Strategies for Enhancement in Food Production"
+        },
+        {
+          "chapterNo": 10,
+          "title": "Microbes in Human Welfare"
+        },
+        {
+          "chapterNo": 11,
+          "title": "Biotechnology: Principles and Processes"
+        },
+        {
+          "chapterNo": 12,
+          "title": "Biotechnology and Its Applications"
+        },
+        {
+          "chapterNo": 13,
+          "title": "Organisms and Populations"
+        },
+        {
+          "chapterNo": 14,
+          "title": "Ecosystem"
+        },
+        {
+          "chapterNo": 15,
+          "title": "Biodiversity and Conservation"
+        },
+        {
+          "chapterNo": 16,
+          "title": "Environmental Issues"
+        }
       ]
     }
   ]

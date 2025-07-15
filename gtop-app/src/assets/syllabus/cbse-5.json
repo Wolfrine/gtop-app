@@ -1,66 +1,66 @@
 {
   "board": "CBSE",
-  "year": "2024-25",
   "standard": "5",
+  "year": "2025-26",
   "subjects": [
     {
       "subject": "English",
       "chapters": [
-        { "chapterNo": 1, "title": "Ice-cream Man" },
-        { "chapterNo": 2, "title": "Wonderful Waste!" },
-        { "chapterNo": 3, "title": "Teamwork" },
-        { "chapterNo": 4, "title": "Flying Together" },
-        { "chapterNo": 5, "title": "My Shadow" },
-        { "chapterNo": 6, "title": "Robinson Crusoe Discovers a Footprint" },
-        { "chapterNo": 7, "title": "Crying" },
-        { "chapterNo": 8, "title": "My Elder Brother" },
-        { "chapterNo": 9, "title": "The Lazy Frog" },
-        { "chapterNo": 10, "title": "Rip Van Winkle" }
-      ]
-    },
-    {
-      "subject": "Mathematics",
-      "chapters": [
-        { "chapterNo": 1, "title": "The Fish Tale" },
-        { "chapterNo": 2, "title": "Shapes and Angles" },
-        { "chapterNo": 3, "title": "How Many Squares?" },
-        { "chapterNo": 4, "title": "Parts and Wholes" },
-        { "chapterNo": 5, "title": "Does it Look the Same?" },
-        { "chapterNo": 6, "title": "Be My Multiple, I'll Be Your Factor" },
-        { "chapterNo": 7, "title": "Can You See the Pattern?" },
-        { "chapterNo": 8, "title": "Mapping Your Way" },
-        { "chapterNo": 9, "title": "Boxes and Sketches" },
-        { "chapterNo": 10, "title": "Tenths and Hundredths" }
-      ]
-    },
-    {
-      "subject": "Environmental Studies",
-      "chapters": [
-        { "chapterNo": 1, "title": "Super Senses" },
-        { "chapterNo": 2, "title": "A Snake Charmer’s Story" },
-        { "chapterNo": 3, "title": "From Tasting to Digesting" },
-        { "chapterNo": 4, "title": "Mangoes Round the Year" },
-        { "chapterNo": 5, "title": "Seeds and Seeds" },
-        { "chapterNo": 6, "title": "Every Drop Counts" },
-        { "chapterNo": 7, "title": "Experiments with Water" },
-        { "chapterNo": 8, "title": "A Treat for Mosquitoes" },
-        { "chapterNo": 9, "title": "Up You Go!" },
-        { "chapterNo": 10, "title": "Walls Tell Stories" }
+        "A Day with Nandu",
+        "The Clever Rabbit",
+        "Jungle Boy",
+        "The Talkative Barber",
+        "Gopal and the Hilsa Fish",
+        "A Little Fish Story",
+        "The Ghost in the House",
+        "A Joke",
+        "Mittu and the Yellow Mango",
+        "Bringing up Kari"
       ]
     },
     {
       "subject": "Hindi",
       "chapters": [
-        { "chapterNo": 1, "title": "राख की रस्सी" },
-        { "chapterNo": 2, "title": "फसलों के त्योहार" },
-        { "chapterNo": 3, "title": "खिलौनेवाला" },
-        { "chapterNo": 4, "title": "नन्हा फनकार" },
-        { "chapterNo": 5, "title": "जहाँ चाह वहाँ राह" },
-        { "chapterNo": 6, "title": "चिट्ठी का सफर" },
-        { "chapterNo": 7, "title": "डाकिया" },
-        { "chapterNo": 8, "title": "पानी रे पानी" },
-        { "chapterNo": 9, "title": "क्या निराश हुआ जाए" },
-        { "chapterNo": 10, "title": "अनोखा पेड़" }
+        "अद्भुत जीव जंतु",
+        "आवाज़",
+        "पेड़ और पौधों की दुनिया",
+        "नानी की नयी बड़ी बहू",
+        "जल जीवन है",
+        "बचपन का दोस्त",
+        "चन्दा मामा",
+        "महात्मा गांधी",
+        "स्वास्थ्य और स्वच्छता",
+        "पौराणिक कथाएँ"
+      ]
+    },
+    {
+      "subject": "Mathematics",
+      "chapters": [
+        "The Fish Tale",
+        " Shapes and Angles",
+        "Knock-Tap",
+        "Mapping Your Way",
+        "Boxes and Sketches",
+        "Tenths and Hundredths",
+        "Area and Its Boundary",
+        "Smart Charts",
+        "Parts and Wholes",
+        "Does It Look the Same?"
+      ]
+    },
+    {
+      "subject": "EVS",
+      "chapters": [
+        "A Day with Nandu",
+        "Everyday Things",
+        "Monuments and Money",
+        "A Beautiful Cloth",
+        "Wetlands – Our Lifeline",
+        "A Shelter So High!",
+        "Talking to Each Other",
+        "Body Needs",
+        "The Story of Food",
+        "Work We Do"
       ]
     }
   ]

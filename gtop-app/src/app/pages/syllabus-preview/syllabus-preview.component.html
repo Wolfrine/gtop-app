@@ -45,15 +45,15 @@
   <div class="summary-card" *ngIf="selectedSubject">
     <app-section-title title="Changes Summary" icon="↕"></app-section-title>
     <div class="summary-grid">
-      <div class="summary-item">
+      <div class="summary-item" [class.off]="!showNew" (click)="toggleFilter('new')">
         <div class="summary-count new">{{ getChangesSummary(selectedSubject).new }}</div>
         <div class="summary-label">New Chapters</div>
       </div>
-      <div class="summary-item">
+      <div class="summary-item" [class.off]="!showExisting" (click)="toggleFilter('existing')">
         <div class="summary-count existing">{{ getChangesSummary(selectedSubject).existing }}</div>
         <div class="summary-label">Existing</div>
       </div>
-      <div class="summary-item">
+      <div class="summary-item" [class.off]="!showAbsent" (click)="toggleFilter('absent')">
         <div class="summary-count absent">{{ getChangesSummary(selectedSubject).absent }}</div>
         <div class="summary-label">Absent</div>
       </div>
@@ -61,7 +61,7 @@
   </div>
 
   <div class="chapters-grid" *ngIf="selectedSubject">
-    <div class="chapter-card" *ngFor="let ch of selectedSubject.chapters">
+    <div class="chapter-card" *ngFor="let ch of filteredChapters">
         <div class="chapter-title">
           <span>{{ ch.chapterNo ? ch.chapterNo + '. ' : '' }}{{ ch.title }}</span>
           <div class="title-actions">

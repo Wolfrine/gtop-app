@@ -6,6 +6,7 @@ import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 import { StatusPillComponent } from '../../shared/ui/status-pill/status-pill.component';
 import { SubjectCardComponent } from '../../shared/ui/subject-card/subject-card.component';
 import { SectionTitleComponent } from '../../shared/ui/section-title/section-title.component';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 interface SyllabusIndexEntry {
     board: string;
@@ -42,7 +43,8 @@ interface SyllabusFile {
         HttpClientModule,
         StatusPillComponent,
         SubjectCardComponent,
-        SectionTitleComponent
+        SectionTitleComponent,
+        MatSnackBarModule
     ],
     templateUrl: './syllabus-preview.component.html',
     styleUrls: ['./syllabus-preview.component.scss']
@@ -61,6 +63,10 @@ export class SyllabusPreviewComponent implements OnInit {
     private syllabusData: SyllabusItem[] = [];
     private currentFile: string | null = null;
 
+    showNew = true;
+    showExisting = true;
+    showAbsent = true;
+
     private normalizeSyllabusFile(raw: any): SyllabusFile {
         const subjects: Subject[] = (raw.subjects || []).map((sub: any) => ({
             subject: sub.subject,
@@ -76,7 +82,11 @@ export class SyllabusPreviewComponent implements OnInit {
         };
     }
 
-    constructor(private http: HttpClient, private syllabusService: SyllabusService) { }
+    constructor(
+        private http: HttpClient,
+        private syllabusService: SyllabusService,
+        private snackBar: MatSnackBar
+    ) { }
 
     ngOnInit() {
         this.http.get<SyllabusIndexEntry[]>('assets/syllabus/index.json').subscribe(entries => {
@@ -162,6 +172,10 @@ export class SyllabusPreviewComponent implements OnInit {
                     sub.chapters.push({ title: f.chapter, status: 'removed', mcqCount: f.mcqCount });
                 });
         });
+
+        if (this.selectedSubjectName) {
+            this.selectedSubject = this.subjects.find(s => s.subject === this.selectedSubjectName) || null;
+        }
     }
 
     private getQuestionCount(subject: string, chapter: string): number {
@@ -194,13 +208,41 @@ export class SyllabusPreviewComponent implements OnInit {
         return { new: newCount, existing, absent };
     }
 
+    get filteredChapters(): Chapter[] {
+        if (!this.selectedSubject) { return []; }
+        return this.selectedSubject.chapters.filter(ch => {
+            if (ch.status === 'new') { return this.showNew; }
+            if (ch.status === 'removed') { return this.showAbsent; }
+            return this.showExisting;
+        });
+    }
+
+    toggleFilter(type: 'new' | 'existing' | 'absent') {
+        if (type === 'new') { this.showNew = !this.showNew; }
+        else if (type === 'existing') { this.showExisting = !this.showExisting; }
+        else { this.showAbsent = !this.showAbsent; }
+    }
+
     addChapter(ch: Chapter) {
         if (!this.selectedBoard || !this.selectedStandard || !this.selectedSubjectName) {
             return;
         }
         this.syllabusService
             .insertComboIfNotExists(this.selectedBoard, this.selectedStandard, this.selectedSubjectName, ch.title)
-            .then(() => console.log('Chapter added to syllabus'))
-            .catch(err => console.error('Failed to add chapter', err));
+            .then(() => {
+                this.snackBar.open('Chapter added!', 'Close', { duration: 2000 });
+                this.syllabusData.push({
+                    board: this.selectedBoard!,
+                    standard: this.selectedStandard!,
+                    subject: this.selectedSubjectName!,
+                    chapter: ch.title,
+                    mcqCount: 0
+                });
+                this.computeChapterStatuses();
+            })
+            .catch(err => {
+                console.error('Failed to add chapter', err);
+                this.snackBar.open('Failed to add chapter', 'Close', { duration: 3000 });
+            });
     }
 }

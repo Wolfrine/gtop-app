@@ -7,6 +7,8 @@ import { StatusPillComponent } from '../../shared/ui/status-pill/status-pill.com
 import { SubjectCardComponent } from '../../shared/ui/subject-card/subject-card.component';
 import { SectionTitleComponent } from '../../shared/ui/section-title/section-title.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { SyllabusPreviewService, SyllabusPreviewItem } from '../../services/syllabus-preview.service';
 
 interface SyllabusIndexEntry {
     board: string;
@@ -44,7 +46,8 @@ interface SyllabusFile {
         StatusPillComponent,
         SubjectCardComponent,
         SectionTitleComponent,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatButtonModule
     ],
     templateUrl: './syllabus-preview.component.html',
     styleUrls: ['./syllabus-preview.component.scss']
@@ -85,7 +88,8 @@ export class SyllabusPreviewComponent implements OnInit {
     constructor(
         private http: HttpClient,
         private syllabusService: SyllabusService,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private previewService: SyllabusPreviewService
     ) { }
 
     ngOnInit() {
@@ -243,6 +247,35 @@ export class SyllabusPreviewComponent implements OnInit {
             .catch(err => {
                 console.error('Failed to add chapter', err);
                 this.snackBar.open('Failed to add chapter', 'Close', { duration: 3000 });
+            });
+    }
+
+    savePreview() {
+        if (!this.currentFile) {
+            this.snackBar.open('Select board and standard first', 'Close', { duration: 2000 });
+            return;
+        }
+
+        const file = this.syllabusCache[this.currentFile];
+        const items: SyllabusPreviewItem[] = [];
+
+        file.subjects.forEach(sub => {
+            sub.chapters.forEach(ch => {
+                items.push({
+                    board: file.board,
+                    standard: file.standard,
+                    subject: sub.subject,
+                    chapter: ch.title,
+                    mcqCount: ch.mcqCount || 0
+                });
+            });
+        });
+
+        this.previewService.savePreview(items)
+            .then(() => this.snackBar.open('Preview saved to Firestore', 'Close', { duration: 2000 }))
+            .catch(err => {
+                console.error('Failed to save preview', err);
+                this.snackBar.open('Failed to save preview', 'Close', { duration: 3000 });
             });
     }
 }

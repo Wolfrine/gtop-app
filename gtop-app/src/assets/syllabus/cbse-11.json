@@ -4,142 +4,184 @@
   "year": "2025-26",
   "subjects": [
     {
-      "subject": "English",
-      "stream": ["Common"],
+      "subject": "Biology",
+      "stream": ["Science"],
       "chapters": [
-        { "chapterNo": 1, "title": "The Portrait of a Lady" },
-        { "chapterNo": 2, "title": "We're Not Afraid to Die… if We Can All Be Together" },
-        { "chapterNo": 3, "title": "Discovering Tut: the Saga Continues" },
-        { "chapterNo": 4, "title": "Landscape of the Soul" },
-        { "chapterNo": 5, "title": "The Ailing Planet: the Green Movement's Role" },
-        { "chapterNo": 6, "title": "The Browning Version" }
+        "The Living World",
+        "Biological Classification",
+        "Plant Kingdom",
+        "Animal Kingdom",
+        "Morphology of Flowering Plants",
+        "Anatomy of Flowering Plants",
+        "Structural Organisation in Animals",
+        "Cell - The Unit of Life",
+        "Biomolecules",
+        "Cell Cycle and Cell Division",
+        "Transport in Plants",
+        "Mineral Nutrition",
+        "Photosynthesis in Higher Plants",
+        "Respiration in Plants",
+        "Plant Growth and Development",
+        "Digestion and Absorption",
+        "Breathing and Exchange of Gases",
+        "Body Fluids and Circulation",
+        "Excretory Products and Their Elimination"
       ]
     },
     {
       "subject": "Physics",
       "stream": ["Science"],
       "chapters": [
-        { "chapterNo": 1, "title": "Physical World and Measurement" },
-        { "chapterNo": 2, "title": "Kinematics" },
-        { "chapterNo": 3, "title": "Laws of Motion" },
-        { "chapterNo": 4, "title": "Work, Energy and Power" },
-        { "chapterNo": 5, "title": "Motion of System of Particles and Rigid Body" },
-        { "chapterNo": 6, "title": "Gravitation" },
-        { "chapterNo": 7, "title": "Properties of Bulk Matter" },
-        { "chapterNo": 8, "title": "Thermodynamics" },
-        { "chapterNo": 9, "title": "Behaviour of Perfect Gases and Kinetic Theory of Gases" },
-        { "chapterNo": 10, "title": "Oscillations and Waves" }
+        "Physical World",
+        "Units and Measurements",
+        "Motion in a Straight Line",
+        "Motion in a Plane",
+        "Laws of Motion",
+        "Work, Energy and Power",
+        "System of Particles and Rotational Motion",
+        "Gravitation",
+        "Mechanical Properties of Solids",
+        "Mechanical Properties of Fluids",
+        "Thermal Properties of Matter",
+        "Thermodynamics",
+        "Kinetic Theory",
+        "Oscillations",
+        "Waves"
       ]
     },
     {
       "subject": "Chemistry",
       "stream": ["Science"],
       "chapters": [
-        { "chapterNo": 1, "title": "Some Basic Concepts of Chemistry" },
-        { "chapterNo": 2, "title": "Structure of Atom" },
-        { "chapterNo": 3, "title": "Classification of Elements and Periodicity in Properties" },
-        { "chapterNo": 4, "title": "Chemical Bonding and Molecular Structure" },
-        { "chapterNo": 5, "title": "Chemical Thermodynamics" },
-        { "chapterNo": 6, "title": "Equilibrium" },
-        { "chapterNo": 7, "title": "Redox Reactions" },
-        { "chapterNo": 8, "title": "Organic Chemistry: Some Basic Principles and Techniques" },
-        { "chapterNo": 9, "title": "Hydrocarbons" }
-      ]
-    },
-    {
-      "subject": "Biology",
-      "stream": ["Science"],
-      "chapters": [
-        { "chapterNo": 1, "title": "Diversity of Living Organisms" },
-        { "chapterNo": 2, "title": "Structural Organisation in Plants and Animals" },
-        { "chapterNo": 3, "title": "Cell: Structure and Function" },
-        { "chapterNo": 4, "title": "Plant Physiology" },
-        { "chapterNo": 5, "title": "Human Physiology" }
+        "Some Basic Concepts of Chemistry",
+        "Structure of Atom",
+        "Classification of Elements and Periodicity in Properties",
+        "Chemical Bonding and Molecular Structure",
+        "Thermodynamics",
+        "Equilibrium",
+        "Redox Reactions",
+        "Organic Chemistry - Some Basic Principles and Techniques",
+        "Hydrocarbons"
       ]
     },
     {
       "subject": "Mathematics",
       "stream": ["Science", "Commerce"],
       "chapters": [
-        { "chapterNo": 1, "title": "Sets and Functions" },
-        { "chapterNo": 2, "title": "Relations and Functions" },
-        { "chapterNo": 3, "title": "Trigonometric Functions" },
-        { "chapterNo": 4, "title": "Principle of Mathematical Induction" },
-        { "chapterNo": 5, "title": "Complex Numbers and Quadratic Equations" },
-        { "chapterNo": 6, "title": "Linear Inequalities" },
-        { "chapterNo": 7, "title": "Permutations and Combinations" },
-        { "chapterNo": 8, "title": "Binomial Theorem" },
-        { "chapterNo": 9, "title": "Sequences and Series" },
-        { "chapterNo": 10, "title": "Straight Lines" }
+        "Sets",
+        "Relations and Functions",
+        "Trigonometric Functions",
+        "Principle of Mathematical Induction",
+        "Complex Numbers and Quadratic Equations",
+        "Linear Inequalities",
+        "Permutations and Combinations",
+        "Binomial Theorem",
+        "Sequences and Series",
+        "Straight Lines",
+        "Conic Sections",
+        "Introduction to Three Dimensional Geometry",
+        "Limits and Derivatives",
+        "Mathematical Reasoning",
+        "Statistics",
+        "Probability"
       ]
     },
     {
       "subject": "Accountancy",
       "stream": ["Commerce"],
       "chapters": [
-        { "chapterNo": 1, "title": "Introduction to Accounting" },
-        { "chapterNo": 2, "title": "Theory Base of Accounting" },
-        { "chapterNo": 3, "title": "Recording of Transactions – I" },
-        { "chapterNo": 4, "title": "Recording of Transactions – II" },
-        { "chapterNo": 5, "title": "Bank Reconciliation Statement" },
-        { "chapterNo": 6, "title": "Trial Balance and Rectification of Errors" },
-        { "chapterNo": 7, "title": "Depreciation, Provisions and Reserves" },
-        { "chapterNo": 8, "title": "Bill of Exchange" }
+        "Introduction to Accounting",
+        "Theory Base of Accounting",
+        "Recording of Transactions – I",
+        "Recording of Transactions – II",
+        "Bank Reconciliation Statement",
+        "Trial Balance and Rectification of Errors",
+        "Depreciation, Provisions and Reserves",
+        "Bill of Exchange"
       ]
     },
     {
       "subject": "Business Studies",
       "stream": ["Commerce"],
       "chapters": [
-        { "chapterNo": 1, "title": "Nature and Purpose of Business" },
-        { "chapterNo": 2, "title": "Forms of Business Organisations" },
-        { "chapterNo": 3, "title": "Private, Public and Global Enterprises" },
-        { "chapterNo": 4, "title": "Business Services" },
-        { "chapterNo": 5, "title": "Emerging Modes of Business" },
-        { "chapterNo": 6, "title": "Social Responsibility of Business and Business Ethics" }
+        "Nature and Purpose of Business",
+        "Forms of Business Organisations",
+        "Private, Public and Global Enterprises",
+        "Business Services",
+        "Emerging Modes of Business",
+        "Social Responsibility of Business and Business Ethics"
       ]
     },
     {
       "subject": "Economics",
       "stream": ["Commerce", "Humanities"],
       "chapters": [
-        { "chapterNo": 1, "title": "Introduction to Microeconomics" },
-        { "chapterNo": 2, "title": "Consumer Behaviour and Demand" },
-        { "chapterNo": 3, "title": "Producer Behaviour and Supply" },
-        { "chapterNo": 4, "title": "Forms of Market and Price Determination" },
-        { "chapterNo": 5, "title": "Simple Applications of Tools of Demand and Supply" }
+        "Introduction to Microeconomics",
+        "Consumer Behaviour and Demand",
+        "Producer Behaviour and Supply",
+        "Forms of Market and Price Determination",
+        "Simple Applications of Tools of Demand and Supply"
       ]
     },
     {
       "subject": "History",
       "stream": ["Humanities"],
       "chapters": [
-        { "chapterNo": 1, "title": "From the Beginning of Time" },
-        { "chapterNo": 2, "title": "Writing and City Life" },
-        { "chapterNo": 3, "title": "An Empire Across Three Continents" },
-        { "chapterNo": 4, "title": "The Central Islamic Lands" },
-        { "chapterNo": 5, "title": "Nomadic Empires" }
+        "From the Beginning of Time",
+        "Writing and City Life",
+        "An Empire Across Three Continents",
+        "The Central Islamic Lands",
+        "Nomadic Empires"
       ]
     },
     {
       "subject": "Political Science",
       "stream": ["Humanities"],
       "chapters": [
-        { "chapterNo": 1, "title": "Constitution: Why and How?" },
-        { "chapterNo": 2, "title": "Rights in the Indian Constitution" },
-        { "chapterNo": 3, "title": "Election and Representation" },
-        { "chapterNo": 4, "title": "Executive" },
-        { "chapterNo": 5, "title": "Legislature" }
+        "Constitution: Why and How?",
+        "Rights in the Indian Constitution",
+        "Election and Representation",
+        "Executive",
+        "Legislature"
       ]
     },
     {
       "subject": "Informatics Practices",
-      "stream": ["Humanities", "Commerce"],
+      "stream": ["Science", "Commerce", "Humanities"],
       "chapters": [
-        { "chapterNo": 1, "title": "Introduction to Computer System" },
-        { "chapterNo": 2, "title": "Introduction to Python" },
-        { "chapterNo": 3, "title": "Database Concepts and the Structured Query Language" },
-        { "chapterNo": 4, "title": "Society, Law, and Ethics" }
+        "Introduction to Computer System",
+        "Introduction to Python",
+        "Database Concepts and the Structured Query Language",
+        "Society, Law, and Ethics"
+      ]
+    },
+    {
+      "subject": "English",
+      "stream": ["Common"],
+      "chapters": [
+        "The Portrait of a Lady",
+        "We're Not Afraid to Die… if We Can All Be Together",
+        "Discovering Tut: the Saga Continues",
+        "Landscape of the Soul",
+        "The Ailing Planet: the Green Movement's Role",
+        "The Browning Version"
+      ]
+    },
+    {
+      "subject": "Hindi",
+      "stream": ["Common"],
+      "chapters": [
+        "भारत माता",
+        "राजा बलि और गवाही",
+        "मेरे बचपन के दिन",
+        "गलता लोहा",
+        "पोंगल",
+        "भारतीय गाय",
+        "पतंग",
+        "नए इलाक़े में",
+        "शब्दों का महत्त्व",
+        "वीर कुवर सिंह",
+        "मेरे अभिलाषाएं"
       ]
     }
   ]

@@ -126,7 +126,12 @@ export class AuthService {
 
         const existingData = userSnapshot.exists() ? userSnapshot.data() : {};
 
-        const userData = {
+        const hasExistingRole = typeof existingData['role'] === 'string' && existingData['role'].trim() !== '';
+        const role = hasExistingRole
+            ? existingData['role']
+            : 'user';
+
+        const userData: any = {
             uid: user.uid,
             displayName: user.displayName,
             email: user.email,
@@ -134,11 +139,15 @@ export class AuthService {
             createdOn: existingData['createdOn'] || new Date(),
             board: board ?? existingData['board'] ?? null,
             standard: standard ?? existingData['standard'] ?? null,
-            role: existingData['role'] ?? 'user'
         };
 
+        // Only persist the default "user" role when the document does not have one yet.
+        if (!hasExistingRole) {
+            userData.role = role;
+        }
+
         await setDoc(userRef, userData, { merge: true });
-        this.redirectToDashboard(userData.role);
+        this.redirectToDashboard(role);
     }
 
     // ✅ Firestore Snapshot Listener

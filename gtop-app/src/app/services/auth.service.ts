@@ -124,6 +124,7 @@ export class AuthService {
         const userRef = doc(this.firestore, `users/${user.uid}`);
         const userSnapshot = await getDoc(userRef);
 
+
         if (!userSnapshot.exists()) {
             const freshUserData: Record<string, unknown> = {
                 uid: user.uid,
@@ -178,6 +179,31 @@ export class AuthService {
         if (Object.keys(updates).length > 0) {
             await updateDoc(userRef, updates);
         }
+
+
+        const existingData = userSnapshot.exists() ? userSnapshot.data() : {};
+
+        const hasExistingRole = typeof existingData['role'] === 'string' && existingData['role'].trim() !== '';
+        const role = hasExistingRole
+            ? existingData['role']
+            : 'user';
+
+        const userData: any = {
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            createdOn: existingData['createdOn'] || new Date(),
+            board: board ?? existingData['board'] ?? null,
+            standard: standard ?? existingData['standard'] ?? null,
+        };
+
+        // Only persist the default "user" role when the document does not have one yet.
+        if (!hasExistingRole) {
+            userData.role = role;
+        }
+
+        await setDoc(userRef, userData, { merge: true });
 
         this.redirectToDashboard(role);
     }

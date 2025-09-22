@@ -8,7 +8,7 @@ import {
     signInWithCredential,
     User
 } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, getDoc, onSnapshot } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, getDoc, onSnapshot, updateDoc, serverTimestamp } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ActiveUsersService } from './active-users.service';
@@ -124,21 +124,62 @@ export class AuthService {
         const userRef = doc(this.firestore, `users/${user.uid}`);
         const userSnapshot = await getDoc(userRef);
 
-        const existingData = userSnapshot.exists() ? userSnapshot.data() : {};
+        if (!userSnapshot.exists()) {
+            const freshUserData: Record<string, unknown> = {
+                uid: user.uid,
+                displayName: user.displayName ?? null,
+                email: user.email ?? null,
+                photoURL: user.photoURL ?? null,
+                createdOn: serverTimestamp(),
+                lastLoginAt: serverTimestamp(),
+                board: board ?? null,
+                standard: standard ?? null,
+                role: 'user',
+            };
 
-        const userData = {
-            uid: user.uid,
-            displayName: user.displayName,
-            email: user.email,
-            photoURL: user.photoURL,
-            createdOn: existingData['createdOn'] || new Date(),
-            board: board ?? existingData['board'] ?? null,
-            standard: standard ?? existingData['standard'] ?? null,
-            role: existingData['role'] ?? 'user'
+            await setDoc(userRef, freshUserData);
+            this.redirectToDashboard('user');
+            return;
+        }
+
+        const existingData = userSnapshot.data() ?? {};
+
+        const updates: Record<string, any> = {
+            lastLoginAt: serverTimestamp(),
         };
 
-        await setDoc(userRef, userData, { merge: true });
-        this.redirectToDashboard(userData.role);
+        if (user.displayName && user.displayName !== existingData['displayName']) {
+            updates['displayName'] = user.displayName;
+        }
+
+        if (user.email && user.email !== existingData['email']) {
+            updates['email'] = user.email;
+        }
+
+        if (user.photoURL && user.photoURL !== existingData['photoURL']) {
+            updates['photoURL'] = user.photoURL;
+        }
+
+        if (board !== undefined && board !== existingData['board']) {
+            updates['board'] = board;
+        }
+
+        if (standard !== undefined && standard !== existingData['standard']) {
+            updates['standard'] = standard;
+        }
+
+        const hasExistingRole = typeof existingData['role'] === 'string' && existingData['role'].trim() !== '';
+        const role = hasExistingRole ? existingData['role'] : 'user';
+
+        if (!hasExistingRole) {
+            updates['role'] = role;
+        }
+
+        if (Object.keys(updates).length > 0) {
+            await updateDoc(userRef, updates);
+        }
+
+        this.redirectToDashboard(role);
     }
 
     // ✅ Firestore Snapshot Listener

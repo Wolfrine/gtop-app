@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
@@ -29,7 +29,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
 
     constructor(
         private quizService: QuizService,
-        private authService: AuthService
+        private authService: AuthService,
+        private router: Router
     ) { }
 
     ngOnInit() {
@@ -71,6 +72,47 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     }
 
     get accuracyPercent() {
+        if (this.totalQuestions === 0) return 0;
         return Math.round((this.correctAnswers / this.totalQuestions) * 100);
+    }
+
+    get hasIncorrectAnswers() {
+        return this.questions.some(q => q.selectedIndex !== q.correctIndex);
+    }
+
+    async retryIncorrect() {
+        if (!this.hasIncorrectAnswers) return;
+
+        try {
+            await this.quizService.prepareRetryFromExistingAttempt({
+                questions: this.questions,
+                incorrectOnly: true,
+                context: {
+                    source: 'summary',
+                    type: 'incorrect',
+                    metadata: this.buildQuizMetadata()
+                }
+            });
+
+            this.router.navigate(['/quiz'], {
+                queryParams: {
+                    retry: 'summary',
+                    scope: 'incorrect'
+                }
+            });
+        } catch (error) {
+            console.error('Error preparing retry from summary:', error);
+        }
+    }
+
+    private buildQuizMetadata() {
+        if (this.questions.length === 0) return undefined;
+        const sample = this.questions[0];
+        return {
+            board: sample.board,
+            standard: sample.standard,
+            subject: sample.subject,
+            chapter: sample.chapter
+        };
     }
 }

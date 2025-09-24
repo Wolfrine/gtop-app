@@ -15,11 +15,11 @@
     </mat-card> -->
 
     <!-- Retry Incorrect Questions -->
-    <!-- <div class="retry-btn">
-        <button mat-raised-button color="accent">
+    <div class="retry-btn" *ngIf="hasIncorrectAnswers">
+        <button mat-raised-button color="accent" (click)="retryIncorrect()">
             Retry Incorrect Questions
         </button>
-    </div> -->
+    </div>
 
     <!-- Detailed Solutions -->
     <p>Details :</p>

@@ -1,197 +1,45 @@
-.reports-container {
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
-/* === Summary Tile === */
-.summary-tile {
-    padding: 24px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        text-align: center;
-        gap: 24px;
-    }
-
-    .summary-item {
-        flex: 1;
-
-        .label {
-            font-size: 14px;
-            color: #777;
-        }
-
-        .value {
-            font-size: 24px;
-            font-weight: 600;
-            color: #222;
-        }
-    }
-
-    .divider {
-        width: 1px;
-        height: 40px;
-        background: #ddd;
-    }
-
-    @media (max-width: 768px) {
-        .summary-row {
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .divider {
-            display: none;
-        }
-    }
-}
-
-/* === Charts Section (70/30 layout) === */
-.charts-section {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-
-    .chart-card {
-        flex: 1;
-        padding: 20px;
-        border-radius: 12px;
-        background: #fff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-        .chart-title {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 12px;
-        }
-
-        canvas {
-            width: 100% !important;
-            height: 250px !important;
-        }
-    }
-
-    @media (min-width: 768px) {
-        flex-direction: row;
-
-        .chart-card {
-            &:first-child {
-                flex: 7;
-            }
-
-            &.pie-chart {
-                flex: 3;
-            }
-        }
-    }
-}
-
-/* === Session History === */
-.session-history {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-    .section-title {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 16px;
-    }
-
-    .session-list {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .session-item {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 12px;
-
-        .session-content {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            gap: 8px;
-
-            .session-details {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .session-content {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 4px;
-
-            .path {
-                font-size: 13px;
-                font-weight: 600;
-                color: #444;
-                flex: 1 1 auto;
-            }
-        }
-
-        .retry-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: flex-end;
-
-            .retry-btn,
-            .retry-all-btn {
-                font-size: 12px;
-                padding: 4px 10px;
-                height: auto;
-                white-space: nowrap;
-            }
-        }
-
-        .quiz-title {
-            font-size: 13px;
-            color: #555;
-        }
-
-        .quiz-stats {
-            font-size: 12px;
-            color: #777;
-        }
-    }
-
-    @media (max-width: 600px) {
-        .header-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
-
-            .retry-actions {
-                align-self: stretch;
-                flex-direction: row;
-                justify-content: flex-start;
-
-                .retry-btn,
-                .retry-all-btn {
-                    align-self: flex-start;
-                }
-            }
-        }
-    }
-}
+.reports-container {max-width:1100px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:24px;}
+.reports-header {display:flex;flex-direction:column;gap:16px;align-items:flex-start;}
+.reports-heading {display:flex;flex-direction:column;gap:6px;}
+.reports-header h1 {margin:0;font-size:clamp(24px,2.6vw,32px);font-weight:700;color:#0b1f3a;}
+.reports-header p {margin:4px 0 0;color:#475569;}
+.reports-header .last-updated {margin-left:4px;color:#2563eb;font-weight:500;}
+.header-action {align-self:stretch;display:inline-flex;align-items:center;gap:6px;font-weight:600;}
+@media (min-width:768px){.reports-header{flex-direction:row;align-items:center;justify-content:space-between;}.header-action{align-self:auto;}}
+.summary-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+.summary-card {display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px;padding:20px;border-radius:14px;border:1px solid #e2e8f0;background:#fff;--accent:#2563eb;--accent-bg:rgba(37,99,235,.1);}
+.summary-card .card-icon {display:inline-flex;align-items:center;justify-content:center;height:44px;width:44px;border-radius:12px;background:var(--accent-bg);color:var(--accent);}
+.summary-card .card-icon mat-icon {font-size:22px;}
+.summary-card .card-label {font-size:12px;color:#64748b;text-transform:uppercase;font-weight:600;}
+.summary-card .card-value {font-size:26px;font-weight:700;color:#0b1f3a;}
+.summary-card .card-trend {display:flex;align-items:center;gap:4px;font-size:12px;color:var(--accent);}
+.summary-card .card-sublabel {font-size:13px;color:#475569;line-height:1.4;}
+.charts-section {display:grid;gap:16px;}
+@media (min-width:900px){.charts-section{grid-template-columns:minmax(0,7fr) minmax(0,4fr);} }
+.chart-card {display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:16px;border:1px solid #e2e8f0;background:#fff;}
+.chart-title {font-size:15px;font-weight:600;color:#0f172a;}
+.chart-subtitle {font-size:13px;color:#64748b;}
+.chart-wrapper {position:relative;width:100%;height:260px;}
+.pie-chart .chart-wrapper {height:220px;}
+.chart-card canvas {width:100%!important;height:100%!important;}
+.s-card {padding:24px;border-radius:18px;border:1px solid #e2e8f0;background:#fff;}
+.s-card .section-title {font-size:18px;font-weight:700;color:#0f172a;}
+.s-card .section-subtitle {font-size:13px;color:#64748b;margin-top:4px;}
+.s-list {display:flex;flex-direction:column;gap:14px;}
+.s-item {padding:18px;border-radius:14px;border:1px solid #e2e8f0;background:#f8fafc;display:flex;flex-direction:column;gap:12px;}
+.s-top {display:flex;flex-direction:column;gap:10px;}
+@media (min-width:600px){.s-top{flex-direction:row;align-items:center;justify-content:space-between;}}
+.s-meta {display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:14px;color:#475569;}
+.quiz-type-pill {display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;text-transform:uppercase;background:rgba(37,99,235,.12);color:#1d4ed8;}
+.quiz-type-pill.custom {background:rgba(22,163,74,.15);color:#15803d;}
+.quiz-type-pill.live {background:rgba(249,115,22,.16);color:#c2410c;}
+.s-date {font-weight:500;color:#64748b;}
+.s-score {display:flex;flex-direction:column;gap:2px;font-weight:600;color:#0f172a;}
+.s-score .score {font-size:18px;}
+.s-score .score-label {font-size:13px;color:#64748b;}
+.s-path {font-size:13px;color:#475569;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.s-progress mat-progress-bar {height:6px;border-radius:999px;}
+.s-bottom {display:flex;flex-direction:column;gap:12px;}
+@media (min-width:640px){.s-bottom{flex-direction:row;align-items:center;justify-content:space-between;}}
+.s-stats {display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:#475569;}
+.retry-actions .retry-btn[disabled] {opacity:.45;}

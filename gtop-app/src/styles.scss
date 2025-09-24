@@ -65,3 +65,77 @@ mat-chip {
     border-radius: var(--radius);
 }
 
+/* Shared report styles */
+.chart-empty {
+    display: grid;
+    place-items: center;
+    padding: 24px 0;
+    color: #64748b;
+    text-align: center;
+    font-size: 14px;
+}
+
+.retry-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.retry-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: auto;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: none;
+}
+
+.retry-actions mat-icon {
+    font-size: 18px;
+}
+
+.empty-state,
+.loading-state {
+    margin: 0 auto;
+    text-align: center;
+    padding: 28px 20px;
+    border-radius: 16px;
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+}
+
+.empty-state mat-icon,
+.loading-state mat-icon {
+    font-size: 32px;
+    color: #2563eb;
+}
+
+.empty-state h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #0f172a;
+}
+
+.empty-state p,
+.loading-state p {
+    margin: 0;
+    font-size: 14px;
+    color: #475569;
+}
+
+.empty-state button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    text-transform: none;
+}
+
+.loading-state {
+    padding: 36px 20px;
+}

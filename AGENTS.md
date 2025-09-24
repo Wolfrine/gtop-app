@@ -2,6 +2,9 @@
 
 This repository contains an Angular application called **gtop-app** (Growth Tutorials Objective Practice). It is generated with Angular CLI 17.3 and uses Firebase for backend services. The project is located inside the `gtop-app/` folder and includes components for quiz management, dashboards, and other learning features. Angular Material and Chart.js are used for UI and charts.
 
+## UI/UX Implementation Plan
+- A phase-wise UI/UX roadmap is maintained in `agent_uiux_plan.md`. Review it before starting any visual or interaction changes and update phase checkboxes plus notes when milestones ship.
+
 Useful commands (run inside `gtop-app/`):
 - Always run `npm run build -- --configuration production` at the end of development to ensure the project builds successfully.
 - `npm install` – install dependencies
@@ -51,3 +54,11 @@ A GitHub Action workflow (`.github/workflows/firebase-deploy.yml`) deploys the A
 ## Typical user journeys
 1. **New user** → visits `/` → signs in with Google → completes `/profile-setup` → lands on `/dashboard` → starts `/quiz` → sees `/quiz-summary` → checks `/reports`.
 2. **Admin** → visits `/` → signs in → completes `/profile-setup` → accesses `/admin` → manages MCQs and syllabus via `/admin/mcq-management` or `/admin/manage-syllabus` → adds questions at `/admin/add-mcq` → views `/admin/user-list` for active users reports.
+
+
+## Future To-Do - you can ask if these are to be taken up next. And can remove once they are completed
+1. Live Quiz
+2. Report graph to summarize over months in case there are large number of quiz taken
+3. Reports to load only 10 previous quiz at a time - currently all quiz are loading. Check for firestore calls though.
+4. Implement footer version bump on each change done by codex
+5. AI/LLM based integration for quiz addition - which will get manually reviewed

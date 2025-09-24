@@ -39,7 +39,7 @@
     <mat-card class="session-history">
         <div class="section-title">Session History</div>
         <div class="session-list">
-            <div class="session-item" *ngFor="let session of mockSessions">
+            <div class="session-item" *ngFor="let session of sessions">
                 <div class="session-content">
                     <!-- Top row: Board/Std/... + Retry -->
                     <div class="session-details">
@@ -57,11 +57,18 @@
                         <div class="quiz-stats">
                             Questions: {{ session.total }} |
                             Correct: {{ session.correct }} |
-                            <span *ngIf="session.time > 0">Time: {{ session.duration }}</span>
+                            <span *ngIf="session.duration && session.duration !== '—'">Time: {{ session.duration }}</span>
                         </div>
                     </div>
 
-                    <button mat-button color="primary" class="retry-btn">Retry</button>
+                    <div class="retry-actions">
+                        <button mat-button color="primary" class="retry-btn"
+                            [disabled]="!hasIncorrectQuestions(session)"
+                            (click)="retrySession(session)">Retry Incorrect</button>
+                        <button mat-stroked-button class="retry-all-btn" (click)="retrySession(session, 'all')">
+                            Retry Entire Quiz
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

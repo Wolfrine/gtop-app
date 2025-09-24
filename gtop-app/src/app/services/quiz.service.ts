@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, onSnapshot } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, onSnapshot, doc, getDoc } from '@angular/fire/firestore';
 import { SyllabusService, SyllabusItem } from './syllabus.service';
-import { doc, setDoc } from '@angular/fire/firestore';
+import { setDoc } from '@angular/fire/firestore';
 import { Timestamp } from '@angular/fire/firestore';
 
 @Injectable({
@@ -9,6 +9,10 @@ import { Timestamp } from '@angular/fire/firestore';
 })
 export class QuizService {
     private quizQuestions: any[] = [];
+    private pendingRetry: {
+        questions: any[];
+        context: RetryContext;
+    } | null = null;
 
     constructor(
         private firestore: Firestore,
@@ -25,6 +29,34 @@ export class QuizService {
 
     resetQuestions() {
         this.quizQuestions = [];
+    }
+
+    setPendingRetry(questions: any[], context: RetryContext) {
+        if (!questions.length) {
+            this.pendingRetry = null;
+            return;
+        }
+
+        const sanitized = questions.map(q => ({
+            ...q,
+            selectedIndex: null
+        }));
+
+        this.pendingRetry = {
+            questions: sanitized,
+            context
+        };
+    }
+
+    consumePendingRetry(): { questions: any[]; context: RetryContext } | null {
+        if (!this.pendingRetry) return null;
+        const payload = this.pendingRetry;
+        this.pendingRetry = null;
+        return payload;
+    }
+
+    getPendingRetryContext(): RetryContext | null {
+        return this.pendingRetry?.context || null;
     }
 
     /**
@@ -214,4 +246,100 @@ export class QuizService {
         }
     }
 
+    async prepareRetryFromExistingAttempt(options: {
+        questions: any[];
+        incorrectOnly?: boolean;
+        context: RetryContext;
+    }) {
+        const { questions, incorrectOnly = false, context } = options;
+        const sourceQuestions = incorrectOnly
+            ? questions.filter(q => q.selectedIndex !== q.correctIndex)
+            : questions;
+
+        this.setPendingRetry(sourceQuestions, context);
+    }
+
+    async prepareRetryFromResults(options: {
+        questionSummaries: QuizResultQuestion[];
+        incorrectOnly?: boolean;
+        context: RetryContext;
+    }) {
+        const { questionSummaries, incorrectOnly = false, context } = options;
+        const filteredSummaries = incorrectOnly
+            ? questionSummaries.filter(q => !q.isCorrect)
+            : questionSummaries;
+
+        if (filteredSummaries.length === 0) {
+            this.pendingRetry = null;
+            return;
+        }
+
+        const questionIds = filteredSummaries.map(q => q.questionId).filter(Boolean);
+        const questions = await this.fetchQuestionsByIds(questionIds);
+        this.setPendingRetry(questions, context);
+    }
+
+    private async fetchQuestionsByIds(ids: string[]): Promise<any[]> {
+        if (ids.length === 0) return [];
+
+        const uniqueIds = Array.from(new Set(ids));
+        const chunks: string[][] = [];
+        const chunkSize = 10;
+
+        for (let i = 0; i < uniqueIds.length; i += chunkSize) {
+            chunks.push(uniqueIds.slice(i, i + chunkSize));
+        }
+
+        const fetched: Record<string, any> = {};
+
+        for (const chunk of chunks) {
+            if (chunk.length === 1) {
+                const docRef = doc(this.firestore, 'questions', chunk[0]);
+                const snapshot = await getDoc(docRef);
+                if (snapshot.exists()) {
+                    fetched[chunk[0]] = {
+                        id: snapshot.id,
+                        ...snapshot.data()
+                    };
+                }
+            } else {
+                const questionsCollection = collection(this.firestore, 'questions');
+                const fetchQuery = query(questionsCollection, where('__name__', 'in', chunk));
+                const snapshot = await getDocs(fetchQuery);
+                snapshot.docs.forEach(docSnap => {
+                    fetched[docSnap.id] = {
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    };
+                });
+            }
+        }
+
+        return ids
+            .map(id => fetched[id])
+            .filter(question => !!question)
+            .map(question => ({
+                ...question,
+                selectedIndex: null
+            }));
+    }
+}
+
+export interface RetryContext {
+    source: 'summary' | 'reports';
+    type: 'incorrect' | 'all';
+    originId?: string;
+    metadata?: {
+        board?: string;
+        standard?: string;
+        subject?: string;
+        chapter?: string;
+    };
+}
+
+export interface QuizResultQuestion {
+    questionId: string;
+    selectedIndex: number;
+    correctIndex: number;
+    isCorrect: boolean;
 }

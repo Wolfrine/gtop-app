@@ -7,7 +7,8 @@ import { CommonModule } from '@angular/common';
 import { ChartConfiguration } from 'chart.js';
 import { Auth } from '@angular/fire/auth';
 import { QuizService } from '../../services/quiz.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { QuizResultQuestion } from '../../services/quiz.service';
 
 @Component({
     selector: 'app-reports-page',
@@ -26,7 +27,8 @@ export class ReportsPageComponent implements OnInit {
     constructor(
         private quizService: QuizService,
         private auth: Auth,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private router: Router
     ) { }
 
     quizResults: any[] = [];
@@ -62,7 +64,7 @@ export class ReportsPageComponent implements OnInit {
         maintainAspectRatio: false
     };
 
-    mockSessions: any[] = [];
+    sessions: ReportSession[] = [];
 
     ngOnInit() {
         this.route.queryParams.subscribe(params => {
@@ -86,7 +88,10 @@ export class ReportsPageComponent implements OnInit {
     }
 
     processReportData(results: any[]) {
-        if (results.length === 0) return;
+        if (results.length === 0) {
+            this.sessions = [];
+            return;
+        }
 
         // ✅ Sort first by timestamp ascending for chart
         const sortedByDate = results.slice().sort((a, b) => {
@@ -160,12 +165,13 @@ export class ReportsPageComponent implements OnInit {
         };
 
         // ✅ Session History = DESCENDING
-        this.mockSessions = sortedByDate.slice().reverse().map(r => {
+        this.sessions = sortedByDate.slice().reverse().map(r => {
             const dateObj = r.timestamp?.toDate ? r.timestamp.toDate() : new Date(r.timestamp);
             const date = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             const time = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
             return {
+                id: r.id,
                 board: r.board,
                 standard: r.standard,
                 subject: r.subject,
@@ -175,9 +181,66 @@ export class ReportsPageComponent implements OnInit {
                 time,
                 total: r.totalQuestions,
                 correct: r.correctAnswers,
-                duration: r.duration || '—'
+                duration: r.duration || '—',
+                questions: (r.questions || []) as QuizResultQuestion[]
             };
         });
     }
 
+    hasIncorrectQuestions(session: ReportSession) {
+        return session.questions?.some(question => !question.isCorrect);
+    }
+
+    async retrySession(session: ReportSession, scope: 'incorrect' | 'all' = 'incorrect') {
+        const questionSummaries = session.questions || [];
+        const hasQuestions = questionSummaries.length > 0;
+        const hasIncorrect = questionSummaries.some(q => !q.isCorrect);
+
+        const shouldProceed = scope === 'all' ? hasQuestions : hasIncorrect;
+        if (!shouldProceed) return;
+
+        try {
+            await this.quizService.prepareRetryFromResults({
+                questionSummaries,
+                incorrectOnly: scope === 'incorrect',
+                context: {
+                    source: 'reports',
+                    type: scope,
+                    originId: session.id,
+                    metadata: {
+                        board: session.board,
+                        standard: session.standard,
+                        subject: session.subject,
+                        chapter: session.chapter
+                    }
+                }
+            });
+
+            this.router.navigate(['/quiz'], {
+                queryParams: {
+                    retry: 'reports',
+                    scope,
+                    sessionId: session.id
+                }
+            });
+        } catch (error) {
+            console.error('Error preparing retry from reports:', error);
+        }
+    }
+
+}
+
+interface ReportSession {
+    id: string;
+    board: string;
+    standard: string;
+    subject: string;
+    chapter: string;
+    quizType: string;
+    date: string;
+    time: string;
+    total: number;
+    correct: number;
+    duration: string;
+    questions: QuizResultQuestion[];
 }

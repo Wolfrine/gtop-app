@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, ActivatedRoute } from '@angular/router';
-import { QuizService } from '../../services/quiz.service';
+import { QuizService, RetryContext } from '../../services/quiz.service';
 
 @Component({
     selector: 'app-quiz-page',
@@ -18,7 +18,7 @@ import { QuizService } from '../../services/quiz.service';
     templateUrl: './quiz-page.component.html',
     styleUrls: ['./quiz-page.component.scss']
 })
-export class QuizPageComponent {
+export class QuizPageComponent implements OnInit {
 
     optionsLabel = ['A', 'B', 'C', 'D'];
 
@@ -63,6 +63,7 @@ export class QuizPageComponent {
     ];
 
     currentQuestionIndex = 0;
+    private retryContext: RetryContext | null = null;
 
     constructor(
         private quizService: QuizService,
@@ -71,7 +72,18 @@ export class QuizPageComponent {
     ) { }
 
     ngOnInit(): void {
+        const pendingRetry = this.quizService.consumePendingRetry();
+        if (pendingRetry) {
+            this.questions = pendingRetry.questions.map(question => ({ ...question }));
+            this.retryContext = pendingRetry.context;
+            this.currentQuestionIndex = 0;
+            return;
+        }
+
         this.route.queryParams.subscribe(params => {
+            if (this.retryContext) {
+                return;
+            }
             const board = params['board'] || null;
             const standard = params['standard'] || null;
             const subjects: string[] = params['subjects'] || [];

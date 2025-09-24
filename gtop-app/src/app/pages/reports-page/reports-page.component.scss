@@ -148,13 +148,20 @@
                 color: #444;
                 flex: 1 1 auto;
             }
+        }
 
-            .retry-btn {
+        .retry-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-end;
+
+            .retry-btn,
+            .retry-all-btn {
                 font-size: 12px;
                 padding: 4px 10px;
                 height: auto;
                 white-space: nowrap;
-                align-self: center;
             }
         }
 
@@ -175,9 +182,15 @@
             align-items: flex-start;
             gap: 4px;
 
-            .retry-btn {
-                align-self: flex-end;
-                margin-top: 4px;
+            .retry-actions {
+                align-self: stretch;
+                flex-direction: row;
+                justify-content: flex-start;
+
+                .retry-btn,
+                .retry-all-btn {
+                    align-self: flex-start;
+                }
             }
         }
     }

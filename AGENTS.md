@@ -11,6 +11,13 @@ Useful commands (run inside `gtop-app/`):
 
 A GitHub Action workflow (`.github/workflows/firebase-deploy.yml`) deploys the Angular build to Firebase Hosting on pushes to the `main` branch.
 
+## Deployment Process
+- Automated deployments run on every push via the `Deploy to Firebase Hosting` workflow. The job installs dependencies with `npm ci`, builds with `npm run build -- --configuration production`, and publishes the `gtop-app` entry point using the Firebase Hosting GitHub Action.
+- The workflow authenticates with `secrets.GITHUB_TOKEN` and `secrets.FIREBASE_SERVICE_ACCOUNT` and uses `node@20` in the CI environment.
+- Pushes to `main` deploy to the `prod-gtop-app` hosting target (live site); pushes to any other branch deploy to the `dev-gtop-app` preview channel so changes can be verified before merging.
+- Before pushing, run `npm run build -- --configuration production` locally to catch build issues early. Commit the compiled Angular output generated during CI only if explicitly required—Firebase hosting deploys the build artifacts created in the workflow.
+- For emergency manual releases, authenticate with Firebase CLI (`firebase login`) and run `firebase deploy --only hosting:prod-gtop-app` from inside the `gtop-app/` directory. Use `firebase deploy --only hosting:dev-gtop-app` if you need to refresh the preview environment.
+
 ## Components
 - **HeaderComponent**, **FooterComponent**, **SideNavComponent**, **ManualQuizModalComponent**
 - Pages: **LandingPage**, **ProfileSetup**, **UserDashboard**, **AdminDashboard**, **MCQManagement**, **AddMCQ**, **ManageSyllabus** (with **EditSyllabus**), **QuizPage**, **QuizSummary**, **ReportsPage**, **UserList**

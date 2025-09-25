@@ -42,10 +42,13 @@ export class SideNavComponent implements OnInit {
             { label: 'Syllabus Preview', icon: 'menu_book', route: '/syllabus-preview' },
             { label: 'Manage MCQs', icon: 'library_books', route: '/admin/mcq-management' },
             { label: 'User Dashboard', icon: 'dashboard', route: '/dashboard' },
-            { label: 'Live Quizzes', icon: 'quiz', route: '/admin/quizzes' },
-            { label: 'User Management', icon: 'group', route: '/admin/user-list' },
+            // { label: 'Live Quizzes', icon: 'quiz', route: '/admin/quizzes' }, // route not in use
             { label: 'Performance Reports', icon: 'bar_chart', route: '/reports' },
-            { label: 'Reports & Analytics', icon: 'bar_chart', route: '/admin/reports' },
+            // { label: 'Reports & Analytics', icon: 'bar_chart', route: '/admin/reports' }, // route not in use
+            { label: 'User Management', icon: 'group', route: '/admin/user-list' },
+            { label: 'Start Quiz', icon: 'quiz', route: '/quiz' },
+            // Dev-only UI playground (admin only)
+            { label: 'UI Kitchen (Dev)', icon: 'science', route: '/dev/ui' },
             { label: 'Logs', icon: 'bug_report', route: '/logs' },
         ];
     }
@@ -53,8 +56,9 @@ export class SideNavComponent implements OnInit {
     getUserMenu() {
         return [
             { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-            { label: 'Practice MCQs', icon: 'school', route: '/practice' },
-            { label: 'Live Quizzes', icon: 'quiz', route: '/quizzes' },
+            // { label: 'Practice MCQs', icon: 'school', route: '/practice' }, // route not in use
+            // { label: 'Live Quizzes', icon: 'quiz', route: '/quizzes' }, // route not in use
+            { label: 'Start Quiz', icon: 'quiz', route: '/quiz' },
             { label: 'Performance Reports', icon: 'bar_chart', route: '/reports' }
         ];
     }

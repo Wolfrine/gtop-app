@@ -1,69 +1,35 @@
-/* You can add global styles to this file, and also import other style files */
-
-html,
-body {
-    height: 100%;
-}
-
-:root {
-    --background: 248 50% 98%;
-    --surface: 0 0% 100%;
-    --surface-variant: 241 13% 96%;
-    --foreground: 223 47% 15%;
-    --primary: 230 89% 58%;
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 230 89% 68%;
-    --primary-container: 230 89% 92%;
-    --success: 142 70% 45%;
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 55%;
-    --warning-foreground: 0 0% 100%;
-    --muted: 220 13% 95%;
-    --muted-foreground: 220 13% 45%;
-    --border: 220 13% 88%;
-    --card: 0 0% 100%;
-    --ring: 230 89% 58%;
-    --radius: 0.75rem;
-    --shadow-sm: 0 1px 2px 0 hsl(var(--foreground) / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(var(--foreground) / 0.1), 0 2px 4px -2px hsl(var(--foreground) / 0.1);
-}
+/* Global styles; imports for tokens and utilities */
+@use 'styles/tokens';
+@use 'styles/utilities';
+@use 'styles/typography';
 
 body {
-    margin: 0;
-    font-family: 'Inter', Roboto, "Helvetica Neue", sans-serif;
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+  margin: 0;
+  font-family: 'Inter', Roboto, "Helvetica Neue", sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 .content {
     min-height: 93vh;
 }
 
-.mat-drawer-content {
-    min-height: 94% !important;
-}
+.mat-drawer-content { min-height: 94% !important; }
 
 @media (max-width: 768px) {
-    .sidenav {
-        width: 100%; // ✅ Full-width on mobile
-    }
-
-    .mat-drawer {
-        width: 80% !important;
-    }
+  .sidenav { width: 100%; }
+  .mat-drawer { width: 80% !important; }
 }
-mat-card {
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-sm);
-}
+mat-card { border-radius: var(--radius); box-shadow: var(--shadow-sm); }
 
 mat-chip {
     border-radius: var(--radius);
 }
 
-.mat-mdc-form-field .mdc-text-field {
-    border-radius: var(--radius);
-}
+.mat-mdc-form-field .mdc-text-field { border-radius: var(--radius); }
+
+/* Material shape alignment for buttons */
+.mat-mdc-button-base { border-radius: var(--radius) !important; }
 
 /* Shared report styles */
 .chart-empty {

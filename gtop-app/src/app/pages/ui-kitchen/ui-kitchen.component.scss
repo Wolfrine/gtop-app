@@ -1,0 +1,23 @@
+.uikit {
+  display: grid;
+  gap: 20px;
+  padding-block: 16px;
+}
+
+section { display: grid; gap: 12px; }
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+.swatches { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.swatch {
+  display: grid; place-items: center; height: 64px;
+  background-color: hsl(var(--surface)); border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  position: relative; overflow: hidden;
+}
+.swatch::before {
+  content: ""; position: absolute; inset: 0; opacity: 0.18;
+  background: hsl(var(--c));
+}
+.swatch span { position: relative; z-index: 1; font-weight: 600; color: hsl(var(--foreground)); }
+

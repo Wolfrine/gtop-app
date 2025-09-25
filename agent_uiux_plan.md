@@ -8,7 +8,7 @@
 ## Phase Summary
 | Phase | Status | Focus | Primary Outcomes |
 |-------|--------|-------|------------------|
-| Phase 1 | [ ] | Foundations & System Setup | Design tokens, shared layout patterns, baseline accessibility checklist |
+| Phase 1 | In Progress | Foundations & System Setup | Design tokens, shared layout patterns, baseline accessibility checklist |
 | Phase 2 | [ ] | High-Traffic Learner Journeys | Redesigned landing, onboarding, dashboard, quiz flow |
 | Phase 3 | [ ] | Admin & Content Tools | MCQ management, syllabus tools, reporting dashboards |
 | Phase 4 | [ ] | Feedback, Analytics & Iteration | In-app guidance, telemetry dashboards, UX analytics loops |
@@ -21,8 +21,8 @@
 
 **Key Tasks**
 - [ ] Audit existing global styles, typography, spacing, and color usage; document gaps vs brand targets.
-- [ ] Define design tokens (colors, typography scale, spacing, radii, shadows) in SCSS variables or CSS custom properties and publish in a shared tokens file.
-- [ ] Implement reusable layout utilities (grid, flex, responsive breakpoints) and ensure Angular Material theme alignment.
+- [x] Define design tokens (colors, typography scale, spacing, radii, shadows) in SCSS variables or CSS custom properties and publish in a shared tokens file.
+- [x] Implement reusable layout utilities (grid, flex, responsive breakpoints) and ensure Angular Material theme alignment.
 - [ ] Create baseline component examples (buttons, cards, modals, tables, charts) demonstrating the updated system.
 - [ ] Perform an accessibility checklist (color contrast, focus states, keyboard nav) on the updated components.
 
@@ -127,4 +127,4 @@
 - Ensure design tokens are consumable by both Angular and any native mobile efforts.
 
 ## Recent Notes
-- _Add new notes here as work progresses (e.g., links to mockups, decision logs, blockers)._ 
+- 2025-09-25: Phase 1 kicked off. Added design tokens `src/styles/_tokens.scss`, utilities `src/styles/_utilities.scss`, and typography base `src/styles/_typography.scss`. Wired into `src/styles.scss`. Next: baseline components + a11y checklist.

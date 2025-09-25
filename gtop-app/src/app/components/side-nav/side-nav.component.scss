@@ -1,4 +1,4 @@
-.sidenav { width: 100%; padding: 8px; }
+.sidenav { width: 100%; padding: 8px; background: hsl(var(--surface)); }
 .sidenav .mat-mdc-list-item { border-radius: var(--radius); margin: 4px 6px; }
 .sidenav a.mat-mdc-list-item {
   display: flex;
@@ -12,7 +12,11 @@
 .sidenav a.mat-mdc-list-item .label { font-weight: 600; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sidenav a.mat-mdc-list-item .pill { margin-left: auto; font-size: 10px; padding: 2px 6px; border-radius: 999px; background: rgba(37,99,235,.12); color: #1d4ed8; font-weight: 700; }
 .sidenav a.mat-mdc-list-item:hover { background: rgba(37,99,235,.08); }
-.sidenav a.active { background: rgba(37,99,235,.15); }
+.sidenav a.active { background: rgba(29,78,216,.10); border-left: 3px solid #1d4ed8; }
 .sidenav a.active .icon, .sidenav a.active .label { color: #1d4ed8; }
 
 @media (max-width: 768px) { .sidenav { padding: 6px; } }
+
+/* Remove MDC selected graphic circle behind icons when activated */
+.sidenav .mat-mdc-list-item.mdc-list-item--activated .mdc-list-item__start::before { display: none; }
+.sidenav .mat-mdc-list-item .mdc-list-item__start mat-icon { font-size: 20px; height: 20px; width: 20px; }

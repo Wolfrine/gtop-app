@@ -118,16 +118,19 @@ export class ReportsPageComponent implements OnInit {
     };
 
     sessions: ReportSession[] = [];
+    private currentUserId: string | null = null;
 
     ngOnInit() {
         this.route.queryParams.subscribe(params => {
             const userIdFromRoute = params['userId'];
             if (userIdFromRoute) {
                 this.fetchAndProcessUserReports(userIdFromRoute);
+                this.currentUserId = userIdFromRoute;
             } else {
                 const user = this.auth.currentUser;
                 if (user) {
                     this.fetchAndProcessUserReports(user.uid);
+                    this.currentUserId = user.uid;
                 }
             }
         });
@@ -289,6 +292,21 @@ export class ReportsPageComponent implements OnInit {
 
     hasIncorrectQuestions(session: ReportSession) {
         return session.questions?.some(question => !question.isCorrect);
+    }
+
+    openSession(session: ReportSession) {
+        const userId = this.currentUserId || this.auth.currentUser?.uid || '';
+        this.router.navigate(['/quiz-summary'], {
+            state: {
+                sessionId: session.id,
+                userId,
+                questionSummaries: session.questions
+            },
+            queryParams: {
+                sessionId: session.id,
+                userId
+            }
+        });
     }
 
     getAccuracyPercent(session: ReportSession) {

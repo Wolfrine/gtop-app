@@ -27,6 +27,8 @@
 .s-card .section-subtitle {font-size:13px;color:#64748b;margin-top:4px;}
 .s-list {display:flex;flex-direction:column;gap:14px;}
 .s-item {padding:18px;border-radius:14px;border:1px solid #e2e8f0;background:#f8fafc;display:flex;flex-direction:column;gap:12px;}
+.s-item{cursor:pointer;}
+.s-item:focus-visible{outline:2px solid #2563eb; outline-offset:2px;}
 .s-top {display:flex;flex-direction:column;gap:10px;}
 @media (min-width:600px){.s-top{flex-direction:row;align-items:center;justify-content:space-between;}}
 .s-meta {display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:14px;color:#475569;}

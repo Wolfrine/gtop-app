@@ -31,7 +31,7 @@
         padding: 12px;
         background: #f8f9fa;
         border-left: 4px solid #e2e8f0;
-        border-radius: 8px;
+        border-radius: 4px; /* back to original */
     }
     .mcq-details.details-correct {
         background: #e8f5e9; /* light green */
@@ -41,6 +41,14 @@
         background: #f5e8f1; /* light pink */
         border-left-color: #7d2e4c; /* dark pink */
     }
+
+/* Details header with minimal spacing, no card */
+.details-header { font-weight: 700; font-size: 16px; margin: 0 0 6px 0; }
+
+/* Reduce left padding inside expansion header; give more room to text */
+.mat-expansion-panel-header { padding-left: 8px !important; padding-right: 8px !important; }
+.mat-expansion-panel { margin: 0; }
+.mat-expansion-panel-header .mat-expansion-indicator { margin-left: 6px; }
 
     .mcq-options {
         display: flex;

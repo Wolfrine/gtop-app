@@ -38,9 +38,8 @@
   </mat-card>
 
   <!-- Detailed Solutions -->
-  <mat-card appCard class="details-card">
-    <div class="details-header">Details</div>
-    <mat-accordion>
+  <div class="details-header">Details</div>
+  <mat-accordion>
       <mat-expansion-panel *ngFor="let q of filteredQuestions; let i = index">
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -81,6 +80,5 @@
         </div>
       </mat-expansion-panel>
     </mat-accordion>
-  </mat-card>
 
 </div>

@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
@@ -52,12 +52,50 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     constructor(
         private quizService: QuizService,
         private authService: AuthService,
-        private router: Router
+        private router: Router,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
-        this.questions = this.quizService.getQuestions();
-        this.updateChart();
+        const navState: any = (this.router.getCurrentNavigation()?.extras?.state) || (history.state || {});
+        const summaries = navState?.questionSummaries;
+        const navSession = navState?.session;
+
+        if (Array.isArray(summaries) && summaries.length) {
+            // Expand summaries to full questions
+            this.quizService.expandSummariesToQuestions(summaries).then(qs => {
+                this.questions = qs;
+                this.updateChart();
+            });
+            this.saved = true; // avoid re-saving when viewing past session
+        } else if (navSession?.questions?.length) {
+            // Fallback if a whole session object was provided
+            this.quizService.expandSummariesToQuestions(navSession.questions).then(qs => {
+                this.questions = qs;
+                this.updateChart();
+            });
+            this.saved = true;
+        } else {
+            // Deep link fallback using query params
+            this.route.queryParams.subscribe(async params => {
+                const sessionId = params['sessionId'];
+                const userId = params['userId'];
+                if (sessionId && userId) {
+                    const results = await this.quizService.fetchUserQuizResults(userId);
+                    const session = results.find(r => r.id === sessionId);
+                    if (session?.questions?.length) {
+                        const qs = await this.quizService.expandSummariesToQuestions(session.questions);
+                        this.questions = qs;
+                        this.updateChart();
+                        this.saved = true;
+                        return;
+                    }
+                }
+                // Default: current attempt questions
+                this.questions = this.quizService.getQuestions();
+                this.updateChart();
+            });
+        }
 
         this.userSub = this.authService.getUser().subscribe(user => {
             if (user && this.questions.length > 0 && !this.saved) {

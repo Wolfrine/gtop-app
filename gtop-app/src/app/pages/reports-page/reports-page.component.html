@@ -70,7 +70,11 @@
             </div>
 
             <div class="s-list" role="list">
-                <div class="s-item" *ngFor="let session of sessions" role="listitem">
+                <div class="s-item" *ngFor="let session of sessions" role="button" tabindex="0"
+                     (click)="openSession(session)"
+                     (keydown.enter)="openSession(session)"
+                     (keydown.space)="openSession(session)"
+                     role="listitem">
                     <div class="s-top">
                         <div class="s-meta">
                             <span class="quiz-type-pill" [ngClass]="session.quizType">
@@ -101,11 +105,11 @@
                         <div class="retry-actions">
                             <button mat-flat-button color="primary" class="retry-btn"
                                 [disabled]="!hasIncorrectQuestions(session)"
-                                (click)="retrySession(session)">
+                                (click)="$event.stopPropagation(); retrySession(session)">
                                 <mat-icon>refresh</mat-icon>
                                 Retry Incorrect
                             </button>
-                            <button mat-stroked-button class="retry-all-btn" (click)="retrySession(session, 'all')">
+                            <button mat-stroked-button class="retry-all-btn" (click)="$event.stopPropagation(); retrySession(session, 'all')">
                                 <mat-icon>replay</mat-icon>
                                 Retry Entire Quiz
                             </button>

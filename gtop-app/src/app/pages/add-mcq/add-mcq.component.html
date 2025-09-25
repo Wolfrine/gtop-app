@@ -8,17 +8,17 @@
 <div class="add-mcq-container">
 
     <!-- ✅ AI Prompt & Instructions -->
-    <div class="ai-prompt">
+    <mat-card appCard class="ai-prompt">
         <p><strong>Use this prompt in ChatGPT:</strong></p>
         <mat-form-field appearance="outline" class="full-width">
             <textarea matInput readonly [value]="chatGptPrompt()"></textarea>
         </mat-form-field>
         <p>*Note : Modify the Board, Standard, Subject and Chapter before prompting to Chat GPT</p>
         <button mat-raised-button (click)="copyPrompt()">Copy Prompt</button>
-    </div>
+    </mat-card>
 
     <!-- ✅ Paste AI-generated MCQs -->
-    <div class="paste-section">
+    <mat-card appCard class="paste-section">
         <p><strong>Paste AI-Generated MCQs Below:</strong></p>
         <mat-form-field appearance="outline" class="full-width">
             <textarea matInput placeholder="Paste MCQs here..." [value]="getPastedMCQs()"
@@ -28,10 +28,10 @@
 
 
         <button mat-raised-button color="primary" (click)="parseMCQs()">Parse MCQs</button>
-    </div>
+    </mat-card>
 
     <!-- ✅ MCQ Preview List -->
-    <div *ngIf="parsedMCQs().length > 0" class="mcq-preview">
+    <mat-card appCard *ngIf="parsedMCQs().length > 0" class="mcq-preview">
         <p><strong>Preview MCQs:</strong></p>
         <p>MCQs parsed successfully! Review before saving.</p>
         <mat-accordion>
@@ -49,5 +49,5 @@
             </mat-expansion-panel>
         </mat-accordion>
         <button mat-raised-button color="accent" (click)="saveMCQs()">Save MCQs</button>
-    </div>
+    </mat-card>
 </div>

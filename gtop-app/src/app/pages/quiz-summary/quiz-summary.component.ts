@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
+import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { Router, RouterModule } from '@angular/router';
@@ -14,6 +15,7 @@ import { Subscription } from 'rxjs';
     imports: [
         CommonModule,
         MatCardModule,
+        AppCardDirective,
         MatButtonModule,
         MatExpansionModule,
         RouterModule

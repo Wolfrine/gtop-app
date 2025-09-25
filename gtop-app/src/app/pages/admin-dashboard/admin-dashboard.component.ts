@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { ActiveUsersService } from '../../services/active-users.service';
 import { McqService } from '../../services/mcq.service';
+import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 
 @Component({
     selector: 'app-admin-dashboard',
@@ -19,7 +20,8 @@ import { McqService } from '../../services/mcq.service';
         MatListModule,
         MatButtonModule,
         MatIconModule,
-        RouterModule
+        RouterModule,
+        AppCardDirective
     ]
 })
 export class AdminDashboardComponent implements OnInit {

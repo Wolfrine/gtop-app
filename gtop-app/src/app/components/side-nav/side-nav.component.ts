@@ -4,20 +4,23 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../services/auth.service';
 import { Output, EventEmitter } from '@angular/core';
+
+type MenuItem = { label: string; icon: string; route: string; badge?: string; tooltip?: string };
 
 @Component({
     selector: 'app-side-nav',
     standalone: true,
     templateUrl: './side-nav.component.html',
     styleUrls: ['./side-nav.component.scss'],
-    imports: [CommonModule, MatListModule, MatIconModule, MatButtonModule, RouterModule]
+    imports: [CommonModule, MatListModule, MatIconModule, MatButtonModule, MatTooltipModule, RouterModule]
 })
 export class SideNavComponent implements OnInit {
     @Output() itemClicked = new EventEmitter<void>();
     role: string = 'user'; // Default role
-    menuItems: { label: string; icon: string; route: string }[] = [];
+    menuItems: MenuItem[] = [];
 
     constructor(private authService: AuthService) { }
 
@@ -35,31 +38,29 @@ export class SideNavComponent implements OnInit {
         });
     }
 
-    getAdminMenu() {
+    getAdminMenu(): MenuItem[] {
         return [
-            { label: 'Admin Dashboard', icon: 'dashboard', route: '/admin' },
-            { label: 'Manage Syllabus', icon: 'library_books', route: '/admin/manage-syllabus' },
-            { label: 'Syllabus Preview', icon: 'menu_book', route: '/syllabus-preview' },
-            { label: 'Manage MCQs', icon: 'library_books', route: '/admin/mcq-management' },
+            { label: 'Start Quiz', icon: 'play_arrow', route: '/quiz' },
+            { label: 'Performance Reports', icon: 'insights', route: '/reports' },
             { label: 'User Dashboard', icon: 'dashboard', route: '/dashboard' },
-            // { label: 'Live Quizzes', icon: 'quiz', route: '/admin/quizzes' }, // route not in use
-            { label: 'Performance Reports', icon: 'bar_chart', route: '/reports' },
-            // { label: 'Reports & Analytics', icon: 'bar_chart', route: '/admin/reports' }, // route not in use
+
+            { label: 'Manage MCQs', icon: 'library_books', route: '/admin/mcq-management' },
+            { label: 'Manage Syllabus', icon: 'fact_check', route: '/admin/manage-syllabus' },
+            { label: 'Syllabus Preview', icon: 'menu_book', route: '/syllabus-preview' },
             { label: 'User Management', icon: 'group', route: '/admin/user-list' },
-            { label: 'Start Quiz', icon: 'quiz', route: '/quiz' },
-            // Dev-only UI playground (admin only)
-            { label: 'UI Kitchen (Dev)', icon: 'science', route: '/dev/ui' },
+
+            { label: 'Admin Dashboard', icon: 'grid_view', route: '/admin' },
+
+            { label: 'UI Kitchen (Dev)', icon: 'science', route: '/dev/ui', badge: 'DEV', tooltip: 'Development preview (admin only)' },
             { label: 'Logs', icon: 'bug_report', route: '/logs' },
         ];
     }
 
-    getUserMenu() {
+    getUserMenu(): MenuItem[] {
         return [
+            { label: 'Start Quiz', icon: 'play_arrow', route: '/quiz' },
+            { label: 'Performance Reports', icon: 'insights', route: '/reports' },
             { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-            // { label: 'Practice MCQs', icon: 'school', route: '/practice' }, // route not in use
-            // { label: 'Live Quizzes', icon: 'quiz', route: '/quizzes' }, // route not in use
-            { label: 'Start Quiz', icon: 'quiz', route: '/quiz' },
-            { label: 'Performance Reports', icon: 'bar_chart', route: '/reports' }
         ];
     }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
+import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -12,6 +13,7 @@ import { QuizService, RetryContext } from '../../services/quiz.service';
     imports: [
         CommonModule,
         MatCardModule,
+        AppCardDirective,
         MatButtonModule,
         MatProgressBarModule
     ],

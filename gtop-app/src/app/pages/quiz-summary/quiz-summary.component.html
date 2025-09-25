@@ -44,22 +44,21 @@
       <mat-expansion-panel *ngFor="let q of filteredQuestions; let i = index">
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon [ngClass]="q.selectedIndex === q.correctIndex ? 'ok' : 'bad'">
+            <mat-icon class="status-icon" [ngClass]="q.selectedIndex === q.correctIndex ? 'ok' : 'bad'">
               {{ q.selectedIndex === q.correctIndex ? 'check_circle' : 'cancel' }}
             </mat-icon>
             <span class="stub">Q{{ i + 1 }}: {{ q.question.length > 100 ? (q.question | slice:0:60) + '…' : q.question }}</span>
           </mat-panel-title>
         </mat-expansion-panel-header>
 
-        <div class="mcq-details">
+        <div class="mcq-details" [ngClass]="{
+          'details-correct': q.selectedIndex === q.correctIndex,
+          'details-incorrect': q.selectedIndex !== q.correctIndex
+        }">
           <span class="mcq-category">{{q.board}}, {{q.standard}} - {{ q.subject }} | {{q.chapter}}</span>
           <p><strong>{{ q.question }}</strong></p>
           <div class="mcq-options">
-            <div *ngFor="let option of q.options; let j = index" class="mcq-option"
-                 [ngClass]="{
-                   correct: j === q.correctIndex,
-                   selected: j === q.selectedIndex && j !== q.correctIndex
-                 }">
+            <div *ngFor="let option of q.options; let j = index" class="mcq-option">
               <span class="option-label">{{ optionLabels[j] }}</span> {{ option }}
             </div>
           </div>

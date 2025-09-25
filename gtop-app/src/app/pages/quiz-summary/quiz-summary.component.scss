@@ -30,8 +30,16 @@
     .mcq-details {
         padding: 12px;
         background: #f8f9fa;
-        border-left: 4px solid #1976d2;
-        border-radius: 4px;
+        border-left: 4px solid #e2e8f0;
+        border-radius: 8px;
+    }
+    .mcq-details.details-correct {
+        background: #e8f5e9; /* light green */
+        border-left-color: #2e7d32; /* dark green */
+    }
+    .mcq-details.details-incorrect {
+        background: #f5e8f1; /* light pink */
+        border-left-color: #7d2e4c; /* dark pink */
     }
 
     .mcq-options {
@@ -47,8 +55,7 @@
         font-size: 14px;
     }
 
-.mcq-option.correct { background: #e8f5e9; border-left: 3px solid #16a34a; padding: 4px 8px; border-radius: 6px; }
-.mcq-option.selected { background: #fce7f3; border-left: 3px solid #dc2626; padding: 4px 8px; border-radius: 6px; }
+/* option pills were removed per feedback */
 
     .option-label {
         font-weight: bold;
@@ -116,6 +123,12 @@
         margin-top: 1rem;
         }
     }
+
+/* Header icon sizing + color (mobile safe) */
+.mat-expansion-panel-header .mat-panel-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.mat-expansion-panel-header .status-icon { flex: 0 0 auto; font-size: 18px; height: 18px; width: 18px; }
+.mat-expansion-panel-header .status-icon.ok { color: #16a34a; }
+.mat-expansion-panel-header .status-icon.bad { color: #dc2626; }
 
 @media (max-width: 768px) {
   .summary-container { padding: 16px; }

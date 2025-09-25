@@ -62,3 +62,4 @@ A GitHub Action workflow (`.github/workflows/firebase-deploy.yml`) deploys the A
 3. Reports to load only 10 previous quiz at a time - currently all quiz are loading. Check for firestore calls though.
 4. Implement footer version bump on each change done by codex
 5. AI/LLM based integration for quiz addition - which will get manually reviewed
+6. Reports to include subject and chapter wise overview

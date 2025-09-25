@@ -1,32 +1,22 @@
-mat-nav-list {
-    width: 100%;
-    padding: 0;
+.sidenav { width: 100%; padding: 8px; background: hsl(var(--surface)); }
+.sidenav .mat-mdc-list-item { border-radius: var(--radius); margin: 4px 6px; }
+.sidenav a.mat-mdc-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  color: hsl(var(--foreground));
+  transition: background-color 150ms ease, color 150ms ease;
 }
+.sidenav a.mat-mdc-list-item .icon { color: #475569; }
+.sidenav a.mat-mdc-list-item .label { font-weight: 600; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidenav a.mat-mdc-list-item .pill { margin-left: auto; font-size: 10px; padding: 2px 6px; border-radius: 999px; background: rgba(37,99,235,.12); color: #1d4ed8; font-weight: 700; }
+.sidenav a.mat-mdc-list-item:hover { background: rgba(37,99,235,.08); }
+.sidenav a.active { background: rgba(29,78,216,.10); border-left: 3px solid #1d4ed8; }
+.sidenav a.active .icon, .sidenav a.active .label { color: #1d4ed8; }
 
-mat-list-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    color: #333;
-}
+@media (max-width: 768px) { .sidenav { padding: 6px; } }
 
-mat-list-item.active {
-    background-color: #e0e0e0;
-    border-left: 4px solid #1976d2;
-}
-
-.sidenav {
-    width: 250px;
-    background-color: #f8f9fa;
-}
-
-@media (max-width: 768px) {
-    .sidenav {
-        width: 100%; // ✅ Full-width on mobile
-    }
-
-    .mat-drawer {
-        width: 80% !important;
-    }
-}
+/* Remove MDC selected graphic circle behind icons when activated */
+.sidenav .mat-mdc-list-item.mdc-list-item--activated .mdc-list-item__start::before { display: none; }
+.sidenav .mat-mdc-list-item .mdc-list-item__start mat-icon { font-size: 20px; height: 20px; width: 20px; }

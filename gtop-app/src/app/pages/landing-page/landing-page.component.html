@@ -10,19 +10,19 @@
 
 <!-- Key Features Section -->
 <section class="features">
-    <mat-card class="feature-card">
+    <mat-card appCard class="feature-card">
         <mat-icon>smart_toy</mat-icon>
         <h3>AI-Powered Quizzes</h3>
         <p>Adaptive learning to match your skills.</p>
     </mat-card>
 
-    <mat-card class="feature-card">
+    <mat-card appCard class="feature-card">
         <mat-icon>insights</mat-icon>
         <h3>Real-Time Analytics</h3>
         <p>Track progress and get improvement insights.</p>
     </mat-card>
 
-    <mat-card class="feature-card">
+    <mat-card appCard class="feature-card">
         <mat-icon>school</mat-icon>
         <h3>Unlimited MCQs</h3>
         <p>Access a vast question bank for all subjects.</p>
@@ -32,7 +32,7 @@
 <!-- Sample MCQ Section (Try-Before-Sign-Up) -->
 <section class="sample-mcq">
     <h2>Try a Sample Question</h2>
-    <mat-card>
+    <mat-card appCard>
         <p><strong>{{ questionText }}</strong></p>
         <ng-container *ngFor="let option of options">
             <button mat-button color="primary" [ngStyle]="getButtonStyle(option.value)"

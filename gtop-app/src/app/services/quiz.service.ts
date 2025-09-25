@@ -323,6 +323,24 @@ export class QuizService {
                 selectedIndex: null
             }));
     }
+
+    /**
+     * Public helper to expand stored summaries back to full question docs
+     * and merge selected/correct indices for review views.
+     */
+    async expandSummariesToQuestions(summaries: QuizResultQuestion[]): Promise<any[]> {
+        const ids = summaries.map(s => s.questionId).filter(Boolean);
+        const full = await this.fetchQuestionsByIds(ids);
+        const byId = new Map<string, QuizResultQuestion>(summaries.map(s => [s.questionId, s]));
+        return full.map(q => {
+            const s = byId.get(q.id);
+            return {
+                ...q,
+                selectedIndex: s?.selectedIndex ?? q.selectedIndex ?? null,
+                correctIndex: s?.correctIndex ?? q.correctIndex
+            };
+        });
+    }
 }
 
 export interface RetryContext {

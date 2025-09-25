@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 import { RouterModule, Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { ManualQuizModalComponent } from '../../components/manual-quiz-modal/manual-quiz-modal.component';
 import { AuthService } from '../../services/auth.service';
@@ -15,7 +17,9 @@ import { QuizService } from '../../services/quiz.service';
         CommonModule,
         MatCardModule,
         MatButtonModule,
-        RouterModule
+        RouterModule,
+        MatIconModule,
+        AppCardDirective
     ],
     templateUrl: './user-dashboard.component.html',
     styleUrls: ['./user-dashboard.component.scss']
@@ -31,6 +35,7 @@ export class UserDashboardComponent implements OnInit {
     totalQuizzes: number = 0;
     accuracyPercent: number = 0;
     lastQuizScore: string = '0/0';
+    recentSessions: Array<{ quizType: string; date: string; time: string; total: number; correct: number; accuracy: number; }>=[];
 
     constructor(
         private dialog: MatDialog,
@@ -57,6 +62,21 @@ export class UserDashboardComponent implements OnInit {
 
                         const last = results[results.length - 1];
                         this.lastQuizScore = `${last.correctAnswers}/${last.totalQuestions}`;
+
+                        // Recent 5 sessions (desc)
+                        const byDate = results.slice().sort((a: any, b: any) => {
+                            const aTime = a.timestamp?.toDate ? a.timestamp.toDate().getTime() : new Date(a.timestamp).getTime();
+                            const bTime = b.timestamp?.toDate ? b.timestamp.toDate().getTime() : new Date(b.timestamp).getTime();
+                            return bTime - aTime;
+                        }).slice(0, 5);
+
+                        this.recentSessions = byDate.map((r: any) => {
+                            const dateObj = r.timestamp?.toDate ? r.timestamp.toDate() : new Date(r.timestamp);
+                            const date = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                            const time = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                            const accuracy = r.totalQuestions ? Math.round((r.correctAnswers / r.totalQuestions) * 100) : 0;
+                            return { quizType: r.quizType, date, time, total: r.totalQuestions, correct: r.correctAnswers, accuracy };
+                        });
                     }
                 });
             }

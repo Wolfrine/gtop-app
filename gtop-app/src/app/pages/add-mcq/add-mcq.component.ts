@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatCardModule } from '@angular/material/card';
+import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { McqService } from '../../services/mcq.service';
 
@@ -23,6 +25,8 @@ import { McqService } from '../../services/mcq.service';
         MatFormFieldModule,
         MatInputModule,
         MatExpansionModule,
+        MatCardModule,
+        AppCardDirective,
         MatSnackBarModule
     ],
     templateUrl: './add-mcq.component.html',

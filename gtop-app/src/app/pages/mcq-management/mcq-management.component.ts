@@ -14,6 +14,7 @@ import { McqService, MCQ } from '../../services/mcq.service';
 import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 
 @Component({
     selector: 'app-mcq-management',
@@ -31,7 +32,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         MatFormFieldModule, // ✅ Added
         MatSelectModule, // ✅ Added
         MatOptionModule, // ✅ Optional
-        MatSnackBarModule
+        MatSnackBarModule,
+        AppCardDirective
     ]
 })
 export class McqManagementComponent implements OnInit {

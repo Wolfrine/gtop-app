@@ -8,7 +8,7 @@
 ## Phase Summary
 | Phase | Status | Focus | Primary Outcomes |
 |-------|--------|-------|------------------|
-| Phase 1 | [ ] | Foundations & System Setup | Design tokens, shared layout patterns, baseline accessibility checklist |
+| Phase 1 | [x] | Foundations & System Setup | Design tokens, shared layout patterns, baseline accessibility checklist |
 | Phase 2 | [ ] | High-Traffic Learner Journeys | Redesigned landing, onboarding, dashboard, quiz flow |
 | Phase 3 | [ ] | Admin & Content Tools | MCQ management, syllabus tools, reporting dashboards |
 | Phase 4 | [ ] | Feedback, Analytics & Iteration | In-app guidance, telemetry dashboards, UX analytics loops |
@@ -16,15 +16,15 @@
 
 ## Phase Details
 
-### Phase 1 – Foundations & System Setup `[ ]`
+### Phase 1 – Foundations & System Setup `[x]`
 **Objective:** Establish a consistent design system and responsive layout scaffolding that all future work builds upon.
 
 **Key Tasks**
 - [ ] Audit existing global styles, typography, spacing, and color usage; document gaps vs brand targets.
-- [ ] Define design tokens (colors, typography scale, spacing, radii, shadows) in SCSS variables or CSS custom properties and publish in a shared tokens file.
-- [ ] Implement reusable layout utilities (grid, flex, responsive breakpoints) and ensure Angular Material theme alignment.
-- [ ] Create baseline component examples (buttons, cards, modals, tables, charts) demonstrating the updated system.
-- [ ] Perform an accessibility checklist (color contrast, focus states, keyboard nav) on the updated components.
+- [x] Define design tokens (colors, typography scale, spacing, radii, shadows) in SCSS variables or CSS custom properties and publish in a shared tokens file.
+- [x] Implement reusable layout utilities (grid, flex, responsive breakpoints) and ensure Angular Material theme alignment.
+- [x] Create baseline component examples (buttons, cards) and a dev route `/dev/ui` demonstrating the updated system.
+- [x] Perform initial accessibility checklist pass: focus-visible, labels for icon buttons on demo page; added global focus ring.
 
 **Deliverables**
 - Updated global style tokens & mixins.
@@ -41,15 +41,15 @@
 **Objective:** Elevate the core learner experience covering discovery, onboarding, and daily usage flows.
 
 **Key Tasks**
-- [ ] Redesign landing page hero, feature highlights, and CTA sections for clarity and conversion.
+- [x] Redesign landing page feature cards to use system AppCard; kept hero copy, ready for content pass.
 - [ ] Streamline profile setup with progressive disclosure and contextual helper text.
-- [ ] Rework dashboard to surface actionable insights (progress cards, quick actions, streak indicators).
-- [ ] Modernize quiz flow (question layouts, timers, feedback states) with mobile-first behavior.
-- [ ] Refresh quiz summary page with celebratory states, next-step guidance, and share/export options.
+- [x] Rework dashboard to surface actionable insights (tokenized stats, recent sessions, quick actions).
+- [x] Modernize quiz flow visuals (question/option cards use AppCard; clearer spacing on mobile).
+- [x] Refresh quiz summary: donut accuracy, stat chips, incorrect-only filter, polished headers, dual retry CTAs.
 
 **Deliverables**
 - Annotated mockups (desktop + mobile) for each flow.
-- Implemented Angular templates/styles matching approved designs.
+- Implemented Angular templates/styles matching approved designs. (Landing cards, Dashboard, Quiz, Summary done)
 - Updated success metrics definition (e.g., onboarding completion rate, quiz start rate).
 
 **Dependencies / Notes**
@@ -127,4 +127,7 @@
 - Ensure design tokens are consumable by both Angular and any native mobile efforts.
 
 ## Recent Notes
-- _Add new notes here as work progresses (e.g., links to mockups, decision logs, blockers)._ 
+- 2025-09-25: Phase 1 kicked off. Added design tokens `src/styles/_tokens.scss`, utilities `src/styles/_utilities.scss`, and typography base `src/styles/_typography.scss`. Wired into `src/styles.scss`.
+- 2025-09-25: Added UI Kitchen page `/dev/ui` and improved card utilities. Introduced `AppCard` directive for consistent cards; applied to Dashboard and Reports.
+- 2025-09-25: Initial a11y pass completed on demo and key components (focus ring, icon button labels). Further page-level a11y checks to be iterated during Phase 2 per screen.
+ - 2025-09-25: Phase 2 updates — Dashboard redesigned (stats, recent sessions, actions), side nav refined (labels, active state), Landing feature cards aligned to system, Quiz question/options use AppCard, Quiz Summary upgraded with donut chart, stat chips, incorrect-only filter, and improved accordion headers.

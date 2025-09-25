@@ -16,14 +16,14 @@
     </div>
 
     <!-- Question -->
-    <mat-card class="question-card">
+    <mat-card appCard class="question-card">
         <h4>Q{{currentQuestionIndex+1}}. {{ questions[currentQuestionIndex].question }}</h4>
     </mat-card>
 
     <!-- Options -->
     <p>Options : <i>(Select any one from below)</i></p>
     <div class="options-container">
-        <mat-card *ngFor="let option of questions[currentQuestionIndex].options; let i = index" class="option-card"
+        <mat-card appCard *ngFor="let option of questions[currentQuestionIndex].options; let i = index" class="option-card"
             [class.selected]="questions[currentQuestionIndex].selectedIndex === i" (click)="selectOption(i)">
             {{optionsLabel[i]}}) {{ option }}
         </mat-card>

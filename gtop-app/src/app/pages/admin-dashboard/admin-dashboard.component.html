@@ -1,22 +1,22 @@
 <div class="admin-dashboard-container">
     <!-- Overview Cards -->
     <div class="overview-container">
-        <mat-card class="overview-card">
+        <mat-card appCard class="overview-card">
             <mat-card-title>📌 Active Users</mat-card-title>
             <mat-card-content>{{ activeUsers }}</mat-card-content>
         </mat-card>
-        <mat-card class="overview-card">
+        <mat-card appCard class="overview-card">
             <mat-card-title>📖 Total MCQs</mat-card-title>
             <mat-card-content>{{ totalMCQs }}</mat-card-content>
         </mat-card>
-        <mat-card class="overview-card">
+        <mat-card appCard class="overview-card">
             <mat-card-title>📊 Total Users</mat-card-title>
             <mat-card-content>{{ totalUsers }}</mat-card-content>
         </mat-card>
     </div>
 
     <!-- Recent Activity Section -->
-    <div class="recent-activity">
+    <mat-card appCard class="recent-activity">
         <h3>Recent Activity</h3>
         <mat-list>
             <mat-list-item *ngFor="let activity of recentActivities">
@@ -24,7 +24,7 @@
                 <span>{{ activity }}</span>
             </mat-list-item>
         </mat-list>
-    </div>
+    </mat-card>
 
     <!-- Quick Actions -->
     <div class="quick-actions">

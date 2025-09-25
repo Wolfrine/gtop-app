@@ -1,0 +1,48 @@
+/* Design tokens: colors, spacing, radii, shadows */
+
+:root {
+  /* Surfaces & text */
+  --background: 248 50% 98%;
+  --surface: 0 0% 100%;
+  --surface-variant: 241 13% 96%;
+  --foreground: 223 47% 15%;
+
+  /* Primary & states */
+  --primary: 230 89% 58%;
+  --primary-foreground: 0 0% 100%;
+  --primary-light: 230 89% 68%;
+  --primary-container: 230 89% 92%;
+  --success: 142 70% 45%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 55%;
+  --warning-foreground: 0 0% 100%;
+
+  /* Neutrals */
+  --muted: 220 13% 95%;
+  --muted-foreground: 220 13% 45%;
+  --border: 220 13% 88%;
+  --card: 0 0% 100%;
+  --ring: 230 89% 58%;
+
+  /* Radii & elevation */
+  --radius: 0.75rem;
+  --shadow-sm: 0 1px 2px 0 hsl(var(--foreground) / 0.05);
+  --shadow-md: 0 4px 6px -1px hsl(var(--foreground) / 0.1), 0 2px 4px -2px hsl(var(--foreground) / 0.1);
+}
+
+/* Spacing scale (utility-friendly) */
+$space-0: 0;
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+
+/* Breakpoints */
+$bp-sm: 600px;
+$bp-md: 900px;
+$bp-lg: 1200px;
+

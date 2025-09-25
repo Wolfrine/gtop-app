@@ -52,7 +52,7 @@
 
 
 
-    <div class="mcq-list">
+    <mat-card appCard class="mcq-list">
         <div *ngIf="mcqs.length === 0 && !loading">
             <p>Select filters to view MCQs.</p>
         </div>
@@ -128,5 +128,5 @@
 
             </mat-expansion-panel>
         </mat-accordion>
-    </div>
+    </mat-card>
 </div>

@@ -15,6 +15,7 @@ import { ReportsPageComponent } from './pages/reports-page/reports-page.componen
 import { UserListComponent } from './pages/admin-dashboard/user-list/user-list.component';
 import { SyllabusPreviewComponent } from './pages/syllabus-preview/syllabus-preview.component';
 import { LogsComponent } from './pages/logs/logs.component';
+import { UiKitchenComponent } from './pages/ui-kitchen/ui-kitchen.component';
 
 
 
@@ -92,6 +93,14 @@ export const routes: Routes = [
     {
         path: 'admin/user-list',
         component: UserListComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'] }
+    },
+
+    // Dev-only UI preview (restricted to admin role)
+    {
+        path: 'dev/ui',
+        component: UiKitchenComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['admin'] }
     },

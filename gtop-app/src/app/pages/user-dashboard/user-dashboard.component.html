@@ -1,51 +1,77 @@
 <div class="dashboard-container">
 
-    <!-- Welcome Message -->
-    <mat-card class="welcome-card">
-        <h2>Welcome, {{ userName }}!</h2>
-        <p>Standard: {{ userStandard }}</p>
-        <p>Subjects: {{ userSubjects }}</p>
+  <!-- Welcome + Quick Actions -->
+  <mat-card appCard class="welcome-card">
+    <div class="welcome-header">
+      <h2>Welcome back, {{ userName || 'Learner' }}!</h2>
+      <p class="sub">Standard: {{ userStandard || '—' }} · Board/Subject: {{ userSubjects || '—' }}</p>
+    </div>
+    <div class="quick-start">
+      <button mat-flat-button color="primary" (click)="startQuickQuiz()" matTooltip="10 random questions from your subjects">
+        <mat-icon>play_arrow</mat-icon>
+        Start Quick Quiz
+      </button>
+      <button mat-stroked-button color="primary" (click)="openManualQuiz()"
+              matTooltip="Customize subject, chapter and question count">
+        <mat-icon>tune</mat-icon>
+        Practice Builder
+      </button>
+      <button mat-stroked-button color="accent" [routerLink]="['/reports']">
+        <mat-icon>insights</mat-icon>
+        View Reports
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <mat-card appCard class="stat" [style.--accent]="'#2563eb'" [style.--accent-bg]="'rgba(37,99,235,.12)'">
+      <div class="stat-icon"><mat-icon>quiz</mat-icon></div>
+      <div class="stat-body">
+        <div class="label">Total Quizzes</div>
+        <div class="value">{{ totalQuizzes }}</div>
+        <div class="hint">Keep the streak going.</div>
+      </div>
     </mat-card>
 
-    <!-- Quick Start CTA -->
-    <div class="quick-start">
-        <div>
-            <button mat-raised-button color="primary" (click)="openManualQuiz()"
-                matTooltip="Customize your quiz: select subject, chapter & number of questions">
-                Practice Builder
-            </button>
+    <mat-card appCard class="stat"
+              [style.--accent]="accuracyPercent>=70 ? '#16a34a' : accuracyPercent>=40 ? '#2563eb' : '#f97316'"
+              [style.--accent-bg]="accuracyPercent>=70 ? 'rgba(22,163,74,.18)' : accuracyPercent>=40 ? 'rgba(37,99,235,.12)' : 'rgba(249,115,22,.18)'">
+      <div class="stat-icon"><mat-icon>monitoring</mat-icon></div>
+      <div class="stat-body">
+        <div class="label">Accuracy</div>
+        <div class="value">{{ accuracyPercent }}%</div>
+        <div class="hint">Average across your quizzes.</div>
+      </div>
+    </mat-card>
+
+    <mat-card appCard class="stat" [style.--accent]="'#f59e0b'" [style.--accent-bg]="'rgba(245,158,11,.15)'">
+      <div class="stat-icon"><mat-icon>military_tech</mat-icon></div>
+      <div class="stat-body">
+        <div class="label">Last Score</div>
+        <div class="value">{{ lastQuizScore }}</div>
+        <div class="hint">Most recent session.</div>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Recent Sessions -->
+  <mat-card appCard class="recent" *ngIf="recentSessions.length">
+    <div class="recent-header">
+      <div class="title">Recent Sessions</div>
+      <a class="link" [routerLink]="['/reports']">Open Reports</a>
+    </div>
+    <div class="recent-list">
+      <div class="row" *ngFor="let s of recentSessions">
+        <div class="meta">
+          <span class="pill">{{ s.quizType | titlecase }}</span>
+          <span class="when">{{ s.date }} · {{ s.time }}</span>
         </div>
-        <div>
-            <button mat-raised-button color="primary" (click)="startQuickQuiz()"
-                matTooltip="10 random questions from your subjects. Quick session to test skills!">
-                Surprise Session
-            </button>
-
+        <div class="score" [ngClass]="{ good: s.accuracy>=70, warn: s.accuracy<50 }">
+          {{ s.correct }}/{{ s.total }} ({{ s.accuracy }}%)
         </div>
+      </div>
     </div>
-
-    <!-- Current Stats Overview -->
-    <div class="stats-overview">
-        <mat-card class="stat-card">
-            <h3>Total Quizzes Attempted</h3>
-            <p>{{ totalQuizzes }}</p>
-        </mat-card>
-
-        <mat-card class="stat-card">
-            <h3>Accuracy</h3>
-            <p>{{ accuracyPercent }}%</p>
-        </mat-card>
-
-        <mat-card class="stat-card">
-            <h3>Last Quiz Score</h3>
-            <p>{{ lastQuizScore }}</p>
-        </mat-card>
-    </div>
-
-    <!-- Quick Access Buttons -->
-    <div class="quick-access">
-
-        <button mat-stroked-button color="accent" [routerLink]="['/reports']">View Reports</button>
-    </div>
+  </mat-card>
 
 </div>

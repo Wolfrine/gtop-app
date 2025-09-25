@@ -1,75 +1,81 @@
 <div class="summary-container">
 
-    <!-- Score Overview -->
-    <mat-card class="score-card">
-        <h2>Summary</h2>
-        <p>Total Questions: {{ totalQuestions }}</p>
-        <p>Correct Answers: {{ correctAnswers }}</p>
-        <p>Accuracy: {{ accuracyPercent }}%</p>
-    </mat-card>
-
-    <!-- Performance Insights -->
-    <!-- <mat-card class="insight-card">
-        <h3>Performance Insights</h3>
-        <p>Suggestions will appear here. (Phase 2)</p>
-    </mat-card> -->
-
-    <!-- Retry Incorrect Questions -->
-    <div class="retry-btn" *ngIf="hasIncorrectAnswers">
-        <button mat-raised-button color="accent" (click)="retryIncorrect()">
-            Retry Incorrect Questions
-        </button>
+  <!-- Score Overview -->
+  <mat-card appCard class="score-card">
+    <div class="score-grid">
+      <div class="chart">
+        <canvas baseChart [data]="doughnutData" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+        <div class="chart-center">{{ accuracyPercent }}%</div>
+      </div>
+      <div class="stats">
+        <div class="title">Summary</div>
+        <div class="chips">
+          <span class="chip">Total: {{ totalQuestions }}</span>
+          <span class="chip">Correct: {{ correctAnswers }}</span>
+          <span class="chip muted" *ngIf="buildQuizMetadata() as meta">
+            {{ meta.board }} · {{ meta.standard }} · {{ meta.subject }}
+          </span>
+        </div>
+        <div class="actions">
+          <button mat-flat-button color="primary" (click)="retryIncorrect()" [disabled]="!hasIncorrectAnswers">
+            <mat-icon>refresh</mat-icon> Retry Incorrect
+          </button>
+          <button mat-stroked-button color="primary" (click)="retryAll()">
+            <mat-icon>replay</mat-icon> Retry All
+          </button>
+          <button mat-stroked-button routerLink="/dashboard">
+            <mat-icon>home</mat-icon> Back to Dashboard
+          </button>
+        </div>
+        <div class="filters">
+          <button mat-button (click)="toggleIncorrectOnly()" [color]="incorrectOnly ? 'primary' : undefined">
+            <mat-icon>{{ incorrectOnly ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+            Show only incorrect
+          </button>
+        </div>
+      </div>
     </div>
+  </mat-card>
 
-    <!-- Detailed Solutions -->
-    <p>Details :</p>
-    <mat-accordion>
-        <mat-expansion-panel *ngFor="let q of questions; let i = index">
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    Q{{ i + 1 }}: {{ q.question.length > 100 ? (q.question | slice:0:50) +
-                    '...' : q.question }}
-                    <span class="measure-quiz" *ngIf="q.selectedIndex == q.correctIndex"> ✅ </span>
-                    <span class="measure-quiz" *ngIf="q.selectedIndex !== q.correctIndex"> ❌ </span>
-                </mat-panel-title>
-            </mat-expansion-panel-header>
+  <!-- Detailed Solutions -->
+  <div class="details-header">Details</div>
+  <mat-accordion>
+      <mat-expansion-panel *ngFor="let q of filteredQuestions; let i = index">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="status-icon" [ngClass]="q.selectedIndex === q.correctIndex ? 'ok' : 'bad'">
+              {{ q.selectedIndex === q.correctIndex ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+            <span class="stub">Q{{ i + 1 }}: {{ q.question.length > 100 ? (q.question | slice:0:60) + '…' : q.question }}</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
 
-            <div class="mcq-details">
-                <span class="mcq-category">{{q.board}}, {{q.standard}} - {{ q.subject }} | {{q.chapter}}
-                </span>
-                <p><strong>{{ q.question }}</strong></p>
-                <div class="mcq-options">
-                    <div *ngFor="let option of q.options; let i = index" class="mcq-option">
-                        <span class="option-label">{{ optionLabels[i] }}</span> {{ option }}
-                    </div>
-                </div>
-
-                <div class="mcq-incorrect" *ngIf="q.selectedIndex !== q.correctIndex">
-                    <span class="option-label">Your Answer:</span>
-                    <span class="incorrect-answer">
-                        {{ q.selectedIndex !== undefined ? optionLabels[q.selectedIndex] : 'Not Answered' }}
-                        {{ q.options[q.selectedIndex] || 'Not Answered' }}
-                    </span>
-                    <p><strong>Explanation:</strong> {{ q.solutions[q.correctIndex] }}</p>
-                </div>
-
-                <!-- ✅ Display Correct Answer -->
-                <div class="mcq-solution" *ngIf="q.selectedIndex == q.correctIndex">
-                    <strong>Correct Answer:</strong>
-                    <span class="correct-answer">
-                        {{ optionLabels[q.correctIndex] }} {{ q.options[q.correctIndex] }}
-                    </span>
-                    <!-- <p><strong>Explanation:</strong> {{ q.solutions[q.correctIndex] }}</p> -->
-                </div>
+        <div class="mcq-details">
+          <span class="mcq-category">{{q.board}}, {{q.standard}} - {{ q.subject }} | {{q.chapter}}</span>
+          <p><strong>{{ q.question }}</strong></p>
+          <div class="mcq-options">
+            <div *ngFor="let option of q.options; let j = index" class="mcq-option">
+              <span class="option-label">{{ optionLabels[j] }}</span> {{ option }}
             </div>
-        </mat-expansion-panel>
-    </mat-accordion>
+          </div>
 
-    <!-- CTA Buttons -->
-    <div class="cta-buttons">
-        <!-- <button mat-stroked-button color="primary">Retry Quiz</button> -->
-        <!-- <button mat-stroked-button>Practice More Questions</button> -->
-        <button mat-stroked-button routerLink="/dashboard">Back to Dashboard</button>
-    </div>
+          <div class="mcq-incorrect" *ngIf="q.selectedIndex !== q.correctIndex">
+            <span class="option-label">Your Answer:</span>
+            <span class="incorrect-answer">
+              {{ q.selectedIndex !== undefined ? optionLabels[q.selectedIndex] : 'Not Answered' }}
+              {{ q.options[q.selectedIndex] || 'Not Answered' }}
+            </span>
+            <p><strong>Explanation:</strong> {{ q.solutions[q.correctIndex] }}</p>
+          </div>
+
+          <div class="mcq-solution" *ngIf="q.selectedIndex == q.correctIndex">
+            <strong>Correct Answer:</strong>
+            <span class="correct-answer">
+              {{ optionLabels[q.correctIndex] }} {{ q.options[q.correctIndex] }}
+            </span>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
 
 </div>

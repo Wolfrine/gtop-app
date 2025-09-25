@@ -1,0 +1,72 @@
+<div class="container uikit">
+  <h1>UI Kitchen Sink</h1>
+  <p class="text-muted">Development-only page to preview tokens, utilities, and Material alignment.</p>
+
+  <section>
+    <h2>Buttons</h2>
+    <div class="row">
+      <button mat-flat-button color="primary">Primary</button>
+      <button mat-stroked-button color="primary">Stroked</button>
+      <button mat-button color="primary">Text</button>
+      <button mat-icon-button color="primary" aria-label="Play">
+        <mat-icon>play_arrow</mat-icon>
+      </button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Cards</h2>
+    <div class="grid">
+      <mat-card appCard class="card card--hover">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Card with Tokens</div>
+            <div class="card-subtitle">Surface, border, radius</div>
+          </div>
+          <button mat-icon-button color="primary" aria-label="More"><mat-icon>more_vert</mat-icon></button>
+        </div>
+        <div class="card-divider"></div>
+        <p>Surface: HSL(var(--card)), border: HSL(var(--border)), radius: var(--radius)</p>
+        <div class="card-actions">
+          <button mat-stroked-button color="primary">Secondary</button>
+          <button mat-flat-button color="primary">Action</button>
+        </div>
+      </mat-card>
+
+      <mat-card appCard class="card card--soft card--hover">
+        <div class="card-header">
+          <div class="card-title">Soft Variant</div>
+          <button mat-icon-button aria-label="Pin"><mat-icon>push_pin</mat-icon></button>
+        </div>
+        <p class="text-muted">Subtle tinted background using surface-variant.
+        Demonstrates improved visual hierarchy and hover elevation.</p>
+      </mat-card>
+    </div>
+  </section>
+
+  <section>
+    <h2>Form Field</h2>
+    <mat-form-field appearance="outline">
+      <mat-label>Your name</mat-label>
+      <input matInput placeholder="Jane Doe" />
+    </mat-form-field>
+  </section>
+
+  <section>
+    <h2>Colors</h2>
+    <div class="swatches">
+      <div class="swatch" style="--c: var(--primary)">
+        <span>Primary</span>
+      </div>
+      <div class="swatch" style="--c: var(--success)">
+        <span>Success</span>
+      </div>
+      <div class="swatch" style="--c: var(--warning)">
+        <span>Warning</span>
+      </div>
+      <div class="swatch" style="--c: var(--muted-foreground)">
+        <span>Muted</span>
+      </div>
+    </div>
+  </section>
+</div>

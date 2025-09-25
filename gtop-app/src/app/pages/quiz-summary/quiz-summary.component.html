@@ -50,10 +50,7 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
 
-        <div class="mcq-details" [ngClass]="{
-          'details-correct': q.selectedIndex === q.correctIndex,
-          'details-incorrect': q.selectedIndex !== q.correctIndex
-        }">
+        <div class="mcq-details">
           <span class="mcq-category">{{q.board}}, {{q.standard}} - {{ q.subject }} | {{q.chapter}}</span>
           <p><strong>{{ q.question }}</strong></p>
           <div class="mcq-options">

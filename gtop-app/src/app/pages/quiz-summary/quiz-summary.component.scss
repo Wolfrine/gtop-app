@@ -24,15 +24,15 @@
 .measure-quiz { font-size: 8px; float: right; }
 
 /* Ensure colored container shows as originally */
-.mat-expansion-panel-body { background: transparent; }
+.mat-expansion-panel-body { background: transparent; padding: 8px 12px; }
 .mcq-details {
-  padding: 12px;
+  padding: 16px;
   background: #f8f9fa;
   border-left: 4px solid #1976d2; /* original blue */
   border-radius: 4px;
 }
-.mcq-details.details-correct { background: #e8f5e9; border-left-color: #2e7d32; }
-.mcq-details.details-incorrect { background: #f5e8f1; border-left-color: #7d2e4c; }
+
+/* Keep tinting only for inner answer blocks */
 
 /* Details header with minimal spacing, no card */
 .details-header { font-weight: 700; font-size: 16px; margin: 0 0 6px 0; }
@@ -57,6 +57,9 @@
 .mcq-category { font-size: 12px; color: gray; margin-left: auto; display: flex; align-items: center; }
 
 .cta-buttons { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 1rem; }
+
+/* Add breathing room between panels */
+.mat-accordion .mat-expansion-panel { margin-bottom: 10px; border-radius: 8px; overflow: hidden; }
 
 /* Header icon sizing + color (mobile safe) */
 .mat-expansion-panel-header .mat-panel-title { display: flex; align-items: center; gap: 8px; min-width: 0; }

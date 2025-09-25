@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 import { RouterModule, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ManualQuizModalComponent } from '../../components/manual-quiz-modal/manual-quiz-modal.component';
@@ -15,7 +16,8 @@ import { QuizService } from '../../services/quiz.service';
         CommonModule,
         MatCardModule,
         MatButtonModule,
-        RouterModule
+        RouterModule,
+        AppCardDirective
     ],
     templateUrl: './user-dashboard.component.html',
     styleUrls: ['./user-dashboard.component.scss']

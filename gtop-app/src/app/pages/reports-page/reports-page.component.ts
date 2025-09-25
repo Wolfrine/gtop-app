@@ -12,6 +12,7 @@ import { Auth } from '@angular/fire/auth';
 import { QuizService } from '../../services/quiz.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { QuizResultQuestion } from '../../services/quiz.service';
+import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 
 @Component({
     selector: 'app-reports-page',
@@ -27,6 +28,7 @@ import { QuizResultQuestion } from '../../services/quiz.service';
         MatProgressBarModule,
         MatProgressSpinnerModule,
         NgChartsModule,
+        AppCardDirective,
     ],
 })
 export class ReportsPageComponent implements OnInit {

@@ -34,7 +34,7 @@
         </section>
 
         <section class="charts-section">
-            <mat-card class="chart-card">
+            <mat-card appCard class="chart-card">
                 <div class="chart-header">
                     <div>
                         <div class="chart-title">Accuracy Over Time</div>
@@ -47,7 +47,7 @@
                 </div>
             </mat-card>
 
-            <mat-card class="chart-card pie-chart">
+            <mat-card appCard class="chart-card pie-chart">
                 <div class="chart-header">
                     <div>
                         <div class="chart-title">Quiz Type Distribution</div>
@@ -61,7 +61,7 @@
             </mat-card>
         </section>
 
-        <mat-card class="s-card" *ngIf="hasResults; else emptyState">
+        <mat-card appCard class="s-card" *ngIf="hasResults; else emptyState">
             <div class="section-header">
                 <div>
                     <div class="section-title">Session History</div>

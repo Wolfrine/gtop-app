@@ -1,13 +1,16 @@
 .sidenav { width: 100%; padding: 8px; }
 .sidenav .mat-mdc-list-item { border-radius: var(--radius); margin: 4px 6px; }
 .sidenav a.mat-mdc-list-item {
-  display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 12px;
-  padding: 10px 12px; color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  color: hsl(var(--foreground));
   transition: background-color 150ms ease, color 150ms ease;
 }
 .sidenav a.mat-mdc-list-item .icon { color: #475569; }
-.sidenav a.mat-mdc-list-item .label { font-weight: 600; }
-.sidenav a.mat-mdc-list-item .pill { font-size: 10px; padding: 2px 6px; border-radius: 999px; background: rgba(37,99,235,.12); color: #1d4ed8; font-weight: 700; }
+.sidenav a.mat-mdc-list-item .label { font-weight: 600; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidenav a.mat-mdc-list-item .pill { margin-left: auto; font-size: 10px; padding: 2px 6px; border-radius: 999px; background: rgba(37,99,235,.12); color: #1d4ed8; font-weight: 700; }
 .sidenav a.mat-mdc-list-item:hover { background: rgba(37,99,235,.08); }
 .sidenav a.active { background: rgba(37,99,235,.15); }
 .sidenav a.active .icon, .sidenav a.active .label { color: #1d4ed8; }

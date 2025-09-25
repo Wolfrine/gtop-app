@@ -27,7 +27,25 @@ button:focus-visible,
 .card {
   background: hsl(var(--card));
   border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
   border: 1px solid hsl(var(--border));
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: box-shadow 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
+.card--hover:hover {
+  box-shadow: var(--shadow-md);
+  border-color: hsl(var(--primary) / 0.28);
+}
+
+.card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.card-title { font-size: 16px; font-weight: 700; color: hsl(var(--foreground)); }
+.card-subtitle { font-size: 13px; color: hsl(var(--muted-foreground)); }
+.card-divider { height: 1px; background: hsl(var(--border)); margin: 4px 0; }
+.card-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* Variant with subtle tinted background */
+.card--soft { background: hsl(var(--surface-variant)); }

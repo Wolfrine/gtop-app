@@ -17,13 +17,29 @@
   <section>
     <h2>Cards</h2>
     <div class="grid">
-      <mat-card class="card">
-        <h3>Card with Tokens</h3>
+      <mat-card class="card card--hover">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Card with Tokens</div>
+            <div class="card-subtitle">Surface, border, radius</div>
+          </div>
+          <button mat-icon-button color="primary" aria-label="More"><mat-icon>more_vert</mat-icon></button>
+        </div>
+        <div class="card-divider"></div>
         <p>Surface: HSL(var(--card)), border: HSL(var(--border)), radius: var(--radius)</p>
+        <div class="card-actions">
+          <button mat-stroked-button color="primary">Secondary</button>
+          <button mat-flat-button color="primary">Action</button>
+        </div>
       </mat-card>
-      <mat-card class="card">
-        <h3>Another Card</h3>
-        <p class="text-muted">Demonstrates shadow and spacing scale</p>
+
+      <mat-card class="card card--soft card--hover">
+        <div class="card-header">
+          <div class="card-title">Soft Variant</div>
+          <button mat-icon-button aria-label="Pin"><mat-icon>push_pin</mat-icon></button>
+        </div>
+        <p class="text-muted">Subtle tinted background using surface-variant.
+        Demonstrates improved visual hierarchy and hover elevation.</p>
       </mat-card>
     </div>
   </section>
@@ -54,4 +70,3 @@
     </div>
   </section>
 </div>
-

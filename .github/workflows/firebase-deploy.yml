@@ -4,9 +4,19 @@ on:
   push:
     branches:
       - '**'
+    paths:
+      - 'gtop-app/**'
+      - '.github/workflows/firebase-deploy.yml'
+
+# Ensure only the latest run per branch is active; cancel older in-progress runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
+    # Skip runs created by branch creation (push with no head_commit)
+    if: github.event_name != 'push' || github.event.head_commit != null
     runs-on: ubuntu-latest
 
     steps:

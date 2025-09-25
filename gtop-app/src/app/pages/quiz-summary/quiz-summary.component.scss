@@ -27,20 +27,24 @@
         float: right;
     }
 
+    /* Ensure colored container shows regardless of MDC defaults */
     .mcq-details {
         padding: 12px;
-        background: #f8f9fa;
-        border-left: 4px solid #e2e8f0;
+        background: #f8f9fa !important;
+        border-left: 4px solid #e2e8f0 !important;
         border-radius: 4px; /* back to original */
     }
     .mcq-details.details-correct {
-        background: #e8f5e9; /* light green */
-        border-left-color: #2e7d32; /* dark green */
+        background: #e8f5e9 !important; /* light green */
+        border-left-color: #2e7d32 !important; /* dark green */
     }
     .mcq-details.details-incorrect {
-        background: #f5e8f1; /* light pink */
-        border-left-color: #7d2e4c; /* dark pink */
+        background: #f5e8f1 !important; /* light pink */
+        border-left-color: #7d2e4c !important; /* dark pink */
     }
+
+    /* Remove any panel body background interfering with tint */
+    .mat-expansion-panel-body { background: transparent !important; }
 
 /* Details header with minimal spacing, no card */
 .details-header { font-weight: 700; font-size: 16px; margin: 0 0 6px 0; }

@@ -41,15 +41,15 @@
 **Objective:** Elevate the core learner experience covering discovery, onboarding, and daily usage flows.
 
 **Key Tasks**
-- [ ] Redesign landing page hero, feature highlights, and CTA sections for clarity and conversion.
+- [x] Redesign landing page feature cards to use system AppCard; kept hero copy, ready for content pass.
 - [ ] Streamline profile setup with progressive disclosure and contextual helper text.
-- [ ] Rework dashboard to surface actionable insights (progress cards, quick actions, streak indicators).
-- [ ] Modernize quiz flow (question layouts, timers, feedback states) with mobile-first behavior.
-- [ ] Refresh quiz summary page with celebratory states, next-step guidance, and share/export options.
+- [x] Rework dashboard to surface actionable insights (tokenized stats, recent sessions, quick actions).
+- [x] Modernize quiz flow visuals (question/option cards use AppCard; clearer spacing on mobile).
+- [x] Refresh quiz summary: donut accuracy, stat chips, incorrect-only filter, polished headers, dual retry CTAs.
 
 **Deliverables**
 - Annotated mockups (desktop + mobile) for each flow.
-- Implemented Angular templates/styles matching approved designs.
+- Implemented Angular templates/styles matching approved designs. (Landing cards, Dashboard, Quiz, Summary done)
 - Updated success metrics definition (e.g., onboarding completion rate, quiz start rate).
 
 **Dependencies / Notes**
@@ -130,3 +130,4 @@
 - 2025-09-25: Phase 1 kicked off. Added design tokens `src/styles/_tokens.scss`, utilities `src/styles/_utilities.scss`, and typography base `src/styles/_typography.scss`. Wired into `src/styles.scss`.
 - 2025-09-25: Added UI Kitchen page `/dev/ui` and improved card utilities. Introduced `AppCard` directive for consistent cards; applied to Dashboard and Reports.
 - 2025-09-25: Initial a11y pass completed on demo and key components (focus ring, icon button labels). Further page-level a11y checks to be iterated during Phase 2 per screen.
+ - 2025-09-25: Phase 2 updates — Dashboard redesigned (stats, recent sessions, actions), side nav refined (labels, active state), Landing feature cards aligned to system, Quiz question/options use AppCard, Quiz Summary upgraded with donut chart, stat chips, incorrect-only filter, and improved accordion headers.

@@ -8,6 +8,9 @@ import { Router, RouterModule } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { NgChartsModule } from 'ng2-charts';
+import { ChartConfiguration } from 'chart.js';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
     selector: 'app-quiz-summary',
@@ -18,7 +21,9 @@ import { Subscription } from 'rxjs';
         AppCardDirective,
         MatButtonModule,
         MatExpansionModule,
-        RouterModule
+        RouterModule,
+        NgChartsModule,
+        MatIconModule
     ],
     templateUrl: './quiz-summary.component.html',
     styleUrls: ['./quiz-summary.component.scss']
@@ -29,6 +34,21 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     private userSub!: Subscription;
     private saved = false;
 
+    // UI state
+    incorrectOnly = false;
+
+    // Charts
+    doughnutData: ChartConfiguration<'doughnut'>['data'] = {
+        labels: ['Correct', 'Incorrect'],
+        datasets: [{ data: [0, 0], backgroundColor: ['#22c55e', '#ef4444'], borderWidth: 2, borderColor: '#fff' }]
+    };
+    doughnutOptions: ChartConfiguration<'doughnut'>['options'] = {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: { legend: { display: false } }
+    };
+
     constructor(
         private quizService: QuizService,
         private authService: AuthService,
@@ -37,6 +57,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.questions = this.quizService.getQuestions();
+        this.updateChart();
 
         this.userSub = this.authService.getUser().subscribe(user => {
             if (user && this.questions.length > 0 && !this.saved) {
@@ -82,6 +103,16 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         return this.questions.some(q => q.selectedIndex !== q.correctIndex);
     }
 
+    get filteredQuestions() {
+        return this.incorrectOnly
+            ? this.questions.filter(q => q.selectedIndex !== q.correctIndex)
+            : this.questions;
+    }
+
+    toggleIncorrectOnly() {
+        this.incorrectOnly = !this.incorrectOnly;
+    }
+
     async retryIncorrect() {
         if (!this.hasIncorrectAnswers) return;
 
@@ -107,7 +138,36 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         }
     }
 
-    private buildQuizMetadata() {
+    async retryAll() {
+        try {
+            await this.quizService.prepareRetryFromExistingAttempt({
+                questions: this.questions,
+                incorrectOnly: false,
+                context: {
+                    source: 'summary',
+                    type: 'all',
+                    metadata: this.buildQuizMetadata()
+                }
+            });
+
+            this.router.navigate(['/quiz'], {
+                queryParams: { retry: 'summary', scope: 'all' }
+            });
+        } catch (error) {
+            console.error('Error preparing retry all from summary:', error);
+        }
+    }
+
+    private updateChart() {
+        const correct = this.correctAnswers;
+        const incorrect = Math.max(this.totalQuestions - correct, 0);
+        this.doughnutData = {
+            labels: ['Correct', 'Incorrect'],
+            datasets: [{ data: [correct, incorrect], backgroundColor: ['#22c55e', '#ef4444'], borderWidth: 2, borderColor: '#fff' }]
+        };
+    }
+
+    buildQuizMetadata() {
         if (this.questions.length === 0) return undefined;
         const sample = this.questions[0];
         return {

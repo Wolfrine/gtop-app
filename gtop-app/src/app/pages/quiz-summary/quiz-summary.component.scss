@@ -1,19 +1,15 @@
-.summary-container {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+.summary-container { padding: 20px; display: grid; gap: 16px; }
 
-    .score-card,
-    .insight-card {
-        padding: 1rem;
-        text-align: center;
-    }
-
-    .retry-btn {
-        display: flex;
-        justify-content: center;
-    }
+.score-card { padding: 16px; }
+.score-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 260px) 1fr; align-items: center; }
+.chart { position: relative; height: 180px; }
+.chart-center { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; font-size: 28px; color: #0f172a; }
+.stats .title { font-weight: 700; font-size: 18px; margin-bottom: 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.chip { padding: 4px 10px; border-radius: 999px; background: rgba(148,163,184,.2); color: #0f172a; font-weight: 600; font-size: 12px; }
+.chip.muted { background: rgba(37,99,235,.12); color: #1d4ed8; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.filters { margin-top: 4px; }
 
     .solution-details {
         padding: 1rem;
@@ -25,7 +21,6 @@
         p {
             margin: 0.5rem 0;
         }
-    }
 
     .measure-quiz {
         font-size: 8px;
@@ -51,6 +46,9 @@
         align-items: center;
         font-size: 14px;
     }
+
+.mcq-option.correct { background: #e8f5e9; border-left: 3px solid #16a34a; padding: 4px 8px; border-radius: 6px; }
+.mcq-option.selected { background: #fce7f3; border-left: 3px solid #dc2626; padding: 4px 8px; border-radius: 6px; }
 
     .option-label {
         font-weight: bold;
@@ -109,18 +107,18 @@
         display: flex;
         align-items: center;
     }
-
+    
     .cta-buttons {
         display: flex;
         flex-wrap: wrap;
         gap: 1rem;
         justify-content: center;
         margin-top: 1rem;
+        }
     }
-}
 
 @media (max-width: 768px) {
-    .summary-container {
-        padding: 1rem;
-    }
+  .summary-container { padding: 16px; }
+  .score-grid { grid-template-columns: 1fr; }
+  .chart { height: 160px; }
 }

@@ -108,10 +108,12 @@ export class LiveQuizService {
   observeUpcomingSessions(cb: (sessions: (LiveSession & { id: string })[]) => void, limitCount = 20): () => void {
     const col = collection(this.firestore, 'LiveSessions');
     const now = Timestamp.now();
-    // Show sessions with status=lobby and starting now or later
-    const q = query(col, where('status', '==', 'lobby'), where('scheduledStartAt', '>=', now), orderBy('scheduledStartAt', 'asc'), limit(limitCount));
+    // Show sessions starting now or later, filter lobby client-side to avoid composite index requirement
+    const q = query(col, where('scheduledStartAt', '>=', now), orderBy('scheduledStartAt', 'asc'), limit(limitCount));
     return onSnapshot(q, (snap) => {
-      const items = snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }));
+      const items = snap.docs
+        .map(d => ({ id: d.id, ...(d.data() as any) }))
+        .filter((s: any) => s.status === 'lobby');
       cb(items as any);
     });
   }

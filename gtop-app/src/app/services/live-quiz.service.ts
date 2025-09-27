@@ -230,6 +230,40 @@ export class LiveQuizService {
     await setDoc(ref, { status: 'ended', updatedAt: serverTimestamp() }, { merge: true } as any);
   }
 
+  /**
+   * Reschedule the start time. Also updates schedule[0] so all clients align.
+   * If newStart <= now, mark status as 'active'. Otherwise keep 'lobby'.
+   */
+  async rescheduleStart(sessionId: string, newStart: Date): Promise<void> {
+    const ref = doc(this.firestore, `LiveSessions/${sessionId}`);
+    const ts = Timestamp.fromDate(newStart);
+    const now = new Date();
+    const payload: any = {
+      scheduledStartAt: ts,
+      updatedAt: serverTimestamp(),
+      [`schedule.0`]: ts,
+    };
+    if (newStart.getTime() <= now.getTime()) {
+      payload.status = 'active';
+    } else {
+      payload.status = 'lobby';
+    }
+    await setDoc(ref, payload, { merge: true } as any);
+  }
+
+  /**
+   * Start immediately: set scheduledStartAt and schedule[0] to server time, status 'active'.
+   */
+  async startNow(sessionId: string): Promise<void> {
+    const ref = doc(this.firestore, `LiveSessions/${sessionId}`);
+    await setDoc(ref, {
+      scheduledStartAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      status: 'active',
+      [`schedule.0`]: serverTimestamp()
+    }, { merge: true } as any);
+  }
+
   private generateJoinCode(): string {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code = '';

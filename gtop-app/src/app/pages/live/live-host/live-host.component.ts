@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute } from '@angular/router';
 import { AppCardDirective } from '../../../shared/ui/app-card/app-card.directive';
@@ -8,11 +9,13 @@ import { Subscription, interval } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-live-host',
   standalone: true,
-  imports: [CommonModule, MatCardModule, AppCardDirective, MatListModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, FormsModule, MatCardModule, AppCardDirective, MatListModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule],
   templateUrl: './live-host.component.html',
   styleUrls: ['./live-host.component.scss']
 })
@@ -35,6 +38,7 @@ export class LiveHostComponent implements OnInit, OnDestroy {
   currentIndex = -1;
   total = 0;
   schedule: Map<number, Date> = new Map();
+  startEdit: string = '';
 
   participants: { uid: string; displayName: string; photoURL?: string }[] = [];
 
@@ -59,6 +63,7 @@ export class LiveHostComponent implements OnInit, OnDestroy {
         if (!isNaN(idx) && d) this.schedule.set(idx, d);
       });
       this.computeLobbyOpen();
+      this.startEdit = this.startAt ? this.toDateTimeLocal(this.startAt) : '';
     });
 
     this.partSub = this.live.observeParticipants(this.sessionId, (list) => {
@@ -144,5 +149,26 @@ export class LiveHostComponent implements OnInit, OnDestroy {
 
   endSession() {
     this.live.endSession(this.sessionId);
+  }
+
+  updateStart(): void {
+    if (!this.startEdit) return;
+    const d = new Date(this.startEdit);
+    if (isNaN(d.getTime())) return;
+    this.live.rescheduleStart(this.sessionId, d);
+  }
+
+  startNow(): void {
+    this.live.startNow(this.sessionId);
+  }
+
+  private toDateTimeLocal(d: Date): string {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const mm = pad(d.getMonth() + 1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mi = pad(d.getMinutes());
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
   }
 }

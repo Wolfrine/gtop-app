@@ -102,7 +102,7 @@ Acceptance Criteria
 Phased Delivery (small, verifiable steps)
 - Phase 0 — Types & schema: add TS interfaces and document Firestore paths.
 - Phase 1 — Service skeleton: LiveQuizService stubs compile.
-- Phase 2 — Create/Join UX: LiveLandingComponent; create → host route, join → player route.
+- Phase 2 — Create/Join UX: LiveLandingComponent; create → host route, join → player route. Add admin filter-driven random generation: Board (single), Standard (single), Subject(s) multi, Chapter(s) multi, Count (default 10). Use existing QuizService.fetchCustomQuizQuestions to generate and preview IDs.
 - Phase 3 — Lobby & countdown: roster subscription and countdown to effective start.
 - Phase 4 — Schedule engine: auto‑advance + override handling.
 - Phase 5 — Answering + leaderboard: write submissions; subscribe to answers for current index.
@@ -114,3 +114,4 @@ Out‑of‑Scope / Future Enhancements
 - Short join links and share UX.
 - Auto‑advance on all submitted or timer expiry preferences.
 - Session archival/history under Admin.
+- Manual selection list: Admin can browse filtered questions (by board/standard/subject/chapter), tick checkboxes to pick exact items up to a count cap, then create a session from the curated list. Implement after lobby/schedule phases (target Phase 6+).

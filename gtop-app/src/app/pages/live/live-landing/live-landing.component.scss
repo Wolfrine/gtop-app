@@ -11,9 +11,21 @@
 }
 
 .w-100 { width: 100%; }
+.small { max-width: 200px; }
 
 .error {
   grid-column: 1 / -1;
   color: #b00020;
 }
 
+.filters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 900px) {
+  .filters {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -76,7 +76,7 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
       subjects: [[] as string[]],
       chapters: [[] as string[]],
       count: [10, [Validators.required, Validators.min(1), Validators.max(100)]],
-      bufferSeconds: [30, [Validators.required, Validators.min(0), Validators.max(600)]],
+      bufferMinutes: [5, [Validators.required, Validators.min(0), Validators.max(180)]],
       perQuestionSeconds: [20, [Validators.required, Validators.min(5), Validators.max(600)]]
     });
 
@@ -104,7 +104,7 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     const start = new Date(Date.now() + 10 * 60 * 1000);
     this.createForm.addControl('startAt', this.fb.control(this.toDateTimeLocal(start), [Validators.required]));
     this.updateLobbyOpensAt();
-    this.createForm.get('bufferSeconds')?.valueChanges.subscribe(() => this.updateLobbyOpensAt());
+    this.createForm.get('bufferMinutes')?.valueChanges.subscribe(() => this.updateLobbyOpensAt());
     this.createForm.get('startAt')?.valueChanges.subscribe(() => this.updateLobbyOpensAt());
   }
 
@@ -119,7 +119,8 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     const { board, standard } = this.createForm.value;
     const selectedSubjects: string[] = this.createForm.value.subjects || [];
     const selectedChapters: string[] = this.createForm.value.chapters || [];
-    const bufferSeconds = Number(this.createForm.value.bufferSeconds) || 0;
+    const bufferMinutes = Number(this.createForm.value.bufferMinutes) || 0;
+    const bufferSeconds = bufferMinutes * 60;
     const perQuestionSeconds = Number(this.createForm.value.perQuestionSeconds) || 20;
     // Use generated list; if empty, attempt to randomize once
     if (!this.generatedQuestions.length) {
@@ -268,7 +269,8 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
 
   private updateLobbyOpensAt() {
     const startAtStr: string = this.createForm.value.startAt;
-    const bufferSeconds = Number(this.createForm.value.bufferSeconds) || 0;
+    const bufferMinutes = Number(this.createForm.value.bufferMinutes) || 0;
+    const bufferSeconds = bufferMinutes * 60;
     if (!startAtStr) { this.lobbyOpensAt = undefined; return; }
     const start = new Date(startAtStr);
     this.lobbyOpensAt = new Date(start.getTime() - bufferSeconds * 1000);

@@ -53,8 +53,8 @@
       </div>
 
       <mat-form-field appearance="outline" class="w-100">
-        <mat-label>Buffer (seconds)</mat-label>
-        <input matInput type="number" formControlName="bufferSeconds" />
+        <mat-label>Buffer (minutes)</mat-label>
+        <input matInput type="number" formControlName="bufferMinutes" />
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-100">
@@ -78,7 +78,7 @@
 
       <div class="schedule-inline">
         <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime' }}</span>
-        <span class="chip">First question: {{ createForm.value.startAt | date:'shortTime' }}</span>
+        <span class="chip">First question: {{ createForm.value.startAt ? (createForm.value.startAt | date:'shortTime') : '' }}</span>
       </div>
     </form>
 

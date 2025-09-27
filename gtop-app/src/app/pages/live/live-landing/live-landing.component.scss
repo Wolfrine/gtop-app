@@ -1,14 +1,6 @@
-.live-landing {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
+.live-landing { display:grid; grid-template-columns:1fr; gap:24px; max-width:1100px; margin:0 auto; padding:24px; }
 
-@media (min-width: 900px) {
-  .live-landing {
-    grid-template-columns: 1fr 1fr;
-  }
-}
+@media (min-width: 900px) { .live-landing { grid-template-columns: minmax(0,7fr) minmax(0,5fr); } }
 
 .w-100 { width: 100%; }
 .small { max-width: 200px; }
@@ -33,3 +25,6 @@
 .mode {
   margin-bottom: 12px;
 }
+
+.schedule-inline { display:flex; gap:12px; margin-top:10px; flex-wrap:wrap; }
+.chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:rgba(37,99,235,.10); color:#1d4ed8; font-weight:600; font-size:12px; }

@@ -34,10 +34,8 @@ export class LiveQuizService {
   async createSession(opts: CreateSessionOptions): Promise<{ sessionId: string; joinCode: string }> {
     const joinCode = this.generateJoinCode();
 
-    // Compute effectiveStartAt = scheduledStartAt + bufferSeconds
-    const effectiveStartAt = Timestamp.fromMillis(
-      opts.scheduledStartAt.toMillis() + opts.bufferSeconds * 1000
-    );
+    // Effective start = quiz start time (lobby opens "buffer" before this in UI logic)
+    const effectiveStartAt = opts.scheduledStartAt;
 
     const sessionId = doc(this.sessionsCol).id;
     const sessionRef = doc(this.firestore, `LiveSessions/${sessionId}`);

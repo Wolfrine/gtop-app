@@ -49,6 +49,7 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
   generatedQuestions: any[] = [];
   isGenerating = false;
   selectionMode: 'random' | 'manual' = 'random';
+  lobbyOpensAt?: Date;
 
   boards: string[] = [];
   standards: string[] = [];
@@ -98,6 +99,13 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     this.createForm.get('board')?.valueChanges.subscribe(v => this.onBoardChange(v));
     this.createForm.get('standard')?.valueChanges.subscribe(v => this.onStandardChange(v));
     this.createForm.get('subjects')?.valueChanges.subscribe(v => this.onSubjectsChange(v));
+
+    // Default start time: now + 10 minutes
+    const start = new Date(Date.now() + 10 * 60 * 1000);
+    this.createForm.addControl('startAt', this.fb.control(this.toDateTimeLocal(start), [Validators.required]));
+    this.updateLobbyOpensAt();
+    this.createForm.get('bufferSeconds')?.valueChanges.subscribe(() => this.updateLobbyOpensAt());
+    this.createForm.get('startAt')?.valueChanges.subscribe(() => this.updateLobbyOpensAt());
   }
 
   ngOnDestroy(): void {
@@ -126,7 +134,9 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const now = Timestamp.now();
+      const startAtStr: string = this.createForm.value.startAt;
+      const startAt = startAtStr ? new Date(startAtStr) : new Date();
+      const now = Timestamp.fromDate(startAt);
       const { sessionId } = await this.live.createSession({
         hostId: user.uid,
         hostName: user.displayName,
@@ -244,5 +254,23 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     // Keep selected chapters that still exist
     const selected = (this.createForm.value.chapters || []).filter((c: string) => this.chapters.includes(c));
     this.createForm.patchValue({ chapters: selected }, { emitEvent: false });
+  }
+
+  private toDateTimeLocal(d: Date): string {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const mm = pad(d.getMonth() + 1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mi = pad(d.getMinutes());
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+  }
+
+  private updateLobbyOpensAt() {
+    const startAtStr: string = this.createForm.value.startAt;
+    const bufferSeconds = Number(this.createForm.value.bufferSeconds) || 0;
+    if (!startAtStr) { this.lobbyOpensAt = undefined; return; }
+    const start = new Date(startAtStr);
+    this.lobbyOpensAt = new Date(start.getTime() - bufferSeconds * 1000);
   }
 }

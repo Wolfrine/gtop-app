@@ -2,6 +2,14 @@
   <mat-card appCard>
     <h2>Create a Live Session</h2>
 
+    <!-- Selection Mode -->
+    <div class="mode">
+      <mat-button-toggle-group [value]="selectionMode" (change)="selectionMode = $event.value">
+        <mat-button-toggle value="random">Randomize from Selection</mat-button-toggle>
+        <mat-button-toggle value="manual" disabled matTooltip="Manual selection coming soon">Manual Selection</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
     <form [formGroup]="createForm" (ngSubmit)="createSession()">
       <!-- Filters -->
       <div class="filters">
@@ -49,17 +57,12 @@
         <input matInput type="number" formControlName="perQuestionSeconds" />
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="w-100">
-        <mat-label>Question IDs (comma-separated, optional)</mat-label>
-        <input matInput type="text" formControlName="questionIdsCsv" placeholder="abc123, def456, ..." />
-      </mat-form-field>
-
       <div class="actions">
-        <button mat-stroked-button color="accent" type="button" (click)="generateQuestionIds()" [disabled]="isGenerating">
+        <button mat-stroked-button color="accent" type="button" (click)="generateQuestionIds()" [disabled]="isGenerating || selectionMode!=='random'">
           <mat-icon>bolt</mat-icon>
-          Generate from selection
+          Randomize
         </button>
-        <button mat-stroked-button type="button" (click)="copyIds()" [disabled]="!createForm.value.questionIdsCsv">
+        <button mat-stroked-button type="button" (click)="copyIds()" [disabled]="!createForm.value.count || !generatedQuestions.length">
           <mat-icon>content_copy</mat-icon>
           Copy IDs
         </button>
@@ -73,7 +76,7 @@
       <h3>Generated Questions ({{ generatedQuestions.length }})</h3>
       <mat-list>
         <mat-list-item *ngFor="let q of generatedQuestions; let i = index">
-          <div matListItemTitle>#{{ i + 1 }} · {{ q.title || (q.question | slice:0:60) }}</div>
+          <div matListItemTitle>#{{ i + 1 }} · {{ (q.question || q.title) | slice:0:90 }}</div>
           <div matListItemLine class="id">ID: {{ q.id }}</div>
         </mat-list-item>
       </mat-list>

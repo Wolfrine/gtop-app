@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Router } from '@angular/router';
 import { LiveQuizService } from '../../../services/live-quiz.service';
@@ -33,6 +34,7 @@ import { SyllabusService, SyllabusItem } from '../../../services/syllabus.servic
     MatListModule,
     MatSelectModule,
     MatSnackBarModule,
+    MatButtonToggleModule,
     AppCardDirective
   ],
   templateUrl: './live-landing.component.html',
@@ -46,6 +48,7 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
   currentUser: any = null;
   generatedQuestions: any[] = [];
   isGenerating = false;
+  selectionMode: 'random' | 'manual' = 'random';
 
   boards: string[] = [];
   standards: string[] = [];
@@ -73,8 +76,7 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
       chapters: [[] as string[]],
       count: [10, [Validators.required, Validators.min(1), Validators.max(100)]],
       bufferSeconds: [30, [Validators.required, Validators.min(0), Validators.max(600)]],
-      perQuestionSeconds: [20, [Validators.required, Validators.min(5), Validators.max(600)]],
-      questionIdsCsv: ['']
+      perQuestionSeconds: [20, [Validators.required, Validators.min(5), Validators.max(600)]]
     });
 
     this.joinForm = this.fb.group({
@@ -111,8 +113,11 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     const selectedChapters: string[] = this.createForm.value.chapters || [];
     const bufferSeconds = Number(this.createForm.value.bufferSeconds) || 0;
     const perQuestionSeconds = Number(this.createForm.value.perQuestionSeconds) || 20;
-    const csv = String(this.createForm.value.questionIdsCsv || '').trim();
-    const questionIds = csv ? csv.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
+    // Use generated list; if empty, attempt to randomize once
+    if (!this.generatedQuestions.length) {
+      await this.generateQuestionIds();
+    }
+    const questionIds = (this.generatedQuestions || []).map((q: any) => q.id);
 
     const user = this.currentUser;
     if (!user?.uid || !user?.displayName) {
@@ -193,8 +198,6 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
         qs = await this.quizService.fetchQuestionsFromRandomChapter();
       }
       this.generatedQuestions = qs;
-      const ids = qs.slice(0, 100).map((q: any) => q.id).join(', ');
-      this.createForm.patchValue({ questionIdsCsv: ids });
     } catch (err: any) {
       console.error(err);
       this.errorMsg = err?.message || 'Failed to generate questions.';
@@ -204,7 +207,7 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
   }
 
   copyIds(): void {
-    const ids = String(this.createForm.value.questionIdsCsv || '').trim();
+    const ids = (this.generatedQuestions || []).map((q: any) => q.id).join(', ');
     if (!ids) return;
     this.clipboard.copy(ids);
     this.snackBar.open('Question IDs copied', 'OK', { duration: 2000 });

@@ -49,7 +49,6 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
   generatedQuestions: any[] = [];
   isGenerating = false;
   selectionMode: 'random' | 'manual' = 'random';
-  lobbyOpensAt?: Date;
 
   boards: string[] = [];
   standards: string[] = [];
@@ -57,6 +56,8 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
   chapters: string[] = [];
 
   private syllabus: SyllabusItem[] = [];
+  private upcomingUnsub?: () => void;
+  upcomingSessions: { id: string; joinCode: string; hostName: string; scheduledStartAt: any; bufferSeconds: number }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -103,13 +104,14 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     // Default start time: now + 10 minutes
     const start = new Date(Date.now() + 10 * 60 * 1000);
     this.createForm.addControl('startAt', this.fb.control(this.toDateTimeLocal(start), [Validators.required]));
-    this.updateLobbyOpensAt();
-    this.createForm.get('bufferMinutes')?.valueChanges.subscribe(() => this.updateLobbyOpensAt());
-    this.createForm.get('startAt')?.valueChanges.subscribe(() => this.updateLobbyOpensAt());
+
+    // Observe upcoming sessions for join list
+    this.observeUpcoming();
   }
 
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
+    this.upcomingUnsub?.();
   }
 
   async createSession(): Promise<void> {
@@ -224,6 +226,27 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     this.snackBar.open('Question IDs copied', 'OK', { duration: 2000 });
   }
 
+  // Join a listed upcoming session directly
+  async joinUpcoming(sessionId: string): Promise<void> {
+    this.errorMsg = '';
+    const user = this.currentUser;
+    if (!user?.uid || !user?.displayName) {
+      this.errorMsg = 'You must be signed in to join a session.';
+      return;
+    }
+    try {
+      await this.live.joinSessionDirect(sessionId, {
+        uid: user.uid,
+        displayName: user.displayName,
+        photoURL: user.photoURL || null
+      });
+      this.router.navigate(['/live/play', sessionId]);
+    } catch (err: any) {
+      console.error(err);
+      this.errorMsg = err?.message || 'Failed to join session.';
+    }
+  }
+
   private onBoardChange(board: string, resetStandard: boolean = true) {
     const standards = this.syllabus
       .filter(s => !board || s.board === board)
@@ -267,12 +290,34 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
   }
 
-  private updateLobbyOpensAt() {
+  // Derived schedule getters to avoid stale reads
+  get startAtDate(): Date | null {
     const startAtStr: string = this.createForm.value.startAt;
-    const bufferMinutes = Number(this.createForm.value.bufferMinutes) || 0;
-    const bufferSeconds = bufferMinutes * 60;
-    if (!startAtStr) { this.lobbyOpensAt = undefined; return; }
-    const start = new Date(startAtStr);
-    this.lobbyOpensAt = new Date(start.getTime() - bufferSeconds * 1000);
+    if (!startAtStr) return null;
+    return new Date(startAtStr);
+  }
+
+  get lobbyOpensAt(): Date | null {
+    const start = this.startAtDate;
+    if (!start) return null;
+    const bufferMinutes = Number(this.createForm.get('bufferMinutes')?.value) || 0;
+    return new Date(start.getTime() - bufferMinutes * 60000);
+  }
+
+  get isAdmin(): boolean {
+    return (this.currentUser?.role || '').toLowerCase() === 'admin';
+  }
+
+  private observeUpcoming() {
+    this.upcomingUnsub?.();
+    this.upcomingUnsub = this.live.observeUpcomingSessions((items) => {
+      this.upcomingSessions = items.map((s: any) => ({
+        id: s.id,
+        joinCode: s.joinCode,
+        hostName: s.hostName,
+        scheduledStartAt: s.scheduledStartAt,
+        bufferSeconds: Number(s.bufferSeconds || 0)
+      }));
+    });
   }
 }

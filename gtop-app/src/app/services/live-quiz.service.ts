@@ -8,6 +8,7 @@ import {
   getDoc,
   query,
   where,
+  orderBy,
   limit,
   onSnapshot,
   serverTimestamp,
@@ -84,6 +85,35 @@ export class LiveQuizService {
 
     await setDoc(participantRef, participant, { merge: true } as any);
     return { sessionId };
+  }
+
+  /**
+   * Join a session directly by ID (used for upcoming sessions list)
+   */
+  async joinSessionDirect(sessionId: string, user: { uid: string; displayName: string; photoURL?: string | null }): Promise<void> {
+    const participantRef = doc(this.firestore, `LiveSessions/${sessionId}/participants/${user.uid}`);
+    const participant: LiveParticipant = {
+      uid: user.uid,
+      displayName: user.displayName,
+      photoURL: user.photoURL ?? null,
+      joinedAt: serverTimestamp(),
+      ready: true
+    };
+    await setDoc(participantRef, participant, { merge: true } as any);
+  }
+
+  /**
+   * Observe upcoming sessions in lobby status ordered by start time.
+   */
+  observeUpcomingSessions(cb: (sessions: (LiveSession & { id: string })[]) => void, limitCount = 20): () => void {
+    const col = collection(this.firestore, 'LiveSessions');
+    const now = Timestamp.now();
+    // Show sessions with status=lobby and starting now or later
+    const q = query(col, where('status', '==', 'lobby'), where('scheduledStartAt', '>=', now), orderBy('scheduledStartAt', 'asc'), limit(limitCount));
+    return onSnapshot(q, (snap) => {
+      const items = snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }));
+      cb(items as any);
+    });
   }
 
   /**

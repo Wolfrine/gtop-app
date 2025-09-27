@@ -77,8 +77,8 @@
       </div>
 
       <div class="schedule-inline">
-        <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime' }}</span>
-        <span class="chip">First question: {{ createForm.value.startAt ? (createForm.value.startAt | date:'shortTime') : '' }}</span>
+        <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime':'Asia/Kolkata' }}</span>
+        <span class="chip">First question: {{ createForm.value.startAt ? (createForm.value.startAt | date:'shortTime':'Asia/Kolkata') : '' }}</span>
       </div>
     </form>
 

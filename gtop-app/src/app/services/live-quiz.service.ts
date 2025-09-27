@@ -57,7 +57,8 @@ export class LiveQuizService {
       overrideAt: null,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      resultLinked: false
+      resultLinked: false,
+      schedule: { '0': opts.scheduledStartAt }
     };
 
     await setDoc(sessionRef, payload);
@@ -211,7 +212,14 @@ export class LiveQuizService {
    */
   async overrideNext(sessionId: string, nextIndex: number): Promise<void> {
     const ref = doc(this.firestore, `LiveSessions/${sessionId}`);
-    await setDoc(ref, { overrideIndex: nextIndex, overrideAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true } as any);
+    const data: any = {
+      overrideIndex: nextIndex,
+      overrideAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+    // Stamp schedule for the new index with server time so all clients align
+    (data as any)[`schedule.${String(nextIndex)}`] = serverTimestamp();
+    await setDoc(ref, data, { merge: true } as any);
   }
 
   /**

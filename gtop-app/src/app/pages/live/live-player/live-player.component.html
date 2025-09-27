@@ -1,11 +1,27 @@
 <mat-card appCard>
   <h2>Live Player</h2>
   <div class="schedule" *ngIf="startAt as st">
-    <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime' }}</span>
-    <span class="chip">Starts: {{ st | date:'shortTime' }}</span>
+    <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime':'Asia/Kolkata' }}</span>
+    <span class="chip">Starts: {{ st | date:'shortTime':'Asia/Kolkata' }}</span>
     <span class="countdown" *ngIf="countdownLabel">
       {{ countdownLabel }} <strong>{{ countdownValue }}</strong>
     </span>
   </div>
   <p>Waiting room. The quiz will start automatically at the scheduled time.</p>
+
+  <div class="roster">
+    <h3>Participants ({{ participants.length }})</h3>
+    <mat-list>
+      <mat-list-item *ngFor="let p of participants">
+        <mat-icon matListItemIcon>person</mat-icon>
+        <div matListItemTitle>{{ p.displayName }}</div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+
+  <div class="question" *ngIf="currentIndex >= 0 && questions[currentIndex] as q">
+    <h3>Question {{ currentIndex + 1 }} of {{ total }}</h3>
+    <p><strong>{{ q.question }}</strong></p>
+    <small>Answering UI arrives in the next phase.</small>
+  </div>
 </mat-card>

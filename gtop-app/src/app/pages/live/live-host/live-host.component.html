@@ -7,11 +7,15 @@
   </div>
 
   <div class="schedule" *ngIf="startAt as st">
-    <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime' }}</span>
-    <span class="chip">Starts: {{ st | date:'shortTime' }}</span>
-    <span class="countdown" *ngIf="countdownLabel">
-      {{ countdownLabel }} <strong>{{ countdownValue }}</strong>
-    </span>
+    <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime':'Asia/Kolkata' }}</span>
+    <span class="chip">Starts: {{ st | date:'shortTime':'Asia/Kolkata' }}</span>
+    <span class="countdown" *ngIf="countdownLabel">{{ countdownLabel }} <strong>{{ countdownValue }}</strong></span>
+  </div>
+
+  <div class="controls" *ngIf="total > 0">
+    <button mat-stroked-button color="primary" (click)="jump(-1)" [disabled]="currentIndex <= 0">Prev</button>
+    <button mat-stroked-button color="primary" (click)="jump(1)" [disabled]="currentIndex >= total - 1">Next</button>
+    <button mat-stroked-button color="warn" (click)="endSession()">End Session</button>
   </div>
 
   <div class="roster">

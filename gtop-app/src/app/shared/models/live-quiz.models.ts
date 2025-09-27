@@ -34,6 +34,10 @@ export interface LiveSession {
   effectiveStartAt: Timestamp; // scheduledStartAt + bufferSeconds (computed at creation time)
   autoAdvance: boolean;        // If true, clients compute current index from schedule
 
+  // Optional per-question schedule anchor: index -> start time (Timestamp)
+  // When host jumps, the target index entry gets stamped with server time.
+  schedule?: { [index: string]: Timestamp };
+
   // Flow control
   status: SessionStatus;       // 'lobby' | 'active' | 'ended'
   overrideIndex: number | null; // Host can force jump to index
@@ -89,4 +93,3 @@ export interface ComputeScheduleResult {
   effectiveStartAt: Date;
   indexStartAt: (index: number) => Date;
 }
-

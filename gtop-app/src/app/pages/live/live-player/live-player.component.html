@@ -1,6 +1,11 @@
 <mat-card appCard>
   <h2>Live Player</h2>
-  <p>Session ID: <strong>{{ sessionId }}</strong></p>
-  <p>Answering and per-question leaderboard will be added in Phase 5.</p>
+  <div class="schedule" *ngIf="startAt as st">
+    <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime' }}</span>
+    <span class="chip">Starts: {{ st | date:'shortTime' }}</span>
+    <span class="countdown" *ngIf="countdownLabel">
+      {{ countdownLabel }} <strong>{{ countdownValue }}</strong>
+    </span>
+  </div>
+  <p>Waiting room. The quiz will start automatically at the scheduled time.</p>
 </mat-card>
-

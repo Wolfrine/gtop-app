@@ -1,4 +1,5 @@
-.host-wrapper {
-  display: block;
-}
-
+.meta { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+.schedule { display:flex; gap:12px; flex-wrap:wrap; margin:10px 0; }
+.chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:rgba(37,99,235,.10); color:#1d4ed8; font-weight:600; font-size:12px; }
+.countdown { font-weight:600; color:#0f172a; }
+.roster { margin-top:12px; }

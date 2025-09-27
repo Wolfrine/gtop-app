@@ -1,7 +1,26 @@
 <mat-card appCard>
   <h2>Live Host</h2>
-  <p>Session ID: <strong>{{ sessionId }}</strong></p>
-  <p>Join Code: <strong>{{ joinCode || '—' }}</strong></p>
-  <p>Status: <strong>{{ status || '—' }}</strong></p>
-  <p>This is a placeholder host screen. Lobby, roster, and controls will arrive in Phase 3.</p>
+  <div class="meta">
+    <div>Session: <strong>{{ sessionId }}</strong></div>
+    <div>Join Code: <strong>{{ joinCode || '—' }}</strong></div>
+    <div>Status: <strong>{{ status || '—' }}</strong></div>
+  </div>
+
+  <div class="schedule" *ngIf="startAt as st">
+    <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime' }}</span>
+    <span class="chip">Starts: {{ st | date:'shortTime' }}</span>
+    <span class="countdown" *ngIf="countdownLabel">
+      {{ countdownLabel }} <strong>{{ countdownValue }}</strong>
+    </span>
+  </div>
+
+  <div class="roster">
+    <h3>Participants ({{ participants.length }})</h3>
+    <mat-list>
+      <mat-list-item *ngFor="let p of participants">
+        <mat-icon matListItemIcon>person</mat-icon>
+        <div matListItemTitle>{{ p.displayName }}</div>
+      </mat-list-item>
+    </mat-list>
+  </div>
 </mat-card>

@@ -5,12 +5,17 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Router } from '@angular/router';
 import { LiveQuizService } from '../../../services/live-quiz.service';
 import { Timestamp } from '@angular/fire/firestore';
 import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
 import { AppCardDirective } from '../../../shared/ui/app-card/app-card.directive';
+import { QuizService } from '../../../services/quiz.service';
 
 @Component({
   selector: 'app-live-landing',
@@ -22,6 +27,9 @@ import { AppCardDirective } from '../../../shared/ui/app-card/app-card.directive
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
+    MatListModule,
+    MatSnackBarModule,
     AppCardDirective
   ],
   templateUrl: './live-landing.component.html',
@@ -33,12 +41,17 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
   errorMsg = '';
   userSub?: Subscription;
   currentUser: any = null;
+  generatedQuestions: any[] = [];
+  isGenerating = false;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private live: LiveQuizService,
-    private auth: AuthService
+    private auth: AuthService,
+    private quizService: QuizService,
+    private clipboard: Clipboard,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -125,5 +138,28 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
       console.error(err);
       this.errorMsg = err?.message || 'Failed to join session.';
     }
+  }
+
+  async generateQuestionIds(): Promise<void> {
+    this.errorMsg = '';
+    this.isGenerating = true;
+    try {
+      const qs = await this.quizService.fetchQuestionsFromRandomChapter();
+      this.generatedQuestions = qs;
+      const ids = qs.map((q: any) => q.id).join(', ');
+      this.createForm.patchValue({ questionIdsCsv: ids });
+    } catch (err: any) {
+      console.error(err);
+      this.errorMsg = err?.message || 'Failed to generate questions.';
+    } finally {
+      this.isGenerating = false;
+    }
+  }
+
+  copyIds(): void {
+    const ids = String(this.createForm.value.questionIdsCsv || '').trim();
+    if (!ids) return;
+    this.clipboard.copy(ids);
+    this.snackBar.open('Question IDs copied', 'OK', { duration: 2000 });
   }
 }

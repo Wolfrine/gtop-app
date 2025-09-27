@@ -18,10 +18,30 @@
         <input matInput type="text" formControlName="questionIdsCsv" placeholder="abc123, def456, ..." />
       </mat-form-field>
 
-      <button mat-flat-button color="primary" type="submit" [disabled]="createForm.invalid">
-        Create & Go to Host
-      </button>
+      <div class="actions">
+        <button mat-stroked-button color="accent" type="button" (click)="generateQuestionIds()" [disabled]="isGenerating">
+          <mat-icon>bolt</mat-icon>
+          Auto-generate (10)
+        </button>
+        <button mat-stroked-button type="button" (click)="copyIds()" [disabled]="!createForm.value.questionIdsCsv">
+          <mat-icon>content_copy</mat-icon>
+          Copy IDs
+        </button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="createForm.invalid">
+          Create & Go to Host
+        </button>
+      </div>
     </form>
+
+    <div *ngIf="generatedQuestions.length" class="preview">
+      <h3>Generated Questions ({{ generatedQuestions.length }})</h3>
+      <mat-list>
+        <mat-list-item *ngFor="let q of generatedQuestions; let i = index">
+          <div matListItemTitle>#{{ i + 1 }} · {{ q.title || (q.question | slice:0:60) }}</div>
+          <div matListItemLine class="id">ID: {{ q.id }}</div>
+        </mat-list-item>
+      </mat-list>
+    </div>
   </mat-card>
 
   <mat-card appCard>
@@ -40,4 +60,3 @@
 
   <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
 </div>
-

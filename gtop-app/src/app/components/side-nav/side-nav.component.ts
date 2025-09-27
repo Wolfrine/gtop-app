@@ -41,6 +41,7 @@ export class SideNavComponent implements OnInit {
     getAdminMenu(): MenuItem[] {
         return [
             { label: 'Start Quiz', icon: 'play_arrow', route: '/quiz' },
+            { label: 'Live Quizzes', icon: 'bolt', route: '/live', tooltip: 'Host or join a live session' },
             { label: 'Performance Reports', icon: 'insights', route: '/reports' },
             { label: 'User Dashboard', icon: 'dashboard', route: '/dashboard' },
 
@@ -59,6 +60,7 @@ export class SideNavComponent implements OnInit {
     getUserMenu(): MenuItem[] {
         return [
             { label: 'Start Quiz', icon: 'play_arrow', route: '/quiz' },
+            { label: 'Join Live Quiz', icon: 'bolt', route: '/live', tooltip: 'Enter a code to join' },
             { label: 'Performance Reports', icon: 'insights', route: '/reports' },
             { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
         ];

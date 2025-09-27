@@ -1,0 +1,43 @@
+<div class="live-landing grid">
+  <mat-card appCard>
+    <h2>Create a Live Session</h2>
+
+    <form [formGroup]="createForm" (ngSubmit)="createSession()">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Buffer (seconds)</mat-label>
+        <input matInput type="number" formControlName="bufferSeconds" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Per Question (seconds)</mat-label>
+        <input matInput type="number" formControlName="perQuestionSeconds" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Question IDs (comma-separated, optional)</mat-label>
+        <input matInput type="text" formControlName="questionIdsCsv" placeholder="abc123, def456, ..." />
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit" [disabled]="createForm.invalid">
+        Create & Go to Host
+      </button>
+    </form>
+  </mat-card>
+
+  <mat-card appCard>
+    <h2>Join a Session</h2>
+    <form [formGroup]="joinForm" (ngSubmit)="joinByCode()">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Join Code</mat-label>
+        <input matInput type="text" formControlName="joinCode" />
+      </mat-form-field>
+
+      <button mat-flat-button color="accent" type="submit" [disabled]="joinForm.invalid">
+        Join & Play
+      </button>
+    </form>
+  </mat-card>
+
+  <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
+</div>
+

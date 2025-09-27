@@ -1,0 +1,129 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
+import { LiveQuizService } from '../../../services/live-quiz.service';
+import { Timestamp } from '@angular/fire/firestore';
+import { AuthService } from '../../../services/auth.service';
+import { Subscription } from 'rxjs';
+import { AppCardDirective } from '../../../shared/ui/app-card/app-card.directive';
+
+@Component({
+  selector: 'app-live-landing',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    AppCardDirective
+  ],
+  templateUrl: './live-landing.component.html',
+  styleUrls: ['./live-landing.component.scss']
+})
+export class LiveLandingComponent implements OnInit, OnDestroy {
+  createForm!: FormGroup;
+  joinForm!: FormGroup;
+  errorMsg = '';
+  userSub?: Subscription;
+  currentUser: any = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private live: LiveQuizService,
+    private auth: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    this.createForm = this.fb.group({
+      bufferSeconds: [30, [Validators.required, Validators.min(0), Validators.max(600)]],
+      perQuestionSeconds: [20, [Validators.required, Validators.min(5), Validators.max(600)]],
+      questionIdsCsv: ['']
+    });
+
+    this.joinForm = this.fb.group({
+      joinCode: ['', [Validators.required, Validators.minLength(4)]]
+    });
+
+    this.userSub = this.auth.user$.subscribe(u => this.currentUser = u);
+  }
+
+  ngOnDestroy(): void {
+    this.userSub?.unsubscribe();
+  }
+
+  async createSession(): Promise<void> {
+    this.errorMsg = '';
+    if (this.createForm.invalid) return;
+
+    const bufferSeconds = Number(this.createForm.value.bufferSeconds) || 0;
+    const perQuestionSeconds = Number(this.createForm.value.perQuestionSeconds) || 20;
+    const csv = String(this.createForm.value.questionIdsCsv || '').trim();
+    const questionIds = csv ? csv.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
+
+    const user = this.currentUser;
+    if (!user?.uid || !user?.displayName) {
+      this.errorMsg = 'You must be signed in to create a session.';
+      return;
+    }
+
+    try {
+      const now = Timestamp.now();
+      const { sessionId } = await this.live.createSession({
+        hostId: user.uid,
+        hostName: user.displayName,
+        scope: {
+          board: user.board || 'Unknown',
+          standard: user.standard || 'Unknown'
+        },
+        questionIds,
+        scheduledStartAt: now,
+        bufferSeconds,
+        perQuestionSeconds,
+        autoAdvance: true
+      });
+
+      this.router.navigate(['/live/host', sessionId]);
+    } catch (err: any) {
+      console.error(err);
+      this.errorMsg = err?.message || 'Failed to create session.';
+    }
+  }
+
+  async joinByCode(): Promise<void> {
+    this.errorMsg = '';
+    if (this.joinForm.invalid) return;
+
+    const code = String(this.joinForm.value.joinCode || '').trim().toUpperCase();
+    const user = this.currentUser;
+    if (!user?.uid || !user?.displayName) {
+      this.errorMsg = 'You must be signed in to join a session.';
+      return;
+    }
+
+    try {
+      const joined = await this.live.joinSessionByCode(code, {
+        uid: user.uid,
+        displayName: user.displayName,
+        photoURL: user.photoURL || null
+      });
+
+      if (!joined) {
+        this.errorMsg = 'No active lobby found for this code.';
+        return;
+      }
+
+      this.router.navigate(['/live/play', joined.sessionId]);
+    } catch (err: any) {
+      console.error(err);
+      this.errorMsg = err?.message || 'Failed to join session.';
+    }
+  }
+}

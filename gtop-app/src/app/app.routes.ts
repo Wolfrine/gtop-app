@@ -16,6 +16,9 @@ import { UserListComponent } from './pages/admin-dashboard/user-list/user-list.c
 import { SyllabusPreviewComponent } from './pages/syllabus-preview/syllabus-preview.component';
 import { LogsComponent } from './pages/logs/logs.component';
 import { UiKitchenComponent } from './pages/ui-kitchen/ui-kitchen.component';
+import { LiveLandingComponent } from './pages/live/live-landing/live-landing.component';
+import { LiveHostComponent } from './pages/live/live-host/live-host.component';
+import { LivePlayerComponent } from './pages/live/live-player/live-player.component';
 
 
 
@@ -74,6 +77,25 @@ export const routes: Routes = [
     {
         path: 'quiz-summary',
         component: QuizSummaryComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user', 'admin'] }
+    },
+    // Live Quiz
+    {
+        path: 'live',
+        component: LiveLandingComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user', 'admin'] }
+    },
+    {
+        path: 'live/host/:sessionId',
+        component: LiveHostComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user', 'admin'] }
+    },
+    {
+        path: 'live/play/:sessionId',
+        component: LivePlayerComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['user', 'admin'] }
     },

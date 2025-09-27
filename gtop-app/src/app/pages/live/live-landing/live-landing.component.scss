@@ -1,0 +1,19 @@
+.live-landing {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .live-landing {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.w-100 { width: 100%; }
+
+.error {
+  grid-column: 1 / -1;
+  color: #b00020;
+}
+

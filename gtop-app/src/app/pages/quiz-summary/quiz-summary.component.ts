@@ -60,6 +60,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         const navState: any = (this.router.getCurrentNavigation()?.extras?.state) || (history.state || {});
         const summaries = navState?.questionSummaries;
         const navSession = navState?.session;
+        const fromLive = !!navState?.fromLive;
+        const sessionIdFromNav = navState?.sessionId || null;
 
         if (Array.isArray(summaries) && summaries.length) {
             // Expand summaries to full questions
@@ -107,7 +109,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                     standard: sample.standard,
                     subject: sample.subject,
                     chapter: sample.chapter,
-                    quizType: 'quick', // Make dynamic if needed
+                    quizType: fromLive ? 'live' : 'quick',
+                    sessionId: fromLive ? sessionIdFromNav : undefined,
                     questions: this.questions.map(q => ({
                         id: q.id,
                         selectedIndex: q.selectedIndex,

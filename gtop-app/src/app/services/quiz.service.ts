@@ -178,6 +178,7 @@ export class QuizService {
         subject: string;
         chapter: string;
         quizType: string;
+        sessionId?: string;
         questions: {
             id: string;
             selectedIndex: number;
@@ -192,7 +193,7 @@ export class QuizService {
             const wrongAnswers = totalQuestions - correctAnswers;
             const percentage = Math.round((correctAnswers / totalQuestions) * 100);
 
-            const quizDoc = {
+            const quizDoc: any = {
                 userId,
                 userName: resultData.userName,
                 standard: resultData.standard,
@@ -211,6 +212,9 @@ export class QuizService {
                     isCorrect: q.selectedIndex === q.correctIndex
                 }))
             };
+            if (resultData.sessionId) {
+                quizDoc.sessionId = resultData.sessionId;
+            }
 
             const resultRef = doc(this.firestore, `QuizResults/${quizId}`);
             await setDoc(resultRef, quizDoc);

@@ -32,7 +32,11 @@ export interface LiveSession {
   bufferSeconds: number;       // Extra time in seconds to allow joining (lobby countdown)
   perQuestionSeconds: number;  // How long each question stays active
   effectiveStartAt: Timestamp; // deprecated; same as scheduledStartAt in v1
-  autoAdvance: boolean;        // clients compute current index from scheduledStartAt
+  autoAdvance: boolean;        // clients compute current index from anchorAt/anchorIndex
+
+  // Anchor pair for deterministic schedule
+  anchorIndex: number;         // Base question index at the anchor time
+  anchorAt: Timestamp;         // Server timestamp for the anchor
 
   // Flow control
   status: SessionStatus;       // 'lobby' | 'active' | 'ended'

@@ -63,3 +63,4 @@ A GitHub Action workflow (`.github/workflows/firebase-deploy.yml`) deploys the A
 4. Implement footer version bump on each change done by codex
 5. AI/LLM based integration for quiz addition - which will get manually reviewed
 6. Reports to include subject and chapter wise overview
+7. Dashboard Last Score is not showing the latest one. Reports last score is proper.

@@ -36,6 +36,8 @@ export class LiveHostComponent implements OnInit, OnDestroy {
   perQuestionSeconds = 20;
   currentIndex = -1;
   total = 0;
+  anchorIndex = 0;
+  anchorAt?: Date;
   startEdit: string = '';
 
   participants: { uid: string; displayName: string; photoURL?: string }[] = [];
@@ -50,6 +52,8 @@ export class LiveHostComponent implements OnInit, OnDestroy {
       this.bufferSeconds = Number(s?.bufferSeconds || 0);
       this.perQuestionSeconds = Number(s?.perQuestionSeconds || 20);
       this.total = Array.isArray(s?.questionIds) ? s.questionIds.length : 0;
+      this.anchorIndex = Number(s?.anchorIndex || 0);
+      this.anchorAt = s?.anchorAt?.toDate ? s.anchorAt.toDate() : undefined;
       this.computeLobbyOpen();
       this.startEdit = this.startAt ? this.toDateTimeLocal(this.startAt) : '';
     });
@@ -76,6 +80,7 @@ export class LiveHostComponent implements OnInit, OnDestroy {
 
   private updateCountdown() {
     const now = new Date();
+    if (this.status === 'ended') { this.countdownLabel = 'Ended'; this.countdownValue = ''; return; }
     if (!this.startAt) {
       this.countdownLabel = '';
       this.countdownValue = '';
@@ -91,11 +96,11 @@ export class LiveHostComponent implements OnInit, OnDestroy {
       this.countdownValue = this.formatDiff(this.startAt, now);
       return;
     }
-    // Active — compute current index and time left
-    // Compute from scheduledStartAt only
-    const elapsedSec = Math.floor((now.getTime() - this.startAt.getTime()) / 1000);
-    const scheduleIndex = Math.floor(elapsedSec / Math.max(1, this.perQuestionSeconds));
-    this.currentIndex = Math.min(this.total > 0 ? this.total - 1 : 0, Math.max(0, scheduleIndex));
+    // Active — compute using anchor pair (anchorAt/anchorIndex)
+    const base = this.anchorAt ?? this.startAt;
+    const elapsedSec = Math.max(0, Math.floor((now.getTime() - base.getTime()) / 1000));
+    const advance = Math.floor(elapsedSec / Math.max(1, this.perQuestionSeconds));
+    this.currentIndex = Math.min(this.total > 0 ? this.total - 1 : 0, Math.max(0, this.anchorIndex + advance));
     const intoQuestion = elapsedSec % Math.max(1, this.perQuestionSeconds);
     const remaining = Math.max(0, this.perQuestionSeconds - intoQuestion);
     this.countdownLabel = `Q ${this.total ? this.currentIndex + 1 : 0}/${this.total || 0} · Time left`;
@@ -118,6 +123,18 @@ export class LiveHostComponent implements OnInit, OnDestroy {
 
   endSession() {
     this.live.endSession(this.sessionId);
+  }
+
+  prev() {
+    if (this.total <= 0) return;
+    const next = Math.max(0, this.currentIndex - 1);
+    this.live.overrideNext(this.sessionId, next);
+  }
+
+  next() {
+    if (this.total <= 0) return;
+    const next = Math.min(this.total - 1, this.currentIndex + 1);
+    this.live.overrideNext(this.sessionId, next);
   }
 
   updateStart(): void {

@@ -55,6 +55,8 @@ export class LiveQuizService {
       status: 'lobby',
       overrideIndex: null,
       overrideAt: null,
+      anchorIndex: 0,
+      anchorAt: opts.scheduledStartAt,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       resultLinked: false
@@ -214,6 +216,8 @@ export class LiveQuizService {
     await setDoc(ref, {
       overrideIndex: nextIndex,
       overrideAt: serverTimestamp(),
+      anchorIndex: nextIndex,
+      anchorAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }, { merge: true } as any);
   }
@@ -237,7 +241,8 @@ export class LiveQuizService {
     const payload: any = {
       scheduledStartAt: ts,
       updatedAt: serverTimestamp(),
-      [`schedule.0`]: ts,
+      anchorIndex: 0,
+      anchorAt: ts,
     };
     if (newStart.getTime() <= now.getTime()) {
       payload.status = 'active';
@@ -254,9 +259,10 @@ export class LiveQuizService {
     const ref = doc(this.firestore, `LiveSessions/${sessionId}`);
     await setDoc(ref, {
       scheduledStartAt: serverTimestamp(),
+      anchorIndex: 0,
+      anchorAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      status: 'active',
-      [`schedule.0`]: serverTimestamp()
+      status: 'active'
     }, { merge: true } as any);
   }
 

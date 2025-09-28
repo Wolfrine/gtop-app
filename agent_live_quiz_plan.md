@@ -108,7 +108,8 @@ Phased Delivery (small, verifiable steps)
 - Phase 5 — Answering + leaderboard: write submissions; subscribe to answers for current index.
 - Phase 6 — Host/viewer monitor + overrides: controls and monitoring views.
 - Phase 7 — Results save + summary: compute, save via QuizService, update linkage, reuse summary UI.
-- Phase 8 — Hardening: duplicate‑submit guards, re‑join handling, drift tolerance.
+- Phase 8 — Hardening: duplicate-submit guards, re‑join handling, drift tolerance.
+  - Add clock skew mitigation: calibrate client/server offset by reading a `serverTimestamp` once and apply offset to local `Date.now()` in schedule math to avoid user device clock errors.
 
 Out‑of‑Scope / Future Enhancements
 - Short join links and share UX.
@@ -123,4 +124,3 @@ Observations
 - When users selects Live Quiz to join -> in case the board and standard are different then ask prompt whether they want to join this different board/standard quiz.
 - Use existing Quiz component to display question/ option/etc. To add timer and participant leaderboard per question component in case its a live quiz
 - Similarly Quiz summary component can be reused - only leaderboard to be added and icon against each question in case user wants to see question specific participants details
-

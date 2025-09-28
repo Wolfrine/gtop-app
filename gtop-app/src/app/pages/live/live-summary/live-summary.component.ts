@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -15,6 +15,7 @@ import { QuizService } from '../../../services/quiz.service';
   styleUrls: ['./live-summary.component.scss']
 })
 export class LiveSummaryComponent implements OnInit, OnDestroy {
+  @Input() sessionIdInput?: string;
   sessionId = '';
   results: any[] = [];
   loading = true;
@@ -22,7 +23,7 @@ export class LiveSummaryComponent implements OnInit, OnDestroy {
   constructor(private route: ActivatedRoute, private router: Router, private quiz: QuizService) {}
 
   ngOnInit(): void {
-    this.sessionId = this.route.snapshot.paramMap.get('sessionId') || '';
+    this.sessionId = this.sessionIdInput || this.route.snapshot.paramMap.get('sessionId') || '';
     if (!this.sessionId) { this.loading = false; return; }
     this.load();
   }

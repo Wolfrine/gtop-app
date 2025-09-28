@@ -124,7 +124,17 @@ export class LiveHostComponent implements OnInit, OnDestroy {
     this.countdownLabel = `Q ${this.total ? this.currentIndex + 1 : 0}/${this.total || 0} · Time left`;
     this.countdownValue = this.formatSec(remaining);
 
-    // Auto-end when last question time elapses (host triggers write once)
+    // Compute absolute quiz end time from base anchor and question count
+    if (!this.endedFired && this.total > 0 && this.status !== 'ended') {
+      const remainingQuestions = Math.max(0, this.total - this.anchorIndex);
+      const endAtMs = base.getTime() + remainingQuestions * this.perQuestionSeconds * 1000;
+      if (now.getTime() >= endAtMs) {
+        this.endedFired = true;
+        try { this.live.endSession(this.sessionId); } catch {}
+        return;
+      }
+    }
+    // Fallback: if exactly on last boundary
     if (!this.endedFired && this.total > 0 && this.currentIndex === this.total - 1 && remaining === 0 && this.status !== 'ended') {
       this.endedFired = true;
       try { this.live.endSession(this.sessionId); } catch {}

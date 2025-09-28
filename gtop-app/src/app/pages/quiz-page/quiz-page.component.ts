@@ -48,6 +48,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     leaderboard: { uid: string; displayName: string; responseMs: number }[] = [];
     answersUnsub: (() => void) | null = null;
     sessionUnsub: (() => void) | null = null;
+    participantsUnsub: (() => void) | null = null;
+    participantsCount = 0;
     private retryContext: RetryContext | null = null;
 
     constructor(
@@ -79,6 +81,10 @@ export class QuizPageComponent implements OnInit, OnDestroy {
                     });
                 }
                 this.updateFromSchedule();
+            });
+            // Track participants count for per-question submission summary
+            this.participantsUnsub = this.liveService.observeParticipants(this.sessionId, (list) => {
+                this.participantsCount = Array.isArray(list) ? list.length : 0;
             });
             // Tick every second for timer updates
             const t = setInterval(() => this.updateFromSchedule(), 1000);
@@ -130,6 +136,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         if (this.sessionUnsub) this.sessionUnsub();
         if ((this as any)._tick) clearInterval((this as any)._tick);
         if (this.answersUnsub) this.answersUnsub();
+        if (this.participantsUnsub) this.participantsUnsub();
     }
 
 
@@ -139,6 +146,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         const q = this.questions[this.currentQuestionIndex];
         if (!q) return;
         if (this.liveMode) {
+            if (this.timeRemainingSec <= 0) return; // time up
             if (q.selectedIndex != null) return; // freeze after first selection in live mode
             q.selectedIndex = optionIndex;
             if (!this.sessionId) return;

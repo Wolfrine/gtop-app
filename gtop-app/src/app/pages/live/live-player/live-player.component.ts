@@ -96,20 +96,12 @@ export class LivePlayerComponent implements OnInit, OnDestroy {
       this.countdownValue = this.formatDiff(this.startAt, now);
       return;
     }
-    // If started, redirect to quiz page once
-    if (!this.redirected) {
+    // If started, redirect to quiz page once when status becomes active
+    if (this.status === 'active' && !this.redirected) {
       this.redirected = true;
       this.router.navigate(['/quiz'], { queryParams: { live: 1, sessionId: this.sessionId } });
     }
-    const base = this.anchorAt ?? this.startAt!;
-    const elapsedSec = Math.max(0, Math.floor((now.getTime() - base.getTime()) / 1000));
-    const advance = Math.floor(elapsedSec / Math.max(1, this.perQuestionSeconds));
-    this.currentIndex = Math.min(this.total > 0 ? this.total - 1 : 0, Math.max(0, this.anchorIndex + advance));
-    const intoQuestion = elapsedSec % Math.max(1, this.perQuestionSeconds);
-    const remaining = Math.max(0, this.perQuestionSeconds - intoQuestion);
-    this.timeRemainingSec = remaining;
-    this.countdownLabel = `Q ${this.total ? this.currentIndex + 1 : 0}/${this.total || 0} · Time left`;
-    this.countdownValue = this.formatSec(remaining);
+    // Stay in lobby; show only countdowns/roster
   }
 
   private formatDiff(target: Date, now: Date): string {

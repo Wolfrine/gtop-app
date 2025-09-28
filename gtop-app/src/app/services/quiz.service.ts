@@ -250,6 +250,22 @@ export class QuizService {
         }
     }
 
+    // Live Leaderboard: fetch all results for a session
+    async fetchLiveResultsForSession(sessionId: string): Promise<any[]> {
+        try {
+            const quizResultsRef = collection(this.firestore, 'QuizResults');
+            const fetchQuery = query(
+                quizResultsRef,
+                where('sessionId', '==', sessionId)
+            );
+            const snapshot = await getDocs(fetchQuery);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e) {
+            console.error('Error fetching live session results:', e);
+            return [];
+        }
+    }
+
     async prepareRetryFromExistingAttempt(options: {
         questions: any[];
         incorrectOnly?: boolean;

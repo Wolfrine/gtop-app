@@ -1,0 +1,12 @@
+<mat-card appCard>
+  <h2>Live Leaderboard</h2>
+  <p *ngIf="loading">Loading results…</p>
+  <div *ngIf="!loading && results.length===0">No results yet. Waiting for participants to finish…</div>
+  <mat-list *ngIf="!loading && results.length">
+    <mat-list-item *ngFor="let r of results; let i = index">
+      <mat-icon matListItemIcon>emoji_events</mat-icon>
+      <div matListItemTitle>#{{ i + 1 }} · {{ r.userName }}</div>
+      <div matListItemLine>{{ r.correct }}/{{ r.total }} ({{ r.percentage }}%)</div>
+    </mat-list-item>
+  </mat-list>
+</mat-card>

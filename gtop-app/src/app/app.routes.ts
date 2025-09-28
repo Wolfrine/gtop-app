@@ -19,6 +19,7 @@ import { UiKitchenComponent } from './pages/ui-kitchen/ui-kitchen.component';
 import { LiveLandingComponent } from './pages/live/live-landing/live-landing.component';
 import { LiveHostComponent } from './pages/live/live-host/live-host.component';
 import { LivePlayerComponent } from './pages/live/live-player/live-player.component';
+import { LiveSummaryComponent } from './pages/live/live-summary/live-summary.component';
 
 
 
@@ -96,6 +97,12 @@ export const routes: Routes = [
     {
         path: 'live/play/:sessionId',
         component: LivePlayerComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user', 'admin'] }
+    },
+    {
+        path: 'live/summary/:sessionId',
+        component: LiveSummaryComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['user', 'admin'] }
     },

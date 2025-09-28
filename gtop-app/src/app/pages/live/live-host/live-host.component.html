@@ -1,0 +1,82 @@
+<mat-card appCard>
+  <h2>Live Host</h2>
+  <div class="ended" *ngIf="status==='ended'">This quiz has ended.</div>
+  <div class="meta">
+    <div>Session: <strong>{{ sessionId }}</strong></div>
+    <div>Join Code: <strong>{{ joinCode || '—' }}</strong></div>
+    <div>Status: <strong>{{ status || '—' }}</strong></div>
+  </div>
+
+  <div class="schedule" *ngIf="startAt as st">
+    <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime':'Asia/Kolkata' }}</span>
+    <span class="chip">Starts: {{ st | date:'shortTime':'Asia/Kolkata' }}</span>
+    <span class="countdown" *ngIf="countdownLabel">{{ countdownLabel }} <strong>{{ countdownValue }}</strong></span>
+  </div>
+
+  <!-- Reschedule controls (only useful in lobby) -->
+  <div class="reschedule" *ngIf="status === 'lobby'">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Start at</mat-label>
+      <input matInput type="datetime-local" [(ngModel)]="startEdit">
+    </mat-form-field>
+    <div class="controls">
+      <button mat-stroked-button color="primary" (click)="updateStart()">Update Start</button>
+      <button mat-stroked-button color="accent" (click)="startNow()">Start Now</button>
+    </div>
+  </div>
+
+  <div class="controls" *ngIf="total > 0">
+    <button mat-stroked-button color="primary" (click)="prev()" [disabled]="currentIndex <= 0">Prev</button>
+    <button mat-stroked-button color="primary" (click)="next()" [disabled]="currentIndex >= total - 1">Next</button>
+    <button mat-stroked-button color="warn" (click)="endSession()">End Session</button>
+  </div>
+
+  <div class="roster">
+    <h3>Participants ({{ participants.length }})</h3>
+    <mat-list>
+      <mat-list-item *ngFor="let p of participants">
+        <mat-icon matListItemIcon>person</mat-icon>
+        <div matListItemTitle>{{ p.displayName }}</div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+
+  <div class="questions" *ngIf="questions?.length">
+    <h3>Questions</h3>
+    <div class="qc-controls">
+      <button mat-stroked-button (click)="expandAll()">Expand All</button>
+      <button mat-stroked-button (click)="collapseAll()">Collapse All</button>
+    </div>
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let q of questions; let i = index" (opened)="openPanel(i)" (closed)="closePanel(i)">
+        <mat-expansion-panel-header>
+          <div class="q-head">
+            <div class="q-title">Q{{ i + 1 }}. {{ q?.question }}</div>
+            <div class="q-chips">
+              <mat-chip-set>
+                <mat-chip *ngIf="i === currentIndex" color="primary" selected>Active</mat-chip>
+                <mat-chip *ngIf="i === currentIndex" color="accent">{{ timeLeftSec | number:'1.0-0' }}s left</mat-chip>
+                <mat-chip>
+                  {{ (answersByIndex.get(i)?.length || 0) }} / {{ participants.length }} submitted
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+        </mat-expansion-panel-header>
+
+        <div class="submissions" *ngIf="(answersByIndex.get(i)?.length || 0) > 0; else noSubs">
+          <mat-list>
+            <mat-list-item *ngFor="let a of (answersByIndex.get(i) || []); let idx = index">
+              <mat-icon matListItemIcon>bolt</mat-icon>
+              <div matListItemTitle>#{{ idx + 1 }} · {{ a.displayName }}</div>
+              <div matListItemMeta>{{ (a.responseMs/1000) | number:'1.1-1' }}s</div>
+            </mat-list-item>
+          </mat-list>
+        </div>
+        <ng-template #noSubs>
+          <p class="muted">No submissions yet.</p>
+        </ng-template>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</mat-card>

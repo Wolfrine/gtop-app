@@ -1,0 +1,121 @@
+<div class="live-landing grid">
+  <mat-card appCard *ngIf="isAdmin">
+    <h2>Create a Live Session</h2>
+
+    <!-- Selection Mode -->
+    <div class="mode">
+      <mat-button-toggle-group [value]="selectionMode" (change)="selectionMode = $event.value">
+        <mat-button-toggle value="random">Randomize from Selection</mat-button-toggle>
+        <mat-button-toggle value="manual" disabled matTooltip="Manual selection coming soon">Manual Selection</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <form [formGroup]="createForm" (ngSubmit)="createSession()">
+      <!-- Filters -->
+      <div class="filters">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Board</mat-label>
+          <mat-select formControlName="board">
+            <mat-option *ngFor="let b of boards" [value]="b">{{ b }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Standard</mat-label>
+          <mat-select formControlName="standard">
+            <mat-option *ngFor="let s of standards" [value]="s">{{ s }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Subjects (optional)</mat-label>
+          <mat-select formControlName="subjects" multiple>
+            <mat-option *ngFor="let s of subjects" [value]="s">{{ s }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Chapters (optional)</mat-label>
+          <mat-select formControlName="chapters" multiple>
+            <mat-option *ngFor="let c of chapters" [value]="c">{{ c }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100 small">
+          <mat-label>Count</mat-label>
+          <input matInput type="number" formControlName="count" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Starts at</mat-label>
+          <input matInput type="datetime-local" formControlName="startAt" />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Buffer (minutes)</mat-label>
+        <input matInput type="number" step="1" min="0" formControlName="bufferMinutes" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Per Question (seconds)</mat-label>
+        <input matInput type="number" formControlName="perQuestionSeconds" />
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-stroked-button color="accent" type="button" (click)="generateQuestionIds()" [disabled]="isGenerating || selectionMode!=='random'">
+          <mat-icon>bolt</mat-icon>
+          Randomize
+        </button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="createForm.invalid || !generatedQuestions.length">
+          Create & Go to Host
+        </button>
+      </div>
+
+      <div class="schedule-inline">
+        <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime':'Asia/Kolkata' }}</span>
+        <span class="chip">First question: {{ createForm.value.startAt ? (createForm.value.startAt | date:'shortTime':'Asia/Kolkata') : '' }}</span>
+      </div>
+    </form>
+
+    <div *ngIf="generatedQuestions.length" class="preview">
+      <h3>Generated Questions ({{ generatedQuestions.length }})</h3>
+      <mat-list>
+        <mat-list-item *ngFor="let q of generatedQuestions; let i = index">
+          <div matListItemTitle>#{{ i + 1 }} · {{ (q.question || q.title) | slice:0:90 }}</div>
+          <div matListItemLine class="id">ID: {{ q.id }}</div>
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </mat-card>
+
+  <mat-card appCard>
+    <h2>Join a Session</h2>
+    <form [formGroup]="joinForm" (ngSubmit)="joinByCode()">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Join Code</mat-label>
+        <input matInput type="text" formControlName="joinCode" />
+      </mat-form-field>
+
+      <button mat-flat-button color="accent" type="submit" [disabled]="joinForm.invalid">
+        Join & Play
+      </button>
+    </form>
+
+    <div class="upcoming">
+      <h3>Upcoming Live Sessions</h3>
+      <div class="empty" *ngIf="!upcomingSessions.length">No upcoming sessions found.</div>
+      <mat-list *ngIf="upcomingSessions.length">
+        <mat-list-item *ngFor="let s of upcomingSessions">
+          <div matListItemTitle>
+            {{ s.scheduledStartAt?.toDate ? (s.scheduledStartAt.toDate() | date:'shortTime') : (s.scheduledStartAt | date:'shortTime') }} · Host: {{ s.hostName }}
+          </div>
+          <div matListItemLine class="id">Code: {{ s.joinCode }}</div>
+          <button mat-stroked-button color="primary" (click)="joinUpcoming(s.id)" matListItemMeta>Join</button>
+        </mat-list-item>
+      </mat-list>
+    </div>
+  </mat-card>
+
+  <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
+</div>

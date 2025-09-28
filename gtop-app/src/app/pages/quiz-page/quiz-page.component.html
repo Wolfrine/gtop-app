@@ -6,13 +6,17 @@
         <mat-progress-bar mode="determinate" [value]="getProgressPercent()"></mat-progress-bar>
     </div>
 
-    <!-- Metadata -->
-    <div class="meta-info">
-        <p>{{ questions[currentQuestionIndex].board }} >
-            {{ questions[currentQuestionIndex].standard }}<sup>th</sup> Standard :
-            {{ questions[currentQuestionIndex].subject }},
-            {{ questions[currentQuestionIndex].chapter }}
+    <!-- Metadata (with timer in live mode) -->
+    <div class="meta-info timer-wrap" *ngIf="questions[currentQuestionIndex] as metaQ">
+        <p>{{ metaQ.board }} >
+            {{ metaQ.standard }}<sup>th</sup> Standard :
+            {{ metaQ.subject }},
+            {{ metaQ.chapter }}
         </p>
+        <div class="timer" *ngIf="liveMode">
+            <mat-progress-spinner diameter="54" mode="determinate" [value]="(timeRemainingSec / perQuestionSeconds) * 100"></mat-progress-spinner>
+            <div class="timer-text">{{ countdownValue }}</div>
+        </div>
     </div>
 
     <!-- Question -->
@@ -24,17 +28,32 @@
     <p>Options : <i>(Select any one from below)</i></p>
     <div class="options-container">
         <mat-card appCard *ngFor="let option of questions[currentQuestionIndex].options; let i = index" class="option-card"
-            [class.selected]="questions[currentQuestionIndex].selectedIndex === i" (click)="selectOption(i)">
+            [class.selected]="questions[currentQuestionIndex].selectedIndex === i"
+            [class.frozen]="liveMode && questions[currentQuestionIndex].selectedIndex !== null"
+            (click)="selectOption(i)">
             {{optionsLabel[i]}}) {{ option }}
         </mat-card>
     </div>
 
-    <!-- Next/Submit Button -->
-    <div class="next-button">
+    <!-- Next/Submit Button (hidden in live mode) -->
+    <div class="next-button" *ngIf="!liveMode">
         <button mat-raised-button color="primary" (click)="nextQuestion()"
             [disabled]="questions[currentQuestionIndex].selectedIndex === null">
             {{ currentQuestionIndex + 1 === questions.length ? 'Submit' : 'Next' }}
         </button>
+    </div>
+
+    <!-- Per-question leaderboard (live mode, after submit) -->
+    <div class="leaderboard" *ngIf="liveMode && leaderboard.length">
+        <h3>Submissions</h3>
+        <div class="sub-summary">{{ leaderboard.length }} <span *ngIf="participantsCount"> / {{ participantsCount }}</span></div>
+        <mat-list>
+            <mat-list-item *ngFor="let a of leaderboard; let idx = index">
+                <mat-icon matListItemIcon>bolt</mat-icon>
+                <div matListItemTitle>#{{ idx + 1 }} · {{ a.displayName }}</div>
+                <div matListItemMeta>{{ (a.responseMs/1000) | number:'1.1-1' }}s</div>
+            </mat-list-item>
+        </mat-list>
     </div>
 
 </div>

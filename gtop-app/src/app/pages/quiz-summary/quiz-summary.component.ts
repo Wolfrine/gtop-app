@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { MatIconModule } from '@angular/material/icon';
+import { LiveSummaryComponent } from '../live/live-summary/live-summary.component';
 
 @Component({
     selector: 'app-quiz-summary',
@@ -23,7 +24,8 @@ import { MatIconModule } from '@angular/material/icon';
         MatExpansionModule,
         RouterModule,
         NgChartsModule,
-        MatIconModule
+        MatIconModule,
+        LiveSummaryComponent
     ],
     templateUrl: './quiz-summary.component.html',
     styleUrls: ['./quiz-summary.component.scss']
@@ -33,6 +35,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     optionLabels = ['A)', 'B)', 'C)', 'D)'];
     private userSub!: Subscription;
     private saved = false;
+    fromLive = false;
+    liveSessionId: string | null = null;
 
     // UI state
     incorrectOnly = false;
@@ -60,6 +64,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         const navState: any = (this.router.getCurrentNavigation()?.extras?.state) || (history.state || {});
         const summaries = navState?.questionSummaries;
         const navSession = navState?.session;
+        this.fromLive = !!navState?.fromLive;
+        this.liveSessionId = navState?.sessionId || null;
 
         if (Array.isArray(summaries) && summaries.length) {
             // Expand summaries to full questions
@@ -107,7 +113,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                     standard: sample.standard,
                     subject: sample.subject,
                     chapter: sample.chapter,
-                    quizType: 'quick', // Make dynamic if needed
+                    quizType: this.fromLive ? 'live' : 'quick',
+                    sessionId: this.fromLive ? this.liveSessionId || undefined : undefined,
                     questions: this.questions.map(q => ({
                         id: q.id,
                         selectedIndex: q.selectedIndex,

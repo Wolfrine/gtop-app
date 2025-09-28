@@ -8,6 +8,10 @@
         font-style: italic;
     }
 
+    .timer-wrap { position: relative; }
+    .timer { position: absolute; right: 0; top: -8px; display: grid; place-items: center; width: 54px; height: 54px; }
+    .timer-text { position: absolute; font-size: 12px; font-weight: 700; }
+
     .quiz-header {
         text-align: center;
 
@@ -35,6 +39,10 @@
                 background-color: #e3f2fd;
                 border: 2px solid #1976d2;
             }
+            &.frozen {
+                pointer-events: none;
+                opacity: .85;
+            }
         }
     }
 
@@ -43,6 +51,8 @@
         justify-content: center;
         margin-top: 1rem;
     }
+
+    .leaderboard .sub-summary { font-size: 12px; color: #475569; margin: 4px 0 8px; }
 }
 
 @media (max-width: 768px) {

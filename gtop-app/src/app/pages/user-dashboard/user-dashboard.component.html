@@ -4,7 +4,7 @@
   <mat-card appCard class="welcome-card">
     <div class="welcome-header">
       <h2>Welcome back, {{ userName || 'Learner' }}!</h2>
-      <p class="sub">Standard: {{ userStandard || '—' }} · Board/Subject: {{ userSubjects || '—' }}</p>
+      <p class="sub">Board: {{ userSubjects || '—' }} · Standard: {{ userStandard || '—' }}</p>
     </div>
     <div class="quick-start">
       <button mat-flat-button color="primary" (click)="startQuickQuiz()" matTooltip="10 random questions from your subjects">
@@ -15,6 +15,10 @@
               matTooltip="Customize subject, chapter and question count">
         <mat-icon>tune</mat-icon>
         Practice Builder
+      </button>
+      <button mat-stroked-button color="accent" [routerLink]="['/live']" matTooltip="Join a scheduled live quiz">
+        <mat-icon>bolt</mat-icon>
+        Join Live Quiz
       </button>
       <button mat-stroked-button color="accent" [routerLink]="['/reports']">
         <mat-icon>insights</mat-icon>

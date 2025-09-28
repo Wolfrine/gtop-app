@@ -1,0 +1,15 @@
+.meta { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+.schedule { display:flex; gap:12px; flex-wrap:wrap; margin:10px 0; }
+.chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:rgba(37,99,235,.10); color:#1d4ed8; font-weight:600; font-size:12px; }
+.countdown { font-weight:600; color:#0f172a; }
+.controls { display:flex; gap:8px; margin:8px 0 12px; }
+.reschedule { margin: 10px 0; }
+.w-100 { width: 100%; max-width: 340px; }
+.roster { margin-top:12px; }
+.questions { margin-top: 16px; }
+.q-head { display:flex; align-items:center; gap: 12px; width: 100%; justify-content: space-between; }
+.q-title { font-weight: 600; }
+.q-chips { display:flex; align-items:center; }
+.muted { color:#64748b; font-size: 13px; margin: 8px 0 0; }
+.qc-controls { display:flex; gap:8px; margin:8px 0; }
+.ended { padding:8px 10px; border-radius:8px; background:#fff7ed; color:#9a3412; font-weight:600; margin-bottom:8px; }

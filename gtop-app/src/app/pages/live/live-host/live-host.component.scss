@@ -6,3 +6,8 @@
 .reschedule { margin: 10px 0; }
 .w-100 { width: 100%; max-width: 340px; }
 .roster { margin-top:12px; }
+.questions { margin-top: 16px; }
+.q-head { display:flex; align-items:center; gap: 12px; width: 100%; justify-content: space-between; }
+.q-title { font-weight: 600; }
+.q-chips { display:flex; align-items:center; }
+.muted { color:#64748b; font-size: 13px; margin: 8px 0 0; }

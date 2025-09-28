@@ -39,4 +39,38 @@
       </mat-list-item>
     </mat-list>
   </div>
+
+  <div class="questions" *ngIf="questions?.length">
+    <h3>Questions</h3>
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let q of questions; let i = index" (opened)="openPanel(i)" (closed)="closePanel(i)">
+        <mat-expansion-panel-header>
+          <div class="q-head">
+            <div class="q-title">Q{{ i + 1 }}. {{ q?.question }}</div>
+            <div class="q-chips">
+              <mat-chip-set>
+                <mat-chip *ngIf="i === currentIndex" color="primary" selected>Active</mat-chip>
+                <mat-chip>
+                  {{ (answersByIndex.get(i)?.length || 0) }} / {{ participants.length }} submitted
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+        </mat-expansion-panel-header>
+
+        <div class="submissions" *ngIf="(answersByIndex.get(i)?.length || 0) > 0; else noSubs">
+          <mat-list>
+            <mat-list-item *ngFor="let a of (answersByIndex.get(i) || []); let idx = index">
+              <mat-icon matListItemIcon>bolt</mat-icon>
+              <div matListItemTitle>#{{ idx + 1 }} · {{ a.displayName }}</div>
+              <div matListItemMeta>{{ (a.responseMs/1000) | number:'1.1-1' }}s</div>
+            </mat-list-item>
+          </mat-list>
+        </div>
+        <ng-template #noSubs>
+          <p class="muted">No submissions yet.</p>
+        </ng-template>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
 </mat-card>

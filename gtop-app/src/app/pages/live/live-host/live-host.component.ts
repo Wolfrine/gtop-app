@@ -11,11 +11,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-live-host',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatCardModule, AppCardDirective, MatListModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [CommonModule, FormsModule, MatCardModule, AppCardDirective, MatListModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatExpansionModule, MatChipsModule],
   templateUrl: './live-host.component.html',
   styleUrls: ['./live-host.component.scss']
 })
@@ -41,6 +43,9 @@ export class LiveHostComponent implements OnInit, OnDestroy {
   startEdit: string = '';
 
   participants: { uid: string; displayName: string; photoURL?: string }[] = [];
+  questions: any[] = [];
+  answersSubs: Map<number, () => void> = new Map();
+  answersByIndex: Map<number, { uid: string; displayName: string; responseMs: number }[]> = new Map();
 
   constructor(private route: ActivatedRoute, private live: LiveQuizService) {}
 
@@ -54,6 +59,12 @@ export class LiveHostComponent implements OnInit, OnDestroy {
       this.total = Array.isArray(s?.questionIds) ? s.questionIds.length : 0;
       this.anchorIndex = Number(s?.anchorIndex || 0);
       this.anchorAt = s?.anchorAt?.toDate ? s.anchorAt.toDate() : undefined;
+      if (this.questions.length === 0 && s?.questionIds?.length) {
+        this.live.fetchQuestionsForSession(s).then(qs => {
+          const byId = new Map(qs.map((q: any) => [q.id, q]));
+          this.questions = s.questionIds.map((id: string) => byId.get(id)).filter(Boolean);
+        }).catch(() => {});
+      }
       this.computeLobbyOpen();
       this.startEdit = this.startAt ? this.toDateTimeLocal(this.startAt) : '';
     });
@@ -69,6 +80,7 @@ export class LiveHostComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.sub) this.sub();
     if (this.partSub) this.partSub();
+    this.answersSubs.forEach(unsub => { try { unsub(); } catch {} });
     this.tickSub?.unsubscribe();
   }
 
@@ -135,6 +147,21 @@ export class LiveHostComponent implements OnInit, OnDestroy {
     if (this.total <= 0) return;
     const next = Math.min(this.total - 1, this.currentIndex + 1);
     this.live.overrideNext(this.sessionId, next);
+  }
+
+  openPanel(index: number) {
+    if (this.answersSubs.has(index)) return;
+    const unsub = this.live.observeAnswers(this.sessionId, index, (items) => {
+      const rows = (items || [])
+        .map((it: any) => ({ uid: it.uid, displayName: it.displayName, responseMs: Number(it.responseMs || 0) }))
+        .sort((a, b) => a.responseMs - b.responseMs);
+      this.answersByIndex.set(index, rows);
+    });
+    this.answersSubs.set(index, unsub);
+  }
+
+  closePanel(index: number) {
+    // keep subscribed for live monitoring; noop for now
   }
 
   updateStart(): void {

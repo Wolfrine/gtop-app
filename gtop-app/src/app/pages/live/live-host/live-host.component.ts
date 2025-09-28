@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -13,6 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatExpansionPanel } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-live-host',
@@ -46,6 +47,9 @@ export class LiveHostComponent implements OnInit, OnDestroy {
   questions: any[] = [];
   answersSubs: Map<number, () => void> = new Map();
   answersByIndex: Map<number, { uid: string; displayName: string; responseMs: number }[]> = new Map();
+  timeLeftSec = 0;
+
+  @ViewChildren(MatExpansionPanel) panels!: QueryList<MatExpansionPanel>;
 
   constructor(private route: ActivatedRoute, private live: LiveQuizService) {}
 
@@ -115,6 +119,7 @@ export class LiveHostComponent implements OnInit, OnDestroy {
     this.currentIndex = Math.min(this.total > 0 ? this.total - 1 : 0, Math.max(0, this.anchorIndex + advance));
     const intoQuestion = elapsedSec % Math.max(1, this.perQuestionSeconds);
     const remaining = Math.max(0, this.perQuestionSeconds - intoQuestion);
+    this.timeLeftSec = remaining;
     this.countdownLabel = `Q ${this.total ? this.currentIndex + 1 : 0}/${this.total || 0} · Time left`;
     this.countdownValue = this.formatSec(remaining);
   }
@@ -162,6 +167,20 @@ export class LiveHostComponent implements OnInit, OnDestroy {
 
   closePanel(index: number) {
     // keep subscribed for live monitoring; noop for now
+  }
+
+  expandAll() {
+    if (!this.panels) return;
+    this.panels.forEach(p => {
+      try { p.open(); } catch {}
+    });
+  }
+
+  collapseAll() {
+    if (!this.panels) return;
+    this.panels.forEach(p => {
+      try { p.close(); } catch {}
+    });
   }
 
   updateStart(): void {

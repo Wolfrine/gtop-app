@@ -1,5 +1,6 @@
 <mat-card appCard>
   <h2>Live Host</h2>
+  <div class="ended" *ngIf="status==='ended'">This quiz has ended.</div>
   <div class="meta">
     <div>Session: <strong>{{ sessionId }}</strong></div>
     <div>Join Code: <strong>{{ joinCode || '—' }}</strong></div>
@@ -42,6 +43,10 @@
 
   <div class="questions" *ngIf="questions?.length">
     <h3>Questions</h3>
+    <div class="qc-controls">
+      <button mat-stroked-button (click)="expandAll()">Expand All</button>
+      <button mat-stroked-button (click)="collapseAll()">Collapse All</button>
+    </div>
     <mat-accordion>
       <mat-expansion-panel *ngFor="let q of questions; let i = index" (opened)="openPanel(i)" (closed)="closePanel(i)">
         <mat-expansion-panel-header>
@@ -50,6 +55,7 @@
             <div class="q-chips">
               <mat-chip-set>
                 <mat-chip *ngIf="i === currentIndex" color="primary" selected>Active</mat-chip>
+                <mat-chip *ngIf="i === currentIndex" color="accent">{{ timeLeftSec | number:'1.0-0' }}s left</mat-chip>
                 <mat-chip>
                   {{ (answersByIndex.get(i)?.length || 0) }} / {{ participants.length }} submitted
                 </mat-chip>

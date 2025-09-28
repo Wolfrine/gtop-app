@@ -1,14 +1,48 @@
-<mat-card appCard>
-  <h2>Live Player</h2>
-  <div class="schedule" *ngIf="startAt as st">
-    <span class="chip">Lobby opens: {{ lobbyOpensAt | date:'shortTime':'Asia/Kolkata' }}</span>
-    <span class="chip">Starts: {{ st | date:'shortTime':'Asia/Kolkata' }}</span>
-    <span class="countdown" *ngIf="countdownLabel">
-      {{ countdownLabel }} <strong>{{ countdownValue }}</strong>
-    </span>
+<div class="quiz-container">
+  <!-- Header -->
+  <div class="quiz-header">
+    <h3>Question {{ currentIndex + 1 }} of {{ total }}</h3>
+    <mat-progress-bar mode="determinate" [value]="getHeaderProgress()"></mat-progress-bar>
   </div>
-  <p>Waiting room. The quiz will start automatically at the scheduled time.</p>
 
+  <!-- Meta + timer -->
+  <div class="meta-info timer-wrap" *ngIf="currentIndex >= 0 && questions[currentIndex] as q">
+    <p>{{ q.board }} > {{ q.standard }}<sup>th</sup> Standard : {{ q.subject }}, {{ q.chapter }}</p>
+    <div class="timer" aria-label="Time remaining">
+      <mat-progress-spinner diameter="54" mode="determinate" [value]="getTimePercent()"></mat-progress-spinner>
+      <div class="timer-text">{{ countdownValue }}</div>
+    </div>
+  </div>
+
+  <!-- Question -->
+  <mat-card appCard class="question-card" *ngIf="currentIndex >= 0 && questions[currentIndex] as q2">
+    <h4>Q{{ currentIndex + 1 }}. {{ q2.question }}</h4>
+  </mat-card>
+
+  <!-- Options -->
+  <p>Options : <i>(Select any one from below)</i></p>
+  <div class="options-container" *ngIf="currentIndex >= 0 && questions[currentIndex] as q3">
+    <mat-card appCard *ngFor="let option of q3.options; let i = index" class="option-card"
+              [class.selected]="q3.selectedIndex === i"
+              [class.frozen]="q3.selectedIndex !== null"
+              (click)="selectOption(i)">
+      {{ optionsLabel[i] }}) {{ option }}
+    </mat-card>
+  </div>
+
+  <!-- Leaderboard for this question (after submit) -->
+  <div class="leaderboard" *ngIf="leaderboard.length">
+    <h3>Submissions</h3>
+    <mat-list>
+      <mat-list-item *ngFor="let a of leaderboard; let idx = index">
+        <mat-icon matListItemIcon>bolt</mat-icon>
+        <div matListItemTitle>#{{ idx + 1 }} · {{ a.displayName }}</div>
+        <div matListItemMeta>{{ (a.responseMs/1000) | number:'1.1-1' }}s</div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+
+  <!-- Roster (optional at bottom) -->
   <div class="roster">
     <h3>Participants ({{ participants.length }})</h3>
     <mat-list>
@@ -18,10 +52,4 @@
       </mat-list-item>
     </mat-list>
   </div>
-
-  <div class="question" *ngIf="currentIndex >= 0 && questions[currentIndex] as q">
-    <h3>Question {{ currentIndex + 1 }} of {{ total }}</h3>
-    <p><strong>{{ q.question }}</strong></p>
-    <small>Answering UI arrives in the next phase.</small>
-  </div>
-</mat-card>
+</div>

@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute } from '@angular/router';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AppCardDirective } from '../../../shared/ui/app-card/app-card.directive';
 import { LiveQuizService } from '../../../services/live-quiz.service';
 import { Subscription, interval } from 'rxjs';
@@ -11,7 +13,7 @@ import { Subscription, interval } from 'rxjs';
 @Component({
   selector: 'app-live-player',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatListModule, MatIconModule, AppCardDirective],
+  imports: [CommonModule, MatCardModule, MatListModule, MatIconModule, MatProgressSpinnerModule, MatProgressBarModule, AppCardDirective],
   templateUrl: './live-player.component.html',
   styleUrls: ['./live-player.component.scss']
 })
@@ -32,11 +34,18 @@ export class LivePlayerComponent implements OnInit, OnDestroy {
   questions: any[] = [];
   anchorIndex = 0;
   anchorAt?: Date;
+  redirected = false;
+  optionsLabel = ['A','B','C','D'];
+  status: string | null = null;
+  timeRemainingSec = 0;
+  leaderboard: { uid: string; displayName: string; responseMs: number }[] = [];
+  answersSub?: () => void;
 
-  constructor(private route: ActivatedRoute, private live: LiveQuizService) {}
+  constructor(private route: ActivatedRoute, private router: Router, private live: LiveQuizService) {}
 
   ngOnInit(): void {
     this.sub = this.live.observeSession<any>(this.sessionId, (s) => {
+      this.status = s?.status ?? null;
       this.startAt = s?.scheduledStartAt?.toDate ? s.scheduledStartAt.toDate() : undefined;
       this.bufferSeconds = Number(s?.bufferSeconds || 0);
       this.perQuestionSeconds = Number(s?.perQuestionSeconds || 20);
@@ -87,12 +96,18 @@ export class LivePlayerComponent implements OnInit, OnDestroy {
       this.countdownValue = this.formatDiff(this.startAt, now);
       return;
     }
+    // If started, redirect to quiz page once
+    if (!this.redirected) {
+      this.redirected = true;
+      this.router.navigate(['/quiz'], { queryParams: { live: 1, sessionId: this.sessionId } });
+    }
     const base = this.anchorAt ?? this.startAt!;
     const elapsedSec = Math.max(0, Math.floor((now.getTime() - base.getTime()) / 1000));
     const advance = Math.floor(elapsedSec / Math.max(1, this.perQuestionSeconds));
     this.currentIndex = Math.min(this.total > 0 ? this.total - 1 : 0, Math.max(0, this.anchorIndex + advance));
     const intoQuestion = elapsedSec % Math.max(1, this.perQuestionSeconds);
     const remaining = Math.max(0, this.perQuestionSeconds - intoQuestion);
+    this.timeRemainingSec = remaining;
     this.countdownLabel = `Q ${this.total ? this.currentIndex + 1 : 0}/${this.total || 0} · Time left`;
     this.countdownValue = this.formatSec(remaining);
   }
@@ -109,5 +124,33 @@ export class LivePlayerComponent implements OnInit, OnDestroy {
     const m = Math.floor(totalSec / 60);
     const s = totalSec % 60;
     return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  }
+
+  getTimePercent(): number {
+    const denom = Math.max(1, this.perQuestionSeconds);
+    return Math.max(0, Math.min(100, Math.round((this.timeRemainingSec / denom) * 100)));
+  }
+
+  getHeaderProgress(): number {
+    if (this.total <= 0) return 0;
+    const pct = ((this.currentIndex + 1) / this.total) * 100;
+    return Math.max(0, Math.min(100, Math.round(pct)));
+  }
+
+  selectOption(i: number) {
+    if (this.currentIndex < 0) return;
+    const q = this.questions[this.currentIndex];
+    if (!q) return;
+    if (q.selectedIndex != null) return; // freeze after first selection
+    q.selectedIndex = i;
+    const base = this.anchorAt ?? this.startAt!;
+    const questionStartAt = new Date(base.getTime() + (this.currentIndex - this.anchorIndex) * this.perQuestionSeconds * 1000);
+    this.live.submitAnswer(this.sessionId, this.currentIndex, i, questionStartAt).catch(() => {});
+    if (this.answersSub) this.answersSub();
+    this.answersSub = this.live.observeAnswers(this.sessionId, this.currentIndex, (items) => {
+      this.leaderboard = (items || [])
+        .map(x => ({ uid: (x as any).uid, displayName: (x as any).displayName, responseMs: Number((x as any).responseMs || 0) }))
+        .sort((a, b) => a.responseMs - b.responseMs);
+    });
   }
 }

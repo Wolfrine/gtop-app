@@ -64,3 +64,4 @@ A GitHub Action workflow (`.github/workflows/firebase-deploy.yml`) deploys the A
 5. AI/LLM based integration for quiz addition - which will get manually reviewed
 6. Reports to include subject and chapter wise overview
 7. Dashboard Last Score is not showing the latest one. Reports last score is proper.
+8. Custom quiz are saved as quick quiz so that needs to be corrected and accordingly shown in reports.

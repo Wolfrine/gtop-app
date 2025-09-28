@@ -46,7 +46,7 @@
     <!-- Per-question leaderboard (live mode, after submit) -->
     <div class="leaderboard" *ngIf="liveMode && leaderboard.length">
         <h3>Submissions</h3>
-        <div class="sub-summary">{{ leaderboard.length }} submitted<span *ngIf="participantsCount"> / {{ participantsCount }}</span></div>
+        <div class="sub-summary">{{ leaderboard.length }} <span *ngIf="participantsCount"> / {{ participantsCount }}</span></div>
         <mat-list>
             <mat-list-item *ngFor="let a of leaderboard; let idx = index">
                 <mat-icon matListItemIcon>bolt</mat-icon>

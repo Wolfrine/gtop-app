@@ -124,7 +124,7 @@ Out‑of‑Scope / Future Enhancements
   - Selection Mode already present in UI; Manual option is disabled in v1 and should be enabled when this feature lands.
 
 Observations
-- Quiz end time to also be calculated from start time and no of question + per question timer. Host client can update status. Rest of the clients to move to quiz summary once current time > quiz end time. Let gpt 5 also think if any better approach.
-- Live quiz list display to show Board > Standard > Subjects > Chapters detail so that participants can know
+- Live quiz list and lobby to display Board > Standard > Subjects > Chapters detail so that participants can know about that. Lobby can be improved for UI/UX
+- Currently only option to go as host is when click on Generate & Go to Host -> to provide admin to join as host from live quiz list, in case quiz is of later date they can later open app and come back as host which is not possible as of now. Also, allow only the creator of the host to be host.
+- Same leaderboard component as shown in quiz-summary to be displayed to live-host. Also, the question list at live-host page to contain correction option and participant list under a question to show their selected answer - color coded with right or wrong i.e. host can know who is making correct answers, etc.
 - When users selects Live Quiz to join -> in case the board and standard are different then ask prompt whether they want to join this different board/standard quiz.
-- Similarly Quiz summary component can be reused - only leaderboard to be added and icon against each question in case user wants to see question specific participants details

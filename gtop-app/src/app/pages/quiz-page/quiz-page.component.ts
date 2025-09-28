@@ -31,45 +31,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
 
     optionsLabel = ['A', 'B', 'C', 'D'];
 
-    // Dummy Firestore-style data (used in non-live mode only)
-    questions = [
-        {
-            board: 'ICSE',
-            standard: '6',
-            subject: 'Mathematics',
-            chapter: '8 Decimals',
-            title: 'Untitled',
-            question: 'What is the difference between 4.5 and 1.2?',
-            options: ['3.3', '3.5', '3.0', '4.7'],
-            correctIndex: 0,
-            solutions: ['Correct answer is 3.3', '', '', ''],
-            selectedIndex: null as number | null
-        },
-        {
-            board: 'CBSE',
-            standard: '7',
-            subject: 'Science',
-            chapter: 'Electricity',
-            title: 'Untitled',
-            question: 'What is the SI unit of electric current?',
-            options: ['Ohm', 'Ampere', 'Volt', 'Watt'],
-            correctIndex: 1,
-            solutions: ['', '', '', ''],
-            selectedIndex: null as number | null
-        },
-        {
-            board: 'ICSE',
-            standard: '8',
-            subject: 'Mathematics',
-            chapter: 'Algebra',
-            title: 'Untitled',
-            question: 'Simplify: 3(2x - 4) = ?',
-            options: ['6x - 4', '6x - 12', '5x - 4', '6x + 4'],
-            correctIndex: 1,
-            solutions: ['', '', '', ''],
-            selectedIndex: null as number | null
-        }
-    ];
+    // Questions list; in live mode populated from session; in normal mode populated from selected filters
+    questions: any[] = [];
 
     currentQuestionIndex = 0;
     // Live mode

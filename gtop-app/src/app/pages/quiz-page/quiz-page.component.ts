@@ -184,7 +184,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
 
     private updateFromSchedule() {
         if (!this.liveMode || !this.startAt) return;
-        if (this.status === 'ended') { this.countdownValue = ''; this.navigateToSummaryIfReady(); return; }
+        if (this.status === 'ended') { this.countdownValue = ''; this.navigateToSummaryIfReady(true); return; }
         const base = this.anchorAt ?? this.startAt;
         const now = new Date();
         if (now < this.startAt) { this.countdownValue = this.formatSec(Math.ceil((this.startAt.getTime() - now.getTime())/1000)); return; }
@@ -201,16 +201,16 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         const remaining = Math.max(0, this.perQuestionSeconds - intoQuestion);
         this.timeRemainingSec = remaining;
         this.countdownValue = this.formatSec(remaining);
-        this.navigateToSummaryIfReady();
+        this.navigateToSummaryIfReady(false);
     }
 
-    private navigateToSummaryIfReady() {
+    private navigateToSummaryIfReady(ended: boolean) {
         if (this.navigatedToSummary) return;
         if (!this.questions || this.questions.length === 0) return;
-        // Navigate when last question time elapses
+        // Navigate when session ended or last question time elapses
         const isLast = this.currentQuestionIndex === this.questions.length - 1;
         const timeUp = this.timeRemainingSec <= 0;
-        if (isLast && timeUp) {
+        if (ended || (isLast && timeUp)) {
             this.navigatedToSummary = true;
             // Expose questions to summary save flow
             this.quizService.setQuestions(this.questions);

@@ -95,11 +95,10 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit(): void {
-        // Detect live mode via query param
-        this.route.queryParams.subscribe(params => {
-            this.sessionId = params['sessionId'] || null;
-            this.liveMode = params['live'] == 1 || params['live'] === '1' || !!this.sessionId;
-        });
+        // Detect live mode synchronously from snapshot to avoid race with normal fetch
+        const qp = this.route.snapshot.queryParams || {};
+        this.sessionId = qp['sessionId'] || null;
+        this.liveMode = qp['live'] == 1 || qp['live'] === '1' || !!this.sessionId;
 
         if (this.liveMode && this.sessionId) {
             // Subscribe to session and drive UI from it

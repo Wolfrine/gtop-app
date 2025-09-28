@@ -42,6 +42,7 @@ export class LiveHostComponent implements OnInit, OnDestroy {
   anchorIndex = 0;
   anchorAt?: Date;
   startEdit: string = '';
+  private endedFired = false;
 
   participants: { uid: string; displayName: string; photoURL?: string }[] = [];
   questions: any[] = [];
@@ -122,6 +123,12 @@ export class LiveHostComponent implements OnInit, OnDestroy {
     this.timeLeftSec = remaining;
     this.countdownLabel = `Q ${this.total ? this.currentIndex + 1 : 0}/${this.total || 0} · Time left`;
     this.countdownValue = this.formatSec(remaining);
+
+    // Auto-end when last question time elapses (host triggers write once)
+    if (!this.endedFired && this.total > 0 && this.currentIndex === this.total - 1 && remaining === 0 && this.status !== 'ended') {
+      this.endedFired = true;
+      try { this.live.endSession(this.sessionId); } catch {}
+    }
   }
 
   private formatDiff(target: Date, now: Date): string {

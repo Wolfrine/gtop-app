@@ -67,11 +67,7 @@
           <mat-icon>bolt</mat-icon>
           Randomize
         </button>
-        <button mat-stroked-button type="button" (click)="copyIds()" [disabled]="!createForm.value.count || !generatedQuestions.length">
-          <mat-icon>content_copy</mat-icon>
-          Copy IDs
-        </button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="createForm.invalid">
+        <button mat-flat-button color="primary" type="submit" [disabled]="createForm.invalid || !generatedQuestions.length">
           Create & Go to Host
         </button>
       </div>

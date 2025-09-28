@@ -8,9 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+// removed snackbar
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { Router } from '@angular/router';
 import { LiveQuizService } from '../../../services/live-quiz.service';
 import { Timestamp } from '@angular/fire/firestore';
@@ -33,7 +32,6 @@ import { SyllabusService, SyllabusItem } from '../../../services/syllabus.servic
     MatIconModule,
     MatListModule,
     MatSelectModule,
-    MatSnackBarModule,
     MatButtonToggleModule,
     AppCardDirective
   ],
@@ -65,8 +63,6 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     private live: LiveQuizService,
     private auth: AuthService,
     private quizService: QuizService,
-    private clipboard: Clipboard,
-    private snackBar: MatSnackBar,
     private syllabusService: SyllabusService
   ) {}
 
@@ -124,9 +120,10 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     const bufferMinutes = Number(this.createForm.value.bufferMinutes) || 0;
     const bufferSeconds = bufferMinutes * 60;
     const perQuestionSeconds = Number(this.createForm.value.perQuestionSeconds) || 20;
-    // Use generated list; if empty, attempt to randomize once
+    // Require explicit randomize before hosting
     if (!this.generatedQuestions.length) {
-      await this.generateQuestionIds();
+      this.errorMsg = 'Please click Randomize to generate questions before creating the session.';
+      return;
     }
     const questionIds = (this.generatedQuestions || []).map((q: any) => q.id);
 
@@ -210,7 +207,7 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
       } else {
         qs = await this.quizService.fetchQuestionsFromRandomChapter();
       }
-      this.generatedQuestions = qs;
+      this.generatedQuestions = (qs || []).slice(0, count);
     } catch (err: any) {
       console.error(err);
       this.errorMsg = err?.message || 'Failed to generate questions.';
@@ -219,12 +216,7 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
     }
   }
 
-  copyIds(): void {
-    const ids = (this.generatedQuestions || []).map((q: any) => q.id).join(', ');
-    if (!ids) return;
-    this.clipboard.copy(ids);
-    this.snackBar.open('Question IDs copied', 'OK', { duration: 2000 });
-  }
+  // copyIds removed
 
   // Join a listed upcoming session directly
   async joinUpcoming(sessionId: string): Promise<void> {

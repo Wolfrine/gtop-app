@@ -34,7 +34,8 @@ export class SideNavComponent implements OnInit {
             }
 
             // Define menu items based on role
-            this.menuItems = this.role === 'admin' ? this.getAdminMenu() : this.getUserMenu();
+            const isDevHost = typeof window !== 'undefined' && /dev-gtop-app\.web\.app$/i.test(window.location.host);
+            this.menuItems = this.role === 'admin' ? this.getAdminMenu() : this.getUserMenu(isDevHost);
         });
     }
 
@@ -57,12 +58,16 @@ export class SideNavComponent implements OnInit {
         ];
     }
 
-    getUserMenu(): MenuItem[] {
-        return [
+    getUserMenu(isDevHost: boolean = false): MenuItem[] {
+        const base: MenuItem[] = [
             { label: 'Start Quiz', icon: 'play_arrow', route: '/quiz' },
             { label: 'Join Live Quiz', icon: 'bolt', route: '/live', tooltip: 'Enter a code to join' },
             { label: 'Performance Reports', icon: 'insights', route: '/reports' },
             { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
         ];
+        if (isDevHost) {
+            base.push({ label: 'Logs', icon: 'bug_report', route: '/logs' });
+        }
+        return base;
     }
 }

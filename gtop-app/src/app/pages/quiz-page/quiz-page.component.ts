@@ -184,7 +184,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
 
     private updateFromSchedule() {
         if (!this.liveMode || !this.startAt) return;
-        if (this.status === 'ended') { this.countdownValue = ''; this.navigateToSummaryIfReady(true, true); return; }
+        if (this.status === 'ended') { this.countdownValue = ''; this.navigateToSummaryIfReady(true, true); /* keep ticking until questions are loaded */ }
         const base = this.anchorAt ?? this.startAt;
         const now = new Date();
         if (now < this.startAt) { this.countdownValue = this.formatSec(Math.ceil((this.startAt.getTime() - now.getTime())/1000)); return; }

@@ -116,3 +116,11 @@ Out‑of‑Scope / Future Enhancements
 - Session archival/history under Admin.
 - Manual selection list: Admin can browse filtered questions (by board/standard/subject/chapter), tick checkboxes to pick exact items up to a count cap, then create a session from the curated list. Implement after lobby/schedule phases (target Phase 6+).
   - Selection Mode already present in UI; Manual option is disabled in v1 and should be enabled when this feature lands.
+
+Observations
+- Quiz end time to also be calculated from start time and no of question + per question timer. Host client can update status. Rest of the clients to move to quiz summary once current time > quiz end time. Let gpt 5 also think if any better approach.
+- Live quiz list display to show Board > Standard > Subjects > Chapters detail so that participants can know
+- When users selects Live Quiz to join -> in case the board and standard are different then ask prompt whether they want to join this different board/standard quiz.
+- Use existing Quiz component to display question/ option/etc. To add timer and participant leaderboard per question component in case its a live quiz
+- Similarly Quiz summary component can be reused - only leaderboard to be added and icon against each question in case user wants to see question specific participants details
+

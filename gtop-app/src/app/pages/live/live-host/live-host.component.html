@@ -25,8 +25,6 @@
   </div>
 
   <div class="controls" *ngIf="total > 0">
-    <button mat-stroked-button color="primary" (click)="jump(-1)" [disabled]="currentIndex <= 0">Prev</button>
-    <button mat-stroked-button color="primary" (click)="jump(1)" [disabled]="currentIndex >= total - 1">Next</button>
     <button mat-stroked-button color="warn" (click)="endSession()">End Session</button>
   </div>
 

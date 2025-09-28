@@ -30,7 +30,6 @@ export class LivePlayerComponent implements OnInit, OnDestroy {
   currentIndex = -1;
   total = 0;
   questions: any[] = [];
-  schedule: Map<number, Date> = new Map();
 
   constructor(private route: ActivatedRoute, private live: LiveQuizService) {}
 
@@ -48,14 +47,6 @@ export class LivePlayerComponent implements OnInit, OnDestroy {
           this.questions = (s.questionIds || []).map((id: string) => byId.get(id)).filter(Boolean);
         }).catch(() => {});
       }
-      this.schedule.clear();
-      const raw = s?.schedule || {};
-      Object.keys(raw).forEach(k => {
-        const idx = Number(k);
-        const ts = (raw as any)[k];
-        const d = ts?.toDate ? ts.toDate() : undefined;
-        if (!isNaN(idx) && d) this.schedule.set(idx, d);
-      });
       this.computeLobbyOpen();
     });
     this.partSub = this.live.observeParticipants(this.sessionId, (list) => {
@@ -91,15 +82,9 @@ export class LivePlayerComponent implements OnInit, OnDestroy {
       this.countdownValue = this.formatDiff(this.startAt, now);
       return;
     }
-    // Use latest scheduled anchor
-    let anchorIndex = -1; let anchorTime: Date | null = null;
-    this.schedule.forEach((date, idx) => {
-      if (date <= now && (anchorTime == null || date > anchorTime)) { anchorTime = date; anchorIndex = idx; }
-    });
-    if (anchorTime == null) { this.countdownLabel = 'Starts in'; this.countdownValue = this.formatDiff(this.startAt!, now); return; }
-    const elapsedSec = Math.floor((now.getTime() - (anchorTime as Date).getTime()) / 1000);
-    const advance = Math.floor(elapsedSec / Math.max(1, this.perQuestionSeconds));
-    this.currentIndex = Math.min(this.total > 0 ? this.total - 1 : 0, Math.max(anchorIndex, anchorIndex + advance));
+    const elapsedSec = Math.floor((now.getTime() - this.startAt!.getTime()) / 1000);
+    const scheduleIndex = Math.floor(elapsedSec / Math.max(1, this.perQuestionSeconds));
+    this.currentIndex = Math.min(this.total > 0 ? this.total - 1 : 0, Math.max(0, scheduleIndex));
     const intoQuestion = elapsedSec % Math.max(1, this.perQuestionSeconds);
     const remaining = Math.max(0, this.perQuestionSeconds - intoQuestion);
     this.countdownLabel = `Q ${this.total ? this.currentIndex + 1 : 0}/${this.total || 0} · Time left`;

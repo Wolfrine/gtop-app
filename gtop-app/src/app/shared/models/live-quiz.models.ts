@@ -31,12 +31,8 @@ export interface LiveSession {
   scheduledStartAt: Timestamp; // When the host wants to start
   bufferSeconds: number;       // Extra time in seconds to allow joining (lobby countdown)
   perQuestionSeconds: number;  // How long each question stays active
-  effectiveStartAt: Timestamp; // scheduledStartAt + bufferSeconds (computed at creation time)
-  autoAdvance: boolean;        // If true, clients compute current index from schedule
-
-  // Optional per-question schedule anchor: index -> start time (Timestamp)
-  // When host jumps, the target index entry gets stamped with server time.
-  schedule?: { [index: string]: Timestamp };
+  effectiveStartAt: Timestamp; // deprecated; same as scheduledStartAt in v1
+  autoAdvance: boolean;        // clients compute current index from scheduledStartAt
 
   // Flow control
   status: SessionStatus;       // 'lobby' | 'active' | 'ended'

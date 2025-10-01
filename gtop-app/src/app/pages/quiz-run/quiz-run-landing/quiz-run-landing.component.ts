@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppCardDirective } from '../../../shared/ui/app-card/app-card.directive';
@@ -27,6 +28,7 @@ import { SyllabusItem, SyllabusService } from '../../../services/syllabus.servic
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
+    MatSnackBarModule,
     AppCardDirective
   ],
   templateUrl: './quiz-run-landing.component.html',
@@ -57,7 +59,8 @@ export class QuizRunLandingComponent implements OnInit, OnDestroy {
     private liveQuiz: LiveQuizService,
     private quizService: QuizService,
     private auth: AuthService,
-    private syllabusService: SyllabusService
+    private syllabusService: SyllabusService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -189,6 +192,11 @@ export class QuizRunLandingComponent implements OnInit, OnDestroy {
 
       if (!joined) {
         this.joinError = 'Quiz run not found or unavailable.';
+        return;
+      }
+
+      if (joined.status === 'ended') {
+        this.snackBar.open('This quiz run has already ended.', 'Close', { duration: 4000 });
         return;
       }
 

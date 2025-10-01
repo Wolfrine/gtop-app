@@ -250,16 +250,109 @@ export class QuizService {
         }
     }
 
-    // Live Leaderboard: fetch all results for a session
+    // Live Leaderboard: aggregate results directly from the live session data so every
+    // participant sees a consistent scoreboard ordered by score then total time taken.
     async fetchLiveResultsForSession(sessionId: string): Promise<any[]> {
         try {
-            const quizResultsRef = collection(this.firestore, 'QuizResults');
-            const fetchQuery = query(
-                quizResultsRef,
-                where('sessionId', '==', sessionId)
-            );
-            const snapshot = await getDocs(fetchQuery);
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const sessionRef = doc(this.firestore, 'LiveSessions', sessionId);
+            const sessionSnap = await getDoc(sessionRef);
+            if (!sessionSnap.exists()) {
+                return [];
+            }
+
+            const sessionData: any = sessionSnap.data();
+            const questionIds: string[] = Array.isArray(sessionData?.questionIds) ? sessionData.questionIds : [];
+            const totalQuestions = questionIds.length;
+            const perQuestionSeconds = Math.max(1, Number(sessionData?.perQuestionSeconds || 20));
+
+            const questions = await this.fetchQuestionsByIds(questionIds);
+            const correctIndexByOrder = questionIds.map(id => {
+                const question = questions.find(q => q.id === id);
+                return typeof question?.correctIndex === 'number' ? question.correctIndex : null;
+            });
+
+            const participantsCol = collection(this.firestore, `LiveSessions/${sessionId}/participants`);
+            const participantsSnap = await getDocs(participantsCol);
+
+            type LeaderboardAccumulator = {
+                id: string;
+                userName: string;
+                correct: number;
+                answered: number;
+                totalTimeMs: number;
+            };
+
+            const stats = new Map<string, LeaderboardAccumulator>();
+            const ensureEntry = (uid: string, displayName?: string | null) => {
+                const key = uid || 'unknown';
+                if (!stats.has(key)) {
+                    stats.set(key, {
+                        id: key,
+                        userName: displayName || 'Anonymous',
+                        correct: 0,
+                        answered: 0,
+                        totalTimeMs: 0
+                    });
+                }
+                const entry = stats.get(key)!;
+                if (displayName && entry.userName === 'Anonymous') {
+                    entry.userName = displayName;
+                }
+                return entry;
+            };
+
+            participantsSnap.docs.forEach(docSnap => {
+                const data: any = docSnap.data();
+                ensureEntry(docSnap.id, data?.displayName);
+            });
+
+            const answerPromises = questionIds.map((_, index) => {
+                const answersCol = collection(this.firestore, `LiveSessions/${sessionId}/answers/${String(index)}/items`);
+                return getDocs(answersCol).then(snap => snap.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() } as any)));
+            });
+
+            const answersByIndex = await Promise.all(answerPromises);
+
+            answersByIndex.forEach((answers, index) => {
+                const correctIndex = correctIndexByOrder[index];
+                answers.forEach(answer => {
+                    const uid = answer?.uid || answer?.id || 'unknown';
+                    const record = ensureEntry(uid, answer?.displayName);
+                    const selectedIndex = typeof answer?.selectedIndex === 'number' ? answer.selectedIndex : null;
+                    if (typeof correctIndex === 'number' && selectedIndex === correctIndex) {
+                        record.correct += 1;
+                    }
+                    record.answered += 1;
+                    const responseMs = Number(answer?.responseMs);
+                    const safeResponse = Number.isFinite(responseMs) ? Math.max(0, responseMs) : perQuestionSeconds * 1000;
+                    record.totalTimeMs += safeResponse;
+                });
+            });
+
+            const penaltyPerQuestion = perQuestionSeconds * 1000;
+            const rows = Array.from(stats.values()).map(row => {
+                const unanswered = Math.max(0, totalQuestions - row.answered);
+                const totalTimeWithPenalty = row.totalTimeMs + unanswered * penaltyPerQuestion;
+                const percentage = totalQuestions > 0 ? Math.round((row.correct / totalQuestions) * 100) : 0;
+                return {
+                    id: row.id,
+                    userName: row.userName,
+                    totalQuestions,
+                    correctAnswers: row.correct,
+                    percentage,
+                    totalTimeMs: totalTimeWithPenalty
+                };
+            });
+
+            return rows.sort((a, b) => {
+                if (b.correctAnswers !== a.correctAnswers) {
+                    return b.correctAnswers - a.correctAnswers;
+                }
+                if (a.totalTimeMs !== b.totalTimeMs) {
+                    return a.totalTimeMs - b.totalTimeMs;
+                }
+                return a.userName.localeCompare(b.userName);
+            });
         } catch (e) {
             console.error('Error fetching live session results:', e);
             return [];

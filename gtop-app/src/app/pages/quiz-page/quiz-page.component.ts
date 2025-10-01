@@ -53,6 +53,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     participantsCount = 0;
     private navigatedToSummary = false;
     private retryContext: RetryContext | null = null;
+    private hasSubmittedLiveAnswer = false;
+    private sawActiveRun = false;
 
     constructor(
         private quizService: QuizService,
@@ -91,6 +93,9 @@ export class QuizPageComponent implements OnInit, OnDestroy {
                 this.anchorIndex = Number(s.anchorIndex || 0);
                 this.anchorAt = s.anchorAt?.toDate ? s.anchorAt.toDate() : undefined;
                 this.startAt = s.scheduledStartAt?.toDate ? s.scheduledStartAt.toDate() : undefined;
+                if (sessionMode === 'run' && s.status === 'active') {
+                    this.sawActiveRun = true;
+                }
                 if (Array.isArray(s.questionIds) && s.questionIds.length && this.questions.length === 0) {
                     this.liveService.fetchQuestionsForSession(s).then(qs => {
                         const byId = new Map(qs.map((q: any) => [q.id, q]));
@@ -166,6 +171,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             if (this.timeRemainingSec <= 0) return; // time up
             if (q.selectedIndex != null) return; // freeze after first selection in live mode
             q.selectedIndex = optionIndex;
+            this.hasSubmittedLiveAnswer = true;
             if (!this.sessionId) return;
             const base = this.anchorAt ?? this.startAt ?? new Date();
             const questionStartAt = new Date(base.getTime() + (this.currentQuestionIndex - this.anchorIndex) * this.perQuestionSeconds * 1000);
@@ -231,6 +237,9 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         const isLast = this.currentQuestionIndex === this.questions.length - 1;
         const timeUp = this.timeRemainingSec <= 0;
         if (ended || hitEndByTime || (isLast && timeUp)) {
+            if (this.liveModeType === 'run' && !this.hasSubmittedLiveAnswer && !this.sawActiveRun) {
+                return;
+            }
             this.navigatedToSummary = true;
             // Expose questions to summary save flow
             this.quizService.setQuestions(this.questions);
@@ -243,4 +252,5 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         const s = totalSec % 60;
         return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
     }
+
 }

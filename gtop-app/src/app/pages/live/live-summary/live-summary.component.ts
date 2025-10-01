@@ -33,16 +33,14 @@ export class LiveSummaryComponent implements OnInit, OnDestroy {
   private async load() {
     this.loading = true;
     const rows = await this.quiz.fetchLiveResultsForSession(this.sessionId);
-    this.results = rows
-      .map((r: any) => ({
-        id: r.id,
-        userName: r.userName || 'Anonymous',
-        total: r.totalQuestions || 0,
-        correct: r.correctAnswers || 0,
-        percentage: r.percentage || 0,
-        when: r.timestamp?.toDate ? r.timestamp.toDate() : null
-      }))
-      .sort((a, b) => (b.percentage - a.percentage) || ((a.when?.getTime?.()||0) - (b.when?.getTime?.()||0)));
+    this.results = rows.map((r: any) => ({
+      id: r.id,
+      userName: r.userName || 'Anonymous',
+      total: r.totalQuestions || 0,
+      correct: r.correctAnswers || 0,
+      percentage: r.percentage || 0,
+      totalTimeMs: typeof r.totalTimeMs === 'number' ? r.totalTimeMs : null
+    }));
     this.loading = false;
   }
 }

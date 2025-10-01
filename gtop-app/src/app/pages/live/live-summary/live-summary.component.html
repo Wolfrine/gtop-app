@@ -7,6 +7,7 @@
       <mat-icon matListItemIcon>emoji_events</mat-icon>
       <div matListItemTitle>#{{ i + 1 }} · {{ r.userName }}</div>
       <div matListItemLine>{{ r.correct }}/{{ r.total }} ({{ r.percentage }}%)</div>
+      <div matListItemMeta *ngIf="r.totalTimeMs != null">{{ (r.totalTimeMs/1000) | number:'1.1-1' }}s</div>
     </mat-list-item>
   </mat-list>
 </mat-card>

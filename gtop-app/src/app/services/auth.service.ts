@@ -208,6 +208,12 @@ export class AuthService {
         return this.user$;
     }
 
+    // Update board and standard without redirecting the user
+    async updateUserBoardStandard(uid: string, board: string, standard: string): Promise<void> {
+        const userRef = doc(this.firestore, `users/${uid}`);
+        await setDoc(userRef, { board, standard }, { merge: true });
+    }
+
     private redirectToDashboard(role: string) {
         let targetRoute = '/dashboard';
         if (role === 'admin') {

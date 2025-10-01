@@ -21,6 +21,10 @@
 
     <!-- Profile Menu -->
     <mat-menu #profileMenu="matMenu">
+        <button mat-menu-item [routerLink]="'/profile'">
+            <mat-icon>person</mat-icon>
+            Profile
+        </button>
         <button mat-menu-item (click)="signOut()">
             <mat-icon>logout</mat-icon>
             Sign Out

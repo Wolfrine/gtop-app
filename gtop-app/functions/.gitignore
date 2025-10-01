@@ -1,0 +1,19 @@
+# Firebase Functions (Node) - local build artifacts
+
+# Dependencies
+node_modules/
+
+# TypeScript build output
+lib/
+
+# Local env/config and logs
+.env
+.runtimeconfig.json
+npm-debug.log
+yarn-error.log
+firebase-debug.log
+.firebase/
+
+# OS cruft
+.DS_Store
+Thumbs.db

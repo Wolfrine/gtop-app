@@ -37,6 +37,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     private saved = false;
     fromLive = false;
     liveSessionId: string | null = null;
+    liveMode: 'live' | 'run' | null = null;
 
     // UI state
     incorrectOnly = false;
@@ -65,7 +66,16 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         const summaries = navState?.questionSummaries;
         const navSession = navState?.session;
         this.fromLive = !!navState?.fromLive;
-        this.liveSessionId = navState?.sessionId || null;
+        this.liveSessionId = navState?.liveSessionId || navState?.sessionId || null;
+        this.liveMode = navState?.liveMode || (this.fromLive ? 'live' : null);
+        const navQuizType = (navState?.quizType || '').toLowerCase();
+        if (navQuizType === 'run') {
+            this.fromLive = true;
+            this.liveMode = 'run';
+        } else if (navQuizType === 'live') {
+            this.fromLive = true;
+            this.liveMode = 'live';
+        }
 
         if (Array.isArray(summaries) && summaries.length) {
             // Expand summaries to full questions
@@ -81,6 +91,14 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                 this.updateChart();
             });
             this.saved = true;
+            const type = (navSession.quizType || '').toLowerCase();
+            if (type === 'run') {
+                this.fromLive = true;
+                this.liveMode = 'run';
+            } else if (type === 'live') {
+                this.fromLive = true;
+                this.liveMode = 'live';
+            }
         } else {
             // Deep link fallback using query params
             this.route.queryParams.subscribe(async params => {
@@ -92,6 +110,16 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                     if (session?.questions?.length) {
                         const qs = await this.quizService.expandSummariesToQuestions(session.questions);
                         this.questions = qs;
+                        const type = (session.quizType || '').toLowerCase();
+                        if (type === 'run') {
+                            this.fromLive = true;
+                            this.liveMode = 'run';
+                            this.liveSessionId = session.sessionId || sessionId;
+                        } else if (type === 'live') {
+                            this.fromLive = true;
+                            this.liveMode = 'live';
+                            this.liveSessionId = session.sessionId || sessionId;
+                        }
                         this.updateChart();
                         this.saved = true;
                         return;
@@ -113,7 +141,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                     standard: sample.standard,
                     subject: sample.subject,
                     chapter: sample.chapter,
-                    quizType: this.fromLive ? 'live' : 'quick',
+                    quizType: this.fromLive ? (this.liveMode === 'run' ? 'run' : 'live') : 'quick',
                     sessionId: this.fromLive ? this.liveSessionId || undefined : undefined,
                     questions: this.questions.map(q => ({
                         id: q.id,

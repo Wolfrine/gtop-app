@@ -20,6 +20,8 @@ import { LiveLandingComponent } from './pages/live/live-landing/live-landing.com
 import { LiveHostComponent } from './pages/live/live-host/live-host.component';
 import { LivePlayerComponent } from './pages/live/live-player/live-player.component';
 import { LiveSummaryComponent } from './pages/live/live-summary/live-summary.component';
+import { QuizRunLandingComponent } from './pages/quiz-run/quiz-run-landing/quiz-run-landing.component';
+import { QuizRunLobbyComponent } from './pages/quiz-run/quiz-run-lobby/quiz-run-lobby.component';
 
 
 
@@ -78,6 +80,18 @@ export const routes: Routes = [
     {
         path: 'quiz-summary',
         component: QuizSummaryComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user', 'admin'] }
+    },
+    {
+        path: 'quiz-run',
+        component: QuizRunLandingComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user', 'admin'] }
+    },
+    {
+        path: 'quiz-run/lobby/:sessionId',
+        component: QuizRunLobbyComponent,
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['user', 'admin'] }
     },

@@ -39,7 +39,7 @@
 
   <!-- Live Leaderboard (embedded) -->
   <mat-card appCard *ngIf="fromLive && liveSessionId" class="live-leaderboard">
-    <h3>Live Leaderboard</h3>
+    <h3>{{ liveMode === 'run' ? 'Quiz Run Leaderboard' : 'Live Leaderboard' }}</h3>
     <app-live-summary [sessionIdInput]="liveSessionId"></app-live-summary>
   </mat-card>
 

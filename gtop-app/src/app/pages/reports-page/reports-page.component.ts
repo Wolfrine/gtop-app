@@ -51,7 +51,8 @@ export class ReportsPageComponent implements OnInit {
     quizTypeChartData: ChartConfiguration<'pie'>['data'] = this.createQuizTypeChartData({
         quick: 0,
         custom: 0,
-        live: 0
+        live: 0,
+        run: 0
     });
 
     lineChartOptions: ChartConfiguration<'line'>['options'] = {
@@ -157,7 +158,7 @@ export class ReportsPageComponent implements OnInit {
             this.lastUpdatedLabel = '';
             this.summaryCards = this.createDefaultSummaryCards();
             this.accuracyChartData = this.createLineChartData([]);
-            this.quizTypeChartData = this.createQuizTypeChartData({ quick: 0, custom: 0, live: 0 });
+            this.quizTypeChartData = this.createQuizTypeChartData({ quick: 0, custom: 0, live: 0, run: 0 });
             this.sessions = [];
             return;
         }
@@ -197,7 +198,8 @@ export class ReportsPageComponent implements OnInit {
                 total: r.totalQuestions,
                 correct: r.correctAnswers,
                 duration: r.duration || '—',
-                questions: (r.questions || []) as QuizResultQuestion[]
+                questions: (r.questions || []) as QuizResultQuestion[],
+                sessionId: r.sessionId || null
             };
         });
 
@@ -272,13 +274,14 @@ export class ReportsPageComponent implements OnInit {
         this.accuracyChartData = this.createLineChartData(accuracyData, accuracyLabels);
 
         // ✅ Quiz Type Distribution
-        const quizTypeCounts: Record<'quick' | 'custom' | 'live', number> = { quick: 0, custom: 0, live: 0 };
+        const quizTypeCounts: Record<'quick' | 'custom' | 'live' | 'run', number> = { quick: 0, custom: 0, live: 0, run: 0 };
         sortedByDate.forEach(r => {
             const type = (r.quizType || '').toLowerCase();
             switch (type) {
                 case 'quick':
                 case 'custom':
                 case 'live':
+                case 'run':
                     quizTypeCounts[type as keyof typeof quizTypeCounts]++;
                     break;
             }
@@ -300,7 +303,9 @@ export class ReportsPageComponent implements OnInit {
             state: {
                 sessionId: session.id,
                 userId,
-                questionSummaries: session.questions
+                questionSummaries: session.questions,
+                quizType: session.quizType,
+                liveSessionId: session.sessionId
             },
             queryParams: {
                 sessionId: session.id,
@@ -370,14 +375,14 @@ export class ReportsPageComponent implements OnInit {
         };
     }
 
-    private createQuizTypeChartData(counts: Record<'quick' | 'custom' | 'live', number>): ChartConfiguration<'pie'>['data'] {
+    private createQuizTypeChartData(counts: Record<'quick' | 'custom' | 'live' | 'run', number>): ChartConfiguration<'pie'>['data'] {
         return {
-            labels: ['Quick', 'Custom', 'Live'],
+            labels: ['Quick', 'Custom', 'Live', 'Run'],
             datasets: [
                 {
-                    data: [counts.quick, counts.custom, counts.live],
-                    backgroundColor: ['#2563eb', '#22c55e', '#f97316'],
-                    hoverBackgroundColor: ['#1d4ed8', '#16a34a', '#ea580c'],
+                    data: [counts.quick, counts.custom, counts.live, counts.run],
+                    backgroundColor: ['#2563eb', '#22c55e', '#f97316', '#9333ea'],
+                    hoverBackgroundColor: ['#1d4ed8', '#16a34a', '#ea580c', '#7e22ce'],
                     borderWidth: 2,
                     borderColor: '#ffffff'
                 }
@@ -437,6 +442,7 @@ interface ReportSession {
     correct: number;
     duration: string;
     questions: QuizResultQuestion[];
+    sessionId: string | null;
 }
 
 interface SummaryCardTrend {

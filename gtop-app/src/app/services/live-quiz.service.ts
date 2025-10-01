@@ -12,15 +12,18 @@ import {
   limit,
   onSnapshot,
   serverTimestamp,
-  Timestamp
+  Timestamp,
+  getCountFromServer
 } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import {
+  CreateRunSessionOptions,
   CreateSessionOptions,
   LiveAnswerItem,
   LiveParticipant,
   LiveSession,
-  ComputeScheduleResult
+  ComputeScheduleResult,
+  SessionStatus
 } from '../shared/models/live-quiz.models';
 
 @Injectable({ providedIn: 'root' })
@@ -45,6 +48,8 @@ export class LiveQuizService {
       hostId: opts.hostId,
       hostName: opts.hostName,
       joinCode,
+      mode: opts.mode ?? 'live',
+      maxParticipants: opts.maxParticipants ?? null,
       scope: opts.scope,
       questionIds: [...opts.questionIds],
       scheduledStartAt: opts.scheduledStartAt,
@@ -57,6 +62,7 @@ export class LiveQuizService {
       overrideAt: null,
       anchorIndex: 0,
       anchorAt: opts.scheduledStartAt,
+      startedAt: opts.startedAt ?? null,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       resultLinked: false
@@ -73,6 +79,11 @@ export class LiveQuizService {
     const q = query(this.sessionsCol, where('joinCode', '==', code), where('status', '==', 'lobby'), limit(1));
     const snap = await getDocs(q);
     if (snap.empty) return null;
+
+    const sessionData = snap.docs[0].data() as LiveSession;
+    if ((sessionData.mode || 'live') === 'run') {
+      return null;
+    }
 
     const sessionId = snap.docs[0].id;
     const participantRef = doc(this.firestore, `LiveSessions/${sessionId}/participants/${user.uid}`);
@@ -115,7 +126,7 @@ export class LiveQuizService {
     return onSnapshot(q, (snap) => {
       const items = snap.docs
         .map(d => ({ id: d.id, ...(d.data() as any) }))
-        .filter((s: any) => s.status === 'lobby');
+        .filter((s: any) => s.status === 'lobby' && (s.mode || 'live') === 'live');
       cb(items as any);
     });
   }
@@ -263,6 +274,78 @@ export class LiveQuizService {
       anchorAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       status: 'active'
+    }, { merge: true } as any);
+  }
+
+  async createRunSession(opts: CreateRunSessionOptions): Promise<{ sessionId: string; joinCode: string }> {
+    const now = Timestamp.fromDate(new Date());
+    return this.createSession({
+      hostId: opts.hostId,
+      hostName: opts.hostName,
+      scope: opts.scope,
+      questionIds: opts.questionIds,
+      scheduledStartAt: now,
+      bufferSeconds: 0,
+      perQuestionSeconds: opts.perQuestionSeconds,
+      autoAdvance: true,
+      mode: 'run',
+      maxParticipants: opts.maxParticipants ?? 5,
+      startedAt: null
+    });
+  }
+
+  async joinRunByCode(code: string, user: { uid: string; displayName: string; photoURL?: string | null }): Promise<{ sessionId: string; status: SessionStatus } | null> {
+    const q = query(this.sessionsCol, where('joinCode', '==', code), limit(1));
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+
+    const docSnap = snap.docs[0];
+    const data = docSnap.data() as LiveSession;
+    const mode = data.mode || 'live';
+    if (mode !== 'run') {
+      return null;
+    }
+    if (data.status === 'ended') {
+      return null;
+    }
+
+    const sessionId = docSnap.id;
+    const participantRef = doc(this.firestore, `LiveSessions/${sessionId}/participants/${user.uid}`);
+    const existing = await getDoc(participantRef as any);
+
+    const max = data.maxParticipants ?? 5;
+    if (!existing.exists()) {
+      const participantsCol = collection(this.firestore, `LiveSessions/${sessionId}/participants`);
+      const countSnap = await getCountFromServer(participantsCol as any);
+      const currentCount = Number(countSnap.data().count || 0);
+      if (currentCount >= max) {
+        throw new Error('This quiz run is full.');
+      }
+    }
+
+    const participant: LiveParticipant = {
+      uid: user.uid,
+      displayName: user.displayName,
+      photoURL: user.photoURL ?? null,
+      joinedAt: serverTimestamp(),
+      ready: true
+    };
+
+    await setDoc(participantRef, participant, { merge: true } as any);
+    return { sessionId, status: data.status };
+  }
+
+  async startRun(sessionId: string): Promise<void> {
+    const ref = doc(this.firestore, `LiveSessions/${sessionId}`);
+    await setDoc(ref, {
+      scheduledStartAt: serverTimestamp(),
+      anchorIndex: 0,
+      anchorAt: serverTimestamp(),
+      startedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      status: 'active',
+      overrideIndex: null,
+      overrideAt: null
     }, { merge: true } as any);
   }
 

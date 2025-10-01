@@ -1,5 +1,43 @@
 # Live Quiz — Implementation Plan (Firestore)
 
+## Quiz Run Addendum (vNext)
+
+Scope: allow any authenticated user to spin up a lightweight peer-to-peer "Quiz Run" that reuses the live quiz infrastructure but without an admin host screen. The creator participates alongside up to four additional players (five total). Quiz runs keep the same Firestore collections and quiz page experience so downstream reports continue to work.
+
+1. **Session model extensions**
+   - Add `mode: 'live' | 'run'`, optional `maxParticipants` (default 5 for runs), and a nullable `startedAt` timestamp on `LiveSession`. Ensure existing code defaults to `'live'` when the field is missing for backward compatibility.
+   - When creating a run, preset `bufferSeconds = 0`, `status = 'lobby'`, `autoAdvance = true`, and skip admin-only host metadata that the run does not need (e.g., override controls).
+
+2. **Service helpers**
+   - Introduce `createRunSession` that wraps `createSession`, writing the `mode: 'run'`, selected `questionIds`, and derived quiz metadata, returning `{ sessionId, joinCode }`.
+   - Add `joinRunByCode` that validates `mode === 'run'`, enforces the participant cap (allowing rejoin by the same UID), and routes to the run lobby. Reuse `observeSession`, `observeParticipants`, and answer listeners unchanged.
+   - Provide `startRun(sessionId)` for the creator to stamp `startedAt`/`anchorAt` with `serverTimestamp()` and flip `status` to `'active'`, mirroring the existing `startNow` flow.
+
+3. **Creator flow**
+   - Surface a "Start Quiz Run" CTA on the dashboard that opens a new run setup dialog reusing the manual quiz filters (board → standard → subject → chapter) and question generation logic from `ManualQuizModal` / `QuizService`.
+   - After confirmation, call `createRunSession`, persist the question IDs, and redirect the creator to a `QuizRunLobbyComponent` that shows the shareable join code and participant slots.
+
+4. **Lobby & start**
+   - Build `QuizRunLobbyComponent` (route `/quiz-run/:sessionId`) using `observeSession` and `observeParticipants`. Display up to five participants, highlight remaining slots, and enable "Start Run" only for the creator (requires at least one participant, optional).
+   - When the creator starts, call `startRun`; all users navigate to `/quiz?sessionId=...&mode=run`. Late joiners after capacity is reached should see an error toast and stay on the landing view.
+
+5. **In-quiz tweaks**
+   - Update `QuizPageComponent` to respect the session `mode`. For `mode === 'run'`, reuse live timers/leaderboards but hide admin-only controls. Ensure answer locking, auto-advance, and submission recording continue to function identically.
+   - Tag saved results with `quizType: 'run'` (rather than `'live'`) and include the `sessionId` so the summary/Reports screens can differentiate runs from admin live sessions.
+
+6. **Post-quiz summary & analytics**
+   - Reuse the existing summary view, but adjust labels to reflect "Quiz Run" when `quizType === 'run'`. Keep the leaderboard component identical for parity.
+   - Update reporting aggregations (totals, charts, filters) to count `'run'` attempts separately while leaving current `'live'` behaviour intact.
+
+7. **Guards & rules**
+   - Mirror live quiz Firestore security with the addition that any authenticated user can create `mode: 'run'` sessions. Participant writes remain restricted to their UID. Client-side enforce `maxParticipants`; server rules may validate the field but cannot easily count docs.
+   - Add UX feedback for capacity reached and prevent multiple participant docs per UID.
+
+8. **QA checklist**
+   - Happy path with creator + 4 joiners, including lobby start, mid-quiz reconnect, and result saving.
+   - Verify live admin sessions remain unaffected and continue to schedule, host, and report correctly.
+
+
 Overview
 - Goal: Add scheduled, Firestore‑driven live quizzes with auto‑advance and per‑question leaderboards while keeping existing quiz patterns intact and Reports working out‑of‑the‑box.
 - Backend: Firestore only. No Realtime DB. Reuse existing `questions` and `QuizResults` collections and AngularFire patterns used in the app.

@@ -45,6 +45,10 @@ export class LivePlayerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sub = this.live.observeSession<any>(this.sessionId, (s) => {
+      if (s && (s.mode || 'live') === 'run') {
+        this.router.navigate(['/quiz-run/lobby', this.sessionId]);
+        return;
+      }
       this.status = s?.status ?? null;
       this.startAt = s?.scheduledStartAt?.toDate ? s.scheduledStartAt.toDate() : undefined;
       this.bufferSeconds = Number(s?.bufferSeconds || 0);

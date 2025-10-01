@@ -8,6 +8,7 @@ import { Timestamp } from '@angular/fire/firestore';
  */
 
 export type SessionStatus = 'lobby' | 'active' | 'ended';
+export type LiveSessionMode = 'live' | 'run';
 
 export interface LiveSessionScope {
   board: string;
@@ -21,6 +22,9 @@ export interface LiveSession {
   hostId: string;
   hostName: string;
   joinCode: string;
+
+  mode?: LiveSessionMode;        // Defaults to 'live' for legacy documents
+  maxParticipants?: number | null; // Optional cap (used by quiz runs)
 
   scope: LiveSessionScope;
 
@@ -42,6 +46,9 @@ export interface LiveSession {
   status: SessionStatus;       // 'lobby' | 'active' | 'ended'
   overrideIndex: number | null; // Host can force jump to index
   overrideAt: Timestamp | null;  // Timestamp when override was set
+
+  // Quiz runs stamp actual start when creator begins
+  startedAt?: Timestamp | null;
 
   // Timestamps
   createdAt: any; // serverTimestamp
@@ -87,6 +94,18 @@ export interface CreateSessionOptions {
   bufferSeconds: number;       // Join window
   perQuestionSeconds: number;  // Time per question
   autoAdvance?: boolean;       // default true
+  mode?: LiveSessionMode;
+  maxParticipants?: number | null;
+  startedAt?: Timestamp | null;
+}
+
+export interface CreateRunSessionOptions {
+  hostId: string;
+  hostName: string;
+  scope: LiveSessionScope;
+  questionIds: string[];
+  perQuestionSeconds: number;
+  maxParticipants?: number;
 }
 
 export interface ComputeScheduleResult {

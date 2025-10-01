@@ -39,6 +39,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     liveMode = false;
     sessionId: string | null = null;
     status: string | null = null;
+    liveModeType: 'live' | 'run' | null = null;
     perQuestionSeconds = 20;
     anchorIndex = 0;
     anchorAt?: Date;
@@ -63,13 +64,28 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         // Detect live mode synchronously from snapshot to avoid race with normal fetch
         const qp = this.route.snapshot.queryParams || {};
+        const modeParam = (qp['mode'] || '').toLowerCase();
+        if (modeParam === 'run') {
+            this.liveModeType = 'run';
+        }
         this.sessionId = qp['sessionId'] || null;
-        this.liveMode = qp['live'] == 1 || qp['live'] === '1' || !!this.sessionId;
+        const liveFlag = qp['live'] == 1 || qp['live'] === '1';
+        this.liveMode = liveFlag || !!this.sessionId || !!this.liveModeType;
+        if (this.liveMode && !this.liveModeType) {
+            this.liveModeType = 'live';
+        }
 
         if (this.liveMode && this.sessionId) {
             // Subscribe to session and drive UI from it
             this.sessionUnsub = this.liveService.observeSession<any>(this.sessionId, (s) => {
                 if (!s) return;
+                const sessionMode = (s.mode || 'live');
+                if (this.liveMode && !this.liveModeType) {
+                    this.liveModeType = sessionMode;
+                }
+                if (sessionMode === 'run') {
+                    this.liveModeType = 'run';
+                }
                 this.status = s.status || null;
                 this.perQuestionSeconds = Number(s.perQuestionSeconds || 20);
                 this.anchorIndex = Number(s.anchorIndex || 0);
@@ -218,7 +234,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             this.navigatedToSummary = true;
             // Expose questions to summary save flow
             this.quizService.setQuestions(this.questions);
-            this.router.navigate(['/quiz-summary'], { state: { fromLive: true, sessionId: this.sessionId } });
+            this.router.navigate(['/quiz-summary'], { state: { fromLive: true, liveMode: this.liveModeType || 'live', sessionId: this.sessionId } });
         }
     }
 

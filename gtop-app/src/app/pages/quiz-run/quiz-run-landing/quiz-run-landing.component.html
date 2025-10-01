@@ -1,0 +1,82 @@
+<div class="run-landing">
+  <mat-card appCard class="create-card">
+    <div class="header">
+      <div>
+        <h2>Start a Quiz Run</h2>
+        <p>Invite up to {{ maxParticipants }} participants to answer questions together in real time.</p>
+      </div>
+      <div class="status" *ngIf="generatedCount">{{ generatedCount }} questions ready</div>
+    </div>
+
+    <form [formGroup]="createForm" (ngSubmit)="createRun()" class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Board</mat-label>
+        <mat-select formControlName="board">
+          <mat-option *ngFor="let board of boards" [value]="board">{{ board }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Standard</mat-label>
+        <mat-select formControlName="standard">
+          <mat-option *ngFor="let standard of standards" [value]="standard">{{ standard }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Subjects</mat-label>
+        <mat-select formControlName="subjects" multiple>
+          <mat-option *ngFor="let subject of subjects" [value]="subject">{{ subject }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Chapters</mat-label>
+        <mat-select formControlName="chapters" multiple>
+          <mat-option *ngFor="let chapter of chapters" [value]="chapter">{{ chapter }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Questions</mat-label>
+        <input matInput type="number" formControlName="count" min="1" max="50" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Seconds per question</mat-label>
+        <input matInput type="number" formControlName="perQuestionSeconds" min="5" max="600" />
+      </mat-form-field>
+    </form>
+
+    <div class="actions">
+      <button mat-stroked-button color="primary" type="button" (click)="generateQuestions()" [disabled]="isGenerating">
+        <mat-icon>casino</mat-icon>
+        {{ isGenerating ? 'Generating…' : 'Randomize Questions' }}
+      </button>
+      <span class="hint">Generated questions are stored with the run and shared with everyone.</span>
+    </div>
+
+    <button mat-flat-button color="primary" class="create-btn" (click)="createRun()" [disabled]="createForm.invalid || !generatedCount || isGenerating">
+      <mat-icon>play_arrow</mat-icon>
+      Create &amp; Share Lobby
+    </button>
+
+    <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
+  </mat-card>
+
+  <mat-card appCard class="join-card">
+    <h2>Join a Quiz Run</h2>
+    <p>Have a code from a friend? Enter it below to jump into their lobby.</p>
+    <form [formGroup]="joinForm" (ngSubmit)="joinRun()" class="join-form">
+      <mat-form-field appearance="outline" class="code-field">
+        <mat-label>Run Code</mat-label>
+        <input matInput formControlName="joinCode" maxlength="6" autocomplete="off" />
+      </mat-form-field>
+      <button mat-flat-button color="accent" type="submit">
+        <mat-icon>login</mat-icon>
+        Join Run
+      </button>
+    </form>
+    <div class="error" *ngIf="joinError">{{ joinError }}</div>
+  </mat-card>
+</div>

@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ManualQuizModalComponent } from '../../components/manual-quiz-modal/manual-quiz-modal.component';
 import { AuthService } from '../../services/auth.service';
 import { QuizService } from '../../services/quiz.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
     selector: 'app-user-dashboard',
@@ -19,6 +20,7 @@ import { QuizService } from '../../services/quiz.service';
         MatButtonModule,
         RouterModule,
         MatIconModule,
+        MatTooltipModule,
         AppCardDirective
     ],
     templateUrl: './user-dashboard.component.html',

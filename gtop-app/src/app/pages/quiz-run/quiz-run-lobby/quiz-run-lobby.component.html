@@ -1,0 +1,39 @@
+<div class="lobby-container">
+  <mat-card appCard class="lobby-header">
+    <div class="titles">
+      <h2>Quiz Run Lobby</h2>
+      <p>Share the code and wait for everyone to join. Max {{ maxParticipants }} participants.</p>
+    </div>
+    <div class="code" *ngIf="joinCode">
+      <span>{{ joinCode }}</span>
+      <button mat-icon-button (click)="copyJoinCode()" [disabled]="copySuccess" matTooltip="Copy code">
+        <mat-icon>{{ copySuccess ? 'check' : 'content_copy' }}</mat-icon>
+      </button>
+    </div>
+  </mat-card>
+
+  <mat-card appCard class="participants">
+    <div class="participants-header">
+      <h3>Participants</h3>
+      <span class="count">{{ participants.length }}/{{ maxParticipants }}</span>
+    </div>
+    <mat-list>
+      <mat-list-item *ngFor="let participant of participants; trackBy: trackByUid">
+        <mat-icon matListIcon>person</mat-icon>
+        <div matLine>{{ participant.displayName || 'Player' }}</div>
+      </mat-list-item>
+    </mat-list>
+    <div class="empty" *ngIf="!participants.length">Waiting for players…</div>
+  </mat-card>
+
+  <div class="actions" *ngIf="isCreator">
+    <button mat-flat-button color="primary" (click)="startRun()" [disabled]="!canStart || starting">
+      <mat-icon>play_arrow</mat-icon>
+      {{ starting ? 'Starting…' : 'Start Quiz Run' }}
+    </button>
+    <span class="slots" *ngIf="slotsRemaining > 0">{{ slotsRemaining }} slot{{ slotsRemaining === 1 ? '' : 's' }} left</span>
+  </div>
+
+  <div class="info" [ngClass]="status">{{ infoMsg }}</div>
+  <div class="error" *ngIf="startError">{{ startError }}</div>
+</div>

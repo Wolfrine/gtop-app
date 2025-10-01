@@ -40,11 +40,12 @@ export class SideNavComponent implements OnInit {
     }
 
     getAdminMenu(): MenuItem[] {
+        // Dashboard first for quick access (landing route)
         return [
+            { label: 'User Dashboard', icon: 'dashboard', route: '/dashboard' },
             { label: 'Start Quiz', icon: 'play_arrow', route: '/quiz' },
             { label: 'Live Quizzes', icon: 'bolt', route: '/live', tooltip: 'Host or join a live session' },
             { label: 'Performance Reports', icon: 'insights', route: '/reports' },
-            { label: 'User Dashboard', icon: 'dashboard', route: '/dashboard' },
 
             { label: 'Manage MCQs', icon: 'library_books', route: '/admin/mcq-management' },
             { label: 'Manage Syllabus', icon: 'fact_check', route: '/admin/manage-syllabus' },
@@ -60,10 +61,11 @@ export class SideNavComponent implements OnInit {
 
     getUserMenu(isDevHost: boolean = false): MenuItem[] {
         const base: MenuItem[] = [
+            // Dashboard first for parity with admin experience
+            { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
             { label: 'Start Quiz', icon: 'play_arrow', route: '/quiz' },
             { label: 'Join Live Quiz', icon: 'bolt', route: '/live', tooltip: 'Enter a code to join' },
             { label: 'Performance Reports', icon: 'insights', route: '/reports' },
-            { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
         ];
         if (isDevHost) {
             base.push({ label: 'Logs', icon: 'bug_report', route: '/logs' });

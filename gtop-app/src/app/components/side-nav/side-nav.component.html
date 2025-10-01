@@ -2,7 +2,7 @@
   <a mat-list-item *ngFor="let item of menuItems"
      [routerLink]="item.route" routerLinkActive="active" (click)="itemClicked.emit()"
      [matTooltip]="item.tooltip || ''">
-    <mat-icon class="icon">{{ item.icon }}</mat-icon>
+    <mat-icon matListItemIcon class="icon">{{ item.icon }}</mat-icon>
     <span class="label">{{ item.label }}</span>
     <span class="pill" *ngIf="item.badge">{{ item.badge }}</span>
   </a>

@@ -132,3 +132,4 @@
 - 2025-09-25: Initial a11y pass completed on demo and key components (focus ring, icon button labels). Further page-level a11y checks to be iterated during Phase 2 per screen.
  - 2025-09-25: Phase 2 updates — Dashboard redesigned (stats, recent sessions, actions), side nav refined (labels, active state), Landing feature cards aligned to system, Quiz question/options use AppCard, Quiz Summary upgraded with donut chart, stat chips, incorrect-only filter, and improved accordion headers.
  - 2025-10-01: Side nav polish — icons vertically aligned with labels using `matListItemIcon`, spacing tightened; Dashboard pinned as first item for both user and admin menus; minor CSS tweaks to remove MDC start graphic and ensure consistent icon sizing.
+ - 2025-10-01: Profile page added — standalone `/profile` shows centered circular avatar, display name and email, and allows editing Board & Standard with save (no redirect). Header dropdown now includes a Profile link.

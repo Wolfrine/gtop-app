@@ -305,11 +305,12 @@ export class LiveQuizService {
     if (mode !== 'run') {
       return null;
     }
-    if (data.status === 'ended') {
-      return null;
-    }
 
     const sessionId = docSnap.id;
+    const status = (data.status || 'lobby') as SessionStatus;
+    if (status === 'ended') {
+      return { sessionId, status };
+    }
     const participantRef = doc(this.firestore, `LiveSessions/${sessionId}/participants/${user.uid}`);
     const existing = await getDoc(participantRef as any);
 
@@ -332,7 +333,7 @@ export class LiveQuizService {
     };
 
     await setDoc(participantRef, participant, { merge: true } as any);
-    return { sessionId, status: data.status };
+    return { sessionId, status };
   }
 
   async startRun(sessionId: string): Promise<void> {

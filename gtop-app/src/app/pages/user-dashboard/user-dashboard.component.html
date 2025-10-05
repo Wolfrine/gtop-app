@@ -7,27 +7,65 @@
       <p class="sub">Board: {{ userSubjects || '—' }} · Standard: {{ userStandard || '—' }}</p>
     </div>
     <div class="quick-start">
-      <button mat-flat-button color="primary" (click)="startQuickQuiz()" matTooltip="10 random questions from your subjects">
-        <mat-icon>play_arrow</mat-icon>
-        Start Quick Quiz
-      </button>
-      <button mat-stroked-button color="primary" (click)="openManualQuiz()"
-              matTooltip="Customize subject, chapter and question count">
-        <mat-icon>tune</mat-icon>
-        Practice Builder
-      </button>
-      <button mat-stroked-button color="accent" [routerLink]="['/quiz-run']" matTooltip="Create or join a Quiz Run">
-        <mat-icon>groups</mat-icon>
-        Start Quiz Run
-      </button>
-      <button mat-stroked-button color="accent" [routerLink]="['/live']" matTooltip="Join a scheduled live quiz">
-        <mat-icon>bolt</mat-icon>
-        Join Live Quiz
-      </button>
-      <button mat-stroked-button color="accent" [routerLink]="['/reports']">
-        <mat-icon>insights</mat-icon>
-        View Reports
-      </button>
+      <section class="cta-group solo" aria-labelledby="solo-heading">
+        <div class="cta-header">
+          <span class="cta-icon" aria-hidden="true">
+            <mat-icon>self_improvement</mat-icon>
+          </span>
+          <div class="cta-copy">
+            <h3 id="solo-heading">Solo Practice</h3>
+            <p>Warm up or build a custom set just for you.</p>
+          </div>
+        </div>
+        <div class="cta-actions">
+          <button mat-flat-button color="primary" (click)="startQuickQuiz()"
+                  matTooltip="10 random questions from your syllabus">
+            <mat-icon>play_arrow</mat-icon>
+            Quick Quiz
+          </button>
+          <button mat-stroked-button color="primary" (click)="openManualQuiz()"
+                  matTooltip="Pick subject, chapters and question count">
+            <mat-icon>tune</mat-icon>
+            Quiz Builder
+          </button>
+        </div>
+      </section>
+
+      <section class="cta-group realtime" aria-labelledby="realtime-heading">
+        <div class="cta-header">
+          <span class="cta-icon" aria-hidden="true">
+            <mat-icon>groups</mat-icon>
+          </span>
+          <div class="cta-copy">
+            <h3 id="realtime-heading">Real-Time Quizzes</h3>
+            <p>Challenge friends or join a hosted event.</p>
+          </div>
+        </div>
+        <div class="cta-actions">
+          <button mat-stroked-button color="accent" [routerLink]="['/quiz-run']"
+                  matTooltip="Create a lobby, share code and race with friends">
+            <mat-icon>schedule</mat-icon>
+            Quiz Run Lobby
+          </button>
+          <button mat-stroked-button color="accent" [routerLink]="['/live']"
+                  matTooltip="See upcoming live quizzes hosted by admins">
+            <mat-icon>bolt</mat-icon>
+            Upcoming Live Quiz
+          </button>
+        </div>
+      </section>
+
+      <a class="reports-cta" [routerLink]="['/reports']" matTooltip="Review accuracy, streaks and past attempts">
+        <span class="reports-icon" aria-hidden="true">
+          <mat-icon>insights</mat-icon>
+        </span>
+        <div class="reports-copy">
+          <span class="eyebrow">Progress Hub</span>
+          <span class="title">View Reports</span>
+          <span class="hint">Spot trends, revisit answers and celebrate wins.</span>
+        </div>
+        <mat-icon class="chevron" aria-hidden="true">arrow_forward</mat-icon>
+      </a>
     </div>
   </mat-card>
 

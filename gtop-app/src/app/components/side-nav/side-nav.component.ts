@@ -42,17 +42,18 @@ export class SideNavComponent implements OnInit {
     getAdminMenu(): MenuItem[] {
         // Dashboard first for quick access (landing route)
         return [
-            { label: 'User Dashboard', icon: 'dashboard', route: '/dashboard' },
-            { label: 'Start Quiz', icon: 'play_arrow', route: '/quiz' },
-            { label: 'Live Quizzes', icon: 'bolt', route: '/live', tooltip: 'Host or join a live session' },
-            { label: 'Performance Reports', icon: 'insights', route: '/reports' },
+            { label: 'Learner Dashboard', icon: 'dashboard', route: '/dashboard', tooltip: 'Preview the learner home experience' },
+            { label: 'Quick Quiz', icon: 'play_arrow', route: '/quiz', tooltip: 'Launch a random solo quiz' },
+            { label: 'Quiz Run Lobby', icon: 'groups', route: '/quiz-run', tooltip: 'Create a real-time lobby (max 5 learners)' },
+            { label: 'Live Quiz Schedule', icon: 'event', route: '/live', tooltip: 'Review and host upcoming live quizzes' },
+            { label: 'Reports & Insights', icon: 'insights', route: '/reports', tooltip: 'Analyse learner attempts and accuracy' },
 
             { label: 'Manage MCQs', icon: 'library_books', route: '/admin/mcq-management' },
             { label: 'Manage Syllabus', icon: 'fact_check', route: '/admin/manage-syllabus' },
             { label: 'Syllabus Preview', icon: 'menu_book', route: '/syllabus-preview' },
             { label: 'User Management', icon: 'group', route: '/admin/user-list' },
 
-            { label: 'Admin Dashboard', icon: 'grid_view', route: '/admin' },
+            { label: 'Admin Console', icon: 'grid_view', route: '/admin', tooltip: 'Access administrative metrics and tools' },
 
             { label: 'UI Kitchen (Dev)', icon: 'science', route: '/dev/ui', badge: 'DEV', tooltip: 'Development preview (admin only)' },
             { label: 'Logs', icon: 'bug_report', route: '/logs' },

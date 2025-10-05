@@ -57,7 +57,19 @@
         </mat-expansion-panel-header>
 
         <div class="mcq-details">
-          <span class="mcq-category">{{q.board}}, {{q.standard}} - {{ q.subject }} | {{q.chapter}}</span>
+          <div class="mcq-header">
+            <span class="mcq-category">{{q.board}}, {{q.standard}} · {{ q.subject }} | {{q.chapter}}</span>
+            <button
+              mat-icon-button
+              type="button"
+              class="flag-button"
+              (click)="flagQuestion(q)"
+              [disabled]="isQuestionFlagging(q.id) || isQuestionFlagged(q.id)"
+              aria-label="Flag question"
+            >
+              <mat-icon [ngClass]="{ flagged: isQuestionFlagged(q.id) }">flag</mat-icon>
+            </button>
+          </div>
           <p><strong>{{ q.question }}</strong></p>
           <div class="mcq-options">
             <div *ngFor="let option of q.options; let j = index" class="mcq-option">
@@ -66,12 +78,20 @@
           </div>
 
           <div class="mcq-incorrect" *ngIf="q.selectedIndex !== q.correctIndex">
-            <span class="option-label">Your Answer:</span>
-            <span class="incorrect-answer">
-              {{ q.selectedIndex !== undefined ? optionLabels[q.selectedIndex] : 'Not Answered' }}
-              {{ q.options[q.selectedIndex] || 'Not Answered' }}
-            </span>
-            <p><strong>Explanation:</strong> {{ q.solutions[q.correctIndex] }}</p>
+            <div class="answer-row">
+              <span class="option-label">Your Answer:</span>
+              <span class="incorrect-answer">
+                {{ q.selectedIndex !== undefined ? optionLabels[q.selectedIndex] : 'Not Answered' }}
+                {{ q.options[q.selectedIndex] || 'Not Answered' }}
+              </span>
+            </div>
+            <div class="answer-row">
+              <span class="option-label">Correct Answer:</span>
+              <span class="correct-answer">
+                {{ optionLabels[q.correctIndex] }} {{ q.options[q.correctIndex] }}
+              </span>
+            </div>
+            <p class="explanation" *ngIf="q.solutions?.[q.correctIndex]"><strong>Explanation:</strong> {{ q.solutions[q.correctIndex] }}</p>
           </div>
 
           <div class="mcq-solution" *ngIf="q.selectedIndex == q.correctIndex">

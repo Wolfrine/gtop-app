@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, onSnapshot, doc, getDoc } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, onSnapshot, doc, getDoc, setDoc } from '@angular/fire/firestore';
 import { SyllabusService, SyllabusItem } from './syllabus.service';
-import { setDoc } from '@angular/fire/firestore';
 import { Timestamp } from '@angular/fire/firestore';
+import { increment } from 'firebase/firestore';
 
 @Injectable({
     providedIn: 'root'
@@ -390,6 +390,50 @@ export class QuizService {
         const questionIds = filteredSummaries.map(q => q.questionId).filter(Boolean);
         const questions = await this.fetchQuestionsByIds(questionIds);
         this.setPendingRetry(questions, context);
+    }
+
+    async flagQuestion(question: any, userId: string): Promise<void> {
+        if (!question?.id) {
+            throw new Error('missing-question-id');
+        }
+
+        if (!userId) {
+            throw new Error('missing-user-id');
+        }
+
+        const flagDocId = `${question.id}_${userId}`;
+        const flagDocRef = doc(this.firestore, `questionFlags/${flagDocId}`);
+        const existing = await getDoc(flagDocRef);
+
+        if (existing.exists()) {
+            const error: any = new Error('already-flagged');
+            error.code = 'already-flagged';
+            throw error;
+        }
+
+        const payload = {
+            questionId: question.id,
+            userId,
+            flaggedAt: Timestamp.now(),
+            board: question.board ?? null,
+            standard: question.standard ?? null,
+            subject: question.subject ?? null,
+            chapter: question.chapter ?? null,
+            correctIndex: typeof question.correctIndex === 'number' ? question.correctIndex : null,
+            selectedIndex: typeof question.selectedIndex === 'number' ? question.selectedIndex : null
+        };
+
+        await setDoc(flagDocRef, payload, { merge: true });
+
+        try {
+            const questionRef = doc(this.firestore, `questions/${question.id}`);
+            await setDoc(questionRef, {
+                flagCount: increment(1),
+                lastFlaggedAt: Timestamp.now()
+            }, { merge: true });
+        } catch (error) {
+            console.warn('Unable to update question flag metadata:', error);
+        }
     }
 
     private async fetchQuestionsByIds(ids: string[]): Promise<any[]> {

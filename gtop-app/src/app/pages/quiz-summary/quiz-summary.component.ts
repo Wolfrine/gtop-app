@@ -12,6 +12,7 @@ import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { MatIconModule } from '@angular/material/icon';
 import { LiveSummaryComponent } from '../live/live-summary/live-summary.component';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-quiz-summary',
@@ -25,6 +26,7 @@ import { LiveSummaryComponent } from '../live/live-summary/live-summary.componen
         RouterModule,
         NgChartsModule,
         MatIconModule,
+        MatSnackBarModule,
         LiveSummaryComponent
     ],
     templateUrl: './quiz-summary.component.html',
@@ -41,6 +43,9 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
 
     // UI state
     incorrectOnly = false;
+    currentUserId: string | null = null;
+    private flaggedQuestionIds = new Set<string>();
+    private flaggingState: Record<string, boolean> = {};
 
     // Charts
     doughnutData: ChartConfiguration<'doughnut'>['data'] = {
@@ -58,7 +63,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         private quizService: QuizService,
         private authService: AuthService,
         private router: Router,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private snackBar: MatSnackBar
     ) { }
 
     ngOnInit() {
@@ -132,6 +138,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         }
 
         this.userSub = this.authService.getUser().subscribe(user => {
+            this.currentUserId = user?.uid ?? null;
+
             if (user && this.questions.length > 0 && !this.saved) {
                 const sample = this.questions[0];
 
@@ -184,6 +192,14 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
 
     toggleIncorrectOnly() {
         this.incorrectOnly = !this.incorrectOnly;
+    }
+
+    isQuestionFlagged(questionId: string) {
+        return this.flaggedQuestionIds.has(questionId);
+    }
+
+    isQuestionFlagging(questionId: string) {
+        return !!this.flaggingState[questionId];
     }
 
     async retryIncorrect() {
@@ -249,5 +265,41 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
             subject: sample.subject,
             chapter: sample.chapter
         };
+    }
+
+    async flagQuestion(question: any) {
+        if (!question?.id) {
+            return;
+        }
+
+        if (!this.currentUserId) {
+            this.snackBar.open('Please sign in to flag questions.', 'Dismiss', { duration: 3000 });
+            return;
+        }
+
+        if (this.isQuestionFlagged(question.id)) {
+            this.snackBar.open('You have already flagged this question.', 'Dismiss', { duration: 3000 });
+            return;
+        }
+
+        this.flaggingState = { ...this.flaggingState, [question.id]: true };
+
+        try {
+            await this.quizService.flagQuestion(question, this.currentUserId);
+            this.flaggedQuestionIds.add(question.id);
+            this.snackBar.open('Question flagged for review. Thank you!', 'Dismiss', { duration: 4000 });
+        } catch (error: any) {
+            const code = error?.code || error?.message;
+            if (code === 'already-flagged') {
+                this.flaggedQuestionIds.add(question.id);
+                this.snackBar.open('You already flagged this question.', 'Dismiss', { duration: 3000 });
+            } else {
+                console.error('Error flagging question:', error);
+                this.snackBar.open('Could not flag this question. Please try again later.', 'Dismiss', { duration: 4000 });
+            }
+        } finally {
+            const { [question.id]: removed, ...rest } = this.flaggingState;
+            this.flaggingState = { ...rest };
+        }
     }
 }

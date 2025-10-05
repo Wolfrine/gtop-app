@@ -54,7 +54,17 @@
 .mcq-incorrect { margin-top: 12px; padding: 8px; background: #f5e8f1; border-left: 4px solid #7d2e4c; border-radius: 4px; font-size: 14px; }
 .mcq-incorrect p { margin: 4px 0; }
 
-.mcq-category { font-size: 12px; color: gray; margin-left: auto; display: flex; align-items: center; }
+.mcq-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.mcq-category { font-size: 12px; color: rgba(15, 23, 42, 0.6); }
+.flag-button { width: 32px; height: 32px; color: rgba(220, 38, 38, 0.65); transition: color 0.2s ease, opacity 0.2s ease; }
+.flag-button:hover:not(:disabled) { color: #dc2626; }
+.flag-button:disabled { opacity: 0.4; }
+.flag-button .mat-icon { font-size: 18px; line-height: 18px; }
+.flag-button .mat-icon.flagged { color: #dc2626; opacity: 1; }
+
+.answer-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.answer-row .option-label { margin-right: 4px; }
+.explanation { margin-top: 8px; }
 
 .cta-buttons { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 1rem; }
 

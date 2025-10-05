@@ -1,0 +1,36 @@
+<div class="profile-container" *ngIf="user as u">
+  <mat-card class="profile-card">
+    <div class="avatar-wrap">
+      <img class="avatar" [src]="u.photoURL || 'assets/icons/avatar-placeholder.svg'" alt="Profile picture" />
+    </div>
+
+    <div class="info">
+      <h2>{{ u.displayName || 'User' }}</h2>
+      <p class="email">{{ u.email }}</p>
+    </div>
+
+    <div class="edit-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Board</mat-label>
+        <mat-select [(ngModel)]="selectedBoard">
+          <mat-option *ngFor="let b of boards" [value]="b">{{ b }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Standard</mat-label>
+        <mat-select [(ngModel)]="selectedStandard">
+          <mat-option *ngFor="let s of standards" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="save()" [disabled]="!canSave">
+        <mat-icon>save</mat-icon>
+        Save Changes
+      </button>
+      <span class="saved" *ngIf="savedMessage">{{ savedMessage }}</span>
+    </div>
+  </mat-card>
+</div>

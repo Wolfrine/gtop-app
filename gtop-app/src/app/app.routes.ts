@@ -13,6 +13,7 @@ import { QuizSummaryComponent } from './pages/quiz-summary/quiz-summary.componen
 import { EditSyllabusComponent } from './pages/manage-syllabus/edit-syllabus/edit-syllabus.component';
 import { ReportsPageComponent } from './pages/reports-page/reports-page.component';
 import { UserListComponent } from './pages/admin-dashboard/user-list/user-list.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 import { SyllabusPreviewComponent } from './pages/syllabus-preview/syllabus-preview.component';
 import { LogsComponent } from './pages/logs/logs.component';
 import { UiKitchenComponent } from './pages/ui-kitchen/ui-kitchen.component';
@@ -29,6 +30,12 @@ import { QuizRunLobbyComponent } from './pages/quiz-run/quiz-run-lobby/quiz-run-
 export const routes: Routes = [
     { path: '', component: LandingPageComponent },
     { path: 'profile-setup', component: ProfileSetupComponent },
+    {
+        path: 'profile',
+        component: ProfileComponent,
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user', 'admin'] }
+    },
     {
         path: 'dashboard',
         component: UserDashboardComponent,

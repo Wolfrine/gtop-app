@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Database, ref, set, remove, onDisconnect, update, get, onValue } from '@angular/fire/database';
 import { Auth, User, onAuthStateChanged } from '@angular/fire/auth';
-import { Firestore, collection, onSnapshot, CollectionReference, DocumentData } from '@angular/fire/firestore';
+import { Firestore, collection, onSnapshot, CollectionReference, DocumentData, doc, updateDoc } from '@angular/fire/firestore';
 
 
 @Injectable({
@@ -180,6 +180,17 @@ export class ActiveUsersService {
         update(userRef, data).then(() => {
             console.log('User data updated.');
         });
+    }
+
+    async updateUserRole(userId: string, role: string): Promise<void> {
+        try {
+            const userDocRef = doc(this.firestore, `users/${userId}`);
+            await updateDoc(userDocRef, { role });
+            console.log(`User ${userId} role updated to ${role}.`);
+        } catch (error) {
+            console.error('Failed to update user role:', error);
+            throw error;
+        }
     }
 
     public setPresenceForUser(user: User) {

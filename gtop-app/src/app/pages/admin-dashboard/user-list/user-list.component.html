@@ -1,27 +1,37 @@
 <div class="user-cards-wrapper">
-
     <div class="user-card" *ngFor="let user of users">
-
         <div class="user-card-inner" (click)="viewReport(user)">
-
-            <!-- Profile -->
             <div class="profile-pic">
                 <img [src]="user.photoURL" alt="avatar" />
             </div>
 
-            <!-- Details Section -->
             <div class="user-details">
                 <div class="top-row">
                     <div class="name-email">
                         <div class="name">{{ user.displayName }}</div>
                         <div class="email">{{ user.email }}</div>
+                        <mat-chip-set *ngIf="user.role as role" aria-label="User role">
+                            <mat-chip color="primary" selected *ngIf="role?.toLowerCase() === 'admin'">Admin</mat-chip>
+                        </mat-chip-set>
                     </div>
-                    <div class="online-status">
-                        <mat-icon *ngIf="user.isOnline" class="online-icon">adjust</mat-icon>
-                        {{ user.isOnline ? 'Online' : user.lastSeen ? 'Last seen: '
-                        + (user.lastSeen | date:'dd MMM, y |EEE')
-                        + ' at ' +
-                        (user.lastSeen | date:'HH:MM') : 'Offline' }}
+
+                    <div class="top-row-right">
+                        <div class="online-status">
+                            <mat-icon *ngIf="user.isOnline" class="online-icon">adjust</mat-icon>
+                            {{ user.isOnline ? 'Online' : user.lastSeen ? 'Last seen: '
+                                + (user.lastSeen | date:'dd MMM, y |EEE')
+                                + ' at ' +
+                                (user.lastSeen | date:'HH:MM') : 'Offline' }}
+                        </div>
+                        <button
+                            *ngIf="showPromoteButton(user)"
+                            mat-stroked-button
+                            color="primary"
+                            type="button"
+                            (click)="promoteToAdmin(user, $event)"
+                            [disabled]="isPromoting(user.userId)">
+                            {{ isPromoting(user.userId) ? 'Updating…' : 'Make admin' }}
+                        </button>
                     </div>
                 </div>
 
@@ -29,6 +39,6 @@
                 <div class="meta-line">Started On: {{ user.createdAt | date:'MMM d, y' }}</div>
                 <div class="meta-line">Account Status: {{ user.subscriptionStatus }}</div>
             </div>
-
         </div>
     </div>
+</div>

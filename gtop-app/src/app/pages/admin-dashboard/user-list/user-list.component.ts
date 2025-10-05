@@ -1,11 +1,14 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, DestroyRef, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIcon } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { ActiveUsersService } from '../../../services/active-users.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
     selector: 'app-user-list',
@@ -15,7 +18,8 @@ import { Router } from '@angular/router';
         FormsModule,
         MatCardModule,
         MatChipsModule,
-        MatIcon
+        MatIcon,
+        MatButtonModule
     ],
     templateUrl: './user-list.component.html',
     styleUrls: ['./user-list.component.scss']
@@ -23,8 +27,15 @@ import { Router } from '@angular/router';
 export class UserListComponent {
     users: any[] = [];
     selectedUsers: any[] = [];
+    currentUserId: string | null = null;
+    private promotingUserIds = new Set<string>();
+    private destroyRef = inject(DestroyRef);
 
-    constructor(private activeUsersService: ActiveUsersService, private router: Router) {
+    constructor(
+        private activeUsersService: ActiveUsersService,
+        private router: Router,
+        private authService: AuthService
+    ) {
         this.activeUsersService.listenToUsersCollection();
         this.activeUsersService.listenToActiveUsers();
 
@@ -70,6 +81,12 @@ export class UserListComponent {
             });
         });
 
+        this.authService.getUser()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(user => {
+                this.currentUserId = user?.uid ?? null;
+            });
+
     }
 
     onUserSelect(user: any) {
@@ -91,5 +108,36 @@ export class UserListComponent {
 
     viewReport(user: any) {
         this.router.navigate(['/reports'], { queryParams: { userId: user.userId } });
+    }
+
+    showPromoteButton(user: any): boolean {
+        if (!user?.userId) {
+            return false;
+        }
+
+        const role = typeof user.role === 'string' ? user.role.toLowerCase() : '';
+        return role !== 'admin' && user.userId !== this.currentUserId;
+    }
+
+    isPromoting(userId: string): boolean {
+        return this.promotingUserIds.has(userId);
+    }
+
+    async promoteToAdmin(user: any, event: MouseEvent): Promise<void> {
+        event.stopPropagation();
+
+        if (!user?.userId || this.isPromoting(user.userId)) {
+            return;
+        }
+
+        this.promotingUserIds.add(user.userId);
+
+        try {
+            await this.activeUsersService.updateUserRole(user.userId, 'admin');
+        } catch (error) {
+            console.error('Failed to promote user to admin:', error);
+        } finally {
+            this.promotingUserIds.delete(user.userId);
+        }
     }
 }

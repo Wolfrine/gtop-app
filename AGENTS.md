@@ -60,7 +60,7 @@ A GitHub Action workflow (`.github/workflows/firebase-deploy.yml`) deploys the A
 1. Live Quiz
 2. Report graph to summarize over months in case there are large number of quiz taken
 3. Reports to load only 10 previous quiz at a time - currently all quiz are loading. Check for firestore calls though.
-4. Implement footer version bump on each change done by codex
+4. On every change made by Codex, manually bump the footer version string in `gtop-app/src/app/components/footer/footer.component.ts` (increase the trailing number by 1) and sync Firestore's `Meta/version` after merge.
 5. AI/LLM based integration for quiz addition - which will get manually reviewed
 6. Reports to include subject and chapter wise overview
 7. Dashboard Last Score is not showing the latest one. Reports last score is proper.

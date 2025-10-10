@@ -105,3 +105,82 @@ mat-chip {
 .loading-state {
     padding: 36px 20px;
 }
+
+.whats-new-card {
+    display: grid;
+    gap: 18px;
+}
+
+.whats-new-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.whats-new-header .badge {
+    background: rgba(59,130,246,0.12);
+    color: #1d4ed8;
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.whats-new-header h3 {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.whats-new-header p {
+    margin: 0;
+    color: #475569;
+    max-width: 640px;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.whats-new-grid {
+    gap: 16px;
+}
+
+.whats-new-grid .cta-group {
+    min-height: 100%;
+}
+
+.whats-new-grid .cta-icon svg {
+    width: 40px;
+    height: 40px;
+}
+
+.whats-new-grid h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.whats-new-grid p {
+    margin: 0;
+    color: #475569;
+    font-size: 14px;
+}
+
+.whats-new-steps {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 6px;
+    color: #334155;
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .whats-new-grid .cta-group {
+        padding: 14px;
+    }
+}

@@ -8,6 +8,89 @@
     </div>
 </header>
 
+<!-- Live Quiz + Quiz Run Promo -->
+<section class="live-promo" aria-labelledby="live-quiz-heading">
+    <mat-card appCard class="promo-card">
+        <div class="promo-copy">
+            <span class="badge">New for 2025</span>
+            <h2 id="live-quiz-heading">Go Live with Your Learning Squad!</h2>
+            <p>
+                Live Quiz and Quiz Run let classes from standards 5 to 12 learn together, celebrate quick thinkers,
+                and cheer on every correct answer.
+            </p>
+
+            <div class="promo-points">
+                <div class="point">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 64 64" role="presentation">
+                            <circle cx="32" cy="32" r="30" fill="rgba(59,130,246,0.12)" />
+                            <path d="M21 33l7 7 15-15" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                    <div>
+                        <h3>Team Power</h3>
+                        <p>Join classmates instantly with a host code and race through rapid-fire questions.</p>
+                    </div>
+                </div>
+                <div class="point">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 64 64" role="presentation">
+                            <circle cx="32" cy="32" r="30" fill="rgba(16,185,129,0.15)" />
+                            <path d="M20 40h24M16 24h32" stroke="#0f766e" stroke-width="4" stroke-linecap="round" />
+                            <circle cx="32" cy="24" r="6" fill="#0f766e" />
+                        </svg>
+                    </span>
+                    <div>
+                        <h3>Fair Play</h3>
+                        <p>Automatic scoring keeps every round honest so you can focus on learning.</p>
+                    </div>
+                </div>
+                <div class="point">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 64 64" role="presentation">
+                            <circle cx="32" cy="32" r="30" fill="rgba(244,114,182,0.18)" />
+                            <path d="M24 42l16-20M24 22h16" stroke="#be185d" stroke-width="4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                    <div>
+                        <h3>Anytime Practice</h3>
+                        <p>Schedule a Quiz Run, share it with friends, and replay favourite rounds anytime.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="promo-actions">
+                <button mat-raised-button color="accent" (click)="signUp()">Join a Live Quiz</button>
+                <button mat-stroked-button color="primary" (click)="signUp()">Start a Quiz Run</button>
+            </div>
+        </div>
+        <div class="promo-graphic" aria-hidden="true">
+            <svg viewBox="0 0 240 200" role="presentation">
+                <defs>
+                    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.9" />
+                        <stop offset="100%" stop-color="#22d3ee" stop-opacity="0.9" />
+                    </linearGradient>
+                </defs>
+                <rect x="20" y="40" width="200" height="120" rx="18" fill="url(#grad)" opacity="0.9" />
+                <rect x="40" y="60" width="70" height="16" rx="8" fill="rgba(255,255,255,0.85)" />
+                <rect x="120" y="60" width="70" height="16" rx="8" fill="rgba(255,255,255,0.35)" />
+                <circle cx="60" cy="115" r="22" fill="rgba(255,255,255,0.95)" />
+                <path d="M52 118l6 6 12-14" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <rect x="98" y="96" width="100" height="12" rx="6" fill="rgba(255,255,255,0.85)" />
+                <rect x="98" y="116" width="80" height="12" rx="6" fill="rgba(255,255,255,0.6)" />
+                <rect x="98" y="136" width="60" height="12" rx="6" fill="rgba(255,255,255,0.45)" />
+                <circle cx="200" cy="35" r="18" fill="#facc15" opacity="0.85" />
+                <circle cx="210" cy="145" r="10" fill="#f472b6" opacity="0.7" />
+                <circle cx="30" cy="150" r="12" fill="#38bdf8" opacity="0.5" />
+            </svg>
+        </div>
+    </mat-card>
+</section>
+
 <!-- Key Features Section -->
 <section class="features">
     <mat-card appCard class="feature-card">

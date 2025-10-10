@@ -24,6 +24,7 @@
 .quick-start .reports-cta:hover { border-color: rgba(37,99,235,.45); box-shadow: 0 10px 30px rgba(15,118,110,.12); }
 .quick-start .reports-cta:hover .chevron { transform: translateX(4px); }
 
+
 .stats-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .stat { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px; }
 .stat .stat-icon { display: grid; place-items: center; height: 44px; width: 44px; border-radius: 12px; background: var(--accent-bg, rgba(37,99,235,.1)); color: var(--accent, #2563eb); }

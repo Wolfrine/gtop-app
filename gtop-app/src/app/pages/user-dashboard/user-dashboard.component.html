@@ -69,7 +69,30 @@
     </div>
   </mat-card>
 
-  <mat-card appCard class="whats-new-card" aria-labelledby="whats-new-heading">
+  <mat-card appCard class="whats-new-card whats-new-card--colorful" aria-labelledby="whats-new-heading">
+    <div class="whats-new-art" aria-hidden="true">
+      <svg viewBox="0 0 320 140" role="presentation">
+        <defs>
+          <linearGradient id="guideGradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.95" />
+            <stop offset="55%" stop-color="#6366f1" stop-opacity="0.75" />
+            <stop offset="100%" stop-color="#ec4899" stop-opacity="0.7" />
+          </linearGradient>
+          <linearGradient id="sparkGradient" x1="0.2" y1="0" x2="0.8" y2="1">
+            <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#14b8a6" stop-opacity="0.65" />
+          </linearGradient>
+        </defs>
+        <path d="M16 90C52 46 114 18 190 26c52 6 96 32 114 68" fill="none" stroke="url(#guideGradient)" stroke-width="18"
+              stroke-linecap="round" opacity="0.35" />
+        <circle cx="70" cy="54" r="18" fill="url(#sparkGradient)" opacity="0.9" />
+        <circle cx="112" cy="36" r="10" fill="#fde047" opacity="0.85" />
+        <circle cx="254" cy="46" r="14" fill="#f472b6" opacity="0.85" />
+        <rect x="210" y="84" width="78" height="26" rx="13" fill="rgba(255,255,255,0.8)" />
+        <rect x="226" y="92" width="34" height="10" rx="5" fill="#6366f1" opacity="0.7" />
+        <rect x="66" y="96" width="112" height="18" rx="9" fill="rgba(255,255,255,0.75)" />
+      </svg>
+    </div>
     <div class="whats-new-header">
       <span class="badge">What's New</span>
       <div>

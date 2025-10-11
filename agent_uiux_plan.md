@@ -134,3 +134,4 @@
  - 2025-10-01: Side nav polish — icons vertically aligned with labels using `matListItemIcon`, spacing tightened; Dashboard pinned as first item for both user and admin menus; minor CSS tweaks to remove MDC start graphic and ensure consistent icon sizing.
 - 2025-10-01: Profile page added — standalone `/profile` shows centered circular avatar, display name and email, and allows editing Board & Standard with save (no redirect). Header dropdown now includes a Profile link.
 - 2025-10-05: Landing page hero and Live Quiz showcase refreshed with premium messaging (question bank stats, CBSE/ICSE coverage, free access promo) and new SVG art tailored for students in standards 5–12.
+ - 2025-10-05: Landing hero refined to spotlight GTOP branding first, introducing a brand lockup, refreshed copy, and updated stats tying features back to Growth Tutorials.

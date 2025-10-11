@@ -610,6 +610,57 @@ app-landing-page {
         max-width: 560px;
     }
 
+    .hero-brand-lockup {
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1.25rem;
+        border-radius: 999px;
+        background: linear-gradient(135deg, rgba(248, 250, 252, 0.12), rgba(148, 163, 184, 0.12));
+        border: 1px solid rgba(226, 232, 240, 0.25);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.3);
+        backdrop-filter: blur(12px);
+    }
+
+    .hero-logo {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.45rem 1rem;
+        border-radius: 16px;
+        background: linear-gradient(140deg, #38bdf8, #6366f1);
+        color: #f8fafc;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        font-size: 1rem;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.25);
+    }
+
+    .hero-brand-lines {
+        display: grid;
+        gap: 0.15rem;
+    }
+
+    .hero-brand-name {
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.42em;
+        text-transform: uppercase;
+        color: #facc15;
+    }
+
+    .hero-brand-expansion {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #f8fafc;
+    }
+
+    .hero-brand-tagline {
+        font-size: 0.9rem;
+        color: rgba(226, 232, 240, 0.75);
+    }
+
     .hero-tag {
         display: inline-flex;
         align-items: center;
@@ -638,6 +689,11 @@ app-landing-page {
         color: rgba(226, 232, 240, 0.85);
         font-size: clamp(1rem, 1.2vw, 1.1rem);
         line-height: 1.65;
+    }
+
+    .hero-subtext {
+        color: rgba(226, 232, 240, 0.7);
+        font-size: clamp(0.95rem, 1.1vw, 1rem);
     }
 
     .hero-actions {
@@ -935,6 +991,12 @@ app-landing-page {
             justify-self: center;
         }
 
+        .hero-brand-lockup {
+            justify-content: center;
+            padding-inline: 1rem;
+            text-align: center;
+        }
+
         .hero-actions {
             justify-content: center;
         }
@@ -958,6 +1020,23 @@ app-landing-page {
     }
 
     @media (max-width: 640px) {
+        .hero-brand-lockup {
+            flex-direction: column;
+            align-items: stretch;
+            border-radius: 28px;
+            gap: 0.75rem;
+        }
+
+        .hero-logo {
+            justify-content: flex-start;
+            border-radius: 22px;
+            font-size: 0.95rem;
+        }
+
+        .hero-brand-lines {
+            text-align: left;
+        }
+
         .benefits {
             text-align: left;
         }

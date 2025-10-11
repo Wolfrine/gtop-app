@@ -1,47 +1,248 @@
 <!-- Hero Section -->
 <header class="hero">
-    <div class="hero-content">
-        <h1>Growth Tutorials - Objective Practice</h1>
-        <p>Master MCQs with AI-Powered Learning!</p>
-        <h3>Practice unlimited questions, track progress, and improve with smart suggestions.</h3>
-        <button mat-raised-button color="primary" (click)="signUp()">Start Now</button>
+    <div class="hero-inner">
+        <div class="hero-copy">
+            <div class="hero-brand-lockup">
+                <span class="hero-logo" aria-hidden="true">GTOP</span>
+                <span class="hero-brand-lines">
+                    <span class="hero-brand-name">GTOP</span>
+                    <span class="hero-brand-expansion">Growth Tutorials Objective Practice</span>
+                    <span class="hero-brand-tagline">India’s original MCQ accelerator for classes 5–12</span>
+                </span>
+            </div>
+            <span class="hero-tag">Free premium access till May 2026</span>
+            <h1>Experience the GTOP advantage for unstoppable MCQ mastery.</h1>
+            <p>
+                Unlock the official Growth Tutorials Objective Practice platform with Live Quiz showdowns, Quiz Run challenges,
+                and a 50,000+ board-aligned question bank refreshed daily.
+            </p>
+            <p class="hero-subtext">
+                Crafted by Growth Tutorials mentors, GTOP blends CBSE &amp; ICSE syllabi coverage with personalised analytics and
+                AI-powered hints so every learner knows exactly what to revise next.
+            </p>
+
+            <div class="hero-actions">
+                <button mat-raised-button color="primary" (click)="signUp()">Start for Free</button>
+                <button mat-stroked-button color="accent" (click)="signUp()">Explore the Question Bank</button>
+            </div>
+
+            <dl class="hero-stats" aria-label="Why learners choose Growth Tutorials">
+                <div>
+                    <dt>GTOP Core</dt>
+                    <dd>Growth Tutorials-crafted journeys with guided practice paths</dd>
+                </div>
+                <div>
+                    <dt>50,000+ MCQs</dt>
+                    <dd>Expert questions plus 1,000 new items added daily</dd>
+                </div>
+                <div>
+                    <dt>CBSE · ICSE</dt>
+                    <dd>Latest board-aligned syllabus coverage with Live Quiz energy</dd>
+                </div>
+            </dl>
+
+            <p class="hero-footnote">
+                <mat-icon aria-hidden="true">verified</mat-icon>
+                Official Growth Tutorials access — claim your complimentary upgrade before May 2026.
+            </p>
+        </div>
+
+        <div class="hero-graphic" aria-hidden="true">
+            <svg viewBox="0 0 480 420" role="presentation">
+                <defs>
+                    <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#5b21b6" />
+                        <stop offset="45%" stop-color="#4f46e5" />
+                        <stop offset="100%" stop-color="#0ea5e9" />
+                    </linearGradient>
+                    <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f0f9ff" />
+                        <stop offset="100%" stop-color="#dbeafe" />
+                    </linearGradient>
+                </defs>
+                <rect x="60" y="60" width="360" height="240" rx="36" fill="url(#heroGradient)" opacity="0.92" />
+                <rect x="96" y="96" width="288" height="180" rx="28" fill="white" opacity="0.98" />
+                <rect x="120" y="120" width="120" height="16" rx="8" fill="#312e81" opacity="0.8" />
+                <rect x="120" y="150" width="180" height="12" rx="6" fill="#6366f1" opacity="0.6" />
+                <rect x="120" y="172" width="160" height="12" rx="6" fill="#c7d2fe" opacity="0.85" />
+                <rect x="120" y="194" width="140" height="12" rx="6" fill="#e0f2fe" />
+                <rect x="120" y="222" width="224" height="72" rx="18" fill="url(#screenGradient)" />
+                <circle cx="168" cy="258" r="22" fill="#22d3ee" opacity="0.75" />
+                <path d="M158 258l8 8 18-20" fill="none" stroke="#0f172a" stroke-width="4" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <rect x="206" y="238" width="124" height="12" rx="6" fill="#1e3a8a" opacity="0.75" />
+                <rect x="206" y="258" width="96" height="12" rx="6" fill="#4c1d95" opacity="0.6" />
+                <rect x="206" y="278" width="70" height="12" rx="6" fill="#f472b6" opacity="0.8" />
+                <circle cx="396" cy="110" r="26" fill="#facc15" opacity="0.85" />
+                <circle cx="96" cy="330" r="18" fill="#38bdf8" opacity="0.65" />
+                <circle cx="404" cy="306" r="14" fill="#a855f7" opacity="0.55" />
+                <circle cx="250" cy="342" r="90" fill="#0ea5e9" opacity="0.18" />
+                <path d="M60 330c42 18 80 18 124 0" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"
+                    opacity="0.4" />
+            </svg>
+        </div>
     </div>
 </header>
 
-<!-- Key Features Section -->
-<section class="features">
-    <mat-card appCard class="feature-card">
-        <mat-icon>smart_toy</mat-icon>
-        <h3>AI-Powered Quizzes</h3>
-        <p>Adaptive learning to match your skills.</p>
-    </mat-card>
+<!-- Benefits Section -->
+<section class="benefits" aria-labelledby="benefits-heading">
+    <div class="benefits-heading">
+        <span class="section-kicker">Power up every practice session</span>
+        <h2 id="benefits-heading">Why students love Growth Tutorials Objective Practice</h2>
+        <p>Curated for curious minds with playful visuals, personalised tips, and progress they can feel.</p>
+    </div>
 
-    <mat-card appCard class="feature-card">
-        <mat-icon>insights</mat-icon>
-        <h3>Real-Time Analytics</h3>
-        <p>Track progress and get improvement insights.</p>
-    </mat-card>
+    <div class="benefits-grid">
+        <mat-card appCard class="benefit-card">
+            <span class="benefit-icon" aria-hidden="true">
+                <svg viewBox="0 0 72 72" role="presentation" focusable="false">
+                    <defs>
+                        <linearGradient id="benefitAiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#6366f1" />
+                            <stop offset="100%" stop-color="#22d3ee" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="36" cy="36" r="34" fill="rgba(99,102,241,0.12)" />
+                    <rect x="18" y="18" width="36" height="28" rx="14" fill="url(#benefitAiGradient)" />
+                    <rect x="24" y="46" width="24" height="6" rx="3" fill="#1e3a8a" opacity="0.35" />
+                    <circle cx="30" cy="32" r="4" fill="#e0f2fe" />
+                    <circle cx="42" cy="32" r="4" fill="#e0f2fe" />
+                    <path d="M28 26h16" stroke="#a5b4fc" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M30 38c2.2 2.6 9.8 2.6 12 0" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" opacity="0.85" />
+                    <rect x="16" y="28" width="4" height="12" rx="2" fill="#22d3ee" opacity="0.8" />
+                    <rect x="52" y="28" width="4" height="12" rx="2" fill="#6366f1" opacity="0.8" />
+                </svg>
+            </span>
+            <h3>Smart guidance</h3>
+            <p>AI-powered hints and difficulty tagging help you climb from basics to advanced concepts without feeling lost.</p>
+        </mat-card>
+        <mat-card appCard class="benefit-card">
+            <span class="benefit-icon" aria-hidden="true">
+                <svg viewBox="0 0 72 72" role="presentation" focusable="false">
+                    <defs>
+                        <linearGradient id="benefitInsightsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f97316" />
+                            <stop offset="100%" stop-color="#f472b6" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="36" cy="36" r="34" fill="rgba(249,115,22,0.12)" />
+                    <path d="M20 48c6-10 12-14 16-10s10 4 16-8" fill="none" stroke="#fb923c" stroke-width="3.5" stroke-linecap="round" />
+                    <path d="M22 50h28" stroke="#1f2937" stroke-width="2" stroke-linecap="round" opacity="0.2" />
+                    <rect x="20" y="24" width="8" height="18" rx="3" fill="url(#benefitInsightsGradient)" />
+                    <rect x="32" y="30" width="8" height="20" rx="3" fill="rgba(59,130,246,0.9)" />
+                    <rect x="44" y="20" width="8" height="30" rx="3" fill="rgba(14,165,233,0.85)" />
+                    <circle cx="52" cy="18" r="4" fill="#1d4ed8" />
+                </svg>
+            </span>
+            <h3>Instant insights</h3>
+            <p>Visual reports show streaks, accuracy, and readiness so you know exactly what to revise before exams.</p>
+        </mat-card>
+        <mat-card appCard class="benefit-card">
+            <span class="benefit-icon" aria-hidden="true">
+                <svg viewBox="0 0 72 72" role="presentation" focusable="false">
+                    <defs>
+                        <linearGradient id="benefitTeamGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#34d399" />
+                            <stop offset="100%" stop-color="#22d3ee" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="36" cy="36" r="34" fill="rgba(34,211,238,0.12)" />
+                    <circle cx="28" cy="30" r="10" fill="url(#benefitTeamGradient)" />
+                    <circle cx="44" cy="30" r="10" fill="rgba(59,130,246,0.85)" />
+                    <path d="M20 52c2-8 8-12 16-12s14 4 16 12" fill="rgba(59,130,246,0.14)" />
+                    <path d="M20 52c2-8 8-12 16-12" stroke="#0f172a" stroke-width="2" stroke-linecap="round" opacity="0.22" />
+                    <path d="M52 52c-2-8-8-12-16-12" stroke="#0f172a" stroke-width="2" stroke-linecap="round" opacity="0.22" />
+                    <circle cx="48" cy="46" r="8" fill="rgba(244,114,182,0.5)" />
+                    <circle cx="24" cy="46" r="8" fill="rgba(15,118,110,0.4)" />
+                    <path d="M32 54c0-4 3.5-6 7.5-6S47 50 48 54" stroke="#0f172a" stroke-width="2" stroke-linecap="round" opacity="0.28" />
+                </svg>
+            </span>
+            <h3>Study together</h3>
+            <p>Team up in Live Quiz, create Quiz Runs for classmates, and celebrate every correct answer in real time.</p>
+        </mat-card>
+    </div>
+</section>
 
-    <mat-card appCard class="feature-card">
-        <mat-icon>school</mat-icon>
-        <h3>Unlimited MCQs</h3>
-        <p>Access a vast question bank for all subjects.</p>
-    </mat-card>
+<!-- Live Quiz + Quiz Run Showcase -->
+<section class="live-experiences" aria-labelledby="live-experiences-heading">
+    <div class="live-experiences__intro">
+        <span class="section-kicker">What's new</span>
+        <h2 id="live-experiences-heading">Turn quiz prep into a live adventure</h2>
+        <p>
+            Host exciting Live Quiz showdowns or launch Quiz Runs that classmates can play anytime. It's quick to start, safe for
+            school, and perfect for standards 5 to 12.
+        </p>
+    </div>
+
+    <div class="live-experiences__grid">
+        <mat-card appCard class="experience-card">
+            <div class="experience-card__header">
+                <svg viewBox="0 0 96 96" aria-hidden="true" focusable="false">
+                    <defs>
+                        <linearGradient id="experienceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#6366f1" />
+                            <stop offset="100%" stop-color="#22d3ee" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="48" cy="48" r="44" fill="rgba(99,102,241,0.1)" />
+                    <path d="M34 30h28a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H34a4 4 0 0 1-4-4V34a4 4 0 0 1 4-4z" fill="url(#experienceGradient)" />
+                    <rect x="28" y="52" width="40" height="6" rx="3" fill="#1e3a8a" opacity="0.3" />
+                    <rect x="28" y="62" width="32" height="6" rx="3" fill="#2563eb" opacity="0.4" />
+                </svg>
+                <h3>Live Quiz</h3>
+            </div>
+            <ol>
+                <li><strong>Create a room</strong> in seconds and share the auto-generated host code.</li>
+                <li><strong>Countdown &amp; compete</strong> as the leaderboard lights up with every correct answer.</li>
+                <li><strong>Replay top moments</strong> and download results instantly for revision.</li>
+            </ol>
+            <button mat-raised-button color="accent" (click)="signUp()">Launch a Live Quiz</button>
+        </mat-card>
+
+        <mat-card appCard class="experience-card">
+            <div class="experience-card__header">
+                <svg viewBox="0 0 96 96" aria-hidden="true" focusable="false">
+                    <defs>
+                        <linearGradient id="experienceGradientSecondary" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#f472b6" />
+                            <stop offset="100%" stop-color="#fb923c" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="48" cy="48" r="44" fill="rgba(244,114,182,0.12)" />
+                    <path d="M36 30h24a6 6 0 0 1 6 6v28a6 6 0 0 1-6 6H36a6 6 0 0 1-6-6V36a6 6 0 0 1 6-6z" fill="url(#experienceGradientSecondary)" />
+                    <path d="M38 44h20M38 54h16" stroke="#fdf2f8" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+                </svg>
+                <h3>Quiz Run</h3>
+            </div>
+            <ol>
+                <li><strong>Pick a topic</strong> from the vast bank or assemble your own practice pack.</li>
+                <li><strong>Share anytime links</strong> so friends can attempt whenever they’re ready.</li>
+                <li><strong>Review together</strong> with detailed explanations and accuracy trends.</li>
+            </ol>
+            <button mat-stroked-button color="primary" (click)="signUp()">Schedule a Quiz Run</button>
+        </mat-card>
+    </div>
 </section>
 
 <!-- Sample MCQ Section (Try-Before-Sign-Up) -->
-<section class="sample-mcq">
-    <h2>Try a Sample Question</h2>
-    <mat-card appCard>
+<section class="sample-mcq" aria-labelledby="sample-mcq-heading">
+    <div class="sample-mcq__intro">
+        <span class="section-kicker">Try it now</span>
+        <h2 id="sample-mcq-heading">Answer a sample question in one tap</h2>
+        <p>Discover how quick feedback and celebratory animations make revision fun.</p>
+    </div>
+    <mat-card appCard class="sample-mcq__card">
         <p><strong>{{ questionText }}</strong></p>
-        <ng-container *ngFor="let option of options">
-            <button mat-button color="primary" [ngStyle]="getButtonStyle(option.value)"
-                (click)="checkAnswer(option.value)">
-                {{ option.label }}
-            </button>
-        </ng-container>
+        <div class="options">
+            <ng-container *ngFor="let option of options">
+                <button mat-button color="primary" [ngStyle]="getButtonStyle(option.value)"
+                    (click)="checkAnswer(option.value)">
+                    {{ option.label }}
+                </button>
+            </ng-container>
+        </div>
 
         <p *ngIf="answerFeedback" class="feedback">{{ answerFeedback }}</p>
-        <button *ngIf="answerFeedback" mat-button color="accent" (click)="signUp()">Sign Up for More</button>
+        <button *ngIf="answerFeedback" mat-raised-button color="accent" (click)="signUp()">Unlock full access</button>
     </mat-card>
 </section>

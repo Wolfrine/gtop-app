@@ -69,6 +69,96 @@
     </div>
   </mat-card>
 
+  <mat-card appCard class="whats-new-card whats-new-card--colorful" aria-labelledby="whats-new-heading">
+    <div class="whats-new-art" aria-hidden="true">
+      <svg viewBox="0 0 320 140" role="presentation">
+        <defs>
+          <linearGradient id="guideGradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.95" />
+            <stop offset="55%" stop-color="#6366f1" stop-opacity="0.75" />
+            <stop offset="100%" stop-color="#ec4899" stop-opacity="0.7" />
+          </linearGradient>
+          <linearGradient id="sparkGradient" x1="0.2" y1="0" x2="0.8" y2="1">
+            <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#14b8a6" stop-opacity="0.65" />
+          </linearGradient>
+        </defs>
+        <path d="M16 90C52 46 114 18 190 26c52 6 96 32 114 68" fill="none" stroke="url(#guideGradient)" stroke-width="18"
+              stroke-linecap="round" opacity="0.35" />
+        <circle cx="70" cy="54" r="18" fill="url(#sparkGradient)" opacity="0.9" />
+        <circle cx="112" cy="36" r="10" fill="#fde047" opacity="0.85" />
+        <circle cx="254" cy="46" r="14" fill="#f472b6" opacity="0.85" />
+        <rect x="210" y="84" width="78" height="26" rx="13" fill="rgba(255,255,255,0.8)" />
+        <rect x="226" y="92" width="34" height="10" rx="5" fill="#6366f1" opacity="0.7" />
+        <rect x="66" y="96" width="112" height="18" rx="9" fill="rgba(255,255,255,0.75)" />
+      </svg>
+    </div>
+    <div class="whats-new-header">
+      <span class="badge">What's New</span>
+      <div>
+        <h3 id="whats-new-heading">Live Quiz &amp; Quiz Run are now open for you!</h3>
+        <p>
+          Kick learning into high gear with friendly competitions and practice runs built for students in standards 5 to 12.
+        </p>
+      </div>
+    </div>
+
+    <div class="whats-new-grid quick-start">
+      <section class="cta-group live-guide" aria-labelledby="live-quiz-title">
+        <div class="cta-header">
+          <span class="cta-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="presentation">
+              <circle cx="32" cy="32" r="28" fill="rgba(59,130,246,0.15)" />
+              <path d="M26 44l10-20 10 20h-5l-5 10-5-10z" fill="#1d4ed8" />
+            </svg>
+          </span>
+          <div class="cta-copy">
+            <h4 id="live-quiz-title">Live Quiz</h4>
+            <p>Join a hosted showdown, see scores jump instantly, and cheer your classmates.</p>
+          </div>
+        </div>
+        <ol class="whats-new-steps">
+          <li>Tap <strong>Upcoming Live Quiz</strong> to view teacher-hosted sessions.</li>
+          <li>Enter the share code from your teacher and gather your team.</li>
+          <li>Answer together in real time — the leaderboard updates after every question!</li>
+        </ol>
+        <div class="cta-actions">
+          <a mat-stroked-button color="accent" [routerLink]="['/live']">
+            <mat-icon>bolt</mat-icon>
+            Explore Live Quizzes
+          </a>
+        </div>
+      </section>
+
+      <section class="cta-group run-guide" aria-labelledby="quiz-run-title">
+        <div class="cta-header">
+          <span class="cta-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="presentation">
+              <circle cx="32" cy="32" r="28" fill="rgba(16,185,129,0.18)" />
+              <path d="M24 42h16M24 26h16" stroke="#0f766e" stroke-width="5" stroke-linecap="round" />
+              <circle cx="32" cy="26" r="7" fill="#0f766e" />
+            </svg>
+          </span>
+          <div class="cta-copy">
+            <h4 id="quiz-run-title">Quiz Run</h4>
+            <p>Host a friendly practice race and replay it to beat your last score.</p>
+          </div>
+        </div>
+        <ol class="whats-new-steps">
+          <li>Create a lobby from <strong>Quiz Run</strong> and set the rounds you want.</li>
+          <li>Share the join code with friends or classmates.</li>
+          <li>Start the run and watch progress bars show who is leading every lap.</li>
+        </ol>
+        <div class="cta-actions">
+          <a mat-stroked-button color="primary" [routerLink]="['/quiz-run']">
+            <mat-icon>schedule</mat-icon>
+            Host a Quiz Run
+          </a>
+        </div>
+      </section>
+    </div>
+  </mat-card>
+
   <!-- Stats -->
   <div class="stats-grid">
     <mat-card appCard class="stat" [style.--accent]="'#2563eb'" [style.--accent-bg]="'rgba(37,99,235,.12)'">

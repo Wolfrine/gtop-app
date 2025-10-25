@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { SideNavComponent } from './components/side-nav/side-nav.component';
 import { LoggingService } from './services/logging.service';
+import { SeoService } from './services/seo.service';
 
 
 @Component({
@@ -33,12 +34,22 @@ export class AppComponent implements OnInit {
     isDesktop: boolean = window.innerWidth > 768;
     sidenavMode: 'side' | 'over' = this.isDesktop ? 'side' : 'over';
 
-    constructor(private authService: AuthService, private router: Router, private loggingService: LoggingService) {
+    constructor(
+        private authService: AuthService,
+        private router: Router,
+        private activatedRoute: ActivatedRoute,
+        private loggingService: LoggingService,
+        private seoService: SeoService
+    ) {
         this.router.events.subscribe((event) => {
             // 🚀 SCROLL TO TOP on every route change
             window.scrollTo({ top: 0 });
 
             if (event instanceof NavigationEnd) {
+                const deepestChild = this.getDeepestChild(this.activatedRoute);
+                const seoData = deepestChild.snapshot.data['seo'];
+                this.seoService.update(seoData);
+
                 if (event.url === '/') {
                     this.isLandingPage = true;
                     this.isLandingAndProfile = true;
@@ -81,5 +92,15 @@ export class AppComponent implements OnInit {
         if (this.sidenavMode === 'over' && this.sidenav) {
             this.sidenav.close();
         }
+    }
+
+    private getDeepestChild(route: ActivatedRoute): ActivatedRoute {
+        let child = route.firstChild;
+
+        while (child?.firstChild) {
+            child = child.firstChild;
+        }
+
+        return child ?? route;
     }
 }

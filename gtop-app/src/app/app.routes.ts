@@ -28,123 +28,277 @@ import { QuizRunLobbyComponent } from './pages/quiz-run/quiz-run-lobby/quiz-run-
 
 
 export const routes: Routes = [
-    { path: '', component: LandingPageComponent },
-    { path: 'profile-setup', component: ProfileSetupComponent },
+    {
+        path: '',
+        component: LandingPageComponent,
+        data: {
+            seo: {
+                title: 'GTOP | Growth Tutorials Objective Practice Platform',
+                description: 'Join GTOP (Growth Tutorials Objective Practice) to attempt curated MCQ quizzes, join live sessions, and monitor your competitive exam readiness.',
+                keywords: 'GTOP, Growth Tutorials, objective practice, competitive exams, quizzes, live quiz, analytics',
+                robots: 'index, follow'
+            }
+        }
+    },
+    {
+        path: 'profile-setup',
+        component: ProfileSetupComponent,
+        data: {
+            seo: {
+                title: 'Complete Your GTOP Profile',
+                description: 'Tell us about your academic goals so GTOP can personalize quizzes, reports, and reminders for you.',
+                robots: 'noindex, nofollow'
+            }
+        }
+    },
     {
         path: 'profile',
         component: ProfileComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'GTOP Profile Overview',
+                description: 'Review and update your Growth Tutorials profile details to keep personalized quiz recommendations accurate.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'dashboard',
         component: UserDashboardComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'GTOP Dashboard | Track Your Quiz Progress',
+                description: 'Monitor your recent quiz activity, accuracy trends, and unlock targeted practice recommendations inside the GTOP dashboard.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'admin',
         component: AdminDashboardComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['admin'] }
+        data: {
+            roles: ['admin'],
+            seo: {
+                title: 'GTOP Admin Console',
+                description: 'Administer Growth Tutorials by tracking live activity, announcements, and management shortcuts from the GTOP admin dashboard.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'admin/mcq-management',
         component: McqManagementComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['admin'] }
+        data: {
+            roles: ['admin'],
+            seo: {
+                title: 'GTOP MCQ Bank Management',
+                description: 'Curate and maintain the MCQ library that powers GTOP quizzes with filters, bulk actions, and version control.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'admin/add-mcq',
         component: AddMcqComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['admin'] }
+        data: {
+            roles: ['admin'],
+            seo: {
+                title: 'Add New MCQs | GTOP Admin',
+                description: 'Create fresh GTOP objective questions with answers, explanations, and tagging to enhance practice sets.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'admin/manage-syllabus',  // ✅ NEW Route Added
         component: ManageSyllabusComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['admin'] }
+        data: {
+            roles: ['admin'],
+            seo: {
+                title: 'Manage GTOP Syllabus',
+                description: 'Organize chapters and subjects that structure GTOP quizzes so learners always target the right topics.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'syllabus-preview',
         component: SyllabusPreviewComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['admin'] }
+        data: {
+            roles: ['admin'],
+            seo: {
+                title: 'GTOP Syllabus Preview',
+                description: 'Preview the published Growth Tutorials syllabus exactly as learners experience it in GTOP.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'logs',
         component: LogsComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['admin'] }
+        data: {
+            roles: ['admin'],
+            seo: {
+                title: 'GTOP Activity Logs',
+                description: 'Audit Growth Tutorials events, feature flags, and deployment notes to keep the GTOP platform healthy.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'quiz',
         component: QuizPageComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'Take a GTOP Quiz',
+                description: 'Answer timed MCQs tailored to your profile and syllabus focus with instant feedback in GTOP quizzes.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'quiz-summary',
         component: QuizSummaryComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'GTOP Quiz Summary',
+                description: 'Review your question-level accuracy, explanations, and improvement cues after completing a GTOP quiz.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'quiz-run',
         component: QuizRunLandingComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'GTOP Quiz Run',
+                description: 'Launch or join scheduled GTOP quiz runs to compete with peers in real time.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'quiz-run/lobby/:sessionId',
         component: QuizRunLobbyComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'GTOP Quiz Lobby',
+                description: 'Wait for participants, sync rules, and get ready before your GTOP live quiz begins.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     // Live Quiz
     {
         path: 'live',
         component: LiveLandingComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'GTOP Live Quiz Hub',
+                description: 'Browse scheduled GTOP live quiz sessions, join hosts, and compete head-to-head with your cohort.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'live/host/:sessionId',
         component: LiveHostComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'Host a GTOP Live Quiz',
+                description: 'Manage participants, launch questions, and control pacing while hosting a GTOP live quiz session.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'live/play/:sessionId',
         component: LivePlayerComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'Play GTOP Live Quiz',
+                description: 'Answer live GTOP questions in sync with classmates and track your leaderboard rank in real time.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'live/summary/:sessionId',
         component: LiveSummaryComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'GTOP Live Quiz Summary',
+                description: 'Compare final standings and analyse responses after your GTOP live quiz concludes.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'reports',
         component: ReportsPageComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user', 'admin'] }
+        data: {
+            roles: ['user', 'admin'],
+            seo: {
+                title: 'GTOP Quiz Reports',
+                description: 'Analyse historical quiz performance, accuracy by topic, and improvement streaks with GTOP reports.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
 
     {
         path: 'admin/manage-syllabus/edit',
         component: EditSyllabusComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['admin'] }
+        data: {
+            roles: ['admin'],
+            seo: {
+                title: 'Edit GTOP Syllabus Item',
+                description: 'Modify subjects, chapters, and their availability across GTOP quizzes before publishing updates.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
     {
         path: 'admin/user-list',
         component: UserListComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['admin'] }
+        data: {
+            roles: ['admin'],
+            seo: {
+                title: 'GTOP User Directory',
+                description: 'View active learners, manage roles, and ensure healthy engagement across the GTOP platform.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
 
     // Dev-only UI preview (restricted to admin role)
@@ -152,7 +306,14 @@ export const routes: Routes = [
         path: 'dev/ui',
         component: UiKitchenComponent,
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['admin'] }
+        data: {
+            roles: ['admin'],
+            seo: {
+                title: 'GTOP UI Kitchen',
+                description: 'Preview experimental GTOP interface patterns and validate components before launch.',
+                robots: 'noindex, nofollow'
+            }
+        }
     },
 
     { path: '**', redirectTo: '' }

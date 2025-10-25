@@ -1,6 +1,6 @@
 <div class="user-cards-wrapper">
     <div class="user-card" *ngFor="let user of users">
-        <div class="user-card-inner" (click)="viewReport(user)">
+        <div class="user-card-inner">
             <div class="profile-pic">
                 <img [src]="user.photoURL" alt="avatar" />
             </div>
@@ -23,15 +23,15 @@
                                 + ' at ' +
                                 (user.lastSeen | date:'HH:MM') : 'Offline' }}
                         </div>
-                        <button
-                            *ngIf="showPromoteButton(user)"
-                            mat-stroked-button
-                            color="primary"
-                            type="button"
-                            (click)="promoteToAdmin(user, $event)"
-                            [disabled]="isPromoting(user.userId)">
-                            {{ isPromoting(user.userId) ? 'Updating…' : 'Make admin' }}
-                        </button>
+
+                        <div class="action-buttons">
+                            <button mat-stroked-button color="primary" type="button" (click)="viewProfile(user)">
+                                View Profile
+                            </button>
+                            <button mat-stroked-button type="button" (click)="viewReport(user)">
+                                View Report
+                            </button>
+                        </div>
                     </div>
                 </div>
 

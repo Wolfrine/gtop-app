@@ -28,7 +28,6 @@ export class UserListComponent {
     users: any[] = [];
     selectedUsers: any[] = [];
     currentUserId: string | null = null;
-    private promotingUserIds = new Set<string>();
     private destroyRef = inject(DestroyRef);
 
     constructor(
@@ -106,38 +105,11 @@ export class UserListComponent {
         }
     }
 
+    viewProfile(user: any) {
+        this.router.navigate(['/profile'], { queryParams: { userId: user.userId } });
+    }
+
     viewReport(user: any) {
         this.router.navigate(['/reports'], { queryParams: { userId: user.userId } });
-    }
-
-    showPromoteButton(user: any): boolean {
-        if (!user?.userId) {
-            return false;
-        }
-
-        const role = typeof user.role === 'string' ? user.role.toLowerCase() : '';
-        return role !== 'admin' && user.userId !== this.currentUserId;
-    }
-
-    isPromoting(userId: string): boolean {
-        return this.promotingUserIds.has(userId);
-    }
-
-    async promoteToAdmin(user: any, event: MouseEvent): Promise<void> {
-        event.stopPropagation();
-
-        if (!user?.userId || this.isPromoting(user.userId)) {
-            return;
-        }
-
-        this.promotingUserIds.add(user.userId);
-
-        try {
-            await this.activeUsersService.updateUserRole(user.userId, 'admin');
-        } catch (error) {
-            console.error('Failed to promote user to admin:', error);
-        } finally {
-            this.promotingUserIds.delete(user.userId);
-        }
     }
 }

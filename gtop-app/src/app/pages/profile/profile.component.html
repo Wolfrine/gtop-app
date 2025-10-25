@@ -1,15 +1,105 @@
-<div class="profile-container" *ngIf="user as u">
-  <mat-card class="profile-card">
-    <div class="avatar-wrap">
-      <img class="avatar" [src]="u.photoURL || 'assets/icons/avatar-placeholder.svg'" alt="Profile picture" />
+<div class="profile-container">
+  <mat-card class="profile-card" *ngIf="profileLoading">
+    <div class="status-message">Loading profile…</div>
+  </mat-card>
+
+  <mat-card class="profile-card" *ngIf="!profileLoading && profileError">
+    <div class="status-message error">{{ profileError }}</div>
+  </mat-card>
+
+  <mat-card class="profile-card" *ngIf="!profileLoading && !profileError && viewedUser as user">
+    <div class="profile-header">
+      <img class="avatar" [src]="user.photoURL || 'assets/icons/avatar-placeholder.svg'" alt="Profile picture" />
+      <div class="headline">
+        <h2>{{ user.displayName || 'User' }}</h2>
+        <p class="email">{{ user.email }}</p>
+        <div class="role-chip">
+          <span class="chip">{{ (user.role || 'user') | titlecase }}</span>
+        </div>
+      </div>
     </div>
 
-    <div class="info">
-      <h2>{{ u.displayName || 'User' }}</h2>
-      <p class="email">{{ u.email }}</p>
+    <div class="quick-stats">
+      <div class="stat">
+        <span class="label">Account type</span>
+        <span class="value">{{ (user.role || 'user') | titlecase }}</span>
+      </div>
+      <div class="stat">
+        <span class="label">Joined</span>
+        <span class="value">{{ joinedDate ? (joinedDate | date: 'MMM d, y') : '—' }}</span>
+      </div>
+      <div class="stat">
+        <span class="label">Total quizzes</span>
+        <span class="value">{{ totalQuizzes }}</span>
+      </div>
+      <div class="stat">
+        <span class="label">Last quiz</span>
+        <span class="value">{{ lastQuizDate ? (lastQuizDate | date: 'MMM d, y, h:mm a') : '—' }}</span>
+      </div>
+      <div class="stat">
+        <span class="label">Last login</span>
+        <span class="value">{{ lastLoginDate ? (lastLoginDate | date: 'MMM d, y, h:mm a') : '—' }}</span>
+      </div>
+      <div class="stat">
+        <span class="label">Board</span>
+        <span class="value">{{ user.board || '—' }}</span>
+      </div>
+      <div class="stat">
+        <span class="label">Standard</span>
+        <span class="value">{{ user.standard || '—' }}</span>
+      </div>
+      <div class="stat">
+        <span class="label">Subscription</span>
+        <span class="value">{{ user.subscriptionStatus || '—' }}</span>
+      </div>
     </div>
 
-    <div class="edit-grid">
+    <div class="admin-actions" *ngIf="isAdmin && viewedUserId">
+      <h3>Admin controls</h3>
+      <div class="admin-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Account type</mat-label>
+          <mat-select [(ngModel)]="selectedRole">
+            <mat-option value="user">User</mat-option>
+            <mat-option value="teacher">Teacher</mat-option>
+            <mat-option value="admin">Admin</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="updateRole()" [disabled]="!canUpdateRole">
+          <mat-icon>admin_panel_settings</mat-icon>
+          Update
+        </button>
+      </div>
+      <div
+        class="admin-feedback"
+        *ngIf="roleUpdateMessage"
+        [ngClass]="{
+          success: roleUpdateSuccess === true,
+          error: roleUpdateSuccess === false
+        }"
+      >
+        {{ roleUpdateMessage }}
+      </div>
+
+      <div class="admin-row">
+        <button mat-stroked-button color="warn" (click)="resetLastLogin()" [disabled]="resettingLastLogin">
+          <mat-icon>history</mat-icon>
+          Reset last login
+        </button>
+        <span
+          class="admin-feedback"
+          *ngIf="lastLoginMessage"
+          [ngClass]="{
+            success: lastLoginSuccess === true,
+            error: lastLoginSuccess === false
+          }"
+        >
+          {{ lastLoginMessage }}
+        </span>
+      </div>
+    </div>
+
+    <div class="edit-grid" *ngIf="isSelfView">
       <mat-form-field appearance="outline">
         <mat-label>Board</mat-label>
         <mat-select [(ngModel)]="selectedBoard">
@@ -25,7 +115,7 @@
       </mat-form-field>
     </div>
 
-    <div class="actions">
+    <div class="actions" *ngIf="isSelfView">
       <button mat-raised-button color="primary" (click)="save()" [disabled]="!canSave">
         <mat-icon>save</mat-icon>
         Save Changes

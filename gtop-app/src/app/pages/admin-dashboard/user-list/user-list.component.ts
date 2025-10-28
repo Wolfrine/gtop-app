@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -28,6 +28,7 @@ export class UserListComponent {
     users: any[] = [];
     selectedUsers: any[] = [];
     currentUserId: string | null = null;
+    private expandedUserIds = signal<Set<string>>(new Set<string>());
     private destroyRef = inject(DestroyRef);
 
     constructor(
@@ -36,7 +37,6 @@ export class UserListComponent {
         private authService: AuthService
     ) {
         this.activeUsersService.listenToUsersCollection();
-        this.activeUsersService.listenToActiveUsers();
 
         effect(() => {
             const userList = this.activeUsersService.allUsers();
@@ -47,7 +47,7 @@ export class UserListComponent {
 
                 return {
                     ...user,
-                    isOnline: !!match?.isOnline,
+                    isOnline: this.isFlagOnline(match?.isOnline),
                     lastSeen: match?.lastActive
                         ? new Date(
                             typeof match.lastActive === 'string' || typeof match.lastActive === 'number'
@@ -111,5 +111,33 @@ export class UserListComponent {
 
     viewReport(user: any) {
         this.router.navigate(['/reports'], { queryParams: { userId: user.userId } });
+    }
+
+    toggleUserExpansion(userId: string) {
+        const next = new Set(this.expandedUserIds());
+
+        if (next.has(userId)) {
+            next.delete(userId);
+        } else {
+            next.add(userId);
+        }
+
+        this.expandedUserIds.set(next);
+    }
+
+    isExpanded(userId: string): boolean {
+        return this.expandedUserIds().has(userId);
+    }
+
+    private isFlagOnline(value: unknown): boolean {
+        if (typeof value === 'boolean') {
+            return value;
+        }
+
+        if (typeof value === 'string') {
+            return value.toLowerCase() === 'true';
+        }
+
+        return false;
     }
 }

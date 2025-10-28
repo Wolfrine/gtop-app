@@ -49,6 +49,7 @@ export class ActiveUsersService {
 
         // Listen for all active user changes
         this.listenToActiveUsers();
+        this.fetchActiveUsers();
     }
 
     listenToUsersCollection() {
@@ -101,13 +102,9 @@ export class ActiveUsersService {
         };
 
         set(userRef, userData).then(() => {
-            console.log('User active status set.');
-
             onDisconnect(userRef).update({
                 isOnline: false,
                 lastActive: { ".sv": "timestamp" }
-            }).then(() => {
-                console.log('User will be marked offline on disconnect.');
             });
         }).catch((err) => {
             console.error('Failed to set active user:', err);
@@ -116,9 +113,7 @@ export class ActiveUsersService {
 
     private removeUser(uid: string) {
         const userRef = ref(this.db, `activeUsers/${uid}`);
-        remove(userRef).then(() => {
-            console.log('User removed from active users.');
-        }).catch((err) => {
+        remove(userRef).catch((err) => {
             console.error('Failed to remove user:', err);
         });
     }
@@ -157,7 +152,6 @@ export class ActiveUsersService {
                 const onlineUsers = usersArray.filter((user: any) => user.isOnline);
                 this.activeUsers.set(onlineUsers);
             } else {
-                console.log('No active users found.');
                 this.totalUsers.set(0);
                 this.activeUsers.set([]);
                 this.activeInactiveUsers.set([]);
@@ -172,8 +166,8 @@ export class ActiveUsersService {
         if (!currentUser || !navigator.onLine) return;
 
         const userRef = ref(this.db, `activeUsers/${currentUser.uid}`);
-        update(userRef, { lastActive: Date.now() }).then(() => {
-            console.log('User last active time updated.');
+        update(userRef, { lastActive: Date.now() }).catch((error) => {
+            console.error('Failed to update last active time:', error);
         });
     }
 
@@ -182,7 +176,6 @@ export class ActiveUsersService {
 
         try {
             await update(userRef, { isOnline: false, lastActive: Date.now(), userId });
-            console.log('User marked as offline.');
             return true;
         } catch (error) {
             console.warn('Realtime update failed, attempting to seed offline record:', error);
@@ -193,7 +186,6 @@ export class ActiveUsersService {
                     isOnline: false,
                     lastActive: Date.now()
                 });
-                console.log('User offline record seeded.');
                 return true;
             } catch (fallbackError) {
                 console.error('Failed to mark user offline in Realtime DB:', fallbackError);
@@ -204,8 +196,8 @@ export class ActiveUsersService {
 
     updateUserData(userId: string, data: any) {
         const userRef = ref(this.db, `activeUsers/${userId}`);
-        update(userRef, data).then(() => {
-            console.log('User data updated.');
+        update(userRef, data).catch((error) => {
+            console.error('Failed to update presence data:', error);
         });
     }
 
@@ -213,7 +205,6 @@ export class ActiveUsersService {
         try {
             const userDocRef = doc(this.firestore, `users/${userId}`);
             await updateDoc(userDocRef, { role });
-            console.log(`User ${userId} role updated to ${role}.`);
         } catch (error) {
             console.error('Failed to update user role:', error);
             throw error;

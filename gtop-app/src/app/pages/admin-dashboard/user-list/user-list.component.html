@@ -1,65 +1,73 @@
 <section class="user-grid" *ngIf="users.length; else emptyState">
     <article class="user-card" *ngFor="let user of users" [class.user-online]="user.isOnline">
-        <header class="user-card__header">
-            <div class="user-card__identity">
-                <div class="user-card__avatar" aria-hidden="true">
-                    <img [src]="user.photoURL" alt="" />
+        <button
+            type="button"
+            class="user-card__summary"
+            (click)="toggleUserExpansion(user.userId)"
+            [attr.aria-expanded]="isExpanded(user.userId)"
+        >
+            <div class="user-card__avatar" aria-hidden="true">
+                <img [src]="user.photoURL" alt="" />
+            </div>
+
+            <div class="user-card__summary-text">
+                <div class="user-card__name-row">
+                    <div class="user-card__name">{{ user.displayName }}</div>
+                    <mat-chip-set *ngIf="user.role as role" aria-label="User role">
+                        <mat-chip color="primary" selected *ngIf="role?.toLowerCase() === 'admin'">Admin</mat-chip>
+                    </mat-chip-set>
                 </div>
-
-                <div class="user-card__identity-text">
-                    <div class="user-card__name-row">
-                        <div class="user-card__name">{{ user.displayName }}</div>
-                        <mat-chip-set *ngIf="user.role as role" aria-label="User role">
-                            <mat-chip color="primary" selected *ngIf="role?.toLowerCase() === 'admin'">Admin</mat-chip>
-                        </mat-chip-set>
-                    </div>
-                    <div class="user-card__email">{{ user.email }}</div>
+                <div class="user-card__email">{{ user.email }}</div>
+                <div class="user-card__status" [class.online]="user.isOnline">
+                    <mat-icon aria-hidden="true">{{ user.isOnline ? 'adjust' : 'schedule' }}</mat-icon>
+                    <span>
+                        {{ user.isOnline
+                            ? 'Online now'
+                            : user.lastSeen
+                                ? 'Last seen ' + (user.lastSeen | date:'MMM d, y, h:mm a')
+                                : 'Offline' }}
+                    </span>
                 </div>
             </div>
 
-            <div class="user-card__status" [class.online]="user.isOnline">
-                <mat-icon aria-hidden="true">{{ user.isOnline ? 'adjust' : 'schedule' }}</mat-icon>
-                <span>
-                    {{ user.isOnline
-                        ? 'Online now'
-                        : user.lastSeen
-                            ? 'Last seen ' + (user.lastSeen | date:'MMM d, y, h:mm a')
-                            : 'Offline' }}
-                </span>
-            </div>
-        </header>
+            <mat-icon class="user-card__summary-caret" aria-hidden="true">
+                {{ isExpanded(user.userId) ? 'expand_less' : 'expand_more' }}
+            </mat-icon>
+        </button>
 
-        <dl class="user-card__meta" aria-label="User quick facts">
-            <div class="meta-entry">
-                <dt>Role</dt>
-                <dd>{{ user.role ? (user.role | titlecase) : '—' }}</dd>
-            </div>
-            <div class="meta-entry">
-                <dt>Board</dt>
-                <dd>{{ user.board || '—' }}</dd>
-            </div>
-            <div class="meta-entry">
-                <dt>Standard</dt>
-                <dd>{{ user.standard || '—' }}</dd>
-            </div>
-            <div class="meta-entry">
-                <dt>Started</dt>
-                <dd>{{ user.createdAt ? (user.createdAt | date:'MMM d, y') : '—' }}</dd>
-            </div>
-            <div class="meta-entry">
-                <dt>Plan</dt>
-                <dd>{{ user.subscriptionStatus || '—' }}</dd>
-            </div>
-        </dl>
+        <div class="user-card__details" *ngIf="isExpanded(user.userId)">
+            <dl class="user-card__meta" aria-label="User quick facts">
+                <div class="meta-entry">
+                    <dt>Role</dt>
+                    <dd>{{ user.role ? (user.role | titlecase) : '—' }}</dd>
+                </div>
+                <div class="meta-entry">
+                    <dt>Board</dt>
+                    <dd>{{ user.board || '—' }}</dd>
+                </div>
+                <div class="meta-entry">
+                    <dt>Standard</dt>
+                    <dd>{{ user.standard || '—' }}</dd>
+                </div>
+                <div class="meta-entry">
+                    <dt>Started</dt>
+                    <dd>{{ user.createdAt ? (user.createdAt | date:'MMM d, y') : '—' }}</dd>
+                </div>
+                <div class="meta-entry">
+                    <dt>Plan</dt>
+                    <dd>{{ user.subscriptionStatus || '—' }}</dd>
+                </div>
+            </dl>
 
-        <footer class="user-card__actions">
-            <button mat-stroked-button color="primary" type="button" (click)="viewProfile(user)">
-                View Profile
-            </button>
-            <button mat-stroked-button type="button" (click)="viewReport(user)">
-                View Report
-            </button>
-        </footer>
+            <footer class="user-card__actions">
+                <button mat-stroked-button color="primary" type="button" (click)="viewProfile(user)">
+                    View Profile
+                </button>
+                <button mat-stroked-button type="button" (click)="viewReport(user)">
+                    View Report
+                </button>
+            </footer>
+        </div>
     </article>
 </section>
 

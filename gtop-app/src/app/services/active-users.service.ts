@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Database, ref, set, remove, onDisconnect, update, get, onValue } from '@angular/fire/database';
 import { Auth, User, onAuthStateChanged } from '@angular/fire/auth';
 import { Firestore, collection, onSnapshot, CollectionReference, DocumentData, doc, updateDoc } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
 
 
 @Injectable({
@@ -202,5 +203,29 @@ export class ActiveUsersService {
     public setPresenceForUser(user: User) {
         this.user.set(user);
         this.setUserActive(user);
+    }
+
+    watchUserPresence(userId: string): Observable<{ userId: string; isOnline?: boolean; lastActive?: any } | null> {
+        const userRef = ref(this.db, `activeUsers/${userId}`);
+
+        return new Observable((subscriber) => {
+            const unsubscribe = onValue(
+                userRef,
+                (snapshot) => {
+                    if (!snapshot.exists()) {
+                        subscriber.next(null);
+                        return;
+                    }
+
+                    subscriber.next({ userId, ...snapshot.val() });
+                },
+                (error) => {
+                    console.error('Failed to read user presence:', error);
+                    subscriber.next(null);
+                }
+            );
+
+            return () => unsubscribe();
+        });
     }
 }

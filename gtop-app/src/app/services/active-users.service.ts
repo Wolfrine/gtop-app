@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Database, ref, set, remove, onDisconnect, update, get, onValue } from '@angular/fire/database';
 import { Auth, User, onAuthStateChanged } from '@angular/fire/auth';
 import { Firestore, collection, onSnapshot, CollectionReference, DocumentData, doc, updateDoc } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
 
 
 @Injectable({
@@ -48,6 +49,7 @@ export class ActiveUsersService {
 
         // Listen for all active user changes
         this.listenToActiveUsers();
+        this.fetchActiveUsers();
     }
 
     listenToUsersCollection() {
@@ -100,13 +102,9 @@ export class ActiveUsersService {
         };
 
         set(userRef, userData).then(() => {
-            console.log('User active status set.');
-
             onDisconnect(userRef).update({
                 isOnline: false,
                 lastActive: { ".sv": "timestamp" }
-            }).then(() => {
-                console.log('User will be marked offline on disconnect.');
             });
         }).catch((err) => {
             console.error('Failed to set active user:', err);
@@ -115,9 +113,7 @@ export class ActiveUsersService {
 
     private removeUser(uid: string) {
         const userRef = ref(this.db, `activeUsers/${uid}`);
-        remove(userRef).then(() => {
-            console.log('User removed from active users.');
-        }).catch((err) => {
+        remove(userRef).catch((err) => {
             console.error('Failed to remove user:', err);
         });
     }
@@ -127,7 +123,10 @@ export class ActiveUsersService {
         onValue(activeUsersRef, (snapshot) => {
             const usersData = snapshot.val();
             if (usersData) {
-                const usersArray = Object.values(usersData);
+                const usersArray = Object.entries(usersData).map(([userId, value]: [string, any]) => ({
+                    userId,
+                    ...value,
+                }));
                 this.activeInactiveUsers.set(usersArray);
                 this.totalUsers.set(usersArray.length);
                 const onlineUsers = usersArray.filter((user: any) => user.isOnline);
@@ -135,6 +134,7 @@ export class ActiveUsersService {
             } else {
                 this.totalUsers.set(0);
                 this.activeUsers.set([]);
+                this.activeInactiveUsers.set([]);
             }
         });
     }
@@ -144,14 +144,17 @@ export class ActiveUsersService {
         get(activeUsersRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const usersData = snapshot.val();
-                const usersArray = Object.values(usersData);
+                const usersArray = Object.entries(usersData).map(([userId, value]: [string, any]) => ({
+                    userId,
+                    ...value,
+                }));
                 this.totalUsers.set(usersArray.length);
                 const onlineUsers = usersArray.filter((user: any) => user.isOnline);
                 this.activeUsers.set(onlineUsers);
             } else {
-                console.log('No active users found.');
                 this.totalUsers.set(0);
                 this.activeUsers.set([]);
+                this.activeInactiveUsers.set([]);
             }
         }).catch((err) => {
             console.error('Failed to fetch active users:', err);
@@ -163,22 +166,38 @@ export class ActiveUsersService {
         if (!currentUser || !navigator.onLine) return;
 
         const userRef = ref(this.db, `activeUsers/${currentUser.uid}`);
-        update(userRef, { lastActive: Date.now() }).then(() => {
-            console.log('User last active time updated.');
+        update(userRef, { lastActive: Date.now() }).catch((error) => {
+            console.error('Failed to update last active time:', error);
         });
     }
 
-    setUserOffline(userId: string) {
+    async setUserOffline(userId: string): Promise<boolean> {
         const userRef = ref(this.db, `activeUsers/${userId}`);
-        update(userRef, { isOnline: false, lastActive: Date.now() }).then(() => {
-            console.log('User marked as offline.');
-        });
+
+        try {
+            await update(userRef, { isOnline: false, lastActive: Date.now(), userId });
+            return true;
+        } catch (error) {
+            console.warn('Realtime update failed, attempting to seed offline record:', error);
+
+            try {
+                await set(userRef, {
+                    userId,
+                    isOnline: false,
+                    lastActive: Date.now()
+                });
+                return true;
+            } catch (fallbackError) {
+                console.error('Failed to mark user offline in Realtime DB:', fallbackError);
+                return false;
+            }
+        }
     }
 
     updateUserData(userId: string, data: any) {
         const userRef = ref(this.db, `activeUsers/${userId}`);
-        update(userRef, data).then(() => {
-            console.log('User data updated.');
+        update(userRef, data).catch((error) => {
+            console.error('Failed to update presence data:', error);
         });
     }
 
@@ -186,7 +205,6 @@ export class ActiveUsersService {
         try {
             const userDocRef = doc(this.firestore, `users/${userId}`);
             await updateDoc(userDocRef, { role });
-            console.log(`User ${userId} role updated to ${role}.`);
         } catch (error) {
             console.error('Failed to update user role:', error);
             throw error;
@@ -196,5 +214,29 @@ export class ActiveUsersService {
     public setPresenceForUser(user: User) {
         this.user.set(user);
         this.setUserActive(user);
+    }
+
+    watchUserPresence(userId: string): Observable<{ userId: string; isOnline?: boolean; lastActive?: any } | null> {
+        const userRef = ref(this.db, `activeUsers/${userId}`);
+
+        return new Observable((subscriber) => {
+            const unsubscribe = onValue(
+                userRef,
+                (snapshot) => {
+                    if (!snapshot.exists()) {
+                        subscriber.next(null);
+                        return;
+                    }
+
+                    subscriber.next({ userId, ...snapshot.val() });
+                },
+                (error) => {
+                    console.error('Failed to read user presence:', error);
+                    subscriber.next(null);
+                }
+            );
+
+            return () => unsubscribe();
+        });
     }
 }

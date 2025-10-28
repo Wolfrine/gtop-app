@@ -33,7 +33,6 @@ export class SyllabusService {
                 chapter: doc.data()['chapter'],
                 mcqCount: doc.data()['mcqCount'] || 0 // ✅ Fetch mcqCount, default 0
             }));
-            console.log('Syllabus Updated:', syllabus);
             this.syllabus$.next(syllabus);
         });
     }
@@ -41,7 +40,6 @@ export class SyllabusService {
     // Optional: Manual refresh
     async refreshSyllabus() {
         const snapshot = await collectionData(this.syllabusCollection, { idField: 'id' }).toPromise();
-        console.log('Manual Syllabus Refresh:', snapshot);
         this.syllabus$.next(snapshot as SyllabusItem[]);
     }
 
@@ -69,7 +67,6 @@ export class SyllabusService {
         }
 
         await batch.commit();
-        console.log('Optimized syllabus counts updated!');
     }
 
     async editSyllabus(
@@ -141,7 +138,6 @@ export class SyllabusService {
             affectedDocuments: updatedMCQIds
         });
 
-        console.log(`✔ Syllabus updated. MCQs updated: ${updatedMCQIds.length}`);
     }
 
     async insertComboIfNotExists(board: string, standard: string, subject: string, chapter: string): Promise<void> {
@@ -172,7 +168,6 @@ export class SyllabusService {
             mcqCount: 0,
             createdAt: serverTimestamp()
         });
-        console.log(`Inserted new syllabus combo: ${board} - ${standard} - ${subject} - ${chapter}`);
     }
 }
 
@@ -200,7 +195,6 @@ export class SyllabusService {
         if (match?.id) {
             const syllabusDoc = doc(this.firestore, `syllabus/${match.id}`);
             await updateDoc(syllabusDoc, { mcqCount: count });
-            console.log(`Updated syllabus count → ${count} for ${board} > ${standard} > ${subject} > ${chapter}`);
         }
     }
 

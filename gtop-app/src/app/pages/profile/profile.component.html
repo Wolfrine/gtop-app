@@ -97,6 +97,23 @@
           {{ lastLoginMessage }}
         </span>
       </div>
+
+      <div class="admin-row">
+        <button mat-stroked-button color="accent" (click)="resetOnlineStatus()" [disabled]="resettingPresence">
+          <mat-icon>power_settings_new</mat-icon>
+          Reset online status
+        </button>
+        <span
+          class="admin-feedback"
+          *ngIf="presenceMessage"
+          [ngClass]="{
+            success: presenceSuccess === true,
+            error: presenceSuccess === false
+          }"
+        >
+          {{ presenceMessage }}
+        </span>
+      </div>
     </div>
 
     <div class="edit-grid" *ngIf="isSelfView">

@@ -12,6 +12,7 @@ import { doc, Firestore, getDoc, updateDoc } from '@angular/fire/firestore';
 import { AuthService } from '../../services/auth.service';
 import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 import { QuizService } from '../../services/quiz.service';
+import { ActiveUsersService } from '../../services/active-users.service';
 
 @Component({
   selector: 'app-profile',
@@ -46,6 +47,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
   lastLoginMessage = '';
   lastLoginSuccess: boolean | null = null;
 
+  resettingPresence = false;
+  presenceMessage = '';
+  presenceSuccess: boolean | null = null;
+
   saving = false;
   savedMessage = '';
 
@@ -60,7 +65,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private syllabusService: SyllabusService,
     private route: ActivatedRoute,
     private firestore: Firestore,
-    private quizService: QuizService
+    private quizService: QuizService,
+    private activeUsersService: ActiveUsersService
   ) {}
 
   ngOnInit(): void {
@@ -162,7 +168,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
       if (this.viewedUser) {
         this.viewedUser = { ...this.viewedUser, lastLogin: null };
       }
-      this.lastLoginMessage = 'Last login has been reset.';
+      const presenceCleared = await this.clearRealtimePresence();
+      this.lastLoginMessage = presenceCleared
+        ? 'Last login has been reset and online status cleared.'
+        : 'Last login has been reset.';
       this.lastLoginSuccess = true;
     } catch (error) {
       console.error('Failed to reset last login', error);
@@ -170,6 +179,33 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.lastLoginSuccess = false;
     } finally {
       this.resettingLastLogin = false;
+    }
+  }
+
+  async resetOnlineStatus(): Promise<void> {
+    if (!this.viewedUserId || this.resettingPresence) {
+      return;
+    }
+
+    this.resettingPresence = true;
+    this.presenceMessage = '';
+    this.presenceSuccess = null;
+
+    try {
+      const success = await this.clearRealtimePresence();
+      if (success) {
+        this.presenceMessage = 'User has been marked offline.';
+        this.presenceSuccess = true;
+      } else {
+        this.presenceMessage = 'Unable to update online status right now.';
+        this.presenceSuccess = false;
+      }
+    } catch (error) {
+      console.error('Failed to reset online status', error);
+      this.presenceMessage = 'Failed to reset online status.';
+      this.presenceSuccess = false;
+    } finally {
+      this.resettingPresence = false;
     }
   }
 
@@ -199,6 +235,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.lastLoginMessage = '';
       this.roleUpdateSuccess = null;
       this.lastLoginSuccess = null;
+      this.presenceMessage = '';
+      this.presenceSuccess = null;
     }
 
     if (this.isSelfView) {
@@ -211,6 +249,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.lastLoginMessage = '';
       this.roleUpdateSuccess = null;
       this.lastLoginSuccess = null;
+      this.presenceMessage = '';
+      this.presenceSuccess = null;
     } else if (targetChanged || !this.viewedUser) {
       await this.fetchUserProfile(targetUserId);
     } else {
@@ -235,6 +275,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.lastLoginMessage = '';
     this.roleUpdateSuccess = null;
     this.lastLoginSuccess = null;
+    this.presenceMessage = '';
+    this.presenceSuccess = null;
 
     try {
       const userRef = doc(this.firestore, `users/${userId}`);
@@ -299,6 +341,27 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   private updateLastLoginFromUser(user: any | null): void {
     this.lastLoginDate = this.extractTimestamp(user?.lastLogin ?? null);
+  }
+
+  private async clearRealtimePresence(): Promise<boolean> {
+    if (!this.viewedUserId) {
+      return false;
+    }
+
+    const success = await this.activeUsersService.setUserOffline(this.viewedUserId);
+    if (!success) {
+      return false;
+    }
+
+    if (this.viewedUser) {
+      this.viewedUser = {
+        ...this.viewedUser,
+        isOnline: false,
+        lastActive: new Date()
+      };
+    }
+
+    return true;
   }
 
   private normalizeRole(role: any): string {

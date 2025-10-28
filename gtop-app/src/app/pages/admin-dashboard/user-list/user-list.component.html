@@ -1,54 +1,73 @@
-<div class="user-cards-wrapper">
-    <div class="user-card" *ngFor="let user of users">
+<section class="user-cards-wrapper" *ngIf="users.length; else emptyState">
+    <article class="user-card" *ngFor="let user of users" [class.user-online]="user.isOnline">
         <div class="user-card-inner">
-            <div class="profile-pic">
-                <img [src]="user.photoURL" alt="avatar" />
+            <div class="profile-pic" aria-hidden="true">
+                <img [src]="user.photoURL" alt="" />
             </div>
 
             <div class="user-details">
-                <div class="top-row">
-                    <div class="name-email">
-                        <div class="name">{{ user.displayName }}</div>
+                <header class="card-header">
+                    <div class="identity">
+                        <div class="name-row">
+                            <div class="name">{{ user.displayName }}</div>
+                            <mat-chip-set *ngIf="user.role as role" aria-label="User role">
+                                <mat-chip color="primary" selected *ngIf="role?.toLowerCase() === 'admin'">Admin</mat-chip>
+                            </mat-chip-set>
+                        </div>
                         <div class="email">{{ user.email }}</div>
-                        <mat-chip-set *ngIf="user.role as role" aria-label="User role">
-                            <mat-chip color="primary" selected *ngIf="role?.toLowerCase() === 'admin'">Admin</mat-chip>
-                        </mat-chip-set>
                     </div>
 
-                    <div class="top-row-right">
-                        <div class="online-status">
-                            <mat-icon *ngIf="user.isOnline" class="online-icon">adjust</mat-icon>
-                            {{ user.isOnline ? 'Online' : user.lastSeen ? 'Last seen: '
-                                + (user.lastSeen | date:'dd MMM, y |EEE')
-                                + ' at ' +
-                                (user.lastSeen | date:'HH:mm') : 'Offline' }}
-                        </div>
-
-                        <div class="action-buttons">
-                            <button mat-stroked-button color="primary" type="button" (click)="viewProfile(user)">
-                                View Profile
-                            </button>
-                            <button mat-stroked-button type="button" (click)="viewReport(user)">
-                                View Report
-                            </button>
-                            <button
-                                mat-stroked-button
-                                color="warn"
-                                type="button"
-                                *ngIf="user.isOnline"
-                                [disabled]="resettingUserIds[user.userId]"
-                                (click)="resetStatus(user)"
-                            >
-                                Reset Status
-                            </button>
-                        </div>
+                    <div class="status-pill" [class.online]="user.isOnline">
+                        <mat-icon>{{ user.isOnline ? 'adjust' : 'schedule' }}</mat-icon>
+                        <span>
+                            {{ user.isOnline
+                                ? 'Online now'
+                                : user.lastSeen
+                                    ? 'Last seen ' + (user.lastSeen | date:'MMM d, y, h:mm a')
+                                    : 'Offline' }}
+                        </span>
                     </div>
-                </div>
+                </header>
 
-                <div class="meta-line">User: {{ user.role }} | {{ user.board }} | {{ user.standard }}</div>
-                <div class="meta-line">Started On: {{ user.createdAt | date:'MMM d, y' }}</div>
-                <div class="meta-line">Account Status: {{ user.subscriptionStatus }}</div>
+                <dl class="meta-grid" aria-label="User quick facts">
+                    <div class="meta-item">
+                        <dt>Role</dt>
+                        <dd>{{ user.role ? (user.role | titlecase) : '—' }}</dd>
+                    </div>
+                    <div class="meta-item">
+                        <dt>Board</dt>
+                        <dd>{{ user.board || '—' }}</dd>
+                    </div>
+                    <div class="meta-item">
+                        <dt>Standard</dt>
+                        <dd>{{ user.standard || '—' }}</dd>
+                    </div>
+                    <div class="meta-item">
+                        <dt>Started</dt>
+                        <dd>{{ user.createdAt ? (user.createdAt | date:'MMM d, y') : '—' }}</dd>
+                    </div>
+                    <div class="meta-item">
+                        <dt>Plan</dt>
+                        <dd>{{ user.subscriptionStatus || '—' }}</dd>
+                    </div>
+                </dl>
+
+                <footer class="action-buttons">
+                    <button mat-stroked-button color="primary" type="button" (click)="viewProfile(user)">
+                        View Profile
+                    </button>
+                    <button mat-stroked-button type="button" (click)="viewReport(user)">
+                        View Report
+                    </button>
+                </footer>
             </div>
         </div>
+    </article>
+</section>
+
+<ng-template #emptyState>
+    <div class="empty-state">
+        <mat-icon>group_off</mat-icon>
+        <p>No users found right now.</p>
     </div>
-</div>
+</ng-template>

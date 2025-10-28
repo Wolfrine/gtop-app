@@ -181,12 +181,24 @@ export class ActiveUsersService {
         const userRef = ref(this.db, `activeUsers/${userId}`);
 
         try {
-            await update(userRef, { isOnline: false, lastActive: Date.now() });
+            await update(userRef, { isOnline: false, lastActive: Date.now(), userId });
             console.log('User marked as offline.');
             return true;
         } catch (error) {
-            console.error('Failed to mark user offline in Realtime DB:', error);
-            return false;
+            console.warn('Realtime update failed, attempting to seed offline record:', error);
+
+            try {
+                await set(userRef, {
+                    userId,
+                    isOnline: false,
+                    lastActive: Date.now()
+                });
+                console.log('User offline record seeded.');
+                return true;
+            } catch (fallbackError) {
+                console.error('Failed to mark user offline in Realtime DB:', fallbackError);
+                return false;
+            }
         }
     }
 

@@ -135,4 +135,5 @@
 - 2025-10-01: Profile page added — standalone `/profile` shows centered circular avatar, display name and email, and allows editing Board & Standard with save (no redirect). Header dropdown now includes a Profile link.
 - 2025-10-05: Landing page hero and Live Quiz showcase refreshed with premium messaging (question bank stats, CBSE/ICSE coverage, free access promo) and new SVG art tailored for students in standards 5–12.
  - 2025-10-05: Landing hero refined to spotlight GTOP branding first, introducing a brand lockup, refreshed copy, and updated stats tying features back to Growth Tutorials.
- - 2025-10-05: Landing benefits icons replaced with custom SVG set aligned to the GTOP palette so promotional blocks feel cohesive with the refreshed hero.
+- 2025-10-05: Landing benefits icons replaced with custom SVG set aligned to the GTOP palette so promotional blocks feel cohesive with the refreshed hero.
+- 2025-10-09: Admin user list refreshed with status pills, quick stats grid, and empty state; profile admin controls gained Reset Online Status to clear stuck presence flags.

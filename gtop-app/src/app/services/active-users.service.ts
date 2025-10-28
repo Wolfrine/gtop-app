@@ -128,7 +128,10 @@ export class ActiveUsersService {
         onValue(activeUsersRef, (snapshot) => {
             const usersData = snapshot.val();
             if (usersData) {
-                const usersArray = Object.values(usersData);
+                const usersArray = Object.entries(usersData).map(([userId, value]: [string, any]) => ({
+                    userId,
+                    ...value,
+                }));
                 this.activeInactiveUsers.set(usersArray);
                 this.totalUsers.set(usersArray.length);
                 const onlineUsers = usersArray.filter((user: any) => user.isOnline);
@@ -136,6 +139,7 @@ export class ActiveUsersService {
             } else {
                 this.totalUsers.set(0);
                 this.activeUsers.set([]);
+                this.activeInactiveUsers.set([]);
             }
         });
     }
@@ -145,7 +149,10 @@ export class ActiveUsersService {
         get(activeUsersRef).then((snapshot) => {
             if (snapshot.exists()) {
                 const usersData = snapshot.val();
-                const usersArray = Object.values(usersData);
+                const usersArray = Object.entries(usersData).map(([userId, value]: [string, any]) => ({
+                    userId,
+                    ...value,
+                }));
                 this.totalUsers.set(usersArray.length);
                 const onlineUsers = usersArray.filter((user: any) => user.isOnline);
                 this.activeUsers.set(onlineUsers);
@@ -153,6 +160,7 @@ export class ActiveUsersService {
                 console.log('No active users found.');
                 this.totalUsers.set(0);
                 this.activeUsers.set([]);
+                this.activeInactiveUsers.set([]);
             }
         }).catch((err) => {
             console.error('Failed to fetch active users:', err);
@@ -177,7 +185,7 @@ export class ActiveUsersService {
             console.log('User marked as offline.');
             return true;
         } catch (error) {
-            console.warn('Failed to mark user offline in Realtime DB:', error);
+            console.error('Failed to mark user offline in Realtime DB:', error);
             return false;
         }
     }

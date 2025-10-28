@@ -28,6 +28,7 @@ export class UserListComponent {
     users: any[] = [];
     selectedUsers: any[] = [];
     currentUserId: string | null = null;
+    resettingUserIds: Record<string, boolean> = {};
     private destroyRef = inject(DestroyRef);
 
     constructor(
@@ -111,5 +112,29 @@ export class UserListComponent {
 
     viewReport(user: any) {
         this.router.navigate(['/reports'], { queryParams: { userId: user.userId } });
+    }
+
+    async resetStatus(user: any): Promise<void> {
+        const userId = user?.userId;
+        if (!userId) {
+            return;
+        }
+
+        this.resettingUserIds = { ...this.resettingUserIds, [userId]: true };
+
+        try {
+            const success = await this.activeUsersService.setUserOffline(userId);
+            if (success) {
+                const updated = this.users.map(existing => existing.userId === userId
+                    ? { ...existing, isOnline: false, lastSeen: new Date() }
+                    : existing);
+                this.users = updated;
+            }
+        } catch (error) {
+            console.error('Failed to reset user status:', error);
+        } finally {
+            const { [userId]: _, ...rest } = this.resettingUserIds;
+            this.resettingUserIds = rest;
+        }
     }
 }

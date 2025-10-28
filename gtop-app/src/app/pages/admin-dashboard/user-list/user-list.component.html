@@ -21,7 +21,7 @@
                             {{ user.isOnline ? 'Online' : user.lastSeen ? 'Last seen: '
                                 + (user.lastSeen | date:'dd MMM, y |EEE')
                                 + ' at ' +
-                                (user.lastSeen | date:'HH:MM') : 'Offline' }}
+                                (user.lastSeen | date:'HH:mm') : 'Offline' }}
                         </div>
 
                         <div class="action-buttons">
@@ -30,6 +30,16 @@
                             </button>
                             <button mat-stroked-button type="button" (click)="viewReport(user)">
                                 View Report
+                            </button>
+                            <button
+                                mat-stroked-button
+                                color="warn"
+                                type="button"
+                                *ngIf="user.isOnline"
+                                [disabled]="resettingUserIds[user.userId]"
+                                (click)="resetStatus(user)"
+                            >
+                                Reset Status
                             </button>
                         </div>
                     </div>

@@ -41,15 +41,6 @@
         <span class="value">{{ lastLoginDate ? (lastLoginDate | date: 'MMM d, y, h:mm a') : '—' }}</span>
       </div>
       <div class="stat">
-        <span class="label">Status</span>
-        <span class="value">
-          <ng-container *ngIf="statusLabel !== '—'; else unknownStatus">
-            {{ statusLabel }}<ng-container *ngIf="statusDate as seenDate"> {{ seenDate | date: 'MMM d, y, h:mm a' }}</ng-container>
-          </ng-container>
-          <ng-template #unknownStatus>—</ng-template>
-        </span>
-      </div>
-      <div class="stat">
         <span class="label">Board</span>
         <span class="value">{{ user.board || '—' }}</span>
       </div>

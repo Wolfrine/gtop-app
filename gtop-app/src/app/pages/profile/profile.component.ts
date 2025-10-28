@@ -10,7 +10,6 @@ import { ActivatedRoute } from '@angular/router';
 import { combineLatest, Subscription } from 'rxjs';
 import { doc, Firestore, getDoc, updateDoc } from '@angular/fire/firestore';
 import { AuthService } from '../../services/auth.service';
-import { ActiveUsersService } from '../../services/active-users.service';
 import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 import { QuizService } from '../../services/quiz.service';
 
@@ -37,8 +36,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   totalQuizzes = 0;
   lastQuizDate: Date | null = null;
   lastLoginDate: Date | null = null;
-  lastSeenDate: Date | null = null;
-  isOnlineStatus: boolean | null = null;
 
   selectedRole = '';
   updatingRole = false;
@@ -57,15 +54,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
   isAdmin = false;
 
   private subscriptions = new Subscription();
-  private presenceSubscription: Subscription | null = null;
 
   constructor(
     private authService: AuthService,
     private syllabusService: SyllabusService,
     private route: ActivatedRoute,
     private firestore: Firestore,
-    private quizService: QuizService,
-    private activeUsersService: ActiveUsersService
+    private quizService: QuizService
   ) {}
 
   ngOnInit(): void {
@@ -91,10 +86,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-    if (this.presenceSubscription) {
-      this.presenceSubscription.unsubscribe();
-      this.presenceSubscription = null;
-    }
   }
 
   get canSave(): boolean {
@@ -167,16 +158,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     try {
       const userRef = doc(this.firestore, `users/${this.viewedUserId}`);
       await updateDoc(userRef, { lastLogin: null });
-
-      const markedOffline = await this.activeUsersService.setUserOffline(this.viewedUserId);
-
       this.lastLoginDate = null;
-      this.isOnlineStatus = false;
-      if (markedOffline) {
-        this.lastSeenDate = new Date();
-      }
       if (this.viewedUser) {
-        this.viewedUser = { ...this.viewedUser, lastLogin: null, isOnline: false };
+        this.viewedUser = { ...this.viewedUser, lastLogin: null };
       }
       this.lastLoginMessage = 'Last login has been reset.';
       this.lastLoginSuccess = true;
@@ -196,12 +180,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const targetUserId = this.resolveTargetUserId(requestedUserId, currentUser);
 
     if (!targetUserId) {
-      if (this.presenceSubscription) {
-        this.presenceSubscription.unsubscribe();
-        this.presenceSubscription = null;
-      }
-      this.isOnlineStatus = null;
-      this.lastSeenDate = null;
       this.viewedUser = null;
       this.profileError = 'Unable to load profile.';
       this.profileLoading = false;
@@ -217,15 +195,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.totalQuizzes = 0;
       this.lastQuizDate = null;
       this.lastLoginDate = null;
-      this.lastSeenDate = null;
-      this.isOnlineStatus = null;
       this.roleUpdateMessage = '';
       this.lastLoginMessage = '';
       this.roleUpdateSuccess = null;
       this.lastLoginSuccess = null;
-      this.subscribeToPresence(targetUserId);
-    } else if (!this.presenceSubscription) {
-      this.subscribeToPresence(targetUserId);
     }
 
     if (this.isSelfView) {
@@ -326,48 +299,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   private updateLastLoginFromUser(user: any | null): void {
     this.lastLoginDate = this.extractTimestamp(user?.lastLogin ?? null);
-  }
-
-  get statusLabel(): string {
-    if (this.isOnlineStatus === null) {
-      return '—';
-    }
-
-    if (this.isOnlineStatus) {
-      return 'Online';
-    }
-
-    return this.lastSeenDate ? 'Last seen' : 'Offline';
-  }
-
-  get statusDate(): Date | null {
-    if (this.isOnlineStatus || this.isOnlineStatus === null) {
-      return null;
-    }
-
-    return this.lastSeenDate;
-  }
-
-  private subscribeToPresence(userId: string): void {
-    if (!userId) {
-      return;
-    }
-
-    if (this.presenceSubscription) {
-      this.presenceSubscription.unsubscribe();
-      this.presenceSubscription = null;
-    }
-
-    this.presenceSubscription = this.activeUsersService.watchUserPresence(userId).subscribe((presence) => {
-      if (!presence) {
-        this.isOnlineStatus = false;
-        this.lastSeenDate = null;
-        return;
-      }
-
-      this.isOnlineStatus = presence.isOnline ?? false;
-      this.lastSeenDate = this.extractTimestamp(presence.lastActive ?? null);
-    });
   }
 
   private normalizeRole(role: any): string {

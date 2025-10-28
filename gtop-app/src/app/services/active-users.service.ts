@@ -168,11 +168,17 @@ export class ActiveUsersService {
         });
     }
 
-    setUserOffline(userId: string) {
+    async setUserOffline(userId: string): Promise<boolean> {
         const userRef = ref(this.db, `activeUsers/${userId}`);
-        update(userRef, { isOnline: false, lastActive: Date.now() }).then(() => {
+
+        try {
+            await update(userRef, { isOnline: false, lastActive: Date.now() });
             console.log('User marked as offline.');
-        });
+            return true;
+        } catch (error) {
+            console.warn('Failed to mark user offline in Realtime DB:', error);
+            return false;
+        }
     }
 
     updateUserData(userId: string, data: any) {

@@ -10,6 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 import { combineLatest, Subscription } from 'rxjs';
 import { doc, Firestore, getDoc, updateDoc } from '@angular/fire/firestore';
 import { AuthService } from '../../services/auth.service';
+import { ActiveUsersService } from '../../services/active-users.service';
 import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 import { QuizService } from '../../services/quiz.service';
 
@@ -60,7 +61,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private syllabusService: SyllabusService,
     private route: ActivatedRoute,
     private firestore: Firestore,
-    private quizService: QuizService
+    private quizService: QuizService,
+    private activeUsersService: ActiveUsersService
   ) {}
 
   ngOnInit(): void {
@@ -158,9 +160,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
     try {
       const userRef = doc(this.firestore, `users/${this.viewedUserId}`);
       await updateDoc(userRef, { lastLogin: null });
+
+      await this.activeUsersService.setUserOffline(this.viewedUserId);
+
       this.lastLoginDate = null;
       if (this.viewedUser) {
-        this.viewedUser = { ...this.viewedUser, lastLogin: null };
+        this.viewedUser = { ...this.viewedUser, lastLogin: null, isOnline: false };
       }
       this.lastLoginMessage = 'Last login has been reset.';
       this.lastLoginSuccess = true;

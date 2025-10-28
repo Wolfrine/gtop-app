@@ -196,6 +196,11 @@ export class AuthService {
     }
 
     async signOut(): Promise<void> {
+        const currentUser = this.auth.currentUser;
+        if (currentUser) {
+            await this.activeUsersService.setUserOffline(currentUser.uid);
+        }
+
         await signOut(this.auth);
         this.userSubject.next(null);
         if (this.snapshotUnsubscribe) {

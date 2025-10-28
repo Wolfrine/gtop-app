@@ -1,67 +1,65 @@
-<section class="user-cards-wrapper" *ngIf="users.length; else emptyState">
+<section class="user-grid" *ngIf="users.length; else emptyState">
     <article class="user-card" *ngFor="let user of users" [class.user-online]="user.isOnline">
-        <div class="user-card-inner">
-            <div class="profile-pic" aria-hidden="true">
-                <img [src]="user.photoURL" alt="" />
+        <header class="user-card__header">
+            <div class="user-card__identity">
+                <div class="user-card__avatar" aria-hidden="true">
+                    <img [src]="user.photoURL" alt="" />
+                </div>
+
+                <div class="user-card__identity-text">
+                    <div class="user-card__name-row">
+                        <div class="user-card__name">{{ user.displayName }}</div>
+                        <mat-chip-set *ngIf="user.role as role" aria-label="User role">
+                            <mat-chip color="primary" selected *ngIf="role?.toLowerCase() === 'admin'">Admin</mat-chip>
+                        </mat-chip-set>
+                    </div>
+                    <div class="user-card__email">{{ user.email }}</div>
+                </div>
             </div>
 
-            <div class="user-details">
-                <header class="card-header">
-                    <div class="identity">
-                        <div class="name-row">
-                            <div class="name">{{ user.displayName }}</div>
-                            <mat-chip-set *ngIf="user.role as role" aria-label="User role">
-                                <mat-chip color="primary" selected *ngIf="role?.toLowerCase() === 'admin'">Admin</mat-chip>
-                            </mat-chip-set>
-                        </div>
-                        <div class="email">{{ user.email }}</div>
-                    </div>
-
-                    <div class="status-pill" [class.online]="user.isOnline">
-                        <mat-icon>{{ user.isOnline ? 'adjust' : 'schedule' }}</mat-icon>
-                        <span>
-                            {{ user.isOnline
-                                ? 'Online now'
-                                : user.lastSeen
-                                    ? 'Last seen ' + (user.lastSeen | date:'MMM d, y, h:mm a')
-                                    : 'Offline' }}
-                        </span>
-                    </div>
-                </header>
-
-                <dl class="meta-grid" aria-label="User quick facts">
-                    <div class="meta-item">
-                        <dt>Role</dt>
-                        <dd>{{ user.role ? (user.role | titlecase) : '—' }}</dd>
-                    </div>
-                    <div class="meta-item">
-                        <dt>Board</dt>
-                        <dd>{{ user.board || '—' }}</dd>
-                    </div>
-                    <div class="meta-item">
-                        <dt>Standard</dt>
-                        <dd>{{ user.standard || '—' }}</dd>
-                    </div>
-                    <div class="meta-item">
-                        <dt>Started</dt>
-                        <dd>{{ user.createdAt ? (user.createdAt | date:'MMM d, y') : '—' }}</dd>
-                    </div>
-                    <div class="meta-item">
-                        <dt>Plan</dt>
-                        <dd>{{ user.subscriptionStatus || '—' }}</dd>
-                    </div>
-                </dl>
-
-                <footer class="action-buttons">
-                    <button mat-stroked-button color="primary" type="button" (click)="viewProfile(user)">
-                        View Profile
-                    </button>
-                    <button mat-stroked-button type="button" (click)="viewReport(user)">
-                        View Report
-                    </button>
-                </footer>
+            <div class="user-card__status" [class.online]="user.isOnline">
+                <mat-icon aria-hidden="true">{{ user.isOnline ? 'adjust' : 'schedule' }}</mat-icon>
+                <span>
+                    {{ user.isOnline
+                        ? 'Online now'
+                        : user.lastSeen
+                            ? 'Last seen ' + (user.lastSeen | date:'MMM d, y, h:mm a')
+                            : 'Offline' }}
+                </span>
             </div>
-        </div>
+        </header>
+
+        <dl class="user-card__meta" aria-label="User quick facts">
+            <div class="meta-entry">
+                <dt>Role</dt>
+                <dd>{{ user.role ? (user.role | titlecase) : '—' }}</dd>
+            </div>
+            <div class="meta-entry">
+                <dt>Board</dt>
+                <dd>{{ user.board || '—' }}</dd>
+            </div>
+            <div class="meta-entry">
+                <dt>Standard</dt>
+                <dd>{{ user.standard || '—' }}</dd>
+            </div>
+            <div class="meta-entry">
+                <dt>Started</dt>
+                <dd>{{ user.createdAt ? (user.createdAt | date:'MMM d, y') : '—' }}</dd>
+            </div>
+            <div class="meta-entry">
+                <dt>Plan</dt>
+                <dd>{{ user.subscriptionStatus || '—' }}</dd>
+            </div>
+        </dl>
+
+        <footer class="user-card__actions">
+            <button mat-stroked-button color="primary" type="button" (click)="viewProfile(user)">
+                View Profile
+            </button>
+            <button mat-stroked-button type="button" (click)="viewReport(user)">
+                View Report
+            </button>
+        </footer>
     </article>
 </section>
 

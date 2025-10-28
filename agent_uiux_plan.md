@@ -137,3 +137,4 @@
  - 2025-10-05: Landing hero refined to spotlight GTOP branding first, introducing a brand lockup, refreshed copy, and updated stats tying features back to Growth Tutorials.
 - 2025-10-05: Landing benefits icons replaced with custom SVG set aligned to the GTOP palette so promotional blocks feel cohesive with the refreshed hero.
 - 2025-10-09: Admin user list refreshed with status pills, quick stats grid, and empty state; profile admin controls gained Reset Online Status to clear stuck presence flags.
+- 2025-10-12: Admin user list cards condensed for mobile — tighter header, responsive quick facts, and balanced action row so multiple users remain visible at a glance.

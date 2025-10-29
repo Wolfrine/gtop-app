@@ -139,3 +139,4 @@
 - 2025-10-09: Admin user list refreshed with status pills, quick stats grid, and empty state; profile admin controls gained Reset Online Status to clear stuck presence flags.
 - 2025-10-12: Admin user list cards condensed for mobile — tighter header, responsive quick facts, and balanced action row so multiple users remain visible at a glance.
 - 2025-10-16: Admin user list shows compact presence summaries with tap-to-expand detail drawers for quicker scanning on mobile; presence service polished and noisy console logs trimmed.
+- 2025-10-18: Added unauthenticated sample quiz CTA on landing hero and wired public sample quiz flow for quick trials; documented static pool for future updates.

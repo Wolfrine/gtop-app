@@ -41,6 +41,10 @@ export const routes: Routes = [
         }
     },
     {
+        path: 'sample-quiz',
+        loadChildren: () => import('./sample-quiz/sample-quiz.module').then(m => m.SampleQuizModule)
+    },
+    {
         path: 'profile-setup',
         component: ProfileSetupComponent,
         data: {

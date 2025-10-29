@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +10,7 @@ import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 @Component({
     selector: 'app-landing-page',
     standalone: true,
-    imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, AppCardDirective],
+    imports: [CommonModule, RouterModule, MatButtonModule, MatCardModule, MatIconModule, AppCardDirective],
     templateUrl: './landing-page.component.html',
     styleUrl: './landing-page.component.scss'
 })

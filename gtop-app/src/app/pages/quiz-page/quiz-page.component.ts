@@ -58,6 +58,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     private hasSubmittedLiveAnswer = false;
     private sawActiveRun = false;
     private lastTouchY = 0;
+    private summaryRoute = '/quiz-summary';
 
     constructor(
         private quizService: QuizService,
@@ -67,6 +68,14 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit(): void {
+        this.route.data.subscribe(data => {
+            if (data?.['summaryRoute']) {
+                this.summaryRoute = data['summaryRoute'];
+            } else if (data?.['sampleQuiz']) {
+                this.summaryRoute = '/sample-quiz/summary';
+            }
+        });
+
         // Detect live mode synchronously from snapshot to avoid race with normal fetch
         const qp = this.route.snapshot.queryParams || {};
         const modeParam = (qp['mode'] || '').toLowerCase();
@@ -248,7 +257,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         } else {
             // Save to service
             this.quizService.setQuestions(this.questions);
-            this.router.navigate(['/quiz-summary']);
+            this.router.navigateByUrl(this.summaryRoute);
         }
     }
 
@@ -296,7 +305,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             this.navigatedToSummary = true;
             // Expose questions to summary save flow
             this.quizService.setQuestions(this.questions);
-            this.router.navigate(['/quiz-summary'], { state: { fromLive: true, liveMode: this.liveModeType || 'live', sessionId: this.sessionId } });
+            this.router.navigateByUrl(this.summaryRoute, { state: { fromLive: true, liveMode: this.liveModeType || 'live', sessionId: this.sessionId } });
         }
     }
 

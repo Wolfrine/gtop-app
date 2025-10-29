@@ -40,6 +40,9 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     fromLive = false;
     liveSessionId: string | null = null;
     liveMode: 'live' | 'run' | null = null;
+    returnRoute = '/dashboard';
+    returnLabel = 'Back to Dashboard';
+    private retryRoute = '/quiz';
 
     // UI state
     incorrectOnly = false;
@@ -68,6 +71,22 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
+        this.route.data.subscribe(data => {
+            if (data?.['retryRoute']) {
+                this.retryRoute = data['retryRoute'];
+            } else if (data?.['sampleQuiz']) {
+                this.retryRoute = '/sample-quiz';
+            }
+
+            if (data?.['returnRoute']) {
+                this.returnRoute = data['returnRoute'];
+                this.returnLabel = data?.['returnLabel'] || this.returnLabel;
+            } else if (data?.['sampleQuiz']) {
+                this.returnRoute = '/';
+                this.returnLabel = 'Back to Landing';
+            }
+        });
+
         const navState: any = (this.router.getCurrentNavigation()?.extras?.state) || (history.state || {});
         const summaries = navState?.questionSummaries;
         const navSession = navState?.session;
@@ -216,7 +235,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                 }
             });
 
-            this.router.navigate(['/quiz'], {
+            this.router.navigate([this.retryRoute], {
                 queryParams: {
                     retry: 'summary',
                     scope: 'incorrect'
@@ -239,7 +258,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                 }
             });
 
-            this.router.navigate(['/quiz'], {
+            this.router.navigate([this.retryRoute], {
                 queryParams: { retry: 'summary', scope: 'all' }
             });
         } catch (error) {

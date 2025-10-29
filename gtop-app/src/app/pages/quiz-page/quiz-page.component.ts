@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
@@ -29,6 +29,8 @@ import { LiveQuizService } from '../../services/live-quiz.service';
 })
 export class QuizPageComponent implements OnInit, OnDestroy {
 
+    @ViewChild('quizRoot', { static: true }) quizRoot?: ElementRef<HTMLDivElement>;
+
     optionsLabel = ['A', 'B', 'C', 'D'];
 
     // Questions list; in live mode populated from session; in normal mode populated from selected filters
@@ -55,6 +57,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     private retryContext: RetryContext | null = null;
     private hasSubmittedLiveAnswer = false;
     private sawActiveRun = false;
+    private lastTouchY = 0;
 
     constructor(
         private quizService: QuizService,
@@ -159,6 +162,56 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         if ((this as any)._tick) clearInterval((this as any)._tick);
         if (this.answersUnsub) this.answersUnsub();
         if (this.participantsUnsub) this.participantsUnsub();
+    }
+
+    @HostListener('window:touchstart', ['$event'])
+    onWindowTouchStart(event: TouchEvent) {
+        if (!this.shouldInterceptPullToRefresh(event)) {
+            return;
+        }
+        this.lastTouchY = event.touches[0].clientY;
+    }
+
+    @HostListener('window:touchmove', ['$event'])
+    onWindowTouchMove(event: TouchEvent) {
+        if (!this.shouldInterceptPullToRefresh(event)) {
+            return;
+        }
+
+        const currentY = event.touches[0].clientY;
+        const deltaY = currentY - this.lastTouchY;
+        this.lastTouchY = currentY;
+
+        if (deltaY <= 0) {
+            return;
+        }
+
+        const container = this.quizRoot?.nativeElement;
+        if (!container) {
+            return;
+        }
+
+        const atTop = container.scrollTop <= 0;
+        const canScroll = container.scrollHeight > container.clientHeight;
+
+        if ((atTop || !canScroll) && event.cancelable) {
+            event.preventDefault();
+        }
+    }
+
+    private shouldInterceptPullToRefresh(event: TouchEvent): boolean {
+        if (event.touches.length !== 1) {
+            return false;
+        }
+        const container = this.quizRoot?.nativeElement;
+        if (!container) {
+            return false;
+        }
+        const target = event.target as Node | null;
+        if (!target) {
+            return false;
+        }
+        return container.contains(target);
     }
 
 

@@ -3,11 +3,16 @@
 @use 'styles/utilities';
 @use 'styles/typography';
 
+html {
+  overscroll-behavior-y: contain;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', Roboto, "Helvetica Neue", sans-serif;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  overscroll-behavior-y: contain;
 }
 
 .content {

@@ -787,6 +787,159 @@ app-landing-page {
         text-transform: uppercase;
     }
 
+    .product-tour {
+        position: relative;
+        padding: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 6vw, 4.5rem) clamp(3.5rem, 7vw, 5.5rem);
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.98) 0%, rgba(224, 242, 254, 0.65) 100%);
+        overflow: hidden;
+    }
+
+    .product-tour::before {
+        content: "";
+        position: absolute;
+        inset: 18% auto -120px -120px;
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent 70%);
+        pointer-events: none;
+    }
+
+    .product-tour::after {
+        content: "";
+        position: absolute;
+        inset: auto -120px 10% auto;
+        width: 280px;
+        height: 280px;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.12), transparent 72%);
+        pointer-events: none;
+    }
+
+    .product-tour__header {
+        position: relative;
+        z-index: 1;
+        max-width: 720px;
+        margin: 0 auto clamp(2.5rem, 4vw, 3.5rem);
+        text-align: center;
+        display: grid;
+        gap: 1rem;
+    }
+
+    .product-tour__header h2 {
+        margin: 0;
+        font-size: clamp(1.9rem, 3.3vw, 2.5rem);
+        color: #0f172a;
+    }
+
+    .product-tour__header p {
+        margin: 0;
+        font-size: clamp(1rem, 1.2vw, 1.1rem);
+        color: #475569;
+    }
+
+    .product-tour__tabs {
+        position: relative;
+        z-index: 1;
+        max-width: 1040px;
+        margin: 0 auto;
+        border-radius: clamp(1.75rem, 3vw, 2.5rem);
+        padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 2vw, 1.75rem);
+        background: rgba(248, 250, 252, 0.85);
+        box-shadow: 0 32px 60px rgba(15, 23, 42, 0.12);
+        backdrop-filter: blur(18px);
+    }
+
+    .product-tour__tabs .mat-mdc-tab-header {
+        margin-bottom: clamp(1rem, 2vw, 1.5rem);
+    }
+
+    .product-tour__tabs .mat-mdc-tab-labels {
+        gap: clamp(0.5rem, 1vw, 0.75rem);
+    }
+
+    .product-tour__tabs .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+        color: #1d4ed8;
+    }
+
+    .product-tour__tabs .mat-mdc-tab .mdc-tab__text-label {
+        transition: color 160ms ease;
+        color: #475569;
+    }
+
+    .product-tour__tabs .mat-mdc-tab .mdc-tab__ripple::before,
+    .product-tour__tabs .mat-mdc-tab .mdc-tab__ripple::after {
+        background-color: rgba(79, 70, 229, 0.18);
+    }
+
+    .product-tour__tabs .mat-mdc-tab:hover .mdc-tab__text-label {
+        color: #312e81;
+    }
+
+    .product-tour__tab-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #0f172a;
+        text-transform: none;
+    }
+
+    .product-tour__tab-label mat-icon {
+        background: rgba(99, 102, 241, 0.12);
+        border-radius: 12px;
+        padding: 0.45rem;
+        font-size: 1.3rem;
+        width: 1.3rem;
+        height: 1.3rem;
+        color: #4338ca;
+    }
+
+    .product-tour__panel {
+        margin-top: clamp(1.5rem, 3vw, 2.5rem);
+    }
+
+    .product-tour__panel figure {
+        margin: 0;
+        display: grid;
+        gap: clamp(1.25rem, 2.2vw, 1.75rem);
+        justify-items: center;
+    }
+
+    .product-tour__image-shell {
+        width: min(100%, 720px);
+        border-radius: clamp(1.5rem, 2.5vw, 2.25rem);
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        box-shadow: 0 24px 48px rgba(15, 23, 42, 0.16);
+        background: radial-gradient(circle at top, rgba(99, 102, 241, 0.18), transparent 60%);
+    }
+
+    .product-tour__image-shell img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .product-tour__panel figcaption {
+        text-align: center;
+        max-width: 560px;
+        display: grid;
+        gap: 0.65rem;
+    }
+
+    .product-tour__panel h3 {
+        margin: 0;
+        font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+        color: #1f2937;
+    }
+
+    .product-tour__panel p {
+        margin: 0;
+        font-size: clamp(1rem, 1.25vw, 1.1rem);
+        color: #475569;
+        line-height: 1.65;
+    }
+
     .benefits {
         max-width: 1100px;
         margin: clamp(3rem, 8vw, 5rem) auto;
@@ -1030,6 +1183,18 @@ app-landing-page {
             order: -1;
         }
 
+        .product-tour {
+            padding: clamp(2.5rem, 8vw, 4rem) clamp(1rem, 7vw, 2.25rem);
+        }
+
+        .product-tour__tab-label {
+            justify-content: center;
+        }
+
+        .product-tour__panel figcaption {
+            text-align: center;
+        }
+
         .experience-card button {
             justify-self: center;
             width: 100%;
@@ -1056,6 +1221,14 @@ app-landing-page {
 
         .benefits {
             text-align: left;
+        }
+
+        .product-tour__tabs {
+            padding: clamp(1rem, 6vw, 1.5rem) clamp(0.75rem, 6vw, 1.25rem);
+        }
+
+        .product-tour__tab-label {
+            font-size: 0.95rem;
         }
 
         .experience-card,

@@ -84,6 +84,40 @@
     </div>
 </header>
 
+<!-- Product Tour Carousel -->
+<section class="product-tour" aria-labelledby="product-tour-heading">
+    <div class="product-tour__header">
+        <span class="section-kicker">See GTOP in action</span>
+        <h2 id="product-tour-heading">Take a quick tour of the experience</h2>
+        <p>Glide through real GTOP screens to preview dashboards, live quiz energy, and post-quiz analytics without leaving the
+            landing page.</p>
+    </div>
+
+    <mat-tab-group class="product-tour__tabs" mat-stretch-tabs [(selectedIndex)]="selectedTourIndex"
+        (selectedIndexChange)="onTourSelectionChange($event)" animationDuration="400ms">
+        <mat-tab *ngFor="let slide of tourSlides">
+            <ng-template mat-tab-label>
+                <span class="product-tour__tab-label">
+                    <mat-icon aria-hidden="true">{{ slide.icon }}</mat-icon>
+                    <span>{{ slide.label }}</span>
+                </span>
+            </ng-template>
+
+            <div class="product-tour__panel">
+                <figure>
+                    <div class="product-tour__image-shell">
+                        <img [src]="slide.image" [alt]="slide.imageAlt" loading="lazy" />
+                    </div>
+                    <figcaption aria-live="polite">
+                        <h3>{{ slide.heading }}</h3>
+                        <p>{{ slide.description }}</p>
+                    </figcaption>
+                </figure>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</section>
+
 <!-- Benefits Section -->
 <section class="benefits" aria-labelledby="benefits-heading">
     <div class="benefits-heading">

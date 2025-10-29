@@ -1,20 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
 import { AuthService } from '../../services/auth.service';
 import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
 
 @Component({
     selector: 'app-landing-page',
     standalone: true,
-    imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, AppCardDirective],
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, MatTabsModule, AppCardDirective],
     templateUrl: './landing-page.component.html',
     styleUrl: './landing-page.component.scss'
 })
-export class LandingPageComponent implements OnInit {
+export class LandingPageComponent implements OnInit, OnDestroy {
 
     // Track selected answer + feedback
     selectedAnswer: string | null = null;
@@ -30,6 +31,37 @@ export class LandingPageComponent implements OnInit {
     ];
     correctAnswer = 'C';
 
+    readonly tourSlides = [
+        {
+            icon: 'leaderboard',
+            label: 'Dashboard',
+            heading: 'Track mastery across every subject',
+            description: 'See streaks, recent wins, and smart nudges the moment you sign in. GTOP keeps revisions focused and exam readiness visible.',
+            image: 'assets/tour/dashboard-glimpse.svg',
+            imageAlt: 'Dashboard overview showing streak, accuracy cards, and quick-start actions.'
+        },
+        {
+            icon: 'groups',
+            label: 'Live Quiz',
+            heading: 'Host adrenaline-packed live battles',
+            description: 'Spin up a room, invite friends, and watch the leaderboard glow in real time. Moderation controls keep every session school-safe.',
+            image: 'assets/tour/live-quiz-glimpse.svg',
+            imageAlt: 'Live quiz lobby with participant avatars, host controls, and buzzing question list.'
+        },
+        {
+            icon: 'insights',
+            label: 'Quiz Summary',
+            heading: 'Celebrate progress with instant insights',
+            description: 'Review accuracy, speed, and topic trends at a glance. Shareable reports turn every attempt into a smarter next step.',
+            image: 'assets/tour/summary-glimpse.svg',
+            imageAlt: 'Quiz summary analytics including accuracy donut chart and revision checklist.'
+        }
+    ];
+
+    selectedTourIndex = 0;
+    private autoplayIntervalId: number | null = null;
+    private readonly tourAutoplayDelay = 8000;
+
     constructor(
         private router: Router,
         private authService: AuthService
@@ -41,6 +73,12 @@ export class LandingPageComponent implements OnInit {
                 this.router.navigate(['/dashboard']);
             }
         });
+
+        this.startTourAutoplay();
+    }
+
+    ngOnDestroy(): void {
+        this.clearTourAutoplay();
     }
 
     // Called when an option is clicked
@@ -68,6 +106,34 @@ export class LandingPageComponent implements OnInit {
                 : optionValue === this.correctAnswer
                     ? { 'background-color': '#4CAF50' }  // Green
                     : {};
+        }
+    }
+
+    onTourSelectionChange(index: number): void {
+        this.selectedTourIndex = index;
+        this.startTourAutoplay();
+    }
+
+    private startTourAutoplay(): void {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        this.clearTourAutoplay();
+
+        this.autoplayIntervalId = window.setInterval(() => {
+            this.selectedTourIndex = (this.selectedTourIndex + 1) % this.tourSlides.length;
+        }, this.tourAutoplayDelay);
+    }
+
+    private clearTourAutoplay(): void {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        if (this.autoplayIntervalId !== null) {
+            window.clearInterval(this.autoplayIntervalId);
+            this.autoplayIntervalId = null;
         }
     }
 

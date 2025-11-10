@@ -7,6 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { AuthPanelComponent } from '../../components/auth/auth-panel/auth-panel.component';
 import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 
 @Component({
@@ -20,7 +22,9 @@ import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
         MatButtonModule,
         MatFormFieldModule,
         MatSelectModule,
-        MatCardModule
+        MatCardModule,
+        MatIconModule,
+        AuthPanelComponent
     ],
 })
 export class ProfileSetupComponent implements OnInit {
@@ -31,6 +35,7 @@ export class ProfileSetupComponent implements OnInit {
     selectedBoard: string | undefined = undefined;
 
     user: any = null;
+    guestQuizLimit = this.authService.guestQuizLimit;
 
     constructor(
         private authService: AuthService,
@@ -47,6 +52,10 @@ export class ProfileSetupComponent implements OnInit {
                 return;
             }
             this.user = user;
+            if (user) {
+                this.selectedBoard = user.board ?? this.selectedBoard;
+                this.selectedStandard = user.standard ?? this.selectedStandard;
+            }
         });
 
         // ✅ Fetch distinct boards & standards from syllabus (from IndexedDB)
@@ -62,10 +71,6 @@ export class ProfileSetupComponent implements OnInit {
             this.boards = Array.from(uniqueBoards);
             this.standards = Array.from(uniqueStandards);
         });
-    }
-
-    signInWithGoogle() {
-        this.authService.signInWithGoogle();
     }
 
     isDisabled() {

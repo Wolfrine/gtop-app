@@ -6,16 +6,16 @@ This document explains how GTOP handles user authentication after adding email/p
 
 | Provider | Firebase Setting | Angular Entry Point | Notes |
 |----------|------------------|----------------------|-------|
-| Google OAuth | Enabled in Firebase console (Google provider) | `AuthPanelComponent` "Instant access" tab → **Continue with Google** button (`AuthService.signInWithGoogle`) | Uses popup flow and existing One Tap support when available. |
-| Email & Password | Firebase Email/Password provider | `AuthPanelComponent` "Email" tab → sign in / create account (`AuthService.signInWithEmail`, `AuthService.registerWithEmail`) | Enforces minimum 6 character password. Password reset uses `AuthService.sendPasswordReset`. |
-| Phone OTP | Firebase Phone provider | `AuthPanelComponent` "Phone OTP" tab (`AuthService.startPhoneSignIn`, `AuthService.confirmPhoneSignIn`) | Requires invisible reCAPTCHA via Firebase. Phone numbers auto-prefix `+91` when 10 digits are entered without a country code. |
-| Anonymous Guest | Firebase Anonymous provider | `AuthPanelComponent` "Instant access" tab → **Explore as guest** (`AuthService.continueAsGuest`) | Creates a guest profile with a five-quiz preview limit and `role: 'guest'`. |
+| Google OAuth | Enabled in Firebase console (Google provider) | `ProfileSetupComponent` embeds `<app-auth-panel>` "Instant access" tab → **Continue with Google** (`AuthService.signInWithGoogle`) | Uses popup flow and existing One Tap support when available. |
+| Email & Password | Firebase Email/Password provider | `ProfileSetupComponent` → Auth panel "Email" tab (`AuthService.signInWithEmail`, `AuthService.registerWithEmail`) | Enforces minimum 6 character password. Password reset uses `AuthService.sendPasswordReset`. |
+| Phone OTP | Firebase Phone provider | `ProfileSetupComponent` → Auth panel "Phone OTP" tab (`AuthService.startPhoneSignIn`, `AuthService.confirmPhoneSignIn`) | Requires invisible reCAPTCHA via Firebase. Phone numbers auto-prefix `+91` when 10 digits are entered without a country code. |
+| Anonymous Guest | Firebase Anonymous provider | `ProfileSetupComponent` → Auth panel "Instant access" tab → **Explore as guest** (`AuthService.continueAsGuest`) | Creates a guest profile with a five-quiz preview limit and `role: 'guest'`. |
 
 All authentication flows persist a user profile document in `Firestore /users/{uid}` via `AuthService.storeUserInFirestore`. Default roles are preserved; guests receive a `guestQuizCount` counter.
 
 ## Angular Components & Services
 
-- **`src/app/components/auth/auth-panel/auth-panel.component.*`** – New standalone panel embedded on the landing hero. It exposes email, phone, Google, and guest entry points, handles OTP verification UI, and coordinates with the `AuthService`.
+- **`src/app/components/auth/auth-panel/auth-panel.component.*`** – Standalone panel surfaced inside the profile setup (login) page. It exposes email, phone, Google, and guest entry points, handles OTP verification UI, and coordinates with the `AuthService`.
 - **`src/app/services/auth.service.ts`** – Extended with:
   - `registerWithEmail`, `signInWithEmail`, `sendPasswordReset` for email flows.
   - `startPhoneSignIn`, `confirmPhoneSignIn` for OTP login.
@@ -32,10 +32,11 @@ All authentication flows persist a user profile document in `Firestore /users/{u
 3. `QuizService.saveQuizResult` increments the counter via `GuestAccessService.recordGuestAttempt` whenever a guest completes a quiz.
 4. `UserDashboardComponent` listens to the user snapshot, surfaces remaining attempts, disables buttons, and surfaces an upsell snackbar once the limit is reached.
 
-## Landing Page Integration
+## Profile Setup (Login) Experience
 
-- `LandingPageComponent` now imports `AuthPanelComponent` and positions it inside the hero section beside the marketing copy and SVG illustration (`landing-page.component.html/.scss`).
-- The hero layout has been updated with a responsive two-column grid so the auth card and illustration stay balanced on desktop while stacking gracefully on mobile.
+- `ProfileSetupComponent` presents a two-column layout: benefits and data-minimisation messaging on the left, with the rich `<app-auth-panel>` on the right.
+- When a user signs in, the panel swaps to a guided "Step 2 of 2" card that captures board and standard selections with reassurance for guest users about upgrading later.
+- The layout emphasises that only minimal data (name, board, standard) is collected and reiterates the five-quiz guest preview limit.
 
 ## Implementation Checklist
 
@@ -51,7 +52,7 @@ All authentication flows persist a user profile document in `Firestore /users/{u
 - `src/app/services/guest-access.service.ts`
 - `src/app/services/guest-quiz.guard.ts`
 - `src/app/pages/user-dashboard/user-dashboard.component.(ts|html|scss)`
-- `src/app/pages/landing-page/landing-page.component.(ts|html|scss)`
+- `src/app/pages/profile-setup/profile-setup.component.(ts|html|scss)`
 - `src/app/app.routes.ts`
 - `src/app/services/quiz.service.ts`
 

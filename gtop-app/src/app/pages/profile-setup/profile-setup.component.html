@@ -1,48 +1,119 @@
-<div class="profile-setup-container">
-    <!-- Stage 1: Sign-In -->
-    <mat-card class="sign-in-card">
-        <h2 *ngIf="!user">Sign In to Continue</h2>
-        <h2 *ngIf="user">Welcome, {{ user.displayName }}</h2>
+<section class="onboarding">
+    <div class="onboarding__intro">
+        <span class="eyebrow">Choose your preferred sign-in</span>
+        <h1>Unlock GTOP in under a minute</h1>
+        <p class="intro-copy">
+            Use email, phone OTP, Google, or a 5-quiz guest preview. We only collect what we need to personalise your
+            practice.
+        </p>
 
-        <div *ngIf="user">
-            <img *ngIf="user?.photoURL" [attr.src]="user.photoURL" alt="Profile Picture" class="profile-pic" />
+        <ul class="highlight-list" aria-label="Ways to access GTOP">
+            <li>
+                <mat-icon aria-hidden="true">mail_outline</mat-icon>
+                <div>
+                    <h3>Email &amp; password or instant OTP</h3>
+                    <p>Create a secure login with a password or a verified phone number. No marketing spam, ever.</p>
+                </div>
+            </li>
+            <li>
+                <mat-icon aria-hidden="true">account_circle</mat-icon>
+                <div>
+                    <h3>One-tap with Google</h3>
+                    <p>Prefer convenience? Continue with Google and sync your progress across devices automatically.</p>
+                </div>
+            </li>
+            <li>
+                <mat-icon aria-hidden="true">rocket_launch</mat-icon>
+                <div>
+                    <h3>Preview first, decide later</h3>
+                    <p>Hop in as a guest and enjoy up to {{ guestQuizLimit }} quizzes before creating a full account.</p>
+                </div>
+            </li>
+        </ul>
 
-
-            <p>{{ user.email }}</p>
-            <a class="switch-user" (click)="switchUser()">Switch Account</a>
+        <div class="assurance" role="note">
+            <mat-icon aria-hidden="true">verified_user</mat-icon>
+            <div>
+                <strong>Minimal data promise:</strong>
+                we only ask for your name, class, and board to tailor quizzes. No contacts, messages, or files are accessed.
+            </div>
         </div>
+    </div>
 
-        <button mat-raised-button color="primary" *ngIf="!user" (click)="signInWithGoogle()">
-            Sign in with Google
-        </button>
-    </mat-card>
+    <div class="onboarding__panel">
+        <ng-container *ngIf="!user; else profileStep">
+            <app-auth-panel></app-auth-panel>
 
-    <!-- Stage 2: Profile Selection -->
-    <mat-card *ngIf="user" class="profile-selection-card">
-        <h2>Complete Your Profile</h2>
+            <section class="policy-card" aria-label="How GTOP uses your details">
+                <h2>Why we need this information</h2>
+                <p>
+                    Your board and class help us recommend the exact question banks and live quizzes that match your syllabus.
+                    Nothing is shared outside GTOP.
+                </p>
+                <div class="policy-point">
+                    <mat-icon aria-hidden="true">lock</mat-icon>
+                    <span>Data is stored securely in Firebase and you can sign out or delete your account any time.</span>
+                </div>
+            </section>
+        </ng-container>
 
-        <!-- Standard Selection -->
-        <mat-form-field appearance="outline">
-            <mat-label>Select Your Standard</mat-label>
-            <mat-select [(ngModel)]="selectedStandard">
-                <mat-option *ngFor="let standard of standards" [value]="standard">
-                    {{ standard }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
+        <ng-template #profileStep>
+            <mat-card class="profile-card">
+                <header>
+                    <span class="step-badge">Step 2 of 2</span>
+                    <h2>Finish setting up your practice profile</h2>
+                    <p>
+                        Hey {{ user?.displayName || 'there' }}! Tell us your class and board so every quiz fits your goals.
+                    </p>
+                </header>
 
-        <!-- Board Selection -->
-        <mat-form-field appearance="outline">
-            <mat-label>Select Your Board</mat-label>
-            <mat-select [(ngModel)]="selectedBoard">
-                <mat-option *ngFor="let board of boards" [value]="board">
-                    {{ board }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
+                <div class="signed-in-summary">
+                    <img *ngIf="user?.photoURL" [src]="user.photoURL" alt="Profile picture" class="profile-pic" />
+                    <div class="signed-in-copy">
+                        <span class="label">Signed in as</span>
+                        <strong>{{ user?.displayName || user?.email || user?.phoneNumber }}</strong>
+                        <p class="contact" *ngIf="user?.email">{{ user.email }}</p>
+                        <p class="contact" *ngIf="user?.phoneNumber">{{ user.phoneNumber }}</p>
+                        <button mat-button type="button" class="switch-user" (click)="switchUser()">
+                            Use a different account
+                        </button>
+                    </div>
+                </div>
 
-        <button mat-raised-button color="primary" (click)="continue()" [disabled]="isDisabled()">
-            Continue
-        </button>
-    </mat-card>
-</div>
+                <div class="guest-hint" *ngIf="user?.role === 'guest'">
+                    <mat-icon aria-hidden="true">rocket_launch</mat-icon>
+                    <span>You're exploring as a guest. Complete your profile to unlock unlimited quizzes.</span>
+                </div>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Select Your Standard</mat-label>
+                    <mat-select [(ngModel)]="selectedStandard">
+                        <mat-option *ngFor="let standard of standards" [value]="standard">
+                            {{ standard }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint>Pick the class you currently study in.</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Select Your Board</mat-label>
+                    <mat-select [(ngModel)]="selectedBoard">
+                        <mat-option *ngFor="let board of boards" [value]="board">
+                            {{ board }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint>We surface quizzes that align with your syllabus.</mat-hint>
+                </mat-form-field>
+
+                <button mat-raised-button color="primary" (click)="continue()" [disabled]="isDisabled()">
+                    Save &amp; continue to dashboard
+                </button>
+            </mat-card>
+
+            <section class="policy-card" aria-label="Your control">
+                <h2>You're always in control</h2>
+                <p>Edit these choices later from your profile. Signing out clears your active session instantly.</p>
+            </section>
+        </ng-template>
+    </div>
+</section>

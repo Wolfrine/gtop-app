@@ -42,7 +42,7 @@
 
 **Key Tasks**
 - [x] Redesign landing page feature cards to use system AppCard; kept hero copy, ready for content pass.
-- [ ] Streamline profile setup with progressive disclosure and contextual helper text.
+- [x] Streamline profile setup with progressive disclosure and contextual helper text.
 - [x] Rework dashboard to surface actionable insights (tokenized stats, recent sessions, quick actions).
 - [x] Modernize quiz flow visuals (question/option cards use AppCard; clearer spacing on mobile).
 - [x] Refresh quiz summary: donut accuracy, stat chips, incorrect-only filter, polished headers, dual retry CTAs.
@@ -140,3 +140,4 @@
 - 2025-10-12: Admin user list cards condensed for mobile — tighter header, responsive quick facts, and balanced action row so multiple users remain visible at a glance.
 - 2025-10-16: Admin user list shows compact presence summaries with tap-to-expand detail drawers for quicker scanning on mobile; presence service polished and noisy console logs trimmed.
 - 2025-10-20: Landing hero now spotlights a multi-provider auth panel (email, phone OTP, Google, guest preview) with refreshed layout; guest preview cap (5 quizzes) enforced via dashboard CTAs and guard messaging.
+- 2025-11-10: Profile setup/login flow redesigned with the multi-provider auth panel, data-minimisation messaging, and guest preview guidance; landing hero reverted to marketing-only focus.

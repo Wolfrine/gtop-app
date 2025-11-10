@@ -10,7 +10,7 @@ import { VersionService } from '../../services/version.service';
     styleUrl: './footer.component.scss'
 })
 export class FooterComponent {
-    version = '1.2.21';
+    version = '1.2.22';
     firestoreVersion = this.versionService.firestoreVersion;
 
     hideUpdatePrompt = signal<boolean>(sessionStorage.getItem('hideVersionPrompt') === 'true');

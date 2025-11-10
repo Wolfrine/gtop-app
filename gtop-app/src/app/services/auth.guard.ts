@@ -13,6 +13,11 @@ export class AuthGuard implements CanActivate {
         return this.authService.user$.pipe(
             map(user => {
                 if (user) {
+                    const role = user.role || 'user';
+                    if (role === 'guest') {
+                        return true;
+                    }
+
                     if (user.board && user.standard) {
                         return true; // ✅ Allow access if profile is complete
                     } else {

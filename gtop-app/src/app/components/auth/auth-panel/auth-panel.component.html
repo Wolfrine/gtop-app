@@ -1,0 +1,125 @@
+<mat-card class="auth-panel">
+  <header class="auth-panel__header">
+    <h2>Sign in to GTOP</h2>
+    <p>Access Growth Tutorials across email, phone OTP, or explore as a guest for 5 quizzes.</p>
+  </header>
+
+  <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
+    <mat-tab label="Email">
+      <div class="auth-panel__body">
+        <div class="mode-toggle" role="tablist" aria-label="Email sign-in mode">
+          <button type="button" [class.active]="authMode === 'login'" (click)="toggleAuthMode('login')">
+            Sign in
+          </button>
+          <button type="button" [class.active]="authMode === 'register'" (click)="toggleAuthMode('register')">
+            Create account
+          </button>
+        </div>
+
+        <form [formGroup]="emailForm" (ngSubmit)="handleEmailSubmit()" class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Email address</mat-label>
+            <input matInput type="email" formControlName="email" autocomplete="email" required>
+            <mat-error *ngIf="emailForm.get('email')?.hasError('required')">
+              Email is required.
+            </mat-error>
+            <mat-error *ngIf="emailForm.get('email')?.hasError('email')">
+              Enter a valid email address.
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="authMode === 'register'">
+            <mat-label>Full name</mat-label>
+            <input matInput formControlName="displayName" autocomplete="name">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="current-password" required>
+            <mat-error *ngIf="emailForm.get('password')?.hasError('required')">
+              Password is required.
+            </mat-error>
+            <mat-error *ngIf="emailForm.get('password')?.hasError('minlength')">
+              Use at least 6 characters.
+            </mat-error>
+          </mat-form-field>
+
+          <button mat-flat-button color="primary" type="submit" class="full-width"
+                  [disabled]="isLoadingEmail || emailForm.invalid">
+            <mat-progress-spinner *ngIf="isLoadingEmail" mode="indeterminate" diameter="16"></mat-progress-spinner>
+            <span *ngIf="!isLoadingEmail">{{ authMode === 'login' ? 'Sign in with email' : 'Create my GTOP account' }}</span>
+          </button>
+
+          <button mat-button type="button" class="link-button" *ngIf="authMode === 'login'"
+                  (click)="sendPasswordReset()">
+            Forgot password?
+          </button>
+        </form>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Phone OTP">
+      <div class="auth-panel__body">
+        <form [formGroup]="phoneForm" (ngSubmit)="phoneStep === 'request' ? sendPhoneCode() : verifyPhoneCode()" class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Mobile number</mat-label>
+            <input matInput formControlName="phone" placeholder="Include country code e.g. +91XXXXXXXXXX" autocomplete="tel">
+            <mat-error *ngIf="phoneForm.get('phone')?.hasError('required')">Mobile number is required.</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Name (optional)</mat-label>
+            <input matInput formControlName="displayName">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="phoneStep === 'verify'">
+            <mat-label>Enter OTP</mat-label>
+            <input matInput formControlName="otp" maxlength="6" autocomplete="one-time-code">
+            <mat-error *ngIf="phoneForm.get('otp')?.hasError('required')">OTP is required.</mat-error>
+          </mat-form-field>
+
+          <button mat-flat-button color="primary" type="submit" class="full-width"
+                  [disabled]="(phoneStep === 'request' && isSendingPhoneCode) || (phoneStep === 'verify' && (isVerifyingPhone || phoneForm.get('otp')?.invalid))">
+            <mat-progress-spinner *ngIf="isSendingPhoneCode || isVerifyingPhone" mode="indeterminate" diameter="16"></mat-progress-spinner>
+            <span *ngIf="phoneStep === 'request' && !(isSendingPhoneCode || isVerifyingPhone)">Send verification code</span>
+            <span *ngIf="phoneStep === 'verify' && !(isSendingPhoneCode || isVerifyingPhone)">Verify &amp; continue</span>
+          </button>
+
+          <button mat-button type="button" class="link-button" *ngIf="phoneStep === 'verify'"
+                  (click)="resetPhoneFlow()">
+            Use a different number
+          </button>
+        </form>
+        <div #recaptchaContainer id="phone-signin-recaptcha" class="recaptcha-placeholder"></div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Instant access">
+      <div class="auth-panel__body auth-panel__body--instant" [formGroup]="instantForm">
+        <p class="instant-copy">Jump in with Google or preview GTOP as a guest (5 quizzes on us!).</p>
+
+        <button mat-flat-button color="primary" type="button" class="full-width"
+                (click)="continueWithGoogle()" [disabled]="isLoadingGoogle">
+          <mat-icon>account_circle</mat-icon>
+          <span>Continue with Google</span>
+        </button>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Display name (optional)</mat-label>
+          <input matInput formControlName="guestName" placeholder="How should we address you?">
+        </mat-form-field>
+
+        <button mat-stroked-button color="accent" type="button" class="full-width"
+                (click)="continueAsGuest()" [disabled]="isLoadingGuest">
+          <mat-icon>rocket_launch</mat-icon>
+          <span>Explore as guest</span>
+        </button>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+
+  <div class="auth-panel__messages" *ngIf="errorMessage" aria-live="assertive">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <span>{{ errorMessage }}</span>
+  </div>
+</mat-card>

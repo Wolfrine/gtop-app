@@ -151,6 +151,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                     chapter: sample.chapter,
                     quizType: this.fromLive ? (this.liveMode === 'run' ? 'run' : 'live') : 'quick',
                     sessionId: this.fromLive ? this.liveSessionId || undefined : undefined,
+                    role: user.role || 'user',
                     questions: this.questions.map(q => ({
                         id: q.id,
                         selectedIndex: q.selectedIndex,

@@ -6,6 +6,20 @@
       <h2>Welcome back, {{ userName || 'Learner' }}!</h2>
       <p class="sub">Board: {{ userSubjects || '—' }} · Standard: {{ userStandard || '—' }}</p>
     </div>
+    <div class="guest-banner" *ngIf="isGuest">
+      <div class="guest-banner__badge">Guest preview</div>
+      <p *ngIf="!guestLimitReached">
+        Explore GTOP with {{ remainingGuestQuizzes }} more
+        {{ remainingGuestQuizzes === 1 ? 'quiz' : 'quizzes' }} before you create a free account.
+      </p>
+      <p *ngIf="guestLimitReached">
+        You’ve used all {{ guestQuota }} guest quizzes. Create a free account to keep playing.
+      </p>
+      <button mat-stroked-button color="accent" (click)="goToSignup()">
+        <mat-icon>person_add</mat-icon>
+        Create free account
+      </button>
+    </div>
     <div class="quick-start">
       <section class="cta-group solo" aria-labelledby="solo-heading">
         <div class="cta-header">
@@ -19,11 +33,13 @@
         </div>
         <div class="cta-actions">
           <button mat-flat-button color="primary" (click)="startQuickQuiz()"
+                  [disabled]="isGuest && guestLimitReached"
                   matTooltip="10 random questions from your syllabus">
             <mat-icon>play_arrow</mat-icon>
             Quick Quiz
           </button>
           <button mat-stroked-button color="primary" (click)="openManualQuiz()"
+                  [disabled]="isGuest && guestLimitReached"
                   matTooltip="Pick subject, chapters and question count">
             <mat-icon>tune</mat-icon>
             Quiz Builder
@@ -43,11 +59,13 @@
         </div>
         <div class="cta-actions">
           <button mat-stroked-button color="accent" [routerLink]="['/quiz-run']"
+                  (click)="onRestrictedLink($event)"
                   matTooltip="Create a lobby, share code and race with friends">
             <mat-icon>schedule</mat-icon>
             Quiz Run Lobby
           </button>
           <button mat-stroked-button color="accent" [routerLink]="['/live']"
+                  (click)="onRestrictedLink($event)"
                   matTooltip="See upcoming live quizzes hosted by admins">
             <mat-icon>bolt</mat-icon>
             Upcoming Live Quiz
@@ -55,7 +73,8 @@
         </div>
       </section>
 
-      <a class="reports-cta" [routerLink]="['/reports']" matTooltip="Review accuracy, streaks and past attempts">
+      <a class="reports-cta" [routerLink]="['/reports']" matTooltip="Review accuracy, streaks and past attempts"
+         (click)="onRestrictedLink($event)">
         <span class="reports-icon" aria-hidden="true">
           <mat-icon>insights</mat-icon>
         </span>
@@ -123,7 +142,8 @@
           <li>Answer together in real time — the leaderboard updates after every question!</li>
         </ol>
         <div class="cta-actions">
-          <a mat-stroked-button color="accent" [routerLink]="['/live']">
+          <a mat-stroked-button color="accent" [routerLink]="['/live']"
+             (click)="onRestrictedLink($event)">
             <mat-icon>bolt</mat-icon>
             Explore Live Quizzes
           </a>
@@ -150,7 +170,8 @@
           <li>Start the run and watch progress bars show who is leading every lap.</li>
         </ol>
         <div class="cta-actions">
-          <a mat-stroked-button color="primary" [routerLink]="['/quiz-run']">
+          <a mat-stroked-button color="primary" [routerLink]="['/quiz-run']"
+             (click)="onRestrictedLink($event)">
             <mat-icon>schedule</mat-icon>
             Host a Quiz Run
           </a>

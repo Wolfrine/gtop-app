@@ -3,6 +3,7 @@ import { Firestore, collection, query, where, getDocs, onSnapshot, doc, getDoc, 
 import { SyllabusService, SyllabusItem } from './syllabus.service';
 import { Timestamp } from '@angular/fire/firestore';
 import { increment } from 'firebase/firestore';
+import { GuestAccessService } from './guest-access.service';
 
 @Injectable({
     providedIn: 'root'
@@ -16,7 +17,8 @@ export class QuizService {
 
     constructor(
         private firestore: Firestore,
-        private syllabusService: SyllabusService
+        private syllabusService: SyllabusService,
+        private guestAccessService: GuestAccessService
     ) { }
 
     setQuestions(questions: any[]) {
@@ -179,6 +181,7 @@ export class QuizService {
         chapter: string;
         quizType: string;
         sessionId?: string;
+        role?: string;
         questions: {
             id: string;
             selectedIndex: number;
@@ -218,6 +221,10 @@ export class QuizService {
 
             const resultRef = doc(this.firestore, `QuizResults/${quizId}`);
             await setDoc(resultRef, quizDoc);
+
+            if (resultData.role === 'guest') {
+                await this.guestAccessService.recordGuestAttempt(userId);
+            }
 
             console.log('✅ Quiz result saved:', quizId);
         } catch (error) {

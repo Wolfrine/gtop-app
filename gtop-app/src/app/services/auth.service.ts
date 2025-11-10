@@ -1,13 +1,20 @@
 import { Injectable, NgZone } from '@angular/core';
 import {
     Auth,
-    signInWithPopup,
     GoogleAuthProvider,
-    signOut,
     onAuthStateChanged,
     signInWithCredential,
-    User
+    signInWithEmailAndPassword,
+    signInWithPhoneNumber,
+    signInWithPopup,
+    signOut,
+    User,
+    createUserWithEmailAndPassword,
+    sendPasswordResetEmail,
+    signInAnonymously,
+    updateProfile
 } from '@angular/fire/auth';
+import { ConfirmationResult, ApplicationVerifier } from 'firebase/auth';
 import { Firestore, doc, setDoc, getDoc, onSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -26,6 +33,7 @@ export class AuthService {
     private userSubject = new BehaviorSubject<any>(null);
     user$ = this.userSubject.asObservable();
     googleClientId = '120622375082-4161ki3qobd7mc4m2as3e19qb0ef3dkh.apps.googleusercontent.com'; // Replace with Firebase OAuth Client ID
+    readonly guestQuizLimit = 5;
 
     private snapshotUnsubscribe: any = null;
 
@@ -109,45 +117,159 @@ export class AuthService {
             const credential = await signInWithPopup(this.auth, provider);
             const user = credential.user;
 
-            await this.storeUserInFirestore(user);
-            this.userSubject.next(user);
-            await this.setupUserSnapshot(user.uid);
-
-            this.router.navigate(['/dashboard']);
+            await this.handlePostAuthentication(user, { provider: 'google.com' });
         } catch (error) {
             console.error('Login Error:', error);
         }
     }
 
+    async registerWithEmail(email: string, password: string, displayName: string): Promise<void> {
+        try {
+            const credential = await createUserWithEmailAndPassword(this.auth, email, password);
+            const user = credential.user;
+
+            if (displayName?.trim()) {
+                await updateProfile(user, { displayName: displayName.trim() });
+            }
+
+            await this.handlePostAuthentication(user, {
+                provider: 'password',
+                displayName: displayName?.trim() || user.displayName || 'Learner'
+            });
+        } catch (error) {
+            console.error('Email registration error:', error);
+            throw error;
+        }
+    }
+
+    async signInWithEmail(email: string, password: string): Promise<void> {
+        try {
+            const credential = await signInWithEmailAndPassword(this.auth, email, password);
+            const user = credential.user;
+
+            await this.handlePostAuthentication(user, { provider: 'password' });
+        } catch (error) {
+            console.error('Email sign-in error:', error);
+            throw error;
+        }
+    }
+
+    async sendPasswordReset(email: string): Promise<void> {
+        try {
+            await sendPasswordResetEmail(this.auth, email);
+        } catch (error) {
+            console.error('Password reset error:', error);
+            throw error;
+        }
+    }
+
+    async startPhoneSignIn(phoneNumber: string, verifier: ApplicationVerifier): Promise<ConfirmationResult> {
+        try {
+            return await signInWithPhoneNumber(this.auth, phoneNumber, verifier);
+        } catch (error) {
+            console.error('Phone sign-in start error:', error);
+            throw error;
+        }
+    }
+
+    async confirmPhoneSignIn(
+        confirmation: ConfirmationResult,
+        code: string,
+        options?: { displayName?: string }
+    ): Promise<void> {
+        try {
+            const credential = await confirmation.confirm(code);
+            const user = credential.user;
+
+            if (options?.displayName?.trim()) {
+                await updateProfile(user, { displayName: options.displayName.trim() });
+            }
+
+            await this.handlePostAuthentication(user, {
+                provider: 'phone',
+                displayName: options?.displayName?.trim() || user.displayName || user.phoneNumber || 'Learner'
+            });
+        } catch (error) {
+            console.error('Phone confirmation error:', error);
+            throw error;
+        }
+    }
+
+    async continueAsGuest(preferredName?: string): Promise<void> {
+        try {
+            const credential = await signInAnonymously(this.auth);
+            const user = credential.user;
+            const displayName = preferredName?.trim() || 'Guest Explorer';
+
+            await updateProfile(user, { displayName });
+
+            await this.handlePostAuthentication(user, {
+                provider: 'anonymous',
+                displayName,
+                role: 'guest',
+                guestQuizCount: 0
+            });
+        } catch (error) {
+            console.error('Anonymous sign-in error:', error);
+            throw error;
+        }
+    }
+
     // ✅ Store User in Firestore
-    async storeUserInFirestore(user: User, board?: string, standard?: string): Promise<void> {
+    async storeUserInFirestore(
+        user: User,
+        board?: string | null,
+        standard?: string | null,
+        options?: {
+            role?: string;
+            displayName?: string;
+            provider?: string;
+            guestQuizCount?: number;
+        }
+    ): Promise<void> {
         const userRef = doc(this.firestore, `users/${user.uid}`);
         const userSnapshot = await getDoc(userRef);
 
         const existingData = userSnapshot.exists() ? userSnapshot.data() : {};
 
         const hasExistingRole = typeof existingData['role'] === 'string' && existingData['role'].trim() !== '';
-        const role = hasExistingRole
-            ? existingData['role']
-            : 'user';
+        const resolvedRole = options?.role
+            ? options.role
+            : hasExistingRole
+                ? existingData['role']
+                : 'user';
+
+        const guestQuizCount = typeof options?.guestQuizCount === 'number'
+            ? options.guestQuizCount
+            : typeof existingData['guestQuizCount'] === 'number'
+                ? existingData['guestQuizCount']
+                : (resolvedRole === 'guest' ? 0 : undefined);
 
         const userData: any = {
             uid: user.uid,
-            displayName: user.displayName,
+            displayName: options?.displayName || user.displayName || existingData['displayName'] || null,
             email: user.email,
             photoURL: user.photoURL,
+            phoneNumber: user.phoneNumber || existingData['phoneNumber'] || null,
             createdOn: existingData['createdOn'] || new Date(),
             board: board ?? existingData['board'] ?? null,
             standard: standard ?? existingData['standard'] ?? null,
+            provider: options?.provider || existingData['provider'] || null
         };
 
         // Only persist the default "user" role when the document does not have one yet.
         if (!hasExistingRole) {
-            userData.role = role;
+            userData.role = resolvedRole;
+        } else if (options?.role) {
+            userData.role = resolvedRole;
+        }
+
+        if (typeof guestQuizCount === 'number') {
+            userData.guestQuizCount = guestQuizCount;
         }
 
         await setDoc(userRef, userData, { merge: true });
-        this.redirectToDashboard(role);
+        this.redirectToDashboard(resolvedRole);
     }
 
     // ✅ Firestore Snapshot Listener
@@ -181,8 +303,13 @@ export class AuthService {
                         // ✅ Update Realtime DB presence
                         this.activeUsersService.setPresenceForUser(user);
 
-                        if (userData['board'] && userData['standard']) {
-                            this.redirectToDashboard(userData['role']);
+                        const role = userData['role'];
+                        if (role === 'guest') {
+                            this.redirectToDashboard(role);
+                        } else if (userData['board'] && userData['standard']) {
+                            this.redirectToDashboard(role);
+                        } else {
+                            this.router.navigate(['/profile-setup']);
                         }
                     }
                 } else {
@@ -227,5 +354,26 @@ export class AuthService {
             targetRoute = '/institute-admin';
         }
         this.router.navigate([targetRoute]);
+    }
+
+    private async handlePostAuthentication(
+        user: User,
+        options?: {
+            provider?: string;
+            displayName?: string;
+            role?: string;
+            guestQuizCount?: number;
+        }
+    ) {
+        await this.storeUserInFirestore(user, undefined, undefined, options);
+        this.userSubject.next({
+            uid: user.uid,
+            displayName: options?.displayName || user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            role: options?.role || 'user',
+            guestQuizCount: options?.guestQuizCount
+        });
+        await this.setupUserSnapshot(user.uid);
     }
 }

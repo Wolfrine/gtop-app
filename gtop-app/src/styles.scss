@@ -160,6 +160,12 @@ mat-chip {
     font-size: 15px;
 }
 
+.guest-limit-snackbar {
+    --mdc-snackbar-container-color: #312e81;
+    --mdc-snackbar-supporting-text-color: #e0e7ff;
+    --mdc-snackbar-action-color: #facc15;
+}
+
 .whats-new-card--colorful .cta-group {
     background: rgba(255, 255, 255, 0.85);
     border: 1px solid rgba(148, 163, 184, 0.28);

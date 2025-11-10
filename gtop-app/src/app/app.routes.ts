@@ -23,6 +23,7 @@ import { LivePlayerComponent } from './pages/live/live-player/live-player.compon
 import { LiveSummaryComponent } from './pages/live/live-summary/live-summary.component';
 import { QuizRunLandingComponent } from './pages/quiz-run/quiz-run-landing/quiz-run-landing.component';
 import { QuizRunLobbyComponent } from './pages/quiz-run/quiz-run-lobby/quiz-run-lobby.component';
+import { GuestQuizGuard } from './services/guest-quiz.guard';
 
 
 
@@ -158,7 +159,7 @@ export const routes: Routes = [
     {
         path: 'quiz',
         component: QuizPageComponent,
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard, RoleGuard, GuestQuizGuard],
         data: {
             roles: ['user', 'admin'],
             seo: {

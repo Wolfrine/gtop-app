@@ -139,3 +139,4 @@
 - 2025-10-09: Admin user list refreshed with status pills, quick stats grid, and empty state; profile admin controls gained Reset Online Status to clear stuck presence flags.
 - 2025-10-12: Admin user list cards condensed for mobile — tighter header, responsive quick facts, and balanced action row so multiple users remain visible at a glance.
 - 2025-10-16: Admin user list shows compact presence summaries with tap-to-expand detail drawers for quicker scanning on mobile; presence service polished and noisy console logs trimmed.
+- 2025-10-20: Landing hero now spotlights a multi-provider auth panel (email, phone OTP, Google, guest preview) with refreshed layout; guest preview cap (5 quizzes) enforced via dashboard CTAs and guard messaging.

@@ -6,11 +6,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
+import { AuthPanelComponent } from '../../components/auth/auth-panel/auth-panel.component';
 
 @Component({
     selector: 'app-landing-page',
     standalone: true,
-    imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, AppCardDirective],
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatIconModule, AppCardDirective, AuthPanelComponent],
     templateUrl: './landing-page.component.html',
     styleUrl: './landing-page.component.scss'
 })

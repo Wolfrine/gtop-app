@@ -1,0 +1,129 @@
+:host {
+    display: block;
+}
+
+.auth-panel {
+    display: grid;
+    gap: 1.5rem;
+    padding: 1.75rem;
+    border-radius: 24px;
+    box-shadow: 0 24px 48px rgba(30, 64, 175, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    background: linear-gradient(150deg, rgba(241, 245, 255, 0.96), rgba(244, 244, 255, 0.92));
+    max-width: 420px;
+}
+
+.auth-panel__header {
+    display: grid;
+    gap: 0.4rem;
+    text-align: left;
+}
+
+.auth-panel__header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1e1b4b;
+}
+
+.auth-panel__header p {
+    margin: 0;
+    color: #4338ca;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.auth-panel__body {
+    padding: 1.25rem 0.25rem 0.5rem;
+    display: grid;
+    gap: 1rem;
+}
+
+.auth-panel__body--instant {
+    padding-top: 1rem;
+}
+
+.mode-toggle {
+    display: inline-flex;
+    padding: 0.25rem;
+    background: rgba(99, 102, 241, 0.12);
+    border-radius: 999px;
+    gap: 0.25rem;
+}
+
+.mode-toggle button {
+    border: none;
+    background: transparent;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #4338ca;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mode-toggle button.active {
+    background: #4338ca;
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(67, 56, 202, 0.35);
+}
+
+.form-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.full-width {
+    width: 100%;
+    justify-content: center;
+}
+
+.link-button {
+    justify-self: start;
+    text-transform: none;
+    font-weight: 600;
+    color: #4338ca;
+}
+
+.link-button:hover {
+    text-decoration: underline;
+}
+
+mat-progress-spinner {
+    margin-right: 0.5rem;
+}
+
+button mat-icon {
+    margin-right: 0.5rem;
+}
+
+.instant-copy {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #312e81;
+}
+
+.auth-panel__messages {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+    font-weight: 600;
+}
+
+.recaptcha-placeholder {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .auth-panel {
+        max-width: 100%;
+        padding: 1.5rem;
+    }
+}

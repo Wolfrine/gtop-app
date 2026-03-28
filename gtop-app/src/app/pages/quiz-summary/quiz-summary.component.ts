@@ -40,6 +40,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     fromLive = false;
     liveSessionId: string | null = null;
     liveMode: 'live' | 'run' | null = null;
+    hubReturnUrl: string | null = null;
 
     // UI state
     incorrectOnly = false;
@@ -74,6 +75,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         this.fromLive = !!navState?.fromLive;
         this.liveSessionId = navState?.liveSessionId || navState?.sessionId || null;
         this.liveMode = navState?.liveMode || (this.fromLive ? 'live' : null);
+        this.hubReturnUrl = navState?.returnTo || null;
         const navQuizType = (navState?.quizType || '').toLowerCase();
         if (navQuizType === 'run') {
             this.fromLive = true;
@@ -108,6 +110,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         } else {
             // Deep link fallback using query params
             this.route.queryParams.subscribe(async params => {
+                this.hubReturnUrl = this.hubReturnUrl || params['returnTo'] || null;
                 const sessionId = params['sessionId'];
                 const userId = params['userId'];
                 if (sessionId && userId) {
@@ -165,6 +168,13 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         if (this.userSub) this.userSub.unsubscribe();
+    }
+
+    backToHub() {
+        if (!this.hubReturnUrl) {
+            return;
+        }
+        window.location.assign(this.hubReturnUrl);
     }
 
     get totalQuestions() {

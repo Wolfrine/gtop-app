@@ -23,6 +23,9 @@
           <button mat-stroked-button color="primary" (click)="retryAll()">
             <mat-icon>replay</mat-icon> Retry All
           </button>
+          <button mat-stroked-button *ngIf="hubReturnUrl" (click)="backToHub()">
+            <mat-icon>launch</mat-icon> Back to Hub
+          </button>
           <button mat-stroked-button routerLink="/dashboard">
             <mat-icon>home</mat-icon> Back to Dashboard
           </button>

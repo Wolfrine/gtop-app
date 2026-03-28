@@ -58,6 +58,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     private hasSubmittedLiveAnswer = false;
     private sawActiveRun = false;
     private lastTouchY = 0;
+    private hubReturnUrl: string | null = null;
+    private hubReturnPath: string | null = null;
 
     constructor(
         private quizService: QuizService,
@@ -69,6 +71,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         // Detect live mode synchronously from snapshot to avoid race with normal fetch
         const qp = this.route.snapshot.queryParams || {};
+        this.hubReturnUrl = qp['returnTo'] || null;
+        this.hubReturnPath = qp['hubReturnPath'] || null;
         const modeParam = (qp['mode'] || '').toLowerCase();
         if (modeParam === 'run') {
             this.liveModeType = 'run';
@@ -248,7 +252,16 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         } else {
             // Save to service
             this.quizService.setQuestions(this.questions);
-            this.router.navigate(['/quiz-summary']);
+            this.router.navigate(['/quiz-summary'], {
+                state: {
+                    returnTo: this.hubReturnUrl,
+                    hubReturnPath: this.hubReturnPath
+                },
+                queryParams: this.hubReturnUrl ? {
+                    returnTo: this.hubReturnUrl,
+                    hubReturnPath: this.hubReturnPath || undefined
+                } : undefined
+            });
         }
     }
 
@@ -296,7 +309,19 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             this.navigatedToSummary = true;
             // Expose questions to summary save flow
             this.quizService.setQuestions(this.questions);
-            this.router.navigate(['/quiz-summary'], { state: { fromLive: true, liveMode: this.liveModeType || 'live', sessionId: this.sessionId } });
+            this.router.navigate(['/quiz-summary'], {
+                state: {
+                    fromLive: true,
+                    liveMode: this.liveModeType || 'live',
+                    sessionId: this.sessionId,
+                    returnTo: this.hubReturnUrl,
+                    hubReturnPath: this.hubReturnPath
+                },
+                queryParams: this.hubReturnUrl ? {
+                    returnTo: this.hubReturnUrl,
+                    hubReturnPath: this.hubReturnPath || undefined
+                } : undefined
+            });
         }
     }
 

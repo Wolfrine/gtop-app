@@ -6,6 +6,14 @@ Scope: entire `gtop-app` repository.
 
 This repo owns the GTOP product. Treat it as an independent production application, not a submodule of Hub.
 
+## Project Wiki Rules
+
+- Use `wiki/` as GTOP's business/product memory: intent, user problems, product logic, decisions, open questions, and implementation-independent lessons.
+- Keep technical implementation details in `docs/`, app code, and engineering plans. Do not turn `wiki/` into an architecture or code log.
+- Before product planning or major feature work, read the relevant `wiki/` pages first.
+- After product decisions or major review lessons, add source material to `raw/` first, then curate durable updates into `wiki/` using `skills/wiki-curator/SKILL.md`.
+- Commit wiki-related updates directly on `main` so product memory stays in the canonical branch. Do not push `main` unless the user explicitly requests production promotion.
+
 ## Deployment Rules
 
 - GitHub Actions deploy on every push.

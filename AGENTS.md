@@ -12,7 +12,7 @@ This repo owns the GTOP product. Treat it as an independent production applicati
 - Keep technical implementation details in `docs/`, app code, and engineering plans. Do not turn `wiki/` into an architecture or code log.
 - Before product planning or major feature work, read the relevant `wiki/` pages first.
 - After product decisions or major review lessons, add source material to `raw/` first, then curate durable updates into `wiki/` using `skills/wiki-curator/SKILL.md`.
-- Commit wiki-related updates directly on `main` so product memory stays in the canonical branch. Do not push `main` unless the user explicitly requests production promotion.
+- Commit wiki-related updates directly on `main` so product memory stays in the canonical branch, then push `main` immediately. Wiki updates are allowed to bypass the usual "do not push main" rule because product memory should be visible to all agents.
 
 ## Deployment Rules
 

@@ -6,7 +6,7 @@ This page records product and business decisions that should guide future GTOP w
 
 ## Current Strategic Bets
 
-GTOP's current product bets are not independent feature ideas; they build on each other. Question-bank quality enables better metadata. Better metadata enables topic-level diagnosis. Repeated student usage gives diagnosis enough signal. AI-assisted feedback becomes valuable when it sits on that foundation and helps students understand weak areas, strong areas, and next practice.
+GTOP's current product bets build on each other. [[Question Bank Quality]] enables better metadata. Better metadata enables [[Learning Diagnosis]]. Repeated student usage gives diagnosis enough signal. AI-assisted feedback becomes valuable when it helps students understand weak areas, strong areas, and next practice.
 
 Future agents should treat these as strategic anchors: question-bank quality, ongoing enrichment, student usage, learning diagnosis, AI-assisted feedback, and future-ready education direction.
 
@@ -22,9 +22,17 @@ Hub integration should remain contract-based through URL parameters and return p
 
 The project wiki captures product intent, user problems, product logic, decisions, open questions, and implementation-independent lessons. Existing `docs/` captures technical and functional documentation.
 
+## Concept Pages Are Now Part Of The Wiki Model
+
+Durable product concepts should have standalone pages when they recur across source notes, docs, and product reasoning. [[Product Direction]], [[Practice Loop]], [[Question Bank Quality]], [[Learning Diagnosis]], [[Student Pulse]], and [[Live Practice]] are durable enough to stand as concept pages so index pages do not have to carry every strategic detail.
+
+Admin content quality is durable, but it is currently best understood inside [[Question Bank Quality]] instead of a separate page.
+
+Concept pages should read as stable product reference pages: definition, why the concept matters, current GTOP evidence, boundaries, relationships, and decision guidance. They should not read like transcript summaries or delivery plans.
+
 ## Quiz Runs Reuse Live Quiz Concepts
 
-Quiz Run is positioned as a lighter peer-to-peer practice mode, reusing the live quiz infrastructure conceptually while avoiding unnecessary admin-host assumptions in the user experience.
+Quiz Run is positioned as a lighter peer-to-peer practice mode within [[Live Practice]], reusing the live quiz concept while avoiding unnecessary admin-host assumptions in the user experience.
 
 ## Question Bank Quality Is Ongoing
 
@@ -36,11 +44,11 @@ GTOP should enrich MCQs beyond chapter alignment when it improves learning diagn
 
 ## Student Pulse Remains Exploratory
 
-Student Pulse is a product exploration area, not yet a finalized feature contract. The durable direction is personalized learning feedback; the unresolved details are cadence, format, minimum data requirements, and whether visual cards are worth the cost.
+[[Student Pulse]] is a product exploration area, not yet a finalized feature contract. The durable direction is personalized learning feedback; the unresolved details are cadence, format, minimum data requirements, confidence rules, and whether visual cards are worth the cost.
 
 ## AI Must Serve Learning Diagnosis
 
-AI should be used where it improves GTOP's learning product: classifying question types and patterns, enriching topic tags, explaining weak topics in multiple ways, and producing concise student-specific feedback. AI novelty by itself is not a decision anchor.
+AI should be used where it improves GTOP's learning product: classifying question types and patterns, enriching topic tags, explaining weak topics in multiple ways, supporting content review, and producing concise student-specific feedback. AI novelty by itself is not a decision anchor.
 
 ## Future-Ready Education Direction Is A Strategy Question
 
@@ -50,3 +58,4 @@ GTOP should study what students may expect from education products over the next
 
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
+- `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`

@@ -2,7 +2,7 @@
 
 ## Summary
 
-These questions should shape future GTOP product planning and wiki updates.
+These questions should shape future GTOP product planning and wiki updates. They are deliberately not execution tasks; PM handoff should carry ownership, scheduling, and implementation planning.
 
 ## Institute Admin Definition
 
@@ -15,6 +15,8 @@ Should GTOP define a stronger product model for mastery, weak areas, streaks, as
 What minimum student activity is needed before personalized recommendations become reliable enough to show?
 
 How should GTOP encourage consistent student usage so analytics and feedback features have enough signal?
+
+How should GTOP avoid overclaiming diagnosis when the student's attempt history is thin?
 
 ## Student Pulse Definition
 
@@ -51,6 +53,8 @@ How much should GTOP expose Hub return paths, Growth Tutorials branding, or cros
 What future education patterns should GTOP prepare for over the next decade?
 
 How should GTOP differentiate against AI-native education tools while preserving its MCQ practice strengths?
+
+Where should GTOP use AI directly in the student experience, and where should AI remain behind the scenes for content enrichment, review, or product analysis?
 
 ## Source Notes
 

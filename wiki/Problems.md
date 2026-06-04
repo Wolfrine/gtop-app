@@ -2,7 +2,7 @@
 
 ## Summary
 
-GTOP should focus on product problems that affect practice quality, learning continuity, admin confidence, and future Growth Tutorials ecosystem integration.
+GTOP should focus on product problems that affect practice quality, learning continuity, admin confidence, AI-assisted diagnosis, and future Growth Tutorials ecosystem integration. The current strategic pressure is to make GTOP more than a working MCQ surface: it must become trustworthy, habit-forming, and useful enough to guide the next learning action.
 
 ## Student Practice Friction
 
@@ -22,7 +22,7 @@ Admins need confidence that MCQs are correct, syllabus-aligned, discoverable, an
 
 If the question bank becomes difficult to trust or maintain, the student-facing product loses credibility.
 
-The question bank is large enough that quality cannot be treated as a one-time cleanup. GTOP needs a durable product model for verifying existing questions, identifying board-standard-subject coverage gaps, adding missing data, and continuously improving existing content.
+The question bank is large enough that quality cannot be treated as a one-time cleanup. The latest raw note points to roughly 1.2 lakh existing questions, which makes verification a major product-quality activity. GTOP needs a durable product model for verifying existing questions, identifying board-standard-subject coverage gaps, adding missing data, and continuously improving existing content.
 
 Question metadata is part of content trust and learning usefulness. Chapter tags alone may not be enough; question type, pattern, topic-level tags, and multiple tags can help the product diagnose student strengths and weaknesses more precisely.
 
@@ -32,6 +32,8 @@ Personalized analytics become more useful when students use GTOP consistently. L
 
 The product problem is therefore both engagement and intelligence: GTOP must encourage repeated practice while making the resulting activity data valuable enough to reinforce continued use.
 
+This is a real constraint on AI features. A Student Pulse or recommendation surface may be strategically right, but it should not pretend to know a student deeply when the student has only scattered attempts.
+
 ## Live Practice Energy
 
 Live Quiz and Quiz Run modes are intended to make practice feel more social, competitive, and timely. The product problem is not only real-time mechanics; it is whether live practice increases engagement without confusing the core quiz and reports experience.
@@ -39,6 +41,10 @@ Live Quiz and Quiz Run modes are intended to make practice feel more social, com
 ## Ecosystem Boundary Clarity
 
 GTOP should stay independent while supporting Hub return paths and ecosystem integration. Future work must avoid making GTOP feel like a hidden submodule of another product.
+
+## Product Direction Under AI Change
+
+GTOP needs to decide how it will compete and remain useful as AI-native education tools become normal. The durable problem is not "add AI features." It is to use AI where structured practice creates better learning outcomes: question classification, topic tagging, weakness explanation, personalized recommendations, and future trend analysis that shapes the product's bets.
 
 ## Source Notes
 

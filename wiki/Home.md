@@ -1,6 +1,6 @@
 # GTOP Wiki Home
 
-GTOP, Growth Tutorials Objective Practice, is a practice and assessment product for students preparing through MCQ-based learning. The wiki captures the product thinking behind GTOP: why it exists, which users it serves, which problems matter, which features carry the experience, and which decisions or open questions should guide future work.
+GTOP, Growth Tutorials Objective Practice, is a practice and assessment product for students preparing through MCQ-based learning. It is not only a quiz app or a question store. The product bet is that a trusted MCQ bank, consistent student usage, and AI-assisted diagnosis can turn Growth Tutorials practice into a repeatable learning loop that helps students know what to do next.
 
 This wiki is not the technical documentation. Technical details remain in `docs/`, app code, configuration, and implementation plans. The wiki should help future human and LLM agents understand the GTOP product before proposing or building changes.
 
@@ -21,6 +21,19 @@ The current product centers on these [[Features]]:
 
 The main [[Problems]] are about helping students practice consistently, helping admins maintain trustworthy question content, turning quiz data into useful learning guidance, and giving Growth Tutorials a product surface that is independent from Hub while still able to return users through a contract-based integration.
 
+## Current Product Direction
+
+The founder urgency in the latest source material is clear: GTOP cannot stop at "we built MCQ features, now market them." The product has to reason from what students already get, what AI now makes possible, and how education may change over the next decade.
+
+The near-term strategic anchors are:
+
+- Question-bank quality: the existing large question bank needs verification, coverage awareness, and continuous improvement.
+- Ongoing enrichment: GTOP should add missing content and improve existing content as a recurring operating habit, not a one-time cleanup.
+- Student usage: advanced analytics and personalized feedback only matter if students practice consistently enough to create signal.
+- Learning diagnosis: reports should move from score display toward strong-area, weak-area, topic, and next-practice guidance.
+- AI-assisted feedback: AI belongs where it improves question classification, topic tagging, weak-topic explanation, and personalized student guidance.
+- Future-ready education: GTOP should prepare for AI-native learning expectations while preserving the discipline and trust of structured MCQ practice.
+
 ## Current Decision Anchors
 
 The strongest current [[Decisions]] are:
@@ -31,6 +44,7 @@ The strongest current [[Decisions]] are:
 - Existing `docs/` remains the technical and functional documentation base.
 - Quiz Runs reuse live quiz infrastructure but represent a lighter peer-to-peer practice mode.
 - Question-bank quality is an ongoing product capability, not a one-time cleanup.
+- Student Pulse is an exploratory bet around personalized feedback, not a committed visual-report format.
 
 ## Source Notes
 

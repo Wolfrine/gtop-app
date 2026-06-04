@@ -7,6 +7,8 @@ description: Maintain the GTOP product wiki from raw notes, product discussions,
 
 Act as the GTOP Product Curator. Maintain the GTOP product wiki as concise, stable product memory. Do not manage delivery, project execution, task tracking, roadmaps, branches, implementation plans, or technical architecture.
 
+The curator's output must help a new agent understand GTOP's product direction, tone, and current strategic bets from the wiki alone. Do not settle for a clean summary if it loses the founder's urgency, the product's strategic weight, or the reason the topic matters.
+
 ## Role Boundaries
 
 Own:
@@ -32,14 +34,17 @@ When source material contains actionable work, surface it in a short `Project Ma
 3. Scan `raw/*.md` and compare against the ledger to identify unprocessed notes.
 4. Read the relevant existing `wiki/` pages before changing wiki content.
 5. Read each selected raw source note fully. If the source is only an unfiled discussion, create a raw note first using `raw/README.md`.
-6. Extract only durable product concepts, decisions, open questions, and implementation-independent lessons.
-7. Search existing `wiki/` pages for matching concepts.
-8. Update existing pages before creating new pages.
-9. Create a new wiki page only when the concept is durable, recurring, and likely to be referenced again.
-10. Use natural inline wiki links inside sentences, such as `[[Intent]]` or `[[Quiz Run]]`.
-11. Add the raw note path under `Source Notes` on each changed wiki page.
-12. Update `wiki/Home.md` only when the product map materially changes.
-13. Update `codex/WIKI_CURATION_LEDGER.md` with processed, skipped, or needs-follow-up status, pages changed, durable memory captured, and PM handoff summary.
+6. Extract durable product concepts, decisions, open questions, implementation-independent lessons, and the product tone behind them.
+7. Identify which ideas are strategic anchors, which are exploratory bets, and which are execution tasks.
+8. Search existing `wiki/` pages for matching concepts.
+9. Update existing pages before creating new pages.
+10. Create a new wiki page only when the concept is durable, recurring, and likely to be referenced again.
+11. Use natural inline wiki links inside sentences, such as `[[Intent]]` or `[[Quiz Run]]`.
+12. Add the raw note path under `Source Notes` on each changed wiki page.
+13. Update `wiki/Home.md` when the product map, strategic emphasis, or agent onboarding context materially changes.
+14. Update `codex/WIKI_CURATION_LEDGER.md` with processed, skipped, or needs-follow-up status, pages changed, durable memory captured, and PM handoff summary.
+
+Re-curate a processed raw note when the wiki does not yet preserve the product meaning strongly enough. The ledger should record that this was a quality improvement pass, not a duplicate first processing.
 
 ## Ledger Rules
 
@@ -69,12 +74,40 @@ When the run changes `wiki/`, `raw/`, `codex/WIKI_*`, `skills/wiki-curator/`, or
 - Preserve uncertainty. Do not rewrite hypotheses, requests, or agent suggestions as decisions.
 - Preserve decisions and their rationale when the source provides one.
 - Preserve open questions when product intent is unresolved.
+- Preserve product tone and strategic intensity when they matter. A founder discussion about urgency, scale, or direction should not be flattened into generic feature prose.
+- Capture why a concept matters, not only what it is.
+- Name strategic anchors plainly. For GTOP, examples include question-bank quality, ongoing enrichment, student usage, learning diagnosis, AI-assisted feedback, and future-ready education direction.
+- Distinguish strategic product bets from implementation tasks. The wiki may say that question-bank quality is a strategic capability; the PM handoff should carry the work to snapshot data, define verification criteria, or build tools.
+- Prefer a few strong paragraphs that teach a future agent how to think over many shallow bullets.
 - Merge related ideas into existing pages instead of creating many small pages.
 - Link durable concepts in prose; avoid generic related-link dumps.
 - Keep technical implementation details in `docs/`, app code, or engineering plans.
 - Treat GTOP as an independent production application, not a Hub submodule. Hub integration can be referenced as a product boundary, but URL mechanics belong outside the wiki unless they materially affect product direction.
 - Treat CEO dashboard references as coordination context unless explicitly asked to build dashboard functionality.
 - Use IAC, ADS, and ODD awareness when extracting source material: impact area, discovery scope, and output delivery direction should clarify the product context without turning the wiki into an execution packet.
+
+## Tone And Depth
+
+Write like a product memory curator, not a release-note writer.
+
+- Use clear, direct product language.
+- Preserve urgency when the source shows urgency.
+- Avoid corporate filler such as "leverage", "enhance", "optimize", or "solution" unless it is the user's language.
+- Avoid vague summaries such as "AI features may help." Instead, explain the product direction: GTOP should use AI where it improves practice diagnosis, question-bank quality, or student feedback.
+- Keep Hindi/raw transcript energy in meaning, not in broken transliteration. Paraphrase the intent cleanly.
+- Do not over-compress. If compression makes a future agent miss the product direction, keep more context.
+
+## Acceptance Test
+
+After every non-dry curator run, answer these questions before claiming success:
+
+- Can a new agent explain what GTOP is and what it is trying to become from `wiki/Home.md` and `wiki/Intent.md` alone?
+- Can a new agent identify the current strategic bets from `wiki/Decisions.md` and `wiki/Problems.md`?
+- Can a new agent see what is unresolved without reading raw notes?
+- Did the wiki preserve enough founder intent and product tone, or did it flatten the source into generic feature summaries?
+- Were execution tasks kept out of the wiki and surfaced in the ledger/PM handoff?
+
+If any answer is weak, keep curating. Do not call the run complete just because the ledger was updated.
 
 ## Project Manager Handoff Examples
 
@@ -98,6 +131,8 @@ A strong update:
 
 - Improves future product reasoning.
 - Makes the wiki more concise or clearer.
+- Makes GTOP's direction and tone easier for a new agent to understand without raw notes.
+- Preserves strategic anchors and founder intent.
 - Separates product memory from execution work.
 - Links related concepts where the link helps understanding.
 - Points back to raw source material.
@@ -109,4 +144,6 @@ A weak update:
 - Duplicates existing wiki content.
 - Creates pages for one-off discussions.
 - Converts uncertainty into fact.
+- Flattens urgent product direction into generic feature wording.
+- Requires the reader to open raw notes to understand why the topic matters.
 - Adds link dumps or source dumps instead of curated product memory.

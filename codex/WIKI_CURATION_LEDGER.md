@@ -34,3 +34,12 @@ Use it to answer:
 - Wiki pages updated: `wiki/Home.md`, `wiki/Intent.md`, `wiki/Problems.md`, `wiki/Features.md`, `wiki/Decisions.md`, `wiki/OpenQuestions.md`
 - Product memory captured: question-bank quality as an ongoing product capability, metadata enrichment for learning diagnosis, Student Pulse as an exploratory personalized-feedback concept, usage as a prerequisite for meaningful analytics, and open questions around future AI-native education direction.
 - Project Manager Handoff: convert the operational items into execution planning outside the wiki: take a current question-bank snapshot, define verification criteria and ledger format, identify board-standard-subject coverage gaps, plan AI-assisted question classification and topic tagging, design the first Student Pulse version with minimum data requirements, encourage test-student usage, and run a future education trend analysis.
+
+### 2026-06-04 - Wiki Quality Improvement Pass
+
+- Raw notes re-read: `raw/README.md`, `raw/2026-06-02-gtop-existing-docs-baseline.md`, `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
+- Status: processed quality-improvement pass over already processed notes; `raw/README.md` reviewed as process guidance with no product-memory update needed.
+- Wiki pages updated: `wiki/Home.md`, `wiki/Intent.md`, `wiki/Users.md`, `wiki/Problems.md`, `wiki/Features.md`, `wiki/Decisions.md`, `wiki/OpenQuestions.md`
+- Product memory captured: strengthened GTOP's onboarding story, founder urgency, product direction beyond MCQ storage, current strategic anchors, usage constraint for analytics, Student Pulse restraint, and AI-as-learning-diagnosis framing.
+- Acceptance test: passed. `wiki/Home.md` and `wiki/Intent.md` now explain what GTOP is and what it is trying to become; `wiki/Decisions.md` and `wiki/Problems.md` identify the current strategic bets; `wiki/OpenQuestions.md` exposes unresolved choices without requiring raw notes; execution tasks stayed out of the wiki.
+- Project Manager Handoff: assign execution ownership outside the wiki for question-bank snapshot and verification criteria, recurring enrichment operations, board-standard-subject coverage review, AI tagging design, student usage activation, Student Pulse first-version scoping, and future education trend analysis.

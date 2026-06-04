@@ -10,6 +10,8 @@ Students use GTOP to sign in, set board and standard, take quizzes, view summari
 
 The student experience should prioritize fast practice entry, clear feedback, and repeatable learning loops. The user should not need to understand the internal question bank or data model to get useful practice.
 
+Current product direction assumes students must use GTOP repeatedly, not only once for a demo. Personalized feedback, topic diagnosis, and Student Pulse all become weaker when usage is scattered. A serious exam-preparation student, such as a NEET Biology learner, is the kind of user whose repeated practice can make the product's analytics valuable.
+
 ## Admin or Teacher
 
 Admins manage MCQs, syllabus combinations, user roles, logs, live quiz hosting, and content health. The admin experience should prioritize content quality, visibility into learner activity, and efficient maintenance of question and syllabus metadata.
@@ -25,3 +27,4 @@ This role should remain an [[OpenQuestions]] item until there is a clear product
 ## Source Notes
 
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
+- `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`

@@ -6,6 +6,8 @@ The GTOP wiki is the product thinking layer for Growth Tutorials Objective Pract
 
 It should help humans and LLM agents understand what GTOP is trying to achieve, who it serves, what product problems matter, what decisions are already made, and what open questions remain.
 
+The wiki is only meaningful if a new agent can understand GTOP's direction, tone, and current strategic bets from the wiki itself. Raw notes are source material, not a required second brain for everyday product context.
+
 ## Scope
 
 Allowed in `wiki/`:
@@ -41,14 +43,24 @@ Use this split:
 - Read the relevant `wiki/` pages before product planning or major feature work.
 - Add new source material to `raw/` before changing durable wiki pages.
 - Check `codex/WIKI_CURATION_LEDGER.md` before curation so raw notes are not missed or repeatedly processed without reason.
+- Re-curate already processed raw notes when the wiki failed to preserve the product meaning, tone, or strategic weight.
 - Prefer updating existing wiki pages over creating new ones.
 - Create a new page only for a recurring, durable concept.
 - Use natural inline wiki links such as `[[Intent]]`, `[[Problems]]`, or `[[Quiz Run]]`.
 - Do not add generic related-link dumps to the bottom of every page.
 - Preserve uncertainty. Do not rewrite hypotheses as decisions.
+- Preserve founder intent and urgency when they are part of the product direction.
+- Capture why a product concept matters, not only what it is.
+- Keep the wiki strong enough that future agents do not need to read raw transcripts just to understand GTOP's direction.
 - Add source note references when wiki pages are updated.
 - Record each curator run in `codex/WIKI_CURATION_LEDGER.md`, including skipped raw notes and project-manager handoff items.
 - Keep execution tasks out of the wiki. Actionable items belong in a PM handoff or external tracker, not in durable product pages.
+
+## Wiki Quality Bar
+
+A good GTOP wiki page should teach future agents how to think about the product. It should preserve strategic anchors such as question-bank quality, ongoing enrichment, student usage, learning diagnosis, AI-assisted feedback, and future-ready education direction when source material supports them.
+
+A weak GTOP wiki page may be clean and concise but still fail if it sounds generic, hides urgency, or forces the reader to open raw notes to understand why the topic matters.
 
 ## Completion Gate
 

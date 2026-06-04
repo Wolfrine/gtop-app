@@ -4,6 +4,12 @@
 
 This page records product and business decisions that should guide future GTOP work. Technical implementation decisions belong in `docs/` or engineering plans unless they materially affect product direction.
 
+## Current Strategic Bets
+
+GTOP's current product bets are not independent feature ideas; they build on each other. Question-bank quality enables better metadata. Better metadata enables topic-level diagnosis. Repeated student usage gives diagnosis enough signal. AI-assisted feedback becomes valuable when it sits on that foundation and helps students understand weak areas, strong areas, and next practice.
+
+Future agents should treat these as strategic anchors: question-bank quality, ongoing enrichment, student usage, learning diagnosis, AI-assisted feedback, and future-ready education direction.
+
 ## GTOP Is Independent
 
 GTOP is owned as an independent production application. It should not be treated as a Hub submodule.
@@ -22,7 +28,7 @@ Quiz Run is positioned as a lighter peer-to-peer practice mode, reusing the live
 
 ## Question Bank Quality Is Ongoing
 
-Question-bank improvement should be treated as an ongoing product capability rather than a one-time cleanup. GTOP needs both addition of missing content and improvement of existing content over time.
+Question-bank improvement should be treated as an ongoing product capability rather than a one-time cleanup. GTOP needs both addition of missing content and improvement of existing content over time. The decision is product-level because a large, trusted question bank is the base for student trust, reports, topic diagnosis, and any serious AI-assisted guidance.
 
 ## Question Metadata Should Support Diagnosis
 
@@ -31,6 +37,14 @@ GTOP should enrich MCQs beyond chapter alignment when it improves learning diagn
 ## Student Pulse Remains Exploratory
 
 Student Pulse is a product exploration area, not yet a finalized feature contract. The durable direction is personalized learning feedback; the unresolved details are cadence, format, minimum data requirements, and whether visual cards are worth the cost.
+
+## AI Must Serve Learning Diagnosis
+
+AI should be used where it improves GTOP's learning product: classifying question types and patterns, enriching topic tags, explaining weak topics in multiple ways, and producing concise student-specific feedback. AI novelty by itself is not a decision anchor.
+
+## Future-Ready Education Direction Is A Strategy Question
+
+GTOP should study what students may expect from education products over the next decade and use that thinking to shape product bets. This is a strategic direction, not a wiki todo list or a commitment to any specific AI feature.
 
 ## Source Notes
 

@@ -28,6 +28,18 @@ Question flagging lets students report potential MCQ issues and gives admins a s
 
 Admin tools manage MCQs, syllabus combinations, user roles, logs, and live quiz hosting. These tools support the quality and operations layer behind the student experience.
 
+## Question Bank Enrichment
+
+Question-bank enrichment is an emerging product capability around coverage, verification, and metadata. It should help GTOP know which boards, standards, subjects, chapters, and topics are sufficiently covered, where content is missing, and which existing questions need improvement.
+
+Enrichment should also support learning diagnosis. Question type, question pattern, topic-level tags, and multiple tags can make reports and recommendations more useful than chapter-level grouping alone.
+
+## Student Pulse
+
+Student Pulse is an exploratory AI-assisted feedback concept inspired by periodic personal summaries. A student-specific pulse could summarize recent activity, strong areas, weak areas, suggested daily targets, and personalized learning recommendations in a glance-friendly format.
+
+This concept should start from learning value rather than visual novelty. Text-first or lightweight templates may be enough for an initial product version; rich image cards are a presentation choice, not the core learning promise.
+
 ## Live Quiz And Quiz Run
 
 Live Quiz supports hosted real-time quiz events. Quiz Run is a lighter competitive mode that reuses live quiz infrastructure for peer-oriented practice.
@@ -37,3 +49,4 @@ The product distinction matters: Live Quiz is admin/host-oriented; Quiz Run shou
 ## Source Notes
 
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
+- `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`

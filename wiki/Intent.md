@@ -14,6 +14,10 @@ The product is organized around board, standard, subject, and chapter context. T
 
 GTOP's product direction is not just "store MCQs." The intent is to create a repeatable practice loop: choose relevant practice, answer questions, see results, retry weak areas, and use live or group modes to add energy to learning.
 
+Recent product discussion strengthens this direction: question-bank improvement should support the broader learning product, not become the whole product. GTOP should reason from what students receive today, what AI makes possible, and what future education patterns may demand, so the product can become a future-ready practice and feedback system rather than only a content repository.
+
+AI-assisted learning support is a durable direction when it helps students understand strong areas, weak areas, daily targets, and alternative explanations for difficult topics. That direction depends on trustworthy quiz content, richer question metadata, and enough student activity to make recommendations meaningful.
+
 ## Related Product Concepts
 
 GTOP's [[Features]] should serve student practice continuity, admin content quality, and Growth Tutorials brand trust. The [[Problems]] page tracks the product problems that should shape future priorities.
@@ -21,3 +25,4 @@ GTOP's [[Features]] should serve student practice continuity, admin content qual
 ## Source Notes
 
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
+- `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`

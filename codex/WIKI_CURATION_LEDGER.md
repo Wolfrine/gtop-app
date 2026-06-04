@@ -26,3 +26,11 @@ Use it to answer:
 - Wiki pages updated: `wiki/Home.md`, `wiki/Intent.md`, `wiki/Users.md`, `wiki/Problems.md`, `wiki/Features.md`, `wiki/Decisions.md`, `wiki/OpenQuestions.md`
 - Product memory captured: initial GTOP product map, user roles, core practice loop, feature set, independence from Hub, contract-based Hub integration, and initial open product questions.
 - Project Manager Handoff: none recorded.
+
+### 2026-06-04 - AI Meeting Notes, Question Bank, And Student Pulse
+
+- Raw note: `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
+- Status: processed
+- Wiki pages updated: `wiki/Home.md`, `wiki/Intent.md`, `wiki/Problems.md`, `wiki/Features.md`, `wiki/Decisions.md`, `wiki/OpenQuestions.md`
+- Product memory captured: question-bank quality as an ongoing product capability, metadata enrichment for learning diagnosis, Student Pulse as an exploratory personalized-feedback concept, usage as a prerequisite for meaningful analytics, and open questions around future AI-native education direction.
+- Project Manager Handoff: convert the operational items into execution planning outside the wiki: take a current question-bank snapshot, define verification criteria and ledger format, identify board-standard-subject coverage gaps, plan AI-assisted question classification and topic tagging, design the first Student Pulse version with minimum data requirements, encourage test-student usage, and run a future education trend analysis.

@@ -14,10 +14,12 @@ The current product centers on these [[Features]]:
 - Quick and custom MCQ practice.
 - Quiz summaries, reports, retries, and question flagging.
 - Admin question-bank and syllabus management.
+- Question-bank enrichment for coverage, metadata, and learning diagnosis.
 - Live Quiz and Quiz Run experiences for synchronous or competitive practice.
+- Emerging AI-assisted student feedback concepts such as Student Pulse.
 - Growth Tutorials brand positioning and learner-facing landing flows.
 
-The main [[Problems]] are about helping students practice consistently, helping admins maintain trustworthy question content, and giving Growth Tutorials a product surface that is independent from Hub while still able to return users through a contract-based integration.
+The main [[Problems]] are about helping students practice consistently, helping admins maintain trustworthy question content, turning quiz data into useful learning guidance, and giving Growth Tutorials a product surface that is independent from Hub while still able to return users through a contract-based integration.
 
 ## Current Decision Anchors
 
@@ -28,7 +30,11 @@ The strongest current [[Decisions]] are:
 - The project wiki captures business and product logic only.
 - Existing `docs/` remains the technical and functional documentation base.
 - Quiz Runs reuse live quiz infrastructure but represent a lighter peer-to-peer practice mode.
+- Question-bank quality is an ongoing product capability, not a one-time cleanup.
 
 ## Source Notes
 
-This initial map is seeded from `raw/2026-06-02-gtop-existing-docs-baseline.md`.
+This map is seeded from:
+
+- `raw/2026-06-02-gtop-existing-docs-baseline.md`
+- `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`

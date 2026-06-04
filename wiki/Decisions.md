@@ -20,6 +20,19 @@ The project wiki captures product intent, user problems, product logic, decision
 
 Quiz Run is positioned as a lighter peer-to-peer practice mode, reusing the live quiz infrastructure conceptually while avoiding unnecessary admin-host assumptions in the user experience.
 
+## Question Bank Quality Is Ongoing
+
+Question-bank improvement should be treated as an ongoing product capability rather than a one-time cleanup. GTOP needs both addition of missing content and improvement of existing content over time.
+
+## Question Metadata Should Support Diagnosis
+
+GTOP should enrich MCQs beyond chapter alignment when it improves learning diagnosis. Question type, question pattern, topic-level tagging, and multiple tags are product-relevant because they can support stronger weak-area and strong-area feedback.
+
+## Student Pulse Remains Exploratory
+
+Student Pulse is a product exploration area, not yet a finalized feature contract. The durable direction is personalized learning feedback; the unresolved details are cadence, format, minimum data requirements, and whether visual cards are worth the cost.
+
 ## Source Notes
 
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
+- `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`

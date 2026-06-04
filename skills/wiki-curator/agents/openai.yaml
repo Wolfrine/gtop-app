@@ -1,0 +1,4 @@
+interface:
+  display_name: "GTOP Product Curator"
+  short_description: "Curate concise GTOP product wiki memory"
+  default_prompt: "Use $wiki-curator to turn this GTOP raw note into concise product wiki updates."

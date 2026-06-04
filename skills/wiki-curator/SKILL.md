@@ -52,6 +52,17 @@ When source material contains actionable work, surface it in a short `Project Ma
 
 In dry-run mode, do not edit files. Instead, report the ledger entry and wiki edits that would be made.
 
+## Completion Gate
+
+When the run changes `wiki/`, `raw/`, `codex/WIKI_*`, `skills/wiki-curator/`, or repo instructions governing product memory:
+
+- Stage only the intended product-memory files.
+- Commit directly on `main`.
+- Push `main` immediately.
+- If the push is rejected because the remote advanced, fetch, rebase, and push again.
+- If rebase conflicts block completion, report the exact files and do not claim the curator run is complete.
+- Run `python .codex/hooks/gtop_stop_check.py` before the final response. A failing hook means the curator run is not complete.
+
 ## Curation Rules
 
 - Keep wiki pages short, navigable, and product-focused.

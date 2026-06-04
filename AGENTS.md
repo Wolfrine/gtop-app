@@ -20,7 +20,19 @@ This repo owns the GTOP product. Treat it as an independent production applicati
 - Before product planning or major feature work, read the relevant `wiki/` pages first.
 - After product decisions or major review lessons, add source material to `raw/` first, then curate durable updates into `wiki/` using `skills/wiki-curator/SKILL.md`.
 - Maintain `codex/WIKI_CURATION_LEDGER.md` as the raw-to-wiki processing ledger. Every curator run should record which raw notes were processed or skipped, which wiki pages changed, and which action items were handed off instead of being stored as wiki todos.
-- Commit wiki-related updates directly on `main` so product memory stays in the canonical branch, then push `main` immediately. Wiki updates are allowed to bypass the usual "do not push main" rule because product memory should be visible to all agents.
+
+## Wiki Memory Completion Gate
+
+Before ending any turn that changes `wiki/`, `raw/`, `codex/WIKI_*`, `skills/wiki-curator/`, or repo instructions that affect product memory:
+
+- Stage only the intended product-memory files.
+- Commit directly on `main` with a clear wiki/curator message.
+- Push `main` immediately.
+- If push is rejected because `origin/main` advanced, fetch and rebase, then push again.
+- If a conflict blocks the rebase, stop and report the exact conflict.
+- Run `python .codex/hooks/gtop_stop_check.py` before the final response and do not claim completion unless it passes.
+
+This wiki-memory gate is an explicit exception to the usual "do not push main" deployment caution because product memory must stay canonical for future agents.
 
 ## CEO Dashboard Awareness
 

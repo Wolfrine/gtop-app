@@ -50,6 +50,14 @@ Use this split:
 - Record each curator run in `codex/WIKI_CURATION_LEDGER.md`, including skipped raw notes and project-manager handoff items.
 - Keep execution tasks out of the wiki. Actionable items belong in a PM handoff or external tracker, not in durable product pages.
 
+## Completion Gate
+
+Wiki-memory changes are not complete while they are only in the working tree. If a change touches `wiki/`, `raw/`, this file, `codex/WIKI_CURATION_LEDGER.md`, `skills/wiki-curator/`, or repo instructions governing product memory, the agent must commit on `main` and push `main` before claiming completion.
+
+If `origin/main` has advanced, rebase the local wiki-memory commit onto the latest `origin/main` and push again. If that cannot be done cleanly, report the blocker instead of leaving the user to notice the missing push.
+
+Run `python .codex/hooks/gtop_stop_check.py` before the final response. A failing hook means the wiki-memory work is not complete.
+
 ## Agent Operating Context
 
 GTOP participates in a broader CEO dashboard and internal Codex-agent operating model. The dashboard may track requirements, agent branches, previews, review notes, selected outputs, merge status, and lessons learned.

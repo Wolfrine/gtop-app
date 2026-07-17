@@ -69,3 +69,11 @@ Use it to answer:
 - Wiki pages updated: `wiki/Product Direction.md`, `wiki/Practice Loop.md`, `wiki/Learning Diagnosis.md`, `wiki/Question Bank Quality.md`, `wiki/Student Pulse.md`
 - Durable memory captured: added concise current-vs-future distinctions for product direction, diagnosis, question-bank quality, and Student Pulse; added concrete snapshots for the practice loop and admin flag-review meaning so new agents can understand the concepts in practice without reading raw notes.
 - Project Manager Handoff: no new execution items beyond the existing handoff topics.
+
+### 2026-06-05 - Current Education Reforms And Trends Research
+
+- Raw note: `raw/2026-06-05-current-education-reforms-trends-research.md`
+- Status: needs-follow-up
+- Wiki pages updated: none; user requested raw source material only.
+- Product memory captured: pending curation. Raw material covers NEP/NCF direction, assessment reform, AI and computational-thinking trends, foundational gaps, digital education infrastructure, privacy/equity concerns, and GTOP implications for practice intelligence, question-bank quality, diagnosis, Student Pulse, admin content quality, and school/parent reporting.
+- Project Manager Handoff: verify official CBSE/NCERT rollout details before durable claims; decide first board/class reform-alignment priority; define minimum metadata for competency-aware practice; set AI guardrails and Student Pulse confidence rules; reconcile question-bank count/public claims.

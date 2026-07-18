@@ -1,0 +1,9 @@
+[mcp_servers.gtop_firestore]
+command = "node"
+args = ["tools/gtop-mcp/dist/index.js"]
+cwd = "."
+env_vars = ["GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_CLOUD_PROJECT", "GTOP_FIREBASE_PROJECT_ID", "GTOP_MCP_ACTOR", "GTOP_MCP_TASK_REF"]
+required = false
+startup_timeout_sec = 15
+tool_timeout_sec = 60
+default_tools_approval_mode = "writes"

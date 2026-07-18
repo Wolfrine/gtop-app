@@ -1,0 +1,26 @@
+{
+  "name": "@gtop/firestore-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": { "gtop-firestore-mcp": "dist/index.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "seed:v2": "node dist/seed-v2-plan.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "firebase-admin": "^14.2.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
+  }
+}

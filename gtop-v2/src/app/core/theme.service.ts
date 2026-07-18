@@ -37,9 +37,9 @@ export class ThemeService {
     );
   }
 
-  preview(themeId: ThemeId): void {
+  preview(themeId: ThemeId, motion: MotionPreset = this.published().motionPreset): void {
     this.previewTheme.set(themeId);
-    this.apply(themeId, this.published().motionPreset);
+    this.apply(themeId, motion);
   }
 
   resetPreview(): void {
@@ -47,13 +47,13 @@ export class ThemeService {
     this.apply(this.published().themeId, this.published().motionPreset);
   }
 
-  async publish(themeId: ThemeId): Promise<void> {
+  async publish(themeId: ThemeId, motionPreset: MotionPreset = 'purposeful'): Promise<void> {
     const current = await getDoc(doc(this.firebase.firestore, 'Meta', 'appearance'));
     const version = current.exists() ? Number(current.data()['version'] ?? 0) + 1 : 1;
     const profile = this.auth.profile();
     await setDoc(doc(this.firebase.firestore, 'Meta', 'appearance'), {
       themeId,
-      motionPreset: 'purposeful' satisfies MotionPreset,
+      motionPreset,
       version,
       updatedBy: {
         uid: profile?.uid ?? null,

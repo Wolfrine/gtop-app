@@ -38,8 +38,10 @@ jobs:
         working-directory: gtop-v2
         run: |
           npm ci
+          npm run parity:check
           npm test
           npm run test:rules
+          npm run test:database-rules
           npm run build:uat
           printf '{"commit":"%s","branch":"%s","builtAt":"%s"}' "$GITHUB_SHA" "$GITHUB_REF_NAME" "$(date -u +%FT%TZ)" > dist/gtop-v2/browser/version.json
 

@@ -5,6 +5,8 @@ import {
   doc,
   documentId,
   getDocs,
+  getDocsFromCache,
+  getDoc,
   limit,
   query,
   runTransaction,
@@ -12,7 +14,6 @@ import {
   where,
 } from 'firebase/firestore';
 import { FirebaseClient } from './firebase';
-import { GenericFirestoreRepository } from './firestore.repository';
 import { Question, QuizAnswer, QuizResult, SyllabusItem, asDate } from './models';
 
 export interface PracticeFilters {
@@ -23,7 +24,7 @@ export interface PracticeFilters {
   subjects?: string[];
   chapters?: string[];
   count?: number;
-  quizType?: 'quick' | 'custom';
+  quizType?: 'quick' | 'custom' | 'live' | 'run';
   perQuestionSeconds?: number;
   autoAdvance?: boolean;
 }
@@ -32,11 +33,19 @@ export interface PracticeFilters {
 export class LearningRepository {
   constructor(
     private readonly firebase: FirebaseClient,
-    private readonly data: GenericFirestoreRepository,
   ) {}
 
   async syllabus(): Promise<SyllabusItem[]> {
-    const items = await this.data.query<SyllabusItem>('syllabus', [], 500);
+    const source = query(collection(this.firebase.firestore, 'syllabus'), limit(500));
+    let snapshot;
+    try {
+      const cached = await getDocsFromCache(source);
+      snapshot = cached.empty ? await getDocs(source) : cached;
+      if (!cached.empty) void getDocs(source).catch(() => undefined);
+    } catch {
+      snapshot = await getDocs(source);
+    }
+    const items = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as SyllabusItem);
     return items.sort((a, b) =>
       `${a.board}${a.standard}${a.subject}${a.chapter}`.localeCompare(
         `${b.board}${b.standard}${b.subject}${b.chapter}`,
@@ -151,6 +160,11 @@ export class LearningRepository {
       .sort(
         (a, b) => (asDate(b.timestamp)?.getTime() ?? 0) - (asDate(a.timestamp)?.getTime() ?? 0),
       );
+  }
+
+  async resultById(resultId: string): Promise<QuizResult | null> {
+    const snapshot = await getDoc(doc(this.firebase.firestore, 'QuizResults', resultId));
+    return snapshot.exists() ? ({ id: snapshot.id, ...snapshot.data() } as QuizResult) : null;
   }
 
   async flagQuestion(questionId: string, userId: string, reason: string): Promise<void> {

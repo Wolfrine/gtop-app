@@ -126,6 +126,39 @@ body {
     background 0.35s var(--ease-out),
     color 0.35s var(--ease-out);
 }
+.network-banner {
+  padding: 8px 16px;
+  color: var(--accent-contrast);
+  background: var(--warning);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 750;
+}
+.update-toast {
+  display: flex;
+  position: fixed;
+  z-index: 100;
+  right: 18px;
+  bottom: 18px;
+  align-items: center;
+  gap: 14px;
+  max-width: min(420px, calc(100vw - 36px));
+  padding: 14px 16px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  animation: rise .35s var(--ease-out) both;
+}
+.update-toast button {
+  padding: 8px 12px;
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+}
 button,
 input,
 select,

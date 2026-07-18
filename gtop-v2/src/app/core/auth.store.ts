@@ -1,8 +1,9 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, onAuthStateChanged, signInWithCredential, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
 import { doc, getDoc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { FirebaseClient } from './firebase';
 import { AuthState, GtopUser, UserRole } from './models';
+import { PresenceService } from './presence.service';
 
 const initialState: AuthState = {
   phase: 'initializing',
@@ -26,13 +27,27 @@ export class AuthStore {
   );
   private profileUnsubscribe?: () => void;
   private settled = false;
+  private emulatorSignInPending = false;
 
-  constructor(private readonly firebase: FirebaseClient) {
+  constructor(
+    private readonly firebase: FirebaseClient,
+    private readonly presence: PresenceService,
+  ) {
+    const params = new URLSearchParams(location.search);
+    const testEmail = params.get('testEmail');
+    const testPassword = params.get('testPassword');
+    const emulatorTestHost = ['127.0.0.1', 'localhost'].includes(location.hostname);
+    this.emulatorSignInPending =
+      emulatorTestHost && params.has('emulator') && Boolean(testEmail && testPassword);
     onAuthStateChanged(
       this.firebase.auth,
       (user) => void this.handleAuthChange(user),
       (error) => this.finish({ ...initialState, phase: 'error', error: error.message }),
     );
+    if (emulatorTestHost && params.has('emulator') && testEmail && testPassword)
+      void signInWithEmailAndPassword(this.firebase.auth, testEmail, testPassword)
+        .catch((error) => this.finish({ ...initialState, phase: 'error', error: error.message }))
+        .finally(() => (this.emulatorSignInPending = false));
   }
 
   ready(): Promise<AuthState> {
@@ -46,8 +61,22 @@ export class AuthStore {
     return profile;
   }
 
+  async signInWithGoogleIdToken(idToken: string): Promise<GtopUser> {
+    const credential = await signInWithCredential(
+      this.firebase.auth,
+      GoogleAuthProvider.credential(idToken),
+    );
+    const profile = await this.ensureProfile(credential.user);
+    await this.handleAuthChange(credential.user);
+    return profile;
+  }
+
   async logout(): Promise<void> {
     this.profileUnsubscribe?.();
+    const uid = this.firebase.auth.currentUser?.uid;
+    if (uid) await this.presence.markOffline(uid).catch(() => undefined);
+    sessionStorage.removeItem('gtop-v2-quiz');
+    sessionStorage.removeItem('gtop-v2-summary');
     await signOut(this.firebase.auth);
   }
 
@@ -66,6 +95,7 @@ export class AuthStore {
   private async handleAuthChange(user: import('firebase/auth').User | null): Promise<void> {
     this.profileUnsubscribe?.();
     if (!user) {
+      if (this.emulatorSignInPending) return;
       this.finish({ ...initialState, phase: 'unauthenticated' });
       return;
     }

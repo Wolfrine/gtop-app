@@ -121,40 +121,45 @@ export class WorkRepository {
     const current = await getDocs(
       query(collection(this.firebase.firestore, 'actionPlans'), limit(100)),
     );
-    if (current.docs.some((entry) => entry.data()['milestone'] === 'GTOP v2')) return;
+    const existingTitles = new Set(current.docs.map((entry) => String(entry.data()['title'] ?? '')));
     const work = [
       [
-        'V2 foundation and design system',
-        'Build the Angular 21 foundation, authentication state, repositories, responsive shells, and premium academic design system.',
-        'Platform foundation',
+        'V2 admin shell continuity',
+        'Keep administrators inside the admin shell throughout learner-mode practice, review, reports, live sessions, and quiz runs.',
+        'Admin experience',
       ],
       [
-        'V2 learner practice loop',
-        'Deliver profile setup, practice selection, quiz, summary, reporting, retry, and question feedback.',
-        'Learner experience',
+        'V2 dashboard metrics and presence',
+        'Show isolated Firestore metrics and live Realtime Database presence without all-or-nothing failures.',
+        'Admin observability',
       ],
       [
-        'V2 administration workspace',
-        'Deliver question, syllabus, user, report, live-session, log, and action-plan administration.',
-        'Admin operations',
-      ],
-      [
-        'V2 live practice',
-        'Deliver live quiz and quiz-run creation, lobby, participation, control, and summary experiences.',
-        'Live practice',
-      ],
-      [
-        'Firestore MCP and agent workflow',
-        'Expose audited action-plan and full Firestore tools, then require agents to coordinate through them.',
+        'V2 Action Plan browser access',
+        'Validate signed-in admin browser access, actionable errors, rules drift, and reliable work updates.',
         'Agent operations',
       ],
       [
-        'V2 UAT validation and release',
-        'Complete automated validation, owner review, rollback rehearsal, and controlled production cutover.',
-        'Release',
+        'V2 PWA and offline learning',
+        'Restore installability, branded icons, safe updates, multi-tab persistence, and explicit offline boundaries.',
+        'Platform foundation',
       ],
+      [
+        'V2 authentication and public metadata',
+        'Restore One Tap, canonical and social metadata, production analytics, and application version awareness.',
+        'Platform foundation',
+      ],
+      [
+        'V2 legacy entry contracts',
+        'Preserve functioning v1 routes, query parameters, Hub return paths, and historical review links.',
+        'Compatibility',
+      ],
+      ['V2 content parity', 'Complete question paging/import, syllabus preview, flags, user filters, reports, and audit evidence.', 'Admin operations'],
+      ['V2 live-session correctness', 'Validate scheduling, open-room queries, join behavior, reconnect handling, indexes, results, and deterministic ranking.', 'Live practice'],
+      ['V2 Theme Lab and motion', 'Complete five-theme comparison, four viewports, representative controls, publishing metadata, and reduced motion.', 'Experience'],
+      ['V2 release evidence', 'Replace aspirational parity claims with runnable authenticated, emulator, PWA, accessibility, and visual evidence.', 'Release'],
     ];
     for (const [title, description, area] of work) {
+      if (existingTitles.has(title)) continue;
       await this.create(
         {
           title,

@@ -2,6 +2,7 @@ import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../core/auth.store';
+import { GoogleOneTapService } from '../core/google-one-tap.service';
 
 @Component({
   selector: 'app-landing',
@@ -62,7 +63,7 @@ import { AuthStore } from '../core/auth.store';
 export class LandingPage {
   readonly busy = signal(false);
   readonly error = signal('');
-  constructor(public readonly auth: AuthStore, private readonly route: ActivatedRoute, private readonly router: Router) {}
+  constructor(public readonly auth: AuthStore, private readonly route: ActivatedRoute, private readonly router: Router, oneTap: GoogleOneTapService) { void oneTap; }
   async enter(): Promise<void> {
     this.busy.set(true); this.error.set('');
     try {

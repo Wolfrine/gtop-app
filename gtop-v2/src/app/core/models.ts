@@ -107,11 +107,46 @@ export interface QuizResult {
 
 export type QuizLaunchKind =
   'new' | 'retry-all' | 'retry-incorrect' | 'historical' | 'live' | 'generated';
+export type ShellContext = 'learner' | 'admin';
 export interface QuizLaunchContext {
   kind: QuizLaunchKind;
   sourceResultId?: string;
   sourceUserId?: string;
   readOnly?: boolean;
+  shellContext?: ShellContext;
+  returnPath?: string;
+  returnTo?: string;
+  hubReturnPath?: string;
+}
+
+export interface DashboardMetric<T = number> {
+  status: 'idle' | 'loading' | 'ready' | 'error';
+  value: T | null;
+  source: 'firestore' | 'realtime-database' | 'cache';
+  error?: string;
+  refreshedAt?: string;
+}
+
+export interface PersistenceState {
+  mode: 'persistent-multi-tab' | 'persistent-single-tab' | 'memory';
+  indexedDbAvailable: boolean;
+  localIndexesEnabled: boolean;
+  fallbackReason?: string;
+}
+
+export type AppUpdatePhase = 'current' | 'checking' | 'available' | 'applying' | 'error';
+export interface AppUpdateState {
+  phase: AppUpdatePhase;
+  currentVersion?: string;
+  requiredVersion?: string;
+  error?: string;
+}
+
+export interface LegacyLaunchContext {
+  userId?: string;
+  resultId?: string;
+  liveSessionId?: string;
+  mode?: 'live' | 'run';
 }
 
 export interface ReportSession extends QuizResult {

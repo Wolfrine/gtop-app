@@ -7,7 +7,11 @@ import { PresenceRecord } from './models';
 @Injectable({ providedIn: 'root' })
 export class PresenceService {
   readonly records = signal<PresenceRecord[]>([]);
+  readonly connected = signal(false);
+  readonly error = signal('');
   private unsubscribeAll?: () => void;
+  private unsubscribeOwn?: () => void;
+  private unsubscribeConnection?: () => void;
   private readonly database: Promise<Database>;
 
   constructor(private readonly firebase: FirebaseClient) {
@@ -18,8 +22,13 @@ export class PresenceService {
       return db;
     });
     onAuthStateChanged(firebase.auth, (user) => {
-      if (user) void this.markOnline(user.uid, user.displayName ?? 'GTOP user', user.email ?? '');
+      this.unsubscribeOwn?.();
+      if (user) {
+        void this.markOnline(user.uid, user.displayName ?? 'GTOP user', user.email ?? '');
+        void this.watchOwn(user.uid, user.displayName ?? 'GTOP user', user.email ?? '');
+      }
     });
+    void this.watchConnection();
     document.addEventListener('visibilitychange', () => {
       const user = firebase.auth.currentUser;
       if (user && document.visibilityState === 'visible')
@@ -44,7 +53,7 @@ export class PresenceService {
               })),
             );
           },
-          () => this.records.set([]),
+          (error) => this.error.set(error.message),
         );
       },
     );
@@ -73,7 +82,31 @@ export class PresenceService {
       import('firebase/database'),
     ]);
     const userRef = ref(db, `activeUsers/${uid}`);
-    await set(userRef, { userId: uid, displayName, email, isOnline: true, lastActive: Date.now() });
-    await onDisconnect(userRef).update({ isOnline: false, lastActive: serverTimestamp() });
+    try {
+      await set(userRef, { userId: uid, displayName, email, isOnline: true, lastActive: Date.now() });
+      await onDisconnect(userRef).update({ isOnline: false, lastActive: serverTimestamp() });
+      this.error.set('');
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Presence update failed');
+      throw error;
+    }
+  }
+  private async watchOwn(uid: string, displayName: string, email: string): Promise<void> {
+    const [db, { onValue, ref }] = await Promise.all([this.database, import('firebase/database')]);
+    this.unsubscribeOwn = onValue(ref(db, `activeUsers/${uid}`), (snapshot) => {
+      if (!snapshot.exists() && this.firebase.auth.currentUser?.uid === uid)
+        void this.markOnline(uid, displayName, email);
+    });
+  }
+  private async watchConnection(): Promise<void> {
+    const [db, { onValue, ref }] = await Promise.all([this.database, import('firebase/database')]);
+    this.unsubscribeConnection?.();
+    this.unsubscribeConnection = onValue(ref(db, '.info/connected'), (snapshot) => {
+      const connected = snapshot.val() === true;
+      this.connected.set(connected);
+      const user = this.firebase.auth.currentUser;
+      if (connected && user)
+        void this.markOnline(user.uid, user.displayName ?? 'GTOP user', user.email ?? '');
+    });
   }
 }

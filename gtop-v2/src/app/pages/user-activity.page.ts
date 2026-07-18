@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { AdminRepository } from '../core/admin.repository';
+import { AppNavigationService } from '../core/app-navigation.service';
 import { AuthStore } from '../core/auth.store';
 import { LearningRepository } from '../core/learning.repository';
 import { GtopUser, LiveSession, PresenceRecord, QuizResult, asDate } from '../core/models';
@@ -441,6 +442,7 @@ export class UserActivityPage implements OnInit {
     private sessions: QuizSessionStore,
     private router: Router,
     public auth: AuthStore,
+    private navigation: AppNavigationService,
   ) {
     this.uid = route.snapshot.paramMap.get('uid')!;
   }
@@ -498,14 +500,14 @@ export class UserActivityPage implements OnInit {
         filters: { quizType: result.quizType },
         startedAt: Date.now(),
         launchContext: {
-          kind: 'historical',
+          ...this.navigation.launch('historical'),
           sourceResultId: result.id,
           sourceUserId: this.uid,
           readOnly: true,
         },
       }),
     );
-    await this.router.navigateByUrl('/quiz-summary');
+    await this.router.navigateByUrl(this.navigation.path('quiz-summary', 'admin'));
   }
   async practiceFrom(result: QuizResult) {
     const questions = await this.learning.questionsByIds(result.questions.map((a) => a.questionId));
@@ -521,9 +523,13 @@ export class UserActivityPage implements OnInit {
         quizType: 'custom',
       },
       startedAt: Date.now(),
-      launchContext: { kind: 'generated', sourceResultId: result.id, sourceUserId: this.uid },
+      launchContext: {
+        ...this.navigation.launch('generated'),
+        sourceResultId: result.id,
+        sourceUserId: this.uid,
+      },
     });
-    await this.router.navigateByUrl('/quiz');
+    await this.router.navigateByUrl(this.navigation.path('quiz', 'admin'));
   }
   async changeRole(role: GtopUser['role']) {
     const user = this.user();

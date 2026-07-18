@@ -1,0 +1,16 @@
+{
+  "name": "GTOP - Growth Tutorials Objective Practice",
+  "short_name": "GTOP",
+  "description": "Focused objective practice, live quizzes and useful learning reports.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f5ef",
+  "theme_color": "#17233c",
+  "icons": [
+    { "src": "/icons/icon-192-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-192-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-512-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,6 +1,7 @@
-import { Component, NgModule, OnInit, computed, signal } from '@angular/core';
+import { Component, NgModule, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { FormsModule as AngularFormsModule } from '@angular/forms';
 import { RouterLink, RouterModule } from '@angular/router';
+import type { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
 import { AdminRepository } from '../core/admin.repository';
 import { AuthStore } from '../core/auth.store';
@@ -9,6 +10,7 @@ import { GenericFirestoreRepository } from '../core/firestore.repository';
 import { LiveRepository } from '../core/live.repository';
 import {
   FirestoreRecord,
+  DashboardMetric,
   GtopUser,
   LiveSession,
   Question,
@@ -37,7 +39,8 @@ class FormsModule {}
         </p>
       </div>
       <div class="button-row">
-        <a class="btn btn-secondary" routerLink="/practice">Take a quiz</a
+        <button class="btn btn-secondary" type="button" (click)="loadCounts(true)">Refresh metrics</button>
+        <a class="btn btn-secondary" routerLink="/admin/learning/practice">Take a quiz</a
         ><a class="btn btn-primary" routerLink="/admin/action-plan">Open action plan</a>
       </div>
     </div>
@@ -46,7 +49,7 @@ class FormsModule {}
         <article class="card stat">
           <span class="muted small">{{ item.label }}</span>
           <p class="stat-value">{{ item.value }}</p>
-          <span class="pill" [class.warning]="item.warning">{{ item.note }}</span>
+          <span class="pill" [class.warning]="item.warning" [class.danger]="item.error">{{ item.error || item.note }}</span>
         </article>
       }
     </div>
@@ -69,14 +72,23 @@ class FormsModule {}
     </section>
   </div>`,
 })
-export class AdminDashboardPage implements OnInit {
-  readonly counts = signal<Record<string, number>>({});
+export class AdminDashboardPage implements OnInit, OnDestroy {
+  readonly metrics = signal<Record<string, DashboardMetric>>({});
+  readonly onlineCount = computed(() => this.presence.records().filter((item) => item.isOnline).length);
+  private stopPresence?: () => void;
+  private readonly metricDefinitions = [
+    ['questions', 'Questions', 'Content bank'],
+    ['users', 'Users', 'Profiles'],
+    ['QuizResults', 'Quiz attempts', 'Evidence'],
+    ['openLiveSessions', 'Open live rooms', 'Scheduled or active'],
+    ['activeWork', 'Active work', 'Action plan'],
+  ] as const;
   readonly links = [
     {
       kicker: 'Learning',
       title: 'Take a quiz',
       copy: 'Use every learner practice workflow with your admin identity.',
-      path: '/practice',
+      path: '/admin/learning/practice',
     },
     {
       kicker: 'People',
@@ -109,22 +121,57 @@ export class AdminDashboardPage implements OnInit {
       path: '/admin/action-plan',
     },
   ];
-  constructor(private admin: AdminRepository) {}
+  constructor(
+    private admin: AdminRepository,
+    private presence: PresenceService,
+  ) {}
   async ngOnInit() {
-    this.counts.set(await this.admin.counts());
+    this.stopPresence = this.presence.listenAll();
+    await this.loadCounts();
+  }
+  ngOnDestroy() {
+    this.stopPresence?.();
   }
   statCards() {
+    const stored = this.metrics();
     return [
-      { label: 'Questions', value: this.counts()['questions'] ?? '—', note: 'Content bank' },
-      { label: 'Users', value: this.counts()['users'] ?? '—', note: 'Profiles' },
-      { label: 'Quiz attempts', value: this.counts()['QuizResults'] ?? '—', note: 'Evidence' },
-      {
-        label: 'Active work',
-        value: this.counts()['actionPlans'] ?? '—',
-        note: 'Action plan',
-        warning: true,
-      },
+      ...this.metricDefinitions.map(([key, label, note]) => ({
+        label,
+        value: stored[key]?.status === 'ready' ? stored[key].value : stored[key]?.status === 'loading' ? '…' : '—',
+        note: stored[key]?.source === 'cache' ? `${note} · cached` : note,
+        error: stored[key]?.status === 'error' ? 'Unavailable · retry' : '',
+        warning: key === 'activeWork',
+      })),
+      { label: 'Online now', value: this.onlineCount(), note: 'Realtime presence', error: '', warning: false },
     ];
+  }
+  async loadCounts(force = false) {
+    await Promise.all(
+      this.metricDefinitions.map(async ([key]) => {
+        const cacheKey = `gtop-v2-dashboard-${key}`;
+        if (!force) {
+          try {
+            const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null') as { value: number; at: number } | null;
+            if (cached && Date.now() - cached.at < 300_000) {
+              this.setMetric(key, { status: 'ready', value: cached.value, source: 'cache', refreshedAt: new Date(cached.at).toISOString() });
+              return;
+            }
+          } catch {}
+        }
+        this.setMetric(key, { status: 'loading', value: null, source: 'firestore' });
+        try {
+          const value = await this.admin.countMetric(key);
+          const at = Date.now();
+          sessionStorage.setItem(cacheKey, JSON.stringify({ value, at }));
+          this.setMetric(key, { status: 'ready', value, source: 'firestore', refreshedAt: new Date(at).toISOString() });
+        } catch (error) {
+          this.setMetric(key, { status: 'error', value: null, source: 'firestore', error: error instanceof Error ? error.message : 'Metric unavailable' });
+        }
+      }),
+    );
+  }
+  private setMetric(key: string, value: DashboardMetric) {
+    this.metrics.update((current) => ({ ...current, [key]: value }));
   }
 }
 
@@ -288,6 +335,7 @@ interface ImportRow extends Partial<Question> {
             <span class="pill success">{{ validImports() }} valid</span
             ><span class="pill danger">{{ invalidImports() }} invalid</span
             ><span class="pill warning">{{ duplicateImports() }} possible duplicates</span>
+            <span class="pill info">{{ affectedSyllabusImports() }} syllabus paths affected</span>
           </div>
           <div class="table-wrap">
             <table>
@@ -385,6 +433,9 @@ interface ImportRow extends Partial<Question> {
           </tbody>
         </table>
       </div>
+      @if (nextCursor) {
+        <div class="button-row top-gap"><button class="btn btn-secondary" (click)="loadMore()">Load next page</button></div>
+      }
     </section>
   </div>`,
   styles: [
@@ -464,6 +515,7 @@ export class QuestionBankPage implements OnInit {
   draft: Partial<Question> = { options: ['', '', '', ''], correctIndex: 0 };
   solution = '';
   importJson = '';
+  nextCursor?: QueryDocumentSnapshot<DocumentData>;
   boards = () => this.unique(this.syllabus().map((i) => i.board));
   standards = () =>
     this.unique(
@@ -500,10 +552,12 @@ export class QuestionBankPage implements OnInit {
     this.syllabus.set(await this.admin.syllabus());
     this.flags.set(await this.admin.openQuestionFlags());
   }
-  async load() {
+  async load(append = false) {
     this.error.set('');
     try {
-      this.questions.set(await this.admin.questions(this.filters, 200));
+      const page = await this.admin.questionPage(this.filters, 25, append ? this.nextCursor : undefined);
+      this.questions.set(append ? [...this.questions(), ...page.items] : page.items);
+      this.nextCursor = page.cursor;
     } catch (e) {
       this.error.set(this.message(e));
     }
@@ -511,6 +565,7 @@ export class QuestionBankPage implements OnInit {
   clear() {
     this.filters = {};
     this.questions.set([]);
+    this.nextCursor = undefined;
   }
   resetAfter(field: string) {
     if (field === 'board') {
@@ -576,12 +631,18 @@ export class QuestionBankPage implements OnInit {
       ),
     );
   }
-  validateImport() {
+  async validateImport() {
     this.importError.set('');
     try {
       const parsed = JSON.parse(this.importJson);
       if (!Array.isArray(parsed)) throw new Error('JSON must be an array.');
-      const existing = new Set(this.questions().map((q) => q.question.trim().toLowerCase()));
+      const texts = parsed.map((raw: Partial<Question>) => raw.question || '');
+      const existing = await this.admin.duplicateQuestionTexts(texts);
+      const withinImport = new Map<string, number>();
+      texts.forEach((value: string) => {
+        const key = value.trim().toLowerCase();
+        withinImport.set(key, (withinImport.get(key) || 0) + 1);
+      });
       this.importRows.set(
         parsed.map((raw: Partial<Question>) => {
           const errors: string[] = [];
@@ -600,7 +661,9 @@ export class QuestionBankPage implements OnInit {
             ...raw,
             valid: !errors.length,
             errors,
-            duplicate: existing.has(raw.question?.trim().toLowerCase() ?? ''),
+            duplicate:
+              existing.has(raw.question?.trim().toLowerCase() ?? '') ||
+              (withinImport.get(raw.question?.trim().toLowerCase() ?? '') || 0) > 1,
           };
         }),
       );
@@ -617,6 +680,16 @@ export class QuestionBankPage implements OnInit {
   }
   duplicateImports() {
     return this.importRows().filter((r) => r.duplicate).length;
+  }
+  affectedSyllabusImports() {
+    return new Set(
+      this.importRows()
+        .filter((row) => row.valid && !row.duplicate)
+        .map((row) => `${row.board}|${row.standard}|${row.subject}|${row.chapter}`),
+    ).size;
+  }
+  async loadMore() {
+    if (this.nextCursor) await this.load(true);
   }
   async commitImport() {
     if (
@@ -663,6 +736,8 @@ export class QuestionBankPage implements OnInit {
       <div class="button-row">
         <button class="btn btn-secondary" (click)="preview.set(!preview())">
           {{ preview() ? 'Table view' : 'Learner preview' }}</button
+        ><button class="btn btn-secondary" (click)="preparePreview()">Prepare change preview</button
+        ><button class="btn btn-secondary" [disabled]="!previewRows().length" (click)="publishPreview()">Publish preview</button
         ><button class="btn btn-secondary" (click)="refreshCounts()">Refresh counts</button
         ><button class="btn btn-primary" (click)="newItem()">Add chapter</button>
       </div>
@@ -709,7 +784,7 @@ export class QuestionBankPage implements OnInit {
             <div class="chapter-grid">
               @for (item of group.items; track item.id) {
                 <button (click)="edit(item)">
-                  <span>{{ item.chapter }}</span
+                  <span>{{ item.chapter }} @if(previewStatus(item.id)){<small class="pill" [class.warning]="previewStatus(item.id)==='changed'" [class.success]="previewStatus(item.id)==='existing'">{{previewStatus(item.id)}}</small>}</span
                   ><b [class.zero]="item.mcqCount === 0">{{ item.mcqCount || 0 }} MCQs</b>
                 </button>
               }
@@ -826,6 +901,7 @@ export class SyllabusAdminPage implements OnInit {
   readonly editing = signal(false);
   readonly preview = signal(false);
   readonly message = signal('');
+  readonly previewRows = signal<FirestoreRecord[]>([]);
   search = '';
   draft: Partial<SyllabusItem> = {};
   original: SyllabusItem | null = null;
@@ -835,6 +911,7 @@ export class SyllabusAdminPage implements OnInit {
   ) {}
   async ngOnInit() {
     await this.load();
+    this.previewRows.set(await this.admin.syllabusPreview());
   }
   filtered() {
     const s = this.search.toLowerCase();
@@ -902,6 +979,19 @@ export class SyllabusAdminPage implements OnInit {
     this.message.set(`Refreshed question counts for ${count} syllabus combinations.`);
     await this.load();
   }
+  previewStatus(id: string) { return String(this.previewRows().find((item) => item.id === id)?.['status'] || ''); }
+  async preparePreview() {
+    this.previewRows.set(await this.admin.prepareSyllabusPreview(this.auth.profile()!.uid));
+    this.preview.set(true);
+    const counts = ['new', 'changed', 'existing', 'absent'].map((status) => `${status}: ${this.previewRows().filter((item) => item['status'] === status).length}`);
+    this.message.set(`Preview prepared · ${counts.join(' · ')}`);
+  }
+  async publishPreview() {
+    if (environment.uat && !confirm('Publish this syllabus preview state using live production data?')) return;
+    await this.admin.publishSyllabusPreview(this.auth.profile()!.uid);
+    this.previewRows.set(await this.admin.syllabusPreview());
+    this.message.set('Syllabus preview published.');
+  }
   private async load() {
     this.items.set(
       (await this.admin.syllabus()).sort((a, b) =>
@@ -960,6 +1050,9 @@ export class SyllabusAdminPage implements OnInit {
             }
           </select>
         </div>
+        <div class="field"><label>Standard</label><select [(ngModel)]="standardFilter"><option value="">All standards</option>@for(standard of standards();track standard){<option>{{standard}}</option>}</select></div>
+        <div class="field"><label>Recent activity</label><select [(ngModel)]="recentFilter"><option value="">Any time</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></div>
+        <div class="field"><label>Latest performance</label><select [(ngModel)]="performanceFilter"><option value="">Any score</option><option value="low">Below 50%</option><option value="medium">50–79%</option><option value="high">80%+</option></select></div>
       </div>
     </section>
     <section class="section">
@@ -976,6 +1069,7 @@ export class SyllabusAdminPage implements OnInit {
               <th>Learning context</th>
               <th>Role</th>
               <th>Last seen</th>
+              <th>Latest score</th>
               <th></th>
             </tr>
           </thead>
@@ -995,11 +1089,12 @@ export class SyllabusAdminPage implements OnInit {
                   <span class="pill" [class.danger]="user.role === 'admin'">{{ user.role }}</span>
                 </td>
                 <td>{{ lastSeen(user.uid) }}</td>
+                <td>{{ latest(user.uid)?.percentage ?? '—' }}{{ latest(user.uid) ? '%' : '' }}</td>
                 <td><span class="open-arrow">→</span></td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="empty">No users match these filters.</td>
+                <td colspan="7" class="empty">No users match these filters.</td>
               </tr>
             }
           </tbody>
@@ -1060,6 +1155,10 @@ export class UsersAdminPage implements OnInit {
   roleFilter = '';
   presenceFilter = '';
   boardFilter = '';
+  standardFilter = '';
+  recentFilter = '';
+  performanceFilter = '';
+  readonly recentResults = signal<QuizResult[]>([]);
   readonly onlineCount = computed(() => this.presence.records().filter((p) => p.isOnline).length);
   readonly boards = computed(() =>
     [
@@ -1070,6 +1169,7 @@ export class UsersAdminPage implements OnInit {
       ),
     ].sort(),
   );
+  readonly standards = computed(() => [...new Set(this.users().map((u) => u.standard).filter((v): v is string => Boolean(v)))].sort());
   constructor(
     public auth: AuthStore,
     private admin: AdminRepository,
@@ -1077,7 +1177,9 @@ export class UsersAdminPage implements OnInit {
   ) {}
   async ngOnInit() {
     this.presence.listenAll();
-    this.users.set(await this.admin.users());
+    const [users, results] = await Promise.all([this.admin.users(), this.admin.recentResults()]);
+    this.users.set(users);
+    this.recentResults.set(results);
   }
   filtered() {
     const s = this.search.toLowerCase();
@@ -1086,9 +1188,21 @@ export class UsersAdminPage implements OnInit {
         (!s || `${u.displayName} ${u.email}`.toLowerCase().includes(s)) &&
         (!this.roleFilter || u.role === this.roleFilter) &&
         (!this.boardFilter || u.board === this.boardFilter) &&
+        (!this.standardFilter || u.standard === this.standardFilter) &&
         (!this.presenceFilter || (this.presenceFilter === 'online') === this.isOnline(u.uid)),
-    );
+    ).filter((u) => {
+      const latest = this.latest(u.uid);
+      if (this.recentFilter) {
+        const timestamp = asDate(latest?.timestamp)?.getTime() ?? 0;
+        if (!timestamp || Date.now() - timestamp > Number(this.recentFilter) * 86_400_000) return false;
+      }
+      if (!this.performanceFilter) return true;
+      const score = latest?.percentage;
+      if (score == null) return false;
+      return this.performanceFilter === 'low' ? score < 50 : this.performanceFilter === 'medium' ? score >= 50 && score < 80 : score >= 80;
+    });
   }
+  latest(uid: string) { return this.recentResults().find((result) => result.userId === uid); }
   isOnline(uid: string) {
     return Boolean(this.presence.records().find((p) => p.userId === uid)?.isOnline);
   }

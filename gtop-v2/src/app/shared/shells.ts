@@ -1,6 +1,8 @@
 import { Component, Input, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthStore } from '../core/auth.store';
+import { RequiredVersionService } from '../core/required-version.service';
+import { ThemeService } from '../core/theme.service';
 
 interface NavItem {
   label: string;
@@ -79,7 +81,11 @@ export class ProductShellComponent {
   constructor(
     public readonly auth: AuthStore,
     private readonly router: Router,
+    theme: ThemeService,
+    requiredVersion: RequiredVersionService,
   ) {
+    void theme;
+    void requiredVersion;
     fetch('/version.json', { cache: 'no-store' })
       .then((response) => (response.ok ? response.json() : null))
       .then((value) => {
@@ -124,11 +130,11 @@ export class AdminShellComponent {
     { label: 'Users', path: '/admin/users', icon: '○', group: 'Operate' },
     { label: 'Question bank', path: '/admin/questions', icon: '◇', group: 'Content' },
     { label: 'Syllabus', path: '/admin/syllabus', icon: '▦', group: 'Content' },
-    { label: 'Learner dashboard', path: '/dashboard', icon: '◫', group: 'Learning' },
-    { label: 'Take a quiz', path: '/practice', icon: '✦', group: 'Learning' },
-    { label: 'My reports', path: '/reports', icon: '⌁', group: 'Learning' },
-    { label: 'Live practice', path: '/live', icon: '◉', group: 'Learning' },
-    { label: 'Quiz run', path: '/quiz-run', icon: '↯', group: 'Learning' },
+    { label: 'Learner dashboard', path: '/admin/learning/dashboard', icon: '◫', group: 'Learning' },
+    { label: 'Take a quiz', path: '/admin/learning/practice', icon: '✦', group: 'Learning' },
+    { label: 'My reports', path: '/admin/learning/reports', icon: '⌁', group: 'Learning' },
+    { label: 'Live practice', path: '/admin/learning/live', icon: '◉', group: 'Learning' },
+    { label: 'Quiz run', path: '/admin/learning/quiz-run', icon: '↯', group: 'Learning' },
     { label: 'All reports', path: '/admin/reports', icon: '▥', group: 'Insights' },
     { label: 'Live control', path: '/admin/live', icon: '◎', group: 'Insights' },
     { label: 'Diagnostics', path: '/admin/logs', icon: '≡', group: 'System' },

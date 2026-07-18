@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AppNavigationService } from '../core/app-navigation.service';
 import { AuthStore } from '../core/auth.store';
 import { LearningRepository } from '../core/learning.repository';
 import { LiveRepository } from '../core/live.repository';
@@ -46,7 +47,7 @@ import { LiveSession, Question, SyllabusItem, asDate } from '../core/models';
           </div>
         </div>
       </section>
-      <a class="card card-hover run-card" routerLink="/quiz-run"
+      <a class="card card-hover run-card" [routerLink]="navigation.path('quiz-run')"
         ><span class="pill warning">Peer mode</span>
         <h2>Start a quiz run</h2>
         <p class="muted">A configurable challenge with lobby, shared timing and leaderboard.</p></a
@@ -358,12 +359,16 @@ export class LiveHubPage implements OnInit, OnDestroy {
     private live: LiveRepository,
     private learning: LearningRepository,
     private router: Router,
+    public navigation: AppNavigationService,
   ) {}
   async ngOnInit() {
     this.board = this.auth.profile()?.board || '';
     this.standard = this.auth.profile()?.standard || '';
     this.syllabus.set(await this.learning.syllabus());
-    this.stop = this.live.observeSessions((v) => this.sessions.set(v));
+    this.stop = this.live.observeSessions(
+      (v) => this.sessions.set(v),
+      (error) => this.error.set(`Live sessions could not load: ${error.message}`),
+    );
   }
   ngOnDestroy() {
     this.stop?.();
@@ -421,7 +426,7 @@ export class LiveHubPage implements OnInit, OnDestroy {
           subjectLabel: this.selectedSubjects.join(', ') || 'Mixed practice',
         },
       });
-      await this.router.navigate(['/live/host', session.id]);
+      await this.router.navigate([this.navigation.path('live/host'), session.id]);
     } catch (e) {
       this.error.set(this.msg(e));
     } finally {
@@ -433,10 +438,10 @@ export class LiveHubPage implements OnInit, OnDestroy {
     this.error.set('');
     try {
       const s = await this.live.findByCode(this.joinCode);
-      if (!s || s.status === 'ended') throw new Error('No open session matches that code.');
+      if (!s || s.status === 'ended' || s.mode === 'run') throw new Error('No open live session matches that code.');
       const p = this.auth.profile()!;
       await this.live.join(s.id, { uid: p.uid, displayName: p.displayName, photoURL: p.photoURL });
-      await this.router.navigate(['/live/play', s.id]);
+      await this.router.navigate([this.navigation.path('live/play'), s.id]);
     } catch (e) {
       this.error.set(this.msg(e));
     } finally {
@@ -445,7 +450,7 @@ export class LiveHubPage implements OnInit, OnDestroy {
   }
   open(s: LiveSession) {
     this.router.navigate([
-      s.hostId === this.auth.profile()?.uid ? '/live/host' : '/live/play',
+      this.navigation.path(s.hostId === this.auth.profile()?.uid ? 'live/host' : 'live/play'),
       s.id,
     ]);
   }
@@ -550,6 +555,7 @@ export class QuizRunPage {
     private live: LiveRepository,
     private learning: LearningRepository,
     private router: Router,
+    private navigation: AppNavigationService,
   ) {
     this.board = auth.profile()?.board || '';
     this.standard = auth.profile()?.standard || '';
@@ -560,7 +566,7 @@ export class QuizRunPage {
       if (!s || s.mode !== 'run') throw new Error('Quiz run not found.');
       const p = this.auth.profile()!;
       await this.live.join(s.id, { uid: p.uid, displayName: p.displayName, photoURL: p.photoURL });
-      await this.router.navigate(['/quiz-run/lobby', s.id]);
+      await this.router.navigate([this.navigation.path('quiz-run/lobby'), s.id]);
     } catch (e) {
       this.error.set(e instanceof Error ? e.message : 'Unable to join.');
     }
@@ -589,7 +595,7 @@ export class QuizRunPage {
           chapter: this.chapter,
         },
       });
-      await this.router.navigate(['/quiz-run/lobby', s.id]);
+      await this.router.navigate([this.navigation.path('quiz-run/lobby'), s.id]);
     } catch (e) {
       this.error.set(e instanceof Error ? e.message : 'Unable to create.');
     }
@@ -700,8 +706,8 @@ export class QuizRunPage {
             <div class="empty">No submitted answers were recorded.</div>
           }
           <div class="button-row">
-            <a class="btn btn-primary" routerLink="/reports">Review reports</a
-            ><a class="btn btn-secondary" routerLink="/live">Back to live</a>
+            <a class="btn btn-primary" [routerLink]="navigation.path('reports')">Review reports</a
+            ><a class="btn btn-secondary" [routerLink]="navigation.path('live')">Back to live</a>
           </div>
         </section>
       } @else {
@@ -932,6 +938,7 @@ export class LiveSessionPage implements OnDestroy {
     private live: LiveRepository,
     private learning: LearningRepository,
     public auth: AuthStore,
+    public navigation: AppNavigationService,
   ) {
     const id = route.snapshot.paramMap.get('sessionId')!;
     this.stops.push(live.observeSession(id, (value) => void this.onSession(value)));

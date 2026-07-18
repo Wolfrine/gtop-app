@@ -9,10 +9,14 @@
     "watch": "ng build --watch --configuration development",
     "test": "vitest run --exclude src/**/*.rules.test.ts",
     "test:rules": "npx firebase-tools@15 emulators:exec --only firestore --project demo-gtop \"vitest run src/app/core/firestore.rules.test.ts\"",
+    "test:database-rules": "npx firebase-tools@15 emulators:exec --only database --project demo-gtop \"vitest run src/app/core/database.rules.test.ts\"",
     "test:watch": "vitest",
-    "e2e": "playwright test",
+    "e2e": "npx firebase-tools@15 emulators:exec --only auth,firestore,database --project gtop-app \"npm run e2e:browser\"",
+    "e2e:browser": "playwright test",
+    "parity:generate": "node scripts/parity-ledger.mjs --write",
+    "parity:check": "node scripts/parity-ledger.mjs",
     "check": "npm run test && npm run build:uat",
-    "check:ci": "npm run test && npm run test:rules && npm run build:uat && npm run e2e"
+    "check:ci": "npm run parity:check && npm run test && npm run test:rules && npm run test:database-rules && npm run build:uat && npm run e2e"
   },
   "private": true,
   "packageManager": "npm@11.9.0",
@@ -23,6 +27,7 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@angular/service-worker": "^21.2.18",
     "firebase": "^12.16.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

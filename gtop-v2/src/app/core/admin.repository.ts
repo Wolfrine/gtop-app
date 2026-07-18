@@ -4,18 +4,21 @@ import {
   collection,
   collectionGroup,
   doc,
+  documentId,
   getCountFromServer,
   getDoc,
   getDocs,
   limit,
   orderBy,
   query,
+  startAfter,
   serverTimestamp,
   setDoc,
   updateDoc,
   where,
   writeBatch,
 } from 'firebase/firestore';
+import type { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import { FirebaseClient } from './firebase';
 import {
   FirestoreRecord,
@@ -42,6 +45,24 @@ export class AdminRepository {
     return Object.fromEntries(names.map((name, index) => [name, values[index]]));
   }
 
+  async countMetric(
+    metric: 'questions' | 'users' | 'QuizResults' | 'openLiveSessions' | 'activeWork',
+  ): Promise<number> {
+    const target =
+      metric === 'openLiveSessions'
+        ? query(
+            collection(this.firebase.firestore, 'LiveSessions'),
+            where('status', 'in', ['scheduled', 'lobby', 'active']),
+          )
+        : metric === 'activeWork'
+          ? query(
+              collection(this.firebase.firestore, 'actionPlans'),
+              where('status', 'in', ['planned', 'in-progress', 'blocked', 'review']),
+            )
+          : collection(this.firebase.firestore, metric);
+    return (await getCountFromServer(target)).data().count;
+  }
+
   async questions(
     filters: Partial<Pick<Question, 'board' | 'standard' | 'subject' | 'chapter'>>,
     max = 100,
@@ -56,6 +77,40 @@ export class AdminRepository {
       query(collection(this.firebase.firestore, 'questions'), ...constraints),
     );
     return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Question);
+  }
+
+  async questionPage(
+    filters: Partial<Pick<Question, 'board' | 'standard' | 'subject' | 'chapter'>>,
+    pageSize = 25,
+    cursor?: QueryDocumentSnapshot<DocumentData>,
+  ): Promise<{ items: Question[]; cursor?: QueryDocumentSnapshot<DocumentData> }> {
+    const constraints = [];
+    if (filters.board) constraints.push(where('board', '==', filters.board));
+    if (filters.standard) constraints.push(where('standard', '==', filters.standard));
+    if (filters.subject) constraints.push(where('subject', '==', filters.subject));
+    if (filters.chapter) constraints.push(where('chapter', '==', filters.chapter));
+    constraints.push(orderBy(documentId()), limit(pageSize));
+    if (cursor) constraints.push(startAfter(cursor));
+    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'questions'), ...constraints));
+    return {
+      items: snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as Question),
+      cursor: snapshot.docs.length === pageSize ? snapshot.docs.at(-1) : undefined,
+    };
+  }
+
+  async duplicateQuestionTexts(values: string[]): Promise<Set<string>> {
+    const unique = [...new Set(values.map((value) => value.trim()).filter(Boolean))];
+    const duplicates = new Set<string>();
+    for (let offset = 0; offset < unique.length; offset += 30) {
+      const chunk = unique.slice(offset, offset + 30);
+      const snapshot = await getDocs(
+        query(collection(this.firebase.firestore, 'questions'), where('question', 'in', chunk)),
+      );
+      snapshot.docs.forEach((item) =>
+        duplicates.add(String(item.data()['question']).trim().toLowerCase()),
+      );
+    }
+    return duplicates;
   }
 
   async saveQuestion(value: Partial<Question>, actorId: string): Promise<string> {
@@ -120,6 +175,54 @@ export class AdminRepository {
       createdAt: serverTimestamp(),
     });
     return created.id;
+  }
+
+  async syllabusPreview(): Promise<FirestoreRecord[]> {
+    const snapshot = await getDocs(
+      query(collection(this.firebase.firestore, 'syllabus-preview'), limit(1000)),
+    );
+    return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+  }
+
+  async prepareSyllabusPreview(actorId: string): Promise<FirestoreRecord[]> {
+    const [current, previous] = await Promise.all([this.syllabus(), this.syllabusPreview()]);
+    const previousById = new Map(previous.map((item) => [item.id, item]));
+    const currentIds = new Set(current.map((item) => item.id));
+    const rows: FirestoreRecord[] = current.map((item) => {
+      const old = previousById.get(item.id);
+      const changed = old && ['board', 'standard', 'subject', 'chapter'].some((key) => old[key] !== item[key as keyof SyllabusItem]);
+      return { ...item, status: !old ? 'new' : changed ? 'changed' : 'existing' };
+    });
+    rows.push(...previous.filter((item) => !currentIds.has(item.id)).map((item) => ({ ...item, status: 'absent' })));
+    for (let offset = 0; offset < rows.length; offset += 400) {
+      const batch = writeBatch(this.firebase.firestore);
+      rows.slice(offset, offset + 400).forEach((item) => {
+        const { id, ...data } = item;
+        batch.set(doc(this.firebase.firestore, 'syllabus-preview', id), {
+          ...data,
+          preparedBy: actorId,
+          preparedAt: serverTimestamp(),
+        });
+      });
+      await batch.commit();
+    }
+    return rows;
+  }
+
+  async publishSyllabusPreview(actorId: string): Promise<void> {
+    const rows = await this.syllabusPreview();
+    for (let offset = 0; offset < rows.length; offset += 400) {
+      const batch = writeBatch(this.firebase.firestore);
+      rows.slice(offset, offset + 400).forEach((item) => {
+        batch.update(doc(this.firebase.firestore, 'syllabus-preview', item.id), {
+          status: item['status'] === 'absent' ? 'absent' : 'existing',
+          publishedBy: actorId,
+          publishedAt: serverTimestamp(),
+        });
+      });
+      await batch.commit();
+    }
+    await this.log('publish-syllabus-preview', actorId, `Published ${rows.length} syllabus preview records.`);
   }
 
   async refreshSyllabusCounts(actorId?: string): Promise<number> {
@@ -313,8 +416,18 @@ export class AdminRepository {
       );
   }
 
+  async recentResults(max = 300): Promise<QuizResult[]> {
+    const snapshot = await getDocs(
+      query(
+        collection(this.firebase.firestore, 'QuizResults'),
+        orderBy('timestamp', 'desc'),
+        limit(Math.min(max, 500)),
+      ),
+    );
+    return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as QuizResult);
+  }
+
   async liveSessionsForUser(uid: string): Promise<LiveSession[]> {
-    try {
       const participants = await getDocs(
         query(
           collectionGroup(this.firebase.firestore, 'participants'),
@@ -336,9 +449,6 @@ export class AdminRepository {
         }),
       );
       return sessions.filter((item): item is LiveSession => Boolean(item));
-    } catch {
-      return [];
-    }
   }
 
   async resetLastLogin(uid: string, actorId: string): Promise<void> {

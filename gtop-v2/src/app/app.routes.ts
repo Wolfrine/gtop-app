@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, roleGuard } from './core/guards';
+import { adminLearningRedirectGuard, authGuard, legacyQuizEntryGuard, roleGuard } from './core/guards';
 
 const learnerGuards = [authGuard, roleGuard(['user', 'admin'])];
 const adminGuards = [authGuard, roleGuard(['admin'])];
@@ -28,62 +28,74 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
+        canActivate: [adminLearningRedirectGuard('dashboard')],
         title: 'Your practice · GTOP',
         loadComponent: () => import('./pages/learner.pages').then((m) => m.LearnerDashboardPage),
       },
       {
         path: 'practice',
+        canActivate: [adminLearningRedirectGuard('practice')],
         title: 'Build practice · GTOP',
         loadComponent: () =>
           import('./pages/practice-quiz.pages').then((m) => m.PracticeBuilderPage),
       },
       {
         path: 'quiz',
+        canActivate: [legacyQuizEntryGuard],
         title: 'Quiz · GTOP',
         loadComponent: () => import('./pages/practice-quiz.pages').then((m) => m.QuizPlayerPage),
       },
       {
         path: 'quiz-summary',
+        canActivate: [adminLearningRedirectGuard('quiz-summary')],
         title: 'Quiz review · GTOP',
         loadComponent: () => import('./pages/practice-quiz.pages').then((m) => m.QuizSummaryPage),
       },
       {
         path: 'reports',
+        canActivate: [adminLearningRedirectGuard('reports')],
         title: 'Reports · GTOP',
         loadComponent: () => import('./pages/practice-quiz.pages').then((m) => m.ReportsPage),
       },
       {
         path: 'profile',
+        canActivate: [adminLearningRedirectGuard('profile')],
         title: 'Profile · GTOP',
         loadComponent: () => import('./pages/public.pages').then((m) => m.ProfilePage),
       },
       {
         path: 'live',
+        canActivate: [adminLearningRedirectGuard('live')],
         title: 'Live practice · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveHubPage),
       },
       {
         path: 'live/host/:sessionId',
+        canActivate: [adminLearningRedirectGuard('live/host')],
         title: 'Host live quiz · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },
       {
         path: 'live/play/:sessionId',
+        canActivate: [adminLearningRedirectGuard('live/play')],
         title: 'Play live quiz · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },
       {
         path: 'live/summary/:sessionId',
+        canActivate: [adminLearningRedirectGuard('live/summary')],
         title: 'Live summary · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },
       {
         path: 'quiz-run',
+        canActivate: [adminLearningRedirectGuard('quiz-run')],
         title: 'Quiz run · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.QuizRunPage),
       },
       {
         path: 'quiz-run/lobby/:sessionId',
+        canActivate: [adminLearningRedirectGuard('quiz-run/lobby')],
         title: 'Quiz run lobby · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },
@@ -143,6 +155,66 @@ export const routes: Routes = [
         path: 'logs',
         title: 'Activity logs · GTOP',
         loadComponent: () => import('./pages/admin.pages').then((m) => m.AdminOperationsPage),
+      },
+      {
+        path: 'learning/dashboard',
+        title: 'Admin learning dashboard · GTOP',
+        loadComponent: () => import('./pages/learner.pages').then((m) => m.LearnerDashboardPage),
+      },
+      {
+        path: 'learning/practice',
+        title: 'Admin practice · GTOP',
+        loadComponent: () => import('./pages/practice-quiz.pages').then((m) => m.PracticeBuilderPage),
+      },
+      {
+        path: 'learning/quiz',
+        title: 'Admin quiz · GTOP',
+        loadComponent: () => import('./pages/practice-quiz.pages').then((m) => m.QuizPlayerPage),
+      },
+      {
+        path: 'learning/quiz-summary',
+        title: 'Admin quiz review · GTOP',
+        loadComponent: () => import('./pages/practice-quiz.pages').then((m) => m.QuizSummaryPage),
+      },
+      {
+        path: 'learning/reports',
+        title: 'My admin practice reports · GTOP',
+        loadComponent: () => import('./pages/practice-quiz.pages').then((m) => m.ReportsPage),
+      },
+      {
+        path: 'learning/profile',
+        title: 'Admin profile · GTOP',
+        loadComponent: () => import('./pages/public.pages').then((m) => m.ProfilePage),
+      },
+      {
+        path: 'learning/live',
+        title: 'Admin live practice · GTOP',
+        loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveHubPage),
+      },
+      {
+        path: 'learning/live/host/:sessionId',
+        title: 'Host live quiz · GTOP',
+        loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
+      },
+      {
+        path: 'learning/live/play/:sessionId',
+        title: 'Play live quiz · GTOP',
+        loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
+      },
+      {
+        path: 'learning/live/summary/:sessionId',
+        title: 'Live summary · GTOP',
+        loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
+      },
+      {
+        path: 'learning/quiz-run',
+        title: 'Admin quiz run · GTOP',
+        loadComponent: () => import('./pages/live-v2.pages').then((m) => m.QuizRunPage),
+      },
+      {
+        path: 'learning/quiz-run/lobby/:sessionId',
+        title: 'Admin quiz run lobby · GTOP',
+        loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },
     ],
   },

@@ -18,6 +18,7 @@ export class QuizSessionStore {
   readonly completed = signal<QuizSessionState | null>(null);
 
   start(state: QuizSessionState): void {
+    state.launchContext ??= { kind: 'new', shellContext: 'learner', returnPath: '/practice' };
     this.active.set(state);
     sessionStorage.setItem('gtop-v2-quiz', JSON.stringify(state));
   }

@@ -1,6 +1,7 @@
 import { Component, HostListener, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AppNavigationService } from '../core/app-navigation.service';
 import { AuthStore } from '../core/auth.store';
 import { LearningRepository, PracticeFilters } from '../core/learning.repository';
 import { Question, QuizAnswer, QuizResult, SyllabusItem, asDate } from '../core/models';
@@ -308,6 +309,7 @@ export class PracticeBuilderPage implements OnInit {
     private sessions: QuizSessionStore,
     private route: ActivatedRoute,
     private router: Router,
+    private navigation: AppNavigationService,
   ) {}
   async ngOnInit() {
     this.syllabus.set(await this.learning.syllabus());
@@ -349,9 +351,12 @@ export class PracticeBuilderPage implements OnInit {
         startedAt: Date.now(),
         returnTo: qp.get('returnTo') || undefined,
         hubReturnPath: qp.get('hubReturnPath') || undefined,
-        launchContext: { kind: 'new' },
+        launchContext: this.navigation.launch('new', {
+          returnTo: qp.get('returnTo') || undefined,
+          hubReturnPath: qp.get('hubReturnPath') || undefined,
+        }),
       });
-      await this.router.navigate(['/quiz'], {
+      await this.router.navigate([this.navigation.path('quiz')], {
         queryParams: { returnTo: qp.get('returnTo'), hubReturnPath: qp.get('hubReturnPath') },
       });
     } catch (e) {
@@ -375,7 +380,7 @@ export class PracticeBuilderPage implements OnInit {
       <div class="card empty">
         <h2>No active practice</h2>
         <p>Build a practice set before opening the player.</p>
-        <button class="btn btn-primary" (click)="router.navigateByUrl('/practice')">
+        <button class="btn btn-primary" (click)="router.navigateByUrl(navigation.path('practice'))">
           Build practice
         </button>
       </div>
@@ -526,6 +531,7 @@ export class QuizPlayerPage implements OnDestroy {
     private learning: LearningRepository,
     private auth: AuthStore,
     public router: Router,
+    public navigation: AppNavigationService,
   ) {
     this.session.set(sessions.restore());
     this.resetTimer();
@@ -553,7 +559,7 @@ export class QuizPlayerPage implements OnDestroy {
   }
   leave() {
     if (confirm('Leave this practice? Your answers will remain in this browser.'))
-      this.router.navigateByUrl('/practice');
+      this.router.navigateByUrl(this.navigation.routeForSession('practice', this.session()?.launchContext));
   }
   async submit() {
     const session = this.session(),
@@ -585,7 +591,7 @@ export class QuizPlayerPage implements OnDestroy {
       JSON.stringify({ ...session, resultId, durationSeconds }),
     );
     this.sessions.finish();
-    await this.router.navigate(['/quiz-summary'], {
+    await this.router.navigate([this.navigation.routeForSession('quiz-summary', session.launchContext)], {
       queryParams: { returnTo: session.returnTo, hubReturnPath: session.hubReturnPath },
     });
   }
@@ -856,7 +862,7 @@ interface SummaryState extends QuizSessionState {
     `,
   ],
 })
-export class QuizSummaryPage {
+export class QuizSummaryPage implements OnInit {
   readonly session = signal<SummaryState | null>(null);
   readonly filter = signal<'all' | 'incorrect'>('all');
   readonly flagged = signal(new Set<string>());
@@ -887,19 +893,45 @@ export class QuizSummaryPage {
     private learning: LearningRepository,
     private auth: AuthStore,
     private router: Router,
-    route: ActivatedRoute,
+    private route: ActivatedRoute,
+    private navigation: AppNavigationService,
   ) {
     try {
       this.session.set(JSON.parse(sessionStorage.getItem('gtop-v2-summary') || 'null'));
     } catch {}
-    const origin = route.snapshot.queryParamMap.get('returnTo') || '';
-    const path = route.snapshot.queryParamMap.get('hubReturnPath') || '';
+    const origin = this.route.snapshot.queryParamMap.get('returnTo') || '';
+    const path = this.route.snapshot.queryParamMap.get('hubReturnPath') || '';
     if (origin)
       try {
         this.returnTarget = new URL(path || '/', origin).toString();
       } catch {
         this.returnTarget = '';
       }
+  }
+  async ngOnInit() {
+    if (this.session()) return;
+    const resultId = this.route.snapshot.queryParamMap.get('sessionId');
+    const userId = this.route.snapshot.queryParamMap.get('userId') || this.auth.profile()?.uid;
+    if (!resultId || !userId) return;
+    const result = await this.learning.resultById(resultId);
+    if (!result || result.userId !== userId) return;
+    const questions = await this.learning.questionsByIds(result.questions.map((q) => q.questionId));
+    const answers = new Map(result.questions.map((q) => [q.questionId, q]));
+    questions.forEach((question) => {
+      question.selectedIndex = answers.get(question.id)?.selectedIndex ?? null;
+    });
+    this.session.set({
+      questions,
+      filters: { quizType: result.quizType },
+      startedAt: Date.now(),
+      resultId: result.id,
+      durationSeconds: result.durationSeconds,
+      launchContext: this.navigation.launch('historical', {
+        sourceResultId: result.id,
+        sourceUserId: userId,
+        readOnly: userId !== this.auth.profile()?.uid,
+      }),
+    });
   }
   duration() {
     const seconds = this.session()?.durationSeconds ?? 0;
@@ -919,11 +951,13 @@ export class QuizSummaryPage {
       questions,
       startedAt: Date.now(),
       launchContext: {
-        kind: onlyIncorrect ? 'retry-incorrect' : 'retry-all',
+        ...this.navigation.launch(onlyIncorrect ? 'retry-incorrect' : 'retry-all'),
         sourceResultId: state.resultId,
       },
     });
-    await this.router.navigateByUrl('/quiz');
+    await this.router.navigateByUrl(
+      this.navigation.routeForSession('quiz', this.sessions.active()?.launchContext),
+    );
   }
   async flag(question: Question) {
     const reason = prompt(
@@ -946,7 +980,7 @@ export class QuizSummaryPage {
         <h1>Progress you can act on.</h1>
         <p class="lede">Open any attempt, understand the pattern and launch a focused retry.</p>
       </div>
-      <a class="btn btn-primary" routerLink="/practice">New practice</a>
+      <a class="btn btn-primary" [routerLink]="navigation.path('practice')">New practice</a>
     </div>
     @if (loading()) {
       <div class="grid grid-4">
@@ -957,7 +991,7 @@ export class QuizSummaryPage {
     } @else if (!results().length) {
       <div class="card empty">
         <h2>No attempts yet</h2>
-        <a class="btn btn-primary" routerLink="/practice">Start practice</a>
+        <a class="btn btn-primary" [routerLink]="navigation.path('practice')">Start practice</a>
       </div>
     } @else {
       <div class="grid grid-4">
@@ -1121,9 +1155,12 @@ export class ReportsPage implements OnInit {
     private learning: LearningRepository,
     private sessions: QuizSessionStore,
     private router: Router,
+    private route: ActivatedRoute,
+    public navigation: AppNavigationService,
   ) {}
   async ngOnInit() {
-    const uid = this.auth.profile()?.uid;
+    const requested = this.route.snapshot.queryParamMap.get('userId');
+    const uid = requested && this.auth.isAdmin() ? requested : this.auth.profile()?.uid;
     if (uid) this.results.set(await this.learning.results(uid));
     this.loading.set(false);
   }
@@ -1162,10 +1199,14 @@ export class ReportsPage implements OnInit {
         filters: { quizType: result.quizType },
         startedAt: Date.now(),
         resultId: result.id,
-        launchContext: { kind: 'historical', sourceResultId: result.id },
+        launchContext: this.navigation.launch('historical', {
+          sourceResultId: result.id,
+          sourceUserId: result.userId,
+          readOnly: result.userId !== this.auth.profile()?.uid,
+        }),
       }),
     );
-    await this.router.navigateByUrl('/quiz-summary');
+    await this.router.navigateByUrl(this.navigation.path('quiz-summary'));
   }
   async retry(result: QuizResult, incorrect: boolean) {
     const questions = await this.load(result, incorrect);
@@ -1181,11 +1222,11 @@ export class ReportsPage implements OnInit {
       },
       startedAt: Date.now(),
       launchContext: {
-        kind: incorrect ? 'retry-incorrect' : 'retry-all',
+        ...this.navigation.launch(incorrect ? 'retry-incorrect' : 'retry-all'),
         sourceResultId: result.id,
       },
     });
-    await this.router.navigateByUrl('/quiz');
+    await this.router.navigateByUrl(this.navigation.path('quiz'));
   }
   private async load(result: QuizResult, incorrect: boolean) {
     const answers = result.questions.filter((a) => !incorrect || !a.isCorrect),

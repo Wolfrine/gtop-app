@@ -7,6 +7,7 @@ import {
   limit,
   onSnapshot,
   query,
+  orderBy,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -19,15 +20,21 @@ import { LiveSession } from './models';
 export class LiveRepository {
   constructor(private readonly firebase: FirebaseClient) {}
 
-  observeSessions(callback: (sessions: LiveSession[]) => void): () => void {
+  observeSessions(callback: (sessions: LiveSession[]) => void, onError?: (error: Error) => void): () => void {
     return onSnapshot(
-      query(collection(this.firebase.firestore, 'LiveSessions'), limit(50)),
+      query(
+        collection(this.firebase.firestore, 'LiveSessions'),
+        where('status', 'in', ['scheduled', 'lobby', 'active']),
+        orderBy('scheduledStartAt', 'asc'),
+        limit(50),
+      ),
       (snapshot) => {
         const sessions = snapshot.docs
           .map((entry) => ({ id: entry.id, ...entry.data() }) as LiveSession)
           .filter((session) => session.status !== 'ended');
         callback(sessions);
       },
+      (error) => onError?.(error),
     );
   }
 
@@ -45,6 +52,7 @@ export class LiveRepository {
       ...input,
       joinCode,
       status: input.status ?? 'lobby',
+      scheduledStartAt: input.scheduledStartAt ?? serverTimestamp(),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -56,6 +64,7 @@ export class LiveRepository {
       query(
         collection(this.firebase.firestore, 'LiveSessions'),
         where('joinCode', '==', code.toUpperCase()),
+        where('status', 'in', ['scheduled', 'lobby', 'active']),
         limit(1),
       ),
     );

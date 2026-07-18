@@ -41,6 +41,16 @@ This wiki-memory gate is an explicit exception to the usual "do not push main" d
 - When GTOP work produces reusable product lessons, rejected approaches, review findings, or PM follow-ups, capture durable product knowledge in `wiki/` and execution follow-ups in the curation ledger or the requested PM handoff.
 - Random discovery is allowed when scoped by ADS; random implementation is not. Agents should work from a clear requirement packet or user request.
 
+## Action Plan Coordination
+
+- Use the admin Action Plan at `/admin/action-plan` as the execution coordination surface for meaningful GTOP work.
+- Before starting non-trivial implementation, identify the matching action-plan activity. If none exists and an authenticated admin session is available, create it before implementation.
+- Set active work to `In progress`, name the responsible person, team, or agent, and add the branch, PR, task, or other source reference.
+- Update the latest-progress field when reaching a material milestone, entering review, encountering a blocker, or completing validation.
+- Move work to `Ready for review` only when the stated acceptance criteria are met and relevant checks have run. Move it to `Done` only after the requested delivery is complete.
+- If the Action Plan cannot be reached or updated, do not invent success. Report the exact access blocker and backfill the activity at the first available opportunity.
+- The Action Plan is execution state, not product memory. Durable product decisions and lessons still belong in `raw/` and `wiki/` under the Project Wiki Rules.
+
 ## IAC + ADS + ODD Framing
 
 Use this framing for meaningful implementation, planning, review, wiki, dashboard, or agent-coordination work:

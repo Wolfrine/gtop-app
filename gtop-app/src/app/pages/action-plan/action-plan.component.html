@@ -1,0 +1,194 @@
+<main class="action-plan-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Admin coordination</span>
+      <h1>GTOP Action Plan</h1>
+      <p>One place for admins, teams and agents to see priorities, ownership, progress and blockers.</p>
+    </div>
+    <button mat-flat-button color="primary" type="button" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+      Add activity
+    </button>
+  </header>
+
+  <section class="summary-grid" aria-label="Action plan summary">
+    <article class="summary-card summary-card--active">
+      <mat-icon>pending_actions</mat-icon>
+      <div><strong>{{ activeCount }}</strong><span>Active</span></div>
+    </article>
+    <article class="summary-card summary-card--blocked">
+      <mat-icon>warning</mat-icon>
+      <div><strong>{{ blockedCount }}</strong><span>Blocked</span></div>
+    </article>
+    <article class="summary-card summary-card--review">
+      <mat-icon>rate_review</mat-icon>
+      <div><strong>{{ reviewCount }}</strong><span>In review</span></div>
+    </article>
+    <article class="summary-card summary-card--done">
+      <mat-icon>task_alt</mat-icon>
+      <div><strong>{{ doneCount }}</strong><span>Completed</span></div>
+    </article>
+  </section>
+
+  <mat-card class="editor-card" *ngIf="isEditorOpen">
+    <div class="editor-heading">
+      <div>
+        <span class="eyebrow">{{ editingId ? 'Update activity' : 'New activity' }}</span>
+        <h2>{{ editingId ? 'Keep the plan current' : 'Add work to the plan' }}</h2>
+      </div>
+      <button mat-icon-button type="button" aria-label="Close action plan editor" (click)="closeEditor()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="planForm" (ngSubmit)="savePlan()">
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Activity title</mat-label>
+          <input matInput formControlName="title" maxlength="120">
+          <mat-error *ngIf="planForm.controls.title.hasError('required')">Title is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Outcome and scope</mat-label>
+          <textarea matInput formControlName="description" rows="3" maxlength="1200"></textarea>
+          <mat-error *ngIf="planForm.controls.description.hasError('required')">Outcome and scope are required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Work area</mat-label>
+          <input matInput formControlName="area" placeholder="UI/UX, QA, content, platform">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Owner or agent</mat-label>
+          <input matInput formControlName="owner" placeholder="Name, team or agent">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Priority</mat-label>
+          <mat-select formControlName="priority">
+            <mat-option *ngFor="let priority of priorities" [value]="priority.value">{{ priority.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Target date</mat-label>
+          <input matInput type="date" formControlName="dueDate">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Branch, PR, task or reference</mat-label>
+          <input matInput formControlName="sourceReference" maxlength="300">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Acceptance criteria</mat-label>
+          <textarea matInput formControlName="acceptanceCriteria" rows="3" maxlength="1200"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Latest progress update or blocker</mat-label>
+          <textarea matInput formControlName="latestUpdate" rows="3" maxlength="1200"></textarea>
+        </mat-form-field>
+      </div>
+
+      <div class="editor-actions">
+        <button mat-button type="button" (click)="closeEditor()">Cancel</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="isSaving">
+          <mat-spinner *ngIf="isSaving" diameter="20"></mat-spinner>
+          <mat-icon *ngIf="!isSaving">save</mat-icon>
+          {{ editingId ? 'Save update' : 'Create activity' }}
+        </button>
+      </div>
+    </form>
+  </mat-card>
+
+  <section class="board-toolbar" aria-label="Action plan filters">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search activities</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [value]="searchTerm" (input)="updateSearch($any($event.target).value)">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="status-filter">
+      <mat-label>Show</mat-label>
+      <mat-select [value]="statusFilter" (selectionChange)="setStatusFilter($event.value)">
+        <mat-option value="active">All active</mat-option>
+        <mat-option value="all">Everything</mat-option>
+        <mat-option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </section>
+
+  <section class="loading-state" *ngIf="isLoading" aria-live="polite">
+    <mat-spinner diameter="36"></mat-spinner>
+    <p>Loading the live action plan…</p>
+  </section>
+
+  <section class="error-state" *ngIf="loadError" role="alert">
+    <mat-icon>cloud_off</mat-icon>
+    <div><h2>Action plan unavailable</h2><p>{{ loadError }}</p></div>
+  </section>
+
+  <section class="plan-grid" *ngIf="!isLoading && !loadError && filteredPlans.length">
+    <mat-card class="plan-card" *ngFor="let plan of filteredPlans; trackBy: trackByPlanId" [attr.data-status]="plan.status">
+      <div class="card-topline">
+        <span class="priority" [attr.data-priority]="plan.priority">{{ plan.priority }}</span>
+        <span class="area">{{ plan.area }}</span>
+        <button mat-icon-button type="button" aria-label="Edit activity" matTooltip="Edit activity" (click)="openEdit(plan)">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </div>
+
+      <h2>{{ plan.title }}</h2>
+      <p class="description">{{ plan.description }}</p>
+
+      <dl class="metadata">
+        <div><dt>Owner</dt><dd>{{ plan.owner }}</dd></div>
+        <div *ngIf="plan.dueDate"><dt>Target</dt><dd>{{ plan.dueDate | date:'mediumDate' }}</dd></div>
+        <div *ngIf="plan.sourceReference"><dt>Reference</dt><dd>{{ plan.sourceReference }}</dd></div>
+      </dl>
+
+      <div class="latest-update" *ngIf="plan.latestUpdate">
+        <span>Latest update</span>
+        <p>{{ plan.latestUpdate }}</p>
+      </div>
+
+      <details *ngIf="plan.acceptanceCriteria">
+        <summary>Acceptance criteria</summary>
+        <p>{{ plan.acceptanceCriteria }}</p>
+      </details>
+
+      <div class="card-footer">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Status</mat-label>
+          <mat-select [value]="plan.status" (selectionChange)="changeStatus(plan, $event.value)">
+            <mat-option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <div class="updated" *ngIf="updatedDate(plan.updatedAt) as updated">
+          Updated {{ updated | date:'medium' }}
+        </div>
+        <button *ngIf="plan.status === 'done'" mat-icon-button type="button" aria-label="Archive completed activity"
+          matTooltip="Archive completed activity" (click)="archive(plan)">
+          <mat-icon>archive</mat-icon>
+        </button>
+      </div>
+    </mat-card>
+  </section>
+
+  <section class="empty-state" *ngIf="!isLoading && !loadError && !filteredPlans.length">
+    <mat-icon>assignment</mat-icon>
+    <h2>No matching activities</h2>
+    <p>Adjust the filters or add the next GTOP activity.</p>
+    <button mat-stroked-button color="primary" type="button" (click)="openCreate()">Add activity</button>
+  </section>
+</main>

@@ -91,6 +91,19 @@ export const routes: Routes = [
         }
     },
     {
+        path: 'admin/action-plan',
+        loadComponent: () => import('./pages/action-plan/action-plan.component').then(module => module.ActionPlanComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: {
+            roles: ['admin'],
+            seo: {
+                title: 'GTOP Action Plan',
+                description: 'Coordinate GTOP priorities, ownership, progress, reviews, and blockers across admins, teams, and agents.',
+                robots: 'noindex, nofollow'
+            }
+        }
+    },
+    {
         path: 'admin/mcq-management',
         component: McqManagementComponent,
         canActivate: [AuthGuard, RoleGuard],

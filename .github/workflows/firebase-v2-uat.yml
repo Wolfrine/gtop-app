@@ -4,10 +4,10 @@ on:
   push:
     branches-ignore: [main]
     paths:
-      - 'gtop-v2/**'
-      - 'tools/gtop-mcp/**'
-      - '.codex/config.toml'
-      - '.github/workflows/firebase-v2-uat.yml'
+      - "gtop-v2/**"
+      - "tools/gtop-mcp/**"
+      - ".codex/config.toml"
+      - ".github/workflows/firebase-v2-uat.yml"
   workflow_dispatch:
 
 concurrency:
@@ -32,7 +32,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
 
       - name: Install and validate v2
         working-directory: gtop-v2
@@ -57,9 +57,12 @@ jobs:
           npm run build
 
       - name: Authenticate Firebase site provisioning
+        id: google-auth
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          credentials_json: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
 
       - name: Ensure stable v2 UAT site exists
         working-directory: gtop-v2
@@ -69,11 +72,33 @@ jobs:
             npx --yes firebase-tools@15 hosting:sites:create gtop-app-v2-uat --project gtop-app
           fi
 
+      - name: Authorize stable v2 UAT domains for Firebase Authentication
+        shell: bash
+        env:
+          ACCESS_TOKEN: "${{ steps.google-auth.outputs.access_token }}"
+        run: |
+          config_url='https://identitytoolkit.googleapis.com/admin/v2/projects/gtop-app/config'
+          current="$(curl --fail --silent --show-error \
+            --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+            --header 'Accept: application/json' \
+            "${config_url}")"
+          body="$(jq --compact-output \
+            --arg web 'gtop-app-v2-uat.web.app' \
+            --arg firebase 'gtop-app-v2-uat.firebaseapp.com' \
+            '{authorizedDomains: ((.authorizedDomains // []) + [$web, $firebase] | unique)}' \
+            <<<"${current}")"
+          curl --fail --silent --show-error \
+            --request PATCH \
+            --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+            --header 'Content-Type: application/json' \
+            --data "${body}" \
+            "${config_url}?updateMask=authorizedDomains" >/dev/null
+
       - name: Deploy v2 to stable UAT hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           entryPoint: gtop-v2
           projectId: gtop-app
           channelId: live
@@ -83,7 +108,7 @@ jobs:
         working-directory: tools/gtop-mcp
         env:
           GTOP_FIREBASE_PROJECT_ID: gtop-app
-          GTOP_MCP_TASK_REF: '${{ github.sha }}'
+          GTOP_MCP_TASK_REF: "${{ github.sha }}"
         run: npm run seed:v2
 
       - name: Publish UAT handoff
@@ -94,6 +119,6 @@ jobs:
             echo ''
             echo '- URL: https://gtop-app-v2-uat.web.app'
             echo '- Backend: live production Firebase project `gtop-app`'
-            echo '- Required once: authorize `gtop-app-v2-uat.web.app` and `gtop-app-v2-uat.firebaseapp.com` in Firebase Authentication settings.'
+            echo '- Firebase Authentication domains: verified and merged automatically.'
             echo '- V1 production was not changed by this workflow.'
           } >> "$GITHUB_STEP_SUMMARY"

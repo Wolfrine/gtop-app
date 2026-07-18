@@ -30,7 +30,7 @@ Set `GTOP_MCP_ACTOR` and `GTOP_MCP_TASK_REF` before restarting Codex so audit re
 
 - V1 production remains deployed from `gtop-app/` on `main`.
 - Non-main v2 changes validate and deploy to the stable `uat-gtop-v2` hosting target.
-- The workflow creates the stable `gtop-app-v2-uat` Hosting site when needed. Add `gtop-app-v2-uat.web.app` and `gtop-app-v2-uat.firebaseapp.com` to Firebase Authentication authorized domains once before sign-in testing.
+- The workflow creates the stable `gtop-app-v2-uat` Hosting site when needed and idempotently merges both Hosting origins into Firebase Authentication authorized domains without removing existing entries.
 - After a successful deployment, the workflow idempotently seeds the six GTOP v2 workstreams into the live `actionPlans` board and records audit evidence.
 - Firestore rules are versioned in v2 but are not automatically deployed by the UAT workflow because they affect the shared production backend.
 - Production cutover requires an owner-approved workflow change that builds `gtop-v2/` for the existing production Hosting target. Retain the last v1 Hosting release for rollback.

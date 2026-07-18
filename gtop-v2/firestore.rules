@@ -16,7 +16,10 @@ service cloud.firestore {
 
     match /questions/{id} {
       allow read: if signedIn();
-      allow write: if admin();
+      allow create, delete: if admin();
+      allow update: if admin() || (signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['flagCount', 'lastFlaggedAt'])
+        && request.resource.data.flagCount == resource.data.get('flagCount', 0) + 1);
     }
     match /deletedQuestions/{id} {
       allow read, write: if admin();

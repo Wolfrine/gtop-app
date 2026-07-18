@@ -11,6 +11,36 @@ export interface GtopUser {
   board?: string | null;
   standard?: string | null;
   role: UserRole;
+  createdOn?: unknown;
+  lastLogin?: unknown;
+}
+
+export type ThemeId =
+  'academic-editorial' | 'learning-os' | 'aurora-glass' | 'warm-studio' | 'quiz-pulse';
+export type MotionPreset = 'purposeful' | 'reduced';
+
+export interface ThemeDefinition {
+  id: ThemeId;
+  name: string;
+  description: string;
+  swatches: string[];
+  dark: boolean;
+}
+
+export interface PublishedAppearance {
+  themeId: ThemeId;
+  motionPreset: MotionPreset;
+  version: number;
+  updatedBy?: Actor;
+  updatedAt?: unknown;
+}
+
+export interface PresenceRecord {
+  userId: string;
+  displayName?: string;
+  email?: string;
+  isOnline: boolean;
+  lastActive?: number;
 }
 
 export interface AuthState {
@@ -44,6 +74,8 @@ export interface Question {
   selectedIndex?: number | null;
   createdAt?: unknown;
   createdBy?: string;
+  flagCount?: number;
+  lastFlaggedAt?: unknown;
 }
 
 export interface QuizAnswer {
@@ -70,6 +102,31 @@ export interface QuizResult {
   timestamp: unknown;
   sessionId?: string;
   duration?: string;
+  durationSeconds?: number;
+}
+
+export type QuizLaunchKind =
+  'new' | 'retry-all' | 'retry-incorrect' | 'historical' | 'live' | 'generated';
+export interface QuizLaunchContext {
+  kind: QuizLaunchKind;
+  sourceResultId?: string;
+  sourceUserId?: string;
+  readOnly?: boolean;
+}
+
+export interface ReportSession extends QuizResult {
+  questionIds: string[];
+  launchContext?: QuizLaunchContext;
+}
+
+export interface UserActivityView {
+  user: GtopUser;
+  presence: PresenceRecord | null;
+  attempts: QuizResult[];
+  liveSessions: LiveSession[];
+  totalQuestions: number;
+  averageAccuracy: number;
+  latestAttemptAt?: Date | null;
 }
 
 export type WorkStatus = 'planned' | 'in-progress' | 'blocked' | 'review' | 'done';
@@ -121,12 +178,18 @@ export interface LiveSession {
   joinCode: string;
   hostId: string;
   hostName: string;
-  status: 'lobby' | 'active' | 'ended';
+  status: 'scheduled' | 'lobby' | 'active' | 'ended';
   mode?: 'live' | 'run';
   questionIds: string[];
   currentQuestionIndex?: number;
   perQuestionSeconds: number;
   scheduledStartAt?: unknown;
+  joinBufferMinutes?: number;
+  anchorIndex?: number;
+  anchorAt?: unknown;
+  overrideIndex?: number;
+  overrideAt?: unknown;
+  resultLinked?: boolean;
   scope?: Record<string, unknown>;
 }
 

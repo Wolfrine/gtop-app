@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { PracticeFilters } from './learning.repository';
 import { Question } from './models';
+import { QuizLaunchContext } from './models';
 
 export interface QuizSessionState {
   questions: Question[];
@@ -8,6 +9,7 @@ export interface QuizSessionState {
   startedAt: number;
   returnTo?: string;
   hubReturnPath?: string;
+  launchContext?: QuizLaunchContext;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -35,6 +37,16 @@ export class QuizSessionStore {
 
   finish(): void {
     this.completed.set(this.active());
+    sessionStorage.removeItem('gtop-v2-quiz');
+  }
+
+  persist(state: QuizSessionState): void {
+    this.active.set(state);
+    sessionStorage.setItem('gtop-v2-quiz', JSON.stringify(state));
+  }
+
+  clear(): void {
+    this.active.set(null);
     sessionStorage.removeItem('gtop-v2-quiz');
   }
 }

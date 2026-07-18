@@ -21,7 +21,9 @@ export class AuthStore {
   readonly isAuthenticated = computed(() => this.state().phase === 'authenticated');
 
   private resolveReady!: (state: AuthState) => void;
-  private readonly readyPromise = new Promise<AuthState>((resolve) => (this.resolveReady = resolve));
+  private readonly readyPromise = new Promise<AuthState>(
+    (resolve) => (this.resolveReady = resolve),
+  );
   private profileUnsubscribe?: () => void;
   private settled = false;
 
@@ -49,10 +51,16 @@ export class AuthStore {
     await signOut(this.firebase.auth);
   }
 
-  async updateProfile(changes: Partial<Pick<GtopUser, 'displayName' | 'board' | 'standard'>>): Promise<void> {
+  async updateProfile(
+    changes: Partial<Pick<GtopUser, 'displayName' | 'board' | 'standard'>>,
+  ): Promise<void> {
     const user = this.firebase.auth.currentUser;
     if (!user) throw new Error('Sign in before updating your profile.');
-    await setDoc(doc(this.firebase.firestore, 'users', user.uid), { ...changes, updatedAt: serverTimestamp() }, { merge: true });
+    await setDoc(
+      doc(this.firebase.firestore, 'users', user.uid),
+      { ...changes, updatedAt: serverTimestamp() },
+      { merge: true },
+    );
   }
 
   private async handleAuthChange(user: import('firebase/auth').User | null): Promise<void> {
@@ -63,14 +71,35 @@ export class AuthStore {
     }
     try {
       const profile = await this.ensureProfile(user);
-      this.finish({ phase: 'authenticated', firebaseUser: user, profile, role: profile.role, error: null });
-      this.profileUnsubscribe = onSnapshot(doc(this.firebase.firestore, 'users', user.uid), (snapshot) => {
-        if (!snapshot.exists()) return;
-        const updated = this.toProfile(user, snapshot.data());
-        this.state.set({ phase: 'authenticated', firebaseUser: user, profile: updated, role: updated.role, error: null });
+      this.finish({
+        phase: 'authenticated',
+        firebaseUser: user,
+        profile,
+        role: profile.role,
+        error: null,
       });
+      this.profileUnsubscribe = onSnapshot(
+        doc(this.firebase.firestore, 'users', user.uid),
+        (snapshot) => {
+          if (!snapshot.exists()) return;
+          const updated = this.toProfile(user, snapshot.data());
+          this.state.set({
+            phase: 'authenticated',
+            firebaseUser: user,
+            profile: updated,
+            role: updated.role,
+            error: null,
+          });
+        },
+      );
     } catch (error) {
-      this.finish({ phase: 'error', firebaseUser: user, profile: null, role: null, error: this.message(error) });
+      this.finish({
+        phase: 'error',
+        firebaseUser: user,
+        profile: null,
+        role: null,
+        error: this.message(error),
+      });
     }
   }
 
@@ -89,6 +118,17 @@ export class AuthStore {
         standard: null,
         createdOn: serverTimestamp(),
       });
+    } else {
+      await setDoc(
+        ref,
+        {
+          lastLogin: serverTimestamp(),
+          displayName: user.displayName ?? existing['displayName'] ?? '',
+          email: user.email ?? existing['email'] ?? '',
+          photoURL: user.photoURL ?? existing['photoURL'] ?? null,
+        },
+        { merge: true },
+      );
     }
     return this.toProfile(user, existing);
   }

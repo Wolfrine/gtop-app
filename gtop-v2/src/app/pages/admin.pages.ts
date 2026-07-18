@@ -1,46 +1,1340 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Component, NgModule, OnInit, computed, signal } from '@angular/core';
+import { FormsModule as AngularFormsModule } from '@angular/forms';
+import { RouterLink, RouterModule } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { AdminRepository } from '../core/admin.repository';
 import { AuthStore } from '../core/auth.store';
+import { ClientDiagnostic, DiagnosticsService } from '../core/diagnostics.service';
 import { GenericFirestoreRepository } from '../core/firestore.repository';
-import { FirestoreRecord, GtopUser, LiveSession, Question, QuizResult, SyllabusItem, asDate } from '../core/models';
 import { LiveRepository } from '../core/live.repository';
+import {
+  FirestoreRecord,
+  GtopUser,
+  LiveSession,
+  Question,
+  QuizResult,
+  SyllabusItem,
+  asDate,
+} from '../core/models';
+import { PresenceService } from '../core/presence.service';
+
+@NgModule({
+  imports: [AngularFormsModule, RouterModule],
+  exports: [AngularFormsModule, RouterModule],
+})
+class FormsModule {}
 
 @Component({
- selector:'app-admin-dashboard',imports:[RouterLink],template:`<div class="page"><div class="page-head"><div><p class="eyebrow">Administration</p><h1>See the system. Move the work.</h1><p class="lede">Content quality, learner activity, live practice, and delivery work come together in one operational workspace.</p></div><a class="btn btn-primary" routerLink="/admin/action-plan">Open action plan</a></div>
- <div class="grid grid-4">@for(item of statCards();track item.label){<article class="card stat"><span class="muted small">{{item.label}}</span><p class="stat-value">{{item.value}}</p><span class="pill" [class.warning]="item.warning">{{item.note}}</span></article>}</div>
- <section class="section grid grid-2"><article class="card"><p class="eyebrow">Operational focus</p><h2>Make visible work the default.</h2><p class="muted">Every meaningful GTOP change should have an owner, acceptance criteria, progress evidence, and a review state in the Action Plan.</p><a class="btn btn-primary" routerLink="/admin/action-plan">Review active work</a></article><article class="card"><p class="eyebrow">Quality desk</p><h2>Keep the question bank trustworthy.</h2><p class="muted">Review syllabus coverage and questions together so learner reports remain grounded in useful content.</p><div class="button-row"><a class="btn btn-secondary" routerLink="/admin/questions">Question bank</a><a class="btn btn-secondary" routerLink="/admin/syllabus">Syllabus</a></div></article></section>
- <section class="section"><div class="section-head"><div><p class="eyebrow">Shortcuts</p><h2>Administration areas</h2></div></div><div class="grid grid-3">@for(link of links;track link.path){<a class="card card-hover" [routerLink]="link.path"><span class="pill info">{{link.kicker}}</span><h3 style="margin-top:18px">{{link.title}}</h3><p class="muted">{{link.copy}}</p></a>}</div></section></div>`
+  selector: 'app-admin-dashboard',
+  imports: [RouterLink],
+  template: `<div class="page">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">Administration</p>
+        <h1>See the system. Move the work.</h1>
+        <p class="lede">
+          Content, learner activity, live practice and delivery work in one operational workspace.
+        </p>
+      </div>
+      <div class="button-row">
+        <a class="btn btn-secondary" routerLink="/practice">Take a quiz</a
+        ><a class="btn btn-primary" routerLink="/admin/action-plan">Open action plan</a>
+      </div>
+    </div>
+    <div class="grid grid-4">
+      @for (item of statCards(); track item.label) {
+        <article class="card stat">
+          <span class="muted small">{{ item.label }}</span>
+          <p class="stat-value">{{ item.value }}</p>
+          <span class="pill" [class.warning]="item.warning">{{ item.note }}</span>
+        </article>
+      }
+    </div>
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Workspace</p>
+          <h2>Choose an area</h2>
+        </div>
+      </div>
+      <div class="grid grid-3">
+        @for (link of links; track link.path) {
+          <a class="card card-hover" [routerLink]="link.path"
+            ><span class="pill info">{{ link.kicker }}</span>
+            <h3 style="margin-top:18px">{{ link.title }}</h3>
+            <p class="muted">{{ link.copy }}</p></a
+          >
+        }
+      </div>
+    </section>
+  </div>`,
 })
-export class AdminDashboardPage implements OnInit{readonly counts=signal<Record<string,number>>({});readonly links=[{kicker:'Content',title:'Question bank',copy:'Find, edit, add, and retire objective questions.',path:'/admin/questions'},{kicker:'Curriculum',title:'Syllabus coverage',copy:'Inspect board, standard, subject, and chapter coverage.',path:'/admin/syllabus'},{kicker:'People',title:'Users and roles',copy:'Review learner profiles and manage administrative access.',path:'/admin/users'},{kicker:'Delivery',title:'Action plan',copy:'Track owners, blockers, evidence, and readiness.',path:'/admin/action-plan'},{kicker:'Events',title:'Live control',copy:'Inspect and manage active live practice rooms.',path:'/admin/live'},{kicker:'Audit',title:'Activity logs',copy:'Review system and content operations.',path:'/admin/logs'}];constructor(private admin:AdminRepository){}async ngOnInit():Promise<void>{this.counts.set(await this.admin.counts());}statCards(){return[{label:'Questions',value:this.counts()['questions']??'—',note:'Content bank'},{label:'Learners and admins',value:this.counts()['users']??'—',note:'Registered users'},{label:'Quiz attempts',value:this.counts()['QuizResults']??'—',note:'Practice evidence'},{label:'Active work',value:this.counts()['actionPlans']??'—',note:'Review board',warning:true}];}}
+export class AdminDashboardPage implements OnInit {
+  readonly counts = signal<Record<string, number>>({});
+  readonly links = [
+    {
+      kicker: 'Learning',
+      title: 'Take a quiz',
+      copy: 'Use every learner practice workflow with your admin identity.',
+      path: '/practice',
+    },
+    {
+      kicker: 'People',
+      title: 'User activity',
+      copy: 'Open profiles, presence, attempts and trends.',
+      path: '/admin/users',
+    },
+    {
+      kicker: 'Content',
+      title: 'Question bank',
+      copy: 'Edit, import and review flagged questions.',
+      path: '/admin/questions',
+    },
+    {
+      kicker: 'Curriculum',
+      title: 'Syllabus coverage',
+      copy: 'Preview, edit and synchronize curriculum.',
+      path: '/admin/syllabus',
+    },
+    {
+      kicker: 'Experience',
+      title: 'Theme Lab',
+      copy: 'Try and publish one of five complete visual systems.',
+      path: '/admin/theme-lab',
+    },
+    {
+      kicker: 'Delivery',
+      title: 'Action plan',
+      copy: 'Track owners, blockers, evidence and readiness.',
+      path: '/admin/action-plan',
+    },
+  ];
+  constructor(private admin: AdminRepository) {}
+  async ngOnInit() {
+    this.counts.set(await this.admin.counts());
+  }
+  statCards() {
+    return [
+      { label: 'Questions', value: this.counts()['questions'] ?? '—', note: 'Content bank' },
+      { label: 'Users', value: this.counts()['users'] ?? '—', note: 'Profiles' },
+      { label: 'Quiz attempts', value: this.counts()['QuizResults'] ?? '—', note: 'Evidence' },
+      {
+        label: 'Active work',
+        value: this.counts()['actionPlans'] ?? '—',
+        note: 'Action plan',
+        warning: true,
+      },
+    ];
+  }
+}
+
+interface ImportRow extends Partial<Question> {
+  valid: boolean;
+  errors: string[];
+  duplicate: boolean;
+}
+@Component({
+  selector: 'app-question-bank',
+  imports: [FormsModule],
+  template: `<div class="page">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">Content quality</p>
+        <h1>Question bank</h1>
+        <p class="lede">
+          Search, inspect, import and maintain the questions behind solo and live practice.
+        </p>
+      </div>
+      <div class="button-row">
+        <button class="btn btn-secondary" (click)="showImport.set(true)">Bulk JSON import</button
+        ><button class="btn btn-primary" (click)="openNew()">Add question</button>
+      </div>
+    </div>
+    <section class="card filters">
+      <div class="form-grid">
+        <div class="field">
+          <label>Board</label
+          ><select [(ngModel)]="filters.board" (ngModelChange)="resetAfter('board')">
+            <option value="">All boards</option>
+            @for (v of boards(); track v) {
+              <option>{{ v }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>Standard</label
+          ><select [(ngModel)]="filters.standard" (ngModelChange)="resetAfter('standard')">
+            <option value="">All standards</option>
+            @for (v of standards(); track v) {
+              <option>{{ v }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>Subject</label
+          ><select [(ngModel)]="filters.subject" (ngModelChange)="resetAfter('subject')">
+            <option value="">All subjects</option>
+            @for (v of subjects(); track v) {
+              <option>{{ v }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>Chapter</label
+          ><select [(ngModel)]="filters.chapter">
+            <option value="">All chapters</option>
+            @for (v of chapters(); track v) {
+              <option>{{ v }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="button-row top-gap">
+        <button class="btn btn-primary" (click)="load()">Apply filters</button
+        ><button class="btn btn-secondary" (click)="clear()">Clear</button
+        ><button class="btn btn-quiet" (click)="showFlags.set(!showFlags())">
+          Open flags ({{ flags().length }})
+        </button>
+      </div>
+    </section>
+    @if (showFlags()) {
+      <section class="card flags">
+        <div class="section-head">
+          <h2>Question flags</h2>
+          <button class="btn btn-secondary" (click)="showFlags.set(false)">Close</button>
+        </div>
+        @for (flag of flags(); track flag.id) {
+          <div class="flag-row">
+            <span
+              ><strong>{{ flag['reason'] || 'Review requested' }}</strong
+              ><small>{{ flag['questionId'] }} · {{ flag['userId'] }}</small></span
+            ><span class="pill warning">{{ flag['status'] }}</span>
+          </div>
+        } @empty {
+          <div class="empty">No open question flags.</div>
+        }
+      </section>
+    }
+    @if (editor()) {
+      <section class="card editor">
+        <div class="section-head">
+          <h2>{{ draft.id ? 'Edit question' : 'New question' }}</h2>
+          <button class="btn btn-secondary" (click)="editor.set(false)">Close</button>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>Board</label><input [(ngModel)]="draft.board" /></div>
+          <div class="field"><label>Standard</label><input [(ngModel)]="draft.standard" /></div>
+          <div class="field"><label>Subject</label><input [(ngModel)]="draft.subject" /></div>
+          <div class="field"><label>Chapter</label><input [(ngModel)]="draft.chapter" /></div>
+          <div class="field span-2">
+            <label>Question</label><textarea [(ngModel)]="draft.question"></textarea>
+          </div>
+          @for (option of draft.options; track $index) {
+            <div class="field">
+              <label>Option {{ letters[$index] }}</label
+              ><input [(ngModel)]="draft.options![$index]" />
+            </div>
+          }
+          <div class="field">
+            <label>Correct option</label
+            ><select [(ngModel)]="draft.correctIndex">
+              @for (option of draft.options; track $index) {
+                <option [ngValue]="$index">{{ letters[$index] }} · {{ option || 'Empty' }}</option>
+              }
+            </select>
+          </div>
+          <div class="field">
+            <label>Explanation</label><textarea [(ngModel)]="solution"></textarea>
+          </div>
+        </div>
+        <button
+          class="btn btn-primary top-gap"
+          (click)="save()"
+          [disabled]="saving() || !draft.question"
+        >
+          {{ saving() ? 'Saving…' : 'Save question' }}
+        </button>
+      </section>
+    }
+    @if (showImport()) {
+      <section class="card import-panel">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Validated import</p>
+            <h2>Paste a JSON array</h2>
+          </div>
+          <button class="btn btn-secondary" (click)="showImport.set(false)">Close</button>
+        </div>
+        <textarea
+          class="json-input"
+          [(ngModel)]="importJson"
+          placeholder='[{"board":"CBSE",...}]'
+        ></textarea>
+        <div class="button-row top-gap">
+          <button class="btn btn-secondary" (click)="validateImport()">Validate</button
+          ><button
+            class="btn btn-primary"
+            [disabled]="!importRows().length || invalidImports() || saving()"
+            (click)="commitImport()"
+          >
+            Import {{ validImports() }} questions
+          </button>
+        </div>
+        @if (importError()) {
+          <p class="error">{{ importError() }}</p>
+        }
+        @if (importRows().length) {
+          <div class="import-summary">
+            <span class="pill success">{{ validImports() }} valid</span
+            ><span class="pill danger">{{ invalidImports() }} invalid</span
+            ><span class="pill warning">{{ duplicateImports() }} possible duplicates</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Question</th>
+                  <th>Scope</th>
+                  <th>Validation</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of importRows(); track $index) {
+                  <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ row.question }}</td>
+                    <td>
+                      {{ row.board }} · {{ row.standard }}<br />{{ row.subject }} /
+                      {{ row.chapter }}
+                    </td>
+                    <td>
+                      <span
+                        class="pill"
+                        [class.success]="row.valid && !row.duplicate"
+                        [class.danger]="!row.valid"
+                        [class.warning]="row.duplicate"
+                        >{{
+                          row.errors.join(', ') || (row.duplicate ? 'Possible duplicate' : 'Ready')
+                        }}</span
+                      >
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    }
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+    <section class="section">
+      <div class="section-head">
+        <h2>{{ questions().length }} questions</h2>
+        <span class="muted small">Click a question to inspect options and explanation</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Scope</th>
+              <th>Flags</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (q of questions(); track q.id) {
+              <tr class="expandable" (click)="expanded.set(expanded() === q.id ? '' : q.id)">
+                <td>
+                  <strong>{{ q.question }}</strong>
+                  @if (expanded() === q.id) {
+                    <div class="question-detail">
+                      @for (option of q.options; track $index) {
+                        <div [class.correct]="$index === q.correctIndex">
+                          <b>{{ letters[$index] }}</b> {{ option }}
+                        </div>
+                      }
+                      @if (q.solutions.length) {
+                        <p><strong>Explanation:</strong> {{ q.solutions[0] }}</p>
+                      }
+                    </div>
+                  }
+                </td>
+                <td>
+                  {{ q.board }} · {{ q.standard }}<br /><span class="muted small"
+                    >{{ q.subject }} / {{ q.chapter }}</span
+                  >
+                </td>
+                <td>{{ q.flagCount || 0 }}</td>
+                <td>
+                  <div class="button-row" (click)="$event.stopPropagation()">
+                    <button class="btn btn-secondary" (click)="copy(q)">Copy JSON</button
+                    ><button class="btn btn-secondary" (click)="edit(q)">Edit</button
+                    ><button class="btn btn-danger" (click)="remove(q)">Retire</button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="empty">Choose filters and load the question bank.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>`,
+  styles: [
+    `
+      .filters,
+      .editor,
+      .import-panel,
+      .flags {
+        margin-bottom: 20px;
+      }
+      .top-gap {
+        margin-top: 16px;
+      }
+      .editor {
+        border-color: var(--accent);
+      }
+      .json-input {
+        width: 100%;
+        min-height: 180px;
+        padding: 14px;
+        color: var(--ink);
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        font-family: ui-monospace, monospace;
+      }
+      .import-summary {
+        display: flex;
+        gap: 8px;
+        margin: 16px 0;
+      }
+      .expandable {
+        cursor: pointer;
+      }
+      .question-detail {
+        display: grid;
+        gap: 7px;
+        margin-top: 14px;
+        padding: 14px;
+        background: var(--surface-2);
+        border-radius: 10px;
+      }
+      .question-detail .correct {
+        color: var(--success);
+        font-weight: 700;
+      }
+      .flag-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .flag-row span > * {
+        display: block;
+      }
+      .flag-row small {
+        margin-top: 4px;
+        color: var(--muted);
+      }
+    `,
+  ],
+})
+export class QuestionBankPage implements OnInit {
+  readonly questions = signal<Question[]>([]);
+  readonly syllabus = signal<SyllabusItem[]>([]);
+  readonly flags = signal<FirestoreRecord[]>([]);
+  readonly editor = signal(false);
+  readonly showImport = signal(false);
+  readonly showFlags = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal('');
+  readonly importError = signal('');
+  readonly importRows = signal<ImportRow[]>([]);
+  readonly expanded = signal('');
+  readonly letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+  filters: Partial<Question> = {};
+  draft: Partial<Question> = { options: ['', '', '', ''], correctIndex: 0 };
+  solution = '';
+  importJson = '';
+  boards = () => this.unique(this.syllabus().map((i) => i.board));
+  standards = () =>
+    this.unique(
+      this.syllabus()
+        .filter((i) => !this.filters.board || i.board === this.filters.board)
+        .map((i) => i.standard),
+    );
+  subjects = () =>
+    this.unique(
+      this.syllabus()
+        .filter(
+          (i) =>
+            (!this.filters.board || i.board === this.filters.board) &&
+            (!this.filters.standard || i.standard === this.filters.standard),
+        )
+        .map((i) => i.subject),
+    );
+  chapters = () =>
+    this.unique(
+      this.syllabus()
+        .filter(
+          (i) =>
+            (!this.filters.board || i.board === this.filters.board) &&
+            (!this.filters.standard || i.standard === this.filters.standard) &&
+            (!this.filters.subject || i.subject === this.filters.subject),
+        )
+        .map((i) => i.chapter),
+    );
+  constructor(
+    private admin: AdminRepository,
+    private auth: AuthStore,
+  ) {}
+  async ngOnInit() {
+    this.syllabus.set(await this.admin.syllabus());
+    this.flags.set(await this.admin.openQuestionFlags());
+  }
+  async load() {
+    this.error.set('');
+    try {
+      this.questions.set(await this.admin.questions(this.filters, 200));
+    } catch (e) {
+      this.error.set(this.message(e));
+    }
+  }
+  clear() {
+    this.filters = {};
+    this.questions.set([]);
+  }
+  resetAfter(field: string) {
+    if (field === 'board') {
+      this.filters.standard = '';
+      this.filters.subject = '';
+      this.filters.chapter = '';
+    }
+    if (field === 'standard') {
+      this.filters.subject = '';
+      this.filters.chapter = '';
+    }
+    if (field === 'subject') this.filters.chapter = '';
+  }
+  openNew() {
+    this.draft = { options: ['', '', '', ''], correctIndex: 0 };
+    this.solution = '';
+    this.editor.set(true);
+  }
+  edit(q: Question) {
+    this.draft = { ...q, options: [...q.options] };
+    this.solution = q.solutions?.[0] || '';
+    this.editor.set(true);
+    scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  async save() {
+    this.saving.set(true);
+    try {
+      this.draft.solutions = this.solution ? [this.solution] : [];
+      await this.admin.saveQuestion(this.draft, this.auth.profile()!.uid);
+      this.editor.set(false);
+      await this.admin.refreshSyllabusCounts();
+      await this.load();
+    } finally {
+      this.saving.set(false);
+    }
+  }
+  async remove(q: Question) {
+    const warning = environment.uat
+      ? 'UAT IS USING LIVE DATA. This retires a production question.'
+      : 'Retire this question?';
+    if (!confirm(warning)) return;
+    if (environment.uat && prompt('Type DELETE to confirm') !== 'DELETE') return;
+    await this.admin.softDeleteQuestion(q, this.auth.profile()!.uid);
+    await this.admin.refreshSyllabusCounts();
+    await this.load();
+  }
+  copy(q: Question) {
+    void navigator.clipboard.writeText(
+      JSON.stringify(
+        {
+          board: q.board,
+          standard: q.standard,
+          subject: q.subject,
+          chapter: q.chapter,
+          title: q.title,
+          question: q.question,
+          options: q.options,
+          correctIndex: q.correctIndex,
+          solutions: q.solutions,
+        },
+        null,
+        2,
+      ),
+    );
+  }
+  validateImport() {
+    this.importError.set('');
+    try {
+      const parsed = JSON.parse(this.importJson);
+      if (!Array.isArray(parsed)) throw new Error('JSON must be an array.');
+      const existing = new Set(this.questions().map((q) => q.question.trim().toLowerCase()));
+      this.importRows.set(
+        parsed.map((raw: Partial<Question>) => {
+          const errors: string[] = [];
+          if (!raw.question?.trim()) errors.push('Missing question');
+          if (!Array.isArray(raw.options) || raw.options.length < 2)
+            errors.push('At least 2 options');
+          if (
+            !Number.isInteger(raw.correctIndex) ||
+            Number(raw.correctIndex) < 0 ||
+            Number(raw.correctIndex) >= Number(raw.options?.length ?? 0)
+          )
+            errors.push('Invalid correctIndex');
+          for (const key of ['board', 'standard', 'subject', 'chapter'] as const)
+            if (!raw[key]) errors.push(`Missing ${key}`);
+          return {
+            ...raw,
+            valid: !errors.length,
+            errors,
+            duplicate: existing.has(raw.question?.trim().toLowerCase() ?? ''),
+          };
+        }),
+      );
+    } catch (e) {
+      this.importRows.set([]);
+      this.importError.set(this.message(e));
+    }
+  }
+  validImports() {
+    return this.importRows().filter((r) => r.valid && !r.duplicate).length;
+  }
+  invalidImports() {
+    return this.importRows().filter((r) => !r.valid).length;
+  }
+  duplicateImports() {
+    return this.importRows().filter((r) => r.duplicate).length;
+  }
+  async commitImport() {
+    if (
+      environment.uat &&
+      !confirm(`Import ${this.validImports()} questions into live production data?`)
+    )
+      return;
+    this.saving.set(true);
+    try {
+      await this.admin.importQuestions(
+        this.importRows().filter((r) => r.valid && !r.duplicate),
+        this.auth.profile()!.uid,
+      );
+      this.showImport.set(false);
+      this.importJson = '';
+      this.importRows.set([]);
+      this.syllabus.set(await this.admin.syllabus());
+      await this.load();
+    } finally {
+      this.saving.set(false);
+    }
+  }
+  private unique(v: string[]) {
+    return [...new Set(v.filter(Boolean))].sort();
+  }
+  private message(e: unknown) {
+    return e instanceof Error ? e.message : 'Operation failed.';
+  }
+}
 
 @Component({
- selector:'app-question-bank',imports:[FormsModule],template:`<div class="page"><div class="page-head"><div><p class="eyebrow">Content quality</p><h1>Question bank</h1><p class="lede">Find and maintain the questions that power every solo and live practice experience.</p></div><button class="btn btn-primary" (click)="openNew()">Add question</button></div>
- <section class="card filters"><div class="form-grid"><div class="field"><label>Board</label><input [(ngModel)]="filters.board" placeholder="CBSE"></div><div class="field"><label>Standard</label><input [(ngModel)]="filters.standard" placeholder="10"></div><div class="field"><label>Subject</label><input [(ngModel)]="filters.subject" placeholder="Science"></div><div class="field"><label>Chapter</label><input [(ngModel)]="filters.chapter" placeholder="Light"></div></div><div class="button-row" style="margin-top:16px"><button class="btn btn-primary" (click)="load()">Apply filters</button><button class="btn btn-secondary" (click)="clear()">Clear</button></div></section>
- @if(editor()){<section class="card editor"><div class="section-head"><h2>{{draft.id?'Edit question':'New question'}}</h2><button class="btn btn-secondary" (click)="editor.set(false)">Close</button></div><div class="form-grid"><div class="field"><label>Board</label><input [(ngModel)]="draft.board"></div><div class="field"><label>Standard</label><input [(ngModel)]="draft.standard"></div><div class="field"><label>Subject</label><input [(ngModel)]="draft.subject"></div><div class="field"><label>Chapter</label><input [(ngModel)]="draft.chapter"></div><div class="field span-2"><label>Question</label><textarea [(ngModel)]="draft.question"></textarea></div>@for(option of draft.options;track $index){<div class="field"><label>Option {{letters[$index]}}</label><input [(ngModel)]="draft.options![$index]"></div>}<div class="field"><label>Correct option</label><select [(ngModel)]="draft.correctIndex">@for(option of draft.options;track $index){<option [ngValue]="$index">{{letters[$index]}} · {{option||'Empty'}}</option>}</select></div><div class="field"><label>Explanation</label><textarea [(ngModel)]="solution"></textarea></div></div><button class="btn btn-primary" style="margin-top:18px" (click)="save()" [disabled]="saving()||!draft.question">{{saving()?'Saving…':'Save question'}}</button></section>}
- @if(error()){<p class="error">{{error()}}</p>}<section class="section"><div class="section-head"><h2>{{questions().length}} questions</h2><span class="muted small">Up to 100 results</span></div><div class="table-wrap"><table><thead><tr><th>Question</th><th>Scope</th><th>Answer</th><th>Actions</th></tr></thead><tbody>@for(question of questions();track question.id){<tr><td style="min-width:300px"><strong>{{question.question}}</strong><br><span class="muted small">{{question.title}}</span></td><td>{{question.board}} · {{question.standard}}<br><span class="muted small">{{question.subject}} / {{question.chapter}}</span></td><td>{{letters[question.correctIndex]||'—'}}</td><td><div class="button-row"><button class="btn btn-secondary" (click)="edit(question)">Edit</button><button class="btn btn-danger" (click)="remove(question)">Retire</button></div></td></tr>}@empty{<tr><td colspan="4" class="empty">Apply at least one filter to load questions.</td></tr>}</tbody></table></div></section></div>`,styles:[`.filters,.editor{margin-bottom:20px}.editor{border-color:var(--teal)}`]
+  selector: 'app-syllabus-admin',
+  imports: [FormsModule],
+  template: `<div class="page">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">Curriculum coverage</p>
+        <h1>Syllabus</h1>
+        <p class="lede">
+          Preview structure, inspect coverage and safely propagate hierarchy changes to linked
+          questions.
+        </p>
+      </div>
+      <div class="button-row">
+        <button class="btn btn-secondary" (click)="preview.set(!preview())">
+          {{ preview() ? 'Table view' : 'Learner preview' }}</button
+        ><button class="btn btn-secondary" (click)="refreshCounts()">Refresh counts</button
+        ><button class="btn btn-primary" (click)="newItem()">Add chapter</button>
+      </div>
+    </div>
+    @if (message()) {
+      <p class="success-box">{{ message() }}</p>
+    }
+    @if (editing()) {
+      <section class="card editor">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">{{ draft.id ? 'Edit and propagate' : 'New syllabus item' }}</p>
+            <h2>{{ draft.chapter || 'Chapter details' }}</h2>
+          </div>
+          <button class="btn btn-secondary" (click)="editing.set(false)">Close</button>
+        </div>
+        <div class="form-grid">
+          <div class="field"><label>Board</label><input [(ngModel)]="draft.board" /></div>
+          <div class="field"><label>Standard</label><input [(ngModel)]="draft.standard" /></div>
+          <div class="field"><label>Subject</label><input [(ngModel)]="draft.subject" /></div>
+          <div class="field"><label>Chapter</label><input [(ngModel)]="draft.chapter" /></div>
+        </div>
+        <p class="muted small">
+          Changing hierarchy fields updates all questions currently linked to the original
+          combination and writes an audit record.
+        </p>
+        <div class="button-row">
+          <button class="btn btn-primary" (click)="save()">Preview and save</button
+          ><button class="btn btn-secondary" (click)="editing.set(false)">Cancel</button>
+        </div>
+      </section>
+    }
+    @if (preview()) {
+      <section class="preview-board">
+        @for (group of grouped(); track group.key) {
+          <article class="card">
+            <div class="section-head">
+              <div>
+                <span class="pill info">{{ group.board }} · {{ group.standard }}</span>
+                <h2>{{ group.subject }}</h2>
+              </div>
+              <strong>{{ group.total }} questions</strong>
+            </div>
+            <div class="chapter-grid">
+              @for (item of group.items; track item.id) {
+                <button (click)="edit(item)">
+                  <span>{{ item.chapter }}</span
+                  ><b [class.zero]="item.mcqCount === 0">{{ item.mcqCount || 0 }} MCQs</b>
+                </button>
+              }
+            </div>
+          </article>
+        }
+      </section>
+    } @else {
+      <section class="section">
+        <div class="section-head">
+          <h2>{{ items().length }} syllabus combinations</h2>
+          <input class="search" [(ngModel)]="search" placeholder="Search syllabus" />
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Board</th>
+                <th>Standard</th>
+                <th>Subject</th>
+                <th>Chapter</th>
+                <th>Questions</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of filtered(); track item.id) {
+                <tr>
+                  <td>{{ item.board }}</td>
+                  <td>{{ item.standard }}</td>
+                  <td>{{ item.subject }}</td>
+                  <td>
+                    <strong>{{ item.chapter }}</strong>
+                  </td>
+                  <td>
+                    <span class="pill" [class.warning]="item.mcqCount === 0">{{
+                      item.mcqCount || 0
+                    }}</span>
+                  </td>
+                  <td>
+                    <div class="button-row">
+                      <a
+                        class="btn btn-secondary"
+                        [routerLink]="['/admin/questions']"
+                        [queryParams]="{
+                          board: item.board,
+                          standard: item.standard,
+                          subject: item.subject,
+                          chapter: item.chapter,
+                        }"
+                        >View MCQs</a
+                      ><button class="btn btn-secondary" (click)="edit(item)">Edit</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </div>`,
+  styles: [
+    `
+      .editor {
+        margin-bottom: 20px;
+        border-color: var(--accent);
+      }
+      .search {
+        min-height: 42px;
+        padding: 8px 12px;
+        color: var(--ink);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+      .preview-board {
+        display: grid;
+        gap: 18px;
+      }
+      .chapter-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+      .chapter-grid button {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 15px;
+        color: var(--ink);
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        text-align: left;
+      }
+      .chapter-grid b {
+        color: var(--success);
+        font-size: 11px;
+      }
+      .chapter-grid b.zero {
+        color: var(--warning);
+      }
+      @media (max-width: 700px) {
+        .chapter-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    `,
+  ],
 })
-export class QuestionBankPage{readonly questions=signal<Question[]>([]);readonly editor=signal(false);readonly saving=signal(false);readonly error=signal('');readonly letters=['A','B','C','D','E','F'];filters:Partial<Question>={};draft:Partial<Question>={options:['','','',''],correctIndex:0};solution='';constructor(private admin:AdminRepository,private auth:AuthStore){}async load():Promise<void>{this.error.set('');try{this.questions.set(await this.admin.questions(this.filters,100));}catch(e){this.error.set(e instanceof Error?e.message:'Questions could not be loaded.');}}clear():void{this.filters={};this.questions.set([]);}openNew():void{this.draft={options:['','','',''],correctIndex:0};this.solution='';this.editor.set(true);}edit(q:Question):void{this.draft={...q,options:[...q.options]};this.solution=q.solutions?.[0]||'';this.editor.set(true);scrollTo({top:0,behavior:'smooth'});}async save():Promise<void>{this.saving.set(true);this.draft.solutions=this.solution?[this.solution]:[];await this.admin.saveQuestion(this.draft,this.auth.profile()!.uid);this.editor.set(false);this.saving.set(false);await this.load();}async remove(q:Question):Promise<void>{const warning=environment.uat?'UAT IS USING LIVE DATA. This retires a production question. Type DELETE in the next prompt to continue.':'Retire this question?';if(!confirm(warning))return;if(environment.uat&&prompt('Type DELETE')!=='DELETE')return;await this.admin.softDeleteQuestion(q,this.auth.profile()!.uid);await this.load();}}
+export class SyllabusAdminPage implements OnInit {
+  readonly items = signal<SyllabusItem[]>([]);
+  readonly editing = signal(false);
+  readonly preview = signal(false);
+  readonly message = signal('');
+  search = '';
+  draft: Partial<SyllabusItem> = {};
+  original: SyllabusItem | null = null;
+  constructor(
+    private admin: AdminRepository,
+    private auth: AuthStore,
+  ) {}
+  async ngOnInit() {
+    await this.load();
+  }
+  filtered() {
+    const s = this.search.toLowerCase();
+    return this.items().filter(
+      (i) => !s || `${i.board} ${i.standard} ${i.subject} ${i.chapter}`.toLowerCase().includes(s),
+    );
+  }
+  grouped() {
+    const groups = new Map<
+      string,
+      {
+        key: string;
+        board: string;
+        standard: string;
+        subject: string;
+        items: SyllabusItem[];
+        total: number;
+      }
+    >();
+    for (const item of this.filtered()) {
+      const key = `${item.board}|${item.standard}|${item.subject}`;
+      const group = groups.get(key) ?? {
+        key,
+        board: item.board,
+        standard: item.standard,
+        subject: item.subject,
+        items: [],
+        total: 0,
+      };
+      group.items.push(item);
+      group.total += item.mcqCount || 0;
+      groups.set(key, group);
+    }
+    return [...groups.values()];
+  }
+  newItem() {
+    this.draft = { mcqCount: 0 };
+    this.original = null;
+    this.editing.set(true);
+  }
+  edit(item: SyllabusItem) {
+    this.draft = { ...item };
+    this.original = item;
+    this.editing.set(true);
+    scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  async save() {
+    if (environment.uat && !confirm('Save this syllabus change to live production data?')) return;
+    let affected = 0;
+    if (this.original)
+      affected = await this.admin.updateSyllabusAndQuestions(
+        this.draft,
+        this.original,
+        this.auth.profile()!.uid,
+      );
+    else await this.admin.saveSyllabus(this.draft);
+    this.message.set(
+      affected ? `Syllabus saved and ${affected} linked questions updated.` : 'Syllabus saved.',
+    );
+    this.editing.set(false);
+    await this.load();
+  }
+  async refreshCounts() {
+    const count = await this.admin.refreshSyllabusCounts(this.auth.profile()!.uid);
+    this.message.set(`Refreshed question counts for ${count} syllabus combinations.`);
+    await this.load();
+  }
+  private async load() {
+    this.items.set(
+      (await this.admin.syllabus()).sort((a, b) =>
+        `${a.board}${a.standard}${a.subject}${a.chapter}`.localeCompare(
+          `${b.board}${b.standard}${b.subject}${b.chapter}`,
+        ),
+      ),
+    );
+  }
+}
 
 @Component({
- selector:'app-syllabus-admin',imports:[FormsModule],template:`<div class="page"><div class="page-head"><div><p class="eyebrow">Curriculum coverage</p><h1>Syllabus</h1><p class="lede">Keep question coverage discoverable across boards, standards, subjects, and chapters.</p></div><button class="btn btn-primary" (click)="newItem()">Add combination</button></div>
- @if(editing()){<section class="card"><div class="form-grid"><div class="field"><label>Board</label><input [(ngModel)]="draft.board"></div><div class="field"><label>Standard</label><input [(ngModel)]="draft.standard"></div><div class="field"><label>Subject</label><input [(ngModel)]="draft.subject"></div><div class="field"><label>Chapter</label><input [(ngModel)]="draft.chapter"></div></div><div class="button-row" style="margin-top:18px"><button class="btn btn-primary" (click)="save()">Save combination</button><button class="btn btn-secondary" (click)="editing.set(false)">Cancel</button></div></section>}
- <section class="section"><div class="section-head"><h2>{{items().length}} syllabus combinations</h2><input class="search" [(ngModel)]="search" placeholder="Search syllabus"></div><div class="table-wrap"><table><thead><tr><th>Board</th><th>Standard</th><th>Subject</th><th>Chapter</th><th>Questions</th><th></th></tr></thead><tbody>@for(item of filtered();track item.id){<tr><td>{{item.board}}</td><td>{{item.standard}}</td><td>{{item.subject}}</td><td><strong>{{item.chapter}}</strong></td><td><span class="pill" [class.warning]="item.mcqCount===0">{{item.mcqCount||0}}</span></td><td><button class="btn btn-secondary" (click)="edit(item)">Edit</button></td></tr>}</tbody></table></div></section></div>`,styles:[`.search{min-height:42px;padding:8px 12px;border:1px solid var(--line);border-radius:10px}`]
+  selector: 'app-users-admin',
+  imports: [FormsModule, RouterLink],
+  template: `<div class="page">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">People and access</p>
+        <h1>User activity</h1>
+        <p class="lede">
+          See who is active and open any learner for full profile, quiz history and trends.
+        </p>
+      </div>
+      <div class="online-card">
+        <strong>{{ onlineCount() }}</strong
+        ><span>online now</span>
+      </div>
+    </div>
+    <section class="card filters">
+      <div class="form-grid">
+        <div class="field">
+          <label>Search</label><input [(ngModel)]="search" placeholder="Name or email" />
+        </div>
+        <div class="field">
+          <label>Role</label
+          ><select [(ngModel)]="roleFilter">
+            <option value="">All roles</option>
+            <option value="user">Users</option>
+            <option value="admin">Admins</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Presence</label
+          ><select [(ngModel)]="presenceFilter">
+            <option value="">All</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Board</label
+          ><select [(ngModel)]="boardFilter">
+            <option value="">All boards</option>
+            @for (board of boards(); track board) {
+              <option>{{ board }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-head">
+        <h2>{{ filtered().length }} users</h2>
+        <span class="muted small">Select a row to open full activity</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Presence</th>
+              <th>User</th>
+              <th>Learning context</th>
+              <th>Role</th>
+              <th>Last seen</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of filtered(); track user.uid) {
+              <tr class="user-row-link" [routerLink]="['/admin/users', user.uid]">
+                <td>
+                  <span class="status-dot" [class.online]="isOnline(user.uid)"></span
+                  >{{ isOnline(user.uid) ? 'Online' : 'Offline' }}
+                </td>
+                <td>
+                  <strong>{{ user.displayName || 'Unnamed user' }}</strong
+                  ><br /><span class="muted small">{{ user.email }}</span>
+                </td>
+                <td>{{ user.board || '—' }} · {{ user.standard || '—' }}</td>
+                <td>
+                  <span class="pill" [class.danger]="user.role === 'admin'">{{ user.role }}</span>
+                </td>
+                <td>{{ lastSeen(user.uid) }}</td>
+                <td><span class="open-arrow">→</span></td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty">No users match these filters.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>`,
+  styles: [
+    `
+      .online-card {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        padding: 14px 18px;
+        background: var(--accent-soft);
+        border-radius: var(--radius);
+      }
+      .online-card strong {
+        color: var(--accent);
+        font-size: 28px;
+      }
+      .online-card span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .filters {
+        margin-bottom: 18px;
+      }
+      .user-row-link {
+        cursor: pointer;
+        transition: background 0.18s ease;
+      }
+      .user-row-link:hover {
+        background: var(--accent-soft);
+      }
+      .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin-right: 8px;
+        background: var(--muted);
+        border-radius: 50%;
+      }
+      .status-dot.online {
+        background: var(--success);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 15%, transparent);
+      }
+      .open-arrow {
+        color: var(--accent);
+        font-size: 18px;
+      }
+    `,
+  ],
 })
-export class SyllabusAdminPage implements OnInit{readonly items=signal<SyllabusItem[]>([]);readonly editing=signal(false);search='';draft:Partial<SyllabusItem>={};constructor(private admin:AdminRepository){}async ngOnInit(){await this.load();}filtered(){const s=this.search.toLowerCase();return this.items().filter(i=>!s||`${i.board} ${i.standard} ${i.subject} ${i.chapter}`.toLowerCase().includes(s));}newItem(){this.draft={mcqCount:0};this.editing.set(true);}edit(item:SyllabusItem){this.draft={...item};this.editing.set(true);scrollTo({top:0,behavior:'smooth'});}async save(){await this.admin.saveSyllabus(this.draft);this.editing.set(false);await this.load();}private async load(){this.items.set((await this.admin.syllabus()).sort((a,b)=>`${a.board}${a.standard}${a.subject}${a.chapter}`.localeCompare(`${b.board}${b.standard}${b.subject}${b.chapter}`)));}}
+export class UsersAdminPage implements OnInit {
+  readonly users = signal<GtopUser[]>([]);
+  search = '';
+  roleFilter = '';
+  presenceFilter = '';
+  boardFilter = '';
+  readonly onlineCount = computed(() => this.presence.records().filter((p) => p.isOnline).length);
+  readonly boards = computed(() =>
+    [
+      ...new Set(
+        this.users()
+          .map((u) => u.board)
+          .filter((v): v is string => Boolean(v)),
+      ),
+    ].sort(),
+  );
+  constructor(
+    public auth: AuthStore,
+    private admin: AdminRepository,
+    public presence: PresenceService,
+  ) {}
+  async ngOnInit() {
+    this.presence.listenAll();
+    this.users.set(await this.admin.users());
+  }
+  filtered() {
+    const s = this.search.toLowerCase();
+    return this.users().filter(
+      (u) =>
+        (!s || `${u.displayName} ${u.email}`.toLowerCase().includes(s)) &&
+        (!this.roleFilter || u.role === this.roleFilter) &&
+        (!this.boardFilter || u.board === this.boardFilter) &&
+        (!this.presenceFilter || (this.presenceFilter === 'online') === this.isOnline(u.uid)),
+    );
+  }
+  isOnline(uid: string) {
+    return Boolean(this.presence.records().find((p) => p.userId === uid)?.isOnline);
+  }
+  lastSeen(uid: string) {
+    const value = this.presence.records().find((p) => p.userId === uid)?.lastActive;
+    return value ? new Date(value).toLocaleString('en-IN') : '—';
+  }
+}
 
 @Component({
- selector:'app-users-admin',imports:[FormsModule],template:`<div class="page"><div class="page-head"><div><p class="eyebrow">People and access</p><h1>Users</h1><p class="lede">Review learning profiles and keep administrative permissions deliberate.</p></div></div><div class="table-wrap"><table><thead><tr><th>User</th><th>Learning context</th><th>Role</th><th>Access</th></tr></thead><tbody>@for(user of users();track user.uid){<tr><td><strong>{{user.displayName||'Unnamed user'}}</strong><br><span class="muted small">{{user.email}}</span></td><td>{{user.board||'—'}} · {{user.standard||'—'}}</td><td><span class="pill" [class.danger]="user.role==='admin'">{{user.role}}</span></td><td><select [ngModel]="user.role" (ngModelChange)="changeRole(user,$event)" [disabled]="user.uid===auth.profile()?.uid"><option value="user">User</option><option value="admin">Admin</option><option value="institute-admin">Institute admin</option></select></td></tr>}</tbody></table></div></div>`
+  selector: 'app-admin-operations',
+  imports: [RouterLink, FormsModule],
+  template: `<div class="page">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">{{ kicker }}</p>
+        <h1>{{ title }}</h1>
+        <p class="lede">{{ copy }}</p>
+      </div>
+    </div>
+    @if (mode === 'logs') {
+      <div class="tabs">
+        <button [class.active]="logTab === 'audit'" (click)="logTab = 'audit'">Audit trail</button
+        ><button [class.active]="logTab === 'client'" (click)="logTab = 'client'">
+          Client diagnostics ({{ diagnostics.records().length }})
+        </button>
+      </div>
+      @if (logTab === 'audit') {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Event</th>
+                <th>Actor</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of records(); track item.id) {
+                <tr>
+                  <td>{{ date(item['timestamp'] || item['createdAt']) }}</td>
+                  <td>{{ item['action'] || item['type'] || 'Activity' }}</td>
+                  <td>{{ item['editedBy'] || item['userId'] || 'System' }}</td>
+                  <td>{{ item['details'] || item['description'] || '—' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="empty">No activity records are available.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="section-head">
+          <select [(ngModel)]="diagnosticFilter">
+            <option value="">All levels</option>
+            <option value="error">Errors</option>
+            <option value="warning">Warnings</option></select
+          ><button class="btn btn-danger" (click)="diagnostics.clear()">Clear diagnostics</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Level</th>
+                <th>Route</th>
+                <th>Message</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of filteredDiagnostics(); track item.id) {
+                <tr>
+                  <td>{{ date(item.createdAt) }}</td>
+                  <td>
+                    <span
+                      class="pill"
+                      [class.danger]="item.level === 'error'"
+                      [class.warning]="item.level === 'warning'"
+                      >{{ item.level }}</span
+                    >
+                  </td>
+                  <td>{{ item.route }}</td>
+                  <td>
+                    <strong>{{ item.message }}</strong
+                    ><br /><span class="muted small">{{ item.detail }}</span>
+                  </td>
+                  <td>
+                    <button class="btn btn-secondary" (click)="diagnostics.copy(item)">Copy</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="empty">No client diagnostics captured in this browser.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+    @if (mode === 'reports') {
+      <div class="grid grid-3">
+        <article class="card stat">
+          <span class="muted small">Recent attempts</span>
+          <p class="stat-value">{{ results().length }}</p>
+        </article>
+        <article class="card stat">
+          <span class="muted small">Questions answered</span>
+          <p class="stat-value">{{ totalQuestions() }}</p>
+        </article>
+        <article class="card stat">
+          <span class="muted small">Average accuracy</span>
+          <p class="stat-value">{{ average() }}%</p>
+        </article>
+      </div>
+      <section class="section">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Learner</th>
+                <th>Scope</th>
+                <th>Mode</th>
+                <th>Accuracy</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of results(); track r.id) {
+                <tr>
+                  <td>{{ r.userName }}</td>
+                  <td>{{ r.subject }} / {{ r.chapter }}</td>
+                  <td>{{ r.quizType }}</td>
+                  <td>{{ r.percentage }}%</td>
+                  <td>
+                    <a class="btn btn-secondary" [routerLink]="['/admin/users', r.userId]"
+                      >User activity</a
+                    >
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+    @if (mode === 'live') {
+      <div class="grid grid-3">
+        @for (s of sessions(); track s.id) {
+          <article class="card">
+            <span class="pill" [class.success]="s.status === 'active'">{{ s.status }}</span>
+            <h3 style="margin-top:18px">{{ s.scope?.['subject'] || 'Live quiz' }}</h3>
+            <p class="muted">Code {{ s.joinCode }} · {{ s.questionIds.length }} questions</p>
+            <a class="btn btn-secondary" [routerLink]="['/live/host', s.id]">Open control</a>
+          </article>
+        } @empty {
+          <div class="card empty">No open live sessions.</div>
+        }
+      </div>
+    }
+  </div>`,
+  styles: [
+    `
+      .tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+      .tabs button {
+        padding: 10px 14px;
+        color: var(--muted);
+        background: var(--surface-2);
+        border: 0;
+        border-radius: 9px;
+        font-weight: 750;
+      }
+      .tabs button.active {
+        color: var(--ink);
+        background: var(--surface);
+        box-shadow: var(--shadow-sm);
+      }
+    `,
+  ],
 })
-export class UsersAdminPage implements OnInit{readonly users=signal<GtopUser[]>([]);constructor(public auth:AuthStore,private admin:AdminRepository){}async ngOnInit(){this.users.set(await this.admin.users());}async changeRole(user:GtopUser,role:GtopUser['role']){if(environment.uat&&!confirm(`UAT is using live data. Change ${user.email} to ${role}?`))return;await this.admin.setRole(user.uid,role);user.role=role;this.users.update(v=>[...v]);}}
-
-@Component({
- selector:'app-admin-operations',imports:[RouterLink],template:`<div class="page"><div class="page-head"><div><p class="eyebrow">{{kicker}}</p><h1>{{title}}</h1><p class="lede">{{copy}}</p></div></div>
- @if(mode==='logs'){<div class="table-wrap"><table><thead><tr><th>When</th><th>Event</th><th>Actor</th><th>Details</th></tr></thead><tbody>@for(item of records();track item.id){<tr><td>{{date(item['timestamp']||item['createdAt'])}}</td><td>{{item['action']||item['type']||'Activity'}}</td><td>{{item['editedBy']||item['userId']||'System'}}</td><td>{{item['details']||item['description']||'—'}}</td></tr>}@empty{<tr><td colspan="4" class="empty">No activity records are available.</td></tr>}</tbody></table></div>}
- @if(mode==='reports'){<div class="grid grid-3"><article class="card stat"><span class="muted small">Recent attempts</span><p class="stat-value">{{results().length}}</p></article><article class="card stat"><span class="muted small">Questions answered</span><p class="stat-value">{{totalQuestions()}}</p></article><article class="card stat"><span class="muted small">Average accuracy</span><p class="stat-value">{{average()}}%</p></article></div><section class="section"><div class="table-wrap"><table><thead><tr><th>Learner</th><th>Scope</th><th>Mode</th><th>Accuracy</th></tr></thead><tbody>@for(r of results();track r.id){<tr><td>{{r.userName}}</td><td>{{r.subject}} / {{r.chapter}}</td><td>{{r.quizType}}</td><td>{{r.percentage}}%</td></tr>}</tbody></table></div></section>}
- @if(mode==='live'){<div class="grid grid-3">@for(s of sessions();track s.id){<article class="card"><span class="pill" [class.success]="s.status==='active'">{{s.status}}</span><h3 style="margin-top:18px">{{s.scope?.['subject']||'Live quiz'}}</h3><p class="muted">Code {{s.joinCode}} · {{s.questionIds.length}} questions</p><a class="btn btn-secondary" [routerLink]="['/live/host',s.id]">Open control</a></article>}@empty{<div class="card empty">No open live sessions.</div>}</div>}
- </div>`
-})
-export class AdminOperationsPage implements OnInit{mode:'logs'|'reports'|'live';title='';kicker='';copy='';readonly records=signal<FirestoreRecord[]>([]);readonly results=signal<QuizResult[]>([]);readonly sessions=signal<LiveSession[]>([]);readonly totalQuestions=computed(()=>this.results().reduce((s,r)=>s+r.totalQuestions,0));readonly average=computed(()=>this.totalQuestions()?Math.round(this.results().reduce((s,r)=>s+r.correctAnswers,0)/this.totalQuestions()*100):0);private unsub?:()=>void;constructor(private admin:AdminRepository,private data:GenericFirestoreRepository,private live:LiveRepository){this.mode=location.pathname.includes('logs')?'logs':location.pathname.includes('live')?'live':'reports';const values={logs:['Audit trail','Activity log','Review content and system operations recorded by GTOP.'],reports:['Learning evidence','Practice reports','Review recent practice volume and outcomes across learners.'],live:['Live operations','Live control','Inspect rooms and open the existing host workflow.']}[this.mode];[this.kicker,this.title,this.copy]=values;}async ngOnInit(){if(this.mode==='logs')this.records.set(await this.admin.logs());if(this.mode==='reports')this.results.set(await this.data.query<QuizResult & {id:string}>('QuizResults',[],200));if(this.mode==='live')this.unsub=this.live.observeSessions(v=>this.sessions.set(v));}date(v:unknown){return asDate(v)?.toLocaleString('en-IN')||'—';}}
+export class AdminOperationsPage implements OnInit {
+  mode: 'logs' | 'reports' | 'live';
+  title = '';
+  kicker = '';
+  copy = '';
+  logTab: 'audit' | 'client' = 'audit';
+  diagnosticFilter = '';
+  readonly records = signal<FirestoreRecord[]>([]);
+  readonly results = signal<QuizResult[]>([]);
+  readonly sessions = signal<LiveSession[]>([]);
+  readonly totalQuestions = computed(() =>
+    this.results().reduce((s, r) => s + r.totalQuestions, 0),
+  );
+  readonly average = computed(() =>
+    this.totalQuestions()
+      ? Math.round(
+          (this.results().reduce((s, r) => s + r.correctAnswers, 0) / this.totalQuestions()) * 100,
+        )
+      : 0,
+  );
+  constructor(
+    private admin: AdminRepository,
+    private data: GenericFirestoreRepository,
+    private live: LiveRepository,
+    public diagnostics: DiagnosticsService,
+  ) {
+    this.mode = location.pathname.includes('logs')
+      ? 'logs'
+      : location.pathname.includes('live')
+        ? 'live'
+        : 'reports';
+    const values = {
+      logs: [
+        'System health',
+        'Diagnostics',
+        'Review durable audit events and browser-level errors.',
+      ],
+      reports: [
+        'Learning evidence',
+        'Practice reports',
+        'Open any learner from recent practice outcomes.',
+      ],
+      live: ['Live operations', 'Live control', 'Inspect rooms and open host control.'],
+    }[this.mode];
+    [this.kicker, this.title, this.copy] = values;
+  }
+  async ngOnInit() {
+    if (this.mode === 'logs') this.records.set(await this.admin.logs());
+    if (this.mode === 'reports')
+      this.results.set(await this.data.query<QuizResult & { id: string }>('QuizResults', [], 300));
+    if (this.mode === 'live') this.live.observeSessions((v) => this.sessions.set(v));
+  }
+  filteredDiagnostics(): ClientDiagnostic[] {
+    return this.diagnostics
+      .records()
+      .filter((r) => !this.diagnosticFilter || r.level === this.diagnosticFilter);
+  }
+  date(v: unknown) {
+    return asDate(v)?.toLocaleString('en-IN') || '—';
+  }
+}

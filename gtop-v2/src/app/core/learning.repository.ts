@@ -1,5 +1,16 @@
 import { Injectable } from '@angular/core';
-import { addDoc, collection, documentId, getDocs, limit, query, serverTimestamp, where } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  doc,
+  documentId,
+  getDocs,
+  limit,
+  query,
+  runTransaction,
+  serverTimestamp,
+  where,
+} from 'firebase/firestore';
 import { FirebaseClient } from './firebase';
 import { GenericFirestoreRepository } from './firestore.repository';
 import { Question, QuizAnswer, QuizResult, SyllabusItem, asDate } from './models';
@@ -9,8 +20,12 @@ export interface PracticeFilters {
   standard?: string;
   subject?: string;
   chapter?: string;
+  subjects?: string[];
+  chapters?: string[];
   count?: number;
   quizType?: 'quick' | 'custom';
+  perQuestionSeconds?: number;
+  autoAdvance?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,7 +37,11 @@ export class LearningRepository {
 
   async syllabus(): Promise<SyllabusItem[]> {
     const items = await this.data.query<SyllabusItem>('syllabus', [], 500);
-    return items.sort((a, b) => `${a.board}${a.standard}${a.subject}${a.chapter}`.localeCompare(`${b.board}${b.standard}${b.subject}${b.chapter}`));
+    return items.sort((a, b) =>
+      `${a.board}${a.standard}${a.subject}${a.chapter}`.localeCompare(
+        `${b.board}${b.standard}${b.subject}${b.chapter}`,
+      ),
+    );
   }
 
   async questions(filters: PracticeFilters): Promise<Question[]> {
@@ -31,16 +50,36 @@ export class LearningRepository {
     if (filters.standard) constraints.push(where('standard', '==', filters.standard));
     if (filters.subject) constraints.push(where('subject', '==', filters.subject));
     if (filters.chapter) constraints.push(where('chapter', '==', filters.chapter));
+    if (!filters.subject && filters.subjects?.length && filters.subjects.length <= 10)
+      constraints.push(where('subject', 'in', filters.subjects));
+    else if (
+      !filters.chapter &&
+      !filters.subjects?.length &&
+      filters.chapters?.length &&
+      filters.chapters.length <= 10
+    )
+      constraints.push(where('chapter', 'in', filters.chapters));
     constraints.push(limit(Math.min(Math.max((filters.count ?? 10) * 3, 20), 200)));
-    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'questions'), ...constraints));
-    const items = snapshot.docs.map((entry) => this.normalizeQuestion(entry.id, entry.data()));
+    const snapshot = await getDocs(
+      query(collection(this.firebase.firestore, 'questions'), ...constraints),
+    );
+    const items = snapshot.docs
+      .map((entry) => this.normalizeQuestion(entry.id, entry.data()))
+      .filter((item) => !filters.subjects?.length || filters.subjects.includes(item.subject))
+      .filter((item) => !filters.chapters?.length || filters.chapters.includes(item.chapter));
     return this.shuffle(items).slice(0, filters.count ?? 10);
   }
 
-  async quickQuestions(profile: { board?: string | null; standard?: string | null }, count = 10): Promise<Question[]> {
-    const syllabus = (await this.syllabus()).filter((item) => item.mcqCount > 0
-      && (!profile.board || item.board === profile.board)
-      && (!profile.standard || item.standard === profile.standard));
+  async quickQuestions(
+    profile: { board?: string | null; standard?: string | null },
+    count = 10,
+  ): Promise<Question[]> {
+    const syllabus = (await this.syllabus()).filter(
+      (item) =>
+        item.mcqCount > 0 &&
+        (!profile.board || item.board === profile.board) &&
+        (!profile.standard || item.standard === profile.standard),
+    );
     if (!syllabus.length) throw new Error('No available chapters match your learning profile.');
     const selection = syllabus[Math.floor(Math.random() * syllabus.length)];
     return this.questions({ ...selection, count, quizType: 'quick' });
@@ -51,11 +90,15 @@ export class LearningRepository {
     const found: Question[] = [];
     for (let offset = 0; offset < unique.length; offset += 30) {
       const chunk = unique.slice(offset, offset + 30);
-      const snapshot = await getDocs(query(collection(this.firebase.firestore, 'questions'), where(documentId(), 'in', chunk)));
+      const snapshot = await getDocs(
+        query(collection(this.firebase.firestore, 'questions'), where(documentId(), 'in', chunk)),
+      );
       found.push(...snapshot.docs.map((entry) => this.normalizeQuestion(entry.id, entry.data())));
     }
     const byId = new Map(found.map((question) => [question.id, question]));
-    return unique.map((id) => byId.get(id)).filter((question): question is Question => Boolean(question));
+    return unique
+      .map((id) => byId.get(id))
+      .filter((question): question is Question => Boolean(question));
   }
 
   async saveResult(input: {
@@ -69,6 +112,7 @@ export class LearningRepository {
     answers: QuizAnswer[];
     sessionId?: string;
     duration?: string;
+    durationSeconds?: number;
   }): Promise<string> {
     const correctAnswers = input.answers.filter((answer) => answer.isCorrect).length;
     const totalQuestions = input.answers.length;
@@ -88,20 +132,55 @@ export class LearningRepository {
       timestamp: serverTimestamp(),
       ...(input.sessionId ? { sessionId: input.sessionId } : {}),
       ...(input.duration ? { duration: input.duration } : {}),
+      ...(input.durationSeconds !== undefined ? { durationSeconds: input.durationSeconds } : {}),
     };
     const created = await addDoc(collection(this.firebase.firestore, 'QuizResults'), result);
     return created.id;
   }
 
   async results(userId: string): Promise<QuizResult[]> {
-    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'QuizResults'), where('userId', '==', userId), limit(100)));
+    const snapshot = await getDocs(
+      query(
+        collection(this.firebase.firestore, 'QuizResults'),
+        where('userId', '==', userId),
+        limit(100),
+      ),
+    );
     return snapshot.docs
       .map((entry) => ({ id: entry.id, ...entry.data() }) as QuizResult)
-      .sort((a, b) => (asDate(b.timestamp)?.getTime() ?? 0) - (asDate(a.timestamp)?.getTime() ?? 0));
+      .sort(
+        (a, b) => (asDate(b.timestamp)?.getTime() ?? 0) - (asDate(a.timestamp)?.getTime() ?? 0),
+      );
   }
 
   async flagQuestion(questionId: string, userId: string, reason: string): Promise<void> {
-    await addDoc(collection(this.firebase.firestore, 'questionFlags'), { questionId, userId, reason, status: 'open', createdAt: serverTimestamp() });
+    const flagRef = doc(this.firebase.firestore, 'questionFlags', `${questionId}_${userId}`);
+    const questionRef = doc(this.firebase.firestore, 'questions', questionId);
+    await runTransaction(this.firebase.firestore, async (transaction) => {
+      const [flag, question] = await Promise.all([
+        transaction.get(flagRef),
+        transaction.get(questionRef),
+      ]);
+      transaction.set(
+        flagRef,
+        {
+          questionId,
+          userId,
+          reason,
+          status: 'open',
+          createdAt: flag.exists()
+            ? (flag.data()?.['createdAt'] ?? serverTimestamp())
+            : serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+      if (!flag.exists() && question.exists())
+        transaction.update(questionRef, {
+          flagCount: Number(question.data()['flagCount'] ?? 0) + 1,
+          lastFlaggedAt: serverTimestamp(),
+        });
+    });
   }
 
   private normalizeQuestion(id: string, raw: Record<string, unknown>): Question {
@@ -119,10 +198,15 @@ export class LearningRepository {
       selectedIndex: null,
       createdAt: raw['createdAt'],
       createdBy: raw['createdBy'] ? String(raw['createdBy']) : undefined,
+      flagCount: Number(raw['flagCount'] ?? 0),
+      lastFlaggedAt: raw['lastFlaggedAt'],
     };
   }
 
   private shuffle<T>(values: T[]): T[] {
-    return values.map((value) => ({ value, order: Math.random() })).sort((a, b) => a.order - b.order).map(({ value }) => value);
+    return values
+      .map((value) => ({ value, order: Math.random() }))
+      .sort((a, b) => a.order - b.order)
+      .map(({ value }) => value);
   }
 }

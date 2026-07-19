@@ -33,3 +33,13 @@ test('publishes a branded installable application manifest', async ({ page, requ
   expect(manifest.display).toBe('standalone');
   expect(manifest.icons.some((icon: { sizes: string }) => icon.sizes === '512x512')).toBe(true);
 });
+
+test('exposes copyable client diagnostics before sign-in', async ({ page }) => {
+  await page.goto('/?emulator=1');
+  await page.getByRole('button', { name: 'Diagnostics' }).click();
+  await expect(page.getByRole('dialog', { name: 'Client diagnostics' })).toBeVisible();
+  await expect(page.getByText('Client diagnostics initialized.')).toBeVisible();
+  await page.getByRole('button', { name: 'Run device check' }).click();
+  await expect(page.getByText('Device check added to the report.')).toBeVisible();
+  await expect(page.getByText('Device self-check completed.')).toBeVisible();
+});

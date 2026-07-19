@@ -1262,7 +1262,8 @@ export class UsersAdminPage implements OnInit {
           <select [(ngModel)]="diagnosticFilter">
             <option value="">All levels</option>
             <option value="error">Errors</option>
-            <option value="warning">Warnings</option></select
+            <option value="warning">Warnings</option>
+            <option value="info">Information</option></select
           ><button class="btn btn-danger" (click)="diagnostics.clear()">Clear diagnostics</button>
         </div>
         <div class="table-wrap">

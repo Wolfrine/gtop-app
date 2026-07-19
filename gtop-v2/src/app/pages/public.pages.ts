@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../core/auth.store';
 import { GoogleOneTapService } from '../core/google-one-tap.service';
+import { DiagnosticsService } from '../core/diagnostics.service';
 
 @Component({
   selector: 'app-landing',
@@ -63,14 +64,23 @@ import { GoogleOneTapService } from '../core/google-one-tap.service';
 export class LandingPage {
   readonly busy = signal(false);
   readonly error = signal('');
-  constructor(public readonly auth: AuthStore, private readonly route: ActivatedRoute, private readonly router: Router, oneTap: GoogleOneTapService) { void oneTap; }
+  constructor(
+    public readonly auth: AuthStore,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly diagnostics: DiagnosticsService,
+    oneTap: GoogleOneTapService,
+  ) { void oneTap; }
   async enter(): Promise<void> {
     this.busy.set(true); this.error.set('');
     try {
       const profile = this.auth.isAuthenticated() ? this.auth.profile() : await this.auth.signIn();
       const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
       await this.router.navigateByUrl(returnUrl || (profile?.role === 'admin' ? '/admin' : profile?.board && profile?.standard ? '/dashboard' : '/profile-setup'));
-    } catch (error) { this.error.set(error instanceof Error ? error.message : 'Sign-in could not be completed.'); }
+    } catch (error) {
+      this.diagnostics.captureError('auth', 'Landing-page sign-in flow failed.', error);
+      this.error.set(error instanceof Error ? error.message : 'Sign-in could not be completed.');
+    }
     finally { this.busy.set(false); }
   }
 }

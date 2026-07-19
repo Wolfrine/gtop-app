@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { environment } from '../environments/environment';
 import { DiagnosticsService } from './core/diagnostics.service';
 import { AppUpdateService } from './core/app-update.service';
 import { PlatformMetaService } from './core/platform-meta.service';
+import { DiagnosticsPanelComponent } from './shared/diagnostics-panel.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, DiagnosticsPanelComponent],
   template: `
     @if (uat) {
       <div class="uat-banner" role="status">UAT — LIVE PRODUCTION DATA · CHANGES ARE REAL</div>
@@ -21,6 +23,7 @@ import { PlatformMetaService } from './core/platform-meta.service';
       <div class="update-toast" role="status"><span>Install GTOP for quicker access.</span><button type="button" (click)="updates.install()">Install app</button></div>
     }
     <router-outlet />
+    <app-diagnostics-panel />
   `,
 })
 export class App {
@@ -29,5 +32,12 @@ export class App {
     readonly diagnostics: DiagnosticsService,
     readonly updates: AppUpdateService,
     readonly meta: PlatformMetaService,
-  ) {}
+    router: Router,
+  ) {
+    router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) =>
+        diagnostics.capture('info', 'system', 'Navigation completed.', event.urlAfterRedirects),
+      );
+  }
 }

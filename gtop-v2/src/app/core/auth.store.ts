@@ -4,6 +4,7 @@ import { doc, getDoc, onSnapshot, serverTimestamp, setDoc } from 'firebase/fires
 import { FirebaseClient } from './firebase';
 import { AuthState, GtopUser, UserRole } from './models';
 import { PresenceService } from './presence.service';
+import { DiagnosticsService } from './diagnostics.service';
 
 const initialState: AuthState = {
   phase: 'initializing',
@@ -32,6 +33,7 @@ export class AuthStore {
   constructor(
     private readonly firebase: FirebaseClient,
     private readonly presence: PresenceService,
+    private readonly diagnostics: DiagnosticsService,
   ) {
     const params = new URLSearchParams(location.search);
     const testEmail = params.get('testEmail');
@@ -42,11 +44,17 @@ export class AuthStore {
     onAuthStateChanged(
       this.firebase.auth,
       (user) => void this.handleAuthChange(user),
-      (error) => this.finish({ ...initialState, phase: 'error', error: error.message }),
+      (error) => {
+        this.diagnostics.captureError('auth', 'Firebase session listener failed.', error);
+        this.finish({ ...initialState, phase: 'error', error: error.message });
+      },
     );
     if (emulatorTestHost && params.has('emulator') && testEmail && testPassword)
       void signInWithEmailAndPassword(this.firebase.auth, testEmail, testPassword)
-        .catch((error) => this.finish({ ...initialState, phase: 'error', error: error.message }))
+        .catch((error) => {
+          this.diagnostics.captureError('auth', 'Emulator sign-in failed.', error);
+          this.finish({ ...initialState, phase: 'error', error: error.message });
+        })
         .finally(() => (this.emulatorSignInPending = false));
   }
 
@@ -55,20 +63,34 @@ export class AuthStore {
   }
 
   async signIn(): Promise<GtopUser> {
-    const credential = await signInWithPopup(this.firebase.auth, new GoogleAuthProvider());
-    const profile = await this.ensureProfile(credential.user);
-    await this.handleAuthChange(credential.user);
-    return profile;
+    this.diagnostics.capture('info', 'auth', 'Google popup sign-in started.');
+    try {
+      const credential = await signInWithPopup(this.firebase.auth, new GoogleAuthProvider());
+      const profile = await this.ensureProfile(credential.user);
+      await this.handleAuthChange(credential.user);
+      this.diagnostics.capture('info', 'auth', 'Google popup sign-in completed.');
+      return profile;
+    } catch (error) {
+      this.diagnostics.captureError('auth', 'Google popup sign-in failed.', error);
+      throw error;
+    }
   }
 
   async signInWithGoogleIdToken(idToken: string): Promise<GtopUser> {
-    const credential = await signInWithCredential(
-      this.firebase.auth,
-      GoogleAuthProvider.credential(idToken),
-    );
-    const profile = await this.ensureProfile(credential.user);
-    await this.handleAuthChange(credential.user);
-    return profile;
+    this.diagnostics.capture('info', 'auth', 'Google One Tap sign-in started.');
+    try {
+      const credential = await signInWithCredential(
+        this.firebase.auth,
+        GoogleAuthProvider.credential(idToken),
+      );
+      const profile = await this.ensureProfile(credential.user);
+      await this.handleAuthChange(credential.user);
+      this.diagnostics.capture('info', 'auth', 'Google One Tap sign-in completed.');
+      return profile;
+    } catch (error) {
+      this.diagnostics.captureError('auth', 'Google One Tap sign-in failed.', error);
+      throw error;
+    }
   }
 
   async logout(): Promise<void> {
@@ -96,6 +118,7 @@ export class AuthStore {
     this.profileUnsubscribe?.();
     if (!user) {
       if (this.emulatorSignInPending) return;
+      this.diagnostics.capture('info', 'auth', 'No restored Firebase session was found.');
       this.finish({ ...initialState, phase: 'unauthenticated' });
       return;
     }
@@ -108,6 +131,7 @@ export class AuthStore {
         role: profile.role,
         error: null,
       });
+      this.diagnostics.capture('info', 'auth', 'Firebase session and role loaded.');
       this.profileUnsubscribe = onSnapshot(
         doc(this.firebase.firestore, 'users', user.uid),
         (snapshot) => {
@@ -123,6 +147,7 @@ export class AuthStore {
         },
       );
     } catch (error) {
+      this.diagnostics.captureError('auth', 'Firebase profile or role loading failed.', error);
       this.finish({
         phase: 'error',
         firebaseUser: user,

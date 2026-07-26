@@ -16,6 +16,10 @@ import {
   assertDocumentPath,
   boundedLimit,
 } from "./safety.js";
+import {
+  timestampFromUpdateToken,
+  updateTokenFromTimestamp,
+} from "./version-token.js";
 
 const projectId =
   process.env["GTOP_FIREBASE_PROJECT_ID"] ||
@@ -86,16 +90,12 @@ async function snapshot(path: string): Promise<Record<string, unknown> | null> {
         id: item.id,
         path: item.ref.path,
         updateTime: item.updateTime?.toDate().toISOString(),
-        updateToken: item.updateTime?.valueOf(),
+        updateToken: item.updateTime
+          ? updateTokenFromTimestamp(item.updateTime)
+          : undefined,
         ...item.data(),
       }
     : null;
-}
-
-function timestampFromUpdateToken(token: string): Timestamp {
-  const match = /^(\d+)\.(\d{9})$/.exec(token);
-  if (!match) throw new Error("Invalid Firestore update token.");
-  return new Timestamp(Number(match[1]), Number(match[2]));
 }
 
 async function audit(
@@ -185,7 +185,7 @@ server.registerTool(
       .map((item) => ({
         id: item.id,
         updateTime: item.updateTime.toDate().toISOString(),
-        updateToken: item.updateTime.valueOf(),
+        updateToken: updateTokenFromTimestamp(item.updateTime),
         ...item.data(),
       }))
       .filter(
@@ -529,7 +529,7 @@ server.registerTool(
         id: item.id,
         path: item.ref.path,
         updateTime: item.updateTime.toDate().toISOString(),
-        updateToken: item.updateTime.valueOf(),
+        updateToken: updateTokenFromTimestamp(item.updateTime),
         ...item.data(),
       })),
     );

@@ -44,7 +44,7 @@ describe("GTOP MCP contract", () => {
   });
 
   it("uses full-precision opaque tokens for Firestore update preconditions", () => {
-    expect(source).toContain("updateToken: item.updateTime?.valueOf()");
+    expect(source).toContain("updateTokenFromTimestamp");
     expect(source).toContain("timestampFromUpdateToken");
     expect(source).not.toContain(
       "Timestamp.fromDate(new Date(input.expectedUpdateTime))",

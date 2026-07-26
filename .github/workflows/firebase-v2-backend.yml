@@ -1,0 +1,66 @@
+name: GTOP v2 protected Firebase backend
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_backend:
+        description: "Deploy Firestore rules/indexes and Realtime Database rules"
+        required: true
+        default: false
+        type: boolean
+      allow_planned_rule_change:
+        description: "Allow the checked-in Firestore rules to differ from the active release"
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  verify-and-deploy:
+    runs-on: ubuntu-latest
+    environment: firebase-live-backend
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: gtop-v2/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install
+        working-directory: gtop-v2
+        run: npm ci
+      - name: Validate browser rules
+        working-directory: gtop-v2
+        run: npm run test:rules && npm run test:database-rules
+      - name: Authenticate Firebase
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+      - name: Detect active Firestore rule drift
+        shell: bash
+        env:
+          ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
+          ALLOW_CHANGE: "${{ inputs.allow_planned_rule_change }}"
+        run: |
+          release="$(curl --fail --silent --show-error --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+            https://firebaserules.googleapis.com/v1/projects/gtop-app/releases/cloud.firestore)"
+          ruleset="$(jq -r .rulesetName <<<"${release}")"
+          curl --fail --silent --show-error --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+            "https://firebaserules.googleapis.com/v1/${ruleset}" \
+            | jq -r '.source.files[] | select(.name == "firestore.rules") | .content' > /tmp/live-firestore.rules
+          if ! diff --ignore-all-space --ignore-blank-lines gtop-v2/firestore.rules /tmp/live-firestore.rules; then
+            echo "Checked-in Firestore rules differ from the active shared production backend."
+            test "${ALLOW_CHANGE}" = "true"
+          fi
+      - name: Deploy protected backend configuration
+        if: inputs.deploy_backend
+        working-directory: gtop-v2
+        run: npx firebase-tools@15 deploy --only firestore:rules,firestore:indexes,database --project gtop-app --non-interactive

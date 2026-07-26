@@ -1,0 +1,129 @@
+name: GTOP v2 UAT
+
+on:
+  push:
+    branches-ignore: [main]
+    paths:
+      - "gtop-v2/**"
+      - "tools/gtop-mcp/**"
+      - ".codex/config.toml"
+      - ".github/workflows/firebase-v2-uat.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: gtop-v2-uat
+  cancel-in-progress: true
+
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            gtop-v2/package-lock.json
+            tools/gtop-mcp/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install and validate v2
+        working-directory: gtop-v2
+        run: |
+          npm ci
+          npm run parity:check
+          npm test
+          npm run test:rules
+          npm run test:database-rules
+          npm run build:uat
+          package_version="$(node -p "require('./package.json').version")"
+          printf '{"version":"%s-uat.%s","commit":"%s","branch":"%s","channel":"uat","builtAt":"%s"}' \
+            "$package_version" "${GITHUB_SHA::8}" "$GITHUB_SHA" "$GITHUB_REF_NAME" "$(date -u +%FT%TZ)" \
+            > dist/gtop-v2/browser/version.json
+
+      - name: Browser and accessibility checks
+        working-directory: gtop-v2
+        run: |
+          npx playwright install --with-deps chromium webkit
+          npm run e2e
+
+      - name: Validate Firestore MCP
+        working-directory: tools/gtop-mcp
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: Authenticate Firebase site provisioning
+        id: google-auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+
+      - name: Ensure stable v2 UAT site exists
+        working-directory: gtop-v2
+        shell: bash
+        run: |
+          if ! npx --yes firebase-tools@15 hosting:sites:list --project gtop-app --json | grep -q 'gtop-app-v2-uat'; then
+            npx --yes firebase-tools@15 hosting:sites:create gtop-app-v2-uat --project gtop-app
+          fi
+
+      - name: Authorize stable v2 UAT domains for Firebase Authentication
+        shell: bash
+        env:
+          ACCESS_TOKEN: "${{ steps.google-auth.outputs.access_token }}"
+        run: |
+          config_url='https://identitytoolkit.googleapis.com/admin/v2/projects/gtop-app/config'
+          current="$(curl --fail --silent --show-error \
+            --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+            --header 'Accept: application/json' \
+            "${config_url}")"
+          body="$(jq --compact-output \
+            --arg web 'gtop-app-v2-uat.web.app' \
+            --arg firebase 'gtop-app-v2-uat.firebaseapp.com' \
+            '{authorizedDomains: ((.authorizedDomains // []) + [$web, $firebase] | unique)}' \
+            <<<"${current}")"
+          curl --fail --silent --show-error \
+            --request PATCH \
+            --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+            --header 'Content-Type: application/json' \
+            --data "${body}" \
+            "${config_url}?updateMask=authorizedDomains" >/dev/null
+
+      - name: Deploy v2 to stable UAT hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          entryPoint: gtop-v2
+          projectId: gtop-app
+          channelId: live
+          target: uat-gtop-v2
+
+      - name: Seed visible v2 Action Plan workstreams
+        working-directory: tools/gtop-mcp
+        env:
+          GTOP_FIREBASE_PROJECT_ID: gtop-app
+          GTOP_MCP_TASK_REF: "${{ github.sha }}"
+        run: npm run seed:v2
+
+      - name: Publish UAT handoff
+        shell: bash
+        run: |
+          {
+            echo '## GTOP v2 UAT'
+            echo ''
+            echo '- URL: https://gtop-app-v2-uat.web.app'
+            echo '- Backend: live production Firebase project `gtop-app`'
+            echo '- Firebase Authentication domains: verified and merged automatically.'
+            echo '- V1 production was not changed by this workflow.'
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://gtop.growthtutorials.in/sitemap.xml

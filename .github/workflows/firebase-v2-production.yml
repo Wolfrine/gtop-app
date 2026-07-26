@@ -1,0 +1,139 @@
+name: GTOP v2 Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Semantic version already recorded in gtop-v2/package.json."
+        required: true
+        type: string
+        default: "2.0.0"
+      confirm_production:
+        description: "Deploy v2 to the live GTOP Hosting site and publish Meta/version through MCP."
+        required: true
+        type: boolean
+        default: false
+
+concurrency:
+  group: gtop-v2-production
+  cancel-in-progress: false
+
+jobs:
+  validate-and-deploy:
+    if: github.ref == 'refs/heads/main' && inputs.confirm_production
+    runs-on: ubuntu-latest
+    environment: firebase-production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            gtop-v2/package-lock.json
+            tools/gtop-mcp/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Verify release version
+        shell: bash
+        working-directory: gtop-v2
+        run: |
+          package_version="$(node -p "require('./package.json').version")"
+          if [[ "$package_version" != "${{ inputs.release_version }}" ]]; then
+            echo "Requested ${{ inputs.release_version }} but package.json contains ${package_version}." >&2
+            exit 1
+          fi
+
+      - name: Install and validate v2
+        working-directory: gtop-v2
+        run: |
+          npm ci
+          npm run parity:check
+          npm test
+          npm run test:rules
+          npm run test:database-rules
+          npm run build:production
+
+      - name: Write immutable release metadata
+        shell: bash
+        working-directory: gtop-v2
+        run: |
+          printf '{"version":"%s","commit":"%s","branch":"%s","channel":"production","builtAt":"%s"}' \
+            '${{ inputs.release_version }}' "$GITHUB_SHA" "$GITHUB_REF_NAME" "$(date -u +%FT%TZ)" \
+            > dist/gtop-v2/browser/version.json
+
+      - name: Browser and accessibility checks
+        working-directory: gtop-v2
+        run: |
+          npx playwright install --with-deps chromium webkit
+          npm run e2e
+
+      - name: Validate and build Firestore MCP
+        working-directory: tools/gtop-mcp
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: Authenticate Firebase and MCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+
+      - name: Deploy v2 to production Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          entryPoint: gtop-v2
+          projectId: gtop-app
+          channelId: live
+          target: prod-gtop-app
+
+      - name: Verify deployed release metadata
+        shell: bash
+        run: |
+          expected_commit="$GITHUB_SHA"
+          for attempt in {1..12}; do
+            deployed="$(curl --fail --silent --show-error https://gtop-app.web.app/version.json || true)"
+            if jq -e --arg version '${{ inputs.release_version }}' --arg commit "$expected_commit" \
+              '.version == $version and .commit == $commit and .channel == "production"' \
+              <<<"$deployed" >/dev/null; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'Production version.json did not match the deployed release.' >&2
+          exit 1
+
+      - name: Publish required version through audited MCP
+        working-directory: tools/gtop-mcp
+        env:
+          GTOP_FIREBASE_PROJECT_ID: gtop-app
+          GTOP_MCP_ACTOR: GTOP production workflow
+          GTOP_MCP_TASK_REF: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          GTOP_RELEASE_VERSION: "${{ inputs.release_version }}"
+          GTOP_RELEASE_COMMIT: "${{ github.sha }}"
+          GTOP_RELEASE_REFERENCE: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: npm run publish:version
+
+      - name: Production release handoff
+        shell: bash
+        run: |
+          {
+            echo '## GTOP v2 production'
+            echo ''
+            echo '- URL: https://gtop-app.web.app'
+            echo '- Custom domain: https://gtop.growthtutorials.in'
+            echo '- Version: `${{ inputs.release_version }}`'
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo '- Required version: published through the audited GTOP MCP tool.'
+            echo '- Restore v1: run `Deploy to Firebase Hosting` manually with target `production`.'
+          } >> "$GITHUB_STEP_SUMMARY"

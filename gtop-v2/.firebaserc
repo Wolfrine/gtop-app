@@ -1,0 +1,11 @@
+{
+  "projects": { "default": "gtop-app" },
+  "targets": {
+    "gtop-app": {
+      "hosting": {
+        "uat-gtop-v2": ["gtop-app-v2-uat"],
+        "prod-gtop-app": ["gtop-app"]
+      }
+    }
+  }
+}

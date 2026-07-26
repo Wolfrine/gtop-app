@@ -1,0 +1,78 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function own(uid) { return signedIn() && request.auth.uid == uid; }
+    function admin() { return signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'; }
+    function unchanged(field) { return request.resource.data[field] == resource.data[field]; }
+
+    match /users/{uid} {
+      allow read: if own(uid) || admin();
+      allow create: if own(uid) && request.resource.data.role == 'user';
+      allow update: if admin() || (own(uid) && unchanged('role') && unchanged('uid'));
+      allow delete: if false;
+    }
+
+    match /questions/{id} {
+      allow read: if signedIn();
+      allow create, delete: if admin();
+      allow update: if admin() || (signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['flagCount', 'lastFlaggedAt'])
+        && request.resource.data.flagCount == resource.data.get('flagCount', 0) + 1);
+    }
+    match /deletedQuestions/{id} {
+      allow read, write: if admin();
+    }
+    match /syllabus/{id} {
+      allow read: if signedIn();
+      allow write: if admin();
+    }
+    match /syllabus-preview/{id} {
+      allow read, write: if admin();
+    }
+
+    match /QuizResults/{id} {
+      allow read: if admin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+    match /questionFlags/{id} {
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update: if admin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow delete: if admin();
+    }
+
+    match /LiveSessions/{sessionId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.hostId == request.auth.uid;
+      allow update: if admin() || (signedIn() && resource.data.hostId == request.auth.uid);
+      allow delete: if admin();
+
+      match /participants/{uid} {
+        allow read: if signedIn();
+        allow create, update: if own(uid);
+        allow delete: if own(uid) || admin();
+      }
+      match /answers/{index}/items/{uid} {
+        allow read: if signedIn();
+        allow create, update: if own(uid);
+        allow delete: if admin();
+      }
+    }
+
+    match /actionPlans/{id} {
+      allow read, create, update: if admin();
+      allow delete: if false;
+      match /updates/{updateId} {
+        allow read, create: if admin();
+        allow update, delete: if false;
+      }
+    }
+
+    match /activity/{id} { allow read, write: if admin(); }
+    match /mcpAuditLog/{id} { allow read: if admin(); allow write: if false; }
+    match /Meta/{id} { allow read: if true; allow write: if admin(); }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { environment } from '../../environments/environment';
 import { AppNavigationService } from '../core/app-navigation.service';
 import { AuthStore } from '../core/auth.store';
 import { DialogService } from '../core/dialog.service';
@@ -64,7 +65,9 @@ import { LiveSession, Question, SyllabusItem, asDate } from '../core/models';
             <p class="eyebrow">Live quiz studio</p>
             <h2>Scope and schedule</h2>
           </div>
-          <span class="pill danger">UAT · Live data</span>
+          <span class="pill" [class.danger]="environment.uat">
+            {{ environment.uat ? 'UAT · Live data' : 'Production · Live data' }}
+          </span>
         </div>
         <div class="form-grid">
           <div class="field">
@@ -310,6 +313,7 @@ import { LiveSession, Question, SyllabusItem, asDate } from '../core/models';
   ],
 })
 export class LiveHubPage implements OnInit, OnDestroy {
+  readonly environment = environment;
   readonly sessions = signal<LiveSession[]>([]);
   readonly syllabus = signal<SyllabusItem[]>([]);
   readonly previewQuestions = signal<Question[]>([]);
@@ -410,8 +414,9 @@ export class LiveHubPage implements OnInit, OnDestroy {
     if (
       !(await this.dialog.confirm({
         title: 'Create live room?',
-        message:
-          'UAT uses production questions and live session data. Review the generated preview before continuing.',
+        message: environment.uat
+          ? 'UAT uses production questions and live session data. Review the generated preview before continuing.'
+          : 'This creates a production live session. Review the generated question preview before continuing.',
         confirmLabel: 'Create room',
       }))
     )

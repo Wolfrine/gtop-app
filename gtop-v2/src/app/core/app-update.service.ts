@@ -25,15 +25,23 @@ export class AppUpdateService {
     if (updates.isEnabled) {
       updates.versionUpdates.subscribe((event) => this.onVersionEvent(event));
       this.state.set({ phase: 'checking' });
-      void updates.checkForUpdate().then((available) => {
-        if (!available && this.state().phase === 'checking') this.state.set({ phase: 'current' });
-      }).catch((error) => this.fail(error));
+      void updates
+        .checkForUpdate()
+        .then((available) => {
+          if (!available && this.state().phase === 'checking') this.state.set({ phase: 'current' });
+        })
+        .catch((error) => this.fail(error));
     }
     fetch('/version.json', { cache: 'no-store' })
-      .then((response) => response.ok ? response.json() : null)
+      .then((response) => (response.ok ? response.json() : null))
       .then((value) => {
-        if (value?.commit)
-          this.state.update((current) => ({ ...current, currentVersion: String(value.commit).slice(0, 8) }));
+        if (value?.commit || value?.version)
+          this.state.update((current) => ({
+            ...current,
+            currentVersion: value?.version ? String(value.version) : current.currentVersion,
+            currentCommit: value?.commit ? String(value.commit).slice(0, 8) : current.currentCommit,
+            channel: this.releaseChannel(value?.channel),
+          }));
       })
       .catch(() => undefined);
   }
@@ -46,9 +54,21 @@ export class AppUpdateService {
     this.installAvailable.set(false);
   }
 
-  setRequiredVersion(requiredVersion: string): void {
-    if (requiredVersion)
-      this.state.update((value) => ({ ...value, requiredVersion }));
+  setRequiredRelease(requiredVersion: string, requiredCommit?: string): void {
+    if (!requiredVersion) return;
+    this.state.update((value) => ({
+      ...value,
+      requiredVersion,
+      requiredCommit: requiredCommit ? requiredCommit.slice(0, 8) : value.requiredCommit,
+    }));
+    if (
+      this.updates.isEnabled &&
+      requiredCommit &&
+      this.state().currentCommit &&
+      !requiredCommit.startsWith(this.state().currentCommit ?? '')
+    ) {
+      void this.updates.checkForUpdate().catch((error) => this.fail(error));
+    }
   }
 
   async applyUpdate(): Promise<void> {
@@ -76,5 +96,9 @@ export class AppUpdateService {
       phase: 'error',
       error: error instanceof Error ? error.message : String(error),
     }));
+  }
+
+  private releaseChannel(value: unknown): 'local' | 'uat' | 'production' {
+    return value === 'uat' || value === 'production' ? value : 'local';
   }
 }

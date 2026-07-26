@@ -3,10 +3,25 @@ name: Deploy to Firebase Hosting
 on:
   push:
     branches:
-      - '**'
+      - "**"
     paths:
-      - 'gtop-app/**'
-      - '.github/workflows/firebase-deploy.yml'
+      - "gtop-app/**"
+      - ".github/workflows/firebase-deploy.yml"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Rollback rehearsal deploys v1 to dev; production restores v1 to the live site."
+        required: true
+        type: choice
+        default: rehearsal
+        options:
+          - rehearsal
+          - production
+      confirm_production:
+        description: "Required confirmation when restoring v1 to production."
+        required: true
+        type: boolean
+        default: false
 
 # Ensure only the latest run per branch is active; cancel older in-progress runs
 concurrency:
@@ -16,8 +31,11 @@ concurrency:
 jobs:
   build-and-deploy:
     # Skip runs created by branch creation (push with no head_commit)
-    if: github.event_name != 'push' || github.event.head_commit != null
+    if: >-
+      (github.event_name != 'push' || github.event.head_commit != null) &&
+      (github.event_name != 'workflow_dispatch' || inputs.target != 'production' || inputs.confirm_production)
     runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'firebase-production' || 'firebase-development' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -35,9 +53,21 @@ jobs:
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           entryPoint: gtop-app
           projectId: gtop-app
           channelId: live
-          target: ${{ github.ref_name == 'main' && 'prod-gtop-app' || 'dev-gtop-app' }}
+          target: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'prod-gtop-app' || github.event_name == 'workflow_dispatch' && 'dev-gtop-app' || github.ref_name == 'main' && 'prod-gtop-app' || 'dev-gtop-app' }}
+
+      - name: Record v1 restore evidence
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          {
+            echo '## GTOP v1 backup deployment'
+            echo ''
+            echo "- Source commit: \`${GITHUB_SHA}\`"
+            echo "- Mode: \`${{ inputs.target }}\`"
+            echo "- V1 source remains in \`gtop-app/\`."
+          } >> "$GITHUB_STEP_SUMMARY"

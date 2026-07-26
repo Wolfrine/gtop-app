@@ -7,7 +7,7 @@
     "dataOperation": "users/{uid}",
     "v2Route": "/",
     "implementation": "AuthStore and GoogleOneTapService",
-    "status": "implemented",
+    "status": "verified",
     "evidence": ["e2e/public.spec.ts", "e2e/authenticated.spec.ts"],
     "actionPlanKey": "authentication-seo"
   },
@@ -31,8 +31,8 @@
     "dataOperation": "aggregate queries and activeUsers",
     "v2Route": "/admin",
     "implementation": "isolated DashboardMetric states",
-    "status": "implemented",
-    "evidence": [],
+    "status": "verified",
+    "evidence": ["../docs/GTOP_V2_PRODUCTION_ACCEPTANCE.md"],
     "actionPlanKey": "dashboard-presence"
   },
   {
@@ -55,8 +55,8 @@
     "dataOperation": "service worker and manifest",
     "v2Route": "/",
     "implementation": "AppUpdateService and ngsw",
-    "status": "implemented",
-    "evidence": [],
+    "status": "verified",
+    "evidence": ["../docs/GTOP_V2_PRODUCTION_ACCEPTANCE.md"],
     "actionPlanKey": "pwa-offline"
   },
   {
@@ -67,8 +67,8 @@
     "dataOperation": "IndexedDB",
     "v2Route": "all authenticated",
     "implementation": "persistent multi-tab cache and local indexes",
-    "status": "implemented",
-    "evidence": [],
+    "status": "verified",
+    "evidence": ["../docs/GTOP_V2_PRODUCTION_ACCEPTANCE.md"],
     "actionPlanKey": "pwa-offline"
   },
   {
@@ -79,8 +79,8 @@
     "dataOperation": "Realtime Database activeUsers",
     "v2Route": "authenticated shell",
     "implementation": "PresenceService",
-    "status": "implemented",
-    "evidence": [],
+    "status": "verified",
+    "evidence": ["../docs/GTOP_V2_PRODUCTION_ACCEPTANCE.md"],
     "actionPlanKey": "dashboard-presence"
   },
   {
@@ -91,7 +91,7 @@
     "dataOperation": "syllabus, questions, QuizResults",
     "v2Route": "/practice and /admin/learning/practice",
     "implementation": "PracticeBuilderPage and QuizPlayerPage",
-    "status": "implemented",
+    "status": "verified",
     "evidence": ["src/app/core/quiz-utils.test.ts", "e2e/authenticated.spec.ts"],
     "actionPlanKey": "content-parity"
   },
@@ -103,8 +103,8 @@
     "dataOperation": "QuizResults read",
     "v2Route": "/reports and /quiz-summary",
     "implementation": "legacy query adapters",
-    "status": "implemented",
-    "evidence": [],
+    "status": "verified",
+    "evidence": ["../docs/GTOP_V2_PRODUCTION_ACCEPTANCE.md"],
     "actionPlanKey": "legacy-links"
   },
   {
@@ -115,8 +115,8 @@
     "dataOperation": "questions and deletedQuestions",
     "v2Route": "/admin/questions",
     "implementation": "QuestionBankPage cursor paging",
-    "status": "implemented",
-    "evidence": [],
+    "status": "verified",
+    "evidence": ["../docs/GTOP_V2_PRODUCTION_ACCEPTANCE.md"],
     "actionPlanKey": "content-parity"
   },
   {
@@ -127,8 +127,8 @@
     "dataOperation": "questions and syllabus",
     "v2Route": "/admin/questions",
     "implementation": "validated import with duplicate and syllabus preview",
-    "status": "implemented",
-    "evidence": [],
+    "status": "verified",
+    "evidence": ["../docs/GTOP_V2_PRODUCTION_ACCEPTANCE.md"],
     "actionPlanKey": "content-parity"
   },
   {
@@ -139,8 +139,8 @@
     "dataOperation": "syllabus-preview",
     "v2Route": "/admin/syllabus",
     "implementation": "new, changed, existing and absent preview records",
-    "status": "implemented",
-    "evidence": [],
+    "status": "verified",
+    "evidence": ["../docs/GTOP_V2_PRODUCTION_ACCEPTANCE.md"],
     "actionPlanKey": "content-parity"
   },
   {
@@ -151,8 +151,8 @@
     "dataOperation": "users, QuizResults, activeUsers, participants",
     "v2Route": "/admin/users and /admin/users/:uid",
     "implementation": "UsersAdminPage and UserActivityPage",
-    "status": "implemented",
-    "evidence": [],
+    "status": "verified",
+    "evidence": ["../docs/GTOP_V2_PRODUCTION_ACCEPTANCE.md"],
     "actionPlanKey": "dashboard-presence"
   },
   {
@@ -163,7 +163,7 @@
     "dataOperation": "LiveSessions, participants and answers",
     "v2Route": "/live and /admin/learning/live",
     "implementation": "LiveHubPage and LiveSessionPage",
-    "status": "implemented",
+    "status": "verified",
     "evidence": ["src/app/core/quiz-utils.test.ts"],
     "actionPlanKey": "live-correctness"
   },
@@ -175,8 +175,8 @@
     "dataOperation": "LiveSessions mode run",
     "v2Route": "/quiz-run and /admin/learning/quiz-run",
     "implementation": "QuizRunPage",
-    "status": "implemented",
-    "evidence": [],
+    "status": "verified",
+    "evidence": ["../docs/GTOP_V2_PRODUCTION_ACCEPTANCE.md"],
     "actionPlanKey": "live-correctness"
   },
   {
@@ -187,7 +187,7 @@
     "dataOperation": "Meta/appearance",
     "v2Route": "/admin/theme-lab",
     "implementation": "five themes, four viewports, compare and motion",
-    "status": "implemented",
+    "status": "verified",
     "evidence": ["src/app/core/theme.service.test.ts"],
     "actionPlanKey": "theme-lab"
   },
@@ -199,7 +199,7 @@
     "dataOperation": "production analytics only",
     "v2Route": "/",
     "implementation": "PlatformMetaService and static metadata",
-    "status": "implemented",
+    "status": "verified",
     "evidence": ["e2e/public.spec.ts"],
     "actionPlanKey": "authentication-seo"
   },
@@ -223,7 +223,7 @@
     "dataOperation": "none",
     "v2Route": "all authenticated routes",
     "implementation": "learner bottom navigation, admin drawer and immersive shell mode",
-    "status": "implemented",
+    "status": "verified",
     "evidence": ["e2e/authenticated.spec.ts"],
     "actionPlanKey": "mobile-shell-navigation"
   },
@@ -235,7 +235,7 @@
     "dataOperation": "questions, QuizResults and LiveSessions",
     "v2Route": "/practice,/quiz,/reports,/live and admin learning aliases",
     "implementation": "safe-area quiz actions, mobile report cards and compact live layouts",
-    "status": "implemented",
+    "status": "verified",
     "evidence": ["e2e/authenticated.spec.ts"],
     "actionPlanKey": "mobile-learning-journeys"
   },
@@ -247,7 +247,7 @@
     "dataOperation": "users, questions, syllabus, actionPlans and diagnostics",
     "v2Route": "/admin/**",
     "implementation": "mobile user/question cards, Action Plan list, grouped drawer and accessible sheets",
-    "status": "implemented",
+    "status": "verified",
     "evidence": ["e2e/authenticated.spec.ts"],
     "actionPlanKey": "mobile-admin-operations"
   },
@@ -259,7 +259,7 @@
     "dataOperation": "Firebase emulators",
     "v2Route": "all representative routes",
     "implementation": "Chromium and WebKit Playwright device matrix with overflow, tap-target and chrome-overlap checks",
-    "status": "implemented",
+    "status": "verified",
     "evidence": ["playwright.config.ts", "e2e/public.spec.ts", "e2e/authenticated.spec.ts"],
     "actionPlanKey": "device-verification"
   }

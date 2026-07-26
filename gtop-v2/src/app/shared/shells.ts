@@ -144,7 +144,10 @@ import { ThemeService } from '../core/theme.service';
               <span class="avatar">{{ initial }}</span>
               <span class="user-meta">
                 <strong>{{ auth.profile()?.displayName || 'GTOP user' }}</strong>
-                <span>{{ auth.role() }} · build {{ buildVersion() }}</span>
+                <span
+                  >{{ auth.role() }} · {{ buildVersion()
+                  }}{{ buildCommit() ? ' · ' + buildCommit() : '' }}</span
+                >
               </span>
             </div>
             <button class="btn btn-secondary sign-out-mobile" type="button" (click)="logout()">
@@ -156,7 +159,9 @@ import { ThemeService } from '../core/theme.service';
 
       <ng-template #accountControls>
         <div class="side-foot">
-          <p class="small" style="margin:0 8px 8px;color:#8090aa">Build {{ buildVersion() }}</p>
+          <p class="small" style="margin:0 8px 8px;color:#8090aa">
+            {{ buildVersion() }}{{ buildCommit() ? ' · ' + buildCommit() : '' }}
+          </p>
           <div class="user-row">
             <span class="avatar">
               @if (auth.profile()?.photoURL) {
@@ -188,6 +193,7 @@ export class ProductShellComponent implements OnDestroy {
   @Input() roleMode: ShellContext = 'learner';
 
   readonly buildVersion = signal('local');
+  readonly buildCommit = signal('');
   readonly menuOpen = signal(false);
   readonly displayMode = signal<ShellDisplayMode>('standard');
   readonly currentLabel = signal('Workspace');
@@ -205,7 +211,8 @@ export class ProductShellComponent implements OnDestroy {
     fetch('/version.json', { cache: 'no-store' })
       .then((response) => (response.ok ? response.json() : null))
       .then((value) => {
-        if (value?.commit) this.buildVersion.set(String(value.commit).slice(0, 8));
+        if (value?.version) this.buildVersion.set(`v${String(value.version)}`);
+        if (value?.commit) this.buildCommit.set(String(value.commit).slice(0, 8));
       })
       .catch(() => undefined);
     this.syncRouteState();

@@ -9,7 +9,12 @@ export class RequiredVersionService {
     onSnapshot(
       doc(firebase.firestore, 'Meta', 'version'),
       (snapshot) => {
-        if (snapshot.exists()) updates.setRequiredVersion(String(snapshot.data()['version'] ?? ''));
+        if (!snapshot.exists()) return;
+        const data = snapshot.data();
+        updates.setRequiredRelease(
+          String(data['version'] ?? ''),
+          data['commit'] ? String(data['commit']) : undefined,
+        );
       },
       () => undefined,
     );

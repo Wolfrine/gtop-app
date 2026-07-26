@@ -177,7 +177,10 @@ export type AppUpdatePhase = 'current' | 'checking' | 'available' | 'applying' |
 export interface AppUpdateState {
   phase: AppUpdatePhase;
   currentVersion?: string;
+  currentCommit?: string;
+  channel?: 'local' | 'uat' | 'production';
   requiredVersion?: string;
+  requiredCommit?: string;
   error?: string;
 }
 

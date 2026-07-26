@@ -1,10 +1,10 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { environment } from '../../environments/environment';
 import { AdminRepository } from '../core/admin.repository';
 import { AppNavigationService } from '../core/app-navigation.service';
 import { AuthStore } from '../core/auth.store';
+import { DialogService } from '../core/dialog.service';
 import { LearningRepository } from '../core/learning.repository';
 import { GtopUser, LiveSession, PresenceRecord, QuizResult, asDate } from '../core/models';
 import { PresenceService } from '../core/presence.service';
@@ -470,6 +470,7 @@ export class UserActivityPage implements OnInit {
     private router: Router,
     public auth: AuthStore,
     private navigation: AppNavigationService,
+    private dialog: DialogService,
   ) {
     this.uid = route.snapshot.paramMap.get('uid')!;
   }
@@ -561,13 +562,28 @@ export class UserActivityPage implements OnInit {
   async changeRole(role: GtopUser['role']) {
     const user = this.user();
     if (!user) return;
-    if (environment.uat && !confirm(`UAT uses live data. Change ${user.email} to ${role}?`)) return;
+    if (
+      !(await this.dialog.confirm({
+        title: 'Change user role?',
+        message: `Change ${user.email} to ${role}? This updates live access permissions.`,
+        confirmLabel: 'Change role',
+        danger: true,
+      }))
+    )
+      return;
     await this.admin.setRole(user.uid, role);
     this.user.set({ ...user, role });
     this.actionMessage.set('Role updated.');
   }
   async markOffline() {
-    if (!confirm('Mark this user offline?')) return;
+    if (
+      !(await this.dialog.confirm({
+        title: 'Mark user offline?',
+        message: 'This resets the current presence record for this user.',
+        confirmLabel: 'Mark offline',
+      }))
+    )
+      return;
     await this.presenceService.markOffline(this.uid);
     this.presence.set({ userId: this.uid, isOnline: false, lastActive: Date.now() });
     await this.admin.log(
@@ -579,7 +595,15 @@ export class UserActivityPage implements OnInit {
     this.actionMessage.set('User marked offline.');
   }
   async resetLogin() {
-    if (!confirm('Reset this user’s last-login metadata?')) return;
+    if (
+      !(await this.dialog.confirm({
+        title: 'Reset last-login metadata?',
+        message: 'This clears the saved last-login timestamp for this user.',
+        confirmLabel: 'Reset metadata',
+        danger: true,
+      }))
+    )
+      return;
     await this.admin.resetLastLogin(this.uid, this.auth.profile()!.uid);
     const user = this.user();
     if (user) this.user.set({ ...user, lastLogin: null });

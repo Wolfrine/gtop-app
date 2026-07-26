@@ -43,7 +43,10 @@ jobs:
           npm run test:rules
           npm run test:database-rules
           npm run build:uat
-          printf '{"commit":"%s","branch":"%s","builtAt":"%s"}' "$GITHUB_SHA" "$GITHUB_REF_NAME" "$(date -u +%FT%TZ)" > dist/gtop-v2/browser/version.json
+          package_version="$(node -p "require('./package.json').version")"
+          printf '{"version":"%s-uat.%s","commit":"%s","branch":"%s","channel":"uat","builtAt":"%s"}' \
+            "$package_version" "${GITHUB_SHA::8}" "$GITHUB_SHA" "$GITHUB_REF_NAME" "$(date -u +%FT%TZ)" \
+            > dist/gtop-v2/browser/version.json
 
       - name: Browser and accessibility checks
         working-directory: gtop-v2

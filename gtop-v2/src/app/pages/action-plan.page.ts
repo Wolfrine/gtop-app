@@ -846,10 +846,11 @@ export class ActionPlanPage implements OnInit, OnDestroy {
     const item = this.selected();
     if (!item) return;
     if (
-      environment.uat &&
       !(await this.dialog.confirm({
         title: 'Archive completed activity?',
-        message: 'UAT uses live production data. The item will leave active Action Plan views.',
+        message: environment.uat
+          ? 'UAT uses live production data. The item will leave active Action Plan views.'
+          : 'The item will leave active Action Plan views.',
         confirmLabel: 'Archive',
         danger: true,
       }))
@@ -864,7 +865,6 @@ export class ActionPlanPage implements OnInit, OnDestroy {
   }
   async seed() {
     if (
-      environment.uat &&
       !(await this.dialog.confirm({
         title: 'Seed GTOP v2 workstreams?',
         message: 'This creates missing workstreams in the live production Action Plan.',

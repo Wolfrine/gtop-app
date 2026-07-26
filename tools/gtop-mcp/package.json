@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "bin": { "gtop-firestore-mcp": "dist/index.js" },
+  "bin": {
+    "gtop-firestore-mcp": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
+    "publish:version": "node dist/publish-version.js",
     "seed:v2": "node dist/seed-v2-plan.js",
     "test": "vitest run"
   },

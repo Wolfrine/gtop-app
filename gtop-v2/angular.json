@@ -51,13 +51,17 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
             "production": {
               "serviceWorker": "ngsw-config.json",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.production.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -66,8 +70,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "10kB",
+                  "maximumError": "16kB"
                 }
               ],
               "outputHashing": "all"
@@ -105,13 +109,13 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
-              "production": {
-                "buildTarget": "gtop-v2:build:production"
-              },
-              "uat": {
-                "buildTarget": "gtop-v2:build:uat"
-              },
-              "development": {
+            "production": {
+              "buildTarget": "gtop-v2:build:production"
+            },
+            "uat": {
+              "buildTarget": "gtop-v2:build:uat"
+            },
+            "development": {
               "buildTarget": "gtop-v2:build:development"
             }
           },

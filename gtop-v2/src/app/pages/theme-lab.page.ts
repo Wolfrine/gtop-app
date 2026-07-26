@@ -15,8 +15,8 @@ import { ThemeService } from '../core/theme.service';
           <p class="eyebrow">Experience studio</p>
           <h1>Choose how GTOP should feel.</h1>
           <p class="lede">
-            Explore five complete visual directions privately. Nothing changes for other UAT users
-            until you explicitly publish.
+            Explore five complete visual directions privately. Nothing changes for other users until
+            you explicitly publish.
           </p>
         </div>
         <div class="published">
@@ -73,7 +73,7 @@ import { ThemeService } from '../core/theme.service';
             [disabled]="saving() || selected() === theme.published().themeId"
             (click)="publish()"
           >
-            {{ saving() ? 'Publishing…' : 'Publish to UAT' }}
+            {{ saving() ? 'Publishing…' : publishLabel }}
           </button>
         </div>
       </div>
@@ -192,7 +192,8 @@ import { ThemeService } from '../core/theme.service';
                   <span class="pill info">Dialog</span>
                   <h3>Publish this experience?</h3>
                   <p class="muted">
-                    The selected theme and motion preset will become visible to UAT users.
+                    The selected theme and motion preset will become visible to
+                    {{ audienceLabel }}.
                   </p>
                   <div class="button-row">
                     <button class="btn btn-secondary">Cancel</button
@@ -504,6 +505,8 @@ import { ThemeService } from '../core/theme.service';
   ],
 })
 export class ThemeLabPage {
+  readonly audienceLabel = environment.uat ? 'v2 UAT users' : 'all GTOP users';
+  readonly publishLabel = environment.uat ? 'Publish to UAT' : 'Publish appearance';
   readonly selected = signal<ThemeId>('academic-editorial');
   readonly viewport = signal<DevicePreviewPreset['id']>('desktop');
   readonly compare = signal(false);
@@ -552,20 +555,20 @@ export class ThemeLabPage {
     return asDate(this.theme.published().updatedAt)?.toLocaleString('en-IN') ?? 'Default';
   }
   async publish(): Promise<void> {
-    if (
-      environment.uat &&
-      !(await this.dialog.confirm({
-        title: 'Publish theme to all UAT users?',
-        message:
-          'UAT uses live configuration. This appearance and motion preset will update for every v2 UAT user.',
-        confirmLabel: 'Publish to UAT',
-      }))
-    )
-      return;
+    const confirmed = await this.dialog.confirm({
+      title: environment.uat
+        ? 'Publish theme to all v2 UAT users?'
+        : 'Publish theme to all GTOP users?',
+      message: environment.uat
+        ? 'UAT uses live configuration. This appearance and motion preset will update for every v2 UAT user.'
+        : 'This appearance and motion preset will update for every GTOP user.',
+      confirmLabel: this.publishLabel,
+    });
+    if (!confirmed) return;
     this.saving.set(true);
     try {
       await this.theme.publish(this.selected(), this.motion());
-      this.message.set(`${this.publishedName()} is now published to UAT.`);
+      this.message.set(`${this.publishedName()} is now published to ${this.audienceLabel}.`);
     } finally {
       this.saving.set(false);
     }

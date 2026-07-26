@@ -1,5 +1,10 @@
 import { Routes } from '@angular/router';
-import { adminLearningRedirectGuard, authGuard, legacyQuizEntryGuard, roleGuard } from './core/guards';
+import {
+  adminLearningRedirectGuard,
+  authGuard,
+  legacyQuizEntryGuard,
+  roleGuard,
+} from './core/guards';
 
 const learnerGuards = [authGuard, roleGuard(['user', 'admin'])];
 const adminGuards = [authGuard, roleGuard(['admin'])];
@@ -42,6 +47,7 @@ export const routes: Routes = [
       {
         path: 'quiz',
         canActivate: [legacyQuizEntryGuard],
+        data: { shellDisplay: 'immersive' },
         title: 'Quiz · GTOP',
         loadComponent: () => import('./pages/practice-quiz.pages').then((m) => m.QuizPlayerPage),
       },
@@ -72,12 +78,14 @@ export const routes: Routes = [
       {
         path: 'live/host/:sessionId',
         canActivate: [adminLearningRedirectGuard('live/host')],
+        data: { shellDisplay: 'immersive' },
         title: 'Host live quiz · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },
       {
         path: 'live/play/:sessionId',
         canActivate: [adminLearningRedirectGuard('live/play')],
+        data: { shellDisplay: 'immersive' },
         title: 'Play live quiz · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },
@@ -96,6 +104,7 @@ export const routes: Routes = [
       {
         path: 'quiz-run/lobby/:sessionId',
         canActivate: [adminLearningRedirectGuard('quiz-run/lobby')],
+        data: { shellDisplay: 'immersive' },
         title: 'Quiz run lobby · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },
@@ -164,10 +173,12 @@ export const routes: Routes = [
       {
         path: 'learning/practice',
         title: 'Admin practice · GTOP',
-        loadComponent: () => import('./pages/practice-quiz.pages').then((m) => m.PracticeBuilderPage),
+        loadComponent: () =>
+          import('./pages/practice-quiz.pages').then((m) => m.PracticeBuilderPage),
       },
       {
         path: 'learning/quiz',
+        data: { shellDisplay: 'immersive' },
         title: 'Admin quiz · GTOP',
         loadComponent: () => import('./pages/practice-quiz.pages').then((m) => m.QuizPlayerPage),
       },
@@ -193,11 +204,13 @@ export const routes: Routes = [
       },
       {
         path: 'learning/live/host/:sessionId',
+        data: { shellDisplay: 'immersive' },
         title: 'Host live quiz · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },
       {
         path: 'learning/live/play/:sessionId',
+        data: { shellDisplay: 'immersive' },
         title: 'Play live quiz · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },
@@ -213,6 +226,7 @@ export const routes: Routes = [
       },
       {
         path: 'learning/quiz-run/lobby/:sessionId',
+        data: { shellDisplay: 'immersive' },
         title: 'Admin quiz run lobby · GTOP',
         loadComponent: () => import('./pages/live-v2.pages').then((m) => m.LiveSessionPage),
       },

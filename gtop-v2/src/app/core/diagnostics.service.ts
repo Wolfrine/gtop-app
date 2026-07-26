@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { DeviceDiagnosticContext, ShellContext, ShellDisplayMode } from './models';
 
 export type DiagnosticLevel = 'error' | 'warning' | 'info';
 export type DiagnosticCategory = 'auth' | 'console' | 'runtime' | 'network' | 'system';
@@ -17,7 +18,10 @@ export interface ClientDiagnostic {
 @Injectable({ providedIn: 'root' })
 export class DiagnosticsService {
   readonly records = signal<ClientDiagnostic[]>(this.read());
+  readonly panelOpen = signal(false);
   private static listenersInstalled = false;
+  private shellContext?: ShellContext;
+  private shellDisplayMode?: ShellDisplayMode;
 
   constructor() {
     if (DiagnosticsService.listenersInstalled) return;
@@ -98,15 +102,51 @@ export class DiagnosticsService {
   }
 
   runSelfCheck(): void {
+    const context = this.deviceContext();
     const checks = [
       `online=${navigator.onLine}`,
       `secureContext=${window.isSecureContext}`,
       `indexedDB=${typeof indexedDB !== 'undefined'}`,
       `localStorage=${this.storageAvailable()}`,
-      `standalone=${window.matchMedia('(display-mode: standalone)').matches}`,
+      `standalone=${context.standalone}`,
+      `viewport=${context.viewportWidth}x${context.viewportHeight}`,
+      `visualViewport=${context.visualViewportWidth ?? 'n/a'}x${context.visualViewportHeight ?? 'n/a'}`,
+      `orientation=${context.orientation}`,
+      `pointer=${context.coarsePointer ? 'coarse' : 'fine'}`,
+      `hover=${context.hoverCapable}`,
+      `shell=${context.shellContext ?? 'public'}/${context.shellDisplayMode ?? 'standard'}`,
       `googleIdentity=${Boolean(window.google?.accounts?.id)}`,
     ];
     this.capture('info', 'system', 'Device self-check completed.', checks.join('; '));
+  }
+
+  openPanel(): void {
+    this.panelOpen.set(true);
+  }
+
+  closePanel(): void {
+    this.panelOpen.set(false);
+  }
+
+  setShellContext(context?: ShellContext, displayMode: ShellDisplayMode = 'standard'): void {
+    this.shellContext = context;
+    this.shellDisplayMode = displayMode;
+  }
+
+  deviceContext(): DeviceDiagnosticContext {
+    const visual = window.visualViewport;
+    return {
+      viewportWidth: Math.round(window.innerWidth),
+      viewportHeight: Math.round(window.innerHeight),
+      visualViewportWidth: visual ? Math.round(visual.width) : undefined,
+      visualViewportHeight: visual ? Math.round(visual.height) : undefined,
+      orientation: window.innerWidth > window.innerHeight ? 'landscape' : 'portrait',
+      standalone: this.matches('(display-mode: standalone)'),
+      coarsePointer: this.matches('(pointer: coarse)'),
+      hoverCapable: this.matches('(hover: hover)'),
+      shellContext: this.shellContext,
+      shellDisplayMode: this.shellDisplayMode,
+    };
   }
 
   clear(): void {
@@ -127,16 +167,25 @@ export class DiagnosticsService {
   }
 
   exportText(): string {
+    const device = this.deviceContext();
     const header = [
       'GTOP client diagnostics',
       `generated=${new Date().toISOString()}`,
       `url=${location.origin}${location.pathname}${location.search}`,
       `online=${navigator.onLine}`,
       `language=${navigator.language}`,
-      `standalone=${window.matchMedia('(display-mode: standalone)').matches}`,
+      `viewport=${device.viewportWidth}x${device.viewportHeight}`,
+      `visualViewport=${device.visualViewportWidth ?? 'n/a'}x${device.visualViewportHeight ?? 'n/a'}`,
+      `orientation=${device.orientation}`,
+      `standalone=${device.standalone}`,
+      `pointer=${device.coarsePointer ? 'coarse' : 'fine'}`,
+      `hover=${device.hoverCapable}`,
+      `shell=${device.shellContext ?? 'public'}/${device.shellDisplayMode ?? 'standard'}`,
       `userAgent=${this.redact(navigator.userAgent)}`,
     ].join('\n');
-    const records = this.records().map((record) => this.format(record)).join('\n\n');
+    const records = this.records()
+      .map((record) => this.format(record))
+      .join('\n\n');
     return `${header}\n\n${records || 'No diagnostic events captured.'}`;
   }
 
@@ -189,6 +238,10 @@ export class DiagnosticsService {
     } catch {
       return false;
     }
+  }
+
+  private matches(query: string): boolean {
+    return typeof window.matchMedia === 'function' && window.matchMedia(query).matches;
   }
 
   private read(): ClientDiagnostic[] {

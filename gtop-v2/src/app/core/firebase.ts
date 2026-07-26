@@ -12,11 +12,15 @@ import {
 import { environment } from '../../environments/environment';
 import { PersistenceState } from './models';
 
+const useEmulators =
+  typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('emulator');
 const app = initializeApp(environment.firebase);
 const auth = getAuth(app);
 const firestore = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
   ignoreUndefinedProperties: true,
+  experimentalForceLongPolling: useEmulators,
+  experimentalAutoDetectLongPolling: !useEmulators,
 });
 
 export const persistenceState = signal<PersistenceState>({
@@ -25,7 +29,7 @@ export const persistenceState = signal<PersistenceState>({
   localIndexesEnabled: false,
 });
 
-if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('emulator')) {
+if (useEmulators) {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
   connectFirestoreEmulator(firestore, '127.0.0.1', 8080);
 }

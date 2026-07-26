@@ -121,7 +121,9 @@ export class WorkRepository {
     const current = await getDocs(
       query(collection(this.firebase.firestore, 'actionPlans'), limit(100)),
     );
-    const existingTitles = new Set(current.docs.map((entry) => String(entry.data()['title'] ?? '')));
+    const existingTitles = new Set(
+      current.docs.map((entry) => String(entry.data()['title'] ?? '')),
+    );
     const work = [
       [
         'V2 admin shell continuity',
@@ -153,10 +155,46 @@ export class WorkRepository {
         'Preserve functioning v1 routes, query parameters, Hub return paths, and historical review links.',
         'Compatibility',
       ],
-      ['V2 content parity', 'Complete question paging/import, syllabus preview, flags, user filters, reports, and audit evidence.', 'Admin operations'],
-      ['V2 live-session correctness', 'Validate scheduling, open-room queries, join behavior, reconnect handling, indexes, results, and deterministic ranking.', 'Live practice'],
-      ['V2 Theme Lab and motion', 'Complete five-theme comparison, four viewports, representative controls, publishing metadata, and reduced motion.', 'Experience'],
-      ['V2 release evidence', 'Replace aspirational parity claims with runnable authenticated, emulator, PWA, accessibility, and visual evidence.', 'Release'],
+      [
+        'V2 content parity',
+        'Complete question paging/import, syllabus preview, flags, user filters, reports, and audit evidence.',
+        'Admin operations',
+      ],
+      [
+        'V2 live-session correctness',
+        'Validate scheduling, open-room queries, join behavior, reconnect handling, indexes, results, and deterministic ranking.',
+        'Live practice',
+      ],
+      [
+        'V2 Theme Lab and motion',
+        'Complete five-theme comparison, four viewports, representative controls, publishing metadata, and reduced motion.',
+        'Experience',
+      ],
+      [
+        'V2 mobile shell and navigation',
+        'Deliver learner bottom navigation, grouped admin drawer, measured banner offsets, immersive sessions, safe areas, and accessible overlay behavior.',
+        'Mobile experience',
+      ],
+      [
+        'V2 mobile learning journeys',
+        'Verify practice, quiz, review, reports, live sessions, reconnect behavior, and shell return paths from 320px through tablet layouts.',
+        'Mobile experience',
+      ],
+      [
+        'V2 mobile admin operations',
+        'Deliver phone-safe users, content, Action Plan, diagnostics, reporting, live control, and Theme Lab workflows without hidden actions.',
+        'Mobile administration',
+      ],
+      [
+        'V2 device verification',
+        'Add compact phone, Android, iPhone WebKit, landscape, tablet, PWA, keyboard, overlap, touch-target, accessibility, and visual evidence.',
+        'Release',
+      ],
+      [
+        'V2 release evidence',
+        'Replace aspirational parity claims with runnable authenticated, emulator, PWA, accessibility, and visual evidence.',
+        'Release',
+      ],
     ];
     for (const [title, description, area] of work) {
       if (existingTitles.has(title)) continue;

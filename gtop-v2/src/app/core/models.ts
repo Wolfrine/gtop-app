@@ -108,6 +108,45 @@ export interface QuizResult {
 export type QuizLaunchKind =
   'new' | 'retry-all' | 'retry-incorrect' | 'historical' | 'live' | 'generated';
 export type ShellContext = 'learner' | 'admin';
+export type ShellDisplayMode = 'standard' | 'immersive';
+export type MobileNavPlacement = 'primary' | 'more' | 'drawer';
+
+export interface NavItem {
+  label: string;
+  path: string;
+  icon: string;
+  group?: string;
+  mobilePlacement?: MobileNavPlacement;
+  mobilePriority?: number;
+}
+
+export interface ResponsiveColumn<T> {
+  key: keyof T | string;
+  label: string;
+  priority: 'primary' | 'secondary' | 'detail';
+  numeric?: boolean;
+}
+
+export interface DeviceDiagnosticContext {
+  viewportWidth: number;
+  viewportHeight: number;
+  visualViewportWidth?: number;
+  visualViewportHeight?: number;
+  orientation: 'portrait' | 'landscape';
+  standalone: boolean;
+  coarsePointer: boolean;
+  hoverCapable: boolean;
+  shellContext?: ShellContext;
+  shellDisplayMode?: ShellDisplayMode;
+}
+
+export interface DevicePreviewPreset {
+  id: 'compact-phone' | 'phone' | 'landscape-phone' | 'tablet' | 'desktop' | 'wide';
+  label: string;
+  width: number;
+  height: number;
+}
+
 export interface QuizLaunchContext {
   kind: QuizLaunchKind;
   sourceResultId?: string;

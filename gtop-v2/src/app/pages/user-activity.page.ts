@@ -401,11 +401,38 @@ import { QuizSessionStore } from '../core/quiz-session.store';
         .profile-title {
           flex-direction: column;
         }
+        .profile-hero {
+          padding: 20px;
+        }
+        .profile-title {
+          gap: 8px;
+        }
         .tabs {
+          position: sticky;
+          z-index: 6;
+          top: calc(var(--app-chrome-height) + var(--mobile-header-height));
+          margin-right: -16px;
+          margin-left: -16px;
+          padding-right: 16px;
+          padding-left: 16px;
           overflow: auto;
+          scroll-padding-inline: 16px;
+          scroll-snap-type: x mandatory;
+          border-radius: 0;
+          scrollbar-width: none;
         }
         .tabs button {
+          min-height: 44px;
+          flex: 0 0 auto;
+          scroll-snap-align: start;
           white-space: nowrap;
+        }
+        .danger-zone .button-row {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+        .danger-zone .btn {
+          width: 100%;
         }
       }
     `,

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AppNavigationService } from '../core/app-navigation.service';
 import { AuthStore } from '../core/auth.store';
+import { DialogService } from '../core/dialog.service';
 import { LearningRepository, PracticeFilters } from '../core/learning.repository';
 import { Question, QuizAnswer, QuizResult, SyllabusItem, asDate } from '../core/models';
 import { QuizSessionState, QuizSessionStore } from '../core/quiz-session.store';
@@ -501,12 +502,70 @@ export class PracticeBuilderPage implements OnInit {
         border-top: 1px solid var(--line);
       }
       @media (max-width: 600px) {
+        .quiz-wrap {
+          padding-bottom: calc(32px + var(--safe-bottom));
+        }
+        .quiz-top {
+          align-items: flex-start;
+        }
+        .top-actions {
+          flex: 0 0 auto;
+        }
+        .question-meta {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 8px;
+        }
         .question-card {
           padding: 20px;
         }
+        .question-card h1 {
+          margin: 22px 0;
+          font-size: clamp(21px, 6.3vw, 27px);
+        }
         .quiz-actions {
+          position: sticky;
+          z-index: 5;
+          bottom: var(--safe-bottom);
           align-items: stretch;
           flex-direction: column;
+          margin: 28px -20px -20px;
+          padding: 16px 20px calc(16px + var(--safe-bottom));
+          background: color-mix(in srgb, var(--surface) 96%, transparent);
+          border-radius: 0 0 var(--radius) var(--radius);
+          box-shadow: 0 -12px 24px color-mix(in srgb, var(--ink) 7%, transparent);
+          backdrop-filter: blur(16px);
+        }
+        .quiz-actions .button-row {
+          display: grid;
+          grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+        }
+        .quiz-actions .btn {
+          width: 100%;
+        }
+      }
+      @media (max-height: 500px) and (orientation: landscape) {
+        .quiz-wrap > .progress-track {
+          margin: 10px 0 14px;
+        }
+        .question-card {
+          padding: 16px;
+        }
+        .question-card h1 {
+          margin: 14px 0;
+          font-size: 20px;
+        }
+        .option {
+          min-height: 46px;
+          margin: 6px 0;
+          padding: 8px 12px;
+        }
+        .quiz-actions {
+          margin: 14px -16px -16px;
+          padding: 10px 16px calc(10px + var(--safe-bottom));
+        }
+        .quiz-actions > .muted {
+          display: none;
         }
       }
     `,
@@ -532,6 +591,7 @@ export class QuizPlayerPage implements OnDestroy {
     private auth: AuthStore,
     public router: Router,
     public navigation: AppNavigationService,
+    private dialog: DialogService,
   ) {
     this.session.set(sessions.restore());
     this.resetTimer();
@@ -557,9 +617,17 @@ export class QuizPlayerPage implements OnDestroy {
   previous() {
     if (this.index() > 0) this.move(-1);
   }
-  leave() {
-    if (confirm('Leave this practice? Your answers will remain in this browser.'))
-      this.router.navigateByUrl(this.navigation.routeForSession('practice', this.session()?.launchContext));
+  async leave() {
+    if (
+      await this.dialog.confirm({
+        title: 'Leave this practice?',
+        message: 'Your answers will remain saved in this browser so you can continue later.',
+        confirmLabel: 'Leave practice',
+      })
+    )
+      this.router.navigateByUrl(
+        this.navigation.routeForSession('practice', this.session()?.launchContext),
+      );
   }
   async submit() {
     const session = this.session(),
@@ -591,9 +659,12 @@ export class QuizPlayerPage implements OnDestroy {
       JSON.stringify({ ...session, resultId, durationSeconds }),
     );
     this.sessions.finish();
-    await this.router.navigate([this.navigation.routeForSession('quiz-summary', session.launchContext)], {
-      queryParams: { returnTo: session.returnTo, hubReturnPath: session.hubReturnPath },
-    });
+    await this.router.navigate(
+      [this.navigation.routeForSession('quiz-summary', session.launchContext)],
+      {
+        queryParams: { returnTo: session.returnTo, hubReturnPath: session.hubReturnPath },
+      },
+    );
   }
   @HostListener('window:keydown', ['$event']) keys(event: KeyboardEvent) {
     if (/^[1-6]$/.test(event.key)) {
@@ -859,6 +930,53 @@ interface SummaryState extends QuizSessionState {
           transform: translateX(var(--x)) rotate(270deg);
         }
       }
+      @media (max-width: 680px) {
+        .summary-page .page-head {
+          position: relative;
+          padding-right: 94px;
+        }
+        .score-ring {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 82px;
+          height: 82px;
+          border-width: 7px;
+        }
+        .score-ring::before {
+          width: 58px;
+          height: 58px;
+        }
+        .score-ring strong {
+          font-size: 18px;
+        }
+        .score-ring span {
+          display: none;
+        }
+        .segmented,
+        .section-head .button-row {
+          width: 100%;
+        }
+        .segmented button,
+        .section-head .button-row > .btn {
+          flex: 1;
+        }
+        .footer-actions {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+        .footer-actions > * {
+          width: 100%;
+        }
+      }
+      @media (max-width: 359px) {
+        .summary-page .page-head {
+          padding-right: 0;
+        }
+        .score-ring {
+          position: relative;
+        }
+      }
     `,
   ],
 })
@@ -895,6 +1013,7 @@ export class QuizSummaryPage implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private navigation: AppNavigationService,
+    private dialog: DialogService,
   ) {
     try {
       this.session.set(JSON.parse(sessionStorage.getItem('gtop-v2-summary') || 'null'));
@@ -960,10 +1079,13 @@ export class QuizSummaryPage implements OnInit {
     );
   }
   async flag(question: Question) {
-    const reason = prompt(
-      'What should the content team review?',
-      'Question or answer may be incorrect',
-    );
+    const reason = await this.dialog.prompt({
+      title: 'Report this question',
+      message: 'Tell the content team what should be checked.',
+      inputLabel: 'Review reason',
+      defaultValue: 'Question or answer may be incorrect',
+      confirmLabel: 'Send report',
+    });
     if (!reason) return;
     await this.learning.flagQuestion(question.id, this.auth.profile()!.uid, reason);
     this.flagged.update((v) => new Set(v).add(question.id));
@@ -1051,7 +1173,7 @@ export class QuizSummaryPage implements OnInit {
             <option value="run">Run</option>
           </select>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap desktop-session-table">
           <table>
             <thead>
               <tr>
@@ -1098,6 +1220,45 @@ export class QuizSummaryPage implements OnInit {
             </tbody>
           </table>
         </div>
+        <div class="mobile-session-list">
+          @for (result of filtered(); track result.id) {
+            <article class="card mobile-session-card">
+              <div class="mobile-session-head">
+                <div>
+                  <span class="muted small">{{ date(result.timestamp) }}</span>
+                  <h3>{{ result.subject }}</h3>
+                  <p class="muted">{{ result.chapter }}</p>
+                </div>
+                <span
+                  class="pill"
+                  [class.success]="result.percentage >= 70"
+                  [class.warning]="result.percentage < 70"
+                  >{{ result.percentage }}%</span
+                >
+              </div>
+              <dl>
+                <div>
+                  <dt>Mode</dt>
+                  <dd>{{ result.quizType }}</dd>
+                </div>
+                <div>
+                  <dt>Duration</dt>
+                  <dd>{{ result.duration || '—' }}</dd>
+                </div>
+              </dl>
+              <div class="button-row">
+                <button class="btn btn-secondary" (click)="review(result)">Review</button>
+                <button
+                  class="btn btn-quiet"
+                  (click)="retry(result, true)"
+                  [disabled]="!result.wrongAnswers"
+                >
+                  Retry incorrect
+                </button>
+              </div>
+            </article>
+          }
+        </div>
       </section>
     }
   </div>`,
@@ -1136,6 +1297,55 @@ export class QuizSummaryPage implements OnInit {
         align-items: center;
         margin: 18px 0;
         text-transform: capitalize;
+      }
+      .mobile-session-list {
+        display: none;
+      }
+      @media (max-width: 680px) {
+        .desktop-session-table {
+          display: none;
+        }
+        .mobile-session-list {
+          display: grid;
+          gap: 12px;
+        }
+        .mobile-session-head {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+        }
+        .mobile-session-head h3 {
+          margin: 5px 0 3px;
+        }
+        .mobile-session-head p {
+          margin-bottom: 0;
+        }
+        .mobile-session-card dl {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+          margin: 16px 0;
+        }
+        .mobile-session-card dl div {
+          padding: 10px;
+          background: var(--surface-2);
+          border-radius: 10px;
+        }
+        .mobile-session-card dt {
+          color: var(--muted);
+          font-size: 10px;
+          text-transform: uppercase;
+        }
+        .mobile-session-card dd {
+          margin: 4px 0 0;
+          font-weight: 750;
+          text-transform: capitalize;
+        }
+        .mobile-session-card .button-row {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
       }
     `,
   ],

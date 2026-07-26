@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AppNavigationService } from '../core/app-navigation.service';
 import { AuthStore } from '../core/auth.store';
+import { DialogService } from '../core/dialog.service';
 import { LearningRepository } from '../core/learning.repository';
 import { LiveRepository } from '../core/live.repository';
 import { LiveSession, Question, SyllabusItem, asDate } from '../core/models';
@@ -360,6 +361,7 @@ export class LiveHubPage implements OnInit, OnDestroy {
     private learning: LearningRepository,
     private router: Router,
     public navigation: AppNavigationService,
+    private dialog: DialogService,
   ) {}
   async ngOnInit() {
     this.board = this.auth.profile()?.board || '';
@@ -405,7 +407,15 @@ export class LiveHubPage implements OnInit, OnDestroy {
   async create() {
     const p = this.auth.profile();
     if (!p || !this.previewQuestions().length) return;
-    if (!confirm('Create this UAT live room using production data?')) return;
+    if (
+      !(await this.dialog.confirm({
+        title: 'Create live room?',
+        message:
+          'UAT uses production questions and live session data. Review the generated preview before continuing.',
+        confirmLabel: 'Create room',
+      }))
+    )
+      return;
     this.busy.set(true);
     try {
       const start = this.scheduled ? new Date(this.scheduled) : undefined;
@@ -438,7 +448,8 @@ export class LiveHubPage implements OnInit, OnDestroy {
     this.error.set('');
     try {
       const s = await this.live.findByCode(this.joinCode);
-      if (!s || s.status === 'ended' || s.mode === 'run') throw new Error('No open live session matches that code.');
+      if (!s || s.status === 'ended' || s.mode === 'run')
+        throw new Error('No open live session matches that code.');
       const p = this.auth.profile()!;
       await this.live.join(s.id, { uid: p.uid, displayName: p.displayName, photoURL: p.photoURL });
       await this.router.navigate([this.navigation.path('live/play'), s.id]);
@@ -537,6 +548,20 @@ export class LiveHubPage implements OnInit, OnDestroy {
         border-radius: 10px;
         font-weight: 800;
         letter-spacing: 0.1em;
+      }
+      @media (max-width: 420px) {
+        .join {
+          align-items: stretch;
+          flex-direction: column;
+        }
+        .join input {
+          min-height: 50px;
+          font-size: 16px;
+          text-align: center;
+        }
+        .join .btn {
+          width: 100%;
+        }
       }
     `,
   ],
@@ -883,13 +908,70 @@ export class QuizRunPage {
         color: var(--muted);
       }
       @media (max-width: 650px) {
+        .session-page .page-head {
+          position: relative;
+          padding-right: 70px;
+        }
+        .room-status {
+          position: absolute;
+          top: 0;
+          right: 0;
+          align-items: flex-end;
+          flex-direction: column;
+        }
         .control,
         .question-meta {
           align-items: stretch;
           flex-direction: column;
         }
+        .control .button-row {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          width: 100%;
+        }
+        .control .button-row .btn {
+          width: 100%;
+        }
+        .control .button-row .btn-danger {
+          grid-column: 1 / -1;
+        }
         .active-room {
           padding: 20px;
+        }
+        .active-room h2 {
+          font-size: clamp(21px, 6vw, 27px);
+        }
+        .leader-row {
+          grid-template-columns: 30px minmax(0, 1fr) auto;
+          padding-right: 4px;
+          padding-left: 4px;
+        }
+        .leaderboard .button-row {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+        .leaderboard .btn {
+          width: 100%;
+        }
+      }
+      @media (max-height: 500px) and (orientation: landscape) {
+        .session-page .page-head {
+          margin-bottom: 14px;
+        }
+        .active-room {
+          padding: 16px;
+        }
+        .active-room .progress-track {
+          margin: 12px 0;
+        }
+        .active-room h2 {
+          margin: 14px 0;
+          font-size: 20px;
+        }
+        .active-room .option {
+          min-height: 46px;
+          margin: 6px 0;
+          padding: 8px 12px;
         }
       }
     `,
@@ -939,6 +1021,7 @@ export class LiveSessionPage implements OnDestroy {
     private learning: LearningRepository,
     public auth: AuthStore,
     public navigation: AppNavigationService,
+    private dialog: DialogService,
   ) {
     const id = route.snapshot.paramMap.get('sessionId')!;
     this.stops.push(live.observeSession(id, (value) => void this.onSession(value)));
@@ -962,7 +1045,15 @@ export class LiveSessionPage implements OnDestroy {
   }
   async end() {
     const s = this.session();
-    if (s && confirm('End this room and calculate the leaderboard?'))
+    if (
+      s &&
+      (await this.dialog.confirm({
+        title: 'End this room?',
+        message: 'Answering will stop and GTOP will calculate the final leaderboard.',
+        confirmLabel: 'End room',
+        danger: true,
+      }))
+    )
       await this.live.updateSession(s.id, { status: 'ended' });
   }
   async nextQuestion() {

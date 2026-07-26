@@ -28,4 +28,17 @@ describe('DiagnosticsService', () => {
     expect(diagnostics.records()).toHaveLength(200);
     expect(diagnostics.records()[0].message).toBe('event-204');
   });
+
+  it('adds sanitized device and shell context to copied diagnostics', () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 844 });
+    const diagnostics = new DiagnosticsService();
+    diagnostics.setShellContext('admin', 'immersive');
+    diagnostics.runSelfCheck();
+
+    const report = diagnostics.exportText();
+    expect(report).toContain('viewport=390x844');
+    expect(report).toContain('orientation=portrait');
+    expect(report).toContain('shell=admin/immersive');
+  });
 });

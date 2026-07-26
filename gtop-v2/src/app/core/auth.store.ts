@@ -1,5 +1,13 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { GoogleAuthProvider, onAuthStateChanged, signInWithCredential, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+} from 'firebase/auth';
 import { doc, getDoc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { FirebaseClient } from './firebase';
 import { AuthState, GtopUser, UserRole } from './models';
@@ -62,7 +70,7 @@ export class AuthStore {
     return this.readyPromise;
   }
 
-  async signIn(): Promise<GtopUser> {
+  async signIn(): Promise<GtopUser | null> {
     this.diagnostics.capture('info', 'auth', 'Google popup sign-in started.');
     try {
       const credential = await signInWithPopup(this.firebase.auth, new GoogleAuthProvider());
@@ -72,6 +80,24 @@ export class AuthStore {
       return profile;
     } catch (error) {
       this.diagnostics.captureError('auth', 'Google popup sign-in failed.', error);
+      const code = String((error as { code?: unknown })?.code ?? '');
+      if (
+        [
+          'auth/popup-blocked',
+          'auth/operation-not-supported-in-this-environment',
+          'auth/web-storage-unsupported',
+        ].includes(code)
+      ) {
+        this.diagnostics.capture(
+          'warning',
+          'auth',
+          'Popup sign-in is unavailable; continuing with redirect sign-in.',
+          `code=${code}`,
+          code,
+        );
+        await signInWithRedirect(this.firebase.auth, new GoogleAuthProvider());
+        return null;
+      }
       throw error;
     }
   }

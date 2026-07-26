@@ -48,7 +48,7 @@ jobs:
       - name: Browser and accessibility checks
         working-directory: gtop-v2
         run: |
-          npx playwright install --with-deps chromium
+          npx playwright install --with-deps chromium webkit
           npm run e2e
 
       - name: Validate Firestore MCP

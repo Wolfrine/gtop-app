@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 import { AdminRepository } from '../core/admin.repository';
 import { AuthStore } from '../core/auth.store';
 import { ClientDiagnostic, DiagnosticsService } from '../core/diagnostics.service';
+import { DialogService } from '../core/dialog.service';
 import { GenericFirestoreRepository } from '../core/firestore.repository';
 import { LiveRepository } from '../core/live.repository';
 import {
@@ -39,7 +40,9 @@ class FormsModule {}
         </p>
       </div>
       <div class="button-row">
-        <button class="btn btn-secondary" type="button" (click)="loadCounts(true)">Refresh metrics</button>
+        <button class="btn btn-secondary" type="button" (click)="loadCounts(true)">
+          Refresh metrics
+        </button>
         <a class="btn btn-secondary" routerLink="/admin/learning/practice">Take a quiz</a
         ><a class="btn btn-primary" routerLink="/admin/action-plan">Open action plan</a>
       </div>
@@ -49,7 +52,9 @@ class FormsModule {}
         <article class="card stat">
           <span class="muted small">{{ item.label }}</span>
           <p class="stat-value">{{ item.value }}</p>
-          <span class="pill" [class.warning]="item.warning" [class.danger]="item.error">{{ item.error || item.note }}</span>
+          <span class="pill" [class.warning]="item.warning" [class.danger]="item.error">{{
+            item.error || item.note
+          }}</span>
         </article>
       }
     </div>
@@ -74,7 +79,9 @@ class FormsModule {}
 })
 export class AdminDashboardPage implements OnInit, OnDestroy {
   readonly metrics = signal<Record<string, DashboardMetric>>({});
-  readonly onlineCount = computed(() => this.presence.records().filter((item) => item.isOnline).length);
+  readonly onlineCount = computed(
+    () => this.presence.records().filter((item) => item.isOnline).length,
+  );
   private stopPresence?: () => void;
   private readonly metricDefinitions = [
     ['questions', 'Questions', 'Content bank'],
@@ -137,12 +144,23 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
     return [
       ...this.metricDefinitions.map(([key, label, note]) => ({
         label,
-        value: stored[key]?.status === 'ready' ? stored[key].value : stored[key]?.status === 'loading' ? '…' : '—',
+        value:
+          stored[key]?.status === 'ready'
+            ? stored[key].value
+            : stored[key]?.status === 'loading'
+              ? '…'
+              : '—',
         note: stored[key]?.source === 'cache' ? `${note} · cached` : note,
         error: stored[key]?.status === 'error' ? 'Unavailable · retry' : '',
         warning: key === 'activeWork',
       })),
-      { label: 'Online now', value: this.onlineCount(), note: 'Realtime presence', error: '', warning: false },
+      {
+        label: 'Online now',
+        value: this.onlineCount(),
+        note: 'Realtime presence',
+        error: '',
+        warning: false,
+      },
     ];
   }
   async loadCounts(force = false) {
@@ -151,9 +169,17 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
         const cacheKey = `gtop-v2-dashboard-${key}`;
         if (!force) {
           try {
-            const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null') as { value: number; at: number } | null;
+            const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null') as {
+              value: number;
+              at: number;
+            } | null;
             if (cached && Date.now() - cached.at < 300_000) {
-              this.setMetric(key, { status: 'ready', value: cached.value, source: 'cache', refreshedAt: new Date(cached.at).toISOString() });
+              this.setMetric(key, {
+                status: 'ready',
+                value: cached.value,
+                source: 'cache',
+                refreshedAt: new Date(cached.at).toISOString(),
+              });
               return;
             }
           } catch {}
@@ -163,9 +189,19 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
           const value = await this.admin.countMetric(key);
           const at = Date.now();
           sessionStorage.setItem(cacheKey, JSON.stringify({ value, at }));
-          this.setMetric(key, { status: 'ready', value, source: 'firestore', refreshedAt: new Date(at).toISOString() });
+          this.setMetric(key, {
+            status: 'ready',
+            value,
+            source: 'firestore',
+            refreshedAt: new Date(at).toISOString(),
+          });
         } catch (error) {
-          this.setMetric(key, { status: 'error', value: null, source: 'firestore', error: error instanceof Error ? error.message : 'Metric unavailable' });
+          this.setMetric(key, {
+            status: 'error',
+            value: null,
+            source: 'firestore',
+            error: error instanceof Error ? error.message : 'Metric unavailable',
+          });
         }
       }),
     );
@@ -383,7 +419,7 @@ interface ImportRow extends Partial<Question> {
         <h2>{{ questions().length }} questions</h2>
         <span class="muted small">Click a question to inspect options and explanation</span>
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap question-table">
         <table>
           <thead>
             <tr>
@@ -433,8 +469,48 @@ interface ImportRow extends Partial<Question> {
           </tbody>
         </table>
       </div>
+      <div class="mobile-question-list">
+        @for (q of questions(); track q.id) {
+          <article class="card mobile-question-card">
+            <div class="mobile-question-head">
+              <span class="pill info">{{ q.subject }}</span>
+              <span class="pill" [class.warning]="q.flagCount">{{ q.flagCount || 0 }} flags</span>
+            </div>
+            <button
+              class="question-toggle"
+              type="button"
+              (click)="expanded.set(expanded() === q.id ? '' : q.id)"
+            >
+              <strong>{{ q.question }}</strong>
+              <span aria-hidden="true">{{ expanded() === q.id ? '−' : '+' }}</span>
+            </button>
+            <p class="muted small">{{ q.board }} · {{ q.standard }} · {{ q.chapter }}</p>
+            @if (expanded() === q.id) {
+              <div class="question-detail">
+                @for (option of q.options; track $index) {
+                  <div [class.correct]="$index === q.correctIndex">
+                    <b>{{ letters[$index] }}</b> {{ option }}
+                  </div>
+                }
+                @if (q.solutions.length) {
+                  <p><strong>Explanation:</strong> {{ q.solutions[0] }}</p>
+                }
+              </div>
+            }
+            <div class="button-row mobile-question-actions">
+              <button class="btn btn-secondary" (click)="copy(q)">Copy JSON</button>
+              <button class="btn btn-secondary" (click)="edit(q)">Edit</button>
+              <button class="btn btn-danger" (click)="remove(q)">Retire</button>
+            </div>
+          </article>
+        } @empty {
+          <div class="card empty">Choose filters and load the question bank.</div>
+        }
+      </div>
       @if (nextCursor) {
-        <div class="button-row top-gap"><button class="btn btn-secondary" (click)="loadMore()">Load next page</button></div>
+        <div class="button-row top-gap">
+          <button class="btn btn-secondary" (click)="loadMore()">Load next page</button>
+        </div>
       }
     </section>
   </div>`,
@@ -495,6 +571,58 @@ interface ImportRow extends Partial<Question> {
         margin-top: 4px;
         color: var(--muted);
       }
+      .mobile-question-list {
+        display: none;
+      }
+      @media (max-width: 680px) {
+        .question-table {
+          display: none;
+        }
+        .mobile-question-list {
+          display: grid;
+          gap: 10px;
+        }
+        .mobile-question-card {
+          display: grid;
+          gap: 10px;
+        }
+        .mobile-question-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+        }
+        .question-toggle {
+          display: grid;
+          width: 100%;
+          min-height: 44px;
+          grid-template-columns: 1fr auto;
+          align-items: start;
+          gap: 12px;
+          padding: 0;
+          color: var(--ink);
+          background: transparent;
+          border: 0;
+          text-align: left;
+          line-height: 1.45;
+        }
+        .question-toggle > span {
+          font-size: 22px;
+        }
+        .mobile-question-actions {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .mobile-question-actions .btn-danger {
+          grid-column: 1 / -1;
+        }
+        .import-summary {
+          flex-wrap: wrap;
+        }
+        .json-input {
+          font-size: 16px;
+        }
+      }
     `,
   ],
 })
@@ -547,6 +675,7 @@ export class QuestionBankPage implements OnInit {
   constructor(
     private admin: AdminRepository,
     private auth: AuthStore,
+    private dialog: DialogService,
   ) {}
   async ngOnInit() {
     this.syllabus.set(await this.admin.syllabus());
@@ -555,7 +684,11 @@ export class QuestionBankPage implements OnInit {
   async load(append = false) {
     this.error.set('');
     try {
-      const page = await this.admin.questionPage(this.filters, 25, append ? this.nextCursor : undefined);
+      const page = await this.admin.questionPage(
+        this.filters,
+        25,
+        append ? this.nextCursor : undefined,
+      );
       this.questions.set(append ? [...this.questions(), ...page.items] : page.items);
       this.nextCursor = page.cursor;
     } catch (e) {
@@ -606,8 +739,22 @@ export class QuestionBankPage implements OnInit {
     const warning = environment.uat
       ? 'UAT IS USING LIVE DATA. This retires a production question.'
       : 'Retire this question?';
-    if (!confirm(warning)) return;
-    if (environment.uat && prompt('Type DELETE to confirm') !== 'DELETE') return;
+    const confirmed = environment.uat
+      ? await this.dialog.prompt({
+          title: 'Retire production question?',
+          message: warning,
+          inputLabel: 'Type DELETE to confirm',
+          requiredValue: 'DELETE',
+          confirmLabel: 'Retire question',
+          danger: true,
+        })
+      : await this.dialog.confirm({
+          title: 'Retire this question?',
+          message: warning,
+          confirmLabel: 'Retire question',
+          danger: true,
+        });
+    if (!confirmed) return;
     await this.admin.softDeleteQuestion(q, this.auth.profile()!.uid);
     await this.admin.refreshSyllabusCounts();
     await this.load();
@@ -694,7 +841,12 @@ export class QuestionBankPage implements OnInit {
   async commitImport() {
     if (
       environment.uat &&
-      !confirm(`Import ${this.validImports()} questions into live production data?`)
+      !(await this.dialog.confirm({
+        title: `Import ${this.validImports()} questions?`,
+        message:
+          'These validated questions will be written to live production data and syllabus counts will be refreshed.',
+        confirmLabel: 'Import questions',
+      }))
     )
       return;
     this.saving.set(true);
@@ -737,7 +889,12 @@ export class QuestionBankPage implements OnInit {
         <button class="btn btn-secondary" (click)="preview.set(!preview())">
           {{ preview() ? 'Table view' : 'Learner preview' }}</button
         ><button class="btn btn-secondary" (click)="preparePreview()">Prepare change preview</button
-        ><button class="btn btn-secondary" [disabled]="!previewRows().length" (click)="publishPreview()">Publish preview</button
+        ><button
+          class="btn btn-secondary"
+          [disabled]="!previewRows().length"
+          (click)="publishPreview()"
+        >
+          Publish preview</button
         ><button class="btn btn-secondary" (click)="refreshCounts()">Refresh counts</button
         ><button class="btn btn-primary" (click)="newItem()">Add chapter</button>
       </div>
@@ -784,7 +941,16 @@ export class QuestionBankPage implements OnInit {
             <div class="chapter-grid">
               @for (item of group.items; track item.id) {
                 <button (click)="edit(item)">
-                  <span>{{ item.chapter }} @if(previewStatus(item.id)){<small class="pill" [class.warning]="previewStatus(item.id)==='changed'" [class.success]="previewStatus(item.id)==='existing'">{{previewStatus(item.id)}}</small>}</span
+                  <span
+                    >{{ item.chapter }}
+                    @if (previewStatus(item.id)) {
+                      <small
+                        class="pill"
+                        [class.warning]="previewStatus(item.id) === 'changed'"
+                        [class.success]="previewStatus(item.id) === 'existing'"
+                        >{{ previewStatus(item.id) }}</small
+                      >
+                    }</span
                   ><b [class.zero]="item.mcqCount === 0">{{ item.mcqCount || 0 }} MCQs</b>
                 </button>
               }
@@ -908,6 +1074,7 @@ export class SyllabusAdminPage implements OnInit {
   constructor(
     private admin: AdminRepository,
     private auth: AuthStore,
+    private dialog: DialogService,
   ) {}
   async ngOnInit() {
     await this.load();
@@ -959,7 +1126,16 @@ export class SyllabusAdminPage implements OnInit {
     scrollTo({ top: 0, behavior: 'smooth' });
   }
   async save() {
-    if (environment.uat && !confirm('Save this syllabus change to live production data?')) return;
+    if (
+      environment.uat &&
+      !(await this.dialog.confirm({
+        title: 'Save syllabus change?',
+        message:
+          'UAT uses live production data. Linked questions may be updated when hierarchy values change.',
+        confirmLabel: 'Save change',
+      }))
+    )
+      return;
     let affected = 0;
     if (this.original)
       affected = await this.admin.updateSyllabusAndQuestions(
@@ -979,15 +1155,29 @@ export class SyllabusAdminPage implements OnInit {
     this.message.set(`Refreshed question counts for ${count} syllabus combinations.`);
     await this.load();
   }
-  previewStatus(id: string) { return String(this.previewRows().find((item) => item.id === id)?.['status'] || ''); }
+  previewStatus(id: string) {
+    return String(this.previewRows().find((item) => item.id === id)?.['status'] || '');
+  }
   async preparePreview() {
     this.previewRows.set(await this.admin.prepareSyllabusPreview(this.auth.profile()!.uid));
     this.preview.set(true);
-    const counts = ['new', 'changed', 'existing', 'absent'].map((status) => `${status}: ${this.previewRows().filter((item) => item['status'] === status).length}`);
+    const counts = ['new', 'changed', 'existing', 'absent'].map(
+      (status) =>
+        `${status}: ${this.previewRows().filter((item) => item['status'] === status).length}`,
+    );
     this.message.set(`Preview prepared · ${counts.join(' · ')}`);
   }
   async publishPreview() {
-    if (environment.uat && !confirm('Publish this syllabus preview state using live production data?')) return;
+    if (
+      environment.uat &&
+      !(await this.dialog.confirm({
+        title: 'Publish syllabus preview?',
+        message:
+          'The prepared new, changed, existing, and absent states will be published using live production data.',
+        confirmLabel: 'Publish preview',
+      }))
+    )
+      return;
     await this.admin.publishSyllabusPreview(this.auth.profile()!.uid);
     this.previewRows.set(await this.admin.syllabusPreview());
     this.message.set('Syllabus preview published.');
@@ -1050,9 +1240,32 @@ export class SyllabusAdminPage implements OnInit {
             }
           </select>
         </div>
-        <div class="field"><label>Standard</label><select [(ngModel)]="standardFilter"><option value="">All standards</option>@for(standard of standards();track standard){<option>{{standard}}</option>}</select></div>
-        <div class="field"><label>Recent activity</label><select [(ngModel)]="recentFilter"><option value="">Any time</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></div>
-        <div class="field"><label>Latest performance</label><select [(ngModel)]="performanceFilter"><option value="">Any score</option><option value="low">Below 50%</option><option value="medium">50–79%</option><option value="high">80%+</option></select></div>
+        <div class="field">
+          <label>Standard</label
+          ><select [(ngModel)]="standardFilter">
+            <option value="">All standards</option>
+            @for (standard of standards(); track standard) {
+              <option>{{ standard }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>Recent activity</label
+          ><select [(ngModel)]="recentFilter">
+            <option value="">Any time</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Latest performance</label
+          ><select [(ngModel)]="performanceFilter">
+            <option value="">Any score</option>
+            <option value="low">Below 50%</option>
+            <option value="medium">50–79%</option>
+            <option value="high">80%+</option>
+          </select>
+        </div>
       </div>
     </section>
     <section class="section">
@@ -1060,7 +1273,7 @@ export class SyllabusAdminPage implements OnInit {
         <h2>{{ filtered().length }} users</h2>
         <span class="muted small">Select a row to open full activity</span>
       </div>
-      <div class="table-wrap">
+      <div class="table-wrap users-table">
         <table>
           <thead>
             <tr>
@@ -1099,6 +1312,37 @@ export class SyllabusAdminPage implements OnInit {
             }
           </tbody>
         </table>
+      </div>
+      <div class="mobile-user-list">
+        @for (user of filtered(); track user.uid) {
+          <a class="card mobile-user-card" [routerLink]="['/admin/users', user.uid]">
+            <span class="mobile-user-head">
+              <span
+                ><span class="status-dot" [class.online]="isOnline(user.uid)"></span
+                >{{ isOnline(user.uid) ? 'Online' : 'Offline' }}</span
+              >
+              <span class="pill" [class.danger]="user.role === 'admin'">{{ user.role }}</span>
+            </span>
+            <strong>{{ user.displayName || 'Unnamed user' }}</strong>
+            <span class="muted small">{{ user.email }}</span>
+            <dl>
+              <div>
+                <dt>Context</dt>
+                <dd>{{ user.board || '—' }} · {{ user.standard || '—' }}</dd>
+              </div>
+              <div>
+                <dt>Latest</dt>
+                <dd>{{ latest(user.uid)?.percentage ?? '—' }}{{ latest(user.uid) ? '%' : '' }}</dd>
+              </div>
+            </dl>
+            <span class="mobile-user-foot"
+              ><span>{{ lastSeen(user.uid) }}</span
+              ><strong>Open activity →</strong></span
+            >
+          </a>
+        } @empty {
+          <div class="card empty">No users match these filters.</div>
+        }
       </div>
     </section>
   </div>`,
@@ -1146,6 +1390,63 @@ export class SyllabusAdminPage implements OnInit {
         color: var(--accent);
         font-size: 18px;
       }
+      .mobile-user-list {
+        display: none;
+      }
+      @media (max-width: 680px) {
+        .users-table {
+          display: none;
+        }
+        .mobile-user-list {
+          display: grid;
+          gap: 10px;
+        }
+        .mobile-user-card {
+          display: grid;
+          gap: 7px;
+        }
+        .mobile-user-head,
+        .mobile-user-foot {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          font-size: 11px;
+        }
+        .mobile-user-head > span:first-child {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+        }
+        .mobile-user-card dl {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+          margin: 8px 0;
+        }
+        .mobile-user-card dl div {
+          padding: 10px;
+          background: var(--surface-2);
+          border-radius: 9px;
+        }
+        .mobile-user-card dt {
+          color: var(--muted);
+          font-size: 9px;
+          text-transform: uppercase;
+        }
+        .mobile-user-card dd {
+          margin: 4px 0 0;
+          font-weight: 750;
+        }
+        .mobile-user-foot {
+          padding-top: 8px;
+          color: var(--muted);
+          border-top: 1px solid var(--line);
+        }
+        .mobile-user-foot strong {
+          color: var(--accent-strong);
+        }
+      }
     `,
   ],
 })
@@ -1169,7 +1470,15 @@ export class UsersAdminPage implements OnInit {
       ),
     ].sort(),
   );
-  readonly standards = computed(() => [...new Set(this.users().map((u) => u.standard).filter((v): v is string => Boolean(v)))].sort());
+  readonly standards = computed(() =>
+    [
+      ...new Set(
+        this.users()
+          .map((u) => u.standard)
+          .filter((v): v is string => Boolean(v)),
+      ),
+    ].sort(),
+  );
   constructor(
     public auth: AuthStore,
     private admin: AdminRepository,
@@ -1183,26 +1492,35 @@ export class UsersAdminPage implements OnInit {
   }
   filtered() {
     const s = this.search.toLowerCase();
-    return this.users().filter(
-      (u) =>
-        (!s || `${u.displayName} ${u.email}`.toLowerCase().includes(s)) &&
-        (!this.roleFilter || u.role === this.roleFilter) &&
-        (!this.boardFilter || u.board === this.boardFilter) &&
-        (!this.standardFilter || u.standard === this.standardFilter) &&
-        (!this.presenceFilter || (this.presenceFilter === 'online') === this.isOnline(u.uid)),
-    ).filter((u) => {
-      const latest = this.latest(u.uid);
-      if (this.recentFilter) {
-        const timestamp = asDate(latest?.timestamp)?.getTime() ?? 0;
-        if (!timestamp || Date.now() - timestamp > Number(this.recentFilter) * 86_400_000) return false;
-      }
-      if (!this.performanceFilter) return true;
-      const score = latest?.percentage;
-      if (score == null) return false;
-      return this.performanceFilter === 'low' ? score < 50 : this.performanceFilter === 'medium' ? score >= 50 && score < 80 : score >= 80;
-    });
+    return this.users()
+      .filter(
+        (u) =>
+          (!s || `${u.displayName} ${u.email}`.toLowerCase().includes(s)) &&
+          (!this.roleFilter || u.role === this.roleFilter) &&
+          (!this.boardFilter || u.board === this.boardFilter) &&
+          (!this.standardFilter || u.standard === this.standardFilter) &&
+          (!this.presenceFilter || (this.presenceFilter === 'online') === this.isOnline(u.uid)),
+      )
+      .filter((u) => {
+        const latest = this.latest(u.uid);
+        if (this.recentFilter) {
+          const timestamp = asDate(latest?.timestamp)?.getTime() ?? 0;
+          if (!timestamp || Date.now() - timestamp > Number(this.recentFilter) * 86_400_000)
+            return false;
+        }
+        if (!this.performanceFilter) return true;
+        const score = latest?.percentage;
+        if (score == null) return false;
+        return this.performanceFilter === 'low'
+          ? score < 50
+          : this.performanceFilter === 'medium'
+            ? score >= 50 && score < 80
+            : score >= 80;
+      });
   }
-  latest(uid: string) { return this.recentResults().find((result) => result.userId === uid); }
+  latest(uid: string) {
+    return this.recentResults().find((result) => result.userId === uid);
+  }
   isOnline(uid: string) {
     return Boolean(this.presence.records().find((p) => p.userId === uid)?.isOnline);
   }

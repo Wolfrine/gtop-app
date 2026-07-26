@@ -1,7 +1,8 @@
 import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../environments/environment';
-import { asDate, MotionPreset, ThemeId } from '../core/models';
+import { DialogService } from '../core/dialog.service';
+import { asDate, DevicePreviewPreset, MotionPreset, ThemeId } from '../core/models';
 import { ThemeService } from '../core/theme.service';
 
 @Component({
@@ -51,11 +52,17 @@ import { ThemeService } from '../core/theme.service';
           }
         </div>
         <div class="segmented" aria-label="Motion preset">
-          <button [class.active]="motion() === 'purposeful'" (click)="setMotion('purposeful')">Purposeful motion</button>
-          <button [class.active]="motion() === 'reduced'" (click)="setMotion('reduced')">Reduced motion</button>
+          <button [class.active]="motion() === 'purposeful'" (click)="setMotion('purposeful')">
+            Purposeful motion
+          </button>
+          <button [class.active]="motion() === 'reduced'" (click)="setMotion('reduced')">
+            Reduced motion
+          </button>
         </div>
         <div class="button-row">
-          <button class="btn btn-secondary" (click)="compare.update(value => !value)">{{ compare() ? 'Close compare' : 'Compare' }}</button>
+          <button class="btn btn-secondary" (click)="compare.update((value) => !value)">
+            {{ compare() ? 'Close compare' : 'Compare' }}
+          </button>
           <button
             class="btn btn-secondary"
             (click)="theme.resetPreview(); selected.set(theme.published().themeId)"
@@ -75,8 +82,26 @@ import { ThemeService } from '../core/theme.service';
       }
       @if (compare()) {
         <section class="compare-grid" aria-label="Theme comparison">
-          <article class="card"><p class="eyebrow">Experiment</p><h2>{{ selectedDefinition()?.name }}</h2><p class="muted">{{ selectedDefinition()?.description }}</p><span class="swatches">@for(color of selectedDefinition()?.swatches || [];track color){<i [style.background]="color"></i>}</span></article>
-          <article class="card"><p class="eyebrow">Published</p><h2>{{ publishedName() }}</h2><p class="muted">{{ publishedDefinition()?.description }}</p><span class="swatches">@for(color of publishedDefinition()?.swatches || [];track color){<i [style.background]="color"></i>}</span></article>
+          <article class="card">
+            <p class="eyebrow">Experiment</p>
+            <h2>{{ selectedDefinition()?.name }}</h2>
+            <p class="muted">{{ selectedDefinition()?.description }}</p>
+            <span class="swatches">
+              @for (color of selectedDefinition()?.swatches || []; track color) {
+                <i [style.background]="color"></i>
+              }
+            </span>
+          </article>
+          <article class="card">
+            <p class="eyebrow">Published</p>
+            <h2>{{ publishedName() }}</h2>
+            <p class="muted">{{ publishedDefinition()?.description }}</p>
+            <span class="swatches">
+              @for (color of publishedDefinition()?.swatches || []; track color) {
+                <i [style.background]="color"></i>
+              }
+            </span>
+          </article>
         </section>
       }
       <section class="preview-stage">
@@ -153,8 +178,27 @@ import { ThemeService } from '../core/theme.service';
                 </table>
               </div>
               <div class="grid grid-2 preview-extras">
-                <article class="card"><p class="eyebrow">Form controls</p><h3>Create practice</h3><label>Subject<input value="Science" readonly></label><label>Question count<select><option>10 questions</option></select></label><button class="btn btn-primary">Continue</button></article>
-                <article class="card mini-dialog"><span class="pill info">Dialog</span><h3>Publish this experience?</h3><p class="muted">The selected theme and motion preset will become visible to UAT users.</p><div class="button-row"><button class="btn btn-secondary">Cancel</button><button class="btn btn-primary">Publish</button></div></article>
+                <article class="card">
+                  <p class="eyebrow">Form controls</p>
+                  <h3>Create practice</h3>
+                  <label>Subject<input value="Science" readonly /></label
+                  ><label
+                    >Question count<select>
+                      <option>10 questions</option>
+                    </select></label
+                  ><button class="btn btn-primary">Continue</button>
+                </article>
+                <article class="card mini-dialog">
+                  <span class="pill info">Dialog</span>
+                  <h3>Publish this experience?</h3>
+                  <p class="muted">
+                    The selected theme and motion preset will become visible to UAT users.
+                  </p>
+                  <div class="button-row">
+                    <button class="btn btn-secondary">Cancel</button
+                    ><button class="btn btn-primary">Publish</button>
+                  </div>
+                </article>
               </div>
             </main>
           </div>
@@ -251,13 +295,25 @@ import { ThemeService } from '../core/theme.service';
         max-width: 1100px;
         transition: width 0.35s var(--ease-out);
       }
-      .device-frame.wide { width: 1320px; max-width: none; }
-      .device-frame.laptop { width: 1100px; }
-      .device-frame.tablet {
-        width: 780px;
+      .device-frame.wide {
+        width: 1320px;
+        max-width: none;
       }
-      .device-frame.mobile {
+      .device-frame.desktop {
+        width: 1024px;
+      }
+      .device-frame.tablet {
+        width: 768px;
+      }
+      .device-frame.phone {
         width: 390px;
+      }
+      .device-frame.compact-phone {
+        width: 320px;
+      }
+      .device-frame.landscape-phone {
+        width: 844px;
+        max-width: none;
       }
       .mini-shell {
         display: grid;
@@ -345,22 +401,77 @@ import { ThemeService } from '../core/theme.service';
       .preview-table {
         margin-top: 16px;
       }
-      .compare-grid,.preview-extras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}.compare-grid .swatches{margin-top:18px}.preview-extras label{display:grid;gap:6px;margin:12px 0;color:var(--muted);font-size:11px}.preview-extras input,.preview-extras select{width:100%;padding:9px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px}.mini-dialog{align-self:center;box-shadow:var(--shadow-lg)}
-      .device-frame.mobile .mini-shell {
+      .compare-grid,
+      .preview-extras {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+      }
+      .compare-grid .swatches {
+        margin-top: 18px;
+      }
+      .preview-extras label {
+        display: grid;
+        gap: 6px;
+        margin: 12px 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .preview-extras input,
+      .preview-extras select {
+        width: 100%;
+        padding: 9px;
+        color: var(--ink);
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      .mini-dialog {
+        align-self: center;
+        box-shadow: var(--shadow-lg);
+      }
+      .device-frame.compact-phone .mini-shell,
+      .device-frame.phone .mini-shell,
+      .device-frame.landscape-phone .mini-shell {
         grid-template-columns: 1fr;
       }
-      .device-frame.mobile aside {
+      .device-frame.compact-phone aside,
+      .device-frame.phone aside,
+      .device-frame.landscape-phone aside {
         display: none;
       }
-      .device-frame.mobile .preview-stats,
-      .device-frame.mobile .preview-content {
+      .device-frame.compact-phone .preview-stats,
+      .device-frame.compact-phone .preview-content,
+      .device-frame.phone .preview-stats,
+      .device-frame.phone .preview-content {
         grid-template-columns: 1fr;
       }
-      .device-frame.mobile .preview-head {
+      .device-frame.compact-phone .preview-head,
+      .device-frame.phone .preview-head {
         flex-direction: column;
       }
-      .device-frame.mobile .preview-table {
-        display: none;
+      .device-frame.compact-phone .mini-shell {
+        min-height: 568px;
+      }
+      .device-frame.phone .mini-shell {
+        min-height: 844px;
+      }
+      .device-frame.landscape-phone .mini-shell {
+        min-height: 390px;
+      }
+      .device-frame.landscape-phone .mini-shell main {
+        padding: 18px;
+      }
+      .device-frame.compact-phone .preview-table,
+      .device-frame.phone .preview-table {
+        font-size: 10px;
+      }
+      .device-frame.compact-phone .preview-table th,
+      .device-frame.compact-phone .preview-table td,
+      .device-frame.phone .preview-table th,
+      .device-frame.phone .preview-table td {
+        padding: 8px;
       }
       @media (max-width: 1000px) {
         .theme-picker {
@@ -394,16 +505,18 @@ import { ThemeService } from '../core/theme.service';
 })
 export class ThemeLabPage {
   readonly selected = signal<ThemeId>('academic-editorial');
-  readonly viewport = signal<'wide' | 'laptop' | 'tablet' | 'mobile'>('laptop');
+  readonly viewport = signal<DevicePreviewPreset['id']>('desktop');
   readonly compare = signal(false);
   readonly motion = signal<MotionPreset>('purposeful');
   readonly saving = signal(false);
   readonly message = signal('');
-  readonly sizes = [
-    { id: 'wide' as const, label: 'Wide' },
-    { id: 'laptop' as const, label: 'Laptop' },
-    { id: 'tablet' as const, label: 'Tablet' },
-    { id: 'mobile' as const, label: 'Mobile' },
+  readonly sizes: DevicePreviewPreset[] = [
+    { id: 'compact-phone', label: '320 phone', width: 320, height: 568 },
+    { id: 'phone', label: '390 phone', width: 390, height: 844 },
+    { id: 'landscape-phone', label: 'Landscape', width: 844, height: 390 },
+    { id: 'tablet', label: 'Tablet', width: 768, height: 1024 },
+    { id: 'desktop', label: 'Desktop', width: 1024, height: 768 },
+    { id: 'wide', label: 'Wide', width: 1320, height: 900 },
   ];
   readonly bars = [42, 58, 49, 72, 64, 84, 78, 91];
   readonly options = ['Concave lens', 'Convex lens', 'Cylindrical lens'];
@@ -413,9 +526,16 @@ export class ThemeLabPage {
       this.theme.themes.find((item) => item.id === this.theme.published().themeId)?.name ??
       'Academic Editorial',
   );
-  readonly selectedDefinition = computed(() => this.theme.themes.find((item) => item.id === this.selected()));
-  readonly publishedDefinition = computed(() => this.theme.themes.find((item) => item.id === this.theme.published().themeId));
-  constructor(readonly theme: ThemeService) {
+  readonly selectedDefinition = computed(() =>
+    this.theme.themes.find((item) => item.id === this.selected()),
+  );
+  readonly publishedDefinition = computed(() =>
+    this.theme.themes.find((item) => item.id === this.theme.published().themeId),
+  );
+  constructor(
+    readonly theme: ThemeService,
+    private readonly dialog: DialogService,
+  ) {
     this.selected.set(theme.activeTheme());
     this.motion.set(theme.published().motionPreset);
   }
@@ -424,14 +544,22 @@ export class ThemeLabPage {
     this.theme.preview(id, this.motion());
     this.message.set('');
   }
-  setMotion(value: MotionPreset): void { this.motion.set(value); this.theme.preview(this.selected(), value); }
+  setMotion(value: MotionPreset): void {
+    this.motion.set(value);
+    this.theme.preview(this.selected(), value);
+  }
   publishedAt(): string {
     return asDate(this.theme.published().updatedAt)?.toLocaleString('en-IN') ?? 'Default';
   }
   async publish(): Promise<void> {
     if (
       environment.uat &&
-      !confirm('UAT uses live configuration. Publish this theme for every v2 UAT user?')
+      !(await this.dialog.confirm({
+        title: 'Publish theme to all UAT users?',
+        message:
+          'UAT uses live configuration. This appearance and motion preset will update for every v2 UAT user.',
+        confirmLabel: 'Publish to UAT',
+      }))
     )
       return;
     this.saving.set(true);

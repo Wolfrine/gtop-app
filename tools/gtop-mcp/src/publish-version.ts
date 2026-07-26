@@ -29,7 +29,7 @@ try {
       commit,
       channel: "production",
       releaseReference,
-      expectedUpdateTime: current?.updateTime,
+      expectedUpdateToken: current?.["updateToken"],
       actor: {
         name: process.env["GTOP_MCP_ACTOR"] || "GTOP production workflow",
         kind: "system",
@@ -106,7 +106,7 @@ async function completeReleaseWorkstream(client: Client): Promise<void> {
   });
   const items = parseToolJson<Array<Record<string, unknown>>>(listResult);
   const item = items.find((candidate) => candidate["v2Key"] === "release");
-  if (!item?.["id"] || !item["updateTime"]) {
+  if (!item?.["id"] || !item["updateToken"]) {
     process.stderr.write(
       "Release Action Plan workstream was not found; version publish is complete.\n",
     );
@@ -116,7 +116,7 @@ async function completeReleaseWorkstream(client: Client): Promise<void> {
     name: "action_plan_add_update",
     arguments: {
       id: String(item["id"]),
-      expectedUpdateTime: String(item["updateTime"]),
+      expectedUpdateToken: String(item["updateToken"]),
       message: `GTOP ${version} was deployed to production and Meta/version was published through MCP at ${releaseReference}.`,
       type: "completion",
       fromStatus: item["status"],

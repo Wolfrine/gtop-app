@@ -25,8 +25,8 @@ Agents and workflows must:
 
 1. Read the current value with the MCP `app_version_get` tool.
 2. Publish the new production version with `app_version_publish`.
-3. Supply the read document update time, full commit, semantic version, release
-   run reference, and actor.
+3. Supply the read document's full-precision opaque update token, full commit,
+   semantic version, release run reference, and actor.
 
 The publish tool enforces optimistic concurrency, writes an immutable release
 record under `Meta/version/releases`, and creates an `mcpAuditLog` entry.

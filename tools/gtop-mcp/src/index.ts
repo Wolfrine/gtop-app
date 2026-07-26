@@ -86,9 +86,16 @@ async function snapshot(path: string): Promise<Record<string, unknown> | null> {
         id: item.id,
         path: item.ref.path,
         updateTime: item.updateTime?.toDate().toISOString(),
+        updateToken: item.updateTime?.valueOf(),
         ...item.data(),
       }
     : null;
+}
+
+function timestampFromUpdateToken(token: string): Timestamp {
+  const match = /^(\d+)\.(\d{9})$/.exec(token);
+  if (!match) throw new Error("Invalid Firestore update token.");
+  return new Timestamp(Number(match[1]), Number(match[2]));
 }
 
 async function audit(
@@ -135,13 +142,13 @@ const writeOperationSchema = z.discriminatedUnion("operation", [
   z.object({
     operation: z.literal("update"),
     path: z.string(),
-    expectedUpdateTime: z.string().datetime(),
+    expectedUpdateToken: z.string().min(1),
     data: z.record(z.string(), z.unknown()),
   }),
   z.object({
     operation: z.literal("delete"),
     path: z.string(),
-    expectedUpdateTime: z.string().datetime(),
+    expectedUpdateToken: z.string().min(1),
     confirmation: z.string(),
   }),
 ]);
@@ -178,6 +185,7 @@ server.registerTool(
       .map((item) => ({
         id: item.id,
         updateTime: item.updateTime.toDate().toISOString(),
+        updateToken: item.updateTime.valueOf(),
         ...item.data(),
       }))
       .filter(
@@ -254,15 +262,13 @@ server.registerTool(
       updatedBy: input.actor,
     };
     await ref.create(value);
-    await ref
-      .collection("updates")
-      .add({
-        message: "Activity created through GTOP MCP.",
-        type: "progress",
-        actor: input.actor,
-        sourceReference: taskReference,
-        createdAt: FieldValue.serverTimestamp(),
-      });
+    await ref.collection("updates").add({
+      message: "Activity created through GTOP MCP.",
+      type: "progress",
+      actor: input.actor,
+      sourceReference: taskReference,
+      createdAt: FieldValue.serverTimestamp(),
+    });
     const after = await snapshot(ref.path);
     await audit("action_plan_create", ref.path, null, after, input);
     return json(after);
@@ -277,7 +283,7 @@ server.registerTool(
       "Update fields using a required Firestore update-time precondition.",
     inputSchema: {
       id: z.string().min(1),
-      expectedUpdateTime: z.string().datetime(),
+      expectedUpdateToken: z.string().min(1),
       changes: z.record(z.string(), z.unknown()),
       progressMessage: z.string().min(1).max(2000),
       actor: actorSchema,
@@ -292,30 +298,24 @@ server.registerTool(
     delete changes["id"];
     delete changes["createdAt"];
     delete changes["createdBy"];
-    await db
-      .doc(path)
-      .update(
-        {
-          ...changes,
-          latestUpdate: input.progressMessage,
-          updatedAt: FieldValue.serverTimestamp(),
-          updatedBy: input.actor,
-        },
-        {
-          lastUpdateTime: Timestamp.fromDate(
-            new Date(input.expectedUpdateTime),
-          ),
-        },
-      );
-    await db
-      .collection(`${path}/updates`)
-      .add({
-        message: input.progressMessage,
-        type: "progress",
-        actor: input.actor,
-        sourceReference: taskReference,
-        createdAt: FieldValue.serverTimestamp(),
-      });
+    await db.doc(path).update(
+      {
+        ...changes,
+        latestUpdate: input.progressMessage,
+        updatedAt: FieldValue.serverTimestamp(),
+        updatedBy: input.actor,
+      },
+      {
+        lastUpdateTime: timestampFromUpdateToken(input.expectedUpdateToken),
+      },
+    );
+    await db.collection(`${path}/updates`).add({
+      message: input.progressMessage,
+      type: "progress",
+      actor: input.actor,
+      sourceReference: taskReference,
+      createdAt: FieldValue.serverTimestamp(),
+    });
     const after = await snapshot(path);
     await audit("action_plan_update", path, before, after, input);
     return json(after);
@@ -330,7 +330,7 @@ server.registerTool(
       "Append an immutable progress, blocker, review, or completion update.",
     inputSchema: {
       id: z.string().min(1),
-      expectedUpdateTime: z.string().datetime(),
+      expectedUpdateToken: z.string().min(1),
       message: z.string().min(1).max(2000),
       type: z
         .enum(["progress", "status", "blocker", "review", "completion"])
@@ -352,22 +352,18 @@ server.registerTool(
       updatedBy: input.actor,
     };
     if (input.toStatus) parentChanges["status"] = input.toStatus;
-    await db
-      .doc(path)
-      .update(parentChanges, {
-        lastUpdateTime: Timestamp.fromDate(new Date(input.expectedUpdateTime)),
-      });
-    await db
-      .collection(`${path}/updates`)
-      .add({
-        message: input.message,
-        type: input.type,
-        fromStatus: input.fromStatus ?? null,
-        toStatus: input.toStatus ?? null,
-        sourceReference: input.sourceReference ?? taskReference,
-        actor: input.actor,
-        createdAt: FieldValue.serverTimestamp(),
-      });
+    await db.doc(path).update(parentChanges, {
+      lastUpdateTime: timestampFromUpdateToken(input.expectedUpdateToken),
+    });
+    await db.collection(`${path}/updates`).add({
+      message: input.message,
+      type: input.type,
+      fromStatus: input.fromStatus ?? null,
+      toStatus: input.toStatus ?? null,
+      sourceReference: input.sourceReference ?? taskReference,
+      actor: input.actor,
+      createdAt: FieldValue.serverTimestamp(),
+    });
     const after = await snapshot(path);
     await audit("action_plan_add_update", path, before, after, input);
     return json(after);
@@ -397,7 +393,7 @@ server.registerTool(
       commit: releaseCommitSchema,
       channel: z.literal("production"),
       releaseReference: z.string().min(1).max(500),
-      expectedUpdateTime: z.string().datetime().optional(),
+      expectedUpdateToken: z.string().min(1).optional(),
       actor: actorSchema,
     },
     annotations: write,
@@ -406,13 +402,13 @@ server.registerTool(
     const path = "Meta/version";
     const ref = db.doc(path);
     const before = await snapshot(path);
-    if (before && !input.expectedUpdateTime)
+    if (before && !input.expectedUpdateToken)
       throw new Error(
-        "expectedUpdateTime is required because Meta/version already exists.",
+        "expectedUpdateToken is required because Meta/version already exists.",
       );
-    if (!before && input.expectedUpdateTime)
+    if (!before && input.expectedUpdateToken)
       throw new Error(
-        "Do not provide expectedUpdateTime when creating Meta/version.",
+        "Do not provide expectedUpdateToken when creating Meta/version.",
       );
     if (
       before?.["version"] === input.version &&
@@ -435,9 +431,7 @@ server.registerTool(
     await db.runTransaction(async (transaction) => {
       const current = await transaction.get(ref);
       if (before) {
-        const expected = Timestamp.fromDate(
-          new Date(input.expectedUpdateTime!),
-        );
+        const expected = timestampFromUpdateToken(input.expectedUpdateToken!);
         if (!current.exists || !current.updateTime?.isEqual(expected))
           throw new Error(
             "Meta/version changed after it was read. Read it again before publishing.",
@@ -535,6 +529,7 @@ server.registerTool(
         id: item.id,
         path: item.ref.path,
         updateTime: item.updateTime.toDate().toISOString(),
+        updateToken: item.updateTime.valueOf(),
         ...item.data(),
       })),
     );
@@ -554,13 +549,11 @@ server.registerTool(
   },
   async (input) => {
     const path = assertDocumentPath(input.path);
-    await db
-      .doc(path)
-      .create({
-        ...input.data,
-        createdAt: input.data["createdAt"] ?? FieldValue.serverTimestamp(),
-        updatedAt: input.data["updatedAt"] ?? FieldValue.serverTimestamp(),
-      });
+    await db.doc(path).create({
+      ...input.data,
+      createdAt: input.data["createdAt"] ?? FieldValue.serverTimestamp(),
+      updatedAt: input.data["updatedAt"] ?? FieldValue.serverTimestamp(),
+    });
     const after = await snapshot(path);
     await audit("firestore_create_document", path, null, after, input);
     return json(after);
@@ -575,7 +568,7 @@ server.registerTool(
       "Update an existing document using a required update-time precondition.",
     inputSchema: {
       path: z.string().min(1),
-      expectedUpdateTime: z.string().datetime(),
+      expectedUpdateToken: z.string().min(1),
       data: z.record(z.string(), z.unknown()),
     },
     annotations: write,
@@ -584,16 +577,12 @@ server.registerTool(
     const path = assertDocumentPath(input.path);
     const before = await snapshot(path);
     if (!before) throw new Error("Document not found.");
-    await db
-      .doc(path)
-      .update(
-        { ...input.data, updatedAt: FieldValue.serverTimestamp() },
-        {
-          lastUpdateTime: Timestamp.fromDate(
-            new Date(input.expectedUpdateTime),
-          ),
-        },
-      );
+    await db.doc(path).update(
+      { ...input.data, updatedAt: FieldValue.serverTimestamp() },
+      {
+        lastUpdateTime: timestampFromUpdateToken(input.expectedUpdateToken),
+      },
+    );
     const after = await snapshot(path);
     await audit("firestore_update_document", path, before, after, input);
     return json(after);
@@ -620,12 +609,12 @@ server.registerTool(
       if (item.operation === "create") batch.create(ref, item.data);
       if (item.operation === "update")
         batch.update(ref, item.data, {
-          lastUpdateTime: Timestamp.fromDate(new Date(item.expectedUpdateTime)),
+          lastUpdateTime: timestampFromUpdateToken(item.expectedUpdateToken),
         });
       if (item.operation === "delete") {
         assertDeleteConfirmation(path, item.confirmation);
         batch.delete(ref, {
-          lastUpdateTime: Timestamp.fromDate(new Date(item.expectedUpdateTime)),
+          lastUpdateTime: timestampFromUpdateToken(item.expectedUpdateToken),
         });
       }
     }
@@ -652,7 +641,7 @@ server.registerTool(
         .array(
           z.object({
             path: z.string(),
-            expectedUpdateTime: z.string().datetime(),
+            expectedUpdateToken: z.string().min(1),
           }),
         )
         .min(1)
@@ -672,8 +661,8 @@ server.registerTool(
         ...assertionRefs.map(({ ref }) => ref),
       );
       assertionSnapshots.forEach((current, index) => {
-        const expected = Timestamp.fromDate(
-          new Date(assertionRefs[index].item.expectedUpdateTime),
+        const expected = timestampFromUpdateToken(
+          assertionRefs[index].item.expectedUpdateToken,
         );
         if (!current.exists || !current.updateTime?.isEqual(expected))
           throw new Error(
@@ -686,16 +675,12 @@ server.registerTool(
         if (item.operation === "create") transaction.create(ref, item.data);
         if (item.operation === "update")
           transaction.update(ref, item.data, {
-            lastUpdateTime: Timestamp.fromDate(
-              new Date(item.expectedUpdateTime),
-            ),
+            lastUpdateTime: timestampFromUpdateToken(item.expectedUpdateToken),
           });
         if (item.operation === "delete") {
           assertDeleteConfirmation(path, item.confirmation);
           transaction.delete(ref, {
-            lastUpdateTime: Timestamp.fromDate(
-              new Date(item.expectedUpdateTime),
-            ),
+            lastUpdateTime: timestampFromUpdateToken(item.expectedUpdateToken),
           });
         }
       }
@@ -721,7 +706,7 @@ server.registerTool(
       "Permanently delete one explicit document using confirmation and an update-time precondition. This does not recursively delete subcollections.",
     inputSchema: {
       path: z.string().min(1),
-      expectedUpdateTime: z.string().datetime(),
+      expectedUpdateToken: z.string().min(1),
       confirmation: z.string(),
     },
     annotations: destructive,
@@ -731,11 +716,9 @@ server.registerTool(
     assertDeleteConfirmation(path, input.confirmation);
     const before = await snapshot(path);
     if (!before) throw new Error("Document not found.");
-    await db
-      .doc(path)
-      .delete({
-        lastUpdateTime: Timestamp.fromDate(new Date(input.expectedUpdateTime)),
-      });
+    await db.doc(path).delete({
+      lastUpdateTime: timestampFromUpdateToken(input.expectedUpdateToken),
+    });
     await audit("firestore_delete_document", path, before, null, input);
     return message(
       `Deleted ${path}. Subcollections, if any, were not recursively deleted.`,

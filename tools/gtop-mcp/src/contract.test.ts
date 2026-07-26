@@ -22,9 +22,7 @@ const requiredTools = [
 
 describe("GTOP MCP contract", () => {
   it.each(requiredTools)("registers %s", (name) => {
-    expect(source).toMatch(
-      new RegExp(`registerTool\\(\\s*["']${name}["']`),
-    );
+    expect(source).toMatch(new RegExp(`registerTool\\(\\s*["']${name}["']`));
   });
 
   it("marks batch, transaction, and delete operations as destructive", () => {
@@ -43,6 +41,14 @@ describe("GTOP MCP contract", () => {
     expect(registration).toContain("annotations: write");
     expect(registration).toMatch(/await audit\(["']app_version_publish["']/);
     expect(registration).toMatch(/ref\.collection\(["']releases["']\)/);
+  });
+
+  it("uses full-precision opaque tokens for Firestore update preconditions", () => {
+    expect(source).toContain("updateToken: item.updateTime?.valueOf()");
+    expect(source).toContain("timestampFromUpdateToken");
+    expect(source).not.toContain(
+      "Timestamp.fromDate(new Date(input.expectedUpdateTime))",
+    );
   });
 });
 

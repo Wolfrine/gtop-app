@@ -7,7 +7,7 @@ on:
         description: "Semantic version already recorded in gtop-v2/package.json."
         required: true
         type: string
-        default: "2.0.1"
+        default: "2.0.2"
       confirm_production:
         description: "Deploy v2 to the live GTOP Hosting site and publish Meta/version through MCP."
         required: true

@@ -22,6 +22,12 @@ for (const file of files) {
   const after = fs.readFileSync(path.join(root, file), 'utf8');
   if (file.endsWith('.html')) {
     const expected = contracts(before);
+    if (file.endsWith('/side-nav.component.html')) {
+      // Only the Admin Console marker uses an exact path, so its child pages do
+      // not announce two current pages. Destinations and role visibility stay exact.
+      expected.push("[routerLinkActiveOptions]={ exact: item.route === '/admin' }");
+      expected.sort();
+    }
     if (file.endsWith('/quiz-page.component.html')) {
       // Approved accessibility additions: a native answer button exposes its existing
       // selected state. Selection, live freeze and quiz progression stay unchanged.

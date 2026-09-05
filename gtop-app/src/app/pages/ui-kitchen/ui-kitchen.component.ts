@@ -22,4 +22,5 @@ export class UiKitchenComponent {
   ];
   previewWidth = 390;
   previewOpen = false;
+  previewTarget: 'app' | 'public' | 'review-public' = 'app';
 }

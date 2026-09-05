@@ -39,6 +39,7 @@ mat-chip {
 
 /* Material shape alignment for buttons */
 .mat-mdc-button-base { border-radius: var(--control-radius) !important; }
+.mat-mdc-button-base .mdc-button__label { letter-spacing: normal; }
 .mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button {
   min-height: 44px; height: auto; padding: 10px 16px; letter-spacing: normal;
   font-size: 14px; font-weight: 600; line-height: 1.4; white-space: normal;

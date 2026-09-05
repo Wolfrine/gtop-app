@@ -5,6 +5,12 @@
   <section class="responsive-review" aria-labelledby="responsive-title">
     <h2 id="responsive-title">Review the working app</h2>
     <p class="text-muted">The preview uses your signed-in account. Navigate normally inside it; saves and submissions use real data.</p>
+    <div class="row" aria-label="Preview page">
+      <button mat-stroked-button color="primary" [attr.aria-pressed]="previewTarget === 'app'" (click)="previewTarget = 'app'">Working app</button>
+      <button mat-stroked-button color="primary" [attr.aria-pressed]="previewTarget === 'review-public'" (click)="previewTarget = 'review-public'">Public landing (review)</button>
+      <button mat-stroked-button color="primary" [attr.aria-pressed]="previewTarget === 'public'" (click)="previewTarget = 'public'">Public landing (production)</button>
+    </div>
+    <p class="text-muted">Switching pages restarts the preview. Public previews use each site's own sign-in session.</p>
     <div class="row viewport-controls" aria-label="Preview width">
       <button mat-stroked-button color="primary" *ngFor="let viewport of viewports"
         [attr.aria-pressed]="previewWidth === viewport.width" (click)="previewWidth = viewport.width">
@@ -16,7 +22,11 @@
     </div>
     <p class="text-muted">Width: {{ previewWidth }} px. Resize checks layout and navigation; it does not simulate a phone keyboard or device performance.</p>
     <div class="preview-viewport" *ngIf="previewOpen">
-      <iframe title="GTOP responsive preview" src="/learning-lab" [style.width.px]="previewWidth"
+      <iframe *ngIf="previewTarget === 'app'" title="GTOP responsive preview" src="/learning-lab" [style.width.px]="previewWidth"
+        height="640" loading="lazy"></iframe>
+      <iframe *ngIf="previewTarget === 'public'" title="GTOP public preview" src="https://gtop-app.web.app/" [style.width.px]="previewWidth"
+        height="640" loading="lazy"></iframe>
+      <iframe *ngIf="previewTarget === 'review-public'" title="GTOP public review preview" src="https://dev-gtop-app.firebaseapp.com/" [style.width.px]="previewWidth"
         height="640" loading="lazy"></iframe>
     </div>
   </section>

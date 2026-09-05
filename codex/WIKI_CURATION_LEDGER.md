@@ -97,3 +97,12 @@ Use it to answer:
 - Prior research curation remains outside this review's scope.
 - Acceptance test: existing Home, Intent, Decisions and Problems preserve the strategic direction; the feature page adds the observed journey-level lesson without turning it into an implementation log.
 - Project Manager Handoff: ship the listener cleanup and regression to the development PR, complete signed-in acceptance, distinguish development from production status, and backfill Action Plan when an authenticated admin session is available.
+
+### 2026-09-05 - Incremental UI Standardisation
+
+- Raw note: `raw/2026-09-05-incremental-ui-standardisation.md`
+- Status: processed
+- Wiki pages updated: `wiki/Decisions.md`
+- Durable memory captured: improve the existing experience in small observable increments; preserve working practice and account data; consistent language and feedback are part of UI quality; retain useful lesson-specific visuals.
+- Acceptance test: the product map and strategic pages remain intact; the decision preserves the founder's concern and direction without an implementation log.
+- Project Manager Handoff: execute the visual standard and responsive review sequence in V1, commit small verified changes directly to main, and record evidence in docs/uiux. Action Plan backfill remains blocked by deployed permissions on actionPlans. Keep functional issues separate.

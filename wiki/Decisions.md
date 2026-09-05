@@ -56,6 +56,12 @@ The founder chose an interactive Growth Tutorials lesson because it creates an i
 
 Account-linked feedback must be described honestly. Results should help learners revisit an idea and help admins improve teaching, without presenting a small set of answers as proven learning gains. See [[Features]] and [[Learning Diagnosis]].
 
+## Improve The Working Experience Incrementally
+
+Repeated redesign attempts have reduced the founder's confidence in large interface replacements. GTOP should improve its existing experience through small, observable changes that preserve the working [[Practice Loop]]. Success means clearer tasks, consistent names, readable information and dependable interactions across screen sizes.
+
+The chosen direction keeps the blue identity and light surfaces, gives primary actions clear emphasis, and uses a shared visual vocabulary for navigation, controls, content and feedback. Lesson-specific diagrams retain their teaching purpose within that vocabulary. Product claims should match current capabilities, and visual work must preserve account access, results and saved progress.
+
 ## Future-Ready Education Direction Is A Strategy Question
 
 GTOP should study what students may expect from education products over the next decade and use that thinking to shape product bets. This is a strategic direction, not a wiki todo list or a commitment to any specific AI feature.
@@ -66,3 +72,5 @@ GTOP should study what students may expect from education products over the next
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
 - `raw/2026-09-05-learning-lab-current-lab.md`
+
+- `raw/2026-09-05-incremental-ui-standardisation.md`

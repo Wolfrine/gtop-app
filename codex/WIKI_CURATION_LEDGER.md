@@ -106,3 +106,12 @@ Use it to answer:
 - Durable memory captured: improve the existing experience in small observable increments; preserve working practice and account data; consistent language and feedback are part of UI quality; retain useful lesson-specific visuals.
 - Acceptance test: the product map and strategic pages remain intact; the decision preserves the founder's concern and direction without an implementation log.
 - Project Manager Handoff: execute the visual standard and responsive review sequence in V1, commit small verified changes directly to main, and record evidence in docs/uiux. Action Plan backfill remains blocked by deployed permissions on actionPlans. Keep functional issues separate.
+
+### 2026-09-05 - V1 UI Review
+
+- Raw note: `raw/2026-09-05-v1-ui-review.md`
+- Status: processed
+- Wiki pages updated: `wiki/Features.md`
+- Durable memory captured: shared task vocabulary, readable interactions and factual claims support the existing practice loop; visual consistency, functional availability and learning outcomes require distinct evidence.
+- Acceptance test: product direction and prior decisions remain intact; Features adds the durable usability expectation without an implementation log. Release evidence is in `docs/uiux/rollout-2026-09-05.md`.
+- Project Manager Handoff: collect feedback on finding the next action and phone usability; triage the documented pre-existing functional issues separately. Action Plan backfill remains blocked by deployed actionPlans permissions. Prior research curation remains outside this scope.

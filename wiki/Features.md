@@ -4,6 +4,12 @@
 
 GTOP's feature set is organized around practice, review, content management, and live participation. Features should serve the larger [[Product Direction]] rather than become isolated surfaces.
 
+## A Coherent Practice Experience
+
+Navigation, page headings and actions should use the same names for the same tasks. Readable controls, clear progress information and consistent feedback help learners move through the [[Practice Loop]] and help admins support it. The shared blue identity and quiet surfaces provide continuity while lesson diagrams keep their teaching purpose.
+
+Presentation should describe capabilities honestly. A clearer interface does not establish that an existing placeholder works, that guidance is adaptive, or that learning outcomes have improved. Browser checks establish bounded usability evidence; learner feedback remains necessary to judge whether people can find their next action and use it comfortably.
+
 ## Authentication And Profile Setup
 
 Google-based sign-in and profile setup establish the student's board and standard. This gives GTOP the context needed to filter syllabus and practice experiences.
@@ -61,3 +67,4 @@ The product distinction matters: Live Quiz is admin/host-oriented; Quiz Run shou
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
 - `raw/2026-09-05-learning-lab-current-lab.md`
 - `raw/2026-09-05-learning-lab-integration-review.md`
+- `raw/2026-09-05-v1-ui-review.md`

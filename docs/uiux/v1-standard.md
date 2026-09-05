@@ -33,7 +33,7 @@ Theme; palette; typography; placement/hierarchy; layout/density; spacing/alignme
 4. Commit directly to main and wait for its deployment. Verify the served build and changed UI before the next visual change.
 5. Revert the individual commit if a regression is introduced. Do not stack speculative fixes on a broken release.
 
-The responsive preview is a same-origin frame of the real app, using normal account access. It has no auth bypass, mock data or backend adapter. Interactions inside it can save real data. Only one frame is opened on request, and closing it releases the embedded page. It checks real CSS breakpoints and browser interaction, not physical-device performance or virtual keyboards.
+The Working app preview is a same-origin frame of the real app, using normal account access. Public landing previews open the reviewed development hosting alias or production site in their own normal sign-in session, allowing the public entry page to be reviewed alongside an authenticated app session. There is no auth bypass, mock data or backend adapter. Interactions inside previews can save real data. Only one frame is open at a time; switching targets restarts it, and closing it releases the embedded page. It checks real CSS breakpoints and browser interaction, not physical-device performance or virtual keyboards.
 
 ## Known baseline limitations
 

@@ -1,12 +1,12 @@
 <div class="mcq-container">
     <mat-toolbar>
-        <span>Manage MCQs</span>
+        <h1>Manage MCQs</h1>
         <span class="spacer"></span>
         <button mat-flat-button color="primary" (click)="refreshSyllabus()">
             Refresh Syllabus
-        </button>&nbsp;
+        </button>
         <button mat-flat-button color="primary" class="add-mcq-btn" (click)="navigateToAddMCQ()">
-            <mat-icon class="add-icon">add</mat-icon> Add
+            <mat-icon class="add-icon">add</mat-icon> Add MCQs
         </button>
     </mat-toolbar>
 
@@ -19,28 +19,28 @@
 
         <!-- Filters -->
         <div class="filter-row">
-            <mat-form-field appearance="fill">
+            <mat-form-field appearance="outline">
                 <mat-label>Board</mat-label>
                 <mat-select [(ngModel)]="selectedBoard" (selectionChange)="filterMCQs()">
                     <mat-option *ngFor="let board of boardList" [value]="board">{{board}}</mat-option>
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="fill">
+            <mat-form-field appearance="outline">
                 <mat-label>Standard</mat-label>
                 <mat-select [(ngModel)]="selectedStandard" (selectionChange)="filterMCQs()">
                     <mat-option *ngFor="let std of standardList" [value]="std">{{std}}</mat-option>
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="fill">
+            <mat-form-field appearance="outline">
                 <mat-label>Subject</mat-label>
                 <mat-select [(ngModel)]="selectedSubject" (selectionChange)="filterMCQs()">
                     <mat-option *ngFor="let subj of subjectList" [value]="subj">{{subj}}</mat-option>
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="fill">
+            <mat-form-field appearance="outline">
                 <mat-label>Chapter</mat-label>
                 <mat-select [(ngModel)]="selectedChapter" (selectionChange)="filterMCQs()">
                     <mat-option *ngFor="let ch of chapterList" [value]="ch">{{ch}}</mat-option>
@@ -65,10 +65,10 @@
                         <span class="mcq-title">{{ j + 1}}. {{ mcq.question.length > 100 ? (mcq.question | slice:0:50) +
                             '...' : mcq.question }}</span>
                         <div class="mcq-actions">
-                            <button mat-icon-button (click)="editMcq(mcq, $event)">
+                            <button mat-icon-button (click)="editMcq(mcq, $event)" aria-label="Edit question">
                                 <mat-icon>edit</mat-icon>
                             </button>
-                            <button mat-icon-button color="warn" (click)="deleteMcq(mcq, $event)">
+                            <button mat-icon-button color="warn" (click)="deleteMcq(mcq, $event)" aria-label="Delete question">
                                 <mat-icon>delete</mat-icon>
                             </button>
                         </div>
@@ -104,22 +104,22 @@
                     <!-- ✅ Existing MCQ JSON (readonly) -->
                     <div class="edit-label-with-icon">
                         <label class="edit-label">Existing MCQ (JSON)</label>
-                        <button mat-icon-button class="copy-icon" (click)="copyJson(mcq)">
+                        <button mat-icon-button class="copy-icon" (click)="copyJson(mcq)" aria-label="Copy question JSON">
                             <mat-icon>content_copy</mat-icon>
                         </button>
                     </div>
-                    <textarea class="json-box readonly" readonly>{{ getJson(mcq) }}</textarea>
+                    <textarea class="json-box readonly" readonly aria-label="Existing question JSON">{{ getJson(mcq) }}</textarea>
 
 
                     <!-- ✅ Editable Paste Box -->
                     <label class="edit-label">Paste updated JSON here</label>
-                    <textarea class="json-box" [(ngModel)]="mcq.updatedJson"
-                        placeholder="Paste your ChatGPT-corrected MCQ JSON here"></textarea>
+                    <textarea class="json-box" aria-label="Updated question JSON" [(ngModel)]="mcq.updatedJson"
+                        placeholder="Paste the updated question as JSON"></textarea>
 
                     <!-- ✅ Actions -->
                     <div class="edit-actions">
                         <button mat-flat-button color="primary" (click)="saveUpdatedMcq(mcq)">Save</button>
-                        <button mat-stroked-button color="warn" (click)="mcq.editMode = false">Cancel</button>
+                        <button mat-stroked-button color="primary" (click)="mcq.editMode = false">Cancel</button>
                     </div>
                 </div>
 

@@ -5,6 +5,7 @@ mat-expansion-panel-header {
     justify-content: space-between;
     /* Ensure everything is vertically centered */
     padding: 12px;
+    height: auto; min-height: 56px;
 }
 
 .mat-toolbar {
@@ -31,7 +32,8 @@ mat-expansion-panel-header {
 .mcq-title {
     font-size: 16px;
     font-weight: 500;
-    margin-left: 12px;
+    margin-left: 0;
+    min-width: 0; overflow-wrap: anywhere;
     line-height: 1.5;
     /* Ensure better spacing */
     display: flex;
@@ -45,8 +47,8 @@ mat-expansion-panel:hover {
 
 /* ✅ Align Category & Actions */
 .mcq-category {
-    font-size: 12px;
-    color: gray;
+    font-size: 14px;
+    color: hsl(var(--muted-foreground));
     margin-left: auto;
     display: flex;
     align-items: center;
@@ -64,7 +66,7 @@ mat-expansion-panel:hover {
     padding: 12px;
     background: #f8f9fa;
     border-left: 4px solid #1976d2;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .mcq-options {
@@ -92,7 +94,7 @@ mat-expansion-panel:hover {
     /* Light green background */
     border-left: 4px solid #2e7d32;
     /* Dark green border */
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 14px;
 }
 
@@ -127,12 +129,13 @@ mat-expansion-panel:hover {
     }
 
     .json-box {
+        box-sizing: border-box;
         width: 100%;
         font-family: monospace;
         font-size: 13px;
         padding: 10px;
         border: 1px solid #ccc;
-        border-radius: 4px;
+        border-radius: 8px;
         resize: vertical;
         min-height: 140px;
         margin-bottom: 12px;
@@ -161,51 +164,17 @@ mat-expansion-panel:hover {
     }
 
     .copy-icon {
-        padding: 4px;
+        padding: 12px;
         font-size: 18px;
     }
 }
 
 
 
-/* 📌 Fix Excess Icon Spacing & Reduce Size */
-@media (max-width: 600px) {
-    .mcq-actions {
-        display: flex;
-        align-items: center;
-        gap: 2px;
-        /* Reduce extra spacing */
-    }
 
-    .mcq-actions button.mat-mdc-icon-button {
-        width: 32px !important;
-        /* Reduce width */
-        height: 32px !important;
-        /* Reduce height */
-    }
-
-    .mcq-actions button mat-icon {
-        font-size: 16px !important;
-        /* Reduce icon size */
-    }
-
-    .mcq-category {
-        font-size: 10px;
-        white-space: nowrap;
-        /* Prevents breaking */
-    }
-
-    .mcq-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        /* Ensures vertical alignment */
-    }
-
-    .mcq-title {
-        flex-grow: 1;
-        font-size: 14px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
+.mcq-container { box-sizing: border-box; max-width: 1100px; margin: auto; padding: 24px; display: grid; gap: 24px; }
+.mat-toolbar { height: auto; min-height: 56px; padding: 0; background: transparent; display: flex; flex-wrap: wrap; gap: 8px; white-space: normal; }
+h1 { margin: 0; font-size: 30px; font-weight: 700; }
+.filter-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; padding-top: 8px; }
+.mcq-actions { flex-shrink: 0; }
+@media (max-width: 768px) { .mcq-container { padding: 16px; gap: 16px; } .mat-toolbar h1 { flex-basis: 100%; } .filter-row { grid-template-columns: minmax(0, 1fr); } .mcq-actions { gap: 0; margin-left: 4px; } .mcq-actions button { width: 44px; height: 44px; padding: 10px; } .mcq-category { white-space: normal; overflow-wrap: anywhere; } }

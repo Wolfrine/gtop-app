@@ -1,9 +1,9 @@
 <!-- ✅ Toolbar -->
 <mat-toolbar>
-    <button mat-icon-button (click)="goBack()">
+    <button mat-icon-button (click)="goBack()" aria-label="Go back">
         <mat-icon>arrow_back</mat-icon>
     </button>
-    <span>Add MCQ</span>
+    <h1>Add MCQs</h1>
 </mat-toolbar>
 <div class="add-mcq-container">
 
@@ -11,9 +11,9 @@
     <mat-card appCard class="ai-prompt">
         <p><strong>Use this prompt in ChatGPT:</strong></p>
         <mat-form-field appearance="outline" class="full-width">
-            <textarea matInput readonly [value]="chatGptPrompt()"></textarea>
+            <textarea matInput aria-label="MCQ generation prompt" readonly [value]="chatGptPrompt()"></textarea>
         </mat-form-field>
-        <p>*Note : Modify the Board, Standard, Subject and Chapter before prompting to Chat GPT</p>
+        <p>Set the board, standard, subject, and chapter in the prompt before using it in ChatGPT.</p>
         <button mat-raised-button (click)="copyPrompt()">Copy Prompt</button>
     </mat-card>
 
@@ -21,7 +21,7 @@
     <mat-card appCard class="paste-section">
         <p><strong>Paste AI-Generated MCQs Below:</strong></p>
         <mat-form-field appearance="outline" class="full-width">
-            <textarea matInput placeholder="Paste MCQs here..." [value]="getPastedMCQs()"
+            <textarea matInput aria-label="MCQ JSON" placeholder="Paste MCQs here..." [value]="getPastedMCQs()"
                 (input)="handleInputChange($event)">
             </textarea>
         </mat-form-field>

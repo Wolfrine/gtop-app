@@ -1,5 +1,8 @@
+:host { display: block; box-sizing: border-box; max-width: 1100px; margin: auto; padding: 24px; }
+:host > mat-toolbar { padding: 0; gap: 8px; background: transparent; }
+h1 { margin: 0; font-size: 30px; font-weight: 700; }
 .add-mcq-container {
-    padding: 16px;
+    padding: 16px 0;
     margin: auto;
 
     mat-toolbar {
@@ -17,7 +20,7 @@
     .paste-section,
     .mcq-preview {
         margin-bottom: 24px;
-        min-height: 200px;
+        padding: 24px;
     }
 
     button {
@@ -32,3 +35,4 @@
 textarea {
     min-height: 200px;
 }
+@media (max-width: 768px) { :host { padding: 16px; } .add-mcq-container .ai-prompt, .add-mcq-container .paste-section, .add-mcq-container .mcq-preview { padding: 16px; } }

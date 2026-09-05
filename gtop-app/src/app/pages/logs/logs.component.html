@@ -1,8 +1,8 @@
 <div class="logs-container">
     <mat-toolbar>
-        <span>Logs</span>
+        <h1>Logs</h1>
         <span class="spacer"></span>
-        <button mat-button color="warn" (click)="clearLogs()">Clear</button>
+        <button mat-button color="warn" (click)="clearLogs()">Clear Logs</button>
     </mat-toolbar>
 
     <div class="log-entry" *ngFor="let log of logs" [ngClass]="log.level">

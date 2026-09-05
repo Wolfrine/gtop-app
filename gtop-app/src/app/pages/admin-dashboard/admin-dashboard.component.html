@@ -1,16 +1,30 @@
 <div class="admin-dashboard-container">
+    <h1>Admin Console</h1>
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button mat-flat-button color="primary" class="fab-button" (click)="addNewMCQ()">
+            <mat-icon>add</mat-icon> Add MCQs
+        </button>
+        <button mat-stroked-button color="primary" class="fab-button" (click)="createQuiz()">
+            <mat-icon>quiz</mat-icon> Quick Quiz
+        </button>
+        <a mat-stroked-button color="primary" class="fab-button" [routerLink]="['/live']" matTooltip="Host or join a live session">
+            <mat-icon>bolt</mat-icon> Live Quizzes
+        </a>
+    </div>
+
     <!-- Overview Cards -->
     <div class="overview-container">
         <mat-card appCard class="overview-card">
-            <mat-card-title>📌 Active Users</mat-card-title>
+            <mat-card-title>Active Users</mat-card-title>
             <mat-card-content>{{ activeUsers }}</mat-card-content>
         </mat-card>
         <mat-card appCard class="overview-card">
-            <mat-card-title>📖 Total MCQs</mat-card-title>
+            <mat-card-title>Total MCQs</mat-card-title>
             <mat-card-content>{{ totalMCQs }}</mat-card-content>
         </mat-card>
         <mat-card appCard class="overview-card">
-            <mat-card-title>📊 Total Users</mat-card-title>
+            <mat-card-title>Total Users</mat-card-title>
             <mat-card-content>{{ totalUsers }}</mat-card-content>
         </mat-card>
     </div>
@@ -26,16 +40,5 @@
         </mat-list>
     </mat-card>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <button mat-fab color="accent" class="fab-button" (click)="addNewMCQ()">
-            <mat-icon>add</mat-icon>
-        </button>
-        <button mat-fab color="primary" class="fab-button" (click)="createQuiz()">
-            <mat-icon>quiz</mat-icon>
-        </button>
-        <a mat-fab color="warn" class="fab-button" [routerLink]="['/live']" matTooltip="Host or join a live session">
-            <mat-icon>bolt</mat-icon>
-        </a>
-    </div>
+
 </div>

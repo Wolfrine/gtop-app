@@ -1,13 +1,13 @@
 <div class="syllabus-container">
     <mat-toolbar>
-        <span>Manage Syllabus</span>
+        <h1>Manage Syllabus</h1>
 
         <span class="spacer"></span>
 
         <button mat-flat-button color="accent" (click)="editSyllabus()">
             Edit Syllabus
         </button>
-        &nbsp;
+
         <button mat-flat-button color="primary" (click)="refreshSyllabusCounts()">
             Update MCQ count
         </button>
@@ -44,7 +44,7 @@
                                         <!-- ✅ Right side: Badge + Eye Icon -->
                                         <div class="chapter-actions">
                                             <mat-chip class="mcq-badge">{{ chapter.mcqCount }} MCQs</mat-chip>
-                                            <button mat-icon-button class="view-btn"
+                                            <button mat-icon-button class="view-btn" aria-label="View chapter questions"
                                                 (click)="viewChapterMCQs(board.name, standard.name, subject.name, chapter.name)">
                                                 <mat-icon>visibility</mat-icon>
                                             </button>

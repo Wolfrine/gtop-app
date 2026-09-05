@@ -25,14 +25,15 @@
     </mat-card>
 
     <!-- Options -->
-    <p>Options : <i>(Select any one from below)</i></p>
+    <p class="option-instruction">Choose one answer.</p>
     <div class="options-container">
-        <mat-card appCard *ngFor="let option of questions[currentQuestionIndex].options; let i = index" class="option-card"
+        <button type="button" *ngFor="let option of questions[currentQuestionIndex].options; let i = index" class="option-card card"
             [class.selected]="questions[currentQuestionIndex].selectedIndex === i"
+            [attr.aria-pressed]="questions[currentQuestionIndex].selectedIndex === i"
             [class.frozen]="liveMode && questions[currentQuestionIndex].selectedIndex !== null"
             (click)="selectOption(i)">
             {{optionsLabel[i]}}) {{ option }}
-        </mat-card>
+        </button>
     </div>
 
     <!-- Next/Submit Button (hidden in live mode) -->

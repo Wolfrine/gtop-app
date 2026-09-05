@@ -1,5 +1,8 @@
 .quiz-container {
-    padding: 1.5rem;
+    box-sizing: border-box;
+    max-width: 900px;
+    margin-inline: auto;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -10,11 +13,14 @@
     -webkit-overflow-scrolling: touch;
 
     .meta-info {
-        font-style: italic;
+        font-size: 14px;
+        color: hsl(var(--muted-foreground));
+        overflow-wrap: anywhere;
     }
 
-    .timer-wrap { position: relative; }
-    .timer { position: absolute; right: 0; top: -8px; display: grid; place-items: center; width: 54px; height: 54px; }
+    .timer-wrap { display: flex; align-items: center; gap: 16px; }
+    .timer-wrap p { flex: 1; min-width: 0; }
+    .timer { position: relative; flex-shrink: 0; display: grid; place-items: center; width: 54px; height: 54px; }
     .timer-text { position: absolute; font-size: 12px; font-weight: 700; }
 
     .quiz-header {
@@ -27,7 +33,9 @@
 
     .question-card {
         padding: 1rem;
-        font-size: 1.2rem;
+        font-size: 18px;
+        line-height: 1.6;
+        h4 { margin: 0; font-size: inherit; line-height: inherit; }
     }
 
     .options-container {
@@ -38,11 +46,15 @@
         .option-card {
             padding: 1rem;
             cursor: pointer;
-            transition: 0.3s;
+            border: 2px solid hsl(var(--border));
+            min-height: 48px; width: 100%; text-align: left;
+            font: inherit; font-size: 16px; line-height: 1.5;
+            color: hsl(var(--foreground)); overflow-wrap: anywhere;
+            transition: border-color 150ms ease;
 
             &.selected {
-                background-color: #e3f2fd;
-                border: 2px solid #1976d2;
+                background-color: hsl(var(--primary-container));
+                border-color: hsl(var(--primary));
             }
             &.frozen {
                 pointer-events: none;
@@ -50,6 +62,8 @@
             }
         }
     }
+
+    .option-instruction { margin: 0; font-size: 14px; color: hsl(var(--muted-foreground)); }
 
     .next-button {
         display: flex;
@@ -75,3 +89,5 @@
         background: hsl(var(--background));
     }
 }
+
+@media (prefers-reduced-motion: reduce) { .quiz-container .option-card { transition: none; } }

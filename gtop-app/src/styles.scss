@@ -46,6 +46,9 @@ mat-chip {
 .mat-mdc-dialog-container { --mdc-dialog-container-shape: 12px; }
 .mat-mdc-snack-bar-container { --mdc-snackbar-container-shape: 8px; }
 
+/* Presentation-only sizing for the existing custom-quiz dialog. */
+.cdk-overlay-pane:has(app-manual-quiz-modal) { width: 600px !important; max-width: calc(100vw - 32px) !important; }
+
 /* Shared report styles */
 .chart-empty {
     display: grid;
@@ -68,8 +71,9 @@ mat-chip {
     gap: 6px;
     height: auto;
     padding: 6px 14px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
+    min-height: 44px;
     text-transform: none;
 }
 
@@ -82,7 +86,7 @@ mat-chip {
     margin: 0 auto;
     text-align: center;
     padding: 28px 20px;
-    border-radius: 16px;
+    border-radius: var(--radius);
     display: grid;
     gap: 12px;
     justify-items: center;

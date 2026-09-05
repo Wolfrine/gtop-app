@@ -21,7 +21,14 @@ for (const file of files) {
   const before = git('show', `${base}:${file}`);
   const after = fs.readFileSync(path.join(root, file), 'utf8');
   if (file.endsWith('.html')) {
-    assert.deepEqual(contracts(after), contracts(before), `Changed bindings/action targets: ${file}`);
+    const expected = contracts(before);
+    if (file.endsWith('/quiz-page.component.html')) {
+      // Approved accessibility additions: a native answer button exposes its existing
+      // selected state. Selection, live freeze and quiz progression stay unchanged.
+      expected.push('type=button', '[attr.aria-pressed]=questions[currentQuestionIndex].selectedIndex === i');
+      expected.sort();
+    }
+    assert.deepEqual(contracts(after), expected, `Changed bindings/action targets: ${file}`);
     templates++;
   } else {
     // Sidebar labels/tooltips are presentation. Keep routes, roles and methods exact.

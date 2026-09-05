@@ -2,15 +2,15 @@
     <ng-container *ngIf="!isLoading; else loadingState">
         <section class="reports-header">
             <div class="reports-heading">
-                <h1>Performance Insights</h1>
+                <h1>Progress</h1>
                 <p>
-                    Track your quiz streak, accuracy, and quickly revisit sessions that need more practice.
+                    Review your accuracy, previous attempts, and questions to practise again.
                     <span *ngIf="lastUpdatedLabel && hasResults" class="last-updated">Last updated {{ lastUpdatedLabel }}.</span>
                 </p>
             </div>
             <button mat-stroked-button color="primary" class="header-action" (click)="startNewQuiz()">
                 <mat-icon>play_arrow</mat-icon>
-                Start New Quiz
+                Quick Quiz
             </button>
         </section>
 
@@ -51,7 +51,7 @@
                 <div class="chart-header">
                     <div>
                         <div class="chart-title">Quiz Type Distribution</div>
-                        <div class="chart-subtitle">See where you spend most of your practice time.</div>
+                        <div class="chart-subtitle">Completed attempts by quiz type.</div>
                     </div>
                 </div>
 
@@ -64,7 +64,7 @@
         <mat-card appCard class="s-card" *ngIf="hasResults; else emptyState">
             <div class="section-header">
                 <div>
-                    <div class="section-title">Session History</div>
+                    <div class="section-title">Previous Attempts</div>
                     <div class="section-subtitle">Open a session to retry incorrect questions or replay the full quiz.</div>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                      (click)="openSession(session)"
                      (keydown.enter)="openSession(session)"
                      (keydown.space)="openSession(session)"
-                     role="listitem">
+                     >
                     <div class="s-top">
                         <div class="s-meta">
                             <span class="quiz-type-pill" [ngClass]="session.quizType">
@@ -137,11 +137,11 @@
     <ng-template #emptyState>
         <mat-card class="empty-state">
             <mat-icon>insights</mat-icon>
-            <h2>Your reports await!</h2>
-            <p>Take a quiz to generate your first performance report and start tracking improvements.</p>
+            <h2>No quiz attempts yet</h2>
+            <p>Complete a quiz to see your accuracy and review your answers here.</p>
             <button mat-raised-button color="primary" (click)="startNewQuiz()">
                 <mat-icon>play_arrow</mat-icon>
-                Start practicing
+                Quick Quiz
             </button>
         </mat-card>
     </ng-template>
@@ -149,7 +149,7 @@
     <ng-template #loadingState>
         <div class="loading-state">
             <mat-progress-spinner diameter="44" mode="indeterminate"></mat-progress-spinner>
-            <p>Loading your reports…</p>
+            <p>Loading your progress…</p>
         </div>
     </ng-template>
 </div>

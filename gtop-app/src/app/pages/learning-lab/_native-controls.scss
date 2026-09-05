@@ -2,7 +2,7 @@
   & {
     background: #f2f6f8;
     color: #122e3d;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Inter", Roboto, "Helvetica Neue", sans-serif;
     line-height: 1.55;
   }
   > .text-button {
@@ -31,7 +31,7 @@
   input[type="range"] {
     accent-color: #007c73;
     width: 100%;
-    min-height: 32px;
+    min-height: 44px;
     margin: 0;
     cursor: pointer;
   }
@@ -108,7 +108,8 @@
   }
   .module-tabs {
     display: flex;
-    gap: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
     border-bottom: 1px solid #d9e3e8;
     padding-bottom: 14px;
     margin-bottom: 24px;
@@ -127,7 +128,7 @@
     display: grid;
     grid-template-columns: 1fr 1.5fr;
     border: 1px solid #d9e3e8;
-    border-radius: 16px;
+    border-radius: 12px;
     overflow: hidden;
     background: white;
   }
@@ -161,7 +162,7 @@
     margin-top: 20px;
   }
   .lesson-card-copy {
-    padding: 36px;
+    padding: 24px;
   }
   .lesson-card-copy ul {
     padding-left: 20px;
@@ -260,7 +261,7 @@
   }
   @media (max-width: 680px) {
     & {
-      padding: 20px 12px;
+      padding: 16px;
     }
     .step-tabs button {
       flex: 1;
@@ -268,7 +269,7 @@
       padding: 10px 5px;
     }
     .lesson-card-copy {
-      padding: 24px;
+      padding: 20px;
     }
     .history-row {
       flex-direction: column;

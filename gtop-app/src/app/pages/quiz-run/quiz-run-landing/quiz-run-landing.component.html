@@ -1,4 +1,5 @@
 <div class="run-landing">
+  <h1 class="page-title">Quiz Runs</h1>
   <mat-card appCard class="create-card">
     <div class="header">
       <div>
@@ -66,10 +67,10 @@
 
   <mat-card appCard class="join-card">
     <h2>Join a Quiz Run</h2>
-    <p>Have a code from a friend? Enter it below to jump into their lobby.</p>
+    <p>Enter the code shared by a friend to join their lobby.</p>
     <form [formGroup]="joinForm" (ngSubmit)="joinRun()" class="join-form">
       <mat-form-field appearance="outline" class="code-field">
-        <mat-label>Run Code</mat-label>
+        <mat-label>Join Code</mat-label>
         <input matInput formControlName="joinCode" maxlength="6" autocomplete="off" />
       </mat-form-field>
       <button mat-flat-button color="accent" type="submit">

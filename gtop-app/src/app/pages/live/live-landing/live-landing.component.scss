@@ -1,4 +1,4 @@
-.live-landing { display:grid; grid-template-columns:1fr; gap:24px; max-width:1100px; margin:0 auto; padding:24px; }
+.live-landing { box-sizing:border-box;display:grid; grid-template-columns:1fr; gap:24px; max-width:1100px; margin:0 auto; padding:24px; }
 
 @media (min-width: 900px) { .live-landing { grid-template-columns: minmax(0,7fr) minmax(0,5fr); } }
 
@@ -28,3 +28,12 @@
 
 .schedule-inline { display:flex; gap:12px; margin-top:10px; flex-wrap:wrap; }
 .chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:rgba(37,99,235,.10); color:#1d4ed8; font-weight:600; font-size:12px; }
+
+.page-title { grid-column: 1 / -1; margin: 0; font-size: 30px; font-weight: 700; }
+.live-landing > mat-card { min-width: 0; gap: 16px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.mode mat-button-toggle-group { display: flex; flex-wrap: wrap; }
+.mode mat-button-toggle { flex: 1; white-space: normal; font-size: 14px; }
+.upcoming { margin-top: 24px; padding-top: 16px; border-top: 1px solid hsl(var(--border)); }
+.empty { font-size: 14px; color: hsl(var(--muted-foreground)); padding: 12px 0; }
+@media (max-width: 768px) { .live-landing { padding: 16px; gap: 16px; } .mode mat-button-toggle { flex-basis: 100%; } }

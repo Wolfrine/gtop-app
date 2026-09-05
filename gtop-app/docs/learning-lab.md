@@ -54,3 +54,11 @@ Use the non-main development branch. Its normal GitHub workflow builds V1 and de
 Before promotion, open the module as a learner and admin, test a mobile-width sidebar, complete a saved lesson, reload and resume, submit feedback, and verify that it appears only in the admin view. Confirm one other learner cannot read that record. An incomplete-profile or institute-admin account should still enter Learning Lab. Verify an existing quiz and summary still retain their normal flow.
 
 The admin Action Plan could not be updated because no authenticated admin browser session was available. Backfill the activity and link the feature PR at the first authenticated opportunity.
+
+## Follow-up integration correction
+
+The initial DOM fixture opened Learning Lab directly and missed a surrounding V1 lifecycle bug. LandingPageComponent and ProfileSetupComponent remained subscribed to the account profile after navigation. Since a saved attempt updates that profile, starting or saving a lesson could send the learner back to the dashboard.
+
+Both entry pages now unsubscribe when destroyed; profile setup also cleans up its syllabus subscription. The fixture now uses the real landing and profile-setup components, simulates Google sign-in locally, and emits account snapshots on every lesson save. It reproduced the redirect before the fix and completes the full lesson, feedback, admin view and resume after the fix. This adds no live credentials, login bypass, or data to production; the fixture remains excluded from the production build.
+
+PR #44 still needs signed-in development acceptance and production promotion. A successful development deployment alone is not completion of availability on live GTOP.

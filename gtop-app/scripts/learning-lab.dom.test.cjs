@@ -12,7 +12,7 @@ log.on("error", (e) => errors.push(e));
 const dom = new JSDOM(
   "<!doctype html><html><body><app-root></app-root></body></html>",
   {
-    url: "http://localhost/learning-lab",
+    url: "http://localhost/",
     runScripts: "outside-only",
     pretendToBeVisual: true,
     virtualConsole: log,
@@ -64,10 +64,17 @@ const range = async (id, value) => {
 (async () => {
   w.eval(fs.readFileSync(path.join(root, "polyfills.js"), "utf8"));
   w.eval(
-    "(function(){\n" +
-      fs.readFileSync(path.join(root, "main.js"), "utf8") +
-      "\n})();",
+    require("esbuild").transformSync(
+      fs.readFileSync(path.join(root, "main.js"), "utf8"),
+      { format: "iife", target: "es2022" },
+    ).code,
   );
+  await wait(() => button("Start for Free"));
+  await click("Start for Free");
+  await wait(() => button("Sign in with Google"));
+  await click("Sign in with Google");
+  await wait(() => button("Learning Lab"));
+  await click("Learning Lab");
   await wait(() => button("Open Current Lab →"));
   await click("Open Current Lab →");
   await wait(() => button("Start student attempt →"));
@@ -139,7 +146,7 @@ const range = async (id, value) => {
   assert.match(d.querySelector(".score-card").textContent, /5\s*\/5/);
   assert.equal(errors.length, 0, errors.map(String).join("\n"));
   console.log(
-    "PASS: compiled Angular lesson, disabled states, sliders, parallel SVG, all observations, assessment, feedback, admin results and resume",
+    "PASS: real landing/sign-in navigation, profile updates on every save, compiled Angular lesson, feedback, admin results and resume",
   );
 })()
   .catch((e) => {

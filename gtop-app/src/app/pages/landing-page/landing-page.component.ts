@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +15,8 @@ import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
     templateUrl: './landing-page.component.html',
     styleUrl: './landing-page.component.scss'
 })
-export class LandingPageComponent implements OnInit {
+export class LandingPageComponent implements OnInit, OnDestroy {
+    private readonly subscriptions = new Subscription();
 
     // Track selected answer + feedback
     selectedAnswer: string | null = null;
@@ -36,11 +38,16 @@ export class LandingPageComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.authService.getUser().subscribe(user => {
+        this.subscriptions.add(this.authService.getUser().subscribe(user => {
             if (user && user.board && user.standard) {
                 this.router.navigate(['/dashboard']);
             }
-        });
+        }));
+    }
+
+    ngOnDestroy(): void {
+        // Profile updates (including saved lessons) must not navigate from a departed page.
+        this.subscriptions.unsubscribe();
     }
 
     // Called when an option is clicked

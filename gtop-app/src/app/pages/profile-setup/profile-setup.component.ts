@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
@@ -23,7 +24,8 @@ import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
         MatCardModule
     ],
 })
-export class ProfileSetupComponent implements OnInit {
+export class ProfileSetupComponent implements OnInit, OnDestroy {
+    private readonly subscriptions = new Subscription();
     standards: string[] = [];
     boards: string[] = [];
 
@@ -40,17 +42,17 @@ export class ProfileSetupComponent implements OnInit {
 
     ngOnInit() {
         // ✅ Subscribe to AuthService
-        this.authService.getUser().subscribe((user) => {
+        this.subscriptions.add(this.authService.getUser().subscribe((user) => {
             if (user && user.board && user.standard) {
                 // Already setup
                 this.router.navigate(['/dashboard']);
                 return;
             }
             this.user = user;
-        });
+        }));
 
         // ✅ Fetch distinct boards & standards from syllabus (from IndexedDB)
-        this.syllabusService.syllabus$.subscribe((syllabus: SyllabusItem[]) => {
+        this.subscriptions.add(this.syllabusService.syllabus$.subscribe((syllabus: SyllabusItem[]) => {
             const uniqueBoards = new Set<string>();
             const uniqueStandards = new Set<string>();
 
@@ -61,7 +63,12 @@ export class ProfileSetupComponent implements OnInit {
 
             this.boards = Array.from(uniqueBoards);
             this.standards = Array.from(uniqueStandards);
-        });
+        }));
+    }
+
+    ngOnDestroy(): void {
+        // Stop both profile redirects and syllabus updates when leaving setup.
+        this.subscriptions.unsubscribe();
     }
 
     signInWithGoogle() {

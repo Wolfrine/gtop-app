@@ -87,3 +87,13 @@ Use it to answer:
 - Prior pending research note `raw/2026-06-05-current-education-reforms-trends-research.md`: left as needs-follow-up; unrelated to this curation scope.
 - Acceptance test: the product map and existing Intent/Problems pages preserve GTOP's practice-intelligence direction; updated pages distinguish the chosen lesson scope from still-unproven outcomes. Execution details remain outside wiki prose.
 - Project Manager Handoff: integrate in V1 as clarified by the founder, review the development version and signed-in learner/admin flows, then collect actual learner feedback before choosing another lesson. Backfill the admin Action Plan activity when an authenticated admin session is available. The five-attempt retention limit is an initial implementation choice to review with usage.
+
+### 2026-09-05 - Learning Lab Integration Review
+
+- Raw note: `raw/2026-09-05-learning-lab-integration-review.md`
+- Status: processed
+- Wiki pages updated: `wiki/Features.md`
+- Durable memory captured: readiness must cover normal entry, uninterrupted saving, return and feedback; development delivery alone does not establish availability to the intended audience.
+- Prior research curation remains outside this review's scope.
+- Acceptance test: existing Home, Intent, Decisions and Problems preserve the strategic direction; the feature page adds the observed journey-level lesson without turning it into an implementation log.
+- Project Manager Handoff: ship the listener cleanup and regression to the development PR, complete signed-in acceptance, distinguish development from production status, and backfill Action Plan when an authenticated admin session is available.

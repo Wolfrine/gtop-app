@@ -26,6 +26,8 @@ Learning Lab is the chosen home for interactive lessons inside GTOP, accessible 
 
 The founder chose this work because real people can use a complete lesson and respond to it. Its value should be assessed through observed understanding and usability, not the novelty of a generated interface. Learners review their own progress; admins use results and account-linked feedback to improve the lesson. This adds a practical explanation path to the [[Practice Loop]] and produces bounded evidence for [[Learning Diagnosis]].
 
+A lesson is ready for learners only when they can reach it through normal GTOP sign-in, save progress without being taken away from the lesson, and return to their feedback. A working demonstration or development deployment alone does not establish that this full journey works for the intended audience.
+
 ## Question Flagging
 
 Question flagging lets students report potential MCQ issues and gives admins a signal for content review. It connects learner feedback to [[Question Bank Quality]].
@@ -58,3 +60,4 @@ The product distinction matters: Live Quiz is admin/host-oriented; Quiz Run shou
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
 - `raw/2026-09-05-learning-lab-current-lab.md`
+- `raw/2026-09-05-learning-lab-integration-review.md`

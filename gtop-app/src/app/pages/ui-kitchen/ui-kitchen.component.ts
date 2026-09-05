@@ -13,5 +13,13 @@ import { MatInputModule } from '@angular/material/input';
   templateUrl: './ui-kitchen.component.html',
   styleUrls: ['./ui-kitchen.component.scss'],
 })
-export class UiKitchenComponent { }
-
+export class UiKitchenComponent {
+  readonly viewports = [
+    { label: 'Phone · 360', width: 360 },
+    { label: 'Phone · 390', width: 390 },
+    { label: 'Tablet · 768', width: 768 },
+    { label: 'Desktop · 1024', width: 1024 },
+  ];
+  previewWidth = 390;
+  previewOpen = false;
+}

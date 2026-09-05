@@ -1,6 +1,25 @@
 <div class="container uikit">
-  <h1>UI Kitchen Sink</h1>
-  <p class="text-muted">Development-only page to preview tokens, utilities, and Material alignment.</p>
+  <h1>UI Preview</h1>
+  <p class="text-muted">Shared GTOP styles and responsive review. Available to administrators.</p>
+
+  <section class="responsive-review" aria-labelledby="responsive-title">
+    <h2 id="responsive-title">Review the working app</h2>
+    <p class="text-muted">The preview uses your signed-in account. Navigate normally inside it; saves and submissions use real data.</p>
+    <div class="row viewport-controls" aria-label="Preview width">
+      <button mat-stroked-button color="primary" *ngFor="let viewport of viewports"
+        [attr.aria-pressed]="previewWidth === viewport.width" (click)="previewWidth = viewport.width">
+        {{ viewport.label }}
+      </button>
+      <button mat-flat-button color="primary" (click)="previewOpen = !previewOpen">
+        {{ previewOpen ? 'Close preview' : 'Open responsive preview' }}
+      </button>
+    </div>
+    <p class="text-muted">Width: {{ previewWidth }} px. Resize checks layout and navigation; it does not simulate a phone keyboard or device performance.</p>
+    <div class="preview-viewport" *ngIf="previewOpen">
+      <iframe title="GTOP responsive preview" src="/learning-lab" [style.width.px]="previewWidth"
+        height="640" loading="lazy"></iframe>
+    </div>
+  </section>
 
   <section>
     <h2>Buttons</h2>

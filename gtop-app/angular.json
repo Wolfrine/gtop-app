@@ -33,7 +33,6 @@
                             "src/sitemap.xml"
                         ],
                         "styles": [
-                            "@angular/material/prebuilt-themes/indigo-pink.css",
                             "src/styles.scss"
                         ],
                         "scripts": []
@@ -98,7 +97,6 @@
                             "src/sitemap.xml"
                         ],
                         "styles": [
-                            "@angular/material/prebuilt-themes/indigo-pink.css",
                             "src/styles.scss"
                         ],
                         "scripts": []

@@ -17,6 +17,7 @@
 
 .focus-ring:focus-visible,
 button:focus-visible,
+a[href]:focus-visible,
 [tabindex]:focus-visible {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
@@ -43,9 +44,13 @@ button:focus-visible,
 
 .card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .card-title { font-size: 16px; font-weight: 700; color: hsl(var(--foreground)); }
-.card-subtitle { font-size: 13px; color: hsl(var(--muted-foreground)); }
+.card-subtitle { font-size: 14px; color: hsl(var(--muted-foreground)); }
 .card-divider { height: 1px; background: hsl(var(--border)); margin: 4px 0; }
 .card-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
 /* Variant with subtle tinted background */
 .card--soft { background: hsl(var(--surface-variant)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .card, .card--hover { transition: none; }
+}

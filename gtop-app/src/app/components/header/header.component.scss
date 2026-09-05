@@ -1,22 +1,7 @@
-.header {
-    color: white;
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-}
-
-.logo {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.spacer {
-    flex-grow: 1;
-}
-
-.profile-pic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-}
+.header { display: flex; align-items: center; padding: 0 16px; gap: 8px; color: white; }
+.logo { font-size: 20px; font-weight: 700; letter-spacing: .02em; }
+.spacer { flex-grow: 1; }
+.profile-trigger { padding: 6px; }
+.profile-pic { display: block; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+button:focus-visible { outline-color: white; }
+@media (max-width: 768px) { .header { padding: 0 8px; gap: 4px; } }

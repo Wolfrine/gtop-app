@@ -42,12 +42,12 @@ export class SideNavComponent implements OnInit {
     getAdminMenu(): MenuItem[] {
         // Dashboard first for quick access (landing route)
         return [
-            { label: 'Learner Dashboard', icon: 'dashboard', route: '/dashboard', tooltip: 'Preview the learner home experience' },
+            { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', tooltip: 'Practice and review your recent attempts' },
             { label: 'Quick Quiz', icon: 'play_arrow', route: '/quiz', tooltip: 'Launch a random solo quiz' },
             { label: 'Learning Lab', icon: 'science', route: '/learning-lab', badge: 'NEW', tooltip: 'Learn through interactive experiments' },
-            { label: 'Quiz Run Lobby', icon: 'groups', route: '/quiz-run', tooltip: 'Create a real-time lobby (max 5 learners)' },
-            { label: 'Live Quiz Schedule', icon: 'event', route: '/live', tooltip: 'Review and host upcoming live quizzes' },
-            { label: 'Reports & Insights', icon: 'insights', route: '/reports', tooltip: 'Analyse learner attempts and accuracy' },
+            { label: 'Quiz Runs', icon: 'groups', route: '/quiz-run', tooltip: 'Create a real-time lobby (max 5 learners)' },
+            { label: 'Live Quizzes', icon: 'event', route: '/live', tooltip: 'Review and host upcoming live quizzes' },
+            { label: 'Progress', icon: 'insights', route: '/reports', tooltip: 'Analyse learner attempts and accuracy' },
 
             { label: 'Action Plan', icon: 'assignment_turned_in', route: '/admin/action-plan', badge: 'LIVE', tooltip: 'Coordinate priorities, owners, progress and blockers' },
 
@@ -58,7 +58,7 @@ export class SideNavComponent implements OnInit {
 
             { label: 'Admin Console', icon: 'grid_view', route: '/admin', tooltip: 'Access administrative metrics and tools' },
 
-            { label: 'UI Kitchen (Dev)', icon: 'science', route: '/dev/ui', badge: 'DEV', tooltip: 'Development preview (admin only)' },
+            { label: 'UI Preview', icon: 'science', route: '/dev/ui', badge: 'DEV', tooltip: 'Review shared styles and responsive layouts' },
             { label: 'Logs', icon: 'bug_report', route: '/logs' },
         ];
     }
@@ -67,10 +67,10 @@ export class SideNavComponent implements OnInit {
         const base: MenuItem[] = [
             // Dashboard first for parity with admin experience
             { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-            { label: 'Start Quiz', icon: 'play_arrow', route: '/quiz' },
+            { label: 'Quick Quiz', icon: 'play_arrow', route: '/quiz' },
             { label: 'Learning Lab', icon: 'science', route: '/learning-lab', badge: 'NEW', tooltip: 'Learn through interactive experiments' },
-            { label: 'Join Live Quiz', icon: 'bolt', route: '/live', tooltip: 'Enter a code to join' },
-            { label: 'Performance Reports', icon: 'insights', route: '/reports' },
+            { label: 'Live Quizzes', icon: 'bolt', route: '/live', tooltip: 'Enter a code to join' },
+            { label: 'Progress', icon: 'insights', route: '/reports' },
         ];
         if (isDevHost) {
             base.push({ label: 'Logs', icon: 'bug_report', route: '/logs' });

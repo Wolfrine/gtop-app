@@ -1,4 +1,5 @@
 /* Global styles; imports for tokens and utilities */
+@use 'styles/material-theme';
 @use 'styles/tokens';
 @use 'styles/utilities';
 @use 'styles/typography';
@@ -21,20 +22,29 @@ body {
 
 .mat-drawer-content { min-height: 94% !important; }
 
-@media (max-width: 768px) {
-  .sidenav { width: 100%; }
-  .mat-drawer { width: 80% !important; }
+.mat-mdc-card {
+  --mdc-elevated-card-container-shape: var(--radius);
+  --mdc-outlined-card-container-shape: var(--radius);
+  --mdc-elevated-card-container-elevation: var(--shadow-sm);
 }
-mat-card { border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+mat-drawer.sidenav { width: 248px; border-right: 1px solid hsl(var(--border)); }
+@media (max-width: 768px) { mat-drawer.sidenav { width: min(288px, 85vw); } }
+app-side-nav .mdc-list-item__primary-text { display: flex; align-items: center; gap: 8px; }
 
 mat-chip {
     border-radius: var(--radius);
 }
 
-.mat-mdc-form-field .mdc-text-field { border-radius: var(--radius); }
+.mat-mdc-form-field .mdc-text-field { border-radius: var(--control-radius); }
 
 /* Material shape alignment for buttons */
-.mat-mdc-button-base { border-radius: var(--radius) !important; }
+.mat-mdc-button-base { border-radius: var(--control-radius) !important; }
+.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button {
+  min-height: 44px; height: auto; padding: 10px 16px; letter-spacing: normal;
+  font-size: 14px; font-weight: 600; line-height: 1.4; white-space: normal;
+}
+.mat-mdc-dialog-container { --mdc-dialog-container-shape: 12px; }
+.mat-mdc-snack-bar-container { --mdc-snackbar-container-shape: 8px; }
 
 /* Shared report styles */
 .chart-empty {

@@ -1,11 +1,11 @@
 <mat-toolbar color="primary" class="header">
     <!-- Back Button (Hidden on Dashboard) -->
-    <button *ngIf="showBackButton" mat-icon-button (click)="goBack()">
+    <button *ngIf="showBackButton" mat-icon-button (click)="goBack()" aria-label="Go back">
         <mat-icon>arrow_back_ios_new</mat-icon>
     </button>
 
     <!-- Hamburger Menu (Only on Dashboard) -->
-    <button *ngIf="showHamburgerMenu" mat-icon-button (click)="onMenuClick()">
+    <button *ngIf="showHamburgerMenu" mat-icon-button (click)="onMenuClick()" aria-label="Toggle navigation">
         <mat-icon>menu</mat-icon>
     </button>
 
@@ -15,8 +15,10 @@
     <!-- Profile Picture with Mat-Menu -->
     <span class="spacer"></span>
 
-    <img [matMenuTriggerFor]="profileMenu" *ngIf="user?.photoURL" [attr.src]="user.photoURL" alt="Profile Picture"
-        class="profile-pic" />
+    <button mat-icon-button class="profile-trigger" [matMenuTriggerFor]="profileMenu" *ngIf="user?.photoURL"
+        aria-label="Open profile menu">
+        <img [attr.src]="user.photoURL" alt="" class="profile-pic" />
+    </button>
 
 
     <!-- Profile Menu -->

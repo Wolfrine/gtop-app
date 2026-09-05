@@ -1,6 +1,6 @@
 <mat-nav-list class="sidenav" role="navigation" aria-label="Primary">
   <a mat-list-item *ngFor="let item of menuItems"
-     [routerLink]="item.route" routerLinkActive="active" (click)="itemClicked.emit()"
+     [routerLink]="item.route" routerLinkActive="active" ariaCurrentWhenActive="page" (click)="itemClicked.emit()"
      [matTooltip]="item.tooltip || ''">
     <mat-icon matListItemIcon class="icon">{{ item.icon }}</mat-icon>
     <span class="label">{{ item.label }}</span>

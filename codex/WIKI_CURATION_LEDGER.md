@@ -124,3 +124,13 @@ Use it to answer:
 - Durable memory captured: define ambitious experience outcomes and acceptance criteria before work; consistency alone does not establish attractiveness; founder and learner judgment remain distinct from agent review.
 - Acceptance test: the existing product map and strategic bets are preserved; the new decision strengthens the meaning of quality without becoming an implementation plan.
 - Project Manager Handoff: build and review an actual V1 dashboard/question/results preview at desktop and phone widths using fixed criteria, then seek design approval before production rollout. Action Plan still displays 'Action plan unavailable' because actionPlans access is denied; record execution in docs/uiux until access is available.
+
+### 2026-09-05 - Visual Review And Release Approval
+
+- Raw note: `raw/2026-09-05-visual-review-release-approval.md`
+- Status: processed
+- Wiki pages updated: `wiki/Decisions.md`, `wiki/Problems.md`
+- Durable memory captured: founder rating of 5–6/10 versus 2/10 before; working and effective does not mean visually finished; communicate intuitively with stronger imagery and visual detail, reduce forced explanatory/motivational copy; distinguish release acceptance from completion of the quality objective.
+- Acceptance test: Home and Intent continue to explain the product; Decisions and Problems now preserve the remaining experience gap; future aesthetic response remains unproven. Execution work stays out of wiki prose.
+- Prior research note `raw/2026-06-05-current-education-reforms-trends-research.md` remains needs-follow-up and outside this scope.
+- Project Manager Handoff: promote the exact reviewed V1 candidate to main under the founder's explicit authorization; verify production deployment; propose the next visual improvement sequence without implementing it in this release. Action Plan still reports unavailable because admin access to actionPlans is denied; keep the release and next-step record in docs/uiux.

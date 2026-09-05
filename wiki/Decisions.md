@@ -68,6 +68,12 @@ A consistent interface can still feel plain and uninviting. GTOP's intended expe
 
 Define the desired quality before work and assess the result against that same bar. Representative learner journeys should demonstrate the intended character with actual content across screen sizes. An agent's implementation checklist or retrospective score does not replace the founder's judgment or evidence from learner use. Preserve the working [[Practice Loop]] while improving how it feels.
 
+## Make The Experience Intuitive And Visually Memorable
+
+The founder found the revised experience effective and working, but rated its visual appeal only 5–6/10 against 2/10 for the previous version. GTOP still needs stronger imagery, more intuitive composition and memorable visual details. Release approval can recognize progress while the intended quality remains unmet.
+
+Communicate through recognisable actions, layout, imagery and useful feedback. Supporting words should answer a real question; repeated motivational slogans and explanations made the experience feel artificially constructed. Preserve warmth without surrounding familiar actions with unnecessary narration. Visual character should support the [[Practice Loop]] while the question itself stays calm and legible.
+
 ## Future-Ready Education Direction Is A Strategy Question
 
 GTOP should study what students may expect from education products over the next decade and use that thinking to shape product bets. This is a strategic direction, not a wiki todo list or a commitment to any specific AI feature.
@@ -81,3 +87,4 @@ GTOP should study what students may expect from education products over the next
 
 - `raw/2026-09-05-incremental-ui-standardisation.md`
 - `raw/2026-09-05-experience-quality-target.md`
+- `raw/2026-09-05-visual-review-release-approval.md`

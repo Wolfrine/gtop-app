@@ -5,10 +5,10 @@
     <div class="score-grid">
       <div class="chart">
         <canvas baseChart [data]="doughnutData" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
-        <div class="chart-center">{{ accuracyPercent }}%</div>
+        <div class="chart-center"><strong>{{ accuracyPercent }}%</strong><span>ACCURACY</span></div>
       </div>
       <div class="stats">
-        <h1 class="title">Quiz Summary</h1>
+        <span class="summary-kicker">QUIZ SUMMARY</span><h1 class="title">See what clicked.</h1><p class="summary-intro">Every answer tells you something. Take a look, then take your next step.</p>
         <div class="chips">
           <span class="chip">Total: {{ totalQuestions }}</span>
           <span class="chip">Correct: {{ correctAnswers }}</span>
@@ -30,12 +30,7 @@
             <mat-icon>home</mat-icon> Back to Dashboard
           </button>
         </div>
-        <div class="filters">
-          <button mat-button (click)="toggleIncorrectOnly()" [color]="incorrectOnly ? 'primary' : undefined">
-            <mat-icon>{{ incorrectOnly ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
-            Show only incorrect
-          </button>
-        </div>
+
       </div>
     </div>
   </mat-card>
@@ -47,7 +42,12 @@
   </mat-card>
 
   <!-- Detailed Solutions -->
-  <h2 class="details-header">Answers &amp; Explanations</h2>
+  <div class="review-heading"><div><span class="review-kicker">TURN ANSWERS INTO UNDERSTANDING</span><h2 class="details-header">Let’s take a closer look.</h2></div>        <div class="filters">
+          <button mat-button (click)="toggleIncorrectOnly()" [color]="incorrectOnly ? 'primary' : undefined">
+            <mat-icon>{{ incorrectOnly ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+            Show only incorrect
+          </button>
+        </div></div>
   <mat-accordion>
       <mat-expansion-panel *ngFor="let q of filteredQuestions; let i = index">
         <mat-expansion-panel-header>

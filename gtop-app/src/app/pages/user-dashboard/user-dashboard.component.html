@@ -1,23 +1,22 @@
 <div class="dashboard-container">
-
-  <!-- Welcome + Quick Actions -->
-  <mat-card appCard class="welcome-card">
-    <div class="welcome-header">
-      <h1>Welcome back, {{ userName || 'Learner' }}!</h1>
-      <p class="sub">Board: {{ userSubjects || '—' }} · Standard: {{ userStandard || '—' }}</p>
-    </div>
-    <div class="quick-start">
-      <section class="cta-group solo" aria-labelledby="solo-heading">
+  <header class="welcome-header">
+    <div><span class="section-kicker">YOUR LEARNING SPACE</span><h1>Hello, {{ userName || 'Learner' }}.</h1><p class="welcome-line">Good questions lead to great discoveries.</p></div>
+    <p class="profile-context">{{ userSubjects || '—' }} <span>·</span> Standard {{ userStandard || '—' }}</p>
+  </header>
+  <div class="dashboard-grid">
+    <mat-card appCard class="welcome-card">
+      <img class="practice-art" src="assets/illustrations/practice-orbit.svg" alt="" aria-hidden="true">
+<section class="cta-group solo" aria-labelledby="solo-heading">
         <div class="cta-header">
           <span class="cta-icon" aria-hidden="true">
-            <mat-icon>self_improvement</mat-icon>
+            <mat-icon>auto_awesome</mat-icon>
           </span>
           <div class="cta-copy">
-            <h3 id="solo-heading">Practice on your own</h3>
-            <p>Start a quick quiz or choose your own questions.</p>
+            <span class="hero-kicker">A LITTLE PRACTICE. A WORLD OF POSSIBILITY.</span><h2 id="solo-heading">Small steps.<br><span>Big discoveries.</span></h2>
+            <p>Try ten questions from your syllabus, or make a quiz your own. Your next discovery starts here.</p>
           </div>
         </div>
-        <div class="cta-actions">
+        <div class="cta-actions hero-actions">
           <button mat-flat-button color="primary" (click)="startQuickQuiz()"
                   matTooltip="10 random questions from your syllabus">
             <mat-icon>play_arrow</mat-icon>
@@ -30,45 +29,10 @@
           </button>
         </div>
       </section>
-
-      <section class="cta-group realtime" aria-labelledby="realtime-heading">
-        <div class="cta-header">
-          <span class="cta-icon" aria-hidden="true">
-            <mat-icon>groups</mat-icon>
-          </span>
-          <div class="cta-copy">
-            <h3 id="realtime-heading">Practice with others</h3>
-            <p>Join a live quiz or start a run with friends.</p>
-          </div>
-        </div>
-        <div class="cta-actions">
-          <button mat-stroked-button color="primary" [routerLink]="['/quiz-run']"
-                  matTooltip="Create a lobby, share code and race with friends">
-            <mat-icon>schedule</mat-icon>
-            Quiz Runs
-          </button>
-          <button mat-stroked-button color="primary" [routerLink]="['/live']"
-                  matTooltip="See upcoming live quizzes hosted by admins">
-            <mat-icon>bolt</mat-icon>
-            Live Quizzes
-          </button>
-        </div>
-      </section>
-
-      <a class="reports-cta" [routerLink]="['/reports']" matTooltip="Review accuracy, streaks and past attempts">
-        <span class="reports-icon" aria-hidden="true">
-          <mat-icon>insights</mat-icon>
-        </span>
-        <div class="reports-copy">
-          <span class="eyebrow">Your learning</span>
-          <span class="title">View Progress</span>
-          <span class="hint">Review your accuracy and previous attempts.</span>
-        </div>
-        <mat-icon class="chevron" aria-hidden="true">arrow_forward</mat-icon>
-      </a>
-    </div>
-  </mat-card>
-
+      <div class="hero-footnote"><span></span>Practise. Understand. Try again.</div>
+    </mat-card>
+    <aside class="progress-panel" aria-label="Your progress">
+      <div class="progress-heading"><span class="section-kicker">BUILDING UNDERSTANDING</span><h2>Your progress</h2></div>
   <!-- Stats -->
   <div class="stats-grid">
     <mat-card appCard class="stat" [style.--accent]="'#2563eb'" [style.--accent-bg]="'rgba(37,99,235,.12)'">
@@ -96,15 +60,27 @@
       <div class="stat-body">
         <div class="label">Last Score</div>
         <div class="value">{{ lastQuizScore }}</div>
-        <div class="hint">Most recent session.</div>
+        <div class="hint">Recorded session score.</div>
       </div>
     </mat-card>
   </div>
 
+<a class="reports-cta" [routerLink]="['/reports']" matTooltip="Review accuracy, streaks and past attempts">
+        <span class="reports-icon" aria-hidden="true">
+          <mat-icon>insights</mat-icon>
+        </span>
+        <div class="reports-copy">
+          <span class="eyebrow">KEEP GROWING</span>
+          <span class="title">View Progress</span>
+          <span class="hint">Find your next step.</span>
+        </div>
+        <mat-icon class="chevron" aria-hidden="true">arrow_forward</mat-icon>
+      </a>
+    </aside>
   <!-- Recent Sessions -->
   <mat-card appCard class="recent" *ngIf="recentSessions.length">
     <div class="recent-header">
-      <div class="title">Recent Sessions</div>
+      <div><span class="section-kicker">YOUR PRACTICE STORY</span><h2 class="title">Every attempt counts.</h2></div>
       <a class="link" [routerLink]="['/reports']">View All Attempts</a>
     </div>
     <div class="recent-list">
@@ -120,7 +96,31 @@
     </div>
   </mat-card>
 
-  <mat-card appCard class="practice-guide" aria-labelledby="whats-new-heading">
+<section class="cta-group realtime" aria-labelledby="realtime-heading">
+        <div class="cta-header">
+          <span class="cta-icon" aria-hidden="true">
+            <mat-icon>groups</mat-icon>
+          </span>
+          <div class="cta-copy">
+            <h3 id="realtime-heading">Better, together.</h3>
+            <p>A little friendly challenge goes a long way. Join a live quiz or share a run.</p>
+          </div>
+        </div>
+        <div class="cta-actions">
+          <button mat-stroked-button color="primary" [routerLink]="['/quiz-run']"
+                  matTooltip="Create a lobby, share code and race with friends">
+            <mat-icon>schedule</mat-icon>
+            Quiz Runs
+          </button>
+          <button mat-stroked-button color="primary" [routerLink]="['/live']"
+                  matTooltip="See upcoming live quizzes hosted by admins">
+            <mat-icon>bolt</mat-icon>
+            Live Quizzes
+          </button>
+        </div>
+      </section>
+  </div>
+  <details class="practice-guide"><summary>New to practising together? <span>See how it works <mat-icon>expand_more</mat-icon></span></summary><div class="guide-content">
     <div class="whats-new-header">
       <span class="badge">Quick guide</span>
       <div>
@@ -185,6 +185,6 @@
         </div>
       </section>
     </div>
-  </mat-card>
+  </div></details>
 
 </div>

@@ -1,15 +1,16 @@
 <div class="quiz-container" #quizRoot>
 
+    <div class="quiz-kicker"><span></span> A LITTLE FOCUS GOES A LONG WAY</div>
     <!-- Header -->
     <div class="quiz-header">
-        <h3>Question {{ currentQuestionIndex + 1 }} of {{ questions.length }}</h3>
+        <h1>Question <strong>{{ currentQuestionIndex + 1 }}</strong><span> of {{ questions.length }}</span></h1>
         <mat-progress-bar mode="determinate" [value]="getProgressPercent()"></mat-progress-bar>
     </div>
 
     <!-- Metadata (with timer in live mode) -->
     <div class="meta-info timer-wrap" *ngIf="questions[currentQuestionIndex] as metaQ">
-        <p>{{ metaQ.board }} >
-            {{ metaQ.standard }}<sup>th</sup> Standard :
+        <p>{{ metaQ.board }} · Standard
+            {{ metaQ.standard }} ·
             {{ metaQ.subject }},
             {{ metaQ.chapter }}
         </p>
@@ -21,7 +22,7 @@
 
     <!-- Question -->
     <mat-card appCard class="question-card">
-        <h4>Q{{currentQuestionIndex+1}}. {{ questions[currentQuestionIndex].question }}</h4>
+        <span class="question-number">Q{{currentQuestionIndex+1}}</span><h2>{{ questions[currentQuestionIndex].question }}</h2>
     </mat-card>
 
     <!-- Options -->
@@ -32,7 +33,7 @@
             [attr.aria-pressed]="questions[currentQuestionIndex].selectedIndex === i"
             [class.frozen]="liveMode && questions[currentQuestionIndex].selectedIndex !== null"
             (click)="selectOption(i)">
-            {{optionsLabel[i]}}) {{ option }}
+            <span class="answer-letter">{{optionsLabel[i]}}</span><span class="answer-copy">{{ option }}</span><span class="answer-indicator" aria-hidden="true"></span>
         </button>
     </div>
 

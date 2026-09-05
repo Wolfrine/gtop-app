@@ -1,6 +1,6 @@
 # GTOP experience brief — Curiosity and momentum
 
-Status: founder approved this version for production on 2026-09-05; visual appeal remains 5–6/10. See [review evidence](experience-preview-review.md) and [proposed next steps](visual-next-steps.md).
+Status: released and verified in production on 2026-09-05; founder-rated visual appeal remains 5–6/10. See [review evidence](experience-preview-review.md) and [proposed next steps](visual-next-steps.md).
 
 ## Objective
 
@@ -44,5 +44,5 @@ Capture current and proposed screens. Review every criterion before requesting f
 
 ## Coordination
 
-Action Plan remains unavailable under deployed actionPlans permissions. This document and the companion review record are the execution checkpoint. The reviewed application candidate is `f9fae1a32e6040244f0f7d726f86854703f40f83`; the release promotes its exact 13 UI files. The pre-promotion main checkpoint is `6eaed7285003a3ee59fffa6359370e953f3a0a87`. Confirm the production workflow and served bundle before reporting deployment complete.
+Action Plan remains unavailable under deployed actionPlans permissions. This document and the companion review record are the execution checkpoint. The reviewed application candidate is `f9fae1a32e6040244f0f7d726f86854703f40f83`; the release promotes its exact 13 UI files. The pre-promotion main checkpoint is `6eaed7285003a3ee59fffa6359370e953f3a0a87`. Main merge `88485bd9f1bd71617684b12bf5d4aa07a0452126` passed production workflow `33981861105`; the live site was checked against the reviewed bundle. See the companion review record.
 

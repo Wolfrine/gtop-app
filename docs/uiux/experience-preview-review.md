@@ -1,6 +1,6 @@
 # GTOP experience preview — review record
 
-Status: founder approved this exact version for production on 2026-09-05; the visual-quality objective remains unfinished.
+Status: released to production and verified on 2026-09-05; the visual-quality objective remains unfinished.
 
 ## Working preview
 
@@ -10,6 +10,15 @@ Status: founder approved this exact version for production on 2026-09-05; the vi
 - Small commits: `17a59c7` shared identity, `7bdaa5d` learner journey, `f9fae1a` rendered-layout refinements.
 - Successful deployment: GitHub Actions run `33979367215`.
 - Verified served assets: `main-S457YGHC.js`, `styles-ZXQSLVT7.css`.
+
+## Production release verification
+
+- Application merge on main: `88485bd9f1bd71617684b12bf5d4aa07a0452126`.
+- Production build and hosting deployment: [successful run 33981861105](https://github.com/Wolfrine/gtop-app/actions/runs/33981861105).
+- Live site verified at https://gtop-app.web.app/ after using its reload control.
+- Served assets exactly match the reviewed application: `main-S457YGHC.js`, `styles-ZXQSLVT7.css`.
+- Public sample quiz selected Paris and displayed correct-answer feedback. Authenticated learner journey checks remain those recorded against the identical development bundle; no new production quiz attempt was submitted.
+- Main retains the three reviewed UI commits through the merge and preserves newer product-memory and review documentation. The founder's feedback is recorded in `raw/2026-09-05-visual-review-release-approval.md` and curated in the wiki.
 
 ## What changed
 
@@ -44,7 +53,7 @@ The 9/10 ambition in the experience brief remains the quality target. The founde
 
 ## Remaining limits and handoff
 
-- Founder explicitly approved promotion of the reviewed candidate to production. The merge must retain the exact reviewed application bytes and the existing small-commit history. Production completion requires the main workflow and served-bundle check.
+- The approved candidate is released. The main merge retains the exact reviewed application bytes and the existing small-commit history; workflow and served-bundle verification passed.
 - The dashboard's existing Last Score selection discrepancy remains. The hint says 'Recorded session score'; the calculation was not changed.
 - The existing question screen briefly shows 'Question 1 of 0' while remote questions load. This is an existing loading-state limitation, outside the presentation-only scope.
 - Stored question content can contain Markdown markers and duplicate question-number prefixes. Improving rendering/content quality requires a separate scoped change.

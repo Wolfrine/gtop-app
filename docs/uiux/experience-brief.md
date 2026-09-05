@@ -1,6 +1,6 @@
 # GTOP experience brief — Curiosity and momentum
 
-Status: target fixed before implementation; design preview in progress.
+Status: working design preview ready for founder review; see [review evidence](experience-preview-review.md). Production promotion pending.
 
 ## Objective
 

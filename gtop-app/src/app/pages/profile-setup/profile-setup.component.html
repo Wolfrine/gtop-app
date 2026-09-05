@@ -1,15 +1,15 @@
 <div class="profile-setup-container">
     <!-- Stage 1: Sign-In -->
     <mat-card class="sign-in-card">
-        <h2 *ngIf="!user">Sign In to Continue</h2>
-        <h2 *ngIf="user">Welcome, {{ user.displayName }}</h2>
+        <h1 *ngIf="!user">Sign In</h1>
+        <h1 *ngIf="user">Welcome, {{ user.displayName }}</h1>
 
         <div *ngIf="user">
             <img *ngIf="user?.photoURL" [attr.src]="user.photoURL" alt="Profile Picture" class="profile-pic" />
 
 
             <p>{{ user.email }}</p>
-            <a class="switch-user" (click)="switchUser()">Switch Account</a>
+            <button mat-button class="switch-user" (click)="switchUser()">Switch Account</button>
         </div>
 
         <button mat-raised-button color="primary" *ngIf="!user" (click)="signInWithGoogle()">
@@ -23,7 +23,7 @@
 
         <!-- Standard Selection -->
         <mat-form-field appearance="outline">
-            <mat-label>Select Your Standard</mat-label>
+            <mat-label>Standard</mat-label>
             <mat-select [(ngModel)]="selectedStandard">
                 <mat-option *ngFor="let standard of standards" [value]="standard">
                     {{ standard }}
@@ -33,7 +33,7 @@
 
         <!-- Board Selection -->
         <mat-form-field appearance="outline">
-            <mat-label>Select Your Board</mat-label>
+            <mat-label>Board</mat-label>
             <mat-select [(ngModel)]="selectedBoard">
                 <mat-option *ngFor="let board of boards" [value]="board">
                     {{ board }}

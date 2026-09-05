@@ -1,0 +1,60 @@
+app-landing-page {
+  display: block;
+  color: hsl(var(--foreground));
+
+  .hero { padding: 48px 24px; background: hsl(var(--surface)); border-bottom: 1px solid hsl(var(--border)); }
+  .hero-inner { max-width: 1100px; margin: auto; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: center; gap: 48px; }
+  .hero-copy { display: grid; gap: 20px; min-width: 0; }
+  .hero-brand-lockup { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .hero-logo { display: grid; place-items: center; padding: 12px; border-radius: 8px; background: hsl(var(--primary)); color: white; font-weight: 700; letter-spacing: .04em; }
+  .hero-brand-lines { display: grid; gap: 4px; }
+  .hero-brand-name { display: none; }
+  .hero-brand-expansion { font-size: 16px; font-weight: 600; line-height: 1.35; }
+  .hero-brand-tagline { font-size: 14px; color: hsl(var(--muted-foreground)); }
+  .hero-tag, .section-kicker { width: fit-content; font-size: 12px; font-weight: 600; letter-spacing: .04em; color: hsl(var(--primary)); background: hsl(var(--primary-container)); padding: 6px 10px; border-radius: 6px; }
+  .hero h1 { margin: 0; font-size: clamp(30px, 3.5vw, 44px); font-weight: 700; letter-spacing: -.025em; line-height: 1.15; }
+  .hero p { margin: 0; color: hsl(var(--muted-foreground)); font-size: 16px; line-height: 1.6; }
+  .hero .hero-subtext { font-size: 14px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero-actions button { min-width: 144px; }
+  .hero-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 8px 0 0; padding-top: 20px; border-top: 1px solid hsl(var(--border)); }
+  .hero-stats dt { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
+  .hero-stats dd { margin: 0; font-size: 13px; line-height: 1.5; color: hsl(var(--muted-foreground)); }
+  .hero .hero-footnote { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; }
+  .hero-footnote mat-icon { flex-shrink: 0; font-size: 18px; width: 18px; height: 18px; color: hsl(var(--primary)); }
+  .hero-graphic { border-radius: 24px; background: hsl(var(--primary-container)); }
+  .hero-graphic svg { display: block; width: 100%; height: auto; }
+  .benefits, .live-experiences, .sample-mcq { box-sizing: border-box; max-width: 1148px; padding: 0 24px; margin: 48px auto; display: grid; gap: 24px; }
+  .benefits-heading, .live-experiences__intro, .sample-mcq__intro { display: grid; gap: 12px; max-width: 700px; }
+  .benefits h2, .live-experiences h2, .sample-mcq h2 { margin: 0; font-size: clamp(24px, 2.6vw, 30px); font-weight: 700; line-height: 1.25; }
+  .benefits p, .live-experiences p, .sample-mcq__intro p { margin: 0; color: hsl(var(--muted-foreground)); font-size: 16px; }
+  .benefits-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .benefit-card, .experience-card, .sample-mcq__card { padding: 24px; gap: 16px; border-radius: var(--radius); background: hsl(var(--surface)); box-shadow: var(--shadow-sm); }
+  .benefit-icon { display: block; width: 48px; height: 48px; }
+  .benefit-icon svg { width: 100%; height: 100%; }
+  .benefit-card h3, .experience-card h3 { margin: 0; font-size: 20px; font-weight: 600; }
+  .benefit-card p, .experience-card li { font-size: 14px; line-height: 1.6; }
+  .live-experiences__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .experience-card__header { display: flex; align-items: center; gap: 12px; }
+  .experience-card__header svg { flex-shrink: 0; width: 48px; height: 48px; }
+  .experience-card ol { display: grid; gap: 12px; margin: 0; padding-left: 20px; color: hsl(var(--muted-foreground)); }
+  .experience-card button { align-self: flex-start; margin-top: auto; }
+  .sample-mcq { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .sample-mcq__card .options { display: grid; gap: 8px; }
+  .sample-mcq__card .options button { width: 100%; border: 1px solid hsl(var(--border)); color: #0f172a; text-align: left; }
+  .sample-mcq__card .feedback { margin: 0; font-size: 14px; font-weight: 600; color: hsl(var(--foreground)); }
+
+  @media (max-width: 768px) {
+    .hero { padding: 24px 16px; }
+    .hero-inner { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .hero-copy { gap: 16px; }
+    .hero-graphic { max-width: 240px; justify-self: center; }
+    .hero-actions button { flex: 1; min-width: 120px; }
+    .hero-stats { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .hero-stats div { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 12px; }
+    .benefits, .live-experiences, .sample-mcq { padding: 0 16px; margin-block: 32px; gap: 16px; }
+    .benefits-grid, .live-experiences__grid, .sample-mcq { grid-template-columns: minmax(0, 1fr); }
+    .benefit-card, .experience-card, .sample-mcq__card { padding: 20px; }
+    .experience-card button { width: 100%; }
+  }
+}

@@ -1,11 +1,14 @@
 .profile-container {
   display: flex;
   justify-content: center;
-  padding: 24px 12px 48px;
+  padding: 24px;
+  box-sizing: border-box;
 }
 
 .profile-card {
   width: min(880px, 100%);
+  box-sizing: border-box;
+  min-width: 0;
   padding: 24px;
   display: grid;
   gap: 24px;
@@ -19,8 +22,8 @@
 }
 
 .avatar {
-  width: 120px;
-  height: 120px;
+  width: 80px;
+  height: 80px;
   border-radius: 999px;
   object-fit: cover;
   border: 3px solid rgba(37, 99, 235, 0.35);
@@ -41,6 +44,7 @@
 }
 
 .headline .email {
+  overflow-wrap: anywhere;
   margin: 0;
   color: #475569;
   font-size: 14px;
@@ -116,7 +120,7 @@
 }
 
 .admin-feedback {
-  font-size: 13px;
+  font-size: 14px;
   color: #475569;
 }
 
@@ -156,11 +160,13 @@
 }
 
 .saved {
-  font-size: 13px;
+  font-size: 14px;
   color: #0f766e;
 }
 
 @media (max-width: 720px) {
+  .profile-container { padding: 16px; }
+  .profile-card { padding: 16px; }
   .profile-header {
     flex-direction: column;
     align-items: center;

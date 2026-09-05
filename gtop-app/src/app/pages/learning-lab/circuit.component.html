@@ -1,0 +1,89 @@
+<svg
+  class="circuit-svg"
+  viewBox="0 0 680 395"
+  role="img"
+  [attr.aria-label]="
+    (closed ? 'Closed ' : 'Open ') +
+    mode +
+    ' circuit, ' +
+    voltage +
+    ' volts, total current ' +
+    (current | number: '1.0-2') +
+    ' amperes'
+  "
+>
+  <defs>
+    <pattern id="lab-grid" width="25" height="25" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="0.8" fill="#224252" />
+    </pattern>
+  </defs>
+  <rect width="680" height="395" fill="url(#lab-grid)" />
+  <g *ngFor="let path of paths">
+    <path
+      [attr.d]="path"
+      fill="none"
+      stroke="#416270"
+      stroke-width="4"
+      stroke-linejoin="round"
+    />
+    <path
+      *ngIf="closed && current > 0"
+      [attr.d]="path"
+      class="charge-flow"
+      [style.animation-duration]="duration"
+      fill="none"
+      stroke="#73eed7"
+      stroke-width="5"
+      stroke-dasharray="1 23"
+      stroke-linecap="round"
+    />
+  </g>
+  <path
+    d="M40 175 H100 M50 190 H90 M70 190 V205 M40 205 H100 M50 220 H90"
+    fill="none"
+    stroke="#f6c66b"
+    stroke-width="4"
+  />
+  <text x="32" y="154" fill="#f6c66b" font-size="21">+</text>
+  <text x="37" y="250" fill="#f6c66b" font-size="23">−</text>
+  <text x="111" y="203" fill="#f6c66b" font-size="21" font-weight="650">
+    {{ voltage }} V
+  </text>
+  <g *ngFor="let resistor of resistors">
+    <rect
+      [attr.x]="resistor.x"
+      [attr.y]="resistor.y - 13"
+      [attr.width]="resistor.w"
+      height="26"
+      rx="3"
+      fill="#14374a"
+      stroke="#89cde0"
+      stroke-width="3"
+    />
+    <text
+      [attr.x]="resistor.x + resistor.w / 2"
+      [attr.y]="resistor.y - 30"
+      text-anchor="middle"
+      fill="#e4f3f6"
+      font-size="20"
+      font-weight="650"
+    >
+      {{ resistor.label }}
+    </text>
+  </g>
+  <g *ngIf="mode === 'parallel'">
+    <circle cx="170" cy="80" r="6" fill="#8ccbd4" />
+    <circle cx="610" cy="205" r="6" fill="#8ccbd4" />
+  </g>
+  <path
+    [attr.d]="closed ? 'M340 330 L390 330' : 'M340 330 L386 302'"
+    [attr.stroke]="closed ? '#73eed7' : '#f6c66b'"
+    stroke-width="4"
+    fill="none"
+  />
+  <circle cx="340" cy="330" r="5" fill="#f6c66b" />
+  <circle cx="390" cy="330" r="5" fill="#f6c66b" />
+  <text x="365" y="368" text-anchor="middle" font-size="16" fill="#a5bcc8">
+    {{ closed ? "switch closed" : "switch open" }}
+  </text>
+</svg>

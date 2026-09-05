@@ -1,0 +1,560 @@
+<main class="learning-lab">
+  <a class="text-button" routerLink="/learning-lab">← Learning Lab</a>
+  <section class="lesson-heading">
+    <div>
+      <p class="eyebrow">CLASS 10 · PHYSICS · CURRENT LAB</p>
+      <h1>Make the current make sense<span>.</span></h1>
+      <p class="lede">Predict what will happen. Change the circuit. See why.</p>
+    </div>
+    <span class="lesson-meta">3 experiments · About 15 minutes</span>
+  </section>
+  <p *ngIf="restoring" role="status">Loading your saved attempts…</p>
+  <div class="error-banner" *ngIf="error" role="alert">
+    {{ error }}
+    <button *ngIf="!attempt" class="text-button" (click)="ngOnInit()">
+      Retry loading
+    </button>
+  </div>
+  <details class="resume-banner" *ngIf="!attempt && history.length">
+    <summary>Your saved attempts ({{ history.length }})</summary>
+    <div class="history-row" *ngFor="let a of history">
+      <span
+        >{{ a.createdAt | date: "medium" }} ·
+        {{
+          a.phase === "experiment"
+            ? a.experiments.length + "/3 experiments"
+            : a.phase === "checked"
+              ? "Answers checked"
+              : "Complete"
+        }}</span
+      ><button class="secondary-button" (click)="open(a)">Open attempt</button>
+    </div>
+  </details>
+  <nav class="step-tabs" aria-label="Lesson steps">
+    <button
+      [attr.aria-current]="stage === 'predict' ? 'step' : null"
+      (click)="stage = 'predict'"
+    >
+      1 · Predict</button
+    ><button
+      [attr.aria-current]="stage === 'experiment' ? 'step' : null"
+      [disabled]="!attempt"
+      (click)="stage = 'experiment'"
+    >
+      2 · Experiment</button
+    ><button
+      [attr.aria-current]="stage === 'check' ? 'step' : null"
+      [disabled]="!allDone"
+      (click)="stage = 'check'"
+    >
+      3 · Check & reflect
+    </button>
+  </nav>
+  <p class="save-status" role="status" aria-live="polite">
+    {{ loading ? "Saving…" : practice ? "Practice · nothing is saved" : saved }}
+  </p>
+  <div *ngIf="stage === 'predict'" class="intro-grid">
+    <section class="paper-panel">
+      <p class="eyebrow teal">BEFORE YOU TOUCH THE CIRCUIT</p>
+      <h2>What do you think?</h2>
+      <p>
+        Two quick predictions. It’s fine to be unsure—these help you notice what
+        changes in your understanding.
+      </p>
+      <div *ngFor="let q of baseline; let i = index" class="question-block">
+        <h3>
+          <span class="question-number">0{{ i + 1 }}</span
+          >{{ q.prompt }}
+        </h3>
+        <app-lab-choices
+          [id]="q.id"
+          [label]="q.prompt"
+          [choices]="q.choices"
+          [value]="initial[q.id]"
+          [disabled]="!!attempt || loading"
+          (selected)="initial[q.id] = $event"
+        />
+      </div>
+      <ng-container *ngIf="!attempt; else alreadyStarted"
+        ><div class="start-actions">
+          <button
+            class="primary-button"
+            [disabled]="!canStart"
+            (click)="begin(true)"
+          >
+            {{
+              history.length ? "Start a new attempt" : "Start student attempt"
+            }}
+            →</button
+          ><button
+            class="secondary-button"
+            [disabled]="!canStart"
+            (click)="begin(false)"
+          >
+            Try without saving
+          </button>
+        </div>
+        <p class="privacy-note">
+          Your latest five attempts, answers, progress and feedback are saved to
+          your GTOP account and visible to GTOP admins. Starting another attempt
+          replaces the oldest when five are saved. “Try without saving” sends no
+          learning data.
+        </p></ng-container
+      >
+      <ng-template #alreadyStarted
+        ><button class="primary-button" (click)="stage = 'experiment'">
+          Back to the lab →
+        </button></ng-template
+      >
+    </section>
+    <aside class="concept-panel">
+      <p class="eyebrow">THREE IDEAS. ONE CIRCUIT.</p>
+      <article *ngFor="let concept of concepts" class="concept-card">
+        <span class="concept-letter">{{ concept[0] }}</span>
+        <div>
+          <h3>{{ concept[1] }}</h3>
+          <p>{{ concept[2] }}</p>
+          <small>{{ concept[3] }}</small>
+        </div>
+      </article>
+      <div class="equation-note">
+        <span>The relationship you’ll discover</span><strong>V = I × R</strong
+        ><span>For an ohmic resistor at constant temperature.</span>
+      </div>
+    </aside>
+  </div>
+  <ng-container *ngIf="stage === 'experiment' && attempt">
+    <div class="lab-layout">
+      <aside class="mission-sidebar">
+        <p class="eyebrow">
+          YOUR EXPERIMENTS · {{ attempt.experiments.length }}/3
+        </p>
+        <progress
+          [value]="attempt.experiments.length"
+          max="3"
+          aria-label="Experiments completed"
+        ></progress
+        ><button
+          *ngFor="let m of missions; let i = index"
+          class="mission-button"
+          [class.active]="mission === i"
+          [attr.aria-current]="mission === i ? 'step' : null"
+          [disabled]="loading"
+          (click)="loadMission(i)"
+        >
+          <span class="mission-index">{{
+            attempt.experiments.includes(m.id) ? "✓" : "0" + (i + 1)
+          }}</span
+          ><span
+            ><strong>{{ m.title }}</strong
+            ><small>{{ m.concept }}</small></span
+          >
+        </button>
+        <p class="side-tip">
+          Change one thing at a time. That’s how an experiment reveals a
+          relationship.
+        </p>
+      </aside>
+      <section class="lab-main">
+        <div class="experiment-top">
+          <div>
+            <p class="eyebrow teal">EXPERIMENT 0{{ mission + 1 }}</p>
+            <h2>{{ task.title }}</h2>
+          </div>
+          <button
+            class="text-button"
+            [disabled]="loading"
+            (click)="loadMission(mission)"
+          >
+            ↻ Reset circuit
+          </button>
+        </div>
+        <p class="setup-note">{{ task.setup }}</p>
+        <div class="prediction-strip">
+          <strong>First, predict:</strong> {{ task.prompt
+          }}<app-lab-choices
+            [id]="'mission-' + task.id"
+            [label]="task.prompt"
+            [choices]="task.choices"
+            [value]="attempt.predictions[task.id]"
+            [disabled]="predicted || loading || submitted"
+            (selected)="predict($event)"
+          />
+        </div>
+        <div class="workbench">
+          <div class="circuit-area">
+            <div class="circuit-toolbar">
+              <span>{{ closed ? "● CIRCUIT CLOSED" : "○ CIRCUIT OPEN" }}</span
+              ><button
+                [disabled]="!predicted || loading"
+                class="switch-button"
+                [attr.aria-pressed]="closed"
+                (click)="closed = !closed"
+              >
+                {{ closed ? "Open switch" : "Close switch" }}
+              </button>
+            </div>
+            <app-lab-circuit
+              [voltage]="voltage"
+              [r1]="r1"
+              [r2]="r2"
+              [mode]="mode"
+              [closed]="closed"
+              [current]="values.current"
+            />
+            <p class="circuit-caption">
+              Moving marks indicate conventional current, not actual electron
+              speed.
+            </p>
+            <div class="meter-row">
+              <div>
+                <span>Total current</span
+                ><strong>{{ fmt(values.current) }} <small>A</small></strong>
+              </div>
+              <div>
+                <span>Equivalent resistance</span
+                ><strong>{{ fmt(values.resistance) }} <small>Ω</small></strong>
+              </div>
+              <div>
+                <span>Total power</span
+                ><strong>{{ fmt(values.power) }} <small>W</small></strong>
+              </div>
+            </div>
+          </div>
+          <div class="controls-panel">
+            <h3>YOUR CONTROLS</h3>
+            <fieldset [disabled]="!predicted || loading">
+              <legend class="sr-only">Circuit controls</legend>
+              <div class="control-group">
+                <label for="voltage-control"
+                  >Battery voltage <strong>{{ voltage }} V</strong></label
+                ><input
+                  id="voltage-control"
+                  type="range"
+                  min="1"
+                  max="12"
+                  step="1"
+                  [(ngModel)]="voltage"
+                  aria-label="Battery voltage in volts"
+                />
+                <div class="range-labels">
+                  <span>1 V</span><span>12 V</span>
+                </div>
+              </div>
+              <div class="control-group">
+                <label for="r1-control"
+                  >Resistance R₁ <strong>{{ r1 }} Ω</strong></label
+                ><input
+                  id="r1-control"
+                  type="range"
+                  min="1"
+                  max="12"
+                  step="1"
+                  [(ngModel)]="r1"
+                  aria-label="Resistance R1 in ohms"
+                />
+                <div class="range-labels">
+                  <span>1 Ω</span><span>12 Ω</span>
+                </div>
+              </div>
+              <div *ngIf="mode !== 'single'" class="control-group">
+                <label for="r2-control"
+                  >Resistance R₂ <strong>{{ r2 }} Ω</strong></label
+                ><input
+                  id="r2-control"
+                  type="range"
+                  min="1"
+                  max="12"
+                  step="1"
+                  [(ngModel)]="r2"
+                  aria-label="Resistance R2 in ohms"
+                />
+                <div class="range-labels">
+                  <span>1 Ω</span><span>12 Ω</span>
+                </div>
+              </div>
+              <fieldset class="mode-selector">
+                <legend>Circuit arrangement</legend>
+                <label *ngFor="let m of modes" [class.selected]="mode === m"
+                  ><input
+                    type="radio"
+                    name="arrangement"
+                    [value]="m"
+                    [(ngModel)]="mode"
+                  /><span>{{
+                    m === "single"
+                      ? "One resistor"
+                      : m === "series"
+                        ? "Series"
+                        : "Parallel"
+                  }}</span></label
+                >
+              </fieldset>
+            </fieldset>
+            <div class="live-equation">
+              <span>{{ closed ? "Ohm’s law, right now" : "Open switch" }}</span
+              ><strong>{{
+                closed
+                  ? voltage +
+                    " V ÷ " +
+                    fmt(values.resistance) +
+                    " Ω = " +
+                    fmt(values.current) +
+                    " A"
+                  : "No complete path → 0 A"
+              }}</strong>
+            </div>
+            <div class="branch-values" *ngIf="mode !== 'single'">
+              <span>R₁: {{ fmt(values.i1) }} A · {{ fmt(values.v1) }} V</span
+              ><span>R₂: {{ fmt(values.i2) }} A · {{ fmt(values.v2) }} V</span>
+            </div>
+            <p class="model-note">
+              Ideal battery and wires; resistances stay constant. This model
+              does not simulate heating, faults or real component limits.
+            </p>
+          </div>
+        </div>
+        <div class="observation-panel" [class.completed]="complete">
+          <ng-container *ngIf="complete; else recordObservation"
+            ><div>
+              <h3>
+                {{
+                  attempt.predictions[task.id] === task.answer
+                    ? "Your prediction matched."
+                    : "A useful surprise."
+                }}
+              </h3>
+              <p>{{ task.explanation }}</p>
+              <p class="takeaway">
+                {{
+                  mission === 2
+                    ? "Parallel branches share the same voltage. Current splits between them."
+                    : "The result isolates this relationship because the other variable stayed fixed."
+                }}
+              </p>
+            </div>
+            <button
+              *ngIf="mission < 2"
+              class="primary-button"
+              (click)="loadMission(mission + 1)"
+            >
+              Next experiment →</button
+            ><button
+              *ngIf="allDone"
+              class="primary-button"
+              (click)="stage = 'check'"
+            >
+              Check understanding →
+            </button></ng-container
+          ><ng-template #recordObservation
+            ><div>
+              <h3>
+                {{
+                  predicted
+                    ? "Try it in the circuit."
+                    : "Make your prediction to unlock the controls."
+                }}
+              </h3>
+              <p>
+                {{
+                  predicted
+                    ? task.target
+                    : "Your first guess is a starting point, not a grade."
+                }}
+              </p>
+            </div>
+            <button
+              class="primary-button"
+              [disabled]="!atTarget || !predicted || loading"
+              (click)="record()"
+            >
+              Record observation ✓
+            </button></ng-template
+          >
+        </div>
+      </section>
+    </div>
+    <section class="power-strip">
+      <h3>One more useful reading: power.</h3>
+      <p>
+        Power is the rate of energy transfer. <b>P = V × I</b>, measured in
+        watts. At 6 V and 0.5 A, a resistor transfers 3 joules each second: 3 W.
+      </p>
+    </section>
+  </ng-container>
+  <div class="check-layout" *ngIf="stage === 'check' && attempt && allDone">
+    <section class="paper-panel">
+      <p class="eyebrow teal">PUT YOUR UNDERSTANDING TO WORK</p>
+      <h2>
+        {{
+          submitted
+            ? "Here’s what to build on."
+            : "Five questions. Fresh circuits."
+        }}
+      </h2>
+      <p>
+        {{
+          submitted
+            ? "Read the reasoning, especially where the result surprised you."
+            : "Use what you observed. Final answers are saved when you check them. Your first submission is kept so feedback stays useful."
+        }}
+      </p>
+      <div *ngIf="submitted" class="score-card">
+        <strong>{{ result }}<small>/5</small></strong>
+        <div>
+          <h3>
+            {{
+              result === 5
+                ? "Everything connected."
+                : result >= 3
+                  ? "The main ideas are taking shape."
+                  : "You have a useful starting point."
+            }}
+          </h3>
+          <p>
+            {{
+              result === 5
+                ? "Try explaining the parallel-circuit result to a classmate."
+                : "The explanations below show exactly what to revisit."
+            }}
+          </p>
+        </div>
+      </div>
+      <div class="question-block" *ngFor="let q of questions; let i = index">
+        <p class="question-topic">{{ q.topic }}</p>
+        <h3>
+          <span class="question-number">0{{ i + 1 }}</span
+          >{{ q.prompt }}
+        </h3>
+        <app-lab-choices
+          [id]="q.id"
+          [label]="q.prompt"
+          [choices]="q.choices"
+          [value]="answers[q.id]"
+          [disabled]="submitted || loading"
+          (selected)="answers[q.id] = $event"
+        />
+        <div
+          *ngIf="submitted"
+          class="answer-explanation"
+          [class.correct]="attempt.answers[q.id] === q.answer"
+          [class.revisit]="attempt.answers[q.id] !== q.answer"
+        >
+          <strong
+            >{{
+              attempt.answers[q.id] === q.answer
+                ? "Correct"
+                : "Revisit this idea"
+            }}
+            · {{ q.choices[q.answer] }}</strong
+          >
+          <p>{{ q.explanation }}</p>
+        </div>
+      </div>
+      <ng-container *ngIf="!submitted"
+        ><div class="confidence-question">
+          <h3>How confidently could you explain these circuits to a friend?</h3>
+          <app-lab-choices
+            id="confidence"
+            label="Confidence explaining circuits"
+            [choices]="confidenceOptions"
+            [value]="confidence ? confidence - 1 : undefined"
+            [disabled]="loading"
+            (selected)="confidence = $event + 1"
+          />
+        </div>
+        <button class="primary-button" [disabled]="!canCheck" (click)="check()">
+          Check my answers →
+        </button></ng-container
+      >
+    </section>
+    <aside class="reflection-panel">
+      <p class="eyebrow teal">HELP SHAPE THE NEXT LESSON</p>
+      <h2>Your experience matters.</h2>
+      <p *ngIf="!submitted">
+        Finish the five questions to see your results and share what helped—or
+        got in your way.
+      </p>
+      <div *ngIf="sent" class="feedback-success" role="status">
+        <h3>
+          {{ practice ? "Practice complete." : "Your feedback is saved." }}
+        </h3>
+        <p>
+          {{
+            practice
+              ? "Nothing from this practice was sent to GTOP admins."
+              : "GTOP admins can review this attempt and your feedback."
+          }}
+        </p>
+        <a class="secondary-button" routerLink="/learning-lab"
+          >Return to Learning Lab</a
+        >
+      </div>
+      <ng-container *ngIf="submitted && !sent"
+        ><p>
+          {{
+            practice
+              ? "You’re in practice mode. These responses will not be saved."
+              : "GTOP admins can see your name, attempt and feedback. Please leave out personal details about others."
+          }}
+        </p>
+        <h3>How useful was the lesson?</h3>
+        <app-lab-choices
+          id="usefulness"
+          label="Lesson usefulness"
+          [choices]="ratingOptions"
+          [value]="rating ? rating - 1 : undefined"
+          [disabled]="loading"
+          (selected)="rating = $event + 1"
+        /><label class="field-label" for="friction"
+          >What was hardest to use?
+          <small>Optional · 500 characters</small></label
+        ><textarea
+          id="friction"
+          maxlength="500"
+          rows="3"
+          [(ngModel)]="friction"
+          [disabled]="loading"
+          placeholder="A control, an explanation, small text…"
+        ></textarea
+        ><label class="field-label" for="feedback"
+          >What should we keep or change?
+          <small>Optional · 800 characters</small></label
+        ><textarea
+          id="feedback"
+          maxlength="800"
+          rows="4"
+          [(ngModel)]="feedback"
+          [disabled]="loading"
+          placeholder="What helped you understand? What was missing?"
+        ></textarea
+        ><button
+          class="primary-button full-width"
+          [disabled]="!rating || loading"
+          (click)="sendFeedback()"
+        >
+          {{ practice ? "Finish practice" : "Send feedback" }} →
+        </button></ng-container
+      >
+      <div class="reflection-note">
+        <strong>For your next explanation</strong>
+        <p>
+          Why does adding a resistor reduce current in series, but increase the
+          total current in parallel?
+        </p>
+      </div>
+    </aside>
+  </div>
+  <footer class="site-footer">
+    <span>Growth Tutorials · Learn it by changing it.</span
+    ><span
+      >Concept reference:
+      <a
+        href="https://ncert.nic.in/textbook/pdf/jesc111.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        >NCERT Class 10, Electricity ↗</a
+      ></span
+    >
+  </footer>
+</main>

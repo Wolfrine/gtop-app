@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { labGuard } from './pages/learning-lab/learning-lab.service';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ProfileSetupComponent } from './pages/profile-setup/profile-setup.component';
 import { UserDashboardComponent } from './pages/user-dashboard/user-dashboard.component';
@@ -28,6 +29,24 @@ import { QuizRunLobbyComponent } from './pages/quiz-run/quiz-run-lobby/quiz-run-
 
 
 export const routes: Routes = [
+    {
+        path: 'learning-lab',
+        loadComponent: () => import('./pages/learning-lab/learning-lab.component').then(m => m.LearningLabComponent),
+        canActivate: [labGuard],
+        data: { seo: { title: 'Learning Lab | GTOP', description: 'Learn by predicting, experimenting and explaining.', robots: 'noindex, nofollow' } }
+    },
+    {
+        path: 'learning-lab/current',
+        loadComponent: () => import('./pages/learning-lab/current-lab.component').then(m => m.CurrentLabComponent),
+        canActivate: [labGuard],
+        data: { seo: { title: 'Current Lab — Electricity | GTOP', description: 'Explore voltage, resistance and current in three interactive experiments.', robots: 'noindex, nofollow' } }
+    },
+    {
+        path: 'learning-lab/results',
+        loadComponent: () => import('./pages/learning-lab/lab-results.component').then(m => m.LabResultsComponent),
+        canActivate: [labGuard],
+        data: { adminOnly: true, seo: { title: 'Learning Lab Results & Feedback | GTOP', robots: 'noindex, nofollow' } }
+    },
     {
         path: '',
         component: LandingPageComponent,

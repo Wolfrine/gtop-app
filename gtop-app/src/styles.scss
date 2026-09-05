@@ -1068,3 +1068,6 @@ app-landing-page {
         }
     }
 }
+
+// All interactive lesson styles are scoped to the Learning Lab surface.
+@import './app/pages/learning-lab/learning-lab';

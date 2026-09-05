@@ -1,0 +1,227 @@
+<main class="learning-lab">
+  <section class="lesson-heading">
+    <div>
+      <p class="eyebrow">LEARNING LAB · ADMIN VIEW</p>
+      <h1>Results & Feedback<span>.</span></h1>
+      <p class="lede">
+        See where the lesson helps, and where learners need more.
+      </p>
+    </div>
+    <button class="secondary-button" [disabled]="loading" (click)="load(true)">
+      ↻ Refresh
+    </button>
+  </section>
+  <nav class="module-tabs" aria-label="Learning Lab">
+    <a routerLink="/learning-lab">Lessons</a
+    ><a routerLink="/learning-lab/results" aria-current="page"
+      >Results & Feedback</a
+    >
+  </nav>
+  <div class="error-banner" role="alert" *ngIf="error">
+    {{ error }} <button class="text-button" (click)="load()">Retry</button>
+  </div>
+  <p *ngIf="loading" role="status">Loading learner results…</p>
+  <div class="empty-state" *ngIf="!loading && !error && !rows.length">
+    <h2>The first learner starts the story.</h2>
+    <p>
+      No saved Current Lab attempts are available yet. When learners start a
+      saved attempt, their progress appears here. Practice without saving is
+      excluded.
+    </p>
+    <a class="primary-button" routerLink="/learning-lab/current"
+      >Open Current Lab →</a
+    >
+  </div>
+  <ng-container *ngIf="rows.length">
+    <p class="metric-note">
+      Showing {{ rows.length }} retained attempts from
+      {{ learners.length }} loaded accounts. GTOP keeps each learner’s latest
+      five attempts. Counts include repeat attempts and admin trials; they are
+      not unique-student learning gains.
+      {{ more ? "More accounts are available below." : "" }}
+    </p>
+    <div class="stats-grid">
+      <article class="stat-card">
+        <span>Saved attempts</span><strong>{{ rows.length }}</strong
+        ><small>{{ learners.length }} loaded accounts</small>
+      </article>
+      <article class="stat-card">
+        <span>Answers checked</span><strong>{{ checked.length }}</strong
+        ><small>of {{ rows.length }} retained attempts</small>
+      </article>
+      <article class="stat-card">
+        <span>Feedback received</span><strong>{{ rated.length }}</strong
+        ><small>Completed lesson and feedback</small>
+      </article>
+      <article class="stat-card">
+        <span>Usefulness</span
+        ><strong
+          >{{ averageRating }}<small *ngIf="rated.length">/5</small></strong
+        ><small>{{ rated.length }} ratings</small>
+      </article>
+    </div>
+    <div class="teacher-grid">
+      <section class="paper-panel">
+        <h2>Which ideas need another look?</h2>
+        <p class="metric-note">
+          First submitted answers in {{ checked.length }} checked attempts.
+        </p>
+        <p *ngIf="!checked.length">
+          Topic results will appear after a learner checks their answers.
+        </p>
+        <div class="question-metric" *ngFor="let q of questions">
+          <div>
+            <strong>{{ q.topic }}</strong
+            ><span
+              >{{ correct(q.id, q.answer) }}/{{ checked.length }} correct</span
+            >
+          </div>
+          <progress
+            [value]="correct(q.id, q.answer)"
+            [max]="checked.length || 1"
+            [attr.aria-label]="q.topic + ' correct answers'"
+          ></progress>
+          <p>{{ q.prompt }}</p>
+        </div>
+      </section>
+      <section class="paper-panel">
+        <h2>Before & after, related ideas</h2>
+        <p class="metric-note">
+          The same {{ checked.length }} attempts are used on both sides. These
+          are different questions on related concepts, not an equivalent test or
+          proof that the lesson caused improvement.
+        </p>
+        <article class="paired-metric" *ngFor="let pair of pairs">
+          <h3>{{ pair.name }}</h3>
+          <div>
+            <span>Before</span
+            ><progress
+              [value]="correct(pair.pre.id, pair.pre.answer, true)"
+              [max]="checked.length || 1"
+              [attr.aria-label]="pair.name + ' before correct'"
+            ></progress
+            ><strong
+              >{{ correct(pair.pre.id, pair.pre.answer, true) }}/{{
+                checked.length
+              }}</strong
+            >
+          </div>
+          <div>
+            <span>After</span
+            ><progress
+              [value]="correct(pair.post.id, pair.post.answer)"
+              [max]="checked.length || 1"
+              [attr.aria-label]="pair.name + ' after correct'"
+            ></progress
+            ><strong
+              >{{ correct(pair.post.id, pair.post.answer) }}/{{
+                checked.length
+              }}</strong
+            >
+          </div>
+        </article>
+        <h3 class="journey-heading">Attempt progress</h3>
+        <div class="journey-row">
+          <span>Started</span><strong>{{ rows.length }}</strong>
+        </div>
+        <div class="journey-row">
+          <span>Answers checked</span><strong>{{ checked.length }}</strong>
+        </div>
+        <div class="journey-row">
+          <span>Feedback saved</span><strong>{{ rated.length }}</strong>
+        </div>
+      </section>
+    </div>
+    <section class="paper-panel feedback-section">
+      <h2>What learners said</h2>
+      <p class="metric-note">
+        Feedback is linked to the learner’s GTOP account and visible only to
+        GTOP admins.
+      </p>
+      <p *ngIf="!rated.length">
+        No feedback yet. Learners can share it after checking their answers.
+      </p>
+      <div class="feedback-grid">
+        <article class="student-feedback" *ngFor="let a of rated">
+          <div class="feedback-heading">
+            <strong>{{ a.name }}</strong
+            ><span>{{ a.rating }}/5 useful</span>
+          </div>
+          <p class="student-quote">
+            {{ a.feedback || "No written comment provided." }}
+          </p>
+          <div class="friction-note" *ngIf="a.friction">
+            <strong>Hardest to use</strong>
+            <p>{{ a.friction }}</p>
+          </div>
+          <p class="feedback-meta">
+            {{ a.updatedAt | date: "medium" }} · {{ score(a) }}/5 correct ·
+            Confidence {{ a.confidence }}/4
+          </p>
+        </article>
+      </div>
+    </section>
+    <section class="paper-panel attempts-section">
+      <h2>Saved attempts</h2>
+      <div class="table-scroll">
+        <table>
+          <caption class="sr-only">
+            Retained Current Lab attempts for loaded accounts
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Learner / started</th>
+              <th scope="col">Stage</th>
+              <th scope="col">Experiments</th>
+              <th scope="col">Result</th>
+              <th scope="col">Responses</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of rows">
+              <td>
+                {{ a.name
+                }}<small class="table-time">{{
+                  a.createdAt | date: "medium"
+                }}</small>
+              </td>
+              <td>{{ phase(a) }}</td>
+              <td>{{ a.experiments.length }}/3</td>
+              <td>
+                {{ a.phase === "experiment" ? "Not checked" : score(a) + "/5" }}
+              </td>
+              <td>
+                <details class="response-details">
+                  <summary>View answers</summary>
+                  <div>
+                    <p *ngFor="let q of baseline">
+                      <b>Before · {{ q.prompt }}</b
+                      ><span>{{ choice(a.baseline, q.id, q.choices) }}</span>
+                    </p>
+                    <p *ngFor="let m of missions">
+                      <b>Prediction · {{ m.title }}</b
+                      ><span>{{ choice(a.predictions, m.id, m.choices) }}</span>
+                    </p>
+                    <p *ngFor="let q of questions">
+                      <b>{{ q.prompt }}</b
+                      ><span>{{ choice(a.answers, q.id, q.choices) }}</span>
+                    </p>
+                    <small>Attempt {{ a.id }}</small>
+                  </div>
+                </details>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </ng-container>
+  <button
+    class="secondary-button"
+    *ngIf="more"
+    [disabled]="loading"
+    (click)="load()"
+  >
+    Load next 50 accounts
+  </button>
+</main>

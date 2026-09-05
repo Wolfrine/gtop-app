@@ -160,7 +160,6 @@ export class AuthService {
         this.snapshotUnsubscribe = onSnapshot(userDoc, (snapshot) => {
             if (snapshot.exists()) {
                 const updatedUser = snapshot.data();
-                console.log('User updated in Firestore:', updatedUser);
                 this.userSubject.next(updatedUser);
             }
         });
@@ -181,7 +180,8 @@ export class AuthService {
                         // ✅ Update Realtime DB presence
                         this.activeUsersService.setPresenceForUser(user);
 
-                        if (userData['board'] && userData['standard']) {
+                        // Let Learning Lab's signed-in guard restore its deep link for every grade/role.
+                        if (userData['board'] && userData['standard'] && !window.location.pathname.startsWith('/learning-lab')) {
                             this.redirectToDashboard(userData['role']);
                         }
                     }

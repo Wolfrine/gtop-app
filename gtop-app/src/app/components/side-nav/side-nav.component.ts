@@ -44,6 +44,7 @@ export class SideNavComponent implements OnInit {
         return [
             { label: 'Learner Dashboard', icon: 'dashboard', route: '/dashboard', tooltip: 'Preview the learner home experience' },
             { label: 'Quick Quiz', icon: 'play_arrow', route: '/quiz', tooltip: 'Launch a random solo quiz' },
+            { label: 'Learning Lab', icon: 'science', route: '/learning-lab', badge: 'NEW', tooltip: 'Learn through interactive experiments' },
             { label: 'Quiz Run Lobby', icon: 'groups', route: '/quiz-run', tooltip: 'Create a real-time lobby (max 5 learners)' },
             { label: 'Live Quiz Schedule', icon: 'event', route: '/live', tooltip: 'Review and host upcoming live quizzes' },
             { label: 'Reports & Insights', icon: 'insights', route: '/reports', tooltip: 'Analyse learner attempts and accuracy' },
@@ -67,6 +68,7 @@ export class SideNavComponent implements OnInit {
             // Dashboard first for parity with admin experience
             { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
             { label: 'Start Quiz', icon: 'play_arrow', route: '/quiz' },
+            { label: 'Learning Lab', icon: 'science', route: '/learning-lab', badge: 'NEW', tooltip: 'Learn through interactive experiments' },
             { label: 'Join Live Quiz', icon: 'bolt', route: '/live', tooltip: 'Enter a code to join' },
             { label: 'Performance Reports', icon: 'insights', route: '/reports' },
         ];

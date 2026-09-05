@@ -14,6 +14,8 @@ The strategic base is [[Question Bank Quality]]. A large MCQ bank only matters i
 
 [[Student Pulse]] is the clearest exploratory expression of AI-assisted feedback. It should remain grounded in diagnosis and should not overclaim certainty when student activity or question metadata is thin.
 
+Learning Lab, described in [[Features]], adds a complete interactive electricity lesson to the product's teaching scope. Its first purpose is to give real learners something useful to try and to make their feedback observable; evidence of learning benefit is still to be established.
+
 The high-level feature inventory lives in [[Features]], and the product tensions that should shape future work live in [[Problems]].
 
 ## Current Decision Anchors
@@ -33,3 +35,4 @@ The strongest current [[Decisions]] are:
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
+- `raw/2026-09-05-learning-lab-current-lab.md`

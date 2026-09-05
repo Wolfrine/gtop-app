@@ -77,3 +77,13 @@ Use it to answer:
 - Wiki pages updated: none; user requested raw source material only.
 - Product memory captured: pending curation. Raw material covers NEP/NCF direction, assessment reform, AI and computational-thinking trends, foundational gaps, digital education infrastructure, privacy/equity concerns, and GTOP implications for practice intelligence, question-bank quality, diagnosis, Student Pulse, admin content quality, and school/parent reporting.
 - Project Manager Handoff: verify official CBSE/NCERT rollout details before durable claims; decide first board/class reform-alignment priority; define minimum metadata for competency-aware practice; set AI guardrails and Student Pulse confidence rules; reconcile question-bank count/public claims.
+
+### 2026-09-05 - Learning Lab And Current Lab
+
+- Raw note: `raw/2026-09-05-learning-lab-current-lab.md`
+- Status: processed
+- Wiki pages updated: `wiki/Home.md`, `wiki/Features.md`, `wiki/Learning Diagnosis.md`, `wiki/Decisions.md`
+- Durable memory captured: complete interactive lessons inside GTOP, access for every signed-in role, meaningful feedback from real users, honest account linkage, and limits on interpreting small formative samples.
+- Prior pending research note `raw/2026-06-05-current-education-reforms-trends-research.md`: left as needs-follow-up; unrelated to this curation scope.
+- Acceptance test: the product map and existing Intent/Problems pages preserve GTOP's practice-intelligence direction; updated pages distinguish the chosen lesson scope from still-unproven outcomes. Execution details remain outside wiki prose.
+- Project Manager Handoff: integrate in V1 as clarified by the founder, review the development version and signed-in learner/admin flows, then collect actual learner feedback before choosing another lesson. Backfill the admin Action Plan activity when an authenticated admin session is available. The five-attempt retention limit is an initial implementation choice to review with usage.

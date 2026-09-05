@@ -20,6 +20,12 @@ Summaries and reports close the attempt. They let students review correctness, i
 
 This area should be treated as core [[Learning Diagnosis]] infrastructure, not just post-quiz display.
 
+## Learning Lab
+
+Learning Lab is the chosen home for interactive lessons inside GTOP, accessible to every signed-in role regardless of selected grade. The first scope is Current Lab, an electricity lesson that moves through prediction, circuit experiments, questions with explanations, and learner feedback.
+
+The founder chose this work because real people can use a complete lesson and respond to it. Its value should be assessed through observed understanding and usability, not the novelty of a generated interface. Learners review their own progress; admins use results and account-linked feedback to improve the lesson. This adds a practical explanation path to the [[Practice Loop]] and produces bounded evidence for [[Learning Diagnosis]].
+
 ## Question Flagging
 
 Question flagging lets students report potential MCQ issues and gives admins a signal for content review. It connects learner feedback to [[Question Bank Quality]].
@@ -51,3 +57,4 @@ The product distinction matters: Live Quiz is admin/host-oriented; Quiz Run shou
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
+- `raw/2026-09-05-learning-lab-current-lab.md`

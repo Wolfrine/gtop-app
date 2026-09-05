@@ -20,6 +20,12 @@ The stronger diagnosis layer is still emerging. It needs more reliable [[Questio
 
 Current diagnosis should stay close to visible evidence: wrong questions, weak chapters, retry needs, and recent performance. Future diagnosis can become more specific, such as noticing that a student is strong on recall questions but repeatedly misses application questions in one topic, only after metadata and repeated attempts make that claim trustworthy.
 
+## Evidence From Interactive Lessons
+
+The first Learning Lab scope in [[Features]] pairs predictions with guided experiments, fresh questions, and learner comments. These signals can show which circuit relationships need another explanation and which parts of the lesson are difficult to use.
+
+A few responses are formative evidence, not a diagnosis of the whole student. Before-and-after questions about related ideas are not automatically equivalent tests, and repeated attempts are not unique learners. Admin views should make their sample and retention limits clear. The lesson's usefulness remains a hypothesis until people use it and respond.
+
 ## Diagnostic Signals
 
 Useful diagnosis may include:
@@ -49,3 +55,4 @@ Before adding a diagnostic claim, GTOP should ask: what evidence supports it, ho
 
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
+- `raw/2026-09-05-learning-lab-current-lab.md`

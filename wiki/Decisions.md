@@ -50,6 +50,12 @@ GTOP should enrich MCQs beyond chapter alignment when it improves learning diagn
 
 AI should be used where it improves GTOP's learning product: classifying question types and patterns, enriching topic tags, explaining weak topics in multiple ways, supporting content review, and producing concise student-specific feedback. AI novelty by itself is not a decision anchor.
 
+## Start Interactive Learning With A Complete Lesson
+
+The founder chose an interactive Growth Tutorials lesson because it creates an implementable output that other people can use and give feedback on. The initial scope is Current Lab inside the existing GTOP experience, with Learning Lab as a side-menu home available to all signed-in users. Further subjects should follow evidence from actual use rather than an expanding catalog of untested demonstrations.
+
+Account-linked feedback must be described honestly. Results should help learners revisit an idea and help admins improve teaching, without presenting a small set of answers as proven learning gains. See [[Features]] and [[Learning Diagnosis]].
+
 ## Future-Ready Education Direction Is A Strategy Question
 
 GTOP should study what students may expect from education products over the next decade and use that thinking to shape product bets. This is a strategic direction, not a wiki todo list or a commitment to any specific AI feature.
@@ -59,3 +65,4 @@ GTOP should study what students may expect from education products over the next
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
+- `raw/2026-09-05-learning-lab-current-lab.md`

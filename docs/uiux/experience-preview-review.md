@@ -1,6 +1,6 @@
 # GTOP experience preview — review record
 
-Status: ready for founder visual-direction review; production promotion pending.
+Status: founder approved this exact version for production on 2026-09-05; the visual-quality objective remains unfinished.
 
 ## Working preview
 
@@ -23,14 +23,14 @@ Custom Quiz retains its existing controls and layout with the shared font. The o
 
 | Dimension | Observed evidence | Limit |
 | --- | --- | --- |
-| Visual appeal | Stronger focal point, deliberate colour contrast, original artwork and varied section treatments are visible beside the baseline. | Founder aesthetic judgment is pending. |
+| Visual appeal | Stronger focal point, deliberate colour contrast, original artwork and varied section treatments are visible beside the baseline. | Founder rates this version 5–6/10, up from 2/10; visual quality remains below target. |
 | Identity | The same paper, ink, cobalt, sunlight and typography direction spans dashboard, quiz and results. | Broader page-specific rollout is pending. |
 | Learning appeal | Inviting entry, focused question state, constructive results language and visible retry actions. | No learner feedback or learning-outcome claim yet. |
 | Clarity | Quick/Custom Quiz, progress and group-practice destinations remain explicit; score and answer review have separate hierarchy. | Existing question text sometimes includes raw Markdown markers and embedded question numbers. |
 | Usability | Dashboard, quiz and summary fit 360/390/768/1024 px widths; desktop inspected at the available viewport. Native keyboard choice and progression work; answer rows measure 62 px on desktop and 68 px in the checked 360 px layout. | Width simulation does not establish physical-device, keyboard or touch-performance behaviour. |
 | Reliability | Production build, source contracts, normal/custom navigation, answer progression, saved summary, filtering and retries pass the relevant checks. No application TypeScript changed in this phase. | Existing service/data issues and live multi-user operation were not changed or certified. |
 
-The 9/10 ambition in the experience brief remains the quality target. This record supports a concrete direction review; it does not award an unvalidated 9 or 10 from a passing build.
+The 9/10 ambition in the experience brief remains the quality target. The founder considers the version effective and working, but points to excess forced wording, insufficient imagery and a lack of intuitive design and memorable effects. A passing build does not resolve that gap.
 
 ## Validation evidence
 
@@ -44,11 +44,12 @@ The 9/10 ambition in the experience brief remains the quality target. This recor
 
 ## Remaining limits and handoff
 
-- Founder direction approval is pending. Application changes are on the development review branch; production retains the previous standardisation design.
+- Founder explicitly approved promotion of the reviewed candidate to production. The merge must retain the exact reviewed application bytes and the existing small-commit history. Production completion requires the main workflow and served-bundle check.
 - The dashboard's existing Last Score selection discrepancy remains. The hint says 'Recorded session score'; the calculation was not changed.
 - The existing question screen briefly shows 'Question 1 of 0' while remote questions load. This is an existing loading-state limitation, outside the presentation-only scope.
 - Stored question content can contain Markdown markers and duplicate question-number prefixes. Improving rendering/content quality requires a separate scoped change.
 - Action Plan still reports 'Action plan unavailable' and asks a Firebase administrator to allow admin access to the actionPlans collection. No coordination update was claimed. This record is the execution checkpoint until access is restored.
 - Review screenshots were supplied for desktop dashboard, quiz, results and phone dashboard. The phone screenshot uses the app's existing responsive review frame; data is the authenticated user's actual existing data.
 
-After founder direction acceptance, carry the approved presentation changes to main in small commits and extend the system page by page, with the same interaction guardrails.
+Further changes are proposed in `docs/uiux/visual-next-steps.md`; they are not included in this promotion. The current release accepts progress while retaining the 9/10 ambition.
+

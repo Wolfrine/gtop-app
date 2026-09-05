@@ -1,15 +1,90 @@
-:host { display: block; }
-.sidenav { box-sizing: border-box; width: 100%; padding: 12px 8px; background: hsl(var(--surface)); }
-.sidenav a.mat-mdc-list-item {
-  box-sizing: border-box; width: 100%; height: 48px; margin: 4px 0; padding: 0 12px;
-  border-radius: 8px; border-left: 3px solid transparent; color: hsl(var(--foreground));
-  --mdc-list-list-item-leading-icon-start-space: 0px;
-  --mdc-list-list-item-leading-icon-end-space: 12px;
+:host {
+  display:block;
+  height:100%;
+  background:#172b4d;
 }
-.icon { color: hsl(var(--muted-foreground)); font-size: 20px; width: 20px; height: 20px; }
-.label { font-size: 14px; font-weight: 500; min-width: 0; white-space: normal; line-height: 1.3; }
-.pill { flex-shrink: 0; margin-left: auto; padding: 2px 5px; border-radius: 4px; background: hsl(var(--primary-container)); color: hsl(var(--primary)); font-size: 10px; font-weight: 700; }
-.sidenav a:hover { background: hsl(var(--surface-variant)); }
-.sidenav a.active { background: hsl(var(--primary-container)); border-left-color: hsl(var(--primary)); }
-.sidenav a.active .icon, .sidenav a.active .label { color: hsl(var(--primary)); font-weight: 600; }
-.sidenav a[href='/admin/action-plan'], .sidenav a[href='/dev/ui'] { margin-top: 16px; }
+.sidenav {
+  box-sizing:border-box;
+  width:100%;
+  padding:22px 12px;
+  background:#172b4d;
+}
+.nav-intro {
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.16em;
+  color:#9eafc9;
+  padding:0 14px 16px;
+}
+.sidenav a.mat-mdc-list-item {
+  box-sizing:border-box;
+  width:100%;
+  height:46px;
+  margin:5px 0;
+  padding:0 13px;
+  border-radius:11px;
+  border-left:0;
+  color:#c5d0e1;
+  --mdc-list-list-item-leading-icon-color:#9eafc9;
+  --mdc-list-list-item-hover-leading-icon-color:#dce5f3;
+  --mdc-list-list-item-focus-leading-icon-color:#dce5f3;
+  --mdc-list-list-item-leading-icon-start-space:0px;
+  --mdc-list-list-item-leading-icon-end-space:12px;
+}
+.icon {
+  color:#9eafc9;
+  font-size:20px;
+  width:20px;
+  height:20px;
+}
+.label {
+  font-family:Manrope,Inter,Roboto,sans-serif;
+  font-size:12px;
+  font-weight:600;
+  min-width:0;
+  white-space:normal;
+  line-height:1.3;
+  color:#c5d0e1;
+}
+.pill {
+  flex-shrink:0;
+  margin-left:auto;
+  padding:3px 5px;
+  border-radius:4px;
+  background:#284b61;
+  color:#acdecf;
+  font-size:9px;
+  font-weight:800;
+}
+.sidenav a:hover {
+  background:#233b5e;
+}
+.sidenav a.active {
+  --mdc-list-list-item-leading-icon-color:#203858;
+  --mdc-list-list-item-hover-leading-icon-color:#203858;
+  --mdc-list-list-item-focus-leading-icon-color:#203858;
+  background:#ffe3a0;
+  box-shadow:0 3px 0 #0e203b;
+}
+.sidenav a.active .icon,.sidenav a.active .label {
+  color:#203858;
+  font-weight:800;
+}
+.sidenav a[href='/admin/action-plan'] {
+  margin-top:28px;
+}
+.sidenav a[href='/dev/ui'] {
+  margin-top:16px;
+}
+.sidenav a:focus-visible {
+  outline:2px solid #ffe3a0;
+  outline-offset:2px;
+}
+@media(max-width:768px) {
+  .label {
+    font-size:14px;
+  }
+  .sidenav a.mat-mdc-list-item {
+    height:48px;
+  }
+}

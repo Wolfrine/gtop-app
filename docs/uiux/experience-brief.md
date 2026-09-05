@@ -1,6 +1,6 @@
 # GTOP experience brief — Curiosity and momentum
 
-Status: working design preview ready for founder review; see [review evidence](experience-preview-review.md). Production promotion pending.
+Status: founder approved this version for production on 2026-09-05; visual appeal remains 5–6/10. See [review evidence](experience-preview-review.md) and [proposed next steps](visual-next-steps.md).
 
 ## Objective
 
@@ -40,8 +40,9 @@ These sources inform design decisions. They do not establish that GTOP will achi
 
 ## Review and release gate
 
-Capture current and proposed screens. Review every criterion before requesting founder approval; state any remaining weakness plainly. The preview is ready only when the production build and relevant functional contracts pass and the actual rendered mobile/desktop journey has been checked. Founder design acceptance is still pending. Broader rollout follows that acceptance through small main commits.
+Capture current and proposed screens. Review every criterion before requesting founder approval; state any remaining weakness plainly. The preview is ready only when the production build and relevant functional contracts pass and the actual rendered mobile/desktop journey has been checked. The founder approved release of this exact version on 2026-09-05 while rating visual appeal 5–6/10 versus 2/10 before. That approval does not complete the visual objective. Further visual work follows the proposed next-step plan and the same review criteria.
 
 ## Coordination
 
-Action Plan remains unavailable under deployed actionPlans permissions. This document and the companion review record are the execution checkpoint. The previous standardisation release remains the production baseline (`5bc12b707ad8605e01f548a5fc119d86143948ef`).
+Action Plan remains unavailable under deployed actionPlans permissions. This document and the companion review record are the execution checkpoint. The reviewed application candidate is `f9fae1a32e6040244f0f7d726f86854703f40f83`; the release promotes its exact 13 UI files. The pre-promotion main checkpoint is `6eaed7285003a3ee59fffa6359370e953f3a0a87`. Confirm the production workflow and served bundle before reporting deployment complete.
+

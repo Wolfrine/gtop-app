@@ -3,7 +3,7 @@
   <!-- Welcome + Quick Actions -->
   <mat-card appCard class="welcome-card">
     <div class="welcome-header">
-      <h2>Welcome back, {{ userName || 'Learner' }}!</h2>
+      <h1>Welcome back, {{ userName || 'Learner' }}!</h1>
       <p class="sub">Board: {{ userSubjects || '—' }} · Standard: {{ userStandard || '—' }}</p>
     </div>
     <div class="quick-start">
@@ -13,8 +13,8 @@
             <mat-icon>self_improvement</mat-icon>
           </span>
           <div class="cta-copy">
-            <h3 id="solo-heading">Solo Practice</h3>
-            <p>Warm up or build a custom set just for you.</p>
+            <h3 id="solo-heading">Practice on your own</h3>
+            <p>Start a quick quiz or choose your own questions.</p>
           </div>
         </div>
         <div class="cta-actions">
@@ -26,7 +26,7 @@
           <button mat-stroked-button color="primary" (click)="openManualQuiz()"
                   matTooltip="Pick subject, chapters and question count">
             <mat-icon>tune</mat-icon>
-            Quiz Builder
+            Custom Quiz
           </button>
         </div>
       </section>
@@ -37,20 +37,20 @@
             <mat-icon>groups</mat-icon>
           </span>
           <div class="cta-copy">
-            <h3 id="realtime-heading">Real-Time Quizzes</h3>
-            <p>Challenge friends or join a hosted event.</p>
+            <h3 id="realtime-heading">Practice with others</h3>
+            <p>Join a live quiz or start a run with friends.</p>
           </div>
         </div>
         <div class="cta-actions">
-          <button mat-stroked-button color="accent" [routerLink]="['/quiz-run']"
+          <button mat-stroked-button color="primary" [routerLink]="['/quiz-run']"
                   matTooltip="Create a lobby, share code and race with friends">
             <mat-icon>schedule</mat-icon>
-            Quiz Run Lobby
+            Quiz Runs
           </button>
-          <button mat-stroked-button color="accent" [routerLink]="['/live']"
+          <button mat-stroked-button color="primary" [routerLink]="['/live']"
                   matTooltip="See upcoming live quizzes hosted by admins">
             <mat-icon>bolt</mat-icon>
-            Upcoming Live Quiz
+            Live Quizzes
           </button>
         </div>
       </section>
@@ -60,102 +60,12 @@
           <mat-icon>insights</mat-icon>
         </span>
         <div class="reports-copy">
-          <span class="eyebrow">Progress Hub</span>
-          <span class="title">View Reports</span>
-          <span class="hint">Spot trends, revisit answers and celebrate wins.</span>
+          <span class="eyebrow">Your learning</span>
+          <span class="title">View Progress</span>
+          <span class="hint">Review your accuracy and previous attempts.</span>
         </div>
         <mat-icon class="chevron" aria-hidden="true">arrow_forward</mat-icon>
       </a>
-    </div>
-  </mat-card>
-
-  <mat-card appCard class="whats-new-card whats-new-card--colorful" aria-labelledby="whats-new-heading">
-    <div class="whats-new-art" aria-hidden="true">
-      <svg viewBox="0 0 320 140" role="presentation">
-        <defs>
-          <linearGradient id="guideGradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.95" />
-            <stop offset="55%" stop-color="#6366f1" stop-opacity="0.75" />
-            <stop offset="100%" stop-color="#ec4899" stop-opacity="0.7" />
-          </linearGradient>
-          <linearGradient id="sparkGradient" x1="0.2" y1="0" x2="0.8" y2="1">
-            <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.85" />
-            <stop offset="100%" stop-color="#14b8a6" stop-opacity="0.65" />
-          </linearGradient>
-        </defs>
-        <path d="M16 90C52 46 114 18 190 26c52 6 96 32 114 68" fill="none" stroke="url(#guideGradient)" stroke-width="18"
-              stroke-linecap="round" opacity="0.35" />
-        <circle cx="70" cy="54" r="18" fill="url(#sparkGradient)" opacity="0.9" />
-        <circle cx="112" cy="36" r="10" fill="#fde047" opacity="0.85" />
-        <circle cx="254" cy="46" r="14" fill="#f472b6" opacity="0.85" />
-        <rect x="210" y="84" width="78" height="26" rx="13" fill="rgba(255,255,255,0.8)" />
-        <rect x="226" y="92" width="34" height="10" rx="5" fill="#6366f1" opacity="0.7" />
-        <rect x="66" y="96" width="112" height="18" rx="9" fill="rgba(255,255,255,0.75)" />
-      </svg>
-    </div>
-    <div class="whats-new-header">
-      <span class="badge">What's New</span>
-      <div>
-        <h3 id="whats-new-heading">Live Quiz &amp; Quiz Run are now open for you!</h3>
-        <p>
-          Kick learning into high gear with friendly competitions and practice runs built for students in standards 5 to 12.
-        </p>
-      </div>
-    </div>
-
-    <div class="whats-new-grid quick-start">
-      <section class="cta-group live-guide" aria-labelledby="live-quiz-title">
-        <div class="cta-header">
-          <span class="cta-icon" aria-hidden="true">
-            <svg viewBox="0 0 64 64" role="presentation">
-              <circle cx="32" cy="32" r="28" fill="rgba(59,130,246,0.15)" />
-              <path d="M26 44l10-20 10 20h-5l-5 10-5-10z" fill="#1d4ed8" />
-            </svg>
-          </span>
-          <div class="cta-copy">
-            <h4 id="live-quiz-title">Live Quiz</h4>
-            <p>Join a hosted showdown, see scores jump instantly, and cheer your classmates.</p>
-          </div>
-        </div>
-        <ol class="whats-new-steps">
-          <li>Tap <strong>Upcoming Live Quiz</strong> to view teacher-hosted sessions.</li>
-          <li>Enter the share code from your teacher and gather your team.</li>
-          <li>Answer together in real time — the leaderboard updates after every question!</li>
-        </ol>
-        <div class="cta-actions">
-          <a mat-stroked-button color="accent" [routerLink]="['/live']">
-            <mat-icon>bolt</mat-icon>
-            Explore Live Quizzes
-          </a>
-        </div>
-      </section>
-
-      <section class="cta-group run-guide" aria-labelledby="quiz-run-title">
-        <div class="cta-header">
-          <span class="cta-icon" aria-hidden="true">
-            <svg viewBox="0 0 64 64" role="presentation">
-              <circle cx="32" cy="32" r="28" fill="rgba(16,185,129,0.18)" />
-              <path d="M24 42h16M24 26h16" stroke="#0f766e" stroke-width="5" stroke-linecap="round" />
-              <circle cx="32" cy="26" r="7" fill="#0f766e" />
-            </svg>
-          </span>
-          <div class="cta-copy">
-            <h4 id="quiz-run-title">Quiz Run</h4>
-            <p>Host a friendly practice race and replay it to beat your last score.</p>
-          </div>
-        </div>
-        <ol class="whats-new-steps">
-          <li>Create a lobby from <strong>Quiz Run</strong> and set the rounds you want.</li>
-          <li>Share the join code with friends or classmates.</li>
-          <li>Start the run and watch progress bars show who is leading every lap.</li>
-        </ol>
-        <div class="cta-actions">
-          <a mat-stroked-button color="primary" [routerLink]="['/quiz-run']">
-            <mat-icon>schedule</mat-icon>
-            Host a Quiz Run
-          </a>
-        </div>
-      </section>
     </div>
   </mat-card>
 
@@ -166,7 +76,7 @@
       <div class="stat-body">
         <div class="label">Total Quizzes</div>
         <div class="value">{{ totalQuizzes }}</div>
-        <div class="hint">Keep the streak going.</div>
+        <div class="hint">Completed quiz attempts.</div>
       </div>
     </mat-card>
 
@@ -177,7 +87,7 @@
       <div class="stat-body">
         <div class="label">Accuracy</div>
         <div class="value">{{ accuracyPercent }}%</div>
-        <div class="hint">Average across your quizzes.</div>
+        <div class="hint">Correct answers across all attempts.</div>
       </div>
     </mat-card>
 
@@ -195,7 +105,7 @@
   <mat-card appCard class="recent" *ngIf="recentSessions.length">
     <div class="recent-header">
       <div class="title">Recent Sessions</div>
-      <a class="link" [routerLink]="['/reports']">Open Reports</a>
+      <a class="link" [routerLink]="['/reports']">View All Attempts</a>
     </div>
     <div class="recent-list">
       <div class="row" *ngFor="let s of recentSessions">
@@ -207,6 +117,73 @@
           {{ s.correct }}/{{ s.total }} ({{ s.accuracy }}%)
         </div>
       </div>
+    </div>
+  </mat-card>
+
+  <mat-card appCard class="practice-guide" aria-labelledby="whats-new-heading">
+    <div class="whats-new-header">
+      <span class="badge">Quick guide</span>
+      <div>
+        <h3 id="whats-new-heading">Two ways to practise together</h3>
+        <p>
+          Choose a hosted live quiz or share a quiz run with friends.
+        </p>
+      </div>
+    </div>
+
+    <div class="whats-new-grid quick-start">
+      <section class="cta-group live-guide" aria-labelledby="live-quiz-title">
+        <div class="cta-header">
+          <span class="cta-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="presentation">
+              <circle cx="32" cy="32" r="28" fill="rgba(59,130,246,0.15)" />
+              <path d="M26 44l10-20 10 20h-5l-5 10-5-10z" fill="#1d4ed8" />
+            </svg>
+          </span>
+          <div class="cta-copy">
+            <h4 id="live-quiz-title">Live Quiz</h4>
+            <p>Join a scheduled quiz and follow the results.</p>
+          </div>
+        </div>
+        <ol class="whats-new-steps">
+          <li>Tap <strong>Live Quizzes</strong> to view teacher-hosted sessions.</li>
+          <li>Use the join code shared by the host.</li>
+          <li>Answer the questions and review the leaderboard.</li>
+        </ol>
+        <div class="cta-actions">
+          <a mat-stroked-button color="primary" [routerLink]="['/live']">
+            <mat-icon>bolt</mat-icon>
+            Explore Live Quizzes
+          </a>
+        </div>
+      </section>
+
+      <section class="cta-group run-guide" aria-labelledby="quiz-run-title">
+        <div class="cta-header">
+          <span class="cta-icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="presentation">
+              <circle cx="32" cy="32" r="28" fill="rgba(16,185,129,0.18)" />
+              <path d="M24 42h16M24 26h16" stroke="#0f766e" stroke-width="5" stroke-linecap="round" />
+              <circle cx="32" cy="26" r="7" fill="#0f766e" />
+            </svg>
+          </span>
+          <div class="cta-copy">
+            <h4 id="quiz-run-title">Quiz Run</h4>
+            <p>Create a run and share the join code.</p>
+          </div>
+        </div>
+        <ol class="whats-new-steps">
+          <li>Open <strong>Quiz Runs</strong> and create a lobby.</li>
+          <li>Share the join code with friends or classmates.</li>
+          <li>Start the run when everyone is ready.</li>
+        </ol>
+        <div class="cta-actions">
+          <a mat-stroked-button color="primary" [routerLink]="['/quiz-run']">
+            <mat-icon>schedule</mat-icon>
+            Host a Quiz Run
+          </a>
+        </div>
+      </section>
     </div>
   </mat-card>
 

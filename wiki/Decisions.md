@@ -62,6 +62,12 @@ Repeated redesign attempts have reduced the founder's confidence in large interf
 
 The chosen direction keeps the blue identity and light surfaces, gives primary actions clear emphasis, and uses a shared visual vocabulary for navigation, controls, content and feedback. Lesson-specific diagrams retain their teaching purpose within that vocabulary. Product claims should match current capabilities, and visual work must preserve account access, results and saved progress.
 
+## Set The Experience Quality Bar Before Delivery
+
+A consistent interface can still feel plain and uninviting. GTOP's intended experience is visually distinctive, attractive and encouraging for learners, with clear next actions and meaningful presentation of progress. These are explicit product outcomes alongside reliability, rather than presumed benefits of standardisation.
+
+Define the desired quality before work and assess the result against that same bar. Representative learner journeys should demonstrate the intended character with actual content across screen sizes. An agent's implementation checklist or retrospective score does not replace the founder's judgment or evidence from learner use. Preserve the working [[Practice Loop]] while improving how it feels.
+
 ## Future-Ready Education Direction Is A Strategy Question
 
 GTOP should study what students may expect from education products over the next decade and use that thinking to shape product bets. This is a strategic direction, not a wiki todo list or a commitment to any specific AI feature.
@@ -74,3 +80,4 @@ GTOP should study what students may expect from education products over the next
 - `raw/2026-09-05-learning-lab-current-lab.md`
 
 - `raw/2026-09-05-incremental-ui-standardisation.md`
+- `raw/2026-09-05-experience-quality-target.md`

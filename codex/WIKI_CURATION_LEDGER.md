@@ -115,3 +115,12 @@ Use it to answer:
 - Durable memory captured: shared task vocabulary, readable interactions and factual claims support the existing practice loop; visual consistency, functional availability and learning outcomes require distinct evidence.
 - Acceptance test: product direction and prior decisions remain intact; Features adds the durable usability expectation without an implementation log. Release evidence is in `docs/uiux/rollout-2026-09-05.md`.
 - Project Manager Handoff: collect feedback on finding the next action and phone usability; triage the documented pre-existing functional issues separately. Action Plan backfill remains blocked by deployed actionPlans permissions. Prior research curation remains outside this scope.
+
+### 2026-09-05 - Experience Quality Target
+
+- Raw note: `raw/2026-09-05-experience-quality-target.md`
+- Status: processed
+- Wiki pages updated: `wiki/Decisions.md`
+- Durable memory captured: define ambitious experience outcomes and acceptance criteria before work; consistency alone does not establish attractiveness; founder and learner judgment remain distinct from agent review.
+- Acceptance test: the existing product map and strategic bets are preserved; the new decision strengthens the meaning of quality without becoming an implementation plan.
+- Project Manager Handoff: build and review an actual V1 dashboard/question/results preview at desktop and phone widths using fixed criteria, then seek design approval before production rollout. Action Plan still displays 'Action plan unavailable' because actionPlans access is denied; record execution in docs/uiux until access is available.

@@ -1,0 +1,99 @@
+<div class="pl-stage" [class.pl-micro]="mode==='journey'" [class.pl-wind]="mode==='wind'">
+  <div class="pl-stage-orbit" aria-hidden="true"></div>
+  <ng-container *ngIf="mode==='anatomy' && !f.opened">
+    <button class="pl-flower-touch" (click)="action.emit('open')" aria-label="Open the flower"><img src="/assets/learning-lab/flower-specimen-v2.webp" alt="Coral flower with delicate petals and a pollen-bearing column" width="1254" height="1254"/><span class="pl-touch-label">Tap to look inside <span aria-hidden="true">↗</span></span></button>
+  </ng-container>
+  <ng-container *ngIf="(mode==='anatomy' && f.opened) || mode==='pollination'">
+    <svg class="pl-flower-section" viewBox="0 0 600 440" role="img" aria-label="Flower cutaway: pollen-producing anthers around a central stigma and style, with ovules inside the ovary">
+      <defs><linearGradient id="pl-petal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffa18c"/><stop offset=".55" stop-color="#ed5b6f"/><stop offset="1" stop-color="#8d3551"/></linearGradient><linearGradient id="pl-stem" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#458979"/><stop offset=".5" stop-color="#c6ddb2"/><stop offset="1" stop-color="#559475"/></linearGradient><radialGradient id="pl-pollen"><stop stop-color="#ffeaa3"/><stop offset="1" stop-color="#dc9e45"/></radialGradient></defs>
+      <g opacity=".35"><path d="M287 326 C169 302 90 166 133 76 C239 73 286 167 300 269 C316 150 394 43 467 82 C501 183 420 309 314 334Z" fill="url(#pl-petal)"/><path d="M134 77 Q214 184 300 325 M466 84 Q391 202 304 328" fill="none" stroke="#ffc1aa" stroke-width="2"/></g>
+      <path d="M300 362 V440" stroke="url(#pl-stem)" stroke-width="18"/>
+      <path d="M243 301 Q211 220 178 143 M354 301 Q392 222 424 143 M268 300 L237 182 M331 300 L366 182" stroke="#b4d6a8" stroke-width="6" fill="none"/>
+      <g fill="url(#pl-pollen)" stroke="#ffe6a0" stroke-width="2" [class.pl-highlight]="selected==='anther'"><ellipse cx="175" cy="135" rx="14" ry="26" transform="rotate(-25 175 135)"/><ellipse cx="428" cy="135" rx="14" ry="26" transform="rotate(25 428 135)"/><ellipse cx="235" cy="174" rx="12" ry="22"/><ellipse cx="368" cy="174" rx="12" ry="22"/></g>
+      <path d="M287 302 L292 75 Q300 64 309 75 L315 302" fill="url(#pl-stem)" stroke="#ccdfb0" stroke-width="2" [class.pl-highlight]="selected==='style'"/>
+      <path d="M278 77 Q264 58 280 51 Q293 44 300 59 Q310 43 324 53 Q339 63 321 81Z" fill="#f49ba4" stroke="#ffd0c0" stroke-width="3" [class.pl-highlight]="selected==='stigma'"/>
+      <ellipse cx="300" cy="324" rx="81" ry="63" fill="url(#pl-stem)" stroke="#deebad" stroke-width="3" [class.pl-highlight]="selected==='ovary'"/>
+      <ellipse cx="300" cy="324" rx="65" ry="49" fill="#0c3b35" stroke="#c7d893" stroke-width="2"/>
+      <path d="M300 279 V366 M300 305 L267 303 M300 325 L336 322 M300 349 L271 348" stroke="#94bf86" stroke-width="3"/>
+      <g fill="#d6e8ab" stroke="#a2bf80" stroke-width="3"><ellipse cx="262" cy="302" rx="18" ry="12"/><ellipse cx="341" cy="322" rx="18" ry="13"/><ellipse cx="266" cy="349" rx="18" ry="12"/></g>
+      <g fill="#ee99a7"><circle cx="262" cy="302" r="4"/><circle cx="341" cy="322" r="4"/><circle cx="266" cy="349" r="4"/></g>
+      <g *ngIf="mode==='pollination' && last" class="pl-pollen-arrival" [attr.data-trial]="pollenFlash"><circle [attr.cx]="last.landing==='stigma'?300:150" [attr.cy]="last.landing==='stigma'?49:240" r="13" fill="url(#pl-pollen)" stroke="#fff1c2" stroke-width="3"/><circle [attr.cx]="last.landing==='stigma'?300:150" [attr.cy]="last.landing==='stigma'?49:240" r="22" fill="none" stroke="#ffe5a1" stroke-dasharray="3 7"/></g>
+    </svg>
+    <ng-container *ngIf="mode==='anatomy'"><button *ngFor="let p of parts" class="pl-hotspot" [class.active]="selected===p.id" [class.pl-nudge]="pulse===p.id" [style.left.%]="p.x" [style.top.%]="p.y" (click)="action.emit(p.id)" [attr.aria-label]="'Inspect '+p.name"><span class="pl-hotspot-dot" aria-hidden="true"></span>{{p.name}}<span *ngIf="f.inspected.includes(p.id)" class="pl-tick">✓</span></button></ng-container>
+    <ng-container *ngIf="mode==='pollination'"><button class="pl-hotspot pl-target stigma-target" (click)="action.emit('stigma-target')" aria-label="Land pollen on the stigma">Stigma <span aria-hidden="true">◎</span></button><button class="pl-hotspot pl-target petal-target" (click)="action.emit('petal')" aria-label="Land pollen on a petal">Petal <span aria-hidden="true">◎</span></button></ng-container>
+    <span class="pl-scale-note">Flower cutaway · simplified</span>
+  </ng-container>
+  <ng-container *ngIf="mode==='journey'">
+    <span class="pl-lens-tag">{{f.journeyStage<2?'INSIDE THE FLOWER':'INSIDE ONE OVULE'}} <span aria-hidden="true">⊕</span></span>
+    <svg viewBox="0 0 600 440" role="img" [attr.aria-label]="f.journeyStage<2?'Magnified pollen grain and tube growing through the style toward an ovule':'Magnified ovule with an egg cell; a male gamete fuses with the egg to form a zygote'">
+      <defs><linearGradient id="pl-cell" x2="1" y2="1"><stop stop-color="#8bc4af"/><stop offset="1" stop-color="#326f64"/></linearGradient><radialGradient id="pl-egg"><stop stop-color="#ffc7ac"/><stop offset=".6" stop-color="#e98291"/><stop offset="1" stop-color="#994d72"/></radialGradient></defs>
+      <g *ngIf="f.journeyStage<2" class="pl-scene-enter">
+        <path d="M116 136 Q149 100 171 124 Q194 89 218 120 Q246 95 265 120 Q292 95 316 122 Q340 93 365 120 Q391 97 413 131 L382 175 L357 414 H229 L207 175Z" fill="url(#pl-cell)" stroke="#a4d4b7" stroke-width="3"/>
+        <path d="M273 153 Q278 230 279 302 L287 397" stroke="#193e3b" stroke-width="35" fill="none"/>
+        <circle cx="274" cy="97" r="31" fill="#e9b455" stroke="#fff0b0" stroke-width="3"/>
+        <g stroke="#e9b455" stroke-width="5"><path d="M274 56 V48 M274 138 V146 M233 97 H225 M314 97 H323 M244 67 L237 60 M304 67 L311 60 M304 127 L311 134"/></g>
+        <path *ngIf="f.journeyStage===1" class="pl-growing-tube" d="M274 124 Q280 216 278 278 Q274 331 302 365" stroke="#ffe293" stroke-width="9" fill="none" pathLength="100"/>
+        <text x="342" y="86" fill="#ffe5a1" font-size="22">Pollen grain</text><text x="400" y="177" fill="#d9ead6" font-size="20">Stigma</text><text x="390" y="289" fill="#d9ead6" font-size="20">Style</text>
+        <g *ngIf="f.journeyStage===1"><circle cx="302" cy="365" r="24" fill="#ebc899" stroke="#fff0b1" stroke-width="3"/><text x="349" y="374" fill="#ffe5a1" font-size="20">Toward an ovule</text></g>
+      </g>
+      <g *ngIf="f.journeyStage>=2" class="pl-scene-enter">
+        <path d="M170 331 C92 234 140 80 303 79 C443 77 521 226 431 335 C381 397 250 398 200 348" fill="url(#pl-cell)" stroke="#a5cda2" stroke-width="5"/>
+        <ellipse cx="310" cy="231" rx="124" ry="116" fill="#1a4948" stroke="#95beb0" stroke-width="3"/>
+        <path d="M64 348 Q147 379 178 331 L218 290" fill="none" stroke="#ffe293" stroke-width="12"/>
+        <circle cx="266" cy="279" r="49" fill="url(#pl-egg)" stroke="#ffc6b6" stroke-width="3"/>
+        <circle cx="266" cy="279" r="16" [attr.fill]="f.journeyStage===3?'#ffe495':'#a45079'"/>
+        <g *ngIf="f.journeyStage===2" fill="#ffe293"><circle cx="211" cy="298" r="10"/><circle cx="184" cy="325" r="8"/></g>
+        <circle *ngIf="f.journeyStage===3" class="pl-fusion-pulse" cx="266" cy="279" r="63" fill="none" stroke="#ffe293" stroke-width="3"/>
+        <text x="319" y="51" fill="#d9ead6" font-size="20">Ovule</text><text x="346" y="262" fill="#ffd5bf" font-size="23">{{f.journeyStage===3?'Zygote':'Egg cell'}}</text>
+        <text x="25" y="405" fill="#ffe5a1" font-size="20">Pollen tube</text><text x="353" y="301" fill="#c4dcd1" font-size="17">{{f.journeyStage===3?'A new beginning':'Ready for fusion'}}</text>
+      </g>
+    </svg>
+    <button *ngIf="f.journeyStage===2" class="pl-egg-touch" (click)="action.emit('egg')" aria-label="Fuse a male gamete with the egg cell"><span>Tap the egg</span></button>
+    <span class="pl-scale-note">Magnified schematic · egg fertilisation shown</span>
+  </ng-container>
+  <ng-container *ngIf="mode==='fruit'">
+    <img *ngIf="f.fruitStage===0" class="pl-fruit-flower" src="/assets/learning-lab/flower-specimen-v2.webp" alt="Flower before fruit development" width="1254" height="1254"/>
+    <svg *ngIf="f.fruitStage>0" viewBox="0 0 600 440" role="img" [attr.aria-label]="f.fruitStage===1?'The ovary enlarges into a fruit':'Fruit cutaway with seeds inside; a magnified seed contains an embryo'" class="pl-scene-enter">
+      <defs><radialGradient id="pl-fruit"><stop stop-color="#e8d785"/><stop offset=".65" stop-color="#b3c470"/><stop offset="1" stop-color="#4d8a63"/></radialGradient><linearGradient id="pl-seed" x2="1" y2="1"><stop stop-color="#efc88f"/><stop offset="1" stop-color="#925a3d"/></linearGradient></defs>
+      <path d="M280 65 Q271 34 290 23" stroke="#7aaa75" stroke-width="13" fill="none"/>
+      <path d="M282 71 C154 26 112 170 163 299 C185 367 338 375 379 299 C448 169 393 19 282 71Z" fill="url(#pl-fruit)" stroke="#c8d48e" stroke-width="3"/>
+      <path d="M282 73 Q228 203 281 358 M282 73 Q337 202 281 358" stroke="#809f60" fill="none" stroke-width="3"/>
+      <g *ngIf="f.fruitStage===2"><path d="M281 89 C209 87 181 181 207 281 C218 324 277 344 281 344Z" fill="#f1dfa4" stroke="#d6c47f" stroke-width="3"/>
+      <g fill="url(#pl-seed)" stroke="#9d693f" stroke-width="2"><ellipse cx="246" cy="159" rx="15" ry="24" transform="rotate(-30 246 159)"/><ellipse cx="233" cy="228" rx="15" ry="24" transform="rotate(-25 233 228)"/><ellipse cx="253" cy="295" rx="15" ry="24" transform="rotate(-15 253 295)"/></g>
+      <path d="M262 161 L397 119" stroke="#e9d59b" stroke-dasharray="5 6"/><ellipse cx="455" cy="130" rx="55" ry="73" fill="#eac88f" stroke="#f6ddb4" stroke-width="3"/>
+      <path d="M456 166 Q408 131 451 101 Q483 80 473 117 Q439 125 457 166 L467 184" fill="#7e9f70" stroke="#486f52" stroke-width="3"/>
+      <text x="414" y="235" font-size="22" fill="#ffe2ad">Embryo</text><text x="81" y="409" font-size="21" fill="#d8e5bd">Ovary → fruit</text><text x="352" y="409" font-size="21" fill="#ffe2ad">Ovule → seed</text></g>
+      <text *ngIf="f.fruitStage===1" x="115" y="410" font-size="23" fill="#e3ebbf">The ovary wall becomes the fruit wall</text>
+    </svg><span class="pl-scale-note">Typical fruit development · sequence, not actual timing</span>
+  </ng-container>
+  <ng-container *ngIf="mode==='wind'">
+    <img class="pl-dandelion" src="/assets/learning-lab/dandelion-specimen-v2.webp" alt="Dandelion fruits with white parachutes of hairs" width="1254" height="1254"/>
+    <div class="pl-wind-lines" [class.moving]="f.wind>0" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div *ngIf="flight" class="pl-flying-seed" [class.still]="releasedWind===0" [class.breeze]="releasedWind===1" [class.gust]="releasedWind===2" [style.animation-name]="flight%2?'pl-seed-a':'pl-seed-b'" aria-hidden="true"><svg viewBox="0 0 100 130"><path d="M50 60 L10 39 M50 60 L14 18 M50 60 L31 5 M50 60 L50 1 M50 60 L69 5 M50 60 L86 18 M50 60 L91 39 M50 60 V105" stroke="#f5edcc" fill="none" stroke-width="2"/><ellipse cx="50" cy="113" rx="5" ry="13" fill="#d4aa71"/></svg></div>
+    <span class="pl-wind-label">{{['Still air','Gentle breeze','Stronger wind'][f.wind]}}</span><span class="pl-scale-note">Dandelion fruit + seed · compare movement, not distance</span>
+  </ng-container>
+  <ng-container *ngIf="mode==='propagation'">
+    <svg viewBox="0 0 600 440" role="img" aria-label="Two potato pieces in the same conditions; a piece with an eye can produce a shoot">
+      <defs><linearGradient id="pl-potato" x2="1" y2="1"><stop stop-color="#e8c388"/><stop offset="1" stop-color="#b47e4e"/></linearGradient></defs>
+      <g *ngFor="let bud of [f.budA,f.budB];let i=index" [attr.transform]="'translate('+(i*288)+',0)'">
+        <path d="M45 276 H255 L233 415 H67Z" fill="#bd8064" stroke="#e7b494" stroke-width="3"/><path d="M49 287 H252 L247 315 H55Z" fill="#533f35"/>
+        <ellipse cx="150" cy="306" rx="50" ry="31" fill="url(#pl-potato)" stroke="#f0cea0" stroke-width="3"/><path d="M125 300 l3 2 M168 322 l4 -1 M171 292 l3 1" stroke="#a77b50" stroke-width="3"/>
+        <circle *ngIf="bud" cx="147" cy="277" r="7" fill="#94c984" stroke="#c6e9a8" stroke-width="2"/>
+        <g *ngIf="bud&&f.growthStage>0"><path class="pl-root-grow" d="M145 333 L123 389 M144 349 L174 391 M135 369 L109 375 M154 365 L181 375" stroke="#edd9ab" stroke-width="3" fill="none" pathLength="100"/><path class="pl-shoot-grow" [attr.d]="f.growthStage===2?'M147 276 Q132 218 151 141':'M147 276 Q142 251 146 230'" stroke="#a5d48d" stroke-width="7" fill="none" pathLength="100"/></g>
+        <g *ngIf="bud&&f.growthStage===2" fill="#85ba79" stroke="#b7d79a" stroke-width="1"><path d="M144 217 Q93 154 82 190 Q93 230 144 230Z"/><path d="M148 187 Q201 126 215 158 Q196 198 148 201Z"/></g>
+        <text x="150" y="92" text-anchor="middle" fill="#e4edcf" font-size="23">Pot {{i===0?'A':'B'}}</text><text x="150" y="124" text-anchor="middle" fill="#b9d6c6" font-size="19">{{bud?'With an eye':'Without an eye'}}</text>
+        <text *ngIf="!bud&&f.growthStage===2" x="150" y="212" text-anchor="middle" fill="#e6d8bf" font-size="21">No shoot</text>
+      </g>
+    </svg><span class="pl-scale-note">Same moisture, oxygen and warmth · healthy potato pieces</span>
+  </ng-container>
+  <ng-container *ngIf="mode==='leaf'">
+    <svg viewBox="0 0 600 440" role="img" aria-label="Bryophyllum leaf with buds on its margin; a plantlet can establish on moist soil">
+      <path d="M75 319 L88 264 L119 252 L119 223 L158 213 L158 187 L201 171 L209 147 L253 135 L269 111 L314 108 L333 91 L377 96 L404 83 L460 104 L474 122 L448 151 L442 181 L406 195 L401 221 L359 233 L348 256 L305 264 L279 286 L234 283 L208 307 L159 301 L126 323Z" fill="#7ba680" stroke="#c5dfae" stroke-width="3"/>
+      <path d="M66 343 L450 118 M173 285 L184 204 M237 245 L250 154 M299 201 L339 248 M358 168 L398 211" fill="none" stroke="#b3d99e" stroke-width="3"/>
+      <g fill="#d5e7a0" stroke="#719960" stroke-width="2"><circle cx="118" cy="251" r="11"/><circle cx="205" cy="166" r="11"/><circle cx="314" cy="107" r="11"/><circle cx="400" cy="219" r="11"/><circle cx="279" cy="286" r="11"/></g>
+      <g *ngIf="f.leafPlanted" class="pl-scene-enter"><path d="M373 400 H572" stroke="#9f7658" stroke-width="22"/><path d="M476 392 Q465 351 482 317" stroke="#a6d591" stroke-width="5" fill="none"/><path d="M474 361 Q428 325 436 349 Q449 373 477 370 M479 339 Q512 302 523 324 Q507 347 479 349" fill="#9cca8d"/><path d="M476 395 l-15 23 M476 399 l15 19" stroke="#dfd0ab" stroke-width="2"/></g>
+    </svg>
+    <button *ngIf="!f.leafPlanted" class="pl-hotspot pl-leaf-bud pl-nudge" (click)="action.emit('leaf-bud')" aria-label="Plant a Bryophyllum leaf bud">Plant this bud <span aria-hidden="true">↗</span></button>
+    <span class="pl-scale-note">Bryophyllum · buds on the leaf margin</span>
+  </ng-container>
+</div>

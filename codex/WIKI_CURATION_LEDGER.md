@@ -134,3 +134,13 @@ Use it to answer:
 - Acceptance test: Home and Intent continue to explain the product; Decisions and Problems now preserve the remaining experience gap; future aesthetic response remains unproven. Execution work stays out of wiki prose.
 - Prior research note `raw/2026-06-05-current-education-reforms-trends-research.md` remains needs-follow-up and outside this scope.
 - Project Manager Handoff: promote the exact reviewed V1 candidate to main under the founder's explicit authorization; verify production deployment; propose the next visual improvement sequence without implementing it in this release. Action Plan still reports unavailable because admin access to actionPlans is denied; keep the release and next-step record in docs/uiux.
+
+### 2026-09-06 - Landing Page Visual Direction
+
+- Raw note: `raw/2026-09-06-landing-page-visual-direction.md`
+- Status: processed
+- Wiki pages updated: `wiki/Decisions.md`
+- Durable memory captured: public landing page as a distinct promotional experience; original generated imagery and differentiated backgrounds; assess and iterate the whole page; preserve factual claims and working learning behavior. Main delivery is explicitly authorised, while founder/learner quality judgment remains open.
+- Acceptance: existing product intent and strategic anchors remain intact. Implementation and release evidence belong in docs/uiux, not wiki prose.
+- Prior June research note remains needs-follow-up and outside this scope.
+- Project Manager Handoff: complete desktop/mobile visual iteration, verify existing account and practice contracts, commit to main and verify production. Backfill Action Plan when signed-in admin access and actionPlans permissions are available. Execution record: docs/uiux/landing-experience-2026-09-06.md.

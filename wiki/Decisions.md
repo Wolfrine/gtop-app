@@ -74,6 +74,12 @@ The founder found the revised experience effective and working, but rated its vi
 
 Communicate through recognisable actions, layout, imagery and useful feedback. Supporting words should answer a real question; repeated motivational slogans and explanations made the experience feel artificially constructed. Preserve warmth without surrounding familiar actions with unnecessary narration. Visual character should support the [[Practice Loop]] while the question itself stays calm and legible.
 
+## Give The Public Landing Page Its Own Visual Direction
+
+The public landing page should invite curiosity and make GTOP's existing learning experience easy to grasp. It can use richer backgrounds, original imagery, larger compositions and memorable motion while the actual question-solving experience stays calm and dependable. A sequence of visually distinct sections should communicate through demonstration and recognisable actions, with concise supporting words.
+
+Generated artwork is an explicit part of the chosen direction, judged in the context of the complete page and across screen sizes. One attractive image does not establish a successful landing page. Iterate the composition, artwork and interactions together, preserving the working [[Practice Loop]] and making only supportable product claims. The founder has authorised autonomous landing-page implementation and release; the eventual quality judgment still belongs to the founder and learners.
+
 ## Future-Ready Education Direction Is A Strategy Question
 
 GTOP should study what students may expect from education products over the next decade and use that thinking to shape product bets. This is a strategic direction, not a wiki todo list or a commitment to any specific AI feature.
@@ -88,3 +94,5 @@ GTOP should study what students may expect from education products over the next
 - `raw/2026-09-05-incremental-ui-standardisation.md`
 - `raw/2026-09-05-experience-quality-target.md`
 - `raw/2026-09-05-visual-review-release-approval.md`
+
+- `raw/2026-09-06-landing-page-visual-direction.md`

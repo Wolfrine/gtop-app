@@ -1,245 +1,151 @@
-<!-- Hero Section -->
-<header class="hero">
-    <div class="hero-inner">
-        <div class="hero-copy">
-            <div class="hero-brand-lockup">
-                <span class="hero-logo" aria-hidden="true">GTOP</span>
-                <span class="hero-brand-lines">
-                    <span class="hero-brand-name">GTOP</span>
-                    <span class="hero-brand-expansion">Growth Tutorials Objective Practice</span>
-                    <span class="hero-brand-tagline">Practice for classes 5–12</span>
-                </span>
-            </div>
-            <span class="hero-tag">Practice · Understand · Improve</span>
-            <h1>Build understanding, one question at a time.</h1>
-            <p>
-                Practise questions from your syllabus, review your answers, and see how your understanding grows.
-            </p>
-            <p class="hero-subtext">
-                Choose a quick quiz, build a custom set, or explore an interactive lesson in Learning Lab.
-            </p>
-
-            <div class="hero-actions">
-                <button mat-raised-button color="primary" (click)="signUp()">Get Started</button>
-                <button mat-stroked-button color="primary" (click)="signUp()">Sign In</button>
-            </div>
-
-            <dl class="hero-stats" aria-label="Why learners choose Growth Tutorials">
-                <div>
-                    <dt>Your syllabus</dt>
-                    <dd>Choose your board, standard, subjects, and chapters.</dd>
-                </div>
-                <div>
-                    <dt>Clear feedback</dt>
-                    <dd>Review your answers and practise incorrect questions again.</dd>
-                </div>
-                <div>
-                    <dt>CBSE · ICSE</dt>
-                    <dd>Question practice across both boards.</dd>
-                </div>
-            </dl>
-
-            <p class="hero-footnote">
-                <mat-icon aria-hidden="true">verified</mat-icon>
-                Sign in with Google to save your profile and quiz progress.
-            </p>
+<div class="landing-experience" [class.motion-paused]="motionPaused">
+    <a class="landing-skip" href="#landing-main" (click)="scrollToSection('landing-main', $event)">Skip to content</a>
+    <nav class="landing-nav" aria-label="Main navigation">
+        <button class="landing-brand" (click)="scrollToSection('landing-main')" aria-label="GTOP home">
+            <span class="landing-brand__symbol" aria-hidden="true">g<span>✦</span></span>
+            <span>GTOP<small>by Growth Tutorials</small></span>
+        </button>
+        <div class="landing-nav__links">
+            <button (click)="scrollToSection('landing-subjects')">Explore</button>
+            <button (click)="scrollToSection('landing-question')">Try a question</button>
+            <button (click)="scrollToSection('landing-together')">Play together</button>
         </div>
+        <button class="landing-nav__signin" (click)="signUp()">Sign in <span aria-hidden="true">↗</span></button>
+    </nav>
 
-        <div class="hero-graphic" aria-hidden="true">
-            <svg viewBox="0 0 480 420" role="presentation">
-                <defs>
-                    <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#5b21b6" />
-                        <stop offset="45%" stop-color="#4f46e5" />
-                        <stop offset="100%" stop-color="#0ea5e9" />
-                    </linearGradient>
-                    <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#f0f9ff" />
-                        <stop offset="100%" stop-color="#dbeafe" />
-                    </linearGradient>
-                </defs>
-                <rect x="60" y="60" width="360" height="240" rx="36" fill="url(#heroGradient)" opacity="0.92" />
-                <rect x="96" y="96" width="288" height="180" rx="28" fill="white" opacity="0.98" />
-                <rect x="120" y="120" width="120" height="16" rx="8" fill="#312e81" opacity="0.8" />
-                <rect x="120" y="150" width="180" height="12" rx="6" fill="#6366f1" opacity="0.6" />
-                <rect x="120" y="172" width="160" height="12" rx="6" fill="#c7d2fe" opacity="0.85" />
-                <rect x="120" y="194" width="140" height="12" rx="6" fill="#e0f2fe" />
-                <rect x="120" y="222" width="224" height="72" rx="18" fill="url(#screenGradient)" />
-                <circle cx="168" cy="258" r="22" fill="#22d3ee" opacity="0.75" />
-                <path d="M158 258l8 8 18-20" fill="none" stroke="#0f172a" stroke-width="4" stroke-linecap="round"
-                    stroke-linejoin="round" />
-                <rect x="206" y="238" width="124" height="12" rx="6" fill="#1e3a8a" opacity="0.75" />
-                <rect x="206" y="258" width="96" height="12" rx="6" fill="#4c1d95" opacity="0.6" />
-                <rect x="206" y="278" width="70" height="12" rx="6" fill="#f472b6" opacity="0.8" />
-                <circle cx="396" cy="110" r="26" fill="#facc15" opacity="0.85" />
-                <circle cx="96" cy="330" r="18" fill="#38bdf8" opacity="0.65" />
-                <circle cx="404" cy="306" r="14" fill="#a855f7" opacity="0.55" />
-                <circle cx="250" cy="342" r="90" fill="#0ea5e9" opacity="0.18" />
-                <path d="M60 330c42 18 80 18 124 0" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"
-                    opacity="0.4" />
-            </svg>
-        </div>
-    </div>
-</header>
-
-<!-- Benefits Section -->
-<section class="benefits" aria-labelledby="benefits-heading">
-    <div class="benefits-heading">
-        <span class="section-kicker">Made for regular practice</span>
-        <h2 id="benefits-heading">A clearer way to practise</h2>
-        <p>Start with a question. Review your result. Decide what to practise next.</p>
-    </div>
-
-    <div class="benefits-grid">
-        <mat-card appCard class="benefit-card">
-            <span class="benefit-icon" aria-hidden="true">
-                <svg viewBox="0 0 72 72" role="presentation" focusable="false">
-                    <defs>
-                        <linearGradient id="benefitAiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#6366f1" />
-                            <stop offset="100%" stop-color="#22d3ee" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="36" cy="36" r="34" fill="rgba(99,102,241,0.12)" />
-                    <rect x="18" y="18" width="36" height="28" rx="14" fill="url(#benefitAiGradient)" />
-                    <rect x="24" y="46" width="24" height="6" rx="3" fill="#1e3a8a" opacity="0.35" />
-                    <circle cx="30" cy="32" r="4" fill="#e0f2fe" />
-                    <circle cx="42" cy="32" r="4" fill="#e0f2fe" />
-                    <path d="M28 26h16" stroke="#a5b4fc" stroke-width="2.5" stroke-linecap="round" />
-                    <path d="M30 38c2.2 2.6 9.8 2.6 12 0" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" opacity="0.85" />
-                    <rect x="16" y="28" width="4" height="12" rx="2" fill="#22d3ee" opacity="0.8" />
-                    <rect x="52" y="28" width="4" height="12" rx="2" fill="#6366f1" opacity="0.8" />
-                </svg>
-            </span>
-            <h3>Focused practice</h3>
-            <p>Choose subjects and chapters in a custom quiz, or start with a quick set of questions.</p>
-        </mat-card>
-        <mat-card appCard class="benefit-card">
-            <span class="benefit-icon" aria-hidden="true">
-                <svg viewBox="0 0 72 72" role="presentation" focusable="false">
-                    <defs>
-                        <linearGradient id="benefitInsightsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#f97316" />
-                            <stop offset="100%" stop-color="#f472b6" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="36" cy="36" r="34" fill="rgba(249,115,22,0.12)" />
-                    <path d="M20 48c6-10 12-14 16-10s10 4 16-8" fill="none" stroke="#fb923c" stroke-width="3.5" stroke-linecap="round" />
-                    <path d="M22 50h28" stroke="#1f2937" stroke-width="2" stroke-linecap="round" opacity="0.2" />
-                    <rect x="20" y="24" width="8" height="18" rx="3" fill="url(#benefitInsightsGradient)" />
-                    <rect x="32" y="30" width="8" height="20" rx="3" fill="rgba(59,130,246,0.9)" />
-                    <rect x="44" y="20" width="8" height="30" rx="3" fill="rgba(14,165,233,0.85)" />
-                    <circle cx="52" cy="18" r="4" fill="#1d4ed8" />
-                </svg>
-            </span>
-            <h3>Visible progress</h3>
-            <p>See your accuracy and previous attempts, then revisit questions you want to work on.</p>
-        </mat-card>
-        <mat-card appCard class="benefit-card">
-            <span class="benefit-icon" aria-hidden="true">
-                <svg viewBox="0 0 72 72" role="presentation" focusable="false">
-                    <defs>
-                        <linearGradient id="benefitTeamGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#34d399" />
-                            <stop offset="100%" stop-color="#22d3ee" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="36" cy="36" r="34" fill="rgba(34,211,238,0.12)" />
-                    <circle cx="28" cy="30" r="10" fill="url(#benefitTeamGradient)" />
-                    <circle cx="44" cy="30" r="10" fill="rgba(59,130,246,0.85)" />
-                    <path d="M20 52c2-8 8-12 16-12s14 4 16 12" fill="rgba(59,130,246,0.14)" />
-                    <path d="M20 52c2-8 8-12 16-12" stroke="#0f172a" stroke-width="2" stroke-linecap="round" opacity="0.22" />
-                    <path d="M52 52c-2-8-8-12-16-12" stroke="#0f172a" stroke-width="2" stroke-linecap="round" opacity="0.22" />
-                    <circle cx="48" cy="46" r="8" fill="rgba(244,114,182,0.5)" />
-                    <circle cx="24" cy="46" r="8" fill="rgba(15,118,110,0.4)" />
-                    <path d="M32 54c0-4 3.5-6 7.5-6S47 50 48 54" stroke="#0f172a" stroke-width="2" stroke-linecap="round" opacity="0.28" />
-                </svg>
-            </span>
-            <h3>Study together</h3>
-            <p>Join a hosted live quiz or share a quiz run with friends and classmates.</p>
-        </mat-card>
-    </div>
-</section>
-
-<!-- Live Quiz + Quiz Run Showcase -->
-<section class="live-experiences" aria-labelledby="live-experiences-heading">
-    <div class="live-experiences__intro">
-        <span class="section-kicker">Learn together</span>
-        <h2 id="live-experiences-heading">Practice with other learners</h2>
-        <p>
-            Join a quiz hosted by an administrator, or create a quiz run and share its code with friends.
-        </p>
-    </div>
-
-    <div class="live-experiences__grid">
-        <mat-card appCard class="experience-card">
-            <div class="experience-card__header">
-                <svg viewBox="0 0 96 96" aria-hidden="true" focusable="false">
-                    <defs>
-                        <linearGradient id="experienceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#6366f1" />
-                            <stop offset="100%" stop-color="#22d3ee" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="48" cy="48" r="44" fill="rgba(99,102,241,0.1)" />
-                    <path d="M34 30h28a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H34a4 4 0 0 1-4-4V34a4 4 0 0 1 4-4z" fill="url(#experienceGradient)" />
-                    <rect x="28" y="52" width="40" height="6" rx="3" fill="#1e3a8a" opacity="0.3" />
-                    <rect x="28" y="62" width="32" height="6" rx="3" fill="#2563eb" opacity="0.4" />
-                </svg>
-                <h3>Live Quiz</h3>
+    <main id="landing-main" tabindex="-1">
+        <header class="discovery-hero">
+            <picture><source media="(max-width: 767px)" srcset="assets/landing/hero-discovery-mobile.webp"><img class="discovery-hero__art" src="assets/landing/hero-discovery.webp" width="1672" height="941" alt="An open book unfolds into a globe, a glass prism and sculptural shapes" fetchpriority="high"></picture>
+            <div class="discovery-hero__shade" aria-hidden="true"></div>
+            <div class="landing-wrap discovery-hero__inner">
+                <div class="discovery-hero__copy">
+                    <p class="landing-eyebrow"><span class="landing-spark" aria-hidden="true">✦</span> FOR THE CURIOUS. CLASSES 5–12.</p>
+                    <h1>A little practice.<br>A <em>bigger</em> world.</h1>
+                    <p class="discovery-hero__description">Quizzes, interactive lessons and practice with friends.<br class="desktop-break"> All starting with what you’re learning at school.</p>
+                    <div class="landing-actions">
+                        <button class="landing-button landing-button--cream" (click)="signUp()">Get started <span aria-hidden="true">↗</span></button>
+                        <button class="landing-text-link" (click)="scrollToSection('landing-question')">Try a question <span aria-hidden="true">↓</span></button>
+                    </div>
+                    <p class="discovery-hero__boards">CBSE & ICSE <span aria-hidden="true">·</span> Your class. Your chapters.</p>
+                </div>
             </div>
-            <ol>
-                <li><strong>Find a session</strong> in Live Quizzes or use the code shared by the host.</li>
-                <li><strong>Answer together</strong> as the host starts the quiz.</li>
-                <li><strong>Review the results</strong> on the leaderboard.</li>
-            </ol>
-            <button mat-raised-button color="primary" (click)="signUp()">Sign In for Live Quizzes</button>
-        </mat-card>
-
-        <mat-card appCard class="experience-card">
-            <div class="experience-card__header">
-                <svg viewBox="0 0 96 96" aria-hidden="true" focusable="false">
-                    <defs>
-                        <linearGradient id="experienceGradientSecondary" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#f472b6" />
-                            <stop offset="100%" stop-color="#fb923c" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="48" cy="48" r="44" fill="rgba(244,114,182,0.12)" />
-                    <path d="M36 30h24a6 6 0 0 1 6 6v28a6 6 0 0 1-6 6H36a6 6 0 0 1-6-6V36a6 6 0 0 1 6-6z" fill="url(#experienceGradientSecondary)" />
-                    <path d="M38 44h20M38 54h16" stroke="#fdf2f8" stroke-width="4" stroke-linecap="round" opacity="0.8" />
-                </svg>
-                <h3>Quiz Run</h3>
+            <div class="discovery-hero__bottom landing-wrap">
+                <button class="discovery-scroll" (click)="scrollToSection('landing-subjects')"><span aria-hidden="true">↓</span> A little more to discover</button>
+                <button class="motion-control" (click)="motionPaused = !motionPaused" [attr.aria-pressed]="motionPaused" [attr.aria-label]="motionPaused ? 'Resume decorative motion' : 'Pause decorative motion'"><span aria-hidden="true">{{ motionPaused ? '▷' : 'Ⅱ' }}</span></button>
             </div>
-            <ol>
-                <li><strong>Choose the questions</strong> using the board, subject, and chapter filters.</li>
-                <li><strong>Share a join code</strong> and meet your friends in the lobby.</li>
-                <li><strong>Start the run</strong> when everyone is ready.</li>
-            </ol>
-            <button mat-stroked-button color="primary" (click)="signUp()">Sign In for Quiz Runs</button>
-        </mat-card>
-    </div>
-</section>
+        </header>
 
-<!-- Sample MCQ Section (Try-Before-Sign-Up) -->
-<section class="sample-mcq" aria-labelledby="sample-mcq-heading">
-    <div class="sample-mcq__intro">
-        <span class="section-kicker">Try it now</span>
-        <h2 id="sample-mcq-heading">Try a sample question</h2>
-        <p>Choose an answer to see the feedback. No sign-in needed for this sample.</p>
-    </div>
-    <mat-card appCard class="sample-mcq__card">
-        <p><strong>{{ questionText }}</strong></p>
-        <div class="options">
-            <ng-container *ngFor="let option of options">
-                <button mat-button color="primary" [ngStyle]="getButtonStyle(option.value)"
-                    (click)="checkAnswer(option.value)">
-                    {{ option.label }}
-                </button>
-            </ng-container>
-        </div>
+        <section class="subject-section" id="landing-subjects" tabindex="-1" aria-labelledby="subjects-heading">
+            <div class="landing-wrap">
+                <div class="section-intro landing-reveal">
+                    <div><p class="landing-eyebrow">FAMILIAR SUBJECTS. FRESH PERSPECTIVES.</p><h2 id="subjects-heading">Look a little closer.</h2></div>
+                    <p>Pick your board and class.<br>Practise the chapters you’re learning.</p>
+                </div>
+                <div class="subject-gallery">
+                    <button class="subject-panel subject-panel--science landing-reveal" (click)="signUp()" aria-label="Get started with science practice">
+                        <img src="assets/landing/subject-science.webp" width="1254" height="1254" alt="A glass prism casts a spectrum of light" loading="lazy" decoding="async">
+                        <span class="subject-panel__top">01</span>
+                        <span class="subject-panel__bottom"><span>Science<small>See how things work.</small></span><span class="subject-panel__arrow" aria-hidden="true">↗</span></span>
+                    </button>
+                    <button class="subject-panel subject-panel--math landing-reveal" (click)="signUp()" aria-label="Get started with mathematics practice">
+                        <img src="assets/landing/subject-mathematics.webp" width="1254" height="1254" alt="Terracotta and paper geometric sculptures in warm sunlight" loading="lazy" decoding="async">
+                        <span class="subject-panel__top">02</span>
+                        <span class="subject-panel__bottom"><span>Mathematics<small>Find the connection.</small></span><span class="subject-panel__arrow" aria-hidden="true">↗</span></span>
+                    </button>
+                    <button class="subject-panel subject-panel--biology landing-reveal" (click)="signUp()" aria-label="Get started with biology practice">
+                        <img src="assets/landing/subject-biology.webp" width="1254" height="1254" alt="Sunlight reveals the veins and dew on a green leaf" loading="lazy" decoding="async">
+                        <span class="subject-panel__top">03</span>
+                        <span class="subject-panel__bottom"><span>Biology<small>Explore the living world.</small></span><span class="subject-panel__arrow" aria-hidden="true">↗</span></span>
+                    </button>
+                </div>
+                <div class="subject-caption"><span>And more, depending on your board and class.</span><button (click)="signUp()">Choose your subjects <span aria-hidden="true">↗</span></button></div>
+            </div>
+        </section>
 
-        <p *ngIf="answerFeedback" class="feedback" role="status">{{ answerFeedback }}</p>
-        <button *ngIf="answerFeedback" mat-raised-button color="primary" (click)="signUp()">Continue to Sign In</button>
-    </mat-card>
-</section>
+        <section class="question-stage" id="landing-question" tabindex="-1" aria-labelledby="question-heading">
+            <div class="landing-wrap question-stage__layout">
+                <div class="question-stage__intro landing-reveal">
+                    <p class="landing-eyebrow">YOUR TURN</p>
+                    <h2 id="question-heading">One question.<br>Give it a go.</h2>
+                    <p>Choose an answer and see the feedback.<br>No sign-in needed for this sample.</p>
+                    <div class="question-stage__doodle" aria-hidden="true"><span>?</span><span>!</span><svg viewBox="0 0 230 110"><path d="M12 52 C40 0 130 10 129 65 C129 98 183 92 212 54 M184 54 L215 51 L213 82"/></svg></div>
+                </div>
+                <div class="sample-sheet landing-reveal" [class.sample-sheet--answered]="selectedAnswer">
+                    <div class="sample-sheet__meta"><span><i aria-hidden="true"></i> SAMPLE QUESTION</span><span>GEOGRAPHY</span></div>
+                    <h3>{{ questionText }}</h3>
+                    <div class="sample-options" role="group" aria-label="Answer choices">
+                        <button *ngFor="let option of options" class="sample-option" type="button" (click)="checkAnswer(option.value)" [attr.aria-pressed]="selectedAnswer === option.value" [class.sample-option--selected]="selectedAnswer === option.value" [class.sample-option--correct]="selectedAnswer && option.value === correctAnswer" [class.sample-option--incorrect]="selectedAnswer === option.value && option.value !== correctAnswer">
+                            <span class="sample-option__letter">{{ option.value }}</span><span>{{ option.label.slice(3) }}</span><span class="sample-option__state" aria-hidden="true">{{ selectedAnswer && option.value === correctAnswer ? '✓' : selectedAnswer === option.value ? '×' : '↗' }}</span>
+                        </button>
+                    </div>
+                    <div class="sample-feedback" aria-live="polite" aria-atomic="true">
+                        <p *ngIf="answerFeedback">{{ answerFeedback }}</p>
+                        <span *ngIf="!answerFeedback">Select an answer above.</span>
+                    </div>
+                    <div class="sample-sheet__footer"><button class="sample-reset" (click)="resetSample()" [disabled]="!selectedAnswer">Try again <span aria-hidden="true">↻</span></button><button class="sample-continue" (click)="signUp()">More questions <span aria-hidden="true">→</span></button></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="lab-stage" id="landing-lab" tabindex="-1" aria-labelledby="lab-heading">
+            <div class="landing-wrap lab-stage__layout">
+                <div class="lab-stage__copy landing-reveal">
+                    <p class="landing-eyebrow"><span class="landing-spark" aria-hidden="true">✦</span> LEARNING LAB</p>
+                    <h2 id="lab-heading">Some ideas<br>need a little<br><em>experiment.</em></h2>
+                    <p>Start with electric circuits in Current Lab. Change a circuit, watch what happens and test your understanding.</p>
+                    <button class="landing-button landing-button--cream" (click)="signUp()">Explore Learning Lab <span aria-hidden="true">↗</span></button>
+                </div>
+                <div class="circuit-preview landing-reveal" [class.circuit-preview--on]="circuitOn">
+                    <div class="circuit-preview__caption"><span>CURRENT LAB</span><span>MINI DEMO</span></div>
+                    <svg class="circuit-art" viewBox="0 0 540 390" role="img" [attr.aria-label]="circuitOn ? 'Closed circuit: the lamp is on' : 'Open circuit: the lamp is off'">
+                        <defs><radialGradient id="landing-lamp-light"><stop stop-color="#ffe9a7" stop-opacity=".58"/><stop offset="1" stop-color="#ffe9a7" stop-opacity="0"/></radialGradient></defs>
+                        <circle class="circuit-art__glow" cx="413" cy="171" r="116" fill="url(#landing-lamp-light)"/>
+                        <path class="circuit-art__wire" d="M120 278 H74 V91 H410 V128 M410 215 V278 H166"/>
+                        <path class="circuit-art__flow" d="M120 278 H74 V91 H410 V128 M410 215 V278 H166"/>
+                        <path class="circuit-art__battery" d="M120 250 V306 M137 260 V296 M151 250 V306 M166 260 V296"/>
+                        <text x="112" y="334">BATTERY</text><text x="104" y="240">+</text><text x="157" y="240">−</text>
+                        <circle class="circuit-art__bulb" cx="410" cy="165" r="42"/>
+                        <path class="circuit-art__filament" d="M391 152 L400 188 H420 L428 152 M398 190 H422 M400 203 H420 M404 214 H416"/>
+                        <text x="389" y="245">LAMP</text>
+                        <circle cx="246" cy="91" r="28" fill="#112939"/>
+                        <circle cx="227" cy="91" r="4" fill="#c3d7d9"/><circle cx="266" cy="91" r="4" fill="#c3d7d9"/>
+                        <path class="circuit-art__switch" [attr.d]="circuitOn ? 'M227 91 L266 91' : 'M227 91 L261 66'"/>
+                        <text x="223" y="48">SWITCH</text>
+                    </svg>
+                    <div class="circuit-preview__controls"><button type="button" class="circuit-toggle" role="switch" [attr.aria-checked]="circuitOn" (click)="circuitOn = !circuitOn"><span class="circuit-toggle__track" aria-hidden="true"><span></span></span>{{ circuitOn ? 'Switch off' : 'Switch on' }}</button><span class="circuit-status" aria-live="polite">{{ circuitOn ? 'Circuit closed. Lamp on.' : 'Circuit open. Lamp off.' }}</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="together-stage" id="landing-together" tabindex="-1" aria-labelledby="together-heading">
+            <div class="landing-wrap">
+                <div class="together-stage__heading landing-reveal"><p class="landing-eyebrow">BRING YOUR FRIENDS</p><h2 id="together-heading">Same questions.<br><em>More company.</em></h2><p>Share a Quiz Run with classmates or join a hosted Live Quiz.</p></div>
+                <div class="together-path landing-reveal" aria-label="How Quiz Runs work">
+                    <div class="together-step together-step--pick"><div class="together-step__art" aria-hidden="true"><div class="mini-stack"><span>?</span><span>?</span><span>?</span></div></div><p><span>01</span> Pick your questions</p></div>
+                    <span class="together-connector" aria-hidden="true">↗</span>
+                    <div class="together-step together-step--share"><div class="together-step__art" aria-hidden="true"><div class="mini-code"><span>JOIN CODE</span><div>✦ ✦ ✦ ✦ ✦ ✦</div><i>↗</i></div></div><p><span>02</span> Share a join code</p></div>
+                    <span class="together-connector" aria-hidden="true">↗</span>
+                    <div class="together-step together-step--play"><div class="together-step__art" aria-hidden="true"><div class="mini-players"><span>☺</span><span>☺</span><span>☺</span><i>✦</i></div></div><p><span>03</span> Start together</p></div>
+                </div>
+                <div class="together-stage__actions"><button class="landing-button landing-button--cream" (click)="signUp()">Start a Quiz Run <span aria-hidden="true">↗</span></button><button class="landing-text-link" (click)="signUp()">Join a Live Quiz <span aria-hidden="true">→</span></button></div>
+            </div>
+        </section>
+
+        <section class="landing-faq" aria-labelledby="faq-heading">
+            <div class="landing-wrap landing-faq__layout">
+                <div class="landing-reveal"><p class="landing-eyebrow">BEFORE YOU BEGIN</p><h2 id="faq-heading">A few things<br>to know.</h2><p>Growth Tutorials<br>Objective Practice.</p></div>
+                <div class="landing-faq__items landing-reveal">
+                    <details><summary>Who is GTOP for?<span aria-hidden="true">+</span></summary><p>Learners in classes 5–12. Choose your board and class to find the subjects and chapters available for you.</p></details>
+                    <details><summary>How do I start practising?<span aria-hidden="true">+</span></summary><p>Sign in with Google and set up your board and class. Start a Quick Quiz or choose your own subjects and chapters in a Custom Quiz.</p></details>
+                    <details><summary>Can I review my answers?<span aria-hidden="true">+</span></summary><p>Yes. Review your answers after a quiz, see previous attempts and retry incorrect questions.</p></details>
+                    <details><summary>Can I practise with friends?<span aria-hidden="true">+</span></summary><p>Yes. Create a Quiz Run and share the join code, or join a Live Quiz organised by a host. Participants sign in to take part.</p></details>
+                </div>
+            </div>
+        </section>
+
+        <section class="landing-finale" aria-labelledby="finale-heading">
+            <div class="finale-orbit finale-orbit--one" aria-hidden="true"></div><div class="finale-orbit finale-orbit--two" aria-hidden="true"></div>
+            <div class="landing-wrap landing-reveal"><span class="finale-star" aria-hidden="true">✦</span><p class="landing-eyebrow">YOUR NEXT CHAPTER</p><h2 id="finale-heading">Shall we begin?</h2><button class="landing-button landing-button--ink" (click)="signUp()">Get started <span aria-hidden="true">↗</span></button><p class="landing-finale__note">Sign in with Google. Choose your class. Start exploring.</p></div>
+        </section>
+    </main>
+</div>

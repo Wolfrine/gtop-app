@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -15,15 +15,18 @@ import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
     templateUrl: './landing-page.component.html',
     styleUrl: './landing-page.component.scss'
 })
-export class LandingPageComponent implements OnInit, OnDestroy {
+export class LandingPageComponent implements OnInit, OnDestroy, AfterViewInit {
     private readonly subscriptions = new Subscription();
+    private revealObserver?: IntersectionObserver;
+    motionPaused = false;
+    circuitOn = false;
 
     // Track selected answer + feedback
     selectedAnswer: string | null = null;
     answerFeedback: string | null = null;
 
     // Our MCQ
-    questionText = 'Q: What is the capital of France?';
+    questionText = 'What is the capital of France?';
     options = [
         { label: 'A) Berlin', value: 'A' },
         { label: 'B) Madrid', value: 'B' },
@@ -34,7 +37,8 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
     constructor(
         private router: Router,
-        private authService: AuthService
+        private authService: AuthService,
+        private element: ElementRef<HTMLElement>
     ) { }
 
     ngOnInit(): void {
@@ -48,6 +52,34 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         // Profile updates (including saved lessons) must not navigate from a departed page.
         this.subscriptions.unsubscribe();
+        this.revealObserver?.disconnect();
+    }
+
+    ngAfterViewInit(): void {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+        const root = this.element.nativeElement.querySelector('.landing-experience');
+        this.revealObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-revealed');
+                this.revealObserver?.unobserve(entry.target);
+            });
+        }, { threshold: 0.08 });
+        root?.classList.add('motion-ready');
+        this.element.nativeElement.querySelectorAll('.landing-reveal').forEach(item => this.revealObserver?.observe(item));
+    }
+
+    scrollToSection(id: string, event?: Event): void {
+        event?.preventDefault();
+        const target = this.element.nativeElement.querySelector<HTMLElement>(`#${id}`);
+        const reduceMotion = this.motionPaused || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        target?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        target?.focus({ preventScroll: true });
+    }
+
+    resetSample(): void {
+        this.selectedAnswer = null;
+        this.answerFeedback = null;
     }
 
     // Called when an option is clicked
@@ -55,9 +87,9 @@ export class LandingPageComponent implements OnInit, OnDestroy {
         this.selectedAnswer = optionValue;
 
         if (optionValue === this.correctAnswer) {
-            this.answerFeedback = '✅ Correct! Ready for more?';
+            this.answerFeedback = 'Correct. Paris is the capital of France.';
         } else {
-            this.answerFeedback = '❌ Oops! The correct answer is Paris.';
+            this.answerFeedback = 'Not quite. Paris is the capital of France; it is answer C.';
         }
     }
 

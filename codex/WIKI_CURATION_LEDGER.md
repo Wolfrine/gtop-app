@@ -144,3 +144,12 @@ Use it to answer:
 - Acceptance: existing product intent and strategic anchors remain intact. Implementation and release evidence belong in docs/uiux, not wiki prose.
 - Prior June research note remains needs-follow-up and outside this scope.
 - Project Manager Handoff: complete desktop/mobile visual iteration, verify existing account and practice contracts, commit to main and verify production. Backfill Action Plan when signed-in admin access and actionPlans permissions are available. Execution record: docs/uiux/landing-experience-2026-09-06.md.
+
+### 2026-09-06 - Landing Page Release Acceptance
+
+- Raw note: `raw/2026-09-06-landing-page-release-acceptance.md`
+- Status: processed
+- Wiki pages updated: `wiki/Decisions.md`
+- Durable memory captured: founder rates the completed landing page almost 8/10, sees substantial improvement and accepts this version for release. Whole-page visual iteration with original imagery is supported by this review; learner outcomes remain unmeasured.
+- Acceptance: strategic product context is preserved; delivery details remain in docs/uiux. Prior research curation remains outside scope.
+- Project Manager Handoff: finish main deployment verification and communicate completion clearly; additional redesign is outside this accepted release. Action Plan backfill remains subject to working admin access and permissions.

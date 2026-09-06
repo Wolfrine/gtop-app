@@ -51,4 +51,8 @@ Refined candidate `063c3d16a0bb8da64b5ac369e481100431bbf457` passed workflow `34
 
 Final polish after this review tightens the mobile hero to 900px with a 400px portrait image and darkens the closing note from a 4.08:1 contrast combination to a darker text colour. These changes are limited to CSS; production will be rechecked after main deployment. The dev-only responsive review harness is excluded from the main tree.
 
-Main release verification pending.
+Main release `7036baa32afd472e26a01eaadb044e172e666ef0` passed production workflow `34008366507`, including the exact production build and Firebase Hosting deployment. The final local rebuild was blocked by the workspace network policy for fonts.googleapis.com; the main CI build completed successfully without changing dependencies, font configuration or gates.
+
+Verified live at https://gtop-app.web.app/: `main-VCRSUFSV.js` and `styles-ZSXSYNWC.css`, all original artwork, and the refined phone picture source. Production phone review confirmed the final 900px hero, complete book composition and 375px content width with no horizontal overflow. The shared app/services and generated syllabus remain untouched. The dev-only review harness is absent from the main release.
+
+The founder rated the result almost 8/10, called it substantially better and accepted this version for now. The release is complete; no further visual redesign is implied by this acceptance.

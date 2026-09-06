@@ -78,7 +78,7 @@ Communicate through recognisable actions, layout, imagery and useful feedback. S
 
 The public landing page should invite curiosity and make GTOP's existing learning experience easy to grasp. It can use richer backgrounds, original imagery, larger compositions and memorable motion while the actual question-solving experience stays calm and dependable. A sequence of visually distinct sections should communicate through demonstration and recognisable actions, with concise supporting words.
 
-Generated artwork is an explicit part of the chosen direction, judged in the context of the complete page and across screen sizes. One attractive image does not establish a successful landing page. Iterate the composition, artwork and interactions together, preserving the working [[Practice Loop]] and making only supportable product claims. The founder has authorised autonomous landing-page implementation and release; the eventual quality judgment still belongs to the founder and learners.
+Generated artwork is an explicit part of the chosen direction, judged in the context of the complete page and across screen sizes. One attractive image does not establish a successful landing page. Iterate the composition, artwork and interactions together, preserving the working [[Practice Loop]] and making only supportable product claims. The founder has authorised autonomous landing-page implementation and release; the eventual quality judgment still belongs to the founder and learners. The completed landing-page review was rated almost 8/10 by the founder, who called it substantially better and accepted the version for release. This validates the chosen visual direction for the public page; it does not establish learner outcomes or complete every future design improvement.
 
 ## Future-Ready Education Direction Is A Strategy Question
 
@@ -96,3 +96,5 @@ GTOP should study what students may expect from education products over the next
 - `raw/2026-09-05-visual-review-release-approval.md`
 
 - `raw/2026-09-06-landing-page-visual-direction.md`
+
+- `raw/2026-09-06-landing-page-release-acceptance.md`

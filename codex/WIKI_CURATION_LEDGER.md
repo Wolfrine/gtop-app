@@ -153,3 +153,12 @@ Use it to answer:
 - Durable memory captured: founder rates the completed landing page almost 8/10, sees substantial improvement and accepts this version for release. Whole-page visual iteration with original imagery is supported by this review; learner outcomes remain unmeasured.
 - Acceptance: strategic product context is preserved; delivery details remain in docs/uiux. Prior research curation remains outside scope.
 - Project Manager Handoff: finish main deployment verification and communicate completion clearly; additional redesign is outside this accepted release. Action Plan backfill remains subject to working admin access and permissions.
+
+### 2026-09-06 - Plant Reproduction Lab
+
+- Raw note: `raw/2026-09-06-plant-reproduction-lab.md`
+- Status: processed
+- Wiki pages updated: `wiki/Features.md`
+- Durable memory captured: Plant Reproduction as a complete next lesson, accurate interactive biology and botanical visual direction, account-linked feedback, and delivering the requested experience before future analysis. Learner value and founder aesthetic acceptance remain unmeasured.
+- Acceptance: existing product map and strategic anchors are unchanged; the feature page preserves the new request and its rationale. The June research note remains outside this scope.
+- Project Manager Handoff: complete development delivery and learner/admin acceptance; retain the cancellation of the unwanted scheduled feedback task. Action Plan backfill remains subject to authenticated admin access and the previously documented actionPlans permission blocker.

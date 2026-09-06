@@ -34,6 +34,8 @@ The founder chose this work because real people can use a complete lesson and re
 
 A lesson is ready for learners only when they can reach it through normal GTOP sign-in, save progress without being taken away from the lesson, and return to their feedback. A working demonstration or development deployment alone does not establish that this full journey works for the intended audience.
 
+The founder selected Plant Reproduction as the next complete lesson: examine a flower, test pollen delivery, follow fertilisation and seed development, and compare vegetative propagation. Botanical imagery should invite exploration while accurate diagrams and observable outcomes carry the teaching. Predictions, experiments, explanations and feedback remain the lesson structure; its value to learners still needs evidence. A request to create a lab must result in the usable learning experience. Scheduling a future feedback review does not fulfill that request.
+
 ## Question Flagging
 
 Question flagging lets students report potential MCQ issues and gives admins a signal for content review. It connects learner feedback to [[Question Bank Quality]].
@@ -68,3 +70,5 @@ The product distinction matters: Live Quiz is admin/host-oriented; Quiz Run shou
 - `raw/2026-09-05-learning-lab-current-lab.md`
 - `raw/2026-09-05-learning-lab-integration-review.md`
 - `raw/2026-09-05-v1-ui-review.md`
+
+- `raw/2026-09-06-plant-reproduction-lab.md`

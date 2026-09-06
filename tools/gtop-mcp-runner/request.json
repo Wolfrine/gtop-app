@@ -1,43 +1,8 @@
 {
   "schemaVersion": 1,
-  "requestId": "20260906-track-mcp-access-02",
-  "purpose": "Record the user's requested autonomous GTOP MCP access setup in the canonical Action Plan after live connectivity was established.",
+  "requestId": "20260906-live-crud-check-03",
+  "purpose": "Verify user-authorized live Firestore create, update, read and delete access through MCP, using only a temporary connection-check document and cleaning it up.",
   "expiresAt": "2026-09-06T18:00:00Z",
   "mode": "write",
-  "kind": "call",
-  "calls": [
-    {
-      "name": "action_plan_create",
-      "arguments": {
-        "title": "Enable autonomous Firestore access through GTOP MCP",
-        "description": "Provide an authenticated MCP execution route usable from ChatGPT through existing GitHub Actions access, without manual credential setup or new ChatGPT connection registration.",
-        "area": "Agent operations",
-        "owner": "Codex",
-        "status": "in-progress",
-        "priority": "high",
-        "labels": [
-          "mcp",
-          "agent-access"
-        ],
-        "acceptanceCriteria": [
-          "Live MCP reads return results to this chat.",
-          "Live create, update, read and delete verification succeeds and removes its temporary document.",
-          "Existing backend authentication and access controls remain in use.",
-          "Reusable access instructions and implementation are committed."
-        ],
-        "sourceReferences": [
-          "codex/gtop-mcp-access",
-          "https://github.com/Wolfrine/gtop-app/actions/runs/34015312335"
-        ],
-        "actor": {
-          "name": "Codex",
-          "kind": "agent"
-        }
-      }
-    },
-    {
-      "name": "firestore_list_collections",
-      "arguments": {}
-    }
-  ]
+  "kind": "verify"
 }

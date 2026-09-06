@@ -182,3 +182,13 @@ Use it to answer:
 - Acceptance: existing Home, Intent, Decisions and Problems retain the strategic context. The feature page distinguishes actual preview observations from unverified live account and full-shell behavior. Proposed redesign remains unapproved.
 - Project Manager Handoff: use the observed screen composition, controls and state failures to revise the proposed experience. Keep subsequent active-scene, guidance, artwork and magnification work subject to actual desktop and phone review. No lesson redesign was delivered in this turn.
 - Prior research curation remains outside this scope.
+
+### 2026-09-06 - Guided Plant Lab Redesign
+
+- Raw note: `raw/2026-09-06-plant-lab-guided-redesign.md`
+- Status: processed
+- Wiki pages updated: `wiki/Features.md`, `wiki/Decisions.md`
+- Durable memory captured: authorized independent exploration, optional entry predictions, visible consequences, preserved discoveries and a real rendered-inspection requirement.
+- Acceptance: existing Home/Intent and Problems preserve strategic context; updated pages distinguish the chosen direction from unverified learner outcomes. Browser QA boundaries remain explicit.
+- Prior research curation remains outside this scope.
+- Project Manager Handoff: development implementation and automated checks are ready; finish the final visual recheck after browser URL-policy access is restored, then perform live signed-in learner/admin acceptance and observe unaided young-student use. The Action Plan has no authenticated admin update in this session. No scheduled task was created.

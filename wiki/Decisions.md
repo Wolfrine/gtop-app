@@ -80,6 +80,12 @@ The public landing page should invite curiosity and make GTOP's existing learnin
 
 Generated artwork is an explicit part of the chosen direction, judged in the context of the complete page and across screen sizes. One attractive image does not establish a successful landing page. Iterate the composition, artwork and interactions together, preserving the working [[Practice Loop]] and making only supportable product claims. The founder has authorised autonomous landing-page implementation and release; the eventual quality judgment still belongs to the founder and learners. The completed landing-page review was rated almost 8/10 by the founder, who called it substantially better and accepted the version for release. This validates the chosen visual direction for the public page; it does not establish learner outcomes or complete every future design improvement.
 
+## Make Independent Exploration Visible And Safe To Repeat
+
+The founder authorized a substantial Plant Reproduction improvement after finding unclear next actions and limited discoverability. The lesson should invite an immediate action, reveal its consequence and give a clear route onward while keeping alternatives available. Revisiting an experiment or closing a view should preserve the learner's discoveries.
+
+Rendered desktop and phone inspection is an explicit quality requirement. Build success and scripted completion cannot substitute for seeing what the learner sees, and a blocked final visual check must remain an open validation item. This continues the experience-quality direction in [[Features]] without claiming measured child engagement or learning gains.
+
 ## Future-Ready Education Direction Is A Strategy Question
 
 GTOP should study what students may expect from education products over the next decade and use that thinking to shape product bets. This is a strategic direction, not a wiki todo list or a commitment to any specific AI feature.
@@ -98,3 +104,5 @@ GTOP should study what students may expect from education products over the next
 - `raw/2026-09-06-landing-page-visual-direction.md`
 
 - `raw/2026-09-06-landing-page-release-acceptance.md`
+
+- `raw/2026-09-06-plant-lab-guided-redesign.md`

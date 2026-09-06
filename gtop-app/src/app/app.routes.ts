@@ -36,6 +36,18 @@ export const routes: Routes = [
         data: { seo: { title: 'Learning Lab | GTOP', description: 'Learn by predicting, experimenting and explaining.', robots: 'noindex, nofollow' } }
     },
     {
+        path: 'learning-lab/plants',
+        loadComponent: () => import('./pages/learning-lab/plant-lab.component').then(m => m.PlantLabComponent),
+        canActivate: [labGuard],
+        data: { seo: { title: 'Plant Reproduction Lab | GTOP', description: 'Explore flower anatomy, pollination, fertilisation, seeds and vegetative propagation.', robots: 'noindex, nofollow' } }
+    },
+    {
+        path: 'learning-lab/plants/results',
+        loadComponent: () => import('./pages/learning-lab/plant-results.component').then(m => m.PlantResultsComponent),
+        canActivate: [labGuard],
+        data: { adminOnly: true, seo: { title: 'Plant Reproduction Feedback | GTOP', robots: 'noindex, nofollow' } }
+    },
+    {
         path: 'learning-lab/current',
         loadComponent: () => import('./pages/learning-lab/current-lab.component').then(m => m.CurrentLabComponent),
         canActivate: [labGuard],

@@ -21,6 +21,10 @@ import { LearningLabService } from './learning-lab.service';
       >
     </nav>
     <article class="lesson-card">
+      <div class="plant-catalog-art" aria-hidden="true"><b>A flower.<br>A new beginning.</b><small>PLANT REPRODUCTION</small></div>
+      <div class="lesson-card-copy"><p class="eyebrow teal">FOUNDATION BIOLOGY · ABOUT 20 MINUTES</p><h2>Plant Reproduction</h2><p>Open a flower, deliver pollen, follow fertilisation, and grow a plant without seeds. Five explorations that connect the whole story.</p><ul><li>Interactive flower cutaway and development sequence</li><li>Pollination trials and a two-pot comparison</li><li>Five questions, your field notebook and saved feedback</li></ul><a class="primary-button" routerLink="/learning-lab/plants">Open Plant Reproduction →</a><p class="privacy-note">Open to every signed-in learner. Save your latest five attempts or try without saving.</p></div>
+    </article>
+    <article class="lesson-card">
       <div class="lesson-art" aria-hidden="true">
         <span>V</span><b>=</b><span>I</span><b>×</b><span>R</span
         ><small>CHANGE THE CIRCUIT. SEE THE RELATIONSHIP.</small>

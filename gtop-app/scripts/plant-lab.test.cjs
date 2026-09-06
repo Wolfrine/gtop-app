@@ -21,7 +21,7 @@ test('fertilisation remains separate from arrival and finishes at gamete fusion'
  assert.match(lesson.journey[3].text,/male gamete fuses with the egg/);
 });
 test('all five explorations and confidence are required before assessment',()=>{
- assert.throws(()=>state.changeAttempt(start(),{kind:'experiment',mission:'anatomy'},2));
+ assert.throws(()=>state.changeAttempt(start(),{kind:'experiment',mission:'unknown'},2));
  assert.throws(()=>state.changeAttempt(start(),{kind:'assessment',answers:answers(lesson.questions),confidence:3},2));
  assert.throws(()=>state.changeAttempt(finish(),{kind:'assessment',answers:answers(lesson.questions),confidence:0},4));
  const a=state.changeAttempt(finish(),{kind:'assessment',answers:answers(lesson.questions),confidence:3},4);
@@ -44,4 +44,15 @@ test('feedback is bounded, retained per lesson, and malformed history is ignored
  assert.equal(state.readHistory({lessonId:'plant-reproduction',attempts:[{...a,experiments:[]}]}).length,0);
  let history=[];for(let i=0;i<8;i++) history=state.appendAttempt(history,{...a,id:String(i)});
  assert.deepEqual(history.map(a=>a.id),['7','6','5','4','3']);
+});
+
+test('new visits start immediately, old visits remain readable, and fieldwork survives resume',()=>{
+ const a=state.newAttempt('new',{},1); assert.deepEqual(a.baseline,{});
+ let f=state.freshFieldwork(); f.opened=true; f.inspected=['anther']; f.pollenTrials=[{source:'other-plant',landing:'stigma'}];
+ const b=state.changeAttempt(a,{kind:'fieldwork',fieldwork:f},2); f.inspected.push('ovary');
+ assert.deepEqual(b.fieldwork.inspected,['anther']);
+ assert.deepEqual(state.readHistory({lessonId:'plant-reproduction',attempts:[b]})[0].fieldwork,b.fieldwork);
+ const old={...start(),version:'plant-reproduction-1.0'}; delete old.fieldwork;
+ assert.equal(state.readHistory({lessonId:'plant-reproduction',attempts:[old]}).length,1);
+ assert.throws(()=>state.changeAttempt(b,{kind:'fieldwork',fieldwork:{...b.fieldwork,journeyStage:99}},3));
 });

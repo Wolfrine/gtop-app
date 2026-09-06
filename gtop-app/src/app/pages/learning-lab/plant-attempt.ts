@@ -2,6 +2,34 @@ import { baseline, questions, missions, LESSON_VERSION } from './plant-lesson';
 
 export const MAX_ATTEMPTS = 5;
 export type Answers = Record<string, number>;
+export interface PlantFieldwork {
+  mission: number; opened: boolean; inspected: string[];
+  source: 'same-flower' | 'same-plant' | 'other-plant' | 'other-species';
+  landing: 'petal' | 'stigma';
+  pollenTrials: { source: PlantFieldwork['source']; landing: PlantFieldwork['landing'] }[];
+  journeyStage: number; fruitStage: number; dispersalOpen: boolean;
+  wind: number; windTrials: number[];
+  budA: boolean; budB: boolean; growthStage: number; comparedBuds: boolean;
+  leafOpen: boolean; leafSeen: boolean; leafPlanted: boolean;
+}
+export function freshFieldwork(): PlantFieldwork {
+  return { mission:0, opened:false, inspected:[], source:'same-flower', landing:'stigma',
+    pollenTrials:[], journeyStage:0, fruitStage:0, dispersalOpen:false, wind:0, windTrials:[],
+    budA:true, budB:false, growthStage:0, comparedBuds:false, leafOpen:false, leafSeen:false, leafPlanted:false };
+}
+export function validFieldwork(f: PlantFieldwork): boolean {
+  return !!f && Number.isInteger(f.mission) && f.mission >= 0 && f.mission < 5
+    && ['opened','dispersalOpen','budA','budB','comparedBuds','leafOpen','leafSeen','leafPlanted'].every(k => typeof (f as any)[k] === 'boolean')
+    && Array.isArray(f.inspected) && f.inspected.length <= 4 && f.inspected.every(p => ['anther','stigma','style','ovary'].includes(p))
+    && ['same-flower','same-plant','other-plant','other-species'].includes(f.source)
+    && ['petal','stigma'].includes(f.landing)
+    && Array.isArray(f.pollenTrials) && f.pollenTrials.length <= 12 && f.pollenTrials.every(t => !!t && ['same-flower','same-plant','other-plant','other-species'].includes(t.source) && ['petal','stigma'].includes(t.landing))
+    && [f.journeyStage,f.fruitStage,f.wind,f.growthStage].every(Number.isInteger)
+    && f.journeyStage >= 0 && f.journeyStage <= 3 && f.fruitStage >= 0 && f.fruitStage <= 2
+    && f.wind >= 0 && f.wind <= 2 && f.growthStage >= 0 && f.growthStage <= 2
+    && Array.isArray(f.windTrials) && f.windTrials.length <= 3 && f.windTrials.every(v => Number.isInteger(v) && v >= 0 && v <= 2);
+}
+
 export interface LabAttempt {
   id: string;
   version: string;
@@ -16,12 +44,14 @@ export interface LabAttempt {
   rating: number;
   friction: string;
   feedback: string;
+  fieldwork?: PlantFieldwork;
 }
 export interface LabHistory {
   lessonId: 'plant-reproduction';
   attempts: LabAttempt[];
 }
 export type LabChange =
+  | { kind: 'fieldwork'; fieldwork: PlantFieldwork }
   | { kind: 'prediction'; mission: string; answer: number }
   | { kind: 'experiment'; mission: string }
   | { kind: 'assessment'; answers: Answers; confidence: number }
@@ -42,13 +72,19 @@ function validAnswers(
     )
   );
 }
+function validPartialAnswers(answers: Answers, items: readonly {id:string; choices:readonly string[]}[]) {
+  return !!answers && typeof answers === 'object' && !Array.isArray(answers)
+    && Object.entries(answers).every(([id, value]) => {
+      const q = items.find(q => q.id === id);
+      return !!q && Number.isInteger(value) && value >= 0 && value < q.choices.length;
+    });
+}
 export function newAttempt(
   id: string,
   answers: Answers,
   now: number,
 ): LabAttempt {
-  if (!validAnswers(answers, baseline))
-    throw new Error('Answer both predictions first.');
+  if (!validPartialAnswers(answers, baseline)) throw new Error('Invalid initial answers.');
   return {
     id,
     version: LESSON_VERSION,
@@ -63,6 +99,7 @@ export function newAttempt(
     rating: 0,
     friction: '',
     feedback: '',
+    fieldwork: freshFieldwork(),
   };
 }
 export function appendAttempt(
@@ -81,10 +118,13 @@ export function changeAttempt(
   change: LabChange,
   now: number,
 ): LabAttempt {
-  if (attempt.version !== LESSON_VERSION)
+  if (![LESSON_VERSION, 'plant-reproduction-1.0'].includes(attempt.version))
     throw new Error('This lesson has changed. Start a new attempt.');
   const next: LabAttempt = { ...attempt, updatedAt: now };
-  if (change.kind === 'prediction') {
+  if (change.kind === 'fieldwork') {
+    if (!validFieldwork(change.fieldwork)) throw new Error('Invalid fieldwork.');
+    next.fieldwork = JSON.parse(JSON.stringify(change.fieldwork));
+  } else if (change.kind === 'prediction') {
     const mission = missions.find((m) => m.id === change.mission);
     if (
       !mission ||
@@ -99,10 +139,9 @@ export function changeAttempt(
     next.predictions = { ...attempt.predictions, [mission.id]: change.answer };
   } else if (change.kind === 'experiment') {
     if (
-      !missions.some((m) => m.id === change.mission) ||
-      attempt.predictions[change.mission] === undefined
+      !missions.some((m) => m.id === change.mission)
     )
-      throw new Error('Make your prediction first.');
+      throw new Error('Unknown exploration.');
     if (attempt.experiments.includes(change.mission)) return attempt;
     if (attempt.phase !== 'experiment')
       throw new Error('This attempt has already been checked.');
@@ -155,14 +194,14 @@ export function readHistory(value: unknown): LabAttempt[] {
         !a ||
         typeof a.id !== 'string' ||
         a.id.length > 100 ||
-        a.version !== LESSON_VERSION ||
+        ![LESSON_VERSION, 'plant-reproduction-1.0'].includes(a.version) ||
         !Number.isFinite(a.createdAt) ||
         !Number.isFinite(a.updatedAt)
       )
         return false;
       if (
         !['experiment', 'checked', 'complete'].includes(a.phase) ||
-        !validAnswers(a.baseline, baseline)
+        !validPartialAnswers(a.baseline, baseline)
       )
         return false;
       if (
@@ -187,8 +226,7 @@ export function readHistory(value: unknown): LabAttempt[] {
         !Array.isArray(a.experiments) ||
         !a.experiments.every(
           (id) =>
-            missions.some((m) => m.id === id) &&
-            a.predictions[id] !== undefined,
+            missions.some((m) => m.id === id),
         ) ||
         new Set(a.experiments).size !== a.experiments.length
       )
@@ -224,5 +262,6 @@ export function readHistory(value: unknown): LabAttempt[] {
         return false;
       return a.phase !== 'complete' || a.rating >= 1;
     })
-    .slice(0, MAX_ATTEMPTS);
+    .slice(0, MAX_ATTEMPTS)
+    .map(a => ({...a, fieldwork: validFieldwork(a.fieldwork!) ? a.fieldwork : freshFieldwork()}));
 }

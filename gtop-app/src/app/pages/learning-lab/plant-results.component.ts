@@ -79,6 +79,8 @@ export class PlantResultsComponent implements OnInit, OnDestroy {
         ).toFixed(1)
       : '—';
   }
+  paired(preId: string) { return this.checked.filter(a => a.baseline[preId] !== undefined); }
+  pairedCorrect(preId: string, id: string, answer: number, pre=false) { return this.paired(preId).filter(a => (pre ? a.baseline : a.answers)[id] === answer).length; }
   correct(id: string, answer: number, pre = false) {
     return this.checked.filter(
       (a) => (pre ? a.baseline : a.answers)[id] === answer,

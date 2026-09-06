@@ -97,7 +97,10 @@ let env;
     return { db, service: new PlantLabService() };
   };
   const learner = context("learner");
-  let a = await learner.service.start({ "pre-pollen": 1, "pre-clone": 0 });
+  let a = await learner.service.start({});
+  const fieldwork = {...a.fieldwork, opened:true, inspected:["anther"], pollenTrials:[{source:"other-species",landing:"stigma"}]};
+  await learner.service.change(a.id, {kind:"fieldwork", fieldwork});
+  assert.deepEqual((await learner.service.load())[0].fieldwork, fieldwork);
   assert.equal((await learner.service.load())[0].id, a.id);
   console.log(
     "PASS: actual service starts and restores an account-owned attempt",

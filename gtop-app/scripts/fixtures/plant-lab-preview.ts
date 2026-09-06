@@ -13,6 +13,10 @@ import { LearningLabComponent } from '../../src/app/pages/learning-lab/learning-
 import { PlantResultsComponent } from '../../src/app/pages/learning-lab/plant-results.component';
 import { LearningLabService } from '../../src/app/pages/learning-lab/learning-lab.service';
 import { PlantLabService } from '../../src/app/pages/learning-lab/plant-lab.service';
+import { AppComponent } from '../../src/app/app.component';
+import { VersionService } from '../../src/app/services/version.service';
+import { LoggingService } from '../../src/app/services/logging.service';
+import { SeoService } from '../../src/app/services/seo.service';
 import {
   Answers,
   LabChange,
@@ -25,6 +29,8 @@ import {
 // Use the real landing/profile components so their navigation lifecycle is exercised.
 const previewUser = new BehaviorSubject<any>(null);
 const previewAuth = {
+  initGoogleOneTap: () => {},
+  signOut: async () => previewUser.next(null),
   getUser: () => previewUser.asObservable(),
   signInWithGoogle: async () =>
     previewUser.next({
@@ -60,7 +66,8 @@ class PreviewStore {
     return true;
   }
   async start(answers: Answers) {
-    const a = newAttempt(crypto.randomUUID(), answers, Date.now());
+    // The supervised HTTP preview is not a secure context. Production uses HTTPS.
+    const a = newAttempt(`qa-${Date.now()}-${this.history.length}`, answers, Date.now());
     this.history = appendAttempt(this.history, a);
     this.persist();
     return a;
@@ -95,10 +102,13 @@ class PreviewStore {
   template: `<div style="max-width:1280px;margin:auto"><router-outlet /></div>`,
 })
 class PreviewApp {}
-bootstrapApplication(PreviewApp, {
+bootstrapApplication(AppComponent, {
   providers: [
     provideNoopAnimations(),
     { provide: AuthService, useValue: previewAuth },
+    { provide: VersionService, useValue: { firestoreVersion: () => '1.2.21' } },
+    { provide: LoggingService, useValue: {} },
+    { provide: SeoService, useValue: { update: () => {} } },
     { provide: SyllabusService, useValue: { syllabus$: of([]) } },
     { provide: PlantLabService, useClass: PreviewStore },
     { provide: LearningLabService, useValue: { isAdmin: async () => true } },

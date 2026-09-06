@@ -1,5 +1,5 @@
 import { Question } from './lesson';
-export const LESSON_VERSION = 'plant-reproduction-1.0';
+export const LESSON_VERSION = 'plant-reproduction-2.0';
 export const baseline: Question[] = [
   { id: 'pre-pollen', topic: 'Pollination', prompt: 'A bee leaves pollen on a petal. Has pollination happened?', choices: ['Yes, anywhere on the flower counts', 'No, pollen must reach the stigma', 'I’m not sure yet'], answer: 1, explanation: 'Pollination is the transfer of pollen from an anther to a stigma.' },
   { id: 'pre-clone', topic: 'Vegetative propagation', prompt: 'Can a new potato plant grow without planting a seed?', choices: ['Yes, from a tuber piece with a bud', 'No, every new plant needs a seed', 'I’m not sure yet'], answer: 0, explanation: 'A potato tuber is a modified stem. Its eyes contain buds that can grow into shoots.' },

@@ -1,0 +1,55 @@
+name: GTOP MCP access
+
+on:
+  push:
+    branches: [codex/gtop-mcp-access]
+    paths:
+      - 'tools/gtop-mcp-runner/request.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gtop-mcp-access
+  cancel-in-progress: false
+
+jobs:
+  request:
+    if: github.repository == 'Wolfrine/gtop-app' && !github.event.created && !github.event.deleted && !github.event.forced
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: firebase-live-backend
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/gtop-mcp/package-lock.json
+      - name: Validate MCP and client
+        working-directory: tools/gtop-mcp
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npm test
+          npm run build
+          node --test ../gtop-mcp-runner/client.test.mjs
+      - name: Authenticate using existing Firebase deployment identity
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+      - name: Execute the committed MCP request
+        env:
+          GTOP_FIREBASE_PROJECT_ID: gtop-app
+          GTOP_MCP_ACTOR: '${{ github.actor }} through GTOP MCP'
+          GTOP_MCP_TASK_REF: '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+        run: node tools/gtop-mcp-runner/client.mjs tools/gtop-mcp-runner/request.json gtop-mcp-results/result.json
+      - name: Save private MCP results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gtop-mcp-result-${{ github.run_id }}
+          path: gtop-mcp-results/result.json
+          if-no-files-found: warn
+          retention-days: 1

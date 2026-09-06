@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "requestId": "20260906-initial-access-01",
+  "purpose": "Verify user-requested autonomous GTOP MCP access through the existing authenticated deployment runner.",
+  "expiresAt": "2026-09-06T18:00:00Z",
+  "mode": "read",
+  "kind": "call",
+  "calls": [
+    { "name": "app_version_get", "arguments": {} },
+    { "name": "action_plan_list", "arguments": { "limit": 5 } }
+  ]
+}

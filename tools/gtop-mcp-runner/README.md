@@ -35,3 +35,13 @@ From `tools/gtop-mcp`, run `npm ci --ignore-scripts`, `npm test`, `npm run build
 ## Boundaries
 
 This is an asynchronous MCP execution route through GitHub Actions. It does not register a native ChatGPT plugin. Each request incurs CI startup time. Success requires repository workflow-write access, an eligible backend environment, and a Firebase identity with the permissions required by the requested tools. An access denial must be reported; never weaken those controls to complete setup.
+
+## Verified live access: 2026-09-06
+
+- [Initial live read](https://github.com/Wolfrine/gtop-app/actions/runs/34015312335): MCP discovery, `Meta/version`, and a bounded Action Plan sample returned successfully to the chat.
+- [Work tracking and collection discovery](https://github.com/Wolfrine/gtop-app/actions/runs/34015480435): created the canonical access activity and listed 22 root collections.
+- [Live CRUD verification](https://github.com/Wolfrine/gtop-app/actions/runs/34015497836): created, updated, read and deleted one temporary connection-check document; the final MCP read returned null.
+- 23 existing MCP tests and 6 adapter tests passed. An independent checker reviewed the adapter and confirmed its artifact, replay and partial-result fixes.
+- Action Plan activity: `DibQKrPtHfkTl9xOiTC6`.
+
+The GitHub artifact download tool returns an authenticated file reference. Use its exact `file_id` and `file_name` with the supported file materialization workflow to retrieve bytes into the chat workspace. This route was verified; directly fetching the signed download URL from the shell returned HTTP 403 in this environment. Do not weaken network or repository access controls to retrieve results.

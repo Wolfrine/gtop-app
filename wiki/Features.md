@@ -40,7 +40,7 @@ The founder's Plant Reproduction review accepted the overall direction while fin
 
 Concrete visual direction for Learning Lab must follow inspection of the rendered experience and its interactions. The founder explicitly rejected a source-only assessment. The subsequent visual review found a phone opening without a visible specimen and an anatomy activity that separated the flower, controls and completion action across scrolling regions. Future quality judgments must consider what the learner can actually see while acting, including whether the consequence remains visible. An isolated visual preview establishes evidence about the lesson it renders; it does not establish the live account journey or the complete production shell.
 
-The founder has now authorized the Plant Reproduction redesign around independent exploration. A learner should be able to act immediately, see a meaningful consequence, understand the next move and try alternatives without losing discoveries. Predictions can support reflection without blocking the first experiment. Magnification should make otherwise invisible processes understandable, while a field notebook preserves the relationship between actions and outcomes. This direction does not yet establish unaided usability or improved learning; those remain questions for actual learner observation.
+The founder has now authorized the Plant Reproduction redesign around independent exploration. A learner should be able to act immediately, see a meaningful consequence, understand the next move and try alternatives without losing discoveries. Predictions can support reflection without blocking the first experiment. Magnification should make otherwise invisible processes understandable, while a field notebook preserves the relationship between actions and outcomes. The founder subsequently judged the redesigned version better and accepted it for release. This confirms progress against the experience goal; unaided usability and learning benefit still require actual learner evidence.
 
 ## Question Flagging
 
@@ -82,3 +82,5 @@ The product distinction matters: Live Quiz is admin/host-oriented; Quiz Run shou
 - `raw/2026-09-06-plant-lab-visual-verification.md`
 
 - `raw/2026-09-06-plant-lab-guided-redesign.md`
+
+- `raw/2026-09-06-plant-lab-release-acceptance.md`

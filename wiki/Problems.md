@@ -42,9 +42,14 @@ GTOP needs to decide how it will compete and remain useful as AI-native educatio
 
 A working, more structured interface can remain visually ordinary. The founder's review identified excess explanatory and motivational copy, too little imagery, and a lack of intuitive visual design and memorable effects. More words should not compensate for a weak composition. GTOP needs an inviting visual experience alongside the dependable [[Practice Loop]], and incremental release acceptance must not erase that unfinished product goal.
 
+## Independent Exploration Can Still Feel Empty
+
+The Plant Reproduction review exposed a gap between having activities and making them discoverable. The founder struggled to identify the next action and what else he could try, despite liking the overall direction. He expects this friction to be more discouraging for young students working alone. Learning Lab in [[Features]] must make actions, consequences and useful alternatives visible while preserving the learner's progress through curious detours. More instructions or decorative imagery alone cannot establish that experience. Founder feedback is direct evidence of his difficulty; student abandonment and the effectiveness of proposed redesigns remain unmeasured.
+
 ## Source Notes
 
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
 - `raw/2026-09-05-visual-review-release-approval.md`
+- `raw/2026-09-06-plant-lab-experience-review.md`

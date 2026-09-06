@@ -162,3 +162,13 @@ Use it to answer:
 - Durable memory captured: Plant Reproduction as a complete next lesson, accurate interactive biology and botanical visual direction, account-linked feedback, and delivering the requested experience before future analysis. Learner value and founder aesthetic acceptance remain unmeasured.
 - Acceptance: existing product map and strategic anchors are unchanged; the feature page preserves the new request and its rationale. The June research note remains outside this scope.
 - Project Manager Handoff: complete development delivery and learner/admin acceptance; retain the cancellation of the unwanted scheduled feedback task. Action Plan backfill remains subject to authenticated admin access and the previously documented actionPlans permission blocker.
+
+### 2026-09-06 - Plant Lab Experience Review
+
+- Raw note: `raw/2026-09-06-plant-lab-experience-review.md`
+- Status: processed
+- Wiki pages updated: `wiki/Features.md`, `wiki/Problems.md`
+- Durable memory captured: founder accepts overall direction but finds next actions and alternatives unclear; independent discovery, visible consequences, coherent art and continuity are quality requirements. Possible child abandonment is a concern, not a measured result. Agent redesign proposals remain unapproved.
+- Acceptance: Home and Intent still explain the product; Decisions and Problems preserve strategic anchors and the new usability tension. Proposed direction and unmeasured learner outcomes remain distinct. Implementation details stay in the raw review.
+- Prior research note remains needs-follow-up and outside this scope.
+- Project Manager Handoff: share the source-based diagnosis and proposed experience direction first. A potential next step is one complete opening exploration demonstrating guidance, art, replay and mobile usability, followed by representative learner observation. No redesign implementation or scheduled task was created in this review.

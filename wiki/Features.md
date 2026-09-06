@@ -36,6 +36,8 @@ A lesson is ready for learners only when they can reach it through normal GTOP s
 
 The founder selected Plant Reproduction as the next complete lesson: examine a flower, test pollen delivery, follow fertilisation and seed development, and compare vegetative propagation. Botanical imagery should invite exploration while accurate diagrams and observable outcomes carry the teaching. Predictions, experiments, explanations and feedback remain the lesson structure; its value to learners still needs evidence. A request to create a lab must result in the usable learning experience. Scheduling a future feedback review does not fulfill that request.
 
+The founder's Plant Reproduction review accepted the overall direction while finding next actions and opportunities to try alternatives unclear. Young students should be able to start, progress and discover worthwhile experiments without an adult explaining the interface. Guidance, visual response and art must be designed together: an attractive background and completable activities do not establish an intuitive lesson. The concern that children may abandon the experience remains a hypothesis until observed with learners; successful scripted completion is not evidence of unaided discovery.
+
 ## Question Flagging
 
 Question flagging lets students report potential MCQ issues and gives admins a signal for content review. It connects learner feedback to [[Question Bank Quality]].
@@ -72,3 +74,4 @@ The product distinction matters: Live Quiz is admin/host-oriented; Quiz Run shou
 - `raw/2026-09-05-v1-ui-review.md`
 
 - `raw/2026-09-06-plant-reproduction-lab.md`
+- `raw/2026-09-06-plant-lab-experience-review.md`

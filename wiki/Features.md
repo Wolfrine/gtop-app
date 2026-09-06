@@ -38,6 +38,8 @@ The founder selected Plant Reproduction as the next complete lesson: examine a f
 
 The founder's Plant Reproduction review accepted the overall direction while finding next actions and opportunities to try alternatives unclear. Young students should be able to start, progress and discover worthwhile experiments without an adult explaining the interface. Guidance, visual response and art must be designed together: an attractive background and completable activities do not establish an intuitive lesson. The concern that children may abandon the experience remains a hypothesis until observed with learners; successful scripted completion is not evidence of unaided discovery.
 
+Concrete visual direction for Learning Lab must follow inspection of the rendered experience and its interactions. The founder explicitly rejected a source-only assessment. The subsequent visual review found a phone opening without a visible specimen and an anatomy activity that separated the flower, controls and completion action across scrolling regions. Future quality judgments must consider what the learner can actually see while acting, including whether the consequence remains visible. An isolated visual preview establishes evidence about the lesson it renders; it does not establish the live account journey or the complete production shell.
+
 ## Question Flagging
 
 Question flagging lets students report potential MCQ issues and gives admins a signal for content review. It connects learner feedback to [[Question Bank Quality]].
@@ -75,3 +77,4 @@ The product distinction matters: Live Quiz is admin/host-oriented; Quiz Run shou
 
 - `raw/2026-09-06-plant-reproduction-lab.md`
 - `raw/2026-09-06-plant-lab-experience-review.md`
+- `raw/2026-09-06-plant-lab-visual-verification.md`

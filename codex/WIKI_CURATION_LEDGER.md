@@ -172,3 +172,13 @@ Use it to answer:
 - Acceptance: Home and Intent still explain the product; Decisions and Problems preserve strategic anchors and the new usability tension. Proposed direction and unmeasured learner outcomes remain distinct. Implementation details stay in the raw review.
 - Prior research note remains needs-follow-up and outside this scope.
 - Project Manager Handoff: share the source-based diagnosis and proposed experience direction first. A potential next step is one complete opening exploration demonstrating guidance, art, replay and mobile usability, followed by representative learner observation. No redesign implementation or scheduled task was created in this review.
+
+### 2026-09-06 - Plant Lab Visual Verification
+
+- Raw note: `raw/2026-09-06-plant-lab-visual-verification.md`
+- Status: processed
+- Wiki pages updated: `wiki/Features.md`
+- Durable memory captured: concrete visual assessment requires rendered inspection; source review alone was rejected. The phone entry lacked a visible specimen, and anatomy separated actions and visual consequences across scrolling regions.
+- Acceptance: existing Home, Intent, Decisions and Problems retain the strategic context. The feature page distinguishes actual preview observations from unverified live account and full-shell behavior. Proposed redesign remains unapproved.
+- Project Manager Handoff: use the observed screen composition, controls and state failures to revise the proposed experience. Keep subsequent active-scene, guidance, artwork and magnification work subject to actual desktop and phone review. No lesson redesign was delivered in this turn.
+- Prior research curation remains outside this scope.

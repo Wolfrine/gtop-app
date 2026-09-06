@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "requestId": "20260906-live-crud-check-03",
+  "purpose": "Verify user-authorized live Firestore create, update, read and delete access through MCP, using only a temporary connection-check document and cleaning it up.",
+  "expiresAt": "2026-09-06T18:00:00Z",
+  "mode": "write",
+  "kind": "verify"
+}

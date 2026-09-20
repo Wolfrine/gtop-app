@@ -29,7 +29,7 @@ export function createHttpApp(options: {
     const id = String(req.query.request || '');
     const pending = await provider.pending(id);
     const nonce = randomBytes(18).toString('base64url');
-    res.set('Content-Security-Policy', `default-src 'none'; script-src 'nonce-${nonce}' https://www.gstatic.com; style-src 'nonce-${nonce}'; connect-src 'self' https://*.googleapis.com https://*.firebaseapp.com; frame-src https://*.firebaseapp.com https://accounts.google.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'`);
+    res.set('Content-Security-Policy', `default-src 'none'; script-src 'nonce-${nonce}' https://www.gstatic.com https://apis.google.com; style-src 'nonce-${nonce}'; connect-src 'self' https://*.googleapis.com https://*.firebaseapp.com; frame-src https://*.firebaseapp.com https://accounts.google.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'`);
     const config = JSON.stringify(options.firebaseConfig).replace(/</g,'\\u003c');
     const requestId = JSON.stringify(id).replace(/</g,'\\u003c');
     res.type('html').send(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Connect GTOP Firestore</title>

@@ -70,6 +70,17 @@ service cloud.firestore {
       }
     }
 
+    match /paperModule/{id} { allow read, write: if admin(); }
+    match /paperTemplates/{id} { allow read, write: if admin(); }
+    match /paperBlueprints/{id} { allow read, write: if admin(); }
+    match /paperDrafts/{id} { allow read, write: if admin(); }
+    match /questionTypeTaxonomy/{id} { allow read, write: if admin(); }
+    match /questionBankPriorities/{id} { allow read, write: if admin(); }
+    match /questionBankPriorityItems/{id} { allow read, write: if admin(); }
+    match /questionBankAgentInstructions/{id} { allow read, write: if admin(); }
+    match /devQuestions/{id} { allow read, write: if admin(); }
+    match /Agents/{id} { allow read, write: if admin(); }
+
     match /activity/{id} { allow read, write: if admin(); }
     match /mcpAuditLog/{id} { allow read: if admin(); allow write: if false; }
     match /Meta/{id} { allow read: if true; allow write: if admin(); }

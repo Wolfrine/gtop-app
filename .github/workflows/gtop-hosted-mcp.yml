@@ -1,7 +1,7 @@
 name: GTOP hosted MCP
 on:
   push:
-    branches: [codex/gtop-hosted-mcp]
+    branches: [main, codex/gtop-hosted-mcp]
     paths: ['tools/gtop-mcp/**', '.github/workflows/gtop-hosted-mcp.yml']
   workflow_dispatch:
 permissions:
@@ -14,96 +14,58 @@ jobs:
     runs-on: ubuntu-latest
     environment: firebase-live-backend
     timeout-minutes: 20
+    env:
+      PROJECT: gtop-app
+      REGION: us-central1
+      SERVICE: gtop-firestore-mcp
+      PUBLIC_ORIGIN: https://gtop-firestore-mcp-78765581239.us-central1.run.app
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/gtop-mcp/package-lock.json
+      - name: Build and test authentication and tools
+        working-directory: tools/gtop-mcp
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+          npm test
+      - name: Build service container
+        run: docker build -t "us-central1-docker.pkg.dev/$PROJECT/gcf-artifacts/$SERVICE:$GITHUB_SHA" tools/gtop-mcp
       - uses: google-github-actions/auth@v2
         id: auth
         with:
           credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           token_format: access_token
           access_token_scopes: https://www.googleapis.com/auth/cloud-platform
-      - name: Inspect hosted MCP deployment permissions
+      - name: Verify OAuth storage is isolated from Firebase clients
         env:
-          GOOGLE_ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
-        run: |
-          python3 - <<'PY'
-          import json, os, urllib.request
-          base = 'https://cloudresourcemanager.googleapis.com/v1/projects/gtop-app:testIamPermissions'
-          permissions = [
-            'run.services.create', 'run.services.update', 'run.services.get',
-            'run.services.setIamPolicy', 'cloudbuild.builds.create',
-            'serviceusage.services.enable', 'iam.serviceAccounts.create',
-            'resourcemanager.projects.setIamPolicy', 'firebaseauth.configs.get',
-            'firebaseauth.configs.update', 'artifactregistry.repositories.create'
-          ]
-          req = urllib.request.Request(base, data=json.dumps({'permissions': permissions}).encode(),
-            headers={'Authorization': 'Bearer ' + os.environ['GOOGLE_ACCESS_TOKEN'], 'Content-Type':'application/json'})
-          with urllib.request.urlopen(req) as response:
-            granted = json.load(response).get('permissions', [])
-          print(json.dumps({'granted': granted, 'missing': sorted(set(permissions)-set(granted))}, indent=2))
-          PY
-      - name: Inspect existing deployment resources
+          ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
+        run: python3 tools/gtop-mcp/scripts/check-auth-isolation.py
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Push versioned service image
         env:
-          GOOGLE_ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
+          ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
         run: |
-          python3 - <<'PY'
-          import json, os, urllib.request, urllib.error
-          token = os.environ['GOOGLE_ACCESS_TOKEN']
-          credentials = json.load(open(os.environ['GOOGLE_APPLICATION_CREDENTIALS']))
-          email = credentials.get('client_email')
-          print('Deployment identity:', email)
-          targets = {
-            'services': 'https://run.googleapis.com/v2/projects/gtop-app/locations/-/services',
-            'repositories': 'https://artifactregistry.googleapis.com/v1/projects/gtop-app/locations/us-central1/repositories',
-            'accounts': 'https://iam.googleapis.com/v1/projects/gtop-app/serviceAccounts',
-            'enabled_apis': 'https://serviceusage.googleapis.com/v1/projects/78765581239/services?filter=state:ENABLED&pageSize=200',
-            'project': 'https://cloudresourcemanager.googleapis.com/v1/projects/gtop-app',
-          }
-          for label, url in targets.items():
-            req = urllib.request.Request(url, headers={'Authorization': 'Bearer '+token})
-            try:
-              with urllib.request.urlopen(req) as response: data=json.load(response)
-              if label == 'services': data=[{'name':x['name'],'uri':x.get('uri'),'account':x.get('template',{}).get('serviceAccount')} for x in data.get('services',[])]
-              if label == 'repositories': data=[{'name':x['name'],'format':x.get('format')} for x in data.get('repositories',[])]
-              if label == 'accounts': data=[{'email':x['email'],'disabled':x.get('disabled',False)} for x in data.get('accounts',[])]
-              if label == 'enabled_apis': data=[x.get('config',{}).get('name') for x in data.get('services',[])]
-              print(label+': '+json.dumps(data))
-            except urllib.error.HTTPError as e:
-              print(label+': '+str(e.code)+' '+e.read().decode()[:2000])
-          PY
-      - name: Inspect existing GTOP MCP service and runtime permissions
+          printf '%s' "$ACCESS_TOKEN" | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
+          docker push "us-central1-docker.pkg.dev/$PROJECT/gcf-artifacts/$SERVICE:$GITHUB_SHA"
+      - name: Deploy authenticated MCP server
+        run: |
+          gcloud run deploy "$SERVICE" \
+            --project="$PROJECT" --region="$REGION" \
+            --image="us-central1-docker.pkg.dev/$PROJECT/gcf-artifacts/$SERVICE:$GITHUB_SHA" \
+            --service-account=78765581239-compute@developer.gserviceaccount.com \
+            --set-env-vars="GTOP_FIREBASE_PROJECT_ID=$PROJECT,GTOP_MCP_PUBLIC_URL=$PUBLIC_ORIGIN" \
+            --allow-unauthenticated --ingress=all --port=8080 \
+            --memory=512Mi --cpu=1 --min-instances=0 --max-instances=3 \
+            --concurrency=40 --timeout=120 --quiet
+      - name: Register service origin with Firebase Authentication
         env:
-          GOOGLE_ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
+          ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
         run: |
-          python3 - <<'PY'
-          import json, os, urllib.request, urllib.error
-          token=os.environ['GOOGLE_ACCESS_TOKEN']
-          def call(url, payload=None):
-            req=urllib.request.Request(url, data=json.dumps(payload).encode() if payload is not None else None, headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'})
-            try:
-              with urllib.request.urlopen(req,timeout=20) as r: return json.load(r)
-            except urllib.error.HTTPError as e: return {'status':e.code,'error':e.read().decode()[:1500]}
-          service=call('https://run.googleapis.com/v2/projects/gtop-app/locations/us-central1/services/gtopmcp')
-          print('service_metadata: '+json.dumps({k:service.get(k) for k in ['name','uri','labels','creator','lastModifier','createTime','updateTime','buildConfig']}))
-          print('service_containers: '+json.dumps([{'image':c.get('image'),'env_keys':[e['name'] for e in c.get('env',[])]} for c in service.get('template',{}).get('containers',[])]))
-          for email in ['78765581239-compute@developer.gserviceaccount.com','firebase-adminsdk-fbsvc@gtop-app.iam.gserviceaccount.com']:
-            print('act_as '+email+': '+json.dumps(call('https://iam.googleapis.com/v1/projects/gtop-app/serviceAccounts/'+email+':testIamPermissions', {'permissions':['iam.serviceAccounts.actAs']})))
-          for path in ['/health','/.well-known/oauth-authorization-server','/.well-known/oauth-protected-resource/mcp']:
-            url='https://gtopmcp-7nsfmwaeeq-uc.a.run.app'+path
-            try:
-              with urllib.request.urlopen(url,timeout=20) as r: print('endpoint '+path+': '+str(r.status)+' '+r.read(3000).decode())
-            except Exception as e: print('endpoint '+path+': '+str(e))
-          PY
-      - name: Inspect deployed Firestore auth-storage isolation
-        env:
-          GOOGLE_ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
+          python3 tools/gtop-mcp/scripts/register-domain.py
+      - name: Verify public discovery and authentication boundary
         run: |
-          python3 - <<'PY'
-          import json, os, urllib.request
-          headers={'Authorization':'Bearer '+os.environ['GOOGLE_ACCESS_TOKEN']}
-          def get(url):
-            with urllib.request.urlopen(urllib.request.Request(url,headers=headers)) as r: return json.load(r)
-          release=get('https://firebaserules.googleapis.com/v1/projects/gtop-app/releases/cloud.firestore')
-          rules=get('https://firebaserules.googleapis.com/v1/'+release['rulesetName'])
-          for source in rules['source']['files']: print('DEPLOYED_RULES '+source['name']+'\n'+source['content'])
-          PY
+          python3 tools/gtop-mcp/scripts/verify-deployment.py

@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { applicationDefault, getApps, initializeApp } from "firebase-admin/app";
 import {
   FieldPath,
@@ -25,15 +24,16 @@ const projectId =
   process.env["GTOP_FIREBASE_PROJECT_ID"] ||
   process.env["GOOGLE_CLOUD_PROJECT"] ||
   "gtop-app";
-const actor = process.env["GTOP_MCP_ACTOR"] || "Codex agent";
-const taskReference = process.env["GTOP_MCP_TASK_REF"] || "unattributed-task";
 const app =
   getApps()[0] ??
   initializeApp({ credential: applicationDefault(), projectId });
 const db = getFirestore(app);
 
+export function createMcpServer(context: { actor?: string; taskReference?: string } = {}) {
+const actor = context.actor || process.env["GTOP_MCP_ACTOR"] || "Codex agent";
+const taskReference = context.taskReference || process.env["GTOP_MCP_TASK_REF"] || "unattributed-task";
 const server = new McpServer(
-  { name: "gtop-firestore", version: "1.0.0" },
+  { name: "gtop-firestore", version: "1.1.0" },
   {
     instructions:
       "Use action_plan tools for GTOP delivery coordination before generic Firestore tools. Generic writes affect live production data. Read before writing, use update-time preconditions, keep queries bounded, and attach the active branch, PR, commit, or task reference to progress updates.",
@@ -462,7 +462,7 @@ server.registerTool(
     const collections = documentPath
       ? await db.doc(assertDocumentPath(documentPath)).listCollections()
       : await db.listCollections();
-    return json(collections.map((item) => item.path));
+    return json(collections.map((item) => item.path).filter((path) => !path.startsWith("_gtopMcpAuth")));
   },
 );
 
@@ -726,5 +726,6 @@ server.registerTool(
   },
 );
 
-const transport = new StdioServerTransport();
-await server.connect(transport);
+return server;
+}
+

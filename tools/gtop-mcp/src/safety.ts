@@ -3,7 +3,8 @@ export const MAX_BATCH_WRITES = 20;
 
 export function assertDocumentPath(path: string): string {
   const normalized = path.trim().replace(/^\/+|\/+$/g, '');
-  const parts = normalized.split('/').filter(Boolean);
+  const parts = normalized.split('/');
+  if (parts.some((part) => !part) || parts[0] === '_gtopMcpAuth') throw new Error('Invalid or reserved Firestore path.');
   if (!normalized || parts.length % 2 !== 0) throw new Error('A document path must have an even number of non-empty segments.');
   if (parts.some((part) => part === '.' || part === '..')) throw new Error('Relative path segments are not allowed.');
   return normalized;
@@ -11,7 +12,8 @@ export function assertDocumentPath(path: string): string {
 
 export function assertCollectionPath(path: string): string {
   const normalized = path.trim().replace(/^\/+|\/+$/g, '');
-  const parts = normalized.split('/').filter(Boolean);
+  const parts = normalized.split('/');
+  if (parts.some((part) => !part) || parts[0] === '_gtopMcpAuth') throw new Error('Invalid or reserved Firestore path.');
   if (!normalized || parts.length % 2 !== 1) throw new Error('A collection path must have an odd number of non-empty segments.');
   if (parts.some((part) => part === '.' || part === '..')) throw new Error('Relative path segments are not allowed.');
   return normalized;
@@ -31,3 +33,4 @@ export function assertBatchSize(values: unknown[]): void {
   if (!values.length) throw new Error('A batch must contain at least one write.');
   if (values.length > MAX_BATCH_WRITES) throw new Error(`A batch may contain at most ${MAX_BATCH_WRITES} writes.`);
 }
+

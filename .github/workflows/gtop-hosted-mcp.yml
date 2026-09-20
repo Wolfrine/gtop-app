@@ -57,7 +57,7 @@ jobs:
             --project="$PROJECT" --region="$REGION" \
             --image="us-central1-docker.pkg.dev/$PROJECT/gcf-artifacts/$SERVICE:$GITHUB_SHA" \
             --service-account=78765581239-compute@developer.gserviceaccount.com \
-            --set-env-vars="GTOP_FIREBASE_PROJECT_ID=$PROJECT,GTOP_MCP_PUBLIC_URL=$PUBLIC_ORIGIN" \
+            --set-env-vars="GTOP_FIREBASE_PROJECT_ID=$PROJECT,GTOP_MCP_PUBLIC_URL=$PUBLIC_ORIGIN,GTOP_MCP_ADMIN_EMAILS=schttewary@gmail.com" \
             --allow-unauthenticated --ingress=all --port=8080 \
             --memory=512Mi --cpu=1 --min-instances=0 --max-instances=3 \
             --concurrency=40 --timeout=120 --quiet

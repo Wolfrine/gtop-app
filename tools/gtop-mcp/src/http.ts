@@ -11,9 +11,11 @@ const parsed = new URL(configured);
 if (parsed.protocol !== 'https:' || parsed.origin !== configured) throw new Error('GTOP_MCP_PUBLIC_URL must be a canonical HTTPS origin');
 const db = getFirestore();
 const auth = getAuth();
+const allowedEmails = new Set((process.env['GTOP_MCP_ADMIN_EMAILS'] || '').split(',').map(email => email.trim().toLowerCase()).filter(Boolean));
+if (!allowedEmails.size) throw new Error('GTOP_MCP_ADMIN_EMAILS must explicitly identify authorized administrators');
 const checkAdmin = async (uid: string, authenticatedAt: number) => {
   const [user, profile] = await Promise.all([auth.getUser(uid), db.doc(`users/${uid}`).get()]);
-  if (user.disabled || profile.get('role') !== 'admin' || Date.parse(user.tokensValidAfterTime || '1970-01-01T00:00:00Z') / 1000 > authenticatedAt) {
+  if (!user.email || !allowedEmails.has(user.email.toLowerCase()) || user.disabled || profile.get('role') !== 'admin' || Date.parse(user.tokensValidAfterTime || '1970-01-01T00:00:00Z') / 1000 > authenticatedAt) {
     throw new Error('Active administrator access required');
   }
 };

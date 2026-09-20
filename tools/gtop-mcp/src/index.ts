@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { applicationDefault, getApps, initializeApp } from "firebase-admin/app";
 import {
@@ -729,3 +731,8 @@ server.registerTool(
 return server;
 }
 
+// Preserve existing clients that launch dist/index.js directly.
+if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+  const { StdioServerTransport } = await import("@modelcontextprotocol/sdk/server/stdio.js");
+  await createMcpServer().connect(new StdioServerTransport());
+}

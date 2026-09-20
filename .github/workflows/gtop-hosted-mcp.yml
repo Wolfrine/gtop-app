@@ -42,3 +42,32 @@ jobs:
             granted = json.load(response).get('permissions', [])
           print(json.dumps({'granted': granted, 'missing': sorted(set(permissions)-set(granted))}, indent=2))
           PY
+      - name: Inspect existing deployment resources
+        env:
+          GOOGLE_ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error
+          token = os.environ['GOOGLE_ACCESS_TOKEN']
+          credentials = json.load(open(os.environ['GOOGLE_APPLICATION_CREDENTIALS']))
+          email = credentials.get('client_email')
+          print('Deployment identity:', email)
+          targets = {
+            'services': 'https://run.googleapis.com/v2/projects/gtop-app/locations/-/services',
+            'repositories': 'https://artifactregistry.googleapis.com/v1/projects/gtop-app/locations/-/repositories',
+            'accounts': 'https://iam.googleapis.com/v1/projects/gtop-app/serviceAccounts',
+            'enabled_apis': 'https://serviceusage.googleapis.com/v1/projects/78765581239/services?filter=state:ENABLED&pageSize=200',
+            'project': 'https://cloudresourcemanager.googleapis.com/v1/projects/gtop-app',
+          }
+          for label, url in targets.items():
+            req = urllib.request.Request(url, headers={'Authorization': 'Bearer '+token})
+            try:
+              with urllib.request.urlopen(req) as response: data=json.load(response)
+              if label == 'services': data=[{'name':x['name'],'uri':x.get('uri'),'account':x.get('template',{}).get('serviceAccount')} for x in data.get('services',[])]
+              if label == 'repositories': data=[{'name':x['name'],'format':x.get('format')} for x in data.get('repositories',[])]
+              if label == 'accounts': data=[{'email':x['email'],'disabled':x.get('disabled',False)} for x in data.get('accounts',[])]
+              if label == 'enabled_apis': data=[x.get('config',{}).get('name') for x in data.get('services',[])]
+              print(label+': '+json.dumps(data))
+            except urllib.error.HTTPError as e:
+              print(label+': '+str(e.code)+' '+e.read().decode()[:2000])
+          PY

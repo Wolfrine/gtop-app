@@ -54,7 +54,7 @@ jobs:
           print('Deployment identity:', email)
           targets = {
             'services': 'https://run.googleapis.com/v2/projects/gtop-app/locations/-/services',
-            'repositories': 'https://artifactregistry.googleapis.com/v1/projects/gtop-app/locations/-/repositories',
+            'repositories': 'https://artifactregistry.googleapis.com/v1/projects/gtop-app/locations/us-central1/repositories',
             'accounts': 'https://iam.googleapis.com/v1/projects/gtop-app/serviceAccounts',
             'enabled_apis': 'https://serviceusage.googleapis.com/v1/projects/78765581239/services?filter=state:ENABLED&pageSize=200',
             'project': 'https://cloudresourcemanager.googleapis.com/v1/projects/gtop-app',
@@ -70,4 +70,27 @@ jobs:
               print(label+': '+json.dumps(data))
             except urllib.error.HTTPError as e:
               print(label+': '+str(e.code)+' '+e.read().decode()[:2000])
+          PY
+      - name: Inspect existing GTOP MCP service and runtime permissions
+        env:
+          GOOGLE_ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error
+          token=os.environ['GOOGLE_ACCESS_TOKEN']
+          def call(url, payload=None):
+            req=urllib.request.Request(url, data=json.dumps(payload).encode() if payload is not None else None, headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'})
+            try:
+              with urllib.request.urlopen(req,timeout=20) as r: return json.load(r)
+            except urllib.error.HTTPError as e: return {'status':e.code,'error':e.read().decode()[:1500]}
+          service=call('https://run.googleapis.com/v2/projects/gtop-app/locations/us-central1/services/gtopmcp')
+          print('service_metadata: '+json.dumps({k:service.get(k) for k in ['name','uri','labels','creator','lastModifier','createTime','updateTime','buildConfig']}))
+          print('service_containers: '+json.dumps([{'image':c.get('image'),'env_keys':[e['name'] for e in c.get('env',[])]} for c in service.get('template',{}).get('containers',[])]))
+          for email in ['78765581239-compute@developer.gserviceaccount.com','firebase-adminsdk-fbsvc@gtop-app.iam.gserviceaccount.com']:
+            print('act_as '+email+': '+json.dumps(call('https://iam.googleapis.com/v1/projects/gtop-app/serviceAccounts/'+email+':testIamPermissions', {'permissions':['iam.serviceAccounts.actAs']})))
+          for path in ['/health','/.well-known/oauth-authorization-server','/.well-known/oauth-protected-resource/mcp']:
+            url='https://gtopmcp-7nsfmwaeeq-uc.a.run.app'+path
+            try:
+              with urllib.request.urlopen(url,timeout=20) as r: print('endpoint '+path+': '+str(r.status)+' '+r.read(3000).decode())
+            except Exception as e: print('endpoint '+path+': '+str(e))
           PY

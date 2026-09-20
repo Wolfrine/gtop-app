@@ -10,7 +10,7 @@ for path in ['/health', '/.well-known/oauth-authorization-server', '/.well-known
         body = json.load(response)
         assert response.status == 200
         if path.endswith('oauth-authorization-server'):
-            assert body['issuer'] == origin
+            assert body['issuer'] == origin + '/'
             assert body['code_challenge_methods_supported'] == ['S256']
         if path.endswith('oauth-protected-resource/mcp'):
             assert body['resource'] == origin + '/mcp'

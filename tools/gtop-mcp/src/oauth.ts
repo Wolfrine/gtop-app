@@ -95,13 +95,13 @@ export class GtopOAuthProvider implements OAuthServerProvider {
     const base = { clientId: grant.clientId, uid: grant.uid, email: grant.email,
       authenticatedAt: grant.authenticatedAt, scopes: this.scopes(scopes || grant.scopes as string[]), sessionId,
       resource: this.resource };
-    const writes = [
+    const writes: { kind: string; key: string; value: RecordValue }[] = [
       { kind: 'access', key: access, value: { ...base, expiresAt: now() + ACCESS_SECONDS } },
       { kind: 'refresh', key: refresh, value: { ...base, expiresAt: Number(session.expiresAt) } },
       // Retain the hash of each refresh grant until session expiry so replay revokes the family.
       { kind: 'spent', key, value: { sessionId, clientId: client.client_id, expiresAt: Number(session.expiresAt) } },
     ];
-    if (kind === 'codes') writes.push({ kind: 'sessions', key: sessionId, value: session as any });
+    if (kind === 'codes') writes.push({ kind: 'sessions', key: sessionId, value: session });
     try { await this.store.consume(kind, key, validate, writes); }
     catch { throw new InvalidGrantError('Grant already used or no longer valid'); }
     return { access_token: access, refresh_token: refresh, token_type: 'Bearer', expires_in: ACCESS_SECONDS, scope: base.scopes.join(' ') };

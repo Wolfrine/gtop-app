@@ -1,0 +1,44 @@
+name: GTOP hosted MCP
+on:
+  push:
+    branches: [codex/gtop-hosted-mcp]
+    paths: ['tools/gtop-mcp/**', '.github/workflows/gtop-hosted-mcp.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gtop-hosted-mcp-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: firebase-live-backend
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        id: auth
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+      - name: Inspect hosted MCP deployment permissions
+        env:
+          GOOGLE_ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          base = 'https://cloudresourcemanager.googleapis.com/v1/projects/gtop-app:testIamPermissions'
+          permissions = [
+            'run.services.create', 'run.services.update', 'run.services.get',
+            'run.services.setIamPolicy', 'cloudbuild.builds.create',
+            'serviceusage.services.enable', 'iam.serviceAccounts.create',
+            'resourcemanager.projects.setIamPolicy', 'firebaseauth.configs.get',
+            'firebaseauth.configs.update', 'artifactregistry.repositories.create'
+          ]
+          req = urllib.request.Request(base, data=json.dumps({'permissions': permissions}).encode(),
+            headers={'Authorization': 'Bearer ' + os.environ['GOOGLE_ACCESS_TOKEN'], 'Content-Type':'application/json'})
+          with urllib.request.urlopen(req) as response:
+            granted = json.load(response).get('permissions', [])
+          print(json.dumps({'granted': granted, 'missing': sorted(set(permissions)-set(granted))}, indent=2))
+          PY

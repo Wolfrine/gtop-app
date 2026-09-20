@@ -131,6 +131,14 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/admin.pages').then((m) => m.QuestionBankPage),
       },
       {
+        path: 'question-paper-generator',
+        title: 'Question paper generator · GTOP',
+        loadComponent: () =>
+          import('./pages/question-paper-generator.page').then(
+            (m) => m.QuestionPaperGeneratorPage,
+          ),
+      },
+      {
         path: 'syllabus',
         title: 'Syllabus · GTOP',
         loadComponent: () => import('./pages/admin.pages').then((m) => m.SyllabusAdminPage),

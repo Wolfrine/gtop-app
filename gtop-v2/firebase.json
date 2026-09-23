@@ -6,6 +6,10 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "headers": [
         {
+          "source": "**",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache,no-store,must-revalidate" }]
+        },
+        {
           "source": "/**/*.@(js|css)",
           "headers": [{ "key": "Cache-Control", "value": "public,max-age=31536000,immutable" }]
         },
@@ -14,7 +18,7 @@
           "headers": [{ "key": "Cache-Control", "value": "no-cache,no-store,must-revalidate" }]
         },
         {
-          "source": "/version.json",
+          "source": "/@(version.json|ngsw.json|ngsw-worker.js)",
           "headers": [{ "key": "Cache-Control", "value": "no-cache,no-store,must-revalidate" }]
         }
       ],
@@ -26,6 +30,10 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "headers": [
         {
+          "source": "**",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache,no-store,must-revalidate" }]
+        },
+        {
           "source": "/**/*.@(js|css)",
           "headers": [{ "key": "Cache-Control", "value": "public,max-age=31536000,immutable" }]
         },
@@ -34,7 +42,7 @@
           "headers": [{ "key": "Cache-Control", "value": "no-cache,no-store,must-revalidate" }]
         },
         {
-          "source": "/version.json",
+          "source": "/@(version.json|ngsw.json|ngsw-worker.js)",
           "headers": [{ "key": "Cache-Control", "value": "no-cache,no-store,must-revalidate" }]
         }
       ],
@@ -46,6 +54,10 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "headers": [
         {
+          "source": "**",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache,no-store,must-revalidate" }]
+        },
+        {
           "source": "/**/*.@(js|css)",
           "headers": [{ "key": "Cache-Control", "value": "public,max-age=31536000,immutable" }]
         },
@@ -54,7 +66,7 @@
           "headers": [{ "key": "Cache-Control", "value": "no-cache,no-store,must-revalidate" }]
         },
         {
-          "source": "/version.json",
+          "source": "/@(version.json|ngsw.json|ngsw-worker.js)",
           "headers": [{ "key": "Cache-Control", "value": "no-cache,no-store,must-revalidate" }]
         }
       ],

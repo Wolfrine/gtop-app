@@ -13,7 +13,9 @@ import { environment } from '../../environments/environment';
 import { PersistenceState } from './models';
 
 const useEmulators =
-  typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('emulator');
+  typeof window !== 'undefined' &&
+  ['localhost', '127.0.0.1'].includes(window.location.hostname) &&
+  new URLSearchParams(window.location.search).has('emulator');
 const app = initializeApp(environment.firebase);
 const auth = getAuth(app);
 const firestore = initializeFirestore(app, {

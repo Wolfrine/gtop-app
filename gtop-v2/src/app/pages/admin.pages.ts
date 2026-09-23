@@ -110,6 +110,18 @@ export class AdminDashboardPage implements OnInit, OnDestroy {
       path: '/admin/questions',
     },
     {
+      kicker: 'Quality',
+      title: 'Review questions',
+      copy: 'Check draft answers and explanations before adding them to student practice.',
+      path: '/admin/question-review',
+    },
+    {
+      kicker: 'Assessment',
+      title: 'Question papers',
+      copy: 'Choose a syllabus, check coverage and build a reusable paper with its answer key.',
+      path: '/admin/question-paper-generator',
+    },
+    {
       kicker: 'Curriculum',
       title: 'Syllabus coverage',
       copy: 'Preview, edit and synchronize curriculum.',

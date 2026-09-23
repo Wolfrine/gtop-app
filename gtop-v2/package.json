@@ -9,7 +9,7 @@
     "build:uat": "ng build --configuration uat",
     "watch": "ng build --watch --configuration development",
     "test": "vitest run --exclude src/**/*.rules.test.ts",
-    "test:rules": "npx firebase-tools@15 emulators:exec --only firestore --project demo-gtop \"vitest run src/app/core/firestore.rules.test.ts\"",
+    "test:rules": "npx firebase-tools@15 emulators:exec --only firestore --project demo-gtop \"vitest run src/app/core/firestore.rules.test.ts src/app/core/paper-access.rules.test.ts\"",
     "test:database-rules": "npx firebase-tools@15 emulators:exec --only database --project demo-gtop \"vitest run src/app/core/database.rules.test.ts\"",
     "test:watch": "vitest",
     "e2e": "npx firebase-tools@15 emulators:exec --only auth,firestore,database --project gtop-app \"npm run e2e:browser\"",

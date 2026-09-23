@@ -17,7 +17,9 @@ export class PresenceService {
   constructor(private readonly firebase: FirebaseClient) {
     this.database = import('firebase/database').then(({ getDatabase, connectDatabaseEmulator }) => {
       const db = getDatabase(firebase.app);
-      if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('emulator'))
+      if (typeof window !== 'undefined' &&
+          ['localhost', '127.0.0.1'].includes(location.hostname) &&
+          new URLSearchParams(location.search).has('emulator'))
         connectDatabaseEmulator(db, '127.0.0.1', 9000);
       return db;
     });

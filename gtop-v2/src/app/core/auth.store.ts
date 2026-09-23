@@ -66,8 +66,11 @@ export class AuthStore {
         .finally(() => (this.emulatorSignInPending = false));
   }
 
-  ready(): Promise<AuthState> {
-    return this.readyPromise;
+  async ready(): Promise<AuthState> {
+    // The promise gates initial restoration only. Sign-in, sign-out and role
+    // changes must use the current state rather than the first resolved value.
+    await this.readyPromise;
+    return this.state();
   }
 
   async signIn(): Promise<GtopUser | null> {
@@ -200,7 +203,9 @@ export class AuthStore {
         createdOn: serverTimestamp(),
       });
     } else {
-      await setDoc(
+      // Session readiness depends on the stored role, not on this best-effort login audit.
+      // Firestore queues offline writes, so awaiting this can strand a restored session.
+      void setDoc(
         ref,
         {
           lastLogin: serverTimestamp(),
@@ -209,7 +214,7 @@ export class AuthStore {
           photoURL: user.photoURL ?? existing['photoURL'] ?? null,
         },
         { merge: true },
-      );
+      ).catch((error) => this.diagnostics.captureError('auth', 'Login details could not be refreshed.', error));
     }
     return this.toProfile(user, existing);
   }

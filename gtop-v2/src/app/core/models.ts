@@ -178,7 +178,7 @@ export interface AppUpdateState {
   phase: AppUpdatePhase;
   currentVersion?: string;
   currentCommit?: string;
-  channel?: 'local' | 'uat' | 'production';
+  channel?: 'local' | 'dev' | 'uat' | 'production';
   requiredVersion?: string;
   requiredCommit?: string;
   error?: string;

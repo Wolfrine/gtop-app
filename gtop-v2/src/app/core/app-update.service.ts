@@ -98,7 +98,7 @@ export class AppUpdateService {
     }));
   }
 
-  private releaseChannel(value: unknown): 'local' | 'uat' | 'production' {
-    return value === 'uat' || value === 'production' ? value : 'local';
+  private releaseChannel(value: unknown): 'local' | 'dev' | 'uat' | 'production' {
+    return value === 'dev' || value === 'uat' || value === 'production' ? value : 'local';
   }
 }

@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { filter } from 'rxjs';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, signal } from '@angular/core';
+import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { environment } from '../environments/environment';
 import { AppUpdateService } from './core/app-update.service';
 import { DiagnosticsService } from './core/diagnostics.service';
@@ -33,15 +33,47 @@ import { AppDialogComponent } from './shared/app-dialog.component';
         ><button type="button" (click)="updates.install()">Install app</button>
       </div>
     }
+    @if (navigationError()) {
+      <main class="startup-message" role="alert">
+        <p class="eyebrow">Growth Tutorials</p>
+        <h1>GTOP could not open this page.</h1>
+        <p>Your saved work is safe. Check your connection and try again.</p>
+        <div class="button-row">
+          <button class="btn btn-primary" type="button" (click)="reload()">Reload GTOP</button>
+          <a class="btn btn-secondary" href="/">Go to home</a>
+        </div>
+      </main>
+    } @else if (navigating()) {
+      <div class="startup-message" role="status" aria-live="polite">
+        <p class="eyebrow">Growth Tutorials</p>
+        <h1>Opening GTOP…</h1>
+        <p>Loading your workspace. This may take a moment on a slower connection.</p>
+        @if (slowNavigation()) {
+          <p>This is taking longer than usual. Check your connection, then try again.</p>
+          <div class="button-row">
+            <button class="btn btn-primary" type="button" (click)="reload()">Reload GTOP</button>
+            <a class="btn btn-secondary" href="/">Go to home</a>
+          </div>
+        }
+      </div>
+    }
     <router-outlet />
     <app-dialog />
     <app-diagnostics-panel />
   `,
+  styles: `.startup-message { max-width: 660px; margin: 12vh auto; padding: 24px; }
+    .startup-message h1 { font-size: clamp(25px, 5vw, 40px); }
+    .startup-message p { line-height: 1.6; }`,
 })
 export class App implements AfterViewInit, OnDestroy {
   @ViewChild('chromeStack', { static: true }) private chromeStack?: ElementRef<HTMLElement>;
   protected readonly uat = environment.uat;
+  readonly navigating = signal(true);
+  readonly navigationError = signal(false);
+  readonly slowNavigation = signal(false);
+  private navigationTimer?: ReturnType<typeof setTimeout>;
   private chromeObserver?: ResizeObserver;
+  private readonly navigationSubscription: Subscription;
 
   constructor(
     readonly diagnostics: DiagnosticsService,
@@ -49,11 +81,34 @@ export class App implements AfterViewInit, OnDestroy {
     readonly meta: PlatformMetaService,
     router: Router,
   ) {
-    router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe((event) =>
-        diagnostics.capture('info', 'system', 'Navigation completed.', event.urlAfterRedirects),
-      );
+    this.startNavigation();
+    this.navigationSubscription = router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.startNavigation();
+      } else if (event instanceof NavigationEnd) {
+        clearTimeout(this.navigationTimer);
+        this.navigating.set(false);
+        diagnostics.capture('info', 'system', 'Navigation completed.', event.urlAfterRedirects);
+      } else if (event instanceof NavigationError) {
+        clearTimeout(this.navigationTimer);
+        this.navigating.set(false);
+        this.navigationError.set(true);
+        diagnostics.captureError('system', 'Page navigation failed.', event.error);
+      } else if (event instanceof NavigationCancel) {
+        clearTimeout(this.navigationTimer);
+        this.navigating.set(false);
+      }
+    });
+  }
+
+  reload(): void { location.reload(); }
+
+  private startNavigation(): void {
+    clearTimeout(this.navigationTimer);
+    this.navigating.set(true);
+    this.navigationError.set(false);
+    this.slowNavigation.set(false);
+    this.navigationTimer = setTimeout(() => this.slowNavigation.set(true), 10_000);
   }
 
   ngAfterViewInit(): void {
@@ -70,6 +125,8 @@ export class App implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    clearTimeout(this.navigationTimer);
+    this.navigationSubscription.unsubscribe();
     this.chromeObserver?.disconnect();
     document.documentElement.style.removeProperty('--app-chrome-height');
   }

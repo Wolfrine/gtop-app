@@ -398,6 +398,20 @@ export class AdminShellComponent {
       mobilePlacement: 'drawer',
     },
     {
+      label: 'Review questions',
+      path: '/admin/question-review',
+      icon: '✓',
+      group: 'Content',
+      mobilePlacement: 'drawer',
+    },
+    {
+      label: 'Question papers',
+      path: '/admin/question-paper-generator',
+      icon: '▤',
+      group: 'Content',
+      mobilePlacement: 'drawer',
+    },
+    {
       label: 'Syllabus',
       path: '/admin/syllabus',
       icon: '▦',

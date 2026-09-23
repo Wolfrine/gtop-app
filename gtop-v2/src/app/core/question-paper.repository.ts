@@ -1,270 +1,140 @@
 import { Injectable } from '@angular/core';
 import {
-  addDoc,
-  collection,
-  getDocs,
-  limit,
-  query,
-  serverTimestamp,
-  where,
+  addDoc, collection, doc, getDoc, getDocs, limit, orderBy, query,
+  serverTimestamp, startAfter, where, writeBatch,
+  type DocumentData, type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import { FirebaseClient } from './firebase';
-import { Question, SyllabusItem } from './models';
+import { SyllabusItem } from './models';
+import {
+  chapterKey, isUsableQuestion, normalizeQuestion, strings, textValue, validatePaperDraft,
+  type ChapterScope, type CoverageGap, type PaperDraftPayload,
+  type PaperGenerationSetup, type QuestionBankResult, type QuestionPaperTemplate,
+  type SavedPaperDraft,
+} from './question-paper.domain';
 
-export interface QuestionPaperTemplateSection {
-  id?: string;
-  title?: string;
-  name?: string;
-  questionType?: string;
-  type?: string;
-  questionTypes?: string[];
-  difficulty?: string;
-  competencyTags?: string[];
-  requiredCount?: number;
-  questionCount?: number;
-  count?: number;
-  marks?: number;
-  marksPerQuestion?: number;
-  perQuestionMarks?: number;
-}
-
-export interface QuestionPaperTemplate {
-  id: string;
-  name?: string;
-  title?: string;
-  description?: string;
-  board?: string;
-  standard?: string;
-  subjects?: string[];
-  subject?: string;
-  marks?: number;
-  totalMarks?: number;
-  durationMinutes?: number;
-  sections?: QuestionPaperTemplateSection[];
-  blueprint?: { sections?: QuestionPaperTemplateSection[] };
-}
-
-export interface NormalizedQuestion extends Question {
-  questionType: string;
-  difficulty: string;
-  competencyTags: string[];
-  marks: number;
-  status?: string;
-}
-
-export interface GeneratedPaperQuestion {
-  questionId: string;
-  title: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  solutions: string[];
-  board: string;
-  standard: string;
-  subject: string;
-  chapter: string;
-  questionType: string;
-  difficulty: string;
-  competencyTags: string[];
-  marks: number;
-}
-
-export interface GeneratedPaperSection {
-  id: string;
-  title: string;
-  questionType: string;
-  difficulty: string;
-  requiredCount: number;
-  marksPerQuestion: number;
-  competencyTags: string[];
-  questions: GeneratedPaperQuestion[];
-}
-
-export interface CoverageGap {
-  sectionId: string;
-  sectionTitle: string;
-  questionType: string;
-  difficulty: string;
-  competencyTags: string[];
-  requiredCount: number;
-  availableCount: number;
-  gapCount: number;
-}
-
-export interface PaperGenerationSetup {
-  board: string;
-  standard: string;
-  subjects: string[];
-  chapters: string[];
-  marks: number;
-  durationMinutes: number;
-  templateId: string;
-  templateName: string;
-}
-
-export interface PaperDraftPayload {
-  schemaVersion: number;
-  status: 'draft';
-  board: string;
-  standard: string;
-  primarySubject: string;
-  subjects: string[];
-  chapters: string[];
-  marks: number;
-  durationMinutes: number;
-  templateId: string;
-  templateName: string;
-  sections: GeneratedPaperSection[];
-  coverage: {
-    availableQuestionCount: number;
-    requiredQuestionCount: number;
-    gapCount: number;
-    gaps: CoverageGap[];
-  };
-  createdBy: string;
-  updatedBy: string;
-}
+export * from './question-paper.domain';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionPaperRepository {
   constructor(private readonly firebase: FirebaseClient) {}
 
   async syllabus(): Promise<SyllabusItem[]> {
-    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'syllabus'), limit(1000)));
-    return snapshot.docs
-      .map((item) => ({ id: item.id, ...item.data() }) as SyllabusItem)
-      .sort((a, b) =>
-        `${a.board}|${a.standard}|${a.subject}|${a.chapter}`.localeCompare(
-          `${b.board}|${b.standard}|${b.subject}|${b.chapter}`,
-        ),
-      );
+    const items: SyllabusItem[] = [];
+    let cursor: QueryDocumentSnapshot<DocumentData> | undefined;
+    // Fetch every page: an arbitrary first-page cap can hide entire board/standard options.
+    for (let page = 0; page < 12; page++) {
+      const snapshot = await getDocs(query(collection(this.firebase.firestore, 'syllabus'),
+        ...(cursor ? [startAfter(cursor)] : []), limit(500)));
+      items.push(...snapshot.docs.map((item) => {
+        const raw = item.data();
+        return { id: item.id, board: textValue(raw['board']), standard: textValue(raw['standard']),
+          subject: textValue(raw['subject']), chapter: textValue(raw['chapter']), mcqCount: Number(raw['mcqCount']) || 0 };
+      }).filter((item) => item.board && item.standard && item.subject && item.chapter));
+      if (snapshot.size < 500) return items.sort((a, b) =>
+        `${a.board}|${a.standard}|${a.subject}|${a.chapter}`.localeCompare(`${b.board}|${b.standard}|${b.subject}|${b.chapter}`));
+      cursor = snapshot.docs.at(-1);
+    }
+    throw new Error('The syllabus is too large to load completely. Please ask support to narrow the syllabus catalogue.');
   }
 
   async templates(): Promise<QuestionPaperTemplate[]> {
-    try {
-      const snapshot = await getDocs(query(collection(this.firebase.firestore, 'paperTemplates'), limit(50)));
-      return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as QuestionPaperTemplate);
-    } catch {
-      return [];
-    }
+    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'paperTemplates'), limit(100)));
+    return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as QuestionPaperTemplate)
+      .filter((item) => !item.status || item.status === 'active')
+      .sort((a, b) => (a.title ?? a.name ?? a.id).localeCompare(b.title ?? b.name ?? b.id));
   }
 
-  async approvedQuestions(
-    board: string,
-    standard: string,
-    subjects: string[],
-    chapters: string[],
-  ): Promise<NormalizedQuestion[]> {
-    const snapshot = await getDocs(
-      query(
-        collection(this.firebase.firestore, 'questions'),
-        where('board', '==', board),
-        where('standard', '==', standard),
-        limit(1200),
-      ),
-    );
-    const subjectSet = new Set(subjects);
-    const chapterSet = new Set(chapters);
-    return snapshot.docs
-      .map((item) => this.normalizeQuestion({ id: item.id, ...item.data() } as Question))
-      .filter((item) => subjectSet.size === 0 || subjectSet.has(item.subject))
-      .filter((item) => chapterSet.size === 0 || chapterSet.has(item.chapter))
-      .filter((item) => !item.status || ['active', 'approved', 'published'].includes(item.status));
+  async approvedQuestions(board: string, standard: string, scopes: ChapterScope[]): Promise<QuestionBankResult> {
+    const result: QuestionBankResult = { questions: [], truncatedScopes: [], excludedCount: 0 };
+    const unique = [...new Map(scopes.map((scope) => [chapterKey(scope), scope])).values()];
+    if (!unique.length || unique.length > 60) throw new Error('Select between 1 and 60 chapters.');
+    let nextScope = 0;
+    // Each query is restricted to a selected subject/chapter before its limit is applied.
+    // Four workers bound both read concurrency and UI memory pressure for full-portion papers.
+    const worker = async (): Promise<void> => {
+      while (nextScope < unique.length) {
+        const scope = unique[nextScope++];
+        let cursor: QueryDocumentSnapshot<DocumentData> | undefined;
+        for (let page = 0; page < 4; page++) {
+          const snapshot = await getDocs(query(collection(this.firebase.firestore, 'questions'),
+            where('board', '==', board), where('standard', '==', standard),
+            where('subject', '==', scope.subject), where('chapter', '==', scope.chapter),
+            ...(cursor ? [startAfter(cursor)] : []), limit(page === 3 ? 501 : 500)));
+          for (const item of snapshot.docs.slice(0, 500)) {
+            const question = normalizeQuestion(item.id, item.data());
+            if (isUsableQuestion(question)) result.questions.push(question);
+            else result.excludedCount++;
+          }
+          if (page === 3 && snapshot.size > 500) result.truncatedScopes.push(scope);
+          if (snapshot.size < 500) break;
+          cursor = snapshot.docs.at(-1);
+        }
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(4, unique.length) }, () => worker()));
+    return result;
   }
 
   async saveDraft(payload: PaperDraftPayload): Promise<string> {
+    // Firestore rejects undefined values and documents above 1 MiB. Fail before writing a partial paper.
+    if (!payload.createdBy || payload.createdBy === 'admin') throw new Error('Sign in again before saving this paper.');
+    const validation = validatePaperDraft(payload);
+    if (validation) throw new Error(validation);
+    if (!payload.sections.some((section) => section.questions.length)) throw new Error('Add questions before saving.');
+    if (new TextEncoder().encode(JSON.stringify(payload)).length > 850_000) {
+      throw new Error('This paper is too large to save as one draft. Reduce the number of questions.');
+    }
     const created = await addDoc(collection(this.firebase.firestore, 'paperDrafts'), {
-      ...payload,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+      ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     });
     return created.id;
   }
 
-  async createPriorityItems(
-    setup: PaperGenerationSetup,
-    gaps: CoverageGap[],
-    actorId: string,
-  ): Promise<number> {
-    let created = 0;
-    for (const gap of gaps.slice(0, 50)) {
-      await addDoc(collection(this.firebase.firestore, 'questionBankPriorityItems'), {
-        board: setup.board,
-        standard: setup.standard,
-        subjects: setup.subjects,
-        primarySubject: setup.subjects[0] ?? '',
-        chapters: setup.chapters,
-        questionType: gap.questionType,
-        competencyTags: gap.competencyTags,
-        difficulty: gap.difficulty,
-        requiredCount: gap.requiredCount,
-        availableCount: gap.availableCount,
-        gapCount: gap.gapCount,
-        priority: gap.gapCount >= 10 ? 'critical' : gap.gapCount >= 5 ? 'high' : 'medium',
-        status: 'open',
-        source: 'admin-question-paper-generator',
-        sourceTemplateId: setup.templateId,
-        sourceTemplateName: setup.templateName,
-        assignedAgent: null,
-        createdBy: actorId,
-        updatedBy: actorId,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      created++;
+  async recentDrafts(): Promise<SavedPaperDraft[]> {
+    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'paperDrafts'), orderBy('createdAt', 'desc'), limit(20)));
+    return snapshot.docs.map((item) => ({ ...item.data(), id: item.id, subjects: strings(item.data()['subjects']) }) as SavedPaperDraft);
+  }
+
+  async draft(id: string): Promise<SavedPaperDraft> {
+    if (!id || id.includes('/')) throw new Error('This saved paper could not be found.');
+    const snapshot = await getDoc(doc(this.firebase.firestore, 'paperDrafts', id));
+    if (!snapshot.exists()) throw new Error('This saved paper could not be found.');
+    const raw = snapshot.data();
+    if (raw['schemaVersion'] !== 2 || !Array.isArray(raw['sections']) || !Array.isArray(raw['rules']) ||
+      !Array.isArray(raw['subjects']) || !Array.isArray(raw['chapterScopes']) || !raw['coverage']) {
+      throw new Error('This older draft does not include a complete section plan. Generate a fresh draft to use the updated paper builder.');
     }
-    return created;
+    const draft = { ...raw, id: snapshot.id } as SavedPaperDraft;
+    const validation = validatePaperDraft(draft);
+    if (validation) throw new Error(validation);
+    return draft;
   }
 
-  private normalizeQuestion(raw: Question): NormalizedQuestion {
-    const record = raw as unknown as Record<string, unknown>;
-    const questionText = String(raw.question ?? '');
-    const title = String(raw.title ?? '');
-    const inferredType = this.inferQuestionType(questionText || title);
-    const competencyTags = this.arrayOfStrings(record['competencyTags'] ?? record['tags']);
-    const status = this.optionalString(record['status']);
-    return {
-      ...raw,
-      questionType: this.normalizeType(
-        this.optionalString(record['questionType']) ||
-          this.optionalString(record['type']) ||
-          this.optionalString(record['question_type']) ||
-          inferredType,
-      ),
-      difficulty:
-        this.optionalString(record['difficulty']) ||
-        this.optionalString(record['level']) ||
-        'standard',
-      competencyTags,
-      marks: this.numberValue(record['marks'], 1),
-      status,
-    };
-  }
-
-  private inferQuestionType(text: string): string {
-    const value = text.toLowerCase();
-    if (value.includes('assertion') && value.includes('reason')) return 'assertion_reason';
-    if (value.includes('case') || value.includes('passage')) return 'case_based';
-    if (value.includes('diagram') || value.includes('figure')) return 'diagram_based';
-    if (value.includes('experiment') || value.includes('observation')) return 'experiment_based';
-    return 'mcq';
-  }
-
-  private normalizeType(value: string): string {
-    return value.trim().toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_') || 'mcq';
-  }
-
-  private optionalString(value: unknown): string {
-    return typeof value === 'string' ? value.trim() : '';
-  }
-
-  private arrayOfStrings(value: unknown): string[] {
-    if (!Array.isArray(value)) return [];
-    return value.map((item) => String(item).trim()).filter(Boolean);
-  }
-
-  private numberValue(value: unknown, fallback: number): number {
-    const numeric = Number(value);
-    return Number.isFinite(numeric) && numeric > 0 ? numeric : fallback;
+  async createPriorityItems(setup: PaperGenerationSetup, gaps: CoverageGap[], actorId: string): Promise<number> {
+    if (!actorId || actorId === 'admin') throw new Error('Sign in again before requesting questions.');
+    if (gaps.length > 450) throw new Error('Reduce the number of sections or chapters before requesting questions.');
+    const batch = writeBatch(this.firebase.firestore);
+    for (const gap of gaps) {
+      batch.set(doc(collection(this.firebase.firestore, 'questionBankPriorityItems')), {
+        board: setup.board, standard: setup.standard,
+        subjects: [gap.subject], primarySubject: gap.subject, subject: gap.subject,
+        chapters: [gap.chapter], chapter: gap.chapter,
+        questionType: gap.questionTypes.find((type) => type !== 'any' && type !== 'mixed') ?? 'mcq',
+        questionTypes: gap.questionTypes, acceptableQuestionTypes: gap.questionTypes,
+        ...(gap.typeRequirements ? { typeRequirements: gap.typeRequirements } : {}),
+        competencyTags: gap.competencyTags, difficulty: gap.difficulty,
+        requiredCount: gap.requiredCount, availableCount: gap.availableCount, gapCount: gap.gapCount,
+        marksPerQuestion: gap.marksPerQuestion,
+        priority: gap.gapCount >= 10 ? 'critical' : gap.gapCount >= 5 ? 'high' : 'medium',
+        status: 'open', source: 'admin-question-paper-generator',
+        sourceTemplateId: setup.templateId, sourceTemplateName: setup.templateName,
+        sourceSectionId: gap.sectionId, sourceSectionTitle: gap.sectionTitle,
+        assignedAgent: null, createdBy: actorId, updatedBy: actorId,
+        createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+      });
+    }
+    await batch.commit();
+    return gaps.length;
   }
 }

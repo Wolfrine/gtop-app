@@ -131,6 +131,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/admin.pages').then((m) => m.QuestionBankPage),
       },
       {
+        path: 'question-review',
+        title: 'Question review · GTOP',
+        loadComponent: () => import('./pages/question-review.page').then((m) => m.QuestionReviewPage),
+      },
+      {
         path: 'question-paper-generator',
         title: 'Question paper generator · GTOP',
         loadComponent: () =>

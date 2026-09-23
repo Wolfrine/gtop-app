@@ -37,6 +37,7 @@ import {
       <section class="qpg-format-section" aria-labelledby="format-heading">
         <div class="section-head"><div><p class="eyebrow">Step 1 · paper format</p><h2 id="format-heading">What are you preparing?</h2>
           <p class="muted">Choose a format to start with a section plan. You can adjust question counts and marks below.</p></div></div>
+        <p class="qpg-swipe-hint">Swipe to explore all paper formats →</p>
         <div class="qpg-format-layout">
           <div class="qpg-format-grid" role="group" aria-label="Paper formats">
             @for (format of paperFormatOptions; track format.id) {

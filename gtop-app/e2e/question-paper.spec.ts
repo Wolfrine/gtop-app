@@ -200,6 +200,9 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   await expect(page.getByText('Saved paper opened', { exact: true })).toBeVisible();
   await expect(page.locator('.qpg-paper').getByText('Motion easy: which statement is correct?', { exact: false })).toBeVisible();
   await expectNoHorizontalOverflow(page);
+  if (await page.evaluate(() => innerWidth <= 640)) {
+    expect(await page.locator('.qpg-format-grid').evaluate(element => element.scrollWidth > element.clientWidth)).toBe(true);
+  }
   await page.getByRole('heading', { name: 'Question paper generator', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('saved-paper.png'), fullPage: true });
   await page.getByRole('button', { name: 'Use setup for a new paper', exact: true }).click();

@@ -37,7 +37,7 @@ export const PAPER_EXAMPLES: Record<string, PaperExample> = {
     answer: 's = ut + ½gt² = 0 + ½ × 10 × 2² = 20 m.',
   },
   integrated_multi_subject_paper: {
-    id: 'integrated_multi_subject_paper', family: 'Integrated', description: 'A tuition practice paper with separate Physics, Chemistry and Biology sections.',
+    id: 'integrated_multi_subject_paper', family: 'Integrated', description: 'A tuition practice paper combining Physics, Chemistry and Biology questions.',
     questionType: 'Integrated short answer', curriculum: 'Class 12 · Physics, Chemistry & Biology', marks: 3,
     question: 'A pond sample has pH 5 and contains fish. A 12 V pump draws 0.5 A to aerate it. (a) Calculate the pump power. (b) Classify the water by pH. (c) Why do the fish need dissolved oxygen?',
     answer: '(a) P = VI = 12 × 0.5 = 6 W. (b) It is acidic. (c) Fish use dissolved oxygen for aerobic respiration.',

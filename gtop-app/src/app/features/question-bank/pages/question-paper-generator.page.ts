@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { PAPER_EXAMPLES, type PaperExample } from '../core/question-paper.examples';
 import { SyllabusItem } from '../core/models';
 import {
   buildGenerationRules, chapterKey, createPaperPlan, paperPrintHtml, ruleMarks,
@@ -29,6 +30,45 @@ import {
           <button class="btn btn-secondary" type="button" [disabled]="loading" (click)="loadInitialData()">Refresh</button>
         </div>
       </div>
+      <nav class="qpg-journey" aria-label="Paper workflow">
+        <span><b>01</b> Choose format</span><span><b>02</b> Set syllabus</span>
+        <span><b>03</b> Check coverage</span><span><b>04</b> Preview & save</span>
+      </nav>
+      <section class="qpg-format-section" aria-labelledby="format-heading">
+        <div class="section-head"><div><p class="eyebrow">Step 1 · paper format</p><h2 id="format-heading">What are you preparing?</h2>
+          <p class="muted">Choose a format to start with a section plan. You can adjust question counts and marks below.</p></div></div>
+        <div class="qpg-format-layout">
+          <div class="qpg-format-grid" role="group" aria-label="Paper formats">
+            @for (format of paperFormatOptions; track format.id) {
+              <button type="button" class="qpg-format-option" [class.selected]="templateId === format.id"
+                [attr.aria-pressed]="templateId === format.id" [disabled]="loading || loadedSnapshot"
+                (click)="choosePaperFormat(format.id)">
+                <span class="qpg-format-family">{{ format.family }}</span>
+                <strong>{{ format.title }}</strong>
+                <span class="qpg-format-description">{{ format.description }}</span>
+                <span class="qpg-format-selected" aria-hidden="true">{{ templateId === format.id ? 'Selected ✓' : 'View sample →' }}</span>
+              </button>
+            }
+          </div>
+          <aside class="qpg-example" aria-live="polite" aria-label="Selected paper format sample">
+            @if (selectedSample; as sample) {
+              <div class="qpg-example-top"><span>EXAMPLE / {{ sample.family }}</span><span>{{ sample.marks }} {{ sample.marks === 1 ? 'mark' : 'marks' }}</span></div>
+              <p class="qpg-example-scope">{{ sample.curriculum }} · {{ sample.questionType }}</p>
+              <p class="qpg-example-question">{{ sample.question }}</p>
+              @if (sample.options?.length) {
+                <ol type="A" class="qpg-example-options">@for (option of sample.options; track option) { <li>{{ option }}</li> }</ol>
+              } @else { <div class="qpg-example-lines" aria-hidden="true"><i></i><i></i><i></i></div> }
+              <button type="button" class="qpg-answer-toggle" (click)="showSampleAnswer = !showSampleAnswer"
+                [attr.aria-expanded]="showSampleAnswer">{{ showSampleAnswer ? 'Hide model answer' : 'Show model answer' }}</button>
+              @if (showSampleAnswer) { <p class="qpg-example-answer">{{ sample.answer }}</p> }
+              <p class="qpg-example-footnote">Illustration only · availability is checked against approved questions.</p>
+            } @else {
+              <p class="qpg-example-scope">Custom template</p>
+              <p>This template has no prepared example yet. Its section plan is shown below.</p>
+            }
+          </aside>
+        </div>
+      </section>
       @if (errorMessage) { <div class="card qpg-error" role="alert">{{ errorMessage }}</div> }
       @if (templateWarning) { <div class="card qpg-warning" role="status">{{ templateWarning }}</div> }
       @if (loading) { <p class="qpg-status" role="status">{{ loadingMessage }}</p> }
@@ -40,7 +80,7 @@ import {
       }
 
       <section class="section" aria-labelledby="setup-heading">
-        <div class="section-head"><div><p class="eyebrow">Step 1</p><h2 id="setup-heading">Set up your paper</h2></div></div>
+        <div class="section-head"><div><p class="eyebrow">Step 2 · syllabus & sections</p><h2 id="setup-heading">Choose what to cover</h2></div></div>
         <fieldset class="card qpg-card qpg-fieldset" [disabled]="loading || loadedSnapshot">
           <legend class="qpg-sr-only">Paper setup</legend>
           <label>Paper title<input type="text" maxlength="140" [(ngModel)]="title" (ngModelChange)="onSetupChange()" /></label>
@@ -102,7 +142,7 @@ import {
       </section>
 
       <section class="section" aria-labelledby="coverage-heading">
-        <div class="section-head"><div><p class="eyebrow">Step 2</p><h2 id="coverage-heading">Question availability</h2></div>
+        <div class="section-head"><div><p class="eyebrow">Step 3 · coverage</p><h2 id="coverage-heading">Check the question bank</h2></div>
           @if (coverageChecked) { <span class="pill" [class.success]="!totalGapCount" [class.warning]="totalGapCount > 0">{{ totalGapCount ? totalGapCount + ' more needed' : 'Ready to prepare' }}</span> }
         </div>
         @if (!coverageChecked) { <div class="card muted-card">Choose the chapters and check availability to see whether your paper can be completed.</div> }
@@ -134,7 +174,7 @@ import {
       </section>
 
       <section class="section" aria-labelledby="preview-heading">
-        <div class="section-head"><div><p class="eyebrow">Step 3</p><h2 id="preview-heading">Paper preview</h2></div>
+        <div class="section-head"><div><p class="eyebrow">Step 4 · output</p><h2 id="preview-heading">Preview your paper</h2></div>
           @if (hasGeneratedQuestions) {
             <div class="button-row"><button class="btn btn-primary" type="button" [disabled]="loading || !!savedDraftId" (click)="saveDraft()">{{ savedDraftId ? 'Draft saved' : 'Save draft' }}</button>
               <button class="btn btn-secondary" type="button" [disabled]="!completePaper" (click)="printPaper(false)">Print paper / Save PDF</button>
@@ -204,6 +244,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
   chapters: string[] = [];
   title = 'Chapter practice test';
   templateId = 'auto';
+  showSampleAnswer = false;
   marks = 40;
   durationMinutes = 90;
   negativeMarking = 0;
@@ -248,6 +289,22 @@ export class QuestionPaperGeneratorPage implements OnInit {
     });
   }
   get selectedTemplate(): QuestionPaperTemplate | null { return this.templates.find((template) => template.id === this.templateId) ?? null; }
+  get paperFormatOptions(): { id: string; title: string; family: string; description: string }[] {
+    return [
+      { id: 'auto', title: 'Custom objective', family: PAPER_EXAMPLES['auto'].family, description: PAPER_EXAMPLES['auto'].description },
+      ...this.templates.map((template) => ({
+        id: template.id, title: this.templateTitle(template), family: PAPER_EXAMPLES[template.id]?.family ?? 'Template',
+        description: PAPER_EXAMPLES[template.id]?.description ?? template.description ?? template.notes ?? 'Use the stored section plan.',
+      })),
+    ];
+  }
+  get selectedSample(): PaperExample | null { return PAPER_EXAMPLES[this.templateId] ?? null; }
+  choosePaperFormat(id: string): void {
+    if (this.loading || this.loadedSnapshot || (id !== 'auto' && !this.templates.some((template) => template.id === id))) return;
+    this.templateId = id;
+    this.onTemplateChange();
+  }
+
   get requiredQuestionCount(): number { return this.rules.reduce((sum, rule) => sum + Number(rule.requiredCount || 0), 0); }
   get totalGapCount(): number { return this.gaps.reduce((sum, gap) => sum + gap.gapCount, 0); }
   get matchedQuestionCount(): number { return this.plan?.selectedCount ?? this.generatedSections.reduce((sum, section) => sum + section.questions.length, 0); }
@@ -285,7 +342,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
   }
   onBoardChange(): void { this.standard = ''; this.subjects = []; this.chapters = []; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
   onStandardChange(): void { this.subjects = []; this.chapters = []; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
-  onTemplateChange(): void { this.rebuildRules(); this.resetResults(); }
+  onTemplateChange(): void { this.showSampleAnswer = false; this.rebuildRules(); this.resetResults(); }
   onSetupChange(): void { this.resetResults(); }
   onMarksChange(): void { if (this.templateId === 'auto') this.rules = buildGenerationRules(null, this.subjects, Number(this.marks)); this.resetResults(); }
   onRuleChange(): void { this.marks = ruleMarks(this.rules); this.resetResults(); }

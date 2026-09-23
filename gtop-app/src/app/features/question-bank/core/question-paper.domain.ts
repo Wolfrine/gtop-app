@@ -254,6 +254,51 @@ function inferredMarks(label: string): number {
   return 1;
 }
 
+/**
+ * Older stored templates describe a paper family but often omit section counts.
+ * Give these families useful starting allocations; an explicitly counted template
+ * from Firestore always remains authoritative.
+ */
+function starterSections(template: QuestionPaperTemplate): QuestionPaperTemplateSection[] | null {
+  const existing = template.sections ?? template.structure?.sections ?? template.blueprint?.sections;
+  if (existing?.some((section) => section.requiredCount || section.questionCount || section.defaultQuestionCount || section.count)) return null;
+  switch (template.id) {
+    case 'board_40_mark_chapter_test': return [
+      { title: 'Objective', questionTypes: ['mcq', 'assertion_reason'], questionCount: 10, marksPerQuestion: 1 },
+      { title: 'Very short answer', questionTypes: ['very_short_answer', 'fill_blank'], questionCount: 4, marksPerQuestion: 2 },
+      { title: 'Short answer', questionTypes: ['short_answer'], questionCount: 4, marksPerQuestion: 3 },
+      { title: 'Case or long answer', questionTypes: ['case_based', 'long_answer'], questionCount: 2, marksPerQuestion: 5 },
+    ];
+    case 'icse_structured_paper': return [
+      { title: 'Section A · compulsory', questionTypes: ['mcq', 'fill_blank', 'true_false_correction', 'matching'], questionCount: 10, marksPerQuestion: 1 },
+      { title: 'Section B · short response', questionTypes: ['short_answer', 'numerical'], questionCount: 5, marksPerQuestion: 2 },
+      { title: 'Section B · structured response', questionTypes: ['long_answer', 'diagram_based', 'application'], questionCount: 4, marksPerQuestion: 5 },
+    ];
+    case 'competency_based_paper': return [
+      { title: 'Concept check', questionTypes: ['mcq', 'assertion_reason'], questionCount: 10, marksPerQuestion: 1 },
+      { title: 'Apply & explain', questionTypes: ['short_answer', 'application', 'analysis'], questionCount: 4, marksPerQuestion: 3 },
+      { title: 'Case or source', questionTypes: ['case_based', 'source_based'], questionCount: 3, marksPerQuestion: 4 },
+      { title: 'Interpret an experiment', questionTypes: ['experiment_based', 'diagram_based'], questionCount: 2, marksPerQuestion: 3 },
+    ];
+    case 'integrated_multi_subject_paper': return [
+      { title: 'Across subjects · objective', questionTypes: ['mcq', 'assertion_reason'], questionCount: 10, marksPerQuestion: 1 },
+      { title: 'Across subjects · short answer', questionTypes: ['short_answer', 'numerical'], questionCount: 10, marksPerQuestion: 3 },
+      { title: 'Across subjects · case & long answer', questionTypes: ['case_based', 'long_answer'], questionCount: 8, marksPerQuestion: 5 },
+    ];
+    case 'numerical_graph_instrument_paper': return [
+      { title: 'Concept check', questionTypes: ['mcq'], questionCount: 10, marksPerQuestion: 1 },
+      { title: 'Short working', questionTypes: ['short_answer'], questionCount: 5, marksPerQuestion: 2 },
+      { title: 'Numerical problems', questionTypes: ['numerical'], questionCount: 3, marksPerQuestion: 4 },
+      { title: 'Graph interpretation', questionTypes: ['graph_based'], questionCount: 1, marksPerQuestion: 4 },
+      { title: 'Instrument reading', questionTypes: ['instrument_reading'], questionCount: 1, marksPerQuestion: 4 },
+    ];
+    case 'one_two_mark_qa_sheet': return [
+      { title: 'One-mark questions', questionTypes: ['one_word', 'very_short_answer', 'fill_blank'], questionCount: 20, marksPerQuestion: 1 },
+      { title: 'Two-mark questions', questionTypes: ['short_answer', 'reason', 'application'], questionCount: 10, marksPerQuestion: 2 },
+    ];
+    default: return null;
+  }
+}
 /** Converts the deployed descriptive template contract to a visible, editable plan. */
 export function buildGenerationRules(
   template: QuestionPaperTemplate | null,
@@ -265,7 +310,7 @@ export function buildGenerationRules(
     difficulty: 'any', competencyTags: [], requiredCount: targetMarks, marksPerQuestion: 1, objectiveOnly: true,
   }];
   const structure = template.structure ?? template.blueprint ?? {};
-  const rawSections = template.sections ?? structure.sections ?? [{
+  const rawSections = starterSections(template) ?? template.sections ?? structure.sections ?? [{
     title: template.title ?? template.name ?? 'Questions',
     questionTypes: structure.questionTypes ?? ['mcq'],
     defaultQuestionCount: structure.defaultQuestionCount,

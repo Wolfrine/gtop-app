@@ -58,6 +58,27 @@ describe('paper template and approved question compatibility', () => {
     expect(ruleMarks(rules)).toBe(40);
     expect(rules[3].questionTypes).toEqual(['case_based', 'long_answer']);
   });
+  it('starts descriptive paper families with usable mixed mark allocations', () => {
+    const families: [string, number, string][] = [
+      ['board_40_mark_chapter_test', 40, 'short_answer'],
+      ['icse_structured_paper', 40, 'numerical'],
+      ['competency_based_paper', 40, 'case_based'],
+      ['integrated_multi_subject_paper', 80, 'long_answer'],
+      ['numerical_graph_instrument_paper', 40, 'instrument_reading'],
+      ['one_two_mark_qa_sheet', 40, 'very_short_answer'],
+    ];
+    for (const [id, total, writtenType] of families) {
+      const rules = buildGenerationRules({ id, structure: { totalMarks: total } }, ['Science']);
+      expect(rules.length).toBeGreaterThan(1);
+      expect(ruleMarks(rules)).toBe(total);
+      expect(rules.some((section) => section.questionTypes.includes(writtenType))).toBe(true);
+    }
+    const explicit = buildGenerationRules({ id: 'competency_based_paper', sections: [
+      { title: 'Custom section', questionCount: 3, marksPerQuestion: 2, questionType: 'short_answer' },
+    ] }, ['Science']);
+    expect(explicit).toHaveLength(1);
+    expect(ruleMarks(explicit)).toBe(6);
+  });
   it('honors NEET defaults and selected subjects', () => {
     const rules = buildGenerationRules({ id: 'neet_objective_mock', structure: { sections: [
       { label: 'Physics', defaultQuestionCount: 45, defaultMarksPerQuestion: 4, questionTypes: ['mcq_single', 'numerical'] },

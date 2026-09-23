@@ -1,0 +1,43 @@
+import '@angular/compiler';
+import 'zone.js';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { inject } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
+import { FirebaseApp, initializeApp, deleteApp, provideFirebaseApp } from '@angular/fire/app';
+import { Firestore, initializeFirestore, provideFirestore, terminate } from '@angular/fire/firestore';
+import { FirebaseClient } from './firebase';
+import { QuestionPaperRepository } from './question-paper.repository';
+import { QuestionReviewRepository } from './question-review.repository';
+
+// Keep real SDK reference/query construction. Stub only the network read so a
+// mixed Firebase SDK cannot hide behind an all-mocked repository test.
+vi.mock('@angular/fire/firestore', async importOriginal => {
+  const actual = await importOriginal<typeof import('@angular/fire/firestore')>();
+  return { ...actual, getDocs: vi.fn(async () => ({ docs: [], size: 0, empty: true })) };
+});
+
+describe('current application Firebase compatibility', () => {
+  beforeAll(() => TestBed.initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting()));
+  afterAll(() => TestBed.resetTestEnvironment());
+  it('builds paper and review queries using the existing AngularFire client', async () => {
+    TestBed.configureTestingModule({ providers: [
+      provideFirebaseApp(() => initializeApp({ projectId: 'demo-client-compatibility', apiKey: 'demo' })),
+      provideFirestore(() => initializeFirestore(inject(FirebaseApp), {})),
+    ] });
+    const firestore = TestBed.inject(Firestore);
+    const app = TestBed.inject(FirebaseApp);
+    try {
+      const client = new FirebaseClient(firestore);
+      const papers = new QuestionPaperRepository(client);
+      await expect(papers.syllabus()).resolves.toEqual([]);
+      await expect(papers.templates()).resolves.toEqual([]);
+      await expect(papers.recentDrafts()).resolves.toEqual([]);
+      await expect(papers.approvedQuestions('CBSE', '10', [{ subject: 'Science', chapter: 'Motion' }])).resolves.toEqual({ questions: [], truncatedScopes: [], excludedCount: 0 });
+      await expect(new QuestionReviewRepository(client).pending()).resolves.toMatchObject({ items: [], truncated: false });
+    } finally {
+      await terminate(firestore);
+      await deleteApp(app);
+    }
+  });
+});

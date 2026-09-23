@@ -26,6 +26,20 @@ function fixture() {
 }
 
 describe('paper setup state safety', () => {
+  it('keeps standard paper preparation available when stored templates cannot be read', async () => {
+    const { page, repository } = fixture();
+    Object.assign(repository, {
+      syllabus: vi.fn(async () => page.syllabus),
+      templates: vi.fn(async () => { throw Object.assign(new Error('Denied'), { code: 'permission-denied' }); }),
+    });
+    await page.loadInitialData();
+    expect(page.board).toBe('CBSE');
+    expect(page.templateWarning).toContain('standard MCQ paper');
+    expect(page.errorMessage).toBe('');
+    page.marks = 1; page.onMarksChange();
+    await page.runCoverage(); await page.generateDraft();
+    expect(page.completePaper).toBe(true);
+  });
   it('checks, previews and persists the same complete allocation', async () => {
     const { page, repository } = fixture();
     await page.runCoverage(); await page.generateDraft(); await page.saveDraft();

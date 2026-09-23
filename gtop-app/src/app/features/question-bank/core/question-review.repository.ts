@@ -10,7 +10,7 @@ import {
   runTransaction,
   serverTimestamp,
   where,
-} from 'firebase/firestore';
+} from '@angular/fire/firestore';
 import { FirebaseClient } from './firebase';
 import { normalizeQuestion, scopeValue, textValue, type PaperAsset } from './question-paper.domain';
 

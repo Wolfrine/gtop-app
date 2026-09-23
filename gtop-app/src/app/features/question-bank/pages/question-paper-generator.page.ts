@@ -25,11 +25,12 @@ import {
         </div>
         <div class="button-row">
           <a class="btn btn-secondary" routerLink="/admin/question-review">Review new questions</a>
-          <a class="btn btn-secondary" routerLink="/admin/questions">Question bank</a>
+          <a class="btn btn-secondary" routerLink="/admin/mcq-management">Question bank</a>
           <button class="btn btn-secondary" type="button" [disabled]="loading" (click)="loadInitialData()">Refresh</button>
         </div>
       </div>
       @if (errorMessage) { <div class="card qpg-error" role="alert">{{ errorMessage }}</div> }
+      @if (templateWarning) { <div class="card qpg-warning" role="status">{{ templateWarning }}</div> }
       @if (loading) { <p class="qpg-status" role="status">{{ loadingMessage }}</p> }
       @if (loadedSnapshot) {
         <div class="card qpg-success qpg-saved-notice">
@@ -212,6 +213,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
   priorityItemsCreated = false;
   savedDraftId = '';
   errorMessage = '';
+  templateWarning = '';
   draftListError = '';
   loadedSnapshot = false;
   private revision = 0;
@@ -256,10 +258,13 @@ export class QuestionPaperGeneratorPage implements OnInit {
 
   async loadInitialData(): Promise<void> {
     if (this.loading) return;
-    this.loading = true; this.loadingMessage = 'Loading syllabus and templates…'; this.errorMessage = '';
+    this.loading = true; this.loadingMessage = 'Loading syllabus and templates…'; this.errorMessage = ''; this.templateWarning = '';
     this.resetResults();
     try {
-      const [syllabus, templates] = await Promise.all([this.papers.syllabus(), this.papers.templates()]);
+      const [syllabus, templates] = await Promise.all([this.papers.syllabus(), this.papers.templates().catch(() => {
+        this.templateWarning = 'Paper templates are unavailable right now. You can still prepare and print a standard MCQ paper. Refresh to try loading templates again.';
+        return [] as QuestionPaperTemplate[];
+      })]);
       this.syllabus = syllabus; this.templates = templates;
       const profile = this.auth.profile();
       if (!this.boardOptions.includes(this.board)) this.board = profile?.board && this.boardOptions.includes(profile.board) ? profile.board : this.boardOptions[0] ?? '';

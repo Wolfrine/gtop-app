@@ -85,6 +85,8 @@ test('current admin navigation reaches both tools and preserves Learning Lab', a
   await expect(page.getByRole('heading', { name: 'Admin Console', exact: true })).toBeVisible();
   await page.locator('[aria-label="Question bank tools"]').getByRole('link', { name: 'Question papers', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Question paper generator', exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Question bank', exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/mcq-management$/);
   await openAdmin(page, '/learning-lab');
   await expect(page.getByRole('heading', { name: 'Learning Lab.', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Open Plant Reproduction →', exact: true })).toBeVisible();

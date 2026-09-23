@@ -3,7 +3,7 @@ import {
   addDoc, collection, doc, getDoc, getDocs, limit, orderBy, query,
   serverTimestamp, startAfter, where, writeBatch,
   type DocumentData, type QueryDocumentSnapshot,
-} from 'firebase/firestore';
+} from '@angular/fire/firestore';
 import { FirebaseClient } from './firebase';
 import { SyllabusItem } from './models';
 import {

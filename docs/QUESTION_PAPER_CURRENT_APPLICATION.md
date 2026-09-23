@@ -17,10 +17,12 @@ The original 12 reviewed support questions remain published in the existing bank
 
 The current-app workflow runs module tests, rules tests, a production build, and browser journeys across desktop, phone, landscape and tablet sizes. Journeys cover the current landing artwork, module navigation, Learning Lab links, guest and learner access, restored admin sessions, print outputs, saved snapshots, gap requests and atomic review publication. It checks actual deployed commit identity, JavaScript assets and desktop/mobile startup after hosting deployment.
 
+If stored templates cannot be read, the builder clearly discloses this and continues to support standard MCQ paper preparation from the existing bank. Saved drafts and review operations still require their backend permissions.
+
 The current dev site uses the shared live Firebase project. Hosting deployment alone does not activate new collection permissions. A separate read-only verification job inspects the actual live rules and tests them in an emulator. The reviewed rules preserve the existing application's feedback, automation, session-host, result-maintenance and private metadata permissions.
 
 If live rules still deny module operations, run the existing **GTOP protected Firebase backend** workflow (`firebase-v2-backend.yml`, retained filename) on `integrate/question-paper-main` with `deploy_backend=true`, `allow_planned_rule_change=true` and `deployment_scope=firestore-rules-only`. Its manual dispatch, explicit confirmations and `firebase-live-backend` environment gate remain in force. This deploys only Firestore rules, then verifies the active release. It does not modify Realtime Database rules or indexes.
 
-Keep the integration in draft until actual backend access is verified. Do not merge or deploy to production as part of dev review. Main remains canonical; only this current review branch is retained alongside it.
+Keep the integration in draft until actual backend access is verified. Do not merge or deploy to production as part of dev review. Main remains canonical; only this current review branch is retained alongside it. All twelve superseded branches were removed by verified cleanup run 35833364674; the temporary cleanup workflow was removed after success.
 
 Native DOCX export, formal paper locking, online-test conversion, a dedicated written-question bank and a running creator scheduler are later phases.

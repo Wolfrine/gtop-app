@@ -11,7 +11,7 @@ const memory = vi.hoisted(() => ({
 }));
 
 vi.mock('./firebase', () => ({ FirebaseClient: class {} }));
-vi.mock('firebase/firestore', () => {
+vi.mock('@angular/fire/firestore', () => {
   const snapshot = (path: string) => ({
     id: path.split('/').at(-1)!,
     ref: { path },

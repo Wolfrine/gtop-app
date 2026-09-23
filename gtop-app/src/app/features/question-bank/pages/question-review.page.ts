@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { typeLabel } from '../core/question-paper.domain';
+import { PAPER_FORMAT_LABELS } from '../core/question-paper.examples';
 import {
   QuestionReviewRepository,
   reviewErrorMessage,
@@ -97,6 +98,9 @@ import {
                 >
                 <strong>{{ item.title || item.question || 'Untitled question' }}</strong>
                 <span class="muted small">{{ item.chapter }} · {{ label(item.questionType) }}</span>
+                @if (item.sourceTemplateId) {
+                  <span class="muted small">{{ item.contentPurpose === 'question-paper-review-sample' ? 'Sample for' : 'Requested for' }} {{ formatLabel(item.sourceTemplateId) }}</span>
+                }
               </button>
             }
           </aside>
@@ -109,10 +113,11 @@ import {
                     <p class="eyebrow">Review & edit</p>
                     <h2 id="review-heading">{{ draft.subject }} · {{ draft.chapter }}</h2>
                   </div>
-                  <span class="pill info">Pending review</span>
+                  <span class="pill info">{{ draft.contentPurpose === 'question-paper-review-sample' ? 'Sample · Pending review' : 'Pending review' }}</span>
                 </div>
                 <div class="curriculum">
                   <span>{{ draft.board }} · Class {{ draft.standard }}</span>
+                  @if (draft.sourceTemplateId) { <span>{{ formatLabel(draft.sourceTemplateId) }}</span> }
                   <span>{{ label(draft.questionType) }}</span>
                   <span>{{ label(draft.difficulty) }}</span>
                 </div>
@@ -277,6 +282,7 @@ export class QuestionReviewPage implements OnInit {
   readonly error = signal('');
   readonly message = signal('');
   readonly label = typeLabel;
+  readonly formatLabel = (id: string): string => PAPER_FORMAT_LABELS[id] ?? id.replace(/_/g, ' ');
   readonly edits = signal<ReviewEdits | null>(null);
   readonly notes = signal('');
 

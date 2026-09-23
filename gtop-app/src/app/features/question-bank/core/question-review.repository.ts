@@ -32,6 +32,8 @@ export interface ReviewDraft extends ReviewEdits {
   difficulty: string;
   assets: PaperAsset[];
   sourceSyllabusId: string;
+  sourceTemplateId: string;
+  contentPurpose: string;
   reviewNotes: string;
   version: string;
 }
@@ -93,6 +95,8 @@ export function toReviewDraft(id: string, raw: Record<string, unknown>): ReviewD
     difficulty: normalized.difficulty,
     assets: normalized.assets,
     sourceSyllabusId: textValue(raw['sourceSyllabusId']),
+    sourceTemplateId: textValue(raw['sourceTemplateId']),
+    contentPurpose: textValue(raw['contentPurpose']),
     reviewNotes: textValue(raw['reviewNotes']),
     version: reviewVersion(raw),
   };

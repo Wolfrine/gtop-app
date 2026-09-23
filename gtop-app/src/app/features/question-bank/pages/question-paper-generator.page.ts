@@ -62,7 +62,8 @@ import {
               <button type="button" class="qpg-answer-toggle" (click)="showSampleAnswer = !showSampleAnswer"
                 [attr.aria-expanded]="showSampleAnswer">{{ showSampleAnswer ? 'Hide model answer' : 'Show model answer' }}</button>
               @if (showSampleAnswer) { <p class="qpg-example-answer">{{ sample.answer }}</p> }
-              <p class="qpg-example-footnote">Illustration only · availability is checked against approved questions.</p>
+              <p class="qpg-example-footnote">Illustration only · availability uses approved questions.</p>
+              @if (templateId !== 'auto') { <a routerLink="/admin/question-review">Review stored sample questions →</a> }
             } @else {
               <p class="qpg-example-scope">Custom template</p>
               <p>This template has no prepared example yet. Its section plan is shown below.</p>

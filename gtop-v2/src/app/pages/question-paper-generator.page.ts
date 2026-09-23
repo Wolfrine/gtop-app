@@ -44,15 +44,15 @@ import {
           <legend class="qpg-sr-only">Paper setup</legend>
           <label>Paper title<input type="text" maxlength="140" [(ngModel)]="title" (ngModelChange)="onSetupChange()" /></label>
           <div class="qpg-form-grid">
-            <label>Board<select [(ngModel)]="board" (ngModelChange)="onBoardChange()">
+            <label>Board<select aria-label="Board" [(ngModel)]="board" (ngModelChange)="onBoardChange()">
               <option value="">Select board</option>
               @for (item of boardOptions; track item) { <option [value]="item">{{ item }}</option> }
             </select></label>
-            <label>Standard<select [(ngModel)]="standard" (ngModelChange)="onStandardChange()">
+            <label>Standard<select aria-label="Standard" [(ngModel)]="standard" (ngModelChange)="onStandardChange()">
               <option value="">Select standard</option>
               @for (item of standardOptions; track item) { <option [value]="item">{{ item }}</option> }
             </select></label>
-            <label>Template<select [(ngModel)]="templateId" (ngModelChange)="onTemplateChange()">
+            <label>Template<select aria-label="Template" [(ngModel)]="templateId" (ngModelChange)="onTemplateChange()">
               <option value="auto">Custom objective paper</option>
               @for (template of matchingTemplates; track template.id) { <option [value]="template.id">{{ templateTitle(template) }}</option> }
             </select></label>

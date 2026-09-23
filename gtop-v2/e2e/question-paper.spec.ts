@@ -110,6 +110,7 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   await expect(page.getByText('Saved paper opened', { exact: true })).toBeVisible();
   await expect(page.locator('.qpg-paper').getByText('Motion easy: which statement is correct?', { exact: false })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.getByRole('heading', { name: 'Question paper generator', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('saved-paper.png'), fullPage: true });
   await page.getByRole('button', { name: 'Use setup for a new paper', exact: true }).click();
   await page.getByLabel('Template', { exact: true }).selectOption('auto');
@@ -131,8 +132,10 @@ test('admin review publishes an edited draft and increments its exact syllabus c
   await expect(page.getByRole('heading', { name: 'Review new questions', exact: true })).toBeVisible();
   await page.getByRole('button').filter({ hasText: `Review sample ${tag}` }).click();
   await page.getByLabel('Title (optional)', { exact: true }).fill(`Approved sample ${tag}`);
+  await expect(page.getByLabel('Title (optional)', { exact: true })).toHaveValue(`Approved sample ${tag}`);
   await expect(page.getByRole('button', { name: 'Approve & publish', exact: true })).toBeEnabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.getByRole('heading', { name: 'Review new questions', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('question-review.png'), fullPage: true });
   await page.getByRole('button', { name: 'Approve & publish', exact: true }).click();
   await expect(page.getByText('Question approved. It is now available for learner quizzes and question papers.', { exact: true })).toBeVisible();

@@ -1,5 +1,4 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthStore } from '../core/auth.store';
 import { typeLabel } from '../core/question-paper.domain';
@@ -13,7 +12,7 @@ import {
 
 @Component({
   selector: 'app-question-review',
-  imports: [FormsModule, RouterLink],
+  imports: [RouterLink],
   template: `
     <div class="page review-page">
       <div class="page-head">
@@ -102,7 +101,7 @@ import {
           </aside>
 
           @if (selected(); as draft) {
-            @if (edits; as edit) {
+            @if (edits(); as edit) {
               <section class="card review-editor" aria-labelledby="review-heading">
                 <div class="section-head">
                   <div>
@@ -125,13 +124,19 @@ import {
                   <legend class="sr-only">Question content</legend>
                   <div class="field">
                     <label for="review-title">Title (optional)</label>
-                    <input id="review-title" [(ngModel)]="edit.title" maxlength="500" />
+                    <input
+                      id="review-title"
+                      [value]="edit.title"
+                      (input)="updateText('title', $event)"
+                      maxlength="500"
+                    />
                   </div>
                   <div class="field">
                     <label for="review-question">Question</label>
                     <textarea
                       id="review-question"
-                      [(ngModel)]="edit.question"
+                      [value]="edit.question"
+                      (input)="updateText('question', $event)"
                       rows="5"
                       maxlength="20000"
                     ></textarea>
@@ -157,7 +162,8 @@ import {
                             type="radio"
                             name="review-correct-answer"
                             [id]="'review-correct-' + index"
-                            [(ngModel)]="edit.correctIndex"
+                            [checked]="edit.correctIndex === index"
+                            (change)="updateCorrectIndex(index)"
                             [value]="index"
                             [attr.aria-label]="'Option ' + (index + 1) + ' is correct'"
                           />
@@ -168,7 +174,8 @@ import {
                             >
                             <textarea
                               [id]="'review-option-' + index"
-                              [(ngModel)]="edit.options[index]"
+                              [value]="edit.options[index]"
+                              (input)="updateArray('options', index, $event)"
                               rows="2"
                               maxlength="3000"
                             ></textarea>
@@ -192,7 +199,8 @@ import {
                         >
                         <textarea
                           [id]="'review-solution-' + index"
-                          [(ngModel)]="edit.solutions[index]"
+                          [value]="edit.solutions[index]"
+                          (input)="updateArray('solutions', index, $event)"
                           rows="4"
                           maxlength="50000"
                         ></textarea>
@@ -203,7 +211,8 @@ import {
                     <label for="review-notes">Review note (required for rejection)</label>
                     <textarea
                       id="review-notes"
-                      [(ngModel)]="notes"
+                      [value]="notes()"
+                      (input)="updateNotes($event)"
                       rows="3"
                       maxlength="2000"
                       placeholder="Explain any correction needed so the creator can improve it."
@@ -233,7 +242,7 @@ import {
                       type="button"
                       class="btn btn-danger"
                       (click)="reject()"
-                      [disabled]="!!saving() || !notes.trim()"
+                      [disabled]="!!saving() || !notes().trim()"
                     >
                       {{ saving() === 'reject' ? 'Saving…' : 'Reject with note' }}
                     </button>
@@ -447,8 +456,8 @@ export class QuestionReviewPage implements OnInit {
   readonly error = signal('');
   readonly message = signal('');
   readonly label = typeLabel;
-  edits: ReviewEdits | null = null;
-  notes = '';
+  readonly edits = signal<ReviewEdits | null>(null);
+  readonly notes = signal('');
 
   constructor(
     private readonly repository: QuestionReviewRepository,
@@ -472,7 +481,7 @@ export class QuestionReviewPage implements OnInit {
       if (queue.items.length) this.select(queue.items[0]);
       else {
         this.selected.set(null);
-        this.edits = null;
+        this.edits.set(null);
       }
     } catch (error) {
       this.error.set(reviewErrorMessage(error));
@@ -483,31 +492,77 @@ export class QuestionReviewPage implements OnInit {
 
   select(draft: ReviewDraft): void {
     if (this.saving()) return;
+    if (
+      this.selected()?.id === draft.id &&
+      this.selected()?.version === draft.version &&
+      this.edits()
+    )
+      return;
     this.selected.set(draft);
-    this.edits = {
+    this.edits.set({
       title: draft.title,
       question: draft.question,
       options: [...draft.options],
       correctIndex: draft.correctIndex,
       solutions: draft.solutions.length ? [...draft.solutions] : [''],
-    };
-    this.notes = draft.reviewNotes;
+    });
+    this.notes.set(draft.reviewNotes);
     this.error.set('');
+  }
+
+  // DOM events update the current editor synchronously. Binding two-way models
+  // to an @if alias can otherwise mutate the previous draft while Angular is
+  // still rendering a selection change, silently discarding a fast edit.
+  updateText(field: 'title' | 'question', event: Event): void {
+    if (this.saving()) return;
+    const value = (event.target as HTMLInputElement | HTMLTextAreaElement).value;
+    this.edits.update((edit) => (edit ? { ...edit, [field]: value } : edit));
+  }
+
+  updateArray(field: 'options' | 'solutions', index: number, event: Event): void {
+    if (this.saving()) return;
+    const value = (event.target as HTMLTextAreaElement).value;
+    this.edits.update((edit) =>
+      edit && index >= 0 && index < edit[field].length
+        ? {
+            ...edit,
+            [field]: edit[field].map((item, position) => (position === index ? value : item)),
+          }
+        : edit,
+    );
+  }
+
+  updateCorrectIndex(index: number): void {
+    if (this.saving()) return;
+    this.edits.update((edit) =>
+      edit && index >= 0 && index < edit.options.length ? { ...edit, correctIndex: index } : edit,
+    );
+  }
+
+  updateNotes(event: Event): void {
+    if (!this.saving()) this.notes.set((event.target as HTMLTextAreaElement).value);
   }
 
   approvalProblem(): string {
     const draft = this.selected();
-    return draft && this.edits ? validateReviewEdits(draft, this.edits) : '';
+    const edits = this.edits();
+    return draft && edits ? validateReviewEdits(draft, edits) : '';
   }
 
   async approve(): Promise<void> {
     const draft = this.selected();
-    if (!draft || !this.edits || this.saving()) return;
+    const edits = this.edits();
+    if (!draft || !edits || this.saving()) return;
     this.saving.set('approve');
     this.error.set('');
     this.message.set('');
     try {
-      const result = await this.repository.approve(draft, this.edits, this.actorId(), this.notes);
+      const result = await this.repository.approve(
+        draft,
+        structuredClone(edits),
+        this.actorId(),
+        this.notes(),
+      );
       this.removeReviewed(draft.id);
       this.message.set(
         result.alreadyApproved
@@ -528,7 +583,7 @@ export class QuestionReviewPage implements OnInit {
     this.error.set('');
     this.message.set('');
     try {
-      await this.repository.reject(draft, this.actorId(), this.notes);
+      await this.repository.reject(draft, this.actorId(), this.notes());
       this.removeReviewed(draft.id);
       this.message.set('Question rejected. Your review note is saved for its creator.');
     } catch (error) {
@@ -547,8 +602,8 @@ export class QuestionReviewPage implements OnInit {
   private removeReviewed(id: string): void {
     this.items.update((items) => items.filter((item) => item.id !== id));
     this.selected.set(null);
-    this.edits = null;
-    this.notes = '';
+    this.edits.set(null);
+    this.notes.set('');
     // Leave no stale editor open during the saving state; the next item is an explicit choice.
   }
 }

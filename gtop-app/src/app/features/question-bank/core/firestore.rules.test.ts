@@ -5,7 +5,7 @@ import {
   initializeTestEnvironment,
   RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { addDoc, collection, deleteDoc, deleteField, doc, getDoc, runTransaction, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, deleteField, doc, getDoc, getDocs, query, where, runTransaction, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 describe('GTOP Firestore rules', () => {
@@ -134,5 +134,91 @@ describe('GTOP Firestore rules', () => {
     await assertSucceeds(setDoc(doc(admin, 'QuizResults/maintained'), { userId: 'user-2' }));
     await assertSucceeds(updateDoc(doc(admin, 'QuizResults/maintained'), { reviewed: true }));
     await assertSucceeds(deleteDoc(doc(admin, 'QuizResults/maintained')));
+  });
+
+  it('supports profile setup and both labs without exposing another account', async () => {
+    const learner = environment.authenticatedContext('user-1').firestore();
+    const other = environment.authenticatedContext('user-2').firestore();
+    const admin = environment.authenticatedContext('admin-1').firestore();
+    await assertSucceeds(setDoc(doc(learner, 'users/user-1'), {
+      uid: 'user-1', board: 'CBSE', standard: '10',
+      learningLab: { lessonId: 'current-lab', attempts: [] },
+      plantLab: { lessonId: 'plant-reproduction', attempts: [] },
+    }, { merge: true }));
+    await assertSucceeds(getDoc(doc(learner, 'users/user-1')));
+    await assertFails(getDoc(doc(other, 'users/user-1')));
+    await assertFails(updateDoc(doc(other, 'users/user-1'), { plantLab: {} }));
+    await assertFails(getDocs(collection(learner, 'users')));
+    await assertSucceeds(getDocs(query(collection(admin, 'users'), where('learningLab.lessonId', '==', 'current-lab'))));
+  });
+
+  it('allows scoped result history but denies unscoped learner queries and rewrites', async () => {
+    const learner = environment.authenticatedContext('user-1').firestore();
+    const other = environment.authenticatedContext('user-2').firestore();
+    const admin = environment.authenticatedContext('admin-1').firestore();
+    await assertSucceeds(setDoc(doc(learner, 'QuizResults/mine'), { userId: 'user-1', percentage: 80 }));
+    await assertSucceeds(getDocs(query(collection(learner, 'QuizResults'), where('userId', '==', 'user-1'))));
+    await assertFails(getDocs(collection(learner, 'QuizResults')));
+    await assertFails(getDoc(doc(other, 'QuizResults/mine')));
+    await assertFails(updateDoc(doc(learner, 'QuizResults/mine'), { percentage: 100 }));
+    await assertFails(deleteDoc(doc(learner, 'QuizResults/mine')));
+    await assertSucceeds(getDocs(collection(admin, 'QuizResults')));
+  });
+
+  it('preserves syllabus and question reads while keeping all bank maintenance admin-only', async () => {
+    const learner = environment.authenticatedContext('user-1').firestore();
+    const admin = environment.authenticatedContext('admin-1').firestore();
+    const guest = environment.unauthenticatedContext().firestore();
+    for (const name of ['questions', 'syllabus', 'syllabus-preview']) {
+      await assertSucceeds(getDocs(collection(learner, name)));
+      await assertFails(getDocs(collection(guest, name)));
+      await assertFails(setDoc(doc(learner, name, 'new'), { value: 'unauthorized' }));
+      await assertSucceeds(setDoc(doc(admin, name, 'new'), { value: 'admin' }));
+    }
+    await assertFails(getDocs(collection(learner, 'deletedQuestions')));
+    await assertSucceeds(setDoc(doc(admin, 'deletedQuestions/archived'), { question: 'Archived' }));
+    await assertSucceeds(setDoc(doc(admin, 'activity/change'), { action: 'Updated syllabus' }));
+  });
+
+  it('supports session discovery, self participation and answers without impersonation or host takeover', async () => {
+    const host = environment.authenticatedContext('user-1').firestore();
+    const learner = environment.authenticatedContext('user-2').firestore();
+    const guest = environment.unauthenticatedContext().firestore();
+    await assertSucceeds(setDoc(doc(host, 'LiveSessions/live'), { hostId: 'user-1', joinCode: 'ABC123', status: 'lobby' }));
+    await assertSucceeds(getDocs(query(collection(learner, 'LiveSessions'), where('joinCode', '==', 'ABC123'))));
+    await assertSucceeds(setDoc(doc(learner, 'LiveSessions/live/participants/user-2'), { uid: 'user-2', ready: true }));
+    await assertSucceeds(setDoc(doc(learner, 'LiveSessions/live/answers/0/items/user-2'), { uid: 'user-2', selectedIndex: 1 }));
+    await assertSucceeds(getDocs(collection(learner, 'LiveSessions/live/answers/0/items')));
+    await assertFails(updateDoc(doc(learner, 'LiveSessions/live'), { status: 'ended' }));
+    await assertFails(updateDoc(doc(host, 'LiveSessions/live'), { hostId: 'user-2' }));
+    await assertFails(setDoc(doc(learner, 'LiveSessions/live/participants/user-2'), { uid: 'user-1' }));
+    await assertFails(setDoc(doc(learner, 'LiveSessions/live/answers/0/items/user-2'), { uid: 'user-1', selectedIndex: 0 }));
+    await assertFails(setDoc(doc(learner, 'LiveSessions/missing/participants/user-2'), { uid: 'user-2' }));
+    await assertFails(getDocs(collection(guest, 'LiveSessions')));
+    await assertSucceeds(updateDoc(doc(host, 'LiveSessions/live'), { status: 'ended' }));
+  });
+
+  it('rejects duplicate report IDs and keeps old clients able to submit a report', async () => {
+    const learner = environment.authenticatedContext('user-1').firestore();
+    const payload = { questionId: 'question-1', userId: 'user-1', flaggedAt: serverTimestamp() };
+    await assertFails(setDoc(doc(learner, 'questionFlags/arbitrary'), payload));
+    await assertFails(setDoc(doc(learner, 'questionFlags/missing_user-1'), { ...payload, questionId: 'missing' }));
+    await assertSucceeds(setDoc(doc(learner, 'questionFlags/question-1_user-1'), payload));
+    await assertFails(updateDoc(doc(learner, 'questions/question-1'), { flagCount: 1 }));
+  });
+
+  it('covers every paper configuration collection and leaves server internals inaccessible', async () => {
+    const admin = environment.authenticatedContext('admin-1').firestore();
+    const learner = environment.authenticatedContext('user-1').firestore();
+    for (const name of ['paperModule', 'paperTemplates', 'paperBlueprints', 'paperDrafts', 'questionTypeTaxonomy', 'questionBankPriorities', 'questionBankPriorityItems', 'questionBankAgentInstructions', 'devQuestions', 'dev-questions', 'Agents']) {
+      await assertSucceeds(setDoc(doc(admin, name, 'sample'), { reviewed: true }));
+      await assertSucceeds(getDocs(collection(admin, name)));
+      await assertFails(getDocs(collection(learner, name)));
+      await assertFails(setDoc(doc(learner, name, 'sample'), { reviewed: false }));
+    }
+    for (const path of ['mcpAuditLog/audit', 'mcpAutomationLocks/lock', 'unrecognized/document']) {
+      await assertFails(getDoc(doc(admin, path)));
+      await assertFails(setDoc(doc(admin, path), { forged: true }));
+    }
   });
 });

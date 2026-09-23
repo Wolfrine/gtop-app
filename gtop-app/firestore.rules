@@ -40,6 +40,14 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/LiveSessions/$(sessionId)).data.hostId == request.auth.uid;
     }
 
+    function sessionExists(sessionId) {
+      return exists(/databases/$(database)/documents/LiveSessions/$(sessionId));
+    }
+
+    function writesOwnParticipant(uid) {
+      return isSelf(uid) && request.resource.data.get('uid', uid) == uid;
+    }
+
     match /Meta/{docId} {
       allow read: if signedIn();
       allow write: if isAdmin();
@@ -90,7 +98,13 @@ service cloud.firestore {
       // A transaction must be able to read its own missing flag before creating it.
       allow get: if signedIn() && (!exists(/databases/$(database)/documents/questionFlags/$(flagId))
         || resource.data.userId == request.auth.uid);
-      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      // Deterministic IDs prevent duplicate reports or impersonating another reporter.
+      // Legacy clients may create the report alone; the counter requires an atomic write.
+      allow create: if isAdmin() || (signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.questionId is string
+        && flagId == request.resource.data.questionId + '_' + request.auth.uid
+        && exists(/databases/$(database)/documents/questions/$(request.resource.data.questionId)));
       allow update, delete: if isAdmin();
       allow update: if signedIn() && resource.data.userId == request.auth.uid
         && request.resource.data.userId == resource.data.userId
@@ -151,17 +165,22 @@ service cloud.firestore {
     match /LiveSessions/{sessionId} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.hostId == request.auth.uid;
-      allow update, delete: if isAdmin() || resource.data.hostId == request.auth.uid;
+      allow update: if isAdmin() || (signedIn()
+        && resource.data.hostId == request.auth.uid
+        && request.resource.data.hostId == resource.data.hostId);
+      allow delete: if isAdmin() || (signedIn() && resource.data.hostId == request.auth.uid);
 
       match /participants/{participantId} {
         allow read: if signedIn();
-        allow create, update: if isSelf(participantId) || isAdmin() || sessionHost(sessionId);
+        allow create, update: if isAdmin() || sessionHost(sessionId)
+          || (sessionExists(sessionId) && writesOwnParticipant(participantId));
         allow delete: if isSelf(participantId) || isAdmin() || sessionHost(sessionId);
       }
 
       match /answers/{answerId}/items/{participantId} {
         allow read: if signedIn();
-        allow create, update: if isSelf(participantId) || isAdmin() || sessionHost(sessionId);
+        allow create, update: if isAdmin() || sessionHost(sessionId)
+          || (sessionExists(sessionId) && writesOwnParticipant(participantId));
         allow delete: if isAdmin() || sessionHost(sessionId);
       }
     }
@@ -184,6 +203,7 @@ service cloud.firestore {
     match /questionBankPriorityItems/{id} { allow read, write: if isAdmin(); }
     match /questionBankAgentInstructions/{id} { allow read, write: if isAdmin(); }
     match /devQuestions/{id} { allow read, write: if isAdmin(); }
+    match /dev-questions/{id} { allow read, write: if isAdmin(); }
     match /Agents/{id} { allow read, write: if isAdmin(); }
 
     match /mcpAutomationLocks/{lockId} {

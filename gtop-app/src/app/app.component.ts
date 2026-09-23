@@ -50,11 +50,12 @@ export class AppComponent implements OnInit {
                 const seoData = deepestChild.snapshot.data['seo'];
                 this.seoService.update(seoData);
 
-                if (event.url === '/') {
+                const pathname = event.urlAfterRedirects.split(/[?#]/)[0];
+                if (pathname === '/') {
                     this.isLandingPage = true;
                     this.isLandingAndProfile = true;
                 }
-                else if (event.url === '/profile-setup') {
+                else if (pathname === '/profile-setup') {
                     this.isLandingPage = false;
                     this.isLandingAndProfile = true;
                 }

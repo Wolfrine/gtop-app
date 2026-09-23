@@ -8,7 +8,11 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "dev": "vite --config scripts/plant-preview.vite.mjs"
+    "dev": "vite --config scripts/plant-preview.vite.mjs",
+    "test:module": "vitest run --exclude \"src/**/*.rules.test.ts\"",
+    "test:rules": "npx firebase-tools@15 emulators:exec --only firestore --project demo-gtop \"vitest run src/app/features/question-bank/core/firestore.rules.test.ts src/app/features/question-bank/core/paper-access.rules.test.ts\"",
+    "e2e": "npx firebase-tools@15 emulators:exec --only auth,firestore,database --project gtop-app \"playwright test\"",
+    "test:database-rules": "npx firebase-tools@15 emulators:exec --only database --project demo-gtop \"vitest run src/app/features/question-bank/core/database.rules.test.ts\""
   },
   "private": true,
   "dependencies": {
@@ -42,6 +46,10 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.4.2"
+    "typescript": "~5.4.2",
+    "vitest": "^4.1.10",
+    "jsdom": "^26.1.0",
+    "@playwright/test": "^1.54.0",
+    "@firebase/rules-unit-testing": "^4.0.1"
   }
 }

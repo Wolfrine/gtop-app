@@ -19,6 +19,9 @@ export class VersionService {
             } else {
                 console.warn('[VersionService] /Meta/version not found.');
             }
+        }, () => {
+            // Version metadata is optional and may be private before sign-in.
+            this.firestoreVersion.set(null);
         });
     }
 }

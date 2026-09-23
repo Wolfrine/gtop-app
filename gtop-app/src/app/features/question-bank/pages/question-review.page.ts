@@ -1,0 +1,435 @@
+import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
+import { typeLabel } from '../core/question-paper.domain';
+import {
+  QuestionReviewRepository,
+  reviewErrorMessage,
+  validateReviewEdits,
+  type ReviewDraft,
+  type ReviewEdits,
+} from '../core/question-review.repository';
+
+@Component({
+  selector: 'app-question-review',
+  standalone: true,
+  imports: [RouterLink],
+  template: `
+    <div class="page review-page">
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">Question bank</p>
+          <h1>Review new questions</h1>
+          <p class="muted">
+            Check the question, correct answer and explanation before making it available to
+            learners.
+          </p>
+        </div>
+        <a class="btn btn-secondary" routerLink="/admin/question-paper-generator"
+          >Question papers</a
+        >
+      </div>
+
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+      @if (message()) {
+        <p class="success-box" role="status">{{ message() }}</p>
+      }
+
+      <div class="queue-toolbar">
+        <p class="muted" aria-live="polite">
+          @if (loading()) {
+            Loading questions for review…
+          } @else {
+            {{ items().length }} awaiting review{{ truncated() ? ' in this batch' : '' }}
+          }
+        </p>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="load()"
+          [disabled]="loading() || !!saving()"
+        >
+          Refresh queue
+        </button>
+      </div>
+      @if (truncated()) {
+        <p class="queue-notice">
+          More questions are waiting. This view shows a batch of up to {{ pageLimit() }}; review
+          these and refresh to see more.
+        </p>
+      }
+
+      @if (!loading() && !items().length && !error()) {
+        <section class="card empty">
+          @if (truncated()) {
+            <h2>This batch is complete</h2>
+            <p>More questions are waiting. Refresh to load the next batch.</p>
+            <button type="button" class="btn btn-primary" (click)="load()" [disabled]="!!saving()">
+              Load next batch
+            </button>
+          } @else {
+            <h2>Review queue is clear</h2>
+            <p>New questions will appear here when creators submit them for review.</p>
+            <a class="btn btn-primary" routerLink="/admin/question-paper-generator"
+              >Build a question paper</a
+            >
+          }
+        </section>
+      }
+
+      @if (items().length) {
+        <div class="review-layout" [attr.aria-busy]="saving()">
+          <aside class="card queue-list" aria-label="Questions awaiting review">
+            <h2>Awaiting review</h2>
+            @for (item of items(); track item.id) {
+              <button
+                type="button"
+                class="queue-item"
+                [class.selected]="selected()?.id === item.id"
+                [attr.aria-pressed]="selected()?.id === item.id"
+                [disabled]="!!saving()"
+                (click)="select(item)"
+              >
+                <span class="queue-scope"
+                  >{{ item.board }} · Class {{ item.standard }} · {{ item.subject }}</span
+                >
+                <strong>{{ item.title || item.question || 'Untitled question' }}</strong>
+                <span class="muted small">{{ item.chapter }} · {{ label(item.questionType) }}</span>
+              </button>
+            }
+          </aside>
+
+          @for (draft of editorDrafts(); track draft.id + ':' + draft.version) {
+            @if (edits(); as edit) {
+              <section class="card review-editor" aria-labelledby="review-heading">
+                <div class="section-head">
+                  <div>
+                    <p class="eyebrow">Review & edit</p>
+                    <h2 id="review-heading">{{ draft.subject }} · {{ draft.chapter }}</h2>
+                  </div>
+                  <span class="pill info">Pending review</span>
+                </div>
+                <div class="curriculum">
+                  <span>{{ draft.board }} · Class {{ draft.standard }}</span>
+                  <span>{{ label(draft.questionType) }}</span>
+                  <span>{{ label(draft.difficulty) }}</span>
+                </div>
+                <p class="muted small">
+                  Curriculum stays linked to the source chapter. Your edits below are saved when you
+                  approve.
+                </p>
+
+                <fieldset class="edit-fields" [disabled]="!!saving()">
+                  <legend class="sr-only">Question content</legend>
+                  <div class="field">
+                    <label for="review-title">Title (optional)</label>
+                    <input
+                      id="review-title"
+                      [value]="edit.title"
+                      (input)="updateText('title', $event)"
+                      maxlength="500"
+                    />
+                  </div>
+                  <div class="field">
+                    <label for="review-question">Question</label>
+                    <textarea
+                      id="review-question"
+                      [value]="edit.question"
+                      (input)="updateText('question', $event)"
+                      rows="5"
+                      maxlength="20000"
+                    ></textarea>
+                  </div>
+                  @if (draft.assets.length) {
+                    <div class="question-assets">
+                      @for (asset of draft.assets; track asset.url) {
+                        <figure>
+                          <img [src]="asset.url" [alt]="asset.alt" loading="lazy" />
+                          <figcaption>{{ asset.alt }}</figcaption>
+                        </figure>
+                      }
+                    </div>
+                  }
+
+                  @if (edit.options.length) {
+                    <fieldset class="answer-options">
+                      <legend>Answer options</legend>
+                      <p class="muted small">Select the correct answer using its radio button.</p>
+                    @for (option of edit.options; track index; let index = $index) {
+                        <div class="option-edit" [class.correct]="edit.correctIndex === index">
+                          <input
+                            type="radio"
+                            name="review-correct-answer"
+                            [id]="'review-correct-' + index"
+                            [checked]="edit.correctIndex === index"
+                            (change)="updateCorrectIndex(index)"
+                            [value]="index"
+                            [attr.aria-label]="'Option ' + (index + 1) + ' is correct'"
+                          />
+                          <div class="field">
+                            <label [for]="'review-option-' + index"
+                              >Option {{ index + 1
+                              }}{{ edit.correctIndex === index ? ' · Correct answer' : '' }}</label
+                            >
+                            <textarea
+                              [id]="'review-option-' + index"
+                              [value]="edit.options[index]"
+                              (input)="updateArray('options', index, $event)"
+                              rows="2"
+                              maxlength="3000"
+                            ></textarea>
+                          </div>
+                        </div>
+                      }
+                    </fieldset>
+                  } @else {
+                    <p class="queue-notice">
+                      Written-answer publishing is not yet supported. You can inspect this draft and
+                      leave a rejection note, but it cannot be published to learner quizzes.
+                    </p>
+                  }
+
+                  <fieldset class="solutions">
+                    <legend>Explanations & worked solutions</legend>
+                  @for (solution of edit.solutions; track index; let index = $index) {
+                      <div class="field">
+                        <label [for]="'review-solution-' + index"
+                          >Explanation {{ index + 1 }}</label
+                        >
+                        <textarea
+                          [id]="'review-solution-' + index"
+                          [value]="edit.solutions[index]"
+                          (input)="updateArray('solutions', index, $event)"
+                          rows="4"
+                          maxlength="50000"
+                        ></textarea>
+                      </div>
+                    }
+                  </fieldset>
+                  <div class="field">
+                    <label for="review-notes">Review note (required for rejection)</label>
+                    <textarea
+                      id="review-notes"
+                      [value]="notes()"
+                      (input)="updateNotes($event)"
+                      rows="3"
+                      maxlength="2000"
+                      placeholder="Explain any correction needed so the creator can improve it."
+                    ></textarea>
+                  </div>
+                </fieldset>
+
+                @if (approvalProblem()) {
+                  <p class="queue-notice" id="approval-problem">{{ approvalProblem() }}</p>
+                }
+                <div class="review-actions">
+                  <p class="muted small">
+                    Approval publishes this reviewed question to the question bank and updates its
+                    chapter total.
+                  </p>
+                  <div class="button-row">
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      (click)="approve()"
+                      [disabled]="!!saving() || !!approvalProblem()"
+                      [attr.aria-describedby]="approvalProblem() ? 'approval-problem' : null"
+                    >
+                      {{ saving() === 'approve' ? 'Publishing…' : 'Approve & publish' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-danger"
+                      (click)="reject()"
+                      [disabled]="!!saving() || !notes().trim()"
+                    >
+                      {{ saving() === 'reject' ? 'Saving…' : 'Reject with note' }}
+                    </button>
+                  </div>
+                </div>
+              </section>
+            }
+          } @empty {
+            <section class="card empty">
+              <h2>Select the next question</h2>
+              <p>Choose a question from the review list to check its answer and explanation.</p>
+            </section>
+          }
+        </div>
+      }
+    </div>
+  `,
+
+})
+export class QuestionReviewPage implements OnInit {
+  readonly items = signal<ReviewDraft[]>([]);
+  readonly selected = signal<ReviewDraft | null>(null);
+  readonly editorDrafts = computed(() => {
+    const draft = this.selected();
+    return draft ? [draft] : [];
+  });
+  readonly loading = signal(false);
+  readonly saving = signal<'' | 'approve' | 'reject'>('');
+  readonly truncated = signal(false);
+  readonly pageLimit = signal(50);
+  readonly error = signal('');
+  readonly message = signal('');
+  readonly label = typeLabel;
+  readonly edits = signal<ReviewEdits | null>(null);
+  readonly notes = signal('');
+
+  constructor(
+    private readonly repository: QuestionReviewRepository,
+    private readonly auth: AuthService,
+    private readonly changeDetector: ChangeDetectorRef,
+  ) {}
+
+  ngOnInit(): void {
+    void this.load();
+  }
+
+  async load(): Promise<void> {
+    if (this.loading() || this.saving()) return;
+    this.loading.set(true);
+    this.error.set('');
+    this.message.set('');
+    try {
+      const queue = await this.repository.pending();
+      this.items.set(queue.items);
+      this.truncated.set(queue.truncated);
+      this.pageLimit.set(queue.limit);
+      if (queue.items.length) this.select(queue.items[0]);
+      else {
+        this.selected.set(null);
+        this.edits.set(null);
+      }
+    } catch (error) {
+      this.error.set(reviewErrorMessage(error));
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  select(draft: ReviewDraft): void {
+    if (this.saving()) return;
+    if (
+      this.selected()?.id === draft.id &&
+      this.selected()?.version === draft.version &&
+      this.edits()
+    )
+      return;
+    this.selected.set(draft);
+    this.edits.set({
+      title: draft.title,
+      question: draft.question,
+      options: [...draft.options],
+      correctIndex: draft.correctIndex,
+      solutions: draft.solutions.length ? [...draft.solutions] : [''],
+    });
+    this.notes.set(draft.reviewNotes);
+    this.error.set('');
+    // Replace the previous draft's keyed inputs before the queue click completes.
+    // A deferred value write during select-all → insertText would collapse the
+    // browser selection and append the new text to the old question/title.
+    this.changeDetector.detectChanges();
+  }
+
+  // DOM events update the current editor synchronously. Binding two-way models
+  // to an @if alias can otherwise mutate the previous draft while Angular is
+  // still rendering a selection change, silently discarding a fast edit.
+  updateText(field: 'title' | 'question', event: Event): void {
+    if (this.saving()) return;
+    const value = (event.target as HTMLInputElement | HTMLTextAreaElement).value;
+    this.edits.update((edit) => (edit ? { ...edit, [field]: value } : edit));
+  }
+
+  updateArray(field: 'options' | 'solutions', index: number, event: Event): void {
+    if (this.saving()) return;
+    const value = (event.target as HTMLTextAreaElement).value;
+    this.edits.update((edit) =>
+      edit && index >= 0 && index < edit[field].length
+        ? {
+            ...edit,
+            [field]: edit[field].map((item, position) => (position === index ? value : item)),
+          }
+        : edit,
+    );
+  }
+
+  updateCorrectIndex(index: number): void {
+    if (this.saving()) return;
+    this.edits.update((edit) =>
+      edit && index >= 0 && index < edit.options.length ? { ...edit, correctIndex: index } : edit,
+    );
+  }
+
+  updateNotes(event: Event): void {
+    if (!this.saving()) this.notes.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  approvalProblem(): string {
+    const draft = this.selected();
+    const edits = this.edits();
+    return draft && edits ? validateReviewEdits(draft, edits) : '';
+  }
+
+  async approve(): Promise<void> {
+    const draft = this.selected();
+    const edits = this.edits();
+    if (!draft || !edits || this.saving()) return;
+    this.saving.set('approve');
+    this.error.set('');
+    this.message.set('');
+    try {
+      const result = await this.repository.approve(
+        draft,
+        structuredClone(edits),
+        this.actorId(),
+        this.notes(),
+      );
+      this.removeReviewed(draft.id);
+      this.message.set(
+        result.alreadyApproved
+          ? 'This question was already approved. No second copy was published.'
+          : 'Question approved. It is now available for learner quizzes and question papers.',
+      );
+    } catch (error) {
+      this.error.set(reviewErrorMessage(error));
+    } finally {
+      this.saving.set('');
+    }
+  }
+
+  async reject(): Promise<void> {
+    const draft = this.selected();
+    if (!draft || this.saving()) return;
+    this.saving.set('reject');
+    this.error.set('');
+    this.message.set('');
+    try {
+      await this.repository.reject(draft, this.actorId(), this.notes());
+      this.removeReviewed(draft.id);
+      this.message.set('Question rejected. Your review note is saved for its creator.');
+    } catch (error) {
+      this.error.set(reviewErrorMessage(error));
+    } finally {
+      this.saving.set('');
+    }
+  }
+
+  private actorId(): string {
+    if (!this.auth.isAdmin())
+      throw new Error('Sign in with an admin account before reviewing questions.');
+    return this.auth.profile()?.uid ?? '';
+  }
+
+  private removeReviewed(id: string): void {
+    this.items.update((items) => items.filter((item) => item.id !== id));
+    this.selected.set(null);
+    this.edits.set(null);
+    this.notes.set('');
+    // Leave no stale editor open during the saving state; the next item is an explicit choice.
+  }
+}

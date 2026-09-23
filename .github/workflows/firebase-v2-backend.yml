@@ -1,13 +1,20 @@
-name: GTOP v2 protected Firebase backend
+name: GTOP protected Firebase backend
 
 on:
   workflow_dispatch:
     inputs:
       deploy_backend:
-        description: "Deploy Firestore rules/indexes and Realtime Database rules"
+        description: "Deploy the reviewed backend configuration selected below"
         required: true
         default: false
         type: boolean
+      deployment_scope:
+        description: "Use Firestore rules only for the question-paper access repair"
+        required: true
+        default: firestore-rules-only
+        type: choice
+        options:
+          - firestore-rules-only
       allow_planned_rule_change:
         description: "Allow the checked-in Firestore rules to differ from the active release"
         required: true
@@ -26,16 +33,16 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: gtop-v2/package-lock.json
+          cache-dependency-path: gtop-app/package-lock.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
       - name: Install
-        working-directory: gtop-v2
+        working-directory: gtop-app
         run: npm ci
       - name: Validate browser rules
-        working-directory: gtop-v2
+        working-directory: gtop-app
         run: npm run test:rules && npm run test:database-rules
       - name: Authenticate Firebase
         id: auth
@@ -56,11 +63,32 @@ jobs:
           curl --fail --silent --show-error --header "Authorization: Bearer ${ACCESS_TOKEN}" \
             "https://firebaserules.googleapis.com/v1/${ruleset}" \
             | jq -r '.source.files[] | select(.name == "firestore.rules") | .content' > /tmp/live-firestore.rules
-          if ! diff --ignore-all-space --ignore-blank-lines gtop-v2/firestore.rules /tmp/live-firestore.rules; then
+          if ! diff --ignore-all-space --ignore-blank-lines gtop-app/firestore.rules /tmp/live-firestore.rules; then
             echo "Checked-in Firestore rules differ from the active shared production backend."
             test "${ALLOW_CHANGE}" = "true"
           fi
       - name: Deploy protected backend configuration
         if: inputs.deploy_backend
-        working-directory: gtop-v2
-        run: npx firebase-tools@15 deploy --only firestore:rules,firestore:indexes,database --project gtop-app --non-interactive
+        working-directory: gtop-app
+        env:
+          DEPLOYMENT_SCOPE: "${{ inputs.deployment_scope }}"
+        run: |
+          case "$DEPLOYMENT_SCOPE" in
+            firestore-rules-only) targets=firestore:rules ;;
+            *) echo "Unsupported backend deployment scope"; exit 1 ;;
+          esac
+          npx firebase-tools@15 deploy --only "$targets" --project gtop-app --non-interactive
+      - name: Verify active question-paper permissions after deployment
+        if: inputs.deploy_backend
+        working-directory: gtop-app
+        env:
+          ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
+        run: node scripts/verify-live-paper-rules.mjs
+      - name: Keep active-rule verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-verification
+          path: gtop-app/test-results/active-backend
+          retention-days: 7
+          if-no-files-found: ignore

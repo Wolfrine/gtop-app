@@ -1,56 +1,68 @@
-name: Deploy to Firebase Hosting
+name: Deploy current GTOP application
 
 on:
   push:
-    branches:
-      - "**"
+    branches: ["**"]
     paths:
       - "gtop-app/**"
       - ".github/workflows/firebase-deploy.yml"
   workflow_dispatch:
     inputs:
       target:
-        description: "Rollback rehearsal deploys v1 to dev; production restores v1 to the live site."
+        description: "Deploy the current GTOP application to dev or production."
         required: true
         type: choice
         default: rehearsal
-        options:
-          - rehearsal
-          - production
+        options: [rehearsal, production]
       confirm_production:
-        description: "Required confirmation when restoring v1 to production."
+        description: "Required confirmation for production deployment."
         required: true
         type: boolean
         default: false
 
-# Ensure only the latest run per branch is active; cancel older in-progress runs
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: current-gtop-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build-and-deploy:
-    # Skip runs created by branch creation (push with no head_commit)
     if: >-
       (github.event_name != 'push' || github.event.head_commit != null) &&
       (github.event_name != 'workflow_dispatch' || inputs.target != 'production' || inputs.confirm_production)
     runs-on: ubuntu-latest
     environment: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'firebase-production' || 'firebase-development' }}
-
+    permissions:
+      contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - run: npm ci
+          cache: npm
+          cache-dependency-path: gtop-app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install current application
+        run: npm ci
         working-directory: gtop-app
-
-      - run: npm run build -- --configuration production
+      - name: Validate module logic and backend permissions
+        run: npm run test:module && npm run test:rules && npm run test:database-rules
         working-directory: gtop-app
-
-      - name: Deploy to Firebase Hosting
+      - name: Build current production application
+        run: |
+          npm run build -- --configuration production
+          node -e 'require("fs").writeFileSync("dist/gtop-app/browser/version.json", JSON.stringify({application:"gtop-app",commit:process.env.GITHUB_SHA,branch:process.env.GITHUB_REF_NAME,builtAt:new Date().toISOString()}))'
+        working-directory: gtop-app
+      - name: Verify current design, admin modules and restored sessions in browsers
+        run: |
+          npx playwright install --with-deps chromium webkit
+          npm run e2e
+        working-directory: gtop-app
+      - name: Deploy current GTOP application
+        id: deploy
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
@@ -59,15 +71,57 @@ jobs:
           projectId: gtop-app
           channelId: live
           target: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'prod-gtop-app' || github.event_name == 'workflow_dispatch' && 'dev-gtop-app' || github.ref_name == 'main' && 'prod-gtop-app' || 'dev-gtop-app' }}
+      - name: Verify actual hosted release and assets
+        env:
+          DEPLOY_ORIGIN: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'https://gtop-app.web.app' || github.event_name == 'workflow_dispatch' && 'https://dev-gtop-app.web.app' || github.ref_name == 'main' && 'https://gtop-app.web.app' || 'https://dev-gtop-app.web.app' }}
+        run: node scripts/verify-deployment.mjs "$DEPLOY_ORIGIN" "$GITHUB_SHA"
+        working-directory: gtop-app
+      - name: Keep review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-application-verification
+          path: |
+            gtop-app/test-results
+            gtop-app/playwright-report
+          retention-days: 7
+          if-no-files-found: ignore
 
-      - name: Record v1 restore evidence
-        if: github.event_name == 'workflow_dispatch'
-        shell: bash
-        run: |
-          {
-            echo '## GTOP v1 backup deployment'
-            echo ''
-            echo "- Source commit: \`${GITHUB_SHA}\`"
-            echo "- Mode: \`${{ inputs.target }}\`"
-            echo "- V1 source remains in \`gtop-app/\`."
-          } >> "$GITHUB_STEP_SUMMARY"
+  verify-shared-backend:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: gtop-app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: npm ci
+        working-directory: gtop-app
+      - name: Authenticate read-only backend inspection
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+      - name: Check active shared rules without changing them
+        working-directory: gtop-app
+        env:
+          ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
+        run: node scripts/verify-live-paper-rules.mjs
+      - name: Keep actual backend evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: active-backend-verification
+          path: gtop-app/test-results/active-backend
+          retention-days: 7
+          if-no-files-found: ignore

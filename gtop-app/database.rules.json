@@ -1,0 +1,13 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "activeUsers": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null",
+        ".validate": "!newData.exists() || (newData.child('userId').val() === $uid && newData.child('isOnline').isBoolean())"
+      }
+    }
+  }
+}

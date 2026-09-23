@@ -45,7 +45,7 @@ export class ProfileSetupComponent implements OnInit, OnDestroy {
         this.subscriptions.add(this.authService.getUser().subscribe((user) => {
             if (user && user.board && user.standard) {
                 // Already setup
-                this.router.navigate(['/dashboard']);
+                this.authService.continueAfterSignIn(user.role);
                 return;
             }
             this.user = user;
@@ -89,7 +89,7 @@ export class ProfileSetupComponent implements OnInit, OnDestroy {
             this.selectedStandard
         );
 
-        this.router.navigate(['/dashboard']);
+        this.authService.continueAfterSignIn(this.user.role);
     }
 
     switchUser() {

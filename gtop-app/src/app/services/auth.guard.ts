@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { AuthService } from './auth.service';
-import { Observable, map } from 'rxjs';
+import { Observable, map, take } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -9,19 +9,17 @@ import { Observable, map } from 'rxjs';
 export class AuthGuard implements CanActivate {
     constructor(private authService: AuthService, private router: Router) { }
 
-    canActivate(): Observable<boolean> {
-        return this.authService.user$.pipe(
+    canActivate(_route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> {
+        return this.authService.readyUser$.pipe(take(1),
             map(user => {
                 if (user) {
                     if (user.board && user.standard) {
                         return true; // ✅ Allow access if profile is complete
                     } else {
-                        this.router.navigate(['/profile-setup']);
-                        return false; // ❌ Redirect to complete profile setup
+                        return this.router.createUrlTree(['/profile-setup'], { queryParams: { returnUrl: state.url } });
                     }
                 }
-                this.router.navigate(['/']);
-                return false; // ❌ Redirect to Landing Page if not authenticated
+                return this.router.createUrlTree(['/'], { queryParams: { returnUrl: state.url } });
             })
         );
     }

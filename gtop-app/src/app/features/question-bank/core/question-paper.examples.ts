@@ -38,9 +38,9 @@ export const PAPER_EXAMPLES: Record<string, PaperExample> = {
   },
   integrated_multi_subject_paper: {
     id: 'integrated_multi_subject_paper', family: 'Integrated', description: 'A tuition practice paper with separate Physics, Chemistry and Biology sections.',
-    questionType: 'Short answer', curriculum: 'Class 12 · Physics, Chemistry & Biology', marks: 3,
-    question: 'A leaf cell is placed in a concentrated salt solution. Explain the direction of water movement and name the process. Then state whether the solution is hypertonic or hypotonic relative to the cell.',
-    answer: 'Water moves out of the leaf cell by osmosis. The external salt solution is hypertonic relative to the cell.',
+    questionType: 'Integrated short answer', curriculum: 'Class 12 · Physics, Chemistry & Biology', marks: 3,
+    question: 'A pond sample has pH 5 and contains fish. A 12 V pump draws 0.5 A to aerate it. (a) Calculate the pump power. (b) Classify the water by pH. (c) Why do the fish need dissolved oxygen?',
+    answer: '(a) P = VI = 12 × 0.5 = 6 W. (b) It is acidic. (c) Fish use dissolved oxygen for aerobic respiration.',
   },
   mixed_mcq_mock: {
     id: 'mixed_mcq_mock', family: 'Objective', description: 'Objective mock mixing single-correct, assertion–reason and statement items.',

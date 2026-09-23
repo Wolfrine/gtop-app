@@ -40,7 +40,7 @@ import {
         <div class="qpg-format-layout">
           <div class="qpg-format-grid" role="group" aria-label="Paper formats">
             @for (format of paperFormatOptions; track format.id) {
-              <button type="button" class="qpg-format-option" [class.selected]="templateId === format.id"
+              <button type="button" class="qpg-format-option" [attr.data-template-id]="format.id" [class.selected]="templateId === format.id"
                 [attr.aria-pressed]="templateId === format.id" [disabled]="loading || loadedSnapshot"
                 (click)="choosePaperFormat(format.id)">
                 <span class="qpg-format-family">{{ format.family }}</span>
@@ -92,10 +92,6 @@ import {
             <label>Standard<select aria-label="Standard" [(ngModel)]="standard" (ngModelChange)="onStandardChange()">
               <option value="">Select standard</option>
               @for (item of standardOptions; track item) { <option [value]="item">{{ item }}</option> }
-            </select></label>
-            <label>Template<select aria-label="Template" [(ngModel)]="templateId" (ngModelChange)="onTemplateChange()">
-              <option value="auto">Custom objective paper</option>
-              @for (template of matchingTemplates; track template.id) { <option [value]="template.id">{{ templateTitle(template) }}</option> }
             </select></label>
             <label>Marks<input type="number" min="1" max="2000" [(ngModel)]="marks" [readonly]="templateId !== 'auto'" (ngModelChange)="onMarksChange()" /></label>
             <label>Duration minutes<input type="number" min="1" max="360" [(ngModel)]="durationMinutes" (ngModelChange)="onSetupChange()" /></label>
@@ -292,7 +288,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
   get paperFormatOptions(): { id: string; title: string; family: string; description: string }[] {
     return [
       { id: 'auto', title: 'Custom objective', family: PAPER_EXAMPLES['auto'].family, description: PAPER_EXAMPLES['auto'].description },
-      ...this.templates.map((template) => ({
+      ...this.matchingTemplates.map((template) => ({
         id: template.id, title: this.templateTitle(template), family: PAPER_EXAMPLES[template.id]?.family ?? 'Template',
         description: PAPER_EXAMPLES[template.id]?.description ?? template.description ?? template.notes ?? 'Use the stored section plan.',
       })),
@@ -300,7 +296,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
   }
   get selectedSample(): PaperExample | null { return PAPER_EXAMPLES[this.templateId] ?? null; }
   choosePaperFormat(id: string): void {
-    if (this.loading || this.loadedSnapshot || (id !== 'auto' && !this.templates.some((template) => template.id === id))) return;
+    if (this.loading || this.loadedSnapshot || (id !== 'auto' && !this.matchingTemplates.some((template) => template.id === id))) return;
     this.templateId = id;
     this.onTemplateChange();
   }

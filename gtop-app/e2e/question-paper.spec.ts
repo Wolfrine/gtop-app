@@ -158,7 +158,7 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   await page.getByRole('checkbox', { name: subject, exact: true }).check();
   await page.getByRole('checkbox', { name: 'Motion', exact: true }).check();
   await page.getByRole('checkbox', { name: 'Energy', exact: true }).check();
-  await page.getByLabel('Template', { exact: true }).selectOption(templateId);
+  await page.locator('.qpg-format-option').filter({ hasText: `Two-section template ${tag}` }).click();
   await expect(page.getByLabel('Marks', { exact: true })).toHaveValue('6');
   await expect(page.getByLabel('Duration minutes', { exact: true })).toHaveValue('30');
   await page.getByLabel('Paper title', { exact: true }).fill(title);
@@ -203,7 +203,7 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   await page.getByRole('heading', { name: 'Question paper generator', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('saved-paper.png'), fullPage: true });
   await page.getByRole('button', { name: 'Use setup for a new paper', exact: true }).click();
-  await page.getByLabel('Template', { exact: true }).selectOption('auto');
+  await page.locator('.qpg-format-option[data-template-id="auto"]').click();
   await page.getByLabel('Marks', { exact: true }).fill('8');
   await expect(page.locator('.qpg-paper')).toHaveCount(0);
   await page.getByRole('button', { name: 'Check availability', exact: true }).click();

@@ -3,7 +3,7 @@
     .qpg-page { min-width: 0; overflow-wrap: anywhere; }
     .qpg-card { display: flex; flex-direction: column; gap: 18px; }
     .qpg-fieldset { min-inline-size: 0; margin: 0; }
-    .qpg-form-grid { display: grid; grid-template-columns: 1fr .65fr 1.5fr .65fr .8fr; gap: 14px; }
+    .qpg-form-grid { display: grid; grid-template-columns: 1fr .65fr .65fr .8fr; gap: 14px; }
     label { display: flex; flex-direction: column; gap: 8px; color: #53627a; font-size: .84rem; font-weight: 700; min-width: 0; }
     select,input { box-sizing: border-box; width: 100%; min-width: 0; border: 1px solid #aebbcf; border-radius: 12px; padding: 12px; background: #fff; color: #14213d; font: inherit; }
     input[readonly] { background: #f0f4f9; }

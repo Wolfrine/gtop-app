@@ -64,7 +64,7 @@ import {
             @if (!board || !standard) { <p class="muted">Choose a board and standard to see subjects.</p> }
             <div class="qpg-chip-list">
               @for (subject of subjectOptions; track subject) {
-                <label class="qpg-chip" [class.active]="isSubjectSelected(subject)"><input type="checkbox" [checked]="isSubjectSelected(subject)" (change)="toggleSubject(subject)" />{{ subject }}</label>
+                <label class="qpg-chip" [class.active]="isSubjectSelected(subject)"><input type="checkbox" [checked]="isSubjectSelected(subject)" (change)="toggleSubject(subject)" /><span>{{ subject }}</span></label>
               }
             </div>
           </div>
@@ -186,6 +186,8 @@ import {
     </div>
   `,
   styles: [`
+    :host { display: block; min-width: 0; max-width: 100%; }
+    .qpg-page { min-width: 0; overflow-wrap: anywhere; }
     .qpg-card { display: flex; flex-direction: column; gap: 18px; }
     .qpg-fieldset { min-inline-size: 0; margin: 0; }
     .qpg-form-grid { display: grid; grid-template-columns: 1fr .65fr 1.5fr .65fr .8fr; gap: 14px; }
@@ -195,18 +197,19 @@ import {
     input:focus-visible,select:focus-visible,summary:focus-visible { outline: 3px solid #4976db; outline-offset: 3px; }
     .qpg-selector { border: 1px solid #d9e2ed; border-radius: 18px; padding: 18px; background: #f8fbff; }
     .qpg-selector-head,.qpg-gap-row,.qpg-draft-row,.qpg-section-heading,.qpg-saved-notice { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .qpg-gap-row > div,.qpg-draft-row > div,.qpg-saved-notice > div,.qpg-section-heading > h4 { min-width: 0; max-width: 100%; }
     .qpg-selector-head { margin-bottom: 14px; }
     .qpg-chip-list { display: flex; flex-wrap: wrap; gap: 10px; }
     .qpg-chapters { max-height: 280px; overflow: auto; padding: 3px; }
     .qpg-chip { flex-direction: row; align-items: center; border: 1px solid #bbc8db; border-radius: 14px; padding: 10px 12px; background: #fff; color: #34435c; cursor: pointer; max-width: 100%; }
     .qpg-chip.active { border-color: #577bc7; background: #eaf0ff; color: #173b9c; }
     .qpg-chip input { width: 17px; height: 17px; flex-shrink: 0; accent-color: #274daf; }
-    .qpg-chip span { overflow-wrap: anywhere; }
+    .qpg-chip span { min-width: 0; overflow-wrap: anywhere; }
     .qpg-chip small { font-weight: 400; }
     .qpg-mini { min-height: 38px; padding: 8px 12px; font-size: .8rem; }
     .qpg-plan summary,.qpg-answer-key summary { font-weight: 700; cursor: pointer; padding: 8px 0; }
     .qpg-rule-row { display: grid; grid-template-columns: 1.5fr .65fr .65fr 1fr auto; align-items: center; gap: 12px; border-top: 1px solid #dde4ee; padding: 16px 0; }
-    .qpg-rule-title { display: grid; gap: 8px; }
+    .qpg-rule-title { display: grid; min-width: 0; gap: 8px; }
     .qpg-rule-title .small { line-height: 1.5; }
     .qpg-error { border-color: #e0a8a8; color: #8c1919; background: #fff3f3; padding: 16px; }
     .qpg-success { border-color: #add7bc; color: #165d32; background: #effaf2; }
@@ -235,8 +238,9 @@ import {
     .qpg-answer-key li { margin: 18px 0; }
     .qpg-answer-key p { white-space: pre-wrap; }
     .qpg-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-    .qpg-page .button-row { flex-wrap: wrap; }
-    @media(max-width:1100px) { .qpg-form-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .qpg-rule-row { grid-template-columns: 1fr 1fr; } .qpg-rule-title { grid-column: 1/-1; } }
+    .qpg-page .button-row { flex-wrap: wrap; min-width: 0; max-width: 100%; }
+    .qpg-page .btn { max-width: 100%; white-space: normal; }
+    @media(max-width:1100px) { .qpg-form-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .qpg-rule-row { grid-template-columns: repeat(2,minmax(0,1fr)); } .qpg-rule-title { grid-column: 1/-1; } }
     @media(max-width:640px) { .qpg-form-grid { grid-template-columns: 1fr; } .qpg-selector-head,.qpg-gap-row,.qpg-draft-row,.qpg-saved-notice { align-items: flex-start; flex-direction: column; } .qpg-stat-grid { gap: 8px; } .qpg-stat-grid .card { padding: 14px 10px; } .qpg-stat-grid .stat-value { font-size: 1.6rem; } .qpg-page .button-row { width: 100%; } .qpg-page .button-row .btn { white-space: normal; } }
   `],
 })

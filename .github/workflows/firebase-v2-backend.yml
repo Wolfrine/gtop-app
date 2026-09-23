@@ -4,10 +4,18 @@ on:
   workflow_dispatch:
     inputs:
       deploy_backend:
-        description: "Deploy Firestore rules/indexes and Realtime Database rules"
+        description: "Deploy the reviewed backend configuration selected below"
         required: true
         default: false
         type: boolean
+      deployment_scope:
+        description: "Use Firestore rules only for the question-paper access repair"
+        required: true
+        default: firestore-rules-only
+        type: choice
+        options:
+          - firestore-rules-only
+          - all-backend-configuration
       allow_planned_rule_change:
         description: "Allow the checked-in Firestore rules to differ from the active release"
         required: true
@@ -63,4 +71,26 @@ jobs:
       - name: Deploy protected backend configuration
         if: inputs.deploy_backend
         working-directory: gtop-v2
-        run: npx firebase-tools@15 deploy --only firestore:rules,firestore:indexes,database --project gtop-app --non-interactive
+        env:
+          DEPLOYMENT_SCOPE: "${{ inputs.deployment_scope }}"
+        run: |
+          case "$DEPLOYMENT_SCOPE" in
+            firestore-rules-only) targets=firestore:rules ;;
+            all-backend-configuration) targets=firestore:rules,firestore:indexes,database ;;
+            *) echo "Unsupported backend deployment scope"; exit 1 ;;
+          esac
+          npx firebase-tools@15 deploy --only "$targets" --project gtop-app --non-interactive
+      - name: Verify active question-paper permissions after deployment
+        if: inputs.deploy_backend
+        working-directory: gtop-v2
+        env:
+          ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
+        run: node scripts/verify-live-paper-rules.mjs
+      - name: Keep active-rule verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-verification
+          path: gtop-v2/test-results/active-backend
+          retention-days: 7
+          if-no-files-found: ignore

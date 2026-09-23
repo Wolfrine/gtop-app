@@ -44,6 +44,14 @@ After hosting deployment, `scripts/verify-deployment.mjs` checks the deployed co
 
 Hosting success alone is insufficient: the active backend must permit the module's admin collections. If the active-rules check fails, deploy the reviewed rules through the existing protected `GTOP v2 protected Firebase backend` workflow. Preserve its `firebase-live-backend` environment and explicit deployment inputs. Production hosting remains on its existing protected release workflow.
 
+### Shared backend repair
+
+The 23 September dev/UAT runs deployed `47fbd1ac` and verified the hosted pages, but the active-rule test failed all three admin module operations (read templates/queue, save paper/priority, approve a question). Student and visitor denial passed. The active baseline was `projects/gtop-app/rulesets/69d80ee7-6068-4992-99c1-51a50163d37e`.
+
+The prepared Firestore rules retain that baseline's feedback, automation visibility, admin result maintenance, session-host operations and signed-in metadata access. They add admin-only paper/review collections and immutable action history. They also close a legacy missing-role promotion loophole and permit learner flag transactions with one count increment per user's first flag. Existing rules and these changes pass 13 Firestore emulator tests. One intermittent iPhone overflow found in the browser run is addressed with text wrapping/shrink rules and a deterministic long-title regression; CI must confirm the updated layout.
+
+For this repair, run the protected backend workflow on `feature/question-paper-generator` with `deploy_backend=true`, `allow_planned_rule_change=true`, and `deployment_scope=firestore-rules-only`. This scope leaves Firestore indexes and Realtime Database rules unchanged. The workflow verifies the newly active rules after deployment. Its existing environment approval remains in place. Do not mark the module available merely because hosting has deployed; confirm the active-rule job passes first.
+
 ## Reviewed support content, 23 September 2026
 
 Twelve reviewed MCQs were published based on twelve recent quizzes by three non-admin users: four each for CBSE 9 Science — Force and Laws of Motion, ICSE 10 Science — Basic Biology, and ICSE 10 Science — Genetics. Exact approved chapter totals were reconciled to 171, 172 and 67. One existing force question's numerical answer was corrected to 3 m/s²; historical quiz results were preserved.

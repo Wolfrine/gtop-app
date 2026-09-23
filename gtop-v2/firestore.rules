@@ -2,88 +2,200 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
-    function own(uid) { return signedIn() && request.auth.uid == uid; }
-    function admin() { return signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'; }
-    function unchanged(field) { return request.resource.data[field] == resource.data[field]; }
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function roleUnchanged() {
+      // Legacy profiles may omit role, but cannot use that omission to promote themselves.
+      return request.resource.data.get('role', 'user') == resource.data.get('role', 'user');
+    }
+
+    function createsSelfUser(uid) {
+      return isSelf(uid)
+        && (!('role' in request.resource.data) || request.resource.data.role == 'user');
+    }
+
+    function ownsResult() {
+      return signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function createsOwnResult() {
+      return signedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    function sessionHost(sessionId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/LiveSessions/$(sessionId))
+        && get(/databases/$(database)/documents/LiveSessions/$(sessionId)).data.hostId == request.auth.uid;
+    }
+
+    match /Meta/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
 
     match /users/{uid} {
-      allow read: if own(uid) || admin();
-      allow create: if own(uid) && request.resource.data.role == 'user';
-      allow update: if admin() || (own(uid) && unchanged('role') && unchanged('uid'));
-      allow delete: if false;
+      allow get: if isSelf(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if createsSelfUser(uid) || isAdmin();
+      allow update: if isAdmin() || (isSelf(uid) && roleUnchanged());
+      allow delete: if isAdmin();
     }
 
-    match /questions/{id} {
+    match /questions/{questionId} {
       allow read: if signedIn();
-      allow create, delete: if admin();
-      allow update: if admin() || (signedIn()
+      allow write: if isAdmin();
+      allow update: if signedIn()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['flagCount', 'lastFlaggedAt'])
-        && request.resource.data.flagCount == resource.data.get('flagCount', 0) + 1);
-    }
-    match /deletedQuestions/{id} {
-      allow read, write: if admin();
-    }
-    match /syllabus/{id} {
-      allow read: if signedIn();
-      allow write: if admin();
-    }
-    match /syllabus-preview/{id} {
-      allow read, write: if admin();
+        && request.resource.data.flagCount == resource.data.get('flagCount', 0) + 1
+        && !exists(/databases/$(database)/documents/questionFlags/$(questionId + '_' + request.auth.uid))
+        && existsAfter(/databases/$(database)/documents/questionFlags/$(questionId + '_' + request.auth.uid))
+        && getAfter(/databases/$(database)/documents/questionFlags/$(questionId + '_' + request.auth.uid)).data.userId == request.auth.uid
+        && getAfter(/databases/$(database)/documents/questionFlags/$(questionId + '_' + request.auth.uid)).data.questionId == questionId;
     }
 
-    match /QuizResults/{id} {
-      allow read: if admin() || (signedIn() && resource.data.userId == request.auth.uid);
-      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if false;
+    match /deletedQuestions/{questionId} {
+      allow read, write: if isAdmin();
     }
-    match /questionFlags/{id} {
+
+    match /syllabus/{syllabusId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /syllabus-preview/{previewId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /QuizResults/{resultId} {
+      allow get, list: if ownsResult() || isAdmin();
+      allow create: if createsOwnResult() || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    match /questionFlags/{flagId} {
+      allow read: if isAdmin();
+      // A transaction must be able to read its own missing flag before creating it.
+      allow get: if signedIn() && (!exists(/databases/$(database)/documents/questionFlags/$(flagId))
+        || resource.data.userId == request.auth.uid);
       allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
-      allow read, update: if admin() || (signedIn() && resource.data.userId == request.auth.uid);
-      allow delete: if admin();
+      allow update, delete: if isAdmin();
+      allow update: if signedIn() && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.questionId == resource.data.questionId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reason', 'status', 'updatedAt'])
+        && request.resource.data.status == 'open';
+    }
+
+    match /activity/{activityId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /appFeedback/{feedbackId} {
+      allow create: if signedIn();
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /automationRuns/{runId} {
+      allow read: if isAdmin();
+      allow write: if false;
+
+      match /events/{eventId} {
+        allow read: if isAdmin();
+        allow write: if false;
+      }
+    }
+
+    match /automationTasks/{taskId} {
+      allow read: if isAdmin();
+      allow write: if false;
+
+      match /events/{eventId} {
+        allow read: if isAdmin();
+        allow write: if false;
+      }
+    }
+
+    match /automationTaskEvents/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /automationCoverage/{coverageId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /featureSignals/{signalId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /databankIssues/{issueId} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
 
     match /LiveSessions/{sessionId} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.hostId == request.auth.uid;
-      allow update: if admin() || (signedIn() && resource.data.hostId == request.auth.uid);
-      allow delete: if admin();
+      allow update, delete: if isAdmin() || resource.data.hostId == request.auth.uid;
 
-      match /participants/{uid} {
+      match /participants/{participantId} {
         allow read: if signedIn();
-        allow create, update: if own(uid);
-        allow delete: if own(uid) || admin();
+        allow create, update: if isSelf(participantId) || isAdmin() || sessionHost(sessionId);
+        allow delete: if isSelf(participantId) || isAdmin() || sessionHost(sessionId);
       }
-      match /answers/{index}/items/{uid} {
+
+      match /answers/{answerId}/items/{participantId} {
         allow read: if signedIn();
-        allow create, update: if own(uid);
-        allow delete: if admin();
+        allow create, update: if isSelf(participantId) || isAdmin() || sessionHost(sessionId);
+        allow delete: if isAdmin() || sessionHost(sessionId);
       }
     }
 
+    // Question paper and review work stays restricted to existing GT admins.
     match /actionPlans/{id} {
-      allow read, create, update: if admin();
+      allow read, create, update: if isAdmin();
       allow delete: if false;
       match /updates/{updateId} {
-        allow read, create: if admin();
+        allow read, create: if isAdmin();
         allow update, delete: if false;
       }
     }
+    match /paperModule/{id} { allow read, write: if isAdmin(); }
+    match /paperTemplates/{id} { allow read, write: if isAdmin(); }
+    match /paperBlueprints/{id} { allow read, write: if isAdmin(); }
+    match /paperDrafts/{id} { allow read, write: if isAdmin(); }
+    match /questionTypeTaxonomy/{id} { allow read, write: if isAdmin(); }
+    match /questionBankPriorities/{id} { allow read, write: if isAdmin(); }
+    match /questionBankPriorityItems/{id} { allow read, write: if isAdmin(); }
+    match /questionBankAgentInstructions/{id} { allow read, write: if isAdmin(); }
+    match /devQuestions/{id} { allow read, write: if isAdmin(); }
+    match /Agents/{id} { allow read, write: if isAdmin(); }
 
-    match /paperModule/{id} { allow read, write: if admin(); }
-    match /paperTemplates/{id} { allow read, write: if admin(); }
-    match /paperBlueprints/{id} { allow read, write: if admin(); }
-    match /paperDrafts/{id} { allow read, write: if admin(); }
-    match /questionTypeTaxonomy/{id} { allow read, write: if admin(); }
-    match /questionBankPriorities/{id} { allow read, write: if admin(); }
-    match /questionBankPriorityItems/{id} { allow read, write: if admin(); }
-    match /questionBankAgentInstructions/{id} { allow read, write: if admin(); }
-    match /devQuestions/{id} { allow read, write: if admin(); }
-    match /Agents/{id} { allow read, write: if admin(); }
+    match /mcpAutomationLocks/{lockId} {
+      allow read, write: if false;
+    }
 
-    match /activity/{id} { allow read, write: if admin(); }
-    match /mcpAuditLog/{id} { allow read: if admin(); allow write: if false; }
-    match /Meta/{id} { allow read: if true; allow write: if admin(); }
-    match /{document=**} { allow read, write: if false; }
+    match /mcpAuditLog/{auditId} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }

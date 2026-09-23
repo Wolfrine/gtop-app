@@ -5,8 +5,8 @@ import {
   initializeTestEnvironment,
   RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { addDoc, collection, doc, getDoc, setDoc } from 'firebase/firestore';
-import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
+import { addDoc, collection, deleteDoc, deleteField, doc, getDoc, runTransaction, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 describe('GTOP Firestore rules', () => {
   let environment: RulesTestEnvironment;
@@ -62,32 +62,77 @@ describe('GTOP Firestore rules', () => {
     await assertFails(addDoc(collection(admin, 'mcpAuditLog'), { tool: 'fake' }));
   });
 
-  it('allows public appearance reads but only admins can publish', async () => {
+  it('keeps appearance publisher details signed-in and only admins can publish', async () => {
     const publicClient = environment.unauthenticatedContext().firestore();
     const learner = environment.authenticatedContext('user-1').firestore();
     const admin = environment.authenticatedContext('admin-1').firestore();
-    await assertSucceeds(getDoc(doc(publicClient, 'Meta/appearance')));
+    await assertFails(getDoc(doc(publicClient, 'Meta/appearance')));
+    await assertSucceeds(getDoc(doc(learner, 'Meta/appearance')));
     await assertFails(setDoc(doc(learner, 'Meta/appearance'), { themeId: 'quiz-pulse' }));
     await assertSucceeds(
       setDoc(doc(admin, 'Meta/appearance'), { themeId: 'quiz-pulse', version: 2 }),
     );
   });
 
-  it('allows a learner to increment only question flag metadata', async () => {
+  it('allows a learner flag transaction and repeat edit without another count increment', async () => {
     const learner = environment.authenticatedContext('user-1').firestore();
-    await assertSucceeds(
-      setDoc(doc(learner, 'questions/question-1'), {
-        question: 'Sample',
-        flagCount: 1,
-        lastFlaggedAt: new Date(),
-      }),
-    );
-    await assertFails(
-      setDoc(doc(learner, 'questions/question-1'), {
-        question: 'Changed',
-        flagCount: 2,
-        lastFlaggedAt: new Date(),
-      }),
-    );
+    const flagRef = doc(learner, 'questionFlags/question-1_user-1');
+    const questionRef = doc(learner, 'questions/question-1');
+    const flag = (reason: string) => runTransaction(learner, async transaction => {
+      const [existing, question] = await Promise.all([transaction.get(flagRef), transaction.get(questionRef)]);
+      transaction.set(flagRef, {
+        questionId: 'question-1', userId: 'user-1', reason, status: 'open',
+        createdAt: existing.exists() ? existing.data()['createdAt'] : serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+      if (!existing.exists()) transaction.update(questionRef, {
+        flagCount: Number(question.data()?.['flagCount'] ?? 0) + 1, lastFlaggedAt: serverTimestamp(),
+      });
+    });
+    await assertSucceeds(flag('Please check this answer'));
+    await assertSucceeds(flag('Clarified reason'));
+    expect((await getDoc(questionRef)).data()?.['flagCount']).toBe(1);
+    await assertFails(updateDoc(questionRef, { flagCount: 2, lastFlaggedAt: serverTimestamp() }));
+    await assertFails(updateDoc(questionRef, { question: 'Changed' }));
+    await assertFails(updateDoc(flagRef, { userId: 'user-2' }));
+    await assertFails(updateDoc(flagRef, { questionId: 'question-2' }));
+    await assertFails(getDoc(doc(environment.authenticatedContext('user-2').firestore(), flagRef.path)));
+  });
+
+  it('blocks self promotion, including through a missing legacy role', async () => {
+    const learner = environment.authenticatedContext('user-1').firestore();
+    await assertFails(updateDoc(doc(learner, 'users/user-1'), { role: 'admin' }));
+    await assertSucceeds(updateDoc(doc(learner, 'users/user-1'), { role: deleteField() }));
+    await assertFails(updateDoc(doc(learner, 'users/user-1'), { role: 'admin' }));
+    await assertSucceeds(updateDoc(doc(learner, 'users/user-1'), { role: 'user', displayName: 'Student' }));
+    const fresh = environment.authenticatedContext('new-user').firestore();
+    await assertFails(setDoc(doc(fresh, 'users/new-user'), { role: 'admin' }));
+    await assertSucceeds(setDoc(doc(fresh, 'users/new-user'), { displayName: 'Legacy student' }));
+    await assertFails(updateDoc(doc(fresh, 'users/new-user'), { role: 'admin' }));
+  });
+
+  it('preserves existing feedback and admin automation visibility', async () => {
+    const learner = environment.authenticatedContext('user-1').firestore();
+    const admin = environment.authenticatedContext('admin-1').firestore();
+    await assertSucceeds(addDoc(collection(learner, 'appFeedback'), { message: 'Feedback' }));
+    await assertSucceeds(getDoc(doc(admin, 'appFeedback/sample')));
+    for (const path of ['automationRuns/run', 'automationTasks/task', 'automationTasks/task/events/event', 'automationRuns/run/events/event', 'automationTaskEvents/event', 'automationCoverage/chapter', 'featureSignals/signal', 'databankIssues/issue']) {
+      await assertSucceeds(getDoc(doc(admin, path)));
+      await assertFails(setDoc(doc(admin, path), { forged: true }));
+      await assertFails(getDoc(doc(learner, path)));
+    }
+  });
+
+  it('preserves existing session-host administration and admin result maintenance', async () => {
+    const host = environment.authenticatedContext('user-1').firestore();
+    const admin = environment.authenticatedContext('admin-1').firestore();
+    await assertSucceeds(setDoc(doc(host, 'LiveSessions/session'), { hostId: 'user-1' }));
+    await assertSucceeds(setDoc(doc(host, 'LiveSessions/session/participants/user-2'), { resultLinked: true }));
+    await assertSucceeds(setDoc(doc(host, 'LiveSessions/session/answers/0/items/user-2'), { selectedIndex: 1 }));
+    await assertSucceeds(deleteDoc(doc(host, 'LiveSessions/session/participants/user-2')));
+    await assertSucceeds(deleteDoc(doc(host, 'LiveSessions/session')));
+    await assertSucceeds(setDoc(doc(admin, 'QuizResults/maintained'), { userId: 'user-2' }));
+    await assertSucceeds(updateDoc(doc(admin, 'QuizResults/maintained'), { reviewed: true }));
+    await assertSucceeds(deleteDoc(doc(admin, 'QuizResults/maintained')));
   });
 });

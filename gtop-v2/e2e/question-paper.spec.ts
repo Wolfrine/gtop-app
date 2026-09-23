@@ -14,7 +14,9 @@ const board = `E2E Paper ${tag}`;
 const templateId = `paper-template-${tag}`;
 const draftId = `review-draft-${tag}`;
 const syllabusId = `paper-motion-${tag}`;
-const title = `Chapter revision ${tag}`;
+// A deterministic unbroken token exercises narrow paper headings and draft rows;
+// the random identifier alone could wrap at its hyphen and hide an overflow bug.
+const title = `Chapter revision ${tag} AdvancedRevisionWithoutBreaksForPhoneLayoutCoverage`;
 let environment: RulesTestEnvironment;
 
 test.beforeAll(async () => {
@@ -59,6 +61,21 @@ test.afterAll(async () => environment?.cleanup());
 
 async function openAdmin(page: Page, route: string) {
   await page.goto(`${route}?emulator=1&testEmail=${encodeURIComponent(email)}&testPassword=${encodeURIComponent(password)}`);
+}
+
+async function expectNoHorizontalOverflow(page: Page) {
+  const layout = await page.evaluate(() => ({
+    documentWidth: document.documentElement.scrollWidth,
+    viewportWidth: innerWidth,
+    overflowingElements: Array.from(document.querySelectorAll('body *')).flatMap(element => {
+      const box = element.getBoundingClientRect();
+      return box.width > 0 && (box.right > innerWidth || box.left < 0) ? [{
+        element: element.tagName.toLowerCase(), className: element.getAttribute('class'),
+        left: box.left, right: box.right, text: element.textContent?.trim().slice(0, 100),
+      }] : [];
+    }).slice(0, 12),
+  }));
+  expect(layout.documentWidth, JSON.stringify(layout, null, 2)).toBeLessThanOrEqual(layout.viewportWidth);
 }
 
 test('admin can prepare, print, save and reopen an exact paper, then request missing questions', async ({ page }, testInfo) => {
@@ -109,7 +126,7 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   await savedRow.getByRole('button', { name: 'Open draft', exact: true }).click();
   await expect(page.getByText('Saved paper opened', { exact: true })).toBeVisible();
   await expect(page.locator('.qpg-paper').getByText('Motion easy: which statement is correct?', { exact: false })).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expectNoHorizontalOverflow(page);
   await page.getByRole('heading', { name: 'Question paper generator', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('saved-paper.png'), fullPage: true });
   await page.getByRole('button', { name: 'Use setup for a new paper', exact: true }).click();

@@ -8,6 +8,9 @@ const tag = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const email = `paper-admin-${tag}@gtop.test`;
 const password = 'GTOP-paper-test-2026';
 const subject = `Paper Science ${tag}`;
+// Existing practice tests intentionally use all CBSE 10 questions. Keep this
+// fixture's curriculum separate so parallel browser projects cannot affect them.
+const board = `E2E Paper ${tag}`;
 const templateId = `paper-template-${tag}`;
 const draftId = `review-draft-${tag}`;
 const syllabusId = `paper-motion-${tag}`;
@@ -22,19 +25,19 @@ test.beforeAll(async () => {
   environment = await initializeTestEnvironment({ projectId: 'gtop-app', firestore: { host: '127.0.0.1', port: 8080 } });
   await environment.withSecurityRulesDisabled(async context => {
     const db = context.firestore();
-    await setDoc(doc(db, 'users', credential.user.uid), { uid: credential.user.uid, email, displayName: 'Paper Admin', role: 'admin', board: 'CBSE', standard: '10' });
+    await setDoc(doc(db, 'users', credential.user.uid), { uid: credential.user.uid, email, displayName: 'Paper Admin', role: 'admin', board, standard: '10' });
     await setDoc(doc(db, 'paperTemplates', templateId), {
-      title: `Two-section template ${tag}`, board: 'CBSE', standard: '10', subjects: [subject], status: 'active', durationMinutes: 30,
+      title: `Two-section template ${tag}`, board, standard: '10', subjects: [subject], status: 'active', durationMinutes: 30,
       structure: { sections: [
         { title: 'Core MCQs', questionType: 'mcq', questionCount: 2, marksPerQuestion: 1, difficulty: 'easy' },
         { title: 'Applied MCQs', questionType: 'mcq', questionCount: 2, marksPerQuestion: 2, difficulty: 'moderate' },
       ] },
     });
     for (const chapter of ['Motion', 'Energy']) {
-      await setDoc(doc(db, 'syllabus', chapter === 'Motion' ? syllabusId : `paper-energy-${tag}`), { board: 'CBSE', standard: '10', subject, chapter, mcqCount: 2 });
+      await setDoc(doc(db, 'syllabus', chapter === 'Motion' ? syllabusId : `paper-energy-${tag}`), { board, standard: '10', subject, chapter, mcqCount: 2 });
       for (const difficulty of ['easy', 'moderate']) {
         await setDoc(doc(db, 'questions', `${tag}-${chapter}-${difficulty}`), {
-          board: 'CBSE', standard: '10', subject, chapter, questionType: 'mcq', difficulty, status: 'approved',
+          board, standard: '10', subject, chapter, questionType: 'mcq', difficulty, status: 'approved',
           question: `${chapter} ${difficulty}: which statement is correct?`, title: `${chapter} ${difficulty}`,
           options: ['Correct statement', 'Incorrect statement'], correctIndex: 0,
           solutions: [`Explanation for ${chapter} ${difficulty}.`], flagCount: 0,
@@ -42,7 +45,7 @@ test.beforeAll(async () => {
       }
     }
     await setDoc(doc(db, 'devQuestions', draftId), {
-      board: 'CBSE', standard: '10', subject, chapter: 'Motion', sourceSyllabusId: syllabusId,
+      board, standard: '10', subject, chapter: 'Motion', sourceSyllabusId: syllabusId,
       questionType: 'mcq', difficulty: 'easy', reviewStatus: 'pending-admin-review',
       title: `Review sample ${tag}`, question: 'A test object moves at constant velocity. What is its acceleration?',
       options: ['Zero', 'One metre per second squared'], correctIndex: 0,

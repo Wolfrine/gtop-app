@@ -5,6 +5,9 @@ export default defineConfig({
   timeout: 60_000,
   workers: process.env['CI'] ? 2 : 3,
   retries: process.env['CI'] ? 2 : 0,
+  // A persistent failure already blocks deployment. Stop there to expose its
+  // trace promptly; successful runs still execute the complete device matrix.
+  maxFailures: process.env['CI'] ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: { baseURL: 'http://127.0.0.1:4300', trace: 'on-first-retry' },
   webServer: {

@@ -1,5 +1,6 @@
 import '@angular/compiler';
 import { describe, expect, it, vi } from 'vitest';
+import { ChangeDetectorRef } from '@angular/core';
 import { AuthStore } from '../core/auth.store';
 import { chapterKey, normalizeQuestion, type QuestionBankResult, QuestionPaperRepository } from '../core/question-paper.repository';
 import { QuestionPaperGeneratorPage } from './question-paper-generator.page';
@@ -15,7 +16,8 @@ function fixture() {
     recentDrafts: vi.fn(async () => []), createPriorityItems: vi.fn(async () => 1),
   };
   const page = new QuestionPaperGeneratorPage(repository as unknown as QuestionPaperRepository,
-    { profile: () => ({ uid: 'admin-1' }) } as unknown as AuthStore);
+    { profile: () => ({ uid: 'admin-1' }) } as unknown as AuthStore,
+    { markForCheck: vi.fn() } as unknown as ChangeDetectorRef);
   page.syllabus = [{ id: 'light', board: 'CBSE', standard: '10', subject: 'Science', chapter: 'Light', mcqCount: 1 }];
   page.board = 'CBSE'; page.standard = '10'; page.subjects = ['Science'];
   page.chapters = [chapterKey({ subject: 'Science', chapter: 'Light' })];

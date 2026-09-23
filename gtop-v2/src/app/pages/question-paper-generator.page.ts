@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthStore } from '../core/auth.store';
@@ -272,7 +272,11 @@ export class QuestionPaperGeneratorPage implements OnInit {
   private plan: PaperPlan | null = null;
   private savedScopes: ChapterScope[] = [];
 
-  constructor(private readonly papers: QuestionPaperRepository, private readonly auth: AuthStore) {}
+  constructor(
+    private readonly papers: QuestionPaperRepository,
+    private readonly auth: AuthStore,
+    private readonly changeDetector: ChangeDetectorRef,
+  ) {}
   async ngOnInit(): Promise<void> { await this.loadInitialData(); }
   get boardOptions(): string[] { return this.unique(this.syllabus.map((item) => item.board)); }
   get standardOptions(): string[] { return this.unique(this.syllabus.filter((item) => item.board === this.board).map((item) => item.standard)); }
@@ -319,12 +323,13 @@ export class QuestionPaperGeneratorPage implements OnInit {
       this.rebuildRules();
       await this.loadDrafts();
     } catch (error) { this.errorMessage = this.message(error); }
-    finally { this.loading = false; }
+    finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
   async loadDrafts(): Promise<void> {
     this.draftListError = '';
     try { this.recentDrafts = await this.papers.recentDrafts(); }
     catch (error) { this.draftListError = `Saved papers could not be loaded. ${this.message(error)}`; }
+    finally { this.changeDetector.markForCheck(); }
   }
   onBoardChange(): void { this.standard = ''; this.subjects = []; this.chapters = []; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
   onStandardChange(): void { this.subjects = []; this.chapters = []; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
@@ -369,13 +374,14 @@ export class QuestionPaperGeneratorPage implements OnInit {
       this.questions = result.questions; this.truncatedScopes = result.truncatedScopes; this.excludedCount = result.excludedCount;
       this.plan = plan; this.gaps = plan.gaps; this.coverageChecked = true; this.checkedFingerprint = fingerprint;
     } catch (error) { if (revision === this.revision) this.errorMessage = this.message(error); }
-    finally { this.loading = false; }
+    finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
   async generateDraft(): Promise<void> {
     if (!this.isCurrent()) await this.runCoverage();
     if (!this.isCurrent() || !this.plan || this.loading) return;
     this.generatedSections = structuredClone(this.plan.sections);
     this.savedDraftId = '';
+    this.changeDetector.markForCheck();
   }
   async saveDraft(): Promise<void> {
     if (this.loading || this.savedDraftId || !this.hasGeneratedQuestions) return;
@@ -394,7 +400,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
       if (revision === this.revision) this.savedDraftId = id;
       await this.loadDrafts();
     } catch (error) { if (revision === this.revision) this.errorMessage = this.message(error); }
-    finally { this.loading = false; }
+    finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
   async createPriorityItems(): Promise<void> {
     if (this.loading || this.priorityItemsCreated || !this.gaps.length || this.truncatedScopes.length || this.loadedSnapshot) return;
@@ -403,7 +409,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
     this.loading = true; this.loadingMessage = 'Saving the request for missing questions…'; this.errorMessage = '';
     try { await this.papers.createPriorityItems(this.currentSetup(), this.gaps, this.actorId()); if (revision === this.revision) this.priorityItemsCreated = true; }
     catch (error) { if (revision === this.revision) this.errorMessage = this.message(error); }
-    finally { this.loading = false; }
+    finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
   async openDraft(id: string): Promise<void> {
     if (this.loading) return;
@@ -419,7 +425,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
       this.gaps = structuredClone(draft.coverage.gaps); this.loadedSnapshot = true; this.coverageChecked = true;
       this.savedDraftId = draft.id; this.checkedFingerprint = setupFingerprint(this.currentSetup(), this.rules);
     } catch (error) { this.errorMessage = this.message(error); }
-    finally { this.loading = false; }
+    finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
   useSavedSetup(): void { this.resetResults(); }
   async printPaper(answers: boolean): Promise<void> {
@@ -431,7 +437,8 @@ export class QuestionPaperGeneratorPage implements OnInit {
     const pendingImages = Array.from(printWindow.document.images).filter((image) => !image.complete).map((image) => new Promise<void>((resolve) => { image.onload = () => resolve(); image.onerror = () => resolve(); }));
     await Promise.race([Promise.all(pendingImages), new Promise((resolve) => setTimeout(resolve, 8000))]);
     if (!printWindow.closed && Array.from(printWindow.document.images).some((image) => !image.complete || !image.naturalWidth)) {
-      printWindow.close(); this.errorMessage = 'A question diagram could not be loaded. Check the connection and diagram before printing.'; return;
+      printWindow.close(); this.errorMessage = 'A question diagram could not be loaded. Check the connection and diagram before printing.';
+      this.changeDetector.markForCheck(); return;
     }
     if (!printWindow.closed) { printWindow.focus(); printWindow.print(); }
   }

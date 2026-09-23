@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -16,6 +16,11 @@ const release = await readRules('projects/gtop-app/releases/cloud.firestore');
 const ruleset = await readRules(release.rulesetName);
 const source = ruleset.source.files.find(file => file.name === 'firestore.rules');
 assert(source?.content, 'Active Firestore rule source is missing');
+// Keep the actual rules with the private CI evidence so any required backend
+// deployment can be reviewed against the live source before its protected gate.
+await mkdir('test-results/active-backend', { recursive: true });
+await writeFile('test-results/active-backend/firestore.rules', source.content);
+await writeFile('test-results/active-backend/release.json', JSON.stringify({ rulesetName: release.rulesetName }, null, 2));
 const directory = await mkdtemp(join(tmpdir(), 'gtop-active-rules-'));
 try {
   const file = join(directory, 'firestore.rules');

@@ -1,6 +1,6 @@
 import '@angular/compiler';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { ChangeDetectorRef, provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { provideRouter } from '@angular/router';
@@ -13,7 +13,11 @@ import { QuestionReviewPage } from './question-review.page';
   QuestionReviewPage as typeof QuestionReviewPage & {
     ctorParameters: () => { type: unknown }[];
   }
-).ctorParameters = () => [{ type: QuestionReviewRepository }, { type: AuthStore }];
+).ctorParameters = () => [
+  { type: QuestionReviewRepository },
+  { type: AuthStore },
+  { type: ChangeDetectorRef },
+];
 
 beforeAll(() => TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting()));
 afterEach(() => TestBed.resetTestingModule());
@@ -71,6 +75,32 @@ function input(
 }
 
 describe('question review editor in the real zoneless Angular view', () => {
+  it('keeps select-all intact when a draft switch settles before replacement text is inserted', async () => {
+    const { fixture, repository, view } = await createFixture();
+    view.querySelectorAll<HTMLButtonElement>('.queue-item')[1].click();
+    const title = view.querySelector<HTMLInputElement>('#review-title')!;
+    title.focus();
+    title.select();
+    // Browser fill selects the existing value before a separate insertion event.
+    // A deferred draft render must not overwrite that value and collapse selection
+    // between these events, which previously appended Approved to Review sample.
+    await fixture.whenStable();
+    title.setRangeText('Approved sample second', title.selectionStart!, title.selectionEnd!, 'end');
+    title.dispatchEvent(new Event('input', { bubbles: true }));
+    await fixture.whenStable();
+    expect(view.querySelector<HTMLInputElement>('#review-title')!.value).toBe(
+      'Approved sample second',
+    );
+    view.querySelector<HTMLButtonElement>('.review-actions .btn-primary')!.click();
+    await fixture.whenStable();
+    expect(repository.approve).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'second' }),
+      expect.objectContaining({ title: 'Approved sample second' }),
+      'admin-1',
+      '',
+    );
+  });
+
   it('preserves a fast title edit after clicking the already-selected queue item', async () => {
     const { fixture, repository, view } = await createFixture();
     view.querySelector<HTMLButtonElement>('.queue-item')!.click();

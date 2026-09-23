@@ -64,18 +64,52 @@ async function openAdmin(page: Page, route: string) {
 }
 
 async function expectNoHorizontalOverflow(page: Page) {
-  const layout = await page.evaluate(() => ({
-    documentWidth: document.documentElement.scrollWidth,
-    viewportWidth: innerWidth,
-    overflowingElements: Array.from(document.querySelectorAll('body *')).flatMap(element => {
-      const box = element.getBoundingClientRect();
-      return box.width > 0 && (box.right > innerWidth || box.left < 0) ? [{
-        element: element.tagName.toLowerCase(), className: element.getAttribute('class'),
-        left: box.left, right: box.right, text: element.textContent?.trim().slice(0, 100),
-      }] : [];
-    }).slice(0, 12),
-  }));
-  expect(layout.documentWidth, JSON.stringify(layout, null, 2)).toBeLessThanOrEqual(layout.viewportWidth);
+  const readLayout = () => page.evaluate(() => ({
+      documentWidth: document.documentElement.scrollWidth,
+      documentHeight: document.documentElement.scrollHeight,
+      viewportWidth: innerWidth,
+      viewportHeight: innerHeight,
+      fontsLoaded: document.fonts.status === 'loaded',
+      activeAnimations: document.getAnimations().filter(animation =>
+        (animation.playState === 'running' || animation.pending) &&
+        Number.isFinite(animation.effect?.getComputedTiming().endTime),
+      ).map(animation => ({
+        name: (animation as CSSAnimation).animationName ?? animation.constructor.name,
+        playState: animation.playState,
+      })),
+      overflowingElements: Array.from(document.querySelectorAll('body *')).flatMap(element => {
+        const box = element.getBoundingClientRect();
+        return box.width > 0 && (box.right > innerWidth || box.left < 0) ? [{
+          element: element.tagName.toLowerCase(), className: element.getAttribute('class'),
+          left: box.left, right: box.right, text: element.textContent?.trim().slice(0, 100),
+        }] : [];
+      }).slice(0, 12),
+    }));
+  let latest: Awaited<ReturnType<typeof readLayout>> | undefined;
+  let previousDimensions = '';
+  let stableSamples = 0;
+  // The saved view inserts cards with a 480ms rise transform and staggered delays.
+  // The trace checks geometry ~63ms after insertion, while those animations run.
+  // A CI WebKit attempt reported a 406px scroll extent against a 390px viewport
+  // with every element's bounds inside it; its retry and the UAT run fitted.
+  // Check settled geometry, including actual animation state, rather than relaxing
+  // the width requirement or disabling the application's motion to pass the test.
+  try {
+    await expect.poll(async () => {
+      latest = await readLayout();
+      const dimensions = JSON.stringify([
+        latest.documentWidth, latest.documentHeight, latest.viewportWidth, latest.viewportHeight,
+      ]);
+      const fits = latest.documentWidth <= latest.viewportWidth;
+      const settled = latest.fontsLoaded && latest.activeAnimations.length === 0;
+      stableSamples = fits && settled && dimensions === previousDimensions ? stableSamples + 1 : 0;
+      previousDimensions = dimensions;
+      return stableSamples >= 2;
+    }, { message: 'The rendered page must settle within the viewport.', timeout: 5_000,
+      intervals: [50, 100, 250] }).toBe(true);
+  } catch (error) {
+    throw new Error(`${String(error)}\nLast layout: ${JSON.stringify(latest, null, 2)}`);
+  }
 }
 
 test('admin can prepare, print, save and reopen an exact paper, then request missing questions', async ({ page }, testInfo) => {

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthStore } from '../core/auth.store';
 import { typeLabel } from '../core/question-paper.domain';
@@ -100,7 +100,7 @@ import {
             }
           </aside>
 
-          @if (selected(); as draft) {
+          @for (draft of editorDrafts(); track draft.id + ':' + draft.version) {
             @if (edits(); as edit) {
               <section class="card review-editor" aria-labelledby="review-heading">
                 <div class="section-head">
@@ -250,7 +250,7 @@ import {
                 </div>
               </section>
             }
-          } @else {
+          } @empty {
             <section class="card empty">
               <h2>Select the next question</h2>
               <p>Choose a question from the review list to check its answer and explanation.</p>
@@ -449,6 +449,10 @@ import {
 export class QuestionReviewPage implements OnInit {
   readonly items = signal<ReviewDraft[]>([]);
   readonly selected = signal<ReviewDraft | null>(null);
+  readonly editorDrafts = computed(() => {
+    const draft = this.selected();
+    return draft ? [draft] : [];
+  });
   readonly loading = signal(false);
   readonly saving = signal<'' | 'approve' | 'reject'>('');
   readonly truncated = signal(false);
@@ -462,6 +466,7 @@ export class QuestionReviewPage implements OnInit {
   constructor(
     private readonly repository: QuestionReviewRepository,
     private readonly auth: AuthStore,
+    private readonly changeDetector: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -508,6 +513,10 @@ export class QuestionReviewPage implements OnInit {
     });
     this.notes.set(draft.reviewNotes);
     this.error.set('');
+    // Replace the previous draft's keyed inputs before the queue click completes.
+    // A deferred value write during select-all → insertText would collapse the
+    // browser selection and append the new text to the old question/title.
+    this.changeDetector.detectChanges();
   }
 
   // DOM events update the current editor synchronously. Binding two-way models

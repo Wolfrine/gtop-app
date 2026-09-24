@@ -202,7 +202,7 @@ import {
             </div>
           }
         </div>
-        @if (savedDraftId) { <div class="card qpg-success" role="status">Your draft is saved. Reopen it from Saved papers.</div> }
+        @if (savedDraftId && !loadedSnapshot) { <div class="card qpg-success" role="status">Your draft is saved. Reopen it from Saved papers.</div> }
         @if (!hasGeneratedQuestions) { <div class="card muted-card">Your paper and its separate answer key will appear here after previewing.</div> }
         @if (hasGeneratedQuestions) {
           @if (!completePaper) { <div class="card qpg-warning">Incomplete draft: {{ generatedMarks }} of {{ marks }} marks. You can save this draft. Fill the missing questions before printing the student paper.</div> }

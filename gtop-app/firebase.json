@@ -3,38 +3,145 @@
     {
       "target": "dev-gtop-app",
       "public": "dist/gtop-app/browser",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
       "headers": [
         {
           "source": "/**",
           "headers": [
-            {"key": "Access-Control-Allow-Origin", "value": "*"},
-            {"key": "Access-Control-Allow-Credentials", "value": "true"},
-            {"key": "Set-Cookie", "value": "SameSite=None; Secure"}
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Set-Cookie",
+              "value": "SameSite=None; Secure"
+            }
+          ]
+        },
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache,no-store,must-revalidate"
+            }
+          ]
+        },
+        {
+          "source": "/**/*.@(js|css)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=31536000,immutable"
+            }
+          ]
+        },
+        {
+          "source": "/@(index.html|version.json|ngsw.json|ngsw-worker.js)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache,no-store,must-revalidate"
+            }
           ]
         }
       ],
       "rewrites": [
-        {"source": "**", "destination": "/index.html"}
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
       ]
     },
     {
       "target": "prod-gtop-app",
       "public": "dist/gtop-app/browser",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
       "headers": [
         {
           "source": "/**",
           "headers": [
-            {"key": "Access-Control-Allow-Origin", "value": "*"},
-            {"key": "Access-Control-Allow-Credentials", "value": "true"},
-            {"key": "Set-Cookie", "value": "SameSite=None; Secure"}
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Credentials",
+              "value": "true"
+            },
+            {
+              "key": "Set-Cookie",
+              "value": "SameSite=None; Secure"
+            }
+          ]
+        },
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache,no-store,must-revalidate"
+            }
+          ]
+        },
+        {
+          "source": "/**/*.@(js|css)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public,max-age=31536000,immutable"
+            }
+          ]
+        },
+        {
+          "source": "/@(index.html|version.json|ngsw.json|ngsw-worker.js)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache,no-store,must-revalidate"
+            }
           ]
         }
       ],
       "rewrites": [
-        {"source": "**", "destination": "/index.html"}
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
       ]
     }
-  ]
+  ],
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "database": {
+      "port": 9000
+    },
+    "ui": {
+      "enabled": false
+    },
+    "singleProjectMode": false
+  }
 }

@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, onSnapshot, doc, getDoc, setDoc } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, onSnapshot, doc, getDoc, setDoc, runTransaction, increment } from '@angular/fire/firestore';
 import { SyllabusService, SyllabusItem } from './syllabus.service';
 import { Timestamp } from '@angular/fire/firestore';
-import { increment } from 'firebase/firestore';
 
 @Injectable({
     providedIn: 'root'
@@ -403,13 +402,7 @@ export class QuizService {
 
         const flagDocId = `${question.id}_${userId}`;
         const flagDocRef = doc(this.firestore, `questionFlags/${flagDocId}`);
-        const existing = await getDoc(flagDocRef);
-
-        if (existing.exists()) {
-            const error: any = new Error('already-flagged');
-            error.code = 'already-flagged';
-            throw error;
-        }
+        const questionRef = doc(this.firestore, `questions/${question.id}`);
 
         const payload = {
             questionId: question.id,
@@ -423,17 +416,20 @@ export class QuizService {
             selectedIndex: typeof question.selectedIndex === 'number' ? question.selectedIndex : null
         };
 
-        await setDoc(flagDocRef, payload, { merge: true });
-
-        try {
-            const questionRef = doc(this.firestore, `questions/${question.id}`);
-            await setDoc(questionRef, {
+        // A single commit keeps report creation and its count consistent, including retries.
+        await runTransaction(this.firestore, async transaction => {
+            const existing = await transaction.get(flagDocRef);
+            if (existing.exists()) {
+                const error: any = new Error('already-flagged');
+                error.code = 'already-flagged';
+                throw error;
+            }
+            transaction.set(flagDocRef, payload);
+            transaction.update(questionRef, {
                 flagCount: increment(1),
                 lastFlaggedAt: Timestamp.now()
-            }, { merge: true });
-        } catch (error) {
-            console.warn('Unable to update question flag metadata:', error);
-        }
+            });
+        });
     }
 
     private async fetchQuestionsByIds(ids: string[]): Promise<any[]> {

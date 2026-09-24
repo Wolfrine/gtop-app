@@ -10,7 +10,7 @@ import {
 } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, getDoc, onSnapshot } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, filter, map, take, firstValueFrom } from 'rxjs';
 import { ActiveUsersService } from './active-users.service';
 
 declare global {
@@ -25,6 +25,12 @@ declare global {
 export class AuthService {
     private userSubject = new BehaviorSubject<any>(null);
     user$ = this.userSubject.asObservable();
+    private sessionReady = new BehaviorSubject(false);
+    readonly readyUser$ = combineLatest([this.user$, this.sessionReady]).pipe(
+        filter(([, ready]) => ready), map(([user]) => user)
+    );
+    profile() { return this.userSubject.value; }
+    isAdmin(): boolean { return this.profile()?.role === 'admin'; }
     googleClientId = '120622375082-4161ki3qobd7mc4m2as3e19qb0ef3dkh.apps.googleusercontent.com'; // Replace with Firebase OAuth Client ID
 
     private snapshotUnsubscribe: any = null;
@@ -94,8 +100,9 @@ export class AuthService {
             const user = result.user;
 
             await this.storeUserInFirestore(user);
-            this.userSubject.next(user);
             await this.setupUserSnapshot(user.uid);
+            const profile = await firstValueFrom(this.readyUser$.pipe(filter(value => !!value), take(1)));
+            this.continueAfterSignIn(profile.role);
 
         } catch (error) {
             console.error('One Tap Error:', error);
@@ -110,10 +117,9 @@ export class AuthService {
             const user = credential.user;
 
             await this.storeUserInFirestore(user);
-            this.userSubject.next(user);
             await this.setupUserSnapshot(user.uid);
-
-            this.router.navigate(['/dashboard']);
+            const profile = await firstValueFrom(this.readyUser$.pipe(filter(value => !!value), take(1)));
+            this.continueAfterSignIn(profile.role);
         } catch (error) {
             console.error('Login Error:', error);
         }
@@ -147,7 +153,10 @@ export class AuthService {
         }
 
         await setDoc(userRef, userData, { merge: true });
-        this.redirectToDashboard(role);
+        this.ngZone.run(() => {
+            this.userSubject.next({ ...existingData, ...userData, role });
+            this.sessionReady.next(true);
+        });
     }
 
     // ✅ Firestore Snapshot Listener
@@ -160,7 +169,7 @@ export class AuthService {
         this.snapshotUnsubscribe = onSnapshot(userDoc, (snapshot) => {
             if (snapshot.exists()) {
                 const updatedUser = snapshot.data();
-                this.userSubject.next(updatedUser);
+                this.ngZone.run(() => this.userSubject.next({ ...updatedUser, uid }));
             }
         });
     }
@@ -169,27 +178,37 @@ export class AuthService {
     async checkUserSession() {
         onAuthStateChanged(this.auth, async (user) => {
             this.ngZone.run(async () => {
+                this.sessionReady.next(false);
+                try {
                 if (user) {
                     const userRef = doc(this.firestore, `users/${user.uid}`);
                     const userSnapshot = await getDoc(userRef);
                     if (userSnapshot.exists()) {
                         const userData = userSnapshot.data();
-                        this.userSubject.next(userData);
+                        this.userSubject.next({ ...userData, uid: user.uid });
                         await this.setupUserSnapshot(user.uid);
 
                         // ✅ Update Realtime DB presence
                         this.activeUsersService.setPresenceForUser(user);
 
-                        // Let Learning Lab's signed-in guard restore its deep link for every grade/role.
-                        if (userData['board'] && userData['standard'] && !window.location.pathname.startsWith('/learning-lab')) {
-                            this.redirectToDashboard(userData['role']);
+                        // Restore the requested route. Only entry pages need a dashboard redirect.
+                        if (userData['board'] && userData['standard'] && ['/', '/profile-setup'].includes(window.location.pathname)) {
+                            this.continueAfterSignIn(userData['role']);
                         }
+                    } else {
+                        this.userSubject.next({ uid: user.uid, email: user.email, displayName: user.displayName, role: 'user' });
                     }
                 } else {
                     this.userSubject.next(null);
                     if (this.snapshotUnsubscribe) {
                         this.snapshotUnsubscribe();
                     }
+                }
+                } catch (error) {
+                    console.error('Unable to restore your GTOP profile:', error);
+                    this.userSubject.next(null);
+                } finally {
+                    this.sessionReady.next(true);
                 }
             });
         });
@@ -219,7 +238,12 @@ export class AuthService {
         await setDoc(userRef, { board, standard }, { merge: true });
     }
 
-    private redirectToDashboard(role: string) {
+    continueAfterSignIn(role: string) {
+        const returnUrl = new URLSearchParams(window.location.search).get('returnUrl');
+        if (returnUrl?.startsWith('/') && !returnUrl.startsWith('//') && !/[\\\r\n]/.test(returnUrl)) {
+            void this.router.navigateByUrl(returnUrl);
+            return;
+        }
         let targetRoute = '/dashboard';
         if (role === 'admin') {
             targetRoute = '/admin';

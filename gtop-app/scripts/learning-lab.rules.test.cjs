@@ -4,11 +4,7 @@ const fs = require("node:fs"),
   os = require("node:os");
 const assert = require("node:assert/strict");
 const { build } = require("esbuild");
-const modules = process.env.GTOP_TEST_MODULE_ROOT;
-if (!modules)
-  throw new Error(
-    "Set GTOP_TEST_MODULE_ROOT to the isolated verification node_modules directory.",
-  );
+const modules = process.env.GTOP_TEST_MODULE_ROOT || path.join(__dirname, "../node_modules");
 const { initializeTestEnvironment, assertFails, assertSucceeds } = require(
   path.join(modules, "@firebase/rules-unit-testing"),
 );
@@ -58,9 +54,9 @@ let env;
     projectId: "demo-gtop-learning-lab",
     firestore: {
       host: "127.0.0.1",
-      port: 8180,
+      port: Number(process.env.GTOP_TEST_FIRESTORE_PORT || 8080),
       rules: fs.readFileSync(
-        path.join(__dirname, "../../gtop-v2/firestore.rules"),
+        path.join(__dirname, "../firestore.rules"),
         "utf8",
       ),
     },

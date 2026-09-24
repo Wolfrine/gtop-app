@@ -30,6 +30,18 @@ import { QuizRunLobbyComponent } from './pages/quiz-run/quiz-run-lobby/quiz-run-
 
 export const routes: Routes = [
     {
+        path: 'admin/question-paper-generator',
+        loadComponent: () => import('./features/question-bank/pages/question-paper-generator.page').then(m => m.QuestionPaperGeneratorPage),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'], seo: { title: 'Question papers | GTOP Admin', robots: 'noindex, nofollow' } }
+    },
+    {
+        path: 'admin/question-review',
+        loadComponent: () => import('./features/question-bank/pages/question-review.page').then(m => m.QuestionReviewPage),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'], seo: { title: 'Review new questions | GTOP Admin', robots: 'noindex, nofollow' } }
+    },
+    {
         path: 'learning-lab',
         loadComponent: () => import('./pages/learning-lab/learning-lab.component').then(m => m.LearningLabComponent),
         canActivate: [labGuard],

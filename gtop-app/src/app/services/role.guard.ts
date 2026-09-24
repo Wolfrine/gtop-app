@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
 import { AuthService } from './auth.service';
-import { Observable, map } from 'rxjs';
+import { Observable, map, take } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -9,8 +9,8 @@ import { Observable, map } from 'rxjs';
 export class RoleGuard implements CanActivate {
     constructor(private authService: AuthService, private router: Router) { }
 
-    canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-        return this.authService.user$.pipe(
+    canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
+        return this.authService.readyUser$.pipe(take(1),
             map(user => {
                 let role = 'user'; // Default role
 
@@ -26,9 +26,7 @@ export class RoleGuard implements CanActivate {
                     return true;
                 }
 
-                console.log("Unauthorized Access - Redirecting to /unauthorized");
-                this.router.navigate(['/unauthorized']);
-                return false;
+                return this.router.createUrlTree(['/dashboard']);
             })
         );
     }

@@ -44,7 +44,7 @@ export class LandingPageComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnInit(): void {
         this.subscriptions.add(this.authService.getUser().subscribe(user => {
             if (user && user.board && user.standard) {
-                this.router.navigate(['/dashboard']);
+                this.authService.continueAfterSignIn(user.role);
             }
         }));
     }
@@ -111,6 +111,6 @@ export class LandingPageComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     signUp() {
-        this.router.navigate(['/profile-setup']);
+        this.router.navigate(['/profile-setup'], { queryParamsHandling: 'preserve' });
     }
 }

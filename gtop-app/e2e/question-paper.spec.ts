@@ -154,16 +154,31 @@ async function expectNoHorizontalOverflow(page: Page) {
 test('admin can prepare, print, save and reopen an exact paper, then request missing questions', async ({ page }, testInfo) => {
   await openAdmin(page, '/admin/question-paper-generator');
   await expect(page.getByRole('heading', { name: 'Question paper generator', exact: true })).toBeVisible();
+  const compact = await page.evaluate(() => innerWidth <= 640);
+  if (compact) {
+    await expect(page.getByRole('heading', { name: 'Choose what to cover' })).toBeHidden();
+    await page.locator('.qpg-format-option').filter({ hasText: `Two-section template ${tag}` }).click();
+    await expect(page.getByRole('heading', { name: 'Choose what to cover' })).toBeVisible();
+    await expect(page.locator('.qpg-format-grid')).toBeHidden();
+    await expect(page.locator('.qpg-example')).toBeHidden();
+    await page.getByRole('button', { name: 'View sample', exact: true }).click();
+    await expect(page.locator('.qpg-example')).toBeVisible();
+    await page.getByRole('button', { name: 'Hide sample', exact: true }).click();
+  }
   await expect(page.getByRole('checkbox', { name: subject, exact: true })).toBeEnabled({ timeout: 30_000 });
   await page.getByRole('checkbox', { name: subject, exact: true }).check();
   await page.getByRole('checkbox', { name: 'Motion', exact: true }).check();
   await page.getByRole('checkbox', { name: 'Energy', exact: true }).check();
-  await page.locator('.qpg-format-option').filter({ hasText: `Two-section template ${tag}` }).click();
+  if (!compact) await page.locator('.qpg-format-option').filter({ hasText: `Two-section template ${tag}` }).click();
   await expect(page.getByLabel('Marks', { exact: true })).toHaveValue('6');
   await expect(page.getByLabel('Duration minutes', { exact: true })).toHaveValue('30');
   await page.getByLabel('Paper title', { exact: true }).fill(title);
   await page.getByRole('button', { name: 'Check availability', exact: true }).click();
   await expect(page.getByText('Ready to prepare', { exact: true })).toBeVisible();
+  if (compact) {
+    await expect(page.getByRole('heading', { name: 'Choose what to cover' })).toBeHidden();
+    await expect(page.locator('.qpg-mobile-bar')).toBeVisible();
+  }
   await page.getByRole('button', { name: 'Preview paper', exact: true }).click();
   await expect(page.locator('.qpg-question-list > li')).toHaveCount(4);
   for (const chapter of ['Motion', 'Energy']) {
@@ -183,7 +198,7 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   await expect(answerKey.getByText('Explanation for Motion easy.', { exact: true })).toBeVisible();
   await answerKey.close();
   await page.getByRole('button', { name: 'Save draft', exact: true }).click();
-  await expect(page.getByText('Your draft is saved. Reopen it from Recent drafts below.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Your draft is saved. Reopen it from Saved papers.', { exact: true })).toBeVisible();
   await environment.withSecurityRulesDisabled(async context => {
     const drafts = await getDocs(query(collection(context.firestore(), 'paperDrafts'), where('title', '==', title)));
     expect(drafts.size).toBe(1);
@@ -195,17 +210,21 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
     await setDoc(doc(context.firestore(), 'questions', `${tag}-Motion-easy`), { question: 'Edited after saving the paper.' }, { merge: true });
   });
   await page.reload();
+  if (compact) await page.getByRole('button', { name: 'Saved papers', exact: true }).click();
   const savedRow = page.locator('.qpg-draft-row').filter({ hasText: title });
   await savedRow.getByRole('button', { name: 'Open draft', exact: true }).click();
   await expect(page.getByText('Saved paper opened', { exact: true })).toBeVisible();
   await expect(page.locator('.qpg-paper').getByText('Motion easy: which statement is correct?', { exact: false })).toBeVisible();
   await expectNoHorizontalOverflow(page);
-  if (await page.evaluate(() => innerWidth <= 640)) {
-    expect(await page.locator('.qpg-format-grid').evaluate(element => element.scrollWidth > element.clientWidth)).toBe(true);
+  if (compact) {
+    await expect(page.getByRole('heading', { name: 'Choose what to cover' })).toBeHidden();
+    await expect(page.getByRole('heading', { name: 'Check the question bank' })).toBeHidden();
+    await expect(page.getByRole('heading', { name: 'Recent drafts' })).toBeHidden();
   }
   await page.getByRole('heading', { name: 'Question paper generator', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('saved-paper.png'), fullPage: true });
   await page.getByRole('button', { name: 'Use setup for a new paper', exact: true }).click();
+  if (compact) await page.getByRole('button', { name: 'Change', exact: true }).click();
   await page.locator('.qpg-format-option[data-template-id="auto"]').click();
   await page.getByLabel('Marks', { exact: true }).fill('8');
   await expect(page.locator('.qpg-paper')).toHaveCount(0);

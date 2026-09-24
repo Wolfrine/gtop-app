@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -24,22 +24,31 @@ import {
           <h1>Question paper generator</h1>
           <p class="lede">Choose a syllabus, check the question bank, and prepare a paper with a separate answer key.</p>
         </div>
-        <div class="button-row">
+        <div class="button-row qpg-admin-actions">
           <a class="btn btn-secondary" routerLink="/admin/question-review">Review new questions</a>
           <a class="btn btn-secondary" routerLink="/admin/mcq-management">Question bank</a>
           <button class="btn btn-secondary" type="button" [disabled]="loading" (click)="loadInitialData()">Refresh</button>
         </div>
+        <button class="btn btn-secondary qpg-mobile-only qpg-drafts-link" type="button" (click)="toggleMobileDrafts()">{{ showMobileDrafts ? 'Back to paper' : 'Saved papers' }}</button>
       </div>
       <nav class="qpg-journey" aria-label="Paper workflow">
-        <span><b>01</b> Choose format</span><span><b>02</b> Set syllabus</span>
-        <span><b>03</b> Check coverage</span><span><b>04</b> Preview & save</span>
+        <button type="button" [class.active]="mobileStep === 1 && !showMobileDrafts" [disabled]="isCompactViewport && (loadedSnapshot || furthestMobileStep < 1)" (click)="goToMobileStep(1)"><b>01</b> Format</button>
+        <button type="button" [class.active]="mobileStep === 2 && !showMobileDrafts" [disabled]="isCompactViewport && (loadedSnapshot || furthestMobileStep < 2)" (click)="goToMobileStep(2)"><b>02</b> Syllabus</button>
+        <button type="button" [class.active]="mobileStep === 3 && !showMobileDrafts" [disabled]="isCompactViewport && (loadedSnapshot || furthestMobileStep < 3)" (click)="goToMobileStep(3)"><b>03</b> Coverage</button>
+        <button type="button" [class.active]="mobileStep === 4 && !showMobileDrafts" [disabled]="isCompactViewport && furthestMobileStep < 4" (click)="goToMobileStep(4)"><b>04</b> Preview</button>
       </nav>
-      <section class="qpg-format-section" aria-labelledby="format-heading">
+      <section class="qpg-format-section" [class.qpg-mobile-hidden]="isCompactViewport && (showMobileDrafts || mobileStep === 4)" aria-labelledby="format-heading">
+        @if (isCompactViewport && mobileStep !== 1) {
+          <div class="qpg-format-summary"><div><span class="eyebrow">Selected format</span><strong>{{ selectedFormatTitle }}</strong></div>
+            <div class="qpg-summary-actions"><button type="button" (click)="goToMobileStep(1)">Change</button><button type="button" (click)="mobileSampleOpen = !mobileSampleOpen" [attr.aria-expanded]="mobileSampleOpen">{{ mobileSampleOpen ? 'Hide sample' : 'View sample' }}</button></div></div>
+        }
+        <div [class.qpg-mobile-hidden]="isCompactViewport && mobileStep !== 1">
         <div class="section-head"><div><p class="eyebrow">Step 1 · paper format</p><h2 id="format-heading">What are you preparing?</h2>
           <p class="muted">Choose a format to start with a section plan. You can adjust question counts and marks below.</p></div></div>
         <p class="qpg-swipe-hint">Swipe to explore all paper formats →</p>
+        </div>
         <div class="qpg-format-layout">
-          <div class="qpg-format-grid" role="group" aria-label="Paper formats">
+          <div class="qpg-format-grid" [class.qpg-mobile-hidden]="isCompactViewport && mobileStep !== 1" role="group" aria-label="Paper formats">
             @for (format of paperFormatOptions; track format.id) {
               <button type="button" class="qpg-format-option" [attr.data-template-id]="format.id" [class.selected]="templateId === format.id"
                 [attr.aria-pressed]="templateId === format.id" [disabled]="loading || loadedSnapshot"
@@ -51,7 +60,7 @@ import {
               </button>
             }
           </div>
-          <aside class="qpg-example" aria-live="polite" aria-label="Selected paper format sample">
+          <aside class="qpg-example" [class.qpg-mobile-hidden]="isCompactViewport && !mobileSampleOpen" aria-live="polite" aria-label="Selected paper format sample">
             @if (selectedSample; as sample) {
               <div class="qpg-example-top"><span>EXAMPLE / {{ sample.family }}</span><span>{{ sample.marks }} {{ sample.marks === 1 ? 'mark' : 'marks' }}</span></div>
               <p class="qpg-example-scope">{{ sample.curriculum }} · {{ sample.questionType }}</p>
@@ -70,18 +79,19 @@ import {
             }
           </aside>
         </div>
+        @if (isCompactViewport && mobileStep === 1) { <button class="qpg-sample-link" type="button" (click)="mobileSampleOpen = !mobileSampleOpen" [attr.aria-expanded]="mobileSampleOpen">{{ mobileSampleOpen ? 'Hide example question' : 'View example question for this format' }}</button> }
       </section>
       @if (errorMessage) { <div class="card qpg-error" role="alert">{{ errorMessage }}</div> }
       @if (templateWarning) { <div class="card qpg-warning" role="status">{{ templateWarning }}</div> }
       @if (loading) { <p class="qpg-status" role="status">{{ loadingMessage }}</p> }
-      @if (loadedSnapshot) {
+      @if (loadedSnapshot && (!isCompactViewport || mobileStep === 4) && !showMobileDrafts) {
         <div class="card qpg-success qpg-saved-notice">
           <div><strong>Saved paper opened</strong><p>This is the saved copy. Its questions and answers stay together even if the bank changes.</p></div>
           <button class="btn btn-secondary" type="button" (click)="useSavedSetup()">Use setup for a new paper</button>
         </div>
       }
 
-      <section class="section" aria-labelledby="setup-heading">
+      <section class="section" [class.qpg-mobile-hidden]="isCompactViewport && (mobileStep !== 2 || showMobileDrafts)" aria-labelledby="setup-heading">
         <div class="section-head"><div><p class="eyebrow">Step 2 · syllabus & sections</p><h2 id="setup-heading">Choose what to cover</h2></div></div>
         <fieldset class="card qpg-card qpg-fieldset" [disabled]="loading || loadedSnapshot">
           <legend class="qpg-sr-only">Paper setup</legend>
@@ -113,14 +123,19 @@ import {
               <button class="btn btn-secondary qpg-mini" type="button" (click)="clearChapters()">Clear chapters</button>
             </div></div>
             @if (!subjects.length) { <p class="muted">Choose a subject to see its chapters.</p> }
+            @if (isCompactViewport && chapterOptions.length > 8) {
+              <label class="qpg-chapter-search">Find a chapter<input type="search" placeholder="Search chapters" [(ngModel)]="chapterSearch" /></label>
+              @if (visibleChapterOptions.length < filteredChapterCount) { <p class="muted small">Showing 8 of {{ filteredChapterCount }} chapters. Search to find another.</p> }
+            }
             <div class="qpg-chip-list qpg-chapters">
-              @for (chapter of chapterOptions; track chapter.id) {
+              @for (chapter of visibleChapterOptions; track chapter.id) {
                 <label class="qpg-chip" [class.active]="isChapterSelected(chapter.id)"><input type="checkbox" [checked]="isChapterSelected(chapter.id)" (change)="toggleChapter(chapter.id)" /><span>{{ chapter.chapter }}@if (subjects.length > 1) { <small> · {{ chapter.subject }}</small> }</span></label>
               }
             </div>
+            @if (isCompactViewport && chapterSearch && !visibleChapterOptions.length) { <p class="muted small">No chapters match this search.</p> }
             @if (chapters.length) { <p class="muted small">{{ chapters.length }} selected. Questions are spread evenly across the selected chapters within each section.</p> }
           </div>
-          <details class="qpg-plan" [open]="templateId !== 'auto'">
+          <details class="qpg-plan" [open]="templateId !== 'auto' && !isCompactViewport">
             <summary>Section plan · {{ requiredQuestionCount }} questions · {{ marks }} marks</summary>
             <p class="muted small">Review the template's starting plan. Adjust the counts and marks to suit your test; the paper total updates automatically.</p>
             @for (rule of rules; track rule.id; let i = $index) {
@@ -135,11 +150,11 @@ import {
               </div>
             }
           </details>
-          <div class="button-row"><button class="btn btn-primary" type="button" (click)="runCoverage()">Check availability</button></div>
+          <div class="button-row qpg-inline-action"><button class="btn btn-primary" type="button" (click)="runCoverage()">Check availability</button></div>
         </fieldset>
       </section>
 
-      <section class="section" aria-labelledby="coverage-heading">
+      <section class="section" [class.qpg-mobile-hidden]="isCompactViewport && (mobileStep !== 3 || showMobileDrafts)" aria-labelledby="coverage-heading">
         <div class="section-head"><div><p class="eyebrow">Step 3 · coverage</p><h2 id="coverage-heading">Check the question bank</h2></div>
           @if (coverageChecked) { <span class="pill" [class.success]="!totalGapCount" [class.warning]="totalGapCount > 0">{{ totalGapCount ? totalGapCount + ' more needed' : 'Ready to prepare' }}</span> }
         </div>
@@ -155,7 +170,7 @@ import {
           @if (gaps.length) {
             <div class="card qpg-card">
               <div class="section-head qpg-compact"><div><h3>Questions still needed</h3><p class="muted small">These chapters need more questions that match the section type and difficulty.</p></div>
-                <button class="btn btn-primary" type="button" [disabled]="loading || priorityItemsCreated || !!truncatedScopes.length || loadedSnapshot" (click)="createPriorityItems()">{{ priorityItemsCreated ? 'Questions requested' : 'Request missing questions' }}</button>
+                <button class="btn btn-primary qpg-inline-action" type="button" [disabled]="loading || priorityItemsCreated || !!truncatedScopes.length || loadedSnapshot" (click)="createPriorityItems()">{{ priorityItemsCreated ? 'Questions requested' : 'Request missing questions' }}</button>
               </div>
               <div class="qpg-gap-list">
                 @for (gap of gaps; track gap.sectionId + gap.subject + gap.chapter) {
@@ -166,21 +181,21 @@ import {
             </div>
           }
           @if (!loadedSnapshot) {
-            <div class="button-row"><button class="btn btn-primary" type="button" [disabled]="loading || !matchedQuestionCount" (click)="generateDraft()">{{ totalGapCount ? 'Preview available questions' : 'Preview paper' }}</button></div>
+            <div class="button-row qpg-inline-action"><button class="btn btn-primary" type="button" [disabled]="loading || !matchedQuestionCount" (click)="generateDraft()">{{ totalGapCount ? 'Preview available questions' : 'Preview paper' }}</button></div>
           }
         }
       </section>
 
-      <section class="section" aria-labelledby="preview-heading">
+      <section class="section" [class.qpg-mobile-hidden]="isCompactViewport && (mobileStep !== 4 || showMobileDrafts)" aria-labelledby="preview-heading">
         <div class="section-head"><div><p class="eyebrow">Step 4 · output</p><h2 id="preview-heading">Preview your paper</h2></div>
           @if (hasGeneratedQuestions) {
-            <div class="button-row"><button class="btn btn-primary" type="button" [disabled]="loading || !!savedDraftId" (click)="saveDraft()">{{ savedDraftId ? 'Draft saved' : 'Save draft' }}</button>
+            <div class="button-row"><button class="btn btn-primary qpg-inline-save" type="button" [disabled]="loading || !!savedDraftId" (click)="saveDraft()">{{ savedDraftId ? 'Draft saved' : 'Save draft' }}</button>
               <button class="btn btn-secondary" type="button" [disabled]="!completePaper" (click)="printPaper(false)">Print paper / Save PDF</button>
               <button class="btn btn-secondary" type="button" [disabled]="!completePaper" (click)="printPaper(true)">Print answer key</button>
             </div>
           }
         </div>
-        @if (savedDraftId) { <div class="card qpg-success" role="status">Your draft is saved. Reopen it from Recent drafts below.</div> }
+        @if (savedDraftId) { <div class="card qpg-success" role="status">Your draft is saved. Reopen it from Saved papers.</div> }
         @if (!hasGeneratedQuestions) { <div class="card muted-card">Your paper and its separate answer key will appear here after previewing.</div> }
         @if (hasGeneratedQuestions) {
           @if (!completePaper) { <div class="card qpg-warning">Incomplete draft: {{ generatedMarks }} of {{ marks }} marks. You can save this draft. Fill the missing questions before printing the student paper.</div> }
@@ -214,7 +229,7 @@ import {
           </details>
         }
       </section>
-      <section class="section" aria-labelledby="drafts-heading">
+      <section class="section" [class.qpg-mobile-hidden]="isCompactViewport && !showMobileDrafts" aria-labelledby="drafts-heading">
         <div class="section-head"><h2 id="drafts-heading">Recent drafts</h2><button class="btn btn-secondary qpg-mini" type="button" [disabled]="loading" (click)="loadDrafts()">Refresh drafts</button></div>
         @if (draftListError) { <p class="qpg-error" role="alert">{{ draftListError }}</p> }
         @if (!recentDrafts.length && !draftListError) { <div class="card muted-card">Saved papers will appear here for you and other admins.</div> }
@@ -222,11 +237,19 @@ import {
           <article class="card qpg-draft-row"><div><strong>{{ draft.title || draft.templateName || 'Saved paper' }}</strong><p class="muted small">{{ draft.board }} · Standard {{ draft.standard }} · {{ draft.subjects.join(', ') }} · {{ draft.marks }} marks</p></div><button class="btn btn-secondary" type="button" [disabled]="loading" (click)="openDraft(draft.id)">Open draft</button></article>
         }</div>
       </section>
+      @if (isCompactViewport && !showMobileDrafts && !loading && (mobileStep === 2 || (mobileStep === 3 && (matchedQuestionCount || gaps.length)) || (mobileStep === 4 && hasGeneratedQuestions && !savedDraftId))) {
+        <div class="qpg-mobile-bar">
+          @if (mobileStep === 2) { <button class="btn btn-primary" type="button" (click)="runCoverage()">Check availability</button> }
+          @if (mobileStep === 3 && matchedQuestionCount) { <button class="btn btn-primary" type="button" (click)="generateDraft()">{{ totalGapCount ? 'Preview available questions' : 'Preview paper' }}</button> }
+          @if (mobileStep === 3 && !matchedQuestionCount && gaps.length) { <button class="btn btn-primary" type="button" [disabled]="priorityItemsCreated || !!truncatedScopes.length" (click)="createPriorityItems()">{{ priorityItemsCreated ? 'Questions requested' : 'Request missing questions' }}</button> }
+          @if (mobileStep === 4 && hasGeneratedQuestions && !savedDraftId) { <button class="btn btn-primary" type="button" (click)="saveDraft()">Save draft</button> }
+        </div>
+      }
     </div>
   `,
 
 })
-export class QuestionPaperGeneratorPage implements OnInit {
+export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
   syllabus: SyllabusItem[] = [];
   templates: QuestionPaperTemplate[] = [];
   questions: NormalizedQuestion[] = [];
@@ -243,6 +266,18 @@ export class QuestionPaperGeneratorPage implements OnInit {
   title = 'Chapter practice test';
   templateId = 'auto';
   showSampleAnswer = false;
+  mobileSampleOpen = false;
+  isCompactViewport = false;
+  mobileStep: 1 | 2 | 3 | 4 = 1;
+  furthestMobileStep: 1 | 2 | 3 | 4 = 1;
+  showMobileDrafts = false;
+  chapterSearch = '';
+  private viewportQuery: MediaQueryList | null = null;
+  private readonly onViewportChange = (event: MediaQueryListEvent): void => {
+    this.isCompactViewport = event.matches;
+    if (event.matches) this.syncMobileStep();
+    this.changeDetector.markForCheck();
+  };
   marks = 40;
   durationMinutes = 90;
   negativeMarking = 0;
@@ -265,7 +300,47 @@ export class QuestionPaperGeneratorPage implements OnInit {
     private readonly auth: AuthService,
     private readonly changeDetector: ChangeDetectorRef,
   ) {}
-  async ngOnInit(): Promise<void> { await this.loadInitialData(); }
+  async ngOnInit(): Promise<void> {
+    if (typeof window !== 'undefined') {
+      this.viewportQuery = window.matchMedia('(max-width: 640px)');
+      this.isCompactViewport = this.viewportQuery.matches;
+      this.viewportQuery.addEventListener('change', this.onViewportChange);
+    }
+    await this.loadInitialData();
+  }
+  ngOnDestroy(): void { this.viewportQuery?.removeEventListener('change', this.onViewportChange); }
+  get selectedFormatTitle(): string { return this.paperFormatOptions.find((format) => format.id === this.templateId)?.title ?? this.selectedTemplate?.title ?? 'Saved format'; }
+  get filteredChapterCount(): number { return this.chapterOptions.filter((scope) => `${scope.subject} ${scope.chapter}`.toLocaleLowerCase().includes(this.chapterSearch.trim().toLocaleLowerCase())).length; }
+  get visibleChapterOptions(): (ChapterScope & { id: string })[] {
+    if (!this.isCompactViewport) return this.chapterOptions;
+    const search = this.chapterSearch.trim().toLocaleLowerCase();
+    return this.chapterOptions.filter((scope) => `${scope.subject} ${scope.chapter}`.toLocaleLowerCase().includes(search)).slice(0, 8);
+  }
+  goToMobileStep(step: 1 | 2 | 3 | 4): void {
+    if (!this.isCompactViewport || step > this.furthestMobileStep || (this.loadedSnapshot && step !== 4)) return;
+    this.showMobileDrafts = false;
+    this.mobileStep = step;
+    this.mobileSampleOpen = false;
+    this.scrollToMobileContent();
+  }
+  toggleMobileDrafts(): void {
+    this.showMobileDrafts = !this.showMobileDrafts;
+    this.mobileSampleOpen = false;
+    this.scrollToMobileContent();
+  }
+  private advanceMobileStep(step: 2 | 3 | 4): void {
+    this.furthestMobileStep = Math.max(this.furthestMobileStep, step) as 2 | 3 | 4;
+    if (this.isCompactViewport) this.goToMobileStep(step);
+    else this.mobileStep = step;
+  }
+  private syncMobileStep(): void {
+    if (this.loadedSnapshot || this.hasGeneratedQuestions) this.advanceMobileStep(4);
+    else if (this.coverageChecked) this.advanceMobileStep(3);
+  }
+  private scrollToMobileContent(): void {
+    if (!this.isCompactViewport) return;
+    requestAnimationFrame(() => document.querySelector('.qpg-journey')?.scrollIntoView({ block: 'start', behavior: 'auto' }));
+  }
   get boardOptions(): string[] { return this.unique(this.syllabus.map((item) => item.board)); }
   get standardOptions(): string[] { return this.unique(this.syllabus.filter((item) => item.board === this.board).map((item) => item.standard)); }
   get subjectOptions(): string[] { return this.unique(this.syllabus.filter((item) => item.board === this.board && item.standard === this.standard).map((item) => item.subject)); }
@@ -301,6 +376,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
     if (this.loading || this.loadedSnapshot || (id !== 'auto' && !this.matchingTemplates.some((template) => template.id === id))) return;
     this.templateId = id;
     this.onTemplateChange();
+    this.advanceMobileStep(2);
   }
 
   get requiredQuestionCount(): number { return this.rules.reduce((sum, rule) => sum + Number(rule.requiredCount || 0), 0); }
@@ -338,15 +414,15 @@ export class QuestionPaperGeneratorPage implements OnInit {
     catch (error) { this.draftListError = `Saved papers could not be loaded. ${this.message(error)}`; }
     finally { this.changeDetector.markForCheck(); }
   }
-  onBoardChange(): void { this.standard = ''; this.subjects = []; this.chapters = []; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
-  onStandardChange(): void { this.subjects = []; this.chapters = []; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
+  onBoardChange(): void { this.standard = ''; this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
+  onStandardChange(): void { this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
   onTemplateChange(): void { this.showSampleAnswer = false; this.rebuildRules(); this.resetResults(); }
   onSetupChange(): void { this.resetResults(); }
   onMarksChange(): void { if (this.templateId === 'auto') this.rules = buildGenerationRules(null, this.subjects, Number(this.marks)); this.resetResults(); }
   onRuleChange(): void { this.marks = ruleMarks(this.rules); this.resetResults(); }
   toggleSubject(subject: string): void {
     this.subjects = this.subjects.includes(subject) ? this.subjects.filter((item) => item !== subject) : [...this.subjects, subject];
-    this.chapters = this.chapters.filter((id) => this.chapterOptions.some((scope) => scope.id === id));
+    this.chapters = this.chapters.filter((id) => this.chapterOptions.some((scope) => scope.id === id)); this.chapterSearch = '';
     if (this.templateId !== 'auto' && !this.matchingTemplates.some((template) => template.id === this.templateId)) this.templateId = 'auto';
     this.rebuildRules(); this.resetResults();
   }
@@ -380,6 +456,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
       const plan = createPaperPlan(setup, rules, result.questions);
       this.questions = result.questions; this.truncatedScopes = result.truncatedScopes; this.excludedCount = result.excludedCount;
       this.plan = plan; this.gaps = plan.gaps; this.coverageChecked = true; this.checkedFingerprint = fingerprint;
+      this.advanceMobileStep(3);
     } catch (error) { if (revision === this.revision) this.errorMessage = this.message(error); }
     finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
@@ -388,6 +465,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
     if (!this.isCurrent() || !this.plan || this.loading) return;
     this.generatedSections = structuredClone(this.plan.sections);
     this.savedDraftId = '';
+    this.advanceMobileStep(4);
     this.changeDetector.markForCheck();
   }
   async saveDraft(): Promise<void> {
@@ -431,10 +509,11 @@ export class QuestionPaperGeneratorPage implements OnInit {
       this.rules = structuredClone(draft.rules); this.generatedSections = structuredClone(draft.sections);
       this.gaps = structuredClone(draft.coverage.gaps); this.loadedSnapshot = true; this.coverageChecked = true;
       this.savedDraftId = draft.id; this.checkedFingerprint = setupFingerprint(this.currentSetup(), this.rules);
+      this.showMobileDrafts = false; this.advanceMobileStep(4);
     } catch (error) { this.errorMessage = this.message(error); }
     finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
-  useSavedSetup(): void { this.resetResults(); }
+  useSavedSetup(): void { this.resetResults(); this.advanceMobileStep(2); }
   async printPaper(answers: boolean): Promise<void> {
     if (!this.completePaper) return;
     const printWindow = window.open('', '_blank', 'width=900,height=800');
@@ -470,6 +549,7 @@ export class QuestionPaperGeneratorPage implements OnInit {
     this.revision++; this.questions = []; this.generatedSections = []; this.gaps = []; this.plan = null;
     this.coverageChecked = false; this.checkedFingerprint = ''; this.priorityItemsCreated = false;
     this.savedDraftId = ''; this.errorMessage = ''; this.loadedSnapshot = false; this.truncatedScopes = []; this.excludedCount = 0;
+    this.furthestMobileStep = this.mobileStep === 1 ? 1 : 2;
   }
   private actorId(): string { const profile = this.auth.profile(); return profile?.uid || profile?.email || ''; }
   private unique(values: string[]): string[] { return [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })); }

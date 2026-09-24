@@ -177,7 +177,7 @@ import {
           @if (gaps.length) {
             <div class="card qpg-card">
               <div class="section-head qpg-compact"><div><h3>Questions still needed</h3><p class="muted small">These chapters need more questions that match the section type and difficulty.</p></div>
-                <button class="btn btn-primary qpg-inline-action" type="button" [disabled]="loading || priorityItemsCreated || !!truncatedScopes.length || loadedSnapshot" (click)="createPriorityItems()">{{ priorityItemsCreated ? 'Questions requested' : 'Request missing questions' }}</button>
+                <button class="btn btn-primary" [class.qpg-inline-action]="!matchedQuestionCount" type="button" [disabled]="loading || priorityItemsCreated || !!truncatedScopes.length || loadedSnapshot" (click)="createPriorityItems()">{{ priorityItemsCreated ? 'Questions requested' : 'Request missing questions' }}</button>
               </div>
               <div class="qpg-gap-list">
                 @for (gap of gaps; track gap.sectionId + gap.subject + gap.chapter) {

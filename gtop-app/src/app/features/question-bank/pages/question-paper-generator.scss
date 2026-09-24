@@ -93,10 +93,15 @@
     @media (max-width: 640px) {
       .qpg-page { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
       .qpg-page .lede,.qpg-admin-actions { display: none; }
-      .qpg-page .page-head { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+      .qpg-page .page-head { margin-bottom: 8px; }
       .qpg-page .page-head h1 { font-size: clamp(1.38rem,6vw,1.8rem); line-height: 1.2; }
       .qpg-mobile-only { display: inline-flex; }
-      .qpg-drafts-link { margin-left: auto; flex: 0 0 auto; font-size: .75rem; padding: 8px; }
+      .qpg-mobile-toolbar { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; margin: 0 0 8px; }
+      .qpg-mobile-toolbar > .btn,.qpg-mobile-tools > summary { min-height: 38px; padding: 7px 6px; font-size: .73rem; text-align: center; justify-content: center; }
+      .qpg-mobile-tools { position: relative; }
+      .qpg-mobile-tools > summary { display: flex; align-items: center; list-style: none; cursor: pointer; }
+      .qpg-mobile-tools > summary::-webkit-details-marker { display: none; }
+      .qpg-mobile-tools-list { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; min-width: 190px; display: grid; gap: 6px; padding: 8px; border: 1px solid #d9e2ed; border-radius: 10px; background: #fff; box-shadow: 0 8px 20px rgb(18 38 69 / 12%); }
       .qpg-mobile-hidden { display: none !important; }
       .qpg-journey { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); overflow: visible; margin: 8px 0 18px; scroll-margin-top: 8px; }
       .qpg-journey button { min-width: 0; font-size: .68rem; padding: 9px 2px; white-space: normal; border-left: 0 !important; }

@@ -29,7 +29,14 @@ import {
           <a class="btn btn-secondary" routerLink="/admin/mcq-management">Question bank</a>
           <button class="btn btn-secondary" type="button" [disabled]="loading" (click)="loadInitialData()">Refresh</button>
         </div>
-        <button class="btn btn-secondary qpg-mobile-only qpg-drafts-link" type="button" (click)="toggleMobileDrafts()">{{ showMobileDrafts ? 'Back to paper' : 'Saved papers' }}</button>
+      </div>
+      <div class="qpg-mobile-toolbar qpg-mobile-only">
+        <button class="btn btn-secondary" type="button" (click)="toggleMobileDrafts()">{{ showMobileDrafts ? 'Back to paper' : 'Saved papers' }}</button>
+        <a class="btn btn-secondary" routerLink="/admin/mcq-management">Question bank</a>
+        <details class="qpg-mobile-tools"><summary class="btn btn-secondary">More</summary>
+          <div class="qpg-mobile-tools-list"><a class="btn btn-secondary" routerLink="/admin/question-review">Review new questions</a>
+            <button class="btn btn-secondary" type="button" [disabled]="loading" (click)="loadInitialData()">Refresh</button></div>
+        </details>
       </div>
       <nav class="qpg-journey" aria-label="Paper workflow">
         <button type="button" [class.active]="mobileStep === 1 && !showMobileDrafts" [disabled]="isCompactViewport && (loadedSnapshot || furthestMobileStep < 1)" (click)="goToMobileStep(1)"><b>01</b> Format</button>

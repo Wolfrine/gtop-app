@@ -13,6 +13,17 @@ This repo owns the GTOP product. Treat it as an independent production applicati
 - Check branch and dirty worktree state before mutating files. Preserve unrelated user or agent changes.
 - Use the CEO dashboard operating model as coordination context: GTOP work may be tracked or reviewed from a central command surface, but implementation remains inside this repo unless a cross-repo change is explicitly requested.
 
+## UI / UX Execution
+
+For UI, UX, layout, styling, motion, responsive behavior, landing-page, dashboard, or visual-quality work:
+
+- Read `Wolfrine/Central/design/README.md`, `UI_AGENT_PROTOCOL.md`, and `EXECUTION_ROUTING.md`.
+- Read `design/README.md` and the relevant local design note before changing visuals.
+- Route by evidence needed, not task size: deterministic edits may use Chat + GitHub; visually judged implementation should use Codex with the running app/browser; Work is for larger design research/audit before implementation.
+- Any change whose correctness depends on appearance is incomplete until the actual rendered surface has been checked on desktop and mobile and known material defects have been corrected.
+- A passing build, tests, or code diff does not establish visual quality.
+- Keep local design memory concise; retrieve only relevant Central knowledge instead of reading/copying the full design corpus.
+
 ## Project Wiki Rules
 
 - Use `wiki/` as GTOP's business/product memory: intent, user problems, product logic, decisions, open questions, and implementation-independent lessons.

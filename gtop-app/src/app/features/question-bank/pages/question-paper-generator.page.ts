@@ -317,7 +317,11 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     return this.chapterOptions.filter((scope) => `${scope.subject} ${scope.chapter}`.toLocaleLowerCase().includes(search)).slice(0, 8);
   }
   goToMobileStep(step: 1 | 2 | 3 | 4): void {
-    if (!this.isCompactViewport || step > this.furthestMobileStep || (this.loadedSnapshot && step !== 4)) return;
+    if (!this.isCompactViewport) {
+      document.getElementById((['format-heading', 'setup-heading', 'coverage-heading', 'preview-heading'] as const)[step - 1])?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    if (step > this.furthestMobileStep || (this.loadedSnapshot && step !== 4)) return;
     this.showMobileDrafts = false;
     this.mobileStep = step;
     this.mobileSampleOpen = false;

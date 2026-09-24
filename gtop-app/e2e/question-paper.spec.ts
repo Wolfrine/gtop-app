@@ -173,11 +173,13 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   await expect(page.getByLabel('Marks', { exact: true })).toHaveValue('6');
   await expect(page.getByLabel('Duration minutes', { exact: true })).toHaveValue('30');
   await page.getByLabel('Paper title', { exact: true }).fill(title);
+  if (compact) await page.screenshot({ path: testInfo.outputPath('mobile-selected-setup.png'), fullPage: true });
   await page.getByRole('button', { name: 'Check availability', exact: true }).click();
   await expect(page.getByText('Ready to prepare', { exact: true })).toBeVisible();
   if (compact) {
     await expect(page.getByRole('heading', { name: 'Choose what to cover' })).toBeHidden();
     await expect(page.locator('.qpg-mobile-bar')).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('mobile-coverage.png'), fullPage: true });
   }
   await page.getByRole('button', { name: 'Preview paper', exact: true }).click();
   await expect(page.locator('.qpg-question-list > li')).toHaveCount(4);

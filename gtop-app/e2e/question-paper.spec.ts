@@ -135,7 +135,10 @@ test('admin sees a chapter priority, live coverage and approved bank at scale', 
   await expect(page.getByRole('heading', { name: 'Question bank', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Motion', exact: true })).toBeVisible();
   await expect(page.getByText('55', { exact: true }).first()).toBeVisible();
+  if (await page.locator('.qb-priority.selected').isVisible())
+    await expect(page.locator('.qb-priority.selected .qb-priority-progress')).toContainText('55 pending');
   await expect(page.getByRole('link', { name: 'Review its drafts' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Save priority' })).toHaveCSS('background-color', 'rgb(36, 84, 181)');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('priority-coverage.png'), fullPage: true });
   await page.getByRole('link', { name: 'Bank', exact: true }).click();

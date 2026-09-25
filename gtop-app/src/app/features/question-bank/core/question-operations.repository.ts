@@ -20,7 +20,7 @@ export interface PriorityItem {
   source: string;
   requiredCount: number;
   availableCount: number;
-  pendingCount: number;
+  pendingCount: number | null;
   stagedCount: number;
   blocker: string;
   agentRunId: string;
@@ -69,7 +69,8 @@ function toPriority(id: string, data: Record<string, unknown>): PriorityItem {
     priority: textValue(data['priority']) || 'medium', status: textValue(data['status']) || 'open',
     source: textValue(data['source']), requiredCount: Number(data['requiredCount']) || 0,
     availableCount: Number(data['availableCount']) || 0,
-    pendingCount: Number(progress['pendingDraftCount']) || 0,
+    pendingCount: typeof progress['pendingDraftCount'] === 'number'
+      ? progress['pendingDraftCount'] as number : null,
     stagedCount: Number(progress['stagedCount']) || Number(data['generatedCount']) || 0,
     blocker: textValue(data['lastBlocker'] || data['blocker']),
     agentRunId: textValue(progress['lastRunId'] || data['agentRunId']),

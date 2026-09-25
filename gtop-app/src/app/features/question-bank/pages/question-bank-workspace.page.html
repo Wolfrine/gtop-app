@@ -55,7 +55,7 @@
               <span class="qb-status" [class.blocked]="item.status === 'blocked'">{{ statusLabel(item.status) }}</span></span>
             <strong>{{ item.chapter || 'Chapter not specified' }}</strong>
             <span class="qb-muted">{{ item.board }} · Class {{ item.standard }} · {{ item.subject }}</span>
-            <span class="qb-priority-progress">Target {{ item.requiredCount }} <span>·</span> {{ item.pendingCount }} pending</span>
+            <span class="qb-priority-progress">Target {{ item.requiredCount }} <span>·</span> {{ selectedPriority()?.id === item.id && counts() ? counts()!.pending : (item.pendingCount ?? '—') }} pending</span>
           </button>
         }
       </div>

@@ -6,6 +6,35 @@
 @use './app/features/question-bank/pages/question-bank-workspace';
 @use './app/features/question-bank/pages/question-review-workbench';
 
+:where(.qb-page, .qr-page) .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 8px 13px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 750;
+  line-height: 1.15;
+  text-decoration: none;
+  cursor: pointer;
+}
+:where(.qb-page, .qr-page) .btn-primary {
+  color: #fff;
+  background: #2454b5;
+  border-color: #2454b5;
+}
+:where(.qb-page, .qr-page) .btn-secondary {
+  color: #214d9c;
+  background: #fff;
+  border-color: #a7b9d6;
+}
+:where(.qb-page, .qr-page) .btn:disabled { opacity: .56; cursor: not-allowed; }
+:where(.qb-page, .qr-page) .btn:focus-visible { outline: 3px solid #efbb58; outline-offset: 2px; }
+
 html {
   overscroll-behavior-y: contain;
 }

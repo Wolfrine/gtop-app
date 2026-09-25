@@ -142,6 +142,14 @@ test('admin sees a chapter priority, live coverage and approved bank at scale', 
   await expect(page.getByRole('heading', { name: 'Browse the bank' })).toBeVisible();
   await expect(page.locator('.qb-bank-row')).toHaveCount(2);
   await page.screenshot({ path: testInfo.outputPath('approved-bank.png'), fullPage: true });
+  await page.getByRole('link', { name: 'Coverage', exact: true }).click();
+  await page.getByRole('spinbutton', { name: 'Approved target' }).fill('1200');
+  await page.getByRole('button', { name: 'Save priority' }).click();
+  await expect(page.getByText('Priority saved.', { exact: false })).toBeVisible();
+  await environment.withSecurityRulesDisabled(async context => {
+    expect((await getDoc(doc(context.firestore(), 'questionBankPriorityItems', priorityId))).data())
+      .toMatchObject({ requiredCount: 1200, gapCount: 1198, status: 'open' });
+  });
 });
 
 async function expectNoHorizontalOverflow(page: Page) {

@@ -57,7 +57,7 @@
             <option value="all">All loaded · {{ items().length }}</option>
             @for (batch of batches(); track batch.id) { <option [value]="batch.id">{{ batch.title }} · {{ batch.count }}</option> }
           </select></label>
-          <input type="search" aria-label="Search loaded questions" placeholder="Find in loaded questions"
+          <input type="search" aria-label="Search loaded questions" placeholder="Search questions"
             [ngModel]="search()" (ngModelChange)="search.set($event); clearSelection()" />
           <select aria-label="Question type" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event); clearSelection()">
             <option value="all">All types</option>

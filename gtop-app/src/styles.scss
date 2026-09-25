@@ -35,6 +35,49 @@
 :where(.qb-page, .qr-page) .btn:disabled { opacity: .56; cursor: not-allowed; }
 :where(.qb-page, .qr-page) .btn:focus-visible { outline: 3px solid #efbb58; outline-offset: 2px; }
 
+@media (max-width: 640px) {
+  .qb-page, .qr-page {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 14px 90px;
+  }
+
+  .qb-page .qb-new-paper { display: none; }
+
+  .qb-nav, .qr-nav {
+    border-color: #cbd8eb;
+    border-radius: 12px;
+    margin-bottom: 14px;
+  }
+
+  .qb-nav a, .qr-nav a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 5px 2px;
+  }
+
+  .qb-queue, .qb-panel, .qr-overview, .qr-rows {
+    border-color: #d2deed;
+    border-radius: 12px;
+  }
+
+  .qb-panel, .qb-queue { padding: 14px; }
+  .qb-priority { border-color: #d2deed; }
+
+  .qr-page { padding-bottom: 112px; }
+  .qr-filter-bar input, .qr-filter-bar select { min-height: 42px; }
+  .qr-selection {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: 1px solid #365889;
+    border-radius: 12px;
+    box-shadow: 0 9px 25px #14284955;
+  }
+}
+
 html {
   overscroll-behavior-y: contain;
 }

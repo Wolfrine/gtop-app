@@ -157,7 +157,7 @@ describe('question review queue and validation', () => {
   it('blocks written answers and missing explanations from the learner bank', () => {
     const draft = toReviewDraft('a', source());
     expect(validateReviewEdits(draft, { ...draft, options: [] })).toContain(
-      'must be marked for question papers',
+      'submitted as a written-answer',
     );
     expect(validateReviewEdits(draft, { ...draft, solutions: [] })).toContain('explanation');
     expect(validateReviewEdits(draft, { ...draft, correctIndex: 4 })).toContain('correct answer');
@@ -167,11 +167,12 @@ describe('question review queue and validation', () => {
   });
 
   it('allows paper-only written answers and still requires options for objective types', () => {
-    const raw = { ...source(), paperOnly: true, options: [], correctIndex: -1 };
+    const raw = { ...source(), options: [], correctIndex: -1 };
     const draft = toReviewDraft('written', raw);
+    expect(draft.paperOnly).toBe(true);
     expect(validateReviewEdits(draft, draft)).toBe('');
     expect(validateReviewEdits({ ...draft, questionType: 'mcq' }, draft)).toContain('needs answer options');
-    expect(validateReviewEdits({ ...draft, paperOnly: false }, draft)).toContain('must be marked');
+    expect(validateReviewEdits({ ...draft, paperOnly: false }, draft)).toContain('submitted as a written-answer');
   });
 
   it('requires a visible asset for a diagram-based question', () => {
@@ -240,7 +241,7 @@ describe('atomic question approval and rejection', () => {
 
   it('approves written answers for papers without writing to the learner bank or MCQ count', async () => {
     const written = {
-      ...source(), paperOnly: true, options: [], correctIndex: -1, questionType: 'short_answer',
+      ...source(), options: [], correctIndex: -1, questionType: 'short_answer',
     };
     memory.documents.set('devQuestions/draft-1', written);
     draft = toReviewDraft('draft-1', written);

@@ -194,7 +194,7 @@ import {
                       @if (draft.paperOnly) {
                         This written answer will be available for question papers after approval.
                       } @else {
-                        This draft needs a paper-only designation before a written answer can be approved.
+                        This objective draft needs answer options. Ask its creator to correct the question type or options.
                       }
                     </p>
                   }

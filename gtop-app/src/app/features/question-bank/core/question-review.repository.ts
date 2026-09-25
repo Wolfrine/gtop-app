@@ -100,7 +100,9 @@ export function toReviewDraft(id: string, raw: Record<string, unknown>): ReviewD
     sourceTemplateId: textValue(raw['sourceTemplateId']),
     contentPurpose: textValue(raw['contentPurpose']),
     reviewNotes: textValue(raw['reviewNotes']),
-    paperOnly: raw['paperOnly'] === true,
+    paperOnly: raw['paperOnly'] === true ||
+      (normalized.options.length === 0 &&
+        !['mcq', 'assertion_reason', 'statement_based'].includes(normalized.questionType)),
     version: reviewVersion(raw),
   };
 }
@@ -112,10 +114,10 @@ export function validateReviewEdits(draft: ReviewDraft, edits: ReviewEdits): str
   if (edits.question.length > 20_000 || edits.title.length > 500)
     return 'Shorten the question or title before approving.';
   if (edits.options.length === 0) {
-    if (!draft.paperOnly)
-      return 'This written-answer draft must be marked for question papers before approval.';
     if (['mcq', 'assertion_reason', 'statement_based'].includes(draft.questionType))
       return 'This objective question needs answer options and a correct answer.';
+    if (!draft.paperOnly)
+      return 'This draft must be submitted as a written-answer question before approval.';
   } else {
     if (edits.options.length < 2 || edits.options.length > 10)
       return 'Use between 2 and 10 answer options.';
@@ -275,6 +277,7 @@ export class QuestionReviewRepository {
       const audit = {
         reviewStatus: draft.paperOnly ? 'approved-paper-only' : 'approved',
         status: 'approved',
+        ...(draft.paperOnly ? { paperOnly: true } : {}),
         reviewNotes: reviewNotes.trim(),
         reviewedAt: serverTimestamp(),
         reviewedBy: actorId,

@@ -157,13 +157,22 @@ describe('question review queue and validation', () => {
   it('blocks written answers and missing explanations from the learner bank', () => {
     const draft = toReviewDraft('a', source());
     expect(validateReviewEdits(draft, { ...draft, options: [] })).toContain(
-      'Written-answer publishing',
+      'submitted as a written-answer',
     );
     expect(validateReviewEdits(draft, { ...draft, solutions: [] })).toContain('explanation');
     expect(validateReviewEdits(draft, { ...draft, correctIndex: 4 })).toContain('correct answer');
     expect(
       validateReviewEdits(draft, { ...draft, options: ['Same answer', ' same  answer '] }),
     ).toContain('distinct');
+  });
+
+  it('allows paper-only written answers and still requires options for objective types', () => {
+    const raw = { ...source(), options: [], correctIndex: -1 };
+    const draft = toReviewDraft('written', raw);
+    expect(draft.paperOnly).toBe(true);
+    expect(validateReviewEdits(draft, draft)).toBe('');
+    expect(validateReviewEdits({ ...draft, questionType: 'mcq' }, draft)).toContain('needs answer options');
+    expect(validateReviewEdits({ ...draft, paperOnly: false }, draft)).toContain('submitted as a written-answer');
   });
 
   it('requires a visible asset for a diagram-based question', () => {
@@ -228,6 +237,47 @@ describe('atomic question approval and rejection', () => {
       'syllabus/motion-cbse-9',
       'devQuestions/draft-1',
     ]);
+  });
+
+  it('approves written answers for papers without writing to the learner bank or MCQ count', async () => {
+    const written = {
+      ...source(), options: [], correctIndex: -1, questionType: 'short_answer',
+    };
+    memory.documents.set('devQuestions/draft-1', written);
+    draft = toReviewDraft('draft-1', written);
+    edits = { ...draft, question: '  Explain the average speed calculation.  ' };
+    expect(await repository.approve(draft, edits, 'admin-1')).toEqual({
+      questionId: 'draft-1', alreadyApproved: false,
+    });
+    expect(memory.documents.get('devQuestions/draft-1')).toMatchObject({
+      paperOnly: true, reviewStatus: 'approved-paper-only', status: 'approved',
+      question: 'Explain the average speed calculation.', reviewedBy: 'admin-1',
+    });
+    expect(memory.documents.has('questions/draft-1')).toBe(false);
+    expect(memory.documents.get('syllabus/motion-cbse-9')?.['mcqCount']).toBe(7);
+    expect(memory.writes.map((write) => write.path)).toEqual(['devQuestions/draft-1']);
+
+    memory.writes.length = 0;
+    expect(await repository.approve(draft, edits, 'admin-2')).toEqual({
+      questionId: 'draft-1', alreadyApproved: true,
+    });
+    expect(memory.writes).toEqual([]);
+  });
+
+  it('blocks duplicate wording across paper-only and quiz questions', async () => {
+    const written = {
+      ...source(), paperOnly: true, options: [], correctIndex: -1, questionType: 'short_answer',
+    };
+    memory.documents.set('devQuestions/draft-1', written);
+    draft = toReviewDraft('draft-1', written);
+    edits = { ...draft };
+    memory.documents.set('devQuestions/older-paper-question', {
+      ...written, reviewStatus: 'approved-paper-only', status: 'approved',
+    });
+    await expect(repository.approve(draft, edits, 'admin-1')).rejects.toThrow(
+      'wording already exists',
+    );
+    expect(memory.writes).toEqual([]);
   });
 
   it('does not republish or increment the count on a repeated approval', async () => {

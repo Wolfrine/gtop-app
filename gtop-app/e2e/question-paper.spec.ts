@@ -130,6 +130,20 @@ test('learner accounts cannot open either admin module', async ({ page }) => {
   }
 });
 
+test('admin sees a chapter priority, live coverage and approved bank at scale', async ({ page }, testInfo) => {
+  await openAdmin(page, `/admin/question-bank?priorityId=${priorityId}`);
+  await expect(page.getByRole('heading', { name: 'Question bank', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Motion', exact: true })).toBeVisible();
+  await expect(page.getByText('55', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Review its drafts' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath('priority-coverage.png'), fullPage: true });
+  await page.getByRole('link', { name: 'Bank', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Browse the bank' })).toBeVisible();
+  await expect(page.locator('.qb-bank-row')).toHaveCount(2);
+  await page.screenshot({ path: testInfo.outputPath('approved-bank.png'), fullPage: true });
+});
+
 async function expectNoHorizontalOverflow(page: Page) {
   const readLayout = () => page.evaluate(() => ({
       documentWidth: document.documentElement.scrollWidth,

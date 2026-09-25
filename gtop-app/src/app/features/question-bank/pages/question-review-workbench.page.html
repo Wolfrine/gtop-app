@@ -27,6 +27,17 @@
       @if (priorityId) { <a class="btn btn-secondary" routerLink="/admin/question-review">See all pending drafts</a> }</div>
   }
 
+  @if (selected().length) {
+    <div class="qr-selection" role="region" aria-label="Selected question actions">
+      <div><strong>{{ selected().length }} selected</strong>
+        @if (selectedFlagged()) { <span>{{ selectedFlagged() }} flagged · excluded from approval</span> }
+        @else { <span>{{ quizDestination() }} quiz & paper · {{ paperDestination() }} paper only</span> }</div>
+      <div class="qr-selection-actions"><button type="button" class="qr-clear" (click)="clearSelection()" [disabled]="processing()">Clear</button>
+        <button type="button" class="btn btn-secondary" (click)="startAction('reject')" [disabled]="processing()">Reject selected</button>
+        <button type="button" class="btn btn-primary" (click)="startAction('approve')" [disabled]="processing() || !eligible().length">Approve {{ eligible().length }}</button></div>
+    </div>
+  }
+
   @if (items().length) {
     <div class="qr-layout">
       <aside class="card qr-batches" aria-label="Creator batches">
@@ -86,17 +97,6 @@
         @if (cursor()) { <button type="button" class="btn btn-secondary qr-next" [disabled]="loading() || processing()" (click)="load()">Load next 50 questions</button> }
         @if (cursor()) { <p class="qr-hint">Selection applies to loaded questions only. Load another page to add it to this selection.</p> }
       </section>
-    </div>
-  }
-
-  @if (selected().length) {
-    <div class="qr-selection" role="region" aria-label="Selected question actions">
-      <div><strong>{{ selected().length }} selected</strong>
-        @if (selectedFlagged()) { <span>{{ selectedFlagged() }} flagged · excluded from approval</span> }
-        @else { <span>{{ quizDestination() }} quiz & paper · {{ paperDestination() }} paper only</span> }</div>
-      <div class="qr-selection-actions"><button type="button" class="qr-clear" (click)="clearSelection()" [disabled]="processing()">Clear</button>
-        <button type="button" class="btn btn-secondary" (click)="startAction('reject')" [disabled]="processing()">Reject selected</button>
-        <button type="button" class="btn btn-primary" (click)="startAction('approve')" [disabled]="processing() || !eligible().length">Approve {{ eligible().length }}</button></div>
     </div>
   }
 

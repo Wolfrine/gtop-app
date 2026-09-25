@@ -12,7 +12,7 @@ The left column lists bounded, paginated priority items with status and search. 
 
 The queue counts all pending drafts and loads 50 at a time; the filter and select-all operate on loaded rows. Selection remains available after loading the next page. Each compact row contains chapter, question, short answer, type, difficulty, marks, and destination. Details reveal options, complete solution, reference, class fit, and diagram asset. The editor is available for exceptions. Approval excludes blocked priorities, mismatched class checks, missing source evidence, invalid answers, and repeated wording in the loaded batch. A confirmation states separately how many objective items enter the learner bank and how many written items enter papers only. Each transaction rechecks the source draft, syllabus, priority, and duplicates; failures stay pending and appear individually. Rejecting multiple items requires a note.
 
-The mobile layout collapses the batch rail into a selector and pins the selection actions near the bottom. It avoids showing every solution unless a row is opened.
+On desktop, the selection actions sit above the rows and stay visible while scrolling. The mobile layout collapses the batch rail into a selector and pins those actions near the bottom. Solutions stay folded until a row is opened.
 
 ## Scale and release checks
 

@@ -263,7 +263,8 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   await page.getByRole('button', { name: 'Request missing questions', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Questions requested', exact: true })).toBeDisabled();
   await environment.withSecurityRulesDisabled(async context => {
-    const requests = await getDocs(query(collection(context.firestore(), 'questionBankPriorityItems'), where('subject', '==', subject)));
+    const requests = await getDocs(query(collection(context.firestore(), 'questionBankPriorityItems'),
+      where('subject', '==', subject), where('source', '==', 'admin-question-paper-generator')));
     expect(requests.size).toBe(2);
     expect(requests.docs.reduce((sum, item) => sum + item.data().gapCount, 0)).toBe(4);
   });

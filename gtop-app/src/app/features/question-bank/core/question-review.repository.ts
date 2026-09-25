@@ -2,13 +2,17 @@ import { Injectable } from '@angular/core';
 import {
   collection,
   doc,
+  documentId,
+  getCountFromServer,
   getDoc,
   getDocs,
   increment,
   limit,
+  orderBy,
   query,
   runTransaction,
   serverTimestamp,
+  startAfter,
   where,
 } from '@angular/fire/firestore';
 import { FirebaseClient } from './firebase';
@@ -36,6 +40,15 @@ export interface ReviewDraft extends ReviewEdits {
   contentPurpose: string;
   reviewNotes: string;
   paperOnly: boolean;
+  sourcePriorityId: string;
+  agentRunId: string;
+  marks: number;
+  levelJustification: string;
+  referenceUsed: string;
+  referenceConfidence: number;
+  boardStandardMatched: boolean | null;
+  priorityStatus: string;
+  priorityBlocker: string;
   version: string;
 }
 
@@ -43,6 +56,8 @@ export interface ReviewQueue {
   items: ReviewDraft[];
   truncated: boolean;
   limit: number;
+  nextCursor: string | null;
+  total: number;
 }
 
 export type ApprovalResult = { questionId: string; alreadyApproved: boolean };
@@ -103,6 +118,17 @@ export function toReviewDraft(id: string, raw: Record<string, unknown>): ReviewD
     paperOnly: raw['paperOnly'] === true ||
       (normalized.options.length === 0 &&
         !['mcq', 'assertion_reason', 'statement_based'].includes(normalized.questionType)),
+    sourcePriorityId: textValue(raw['sourcePriorityId']),
+    agentRunId: textValue(raw['agentRunId']),
+    marks: Number(raw['marks']) || 0,
+    levelJustification: textValue(raw['levelJustification']),
+    referenceUsed: textValue(raw['referenceUsed']),
+    referenceConfidence: Number(raw['referenceConfidence']) || 0,
+    boardStandardMatched: typeof raw['boardStandardCheck'] === 'object' && raw['boardStandardCheck'] !== null &&
+      typeof (raw['boardStandardCheck'] as Record<string, unknown>)['matched'] === 'boolean'
+      ? (raw['boardStandardCheck'] as { matched: boolean }).matched : null,
+    priorityStatus: '',
+    priorityBlocker: '',
     version: reviewVersion(raw),
   };
 }
@@ -167,19 +193,38 @@ export function reviewErrorMessage(error: unknown): string {
 export class QuestionReviewRepository {
   constructor(private readonly firebase: FirebaseClient) {}
 
-  async pending(max = 50): Promise<ReviewQueue> {
+  async pending(max = 50, cursor?: string, priorityId?: string): Promise<ReviewQueue> {
     const pageLimit = Number.isFinite(max) ? Math.max(1, Math.min(100, Math.floor(max))) : 50;
+    if (priorityId && priorityId.includes('/')) throw new Error('The priority reference is invalid.');
+    const filters = [where('reviewStatus', '==', pendingStatus),
+      ...(priorityId ? [where('sourcePriorityId', '==', priorityId)] : [])];
+    const scope = query(collection(this.firebase.firestore, 'devQuestions'), ...filters);
     const snapshot = await getDocs(
       query(
         collection(this.firebase.firestore, 'devQuestions'),
-        where('reviewStatus', '==', pendingStatus),
+        ...filters,
+        orderBy(documentId()),
+        ...(cursor ? [startAfter(cursor)] : []),
         limit(pageLimit + 1),
       ),
     );
+    const visible = snapshot.docs.slice(0, pageLimit);
+    const items = visible.map((item) => toReviewDraft(item.id, item.data()));
+    const priorityIds = [...new Set(items.map((item) => item.sourcePriorityId).filter(Boolean))];
+    const priorities = await Promise.all(priorityIds.map((id) => getDoc(doc(this.firebase.firestore, 'questionBankPriorityItems', id))));
+    const statuses = new Map(priorities.map((item) => [item.id, item.data()]));
+    for (const item of items) {
+      const priority = statuses.get(item.sourcePriorityId);
+      item.priorityStatus = textValue(priority?.['status']);
+      item.priorityBlocker = textValue(priority?.['lastBlocker'] || priority?.['blocker']);
+    }
+    const count = await getCountFromServer(scope);
     return {
-      items: snapshot.docs.slice(0, pageLimit).map((item) => toReviewDraft(item.id, item.data())),
+      items,
       truncated: snapshot.size > pageLimit,
       limit: pageLimit,
+      nextCursor: snapshot.size > pageLimit ? visible.at(-1)?.id ?? null : null,
+      total: count.data().count,
     };
   }
 
@@ -203,6 +248,8 @@ export class QuestionReviewRepository {
     // supports transactional document reads. Its exact scope is rechecked below.
     const syllabusId = await this.resolveSyllabus(raw);
     const syllabusRef = doc(this.firebase.firestore, 'syllabus', syllabusId);
+    const priorityId = textValue(raw['sourcePriorityId']);
+    const priorityRef = priorityId ? doc(this.firebase.firestore, 'questionBankPriorityItems', priorityId) : null;
     const content: ReviewEdits = {
       title: edits.title.trim(),
       question: edits.question.trim(),
@@ -236,6 +283,7 @@ export class QuestionReviewRepository {
       const current = await transaction.get(sourceRef);
       const existing = await transaction.get(bankRef);
       const syllabus = await transaction.get(syllabusRef);
+      const priority = priorityRef ? await transaction.get(priorityRef) : null;
       if (!current.exists())
         throw new Error('This draft no longer exists. Refresh the review queue.');
       const fresh = current.data();
@@ -251,6 +299,13 @@ export class QuestionReviewRepository {
           'A published question already uses this draft ID. Nothing was overwritten. Refresh and ask support to check the duplicate.',
         );
       this.requirePendingVersion(fresh, draft);
+      if (priorityRef && !priority?.exists())
+        throw new Error('The source priority is missing. Restore its context before approval.');
+      if (priority?.data()?.['status'] === 'blocked')
+        throw new Error('This priority is blocked. Resolve its syllabus or reference issue before approving its questions.');
+      if (typeof fresh['boardStandardCheck'] === 'object' && fresh['boardStandardCheck'] !== null &&
+        (fresh['boardStandardCheck'] as Record<string, unknown>)['matched'] === false)
+        throw new Error('This draft did not pass its board and standard check.');
       if (!syllabus.exists())
         throw new Error(
           'The source chapter is missing. Restore or correct the syllabus before approving.',

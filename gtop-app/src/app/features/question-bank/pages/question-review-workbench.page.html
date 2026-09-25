@@ -1,0 +1,136 @@
+<div class="page qr-page">
+  <header class="qr-head"><div><p class="eyebrow">Admin · Question module</p><h1>Review new questions</h1>
+    <p>Scan a batch, select the questions that belong, and publish them together.</p></div>
+    <a class="btn btn-secondary qr-head-link" routerLink="/admin/question-bank">Coverage & priorities</a></header>
+  <nav class="qr-nav" aria-label="Question module">
+    <a routerLink="/admin/question-paper-generator">Papers</a>
+    <a routerLink="/admin/question-bank">Coverage</a>
+    <a class="active" aria-current="page" routerLink="/admin/question-review">Review</a>
+    <a routerLink="/admin/question-bank" [queryParams]="{view:'bank'}">Bank</a>
+  </nav>
+
+  @if (error()) { <div class="qr-alert" role="alert">{{ error() }}</div> }
+  @if (message()) { <div class="qr-success" role="status">{{ message() }}</div> }
+  @if (failures().length) {
+    <details class="qr-alert"><summary>{{ failures().length }} individual result(s) need attention</summary>
+      <ul>@for (failure of failures(); track failure) { <li>{{ failure }}</li> }</ul></details>
+  }
+
+  <div class="qr-overview"><div><strong>{{ total() }}</strong><span>awaiting review{{ priorityId ? ' in this priority' : '' }}</span></div>
+    <div><strong>{{ items().length }}</strong><span>loaded in this workbench</span></div>
+    <div><strong>{{ batches().length }}</strong><span>batches shown</span></div>
+    <button type="button" class="btn btn-secondary" (click)="load(true)" [disabled]="loading() || processing()">Refresh</button></div>
+
+  @if (loading() && !items().length) { <p class="qr-hint">Loading drafts and their priority checks…</p> }
+  @if (!loading() && !items().length && !error()) {
+    <div class="card qr-empty"><h2>No questions in this view</h2><p>The review queue is clear, or this priority has no pending drafts.</p>
+      @if (priorityId) { <a class="btn btn-secondary" routerLink="/admin/question-review">See all pending drafts</a> }</div>
+  }
+
+  @if (items().length) {
+    <div class="qr-layout">
+      <aside class="card qr-batches" aria-label="Creator batches">
+        <div class="qr-batch-head"><span class="eyebrow">Choose a batch</span><strong>{{ batches().length }} groups loaded</strong></div>
+        <button type="button" [class.active]="batchId() === 'all'" (click)="batchId.set('all'); clearSelection()">
+          <strong>All loaded questions</strong><span>{{ items().length }} loaded</span></button>
+        @for (batch of batches(); track batch.id) {
+          <button type="button" [class.active]="batchId() === batch.id" (click)="batchId.set(batch.id); clearSelection()">
+            <strong>{{ batch.title }}</strong><span>{{ batch.scope }}</span>
+            <small>{{ batch.count }} loaded @if (batch.flagged) { · {{ batch.flagged }} flagged }</small></button>
+        }
+      </aside>
+
+      <section class="qr-workbench" aria-label="Questions for review">
+        <div class="qr-filter-bar">
+          <label class="qr-mobile-batch">Batch<select aria-label="Select batch" [ngModel]="batchId()" (ngModelChange)="batchId.set($event); clearSelection()">
+            <option value="all">All loaded · {{ items().length }}</option>
+            @for (batch of batches(); track batch.id) { <option [value]="batch.id">{{ batch.title }} · {{ batch.count }}</option> }
+          </select></label>
+          <input type="search" aria-label="Search loaded questions" placeholder="Find in loaded questions"
+            [ngModel]="search()" (ngModelChange)="search.set($event); clearSelection()" />
+          <select aria-label="Question type" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event); clearSelection()">
+            <option value="all">All types</option>
+            @for (type of types(); track type) { <option [value]="type">{{ label(type) }}</option> }
+          </select>
+        </div>
+        <div class="qr-table-head"><label><input type="checkbox" [checked]="allShownSelected()"
+            [disabled]="processing() || !visible().length" (change)="selectVisible()" /> Select shown</label>
+          <span>{{ visible().length }} shown · {{ selected().length }} selected</span></div>
+        <div class="qr-rows">
+          @for (item of visible(); track item.id) {
+            <article class="qr-row" [class.selected]="selectedIds().has(item.id)" [class.flagged]="!!issue(item)">
+              <div class="qr-row-top">
+                <input type="checkbox" [attr.aria-label]="'Select ' + (item.title || item.question)" [checked]="selectedIds().has(item.id)"
+                  [disabled]="processing()" (change)="toggle(item.id)" />
+                <div class="qr-question"><span class="qr-scope">{{ item.board }} · {{ item.standard }} · {{ item.subject }} · {{ item.chapter }}</span>
+                  <strong>{{ item.question }}</strong><span class="qr-answer"><b>Answer:</b> {{ answer(item) }}</span></div>
+                <div class="qr-meta"><span>{{ label(item.questionType) }}</span><span>{{ label(item.difficulty) }}{{ item.marks ? ' · ' + item.marks + ' marks' : '' }}</span>
+                  <span>{{ item.paperOnly ? 'For papers' : 'Quiz & paper' }}</span></div>
+                <button class="qr-expand" type="button" [attr.aria-expanded]="expandedId() === item.id" (click)="expand(item.id)">{{ expandedId() === item.id ? 'Close' : 'Details' }}</button>
+              </div>
+              @if (issue(item)) { <p class="qr-flag">Needs individual attention · {{ issue(item) }}</p> }
+              @if (expandedId() === item.id) {
+                <div class="qr-detail">
+                  @if (item.options.length) { <ol type="A">@for (option of item.options; track $index) { <li [class.correct]="$index === item.correctIndex">{{ option }}</li> }</ol> }
+                  <div><b>Solution</b>@for (solution of item.solutions; track $index) { <p>{{ solution }}</p> }</div>
+                  @if (item.assets.length) { <div class="qr-assets">@for (asset of item.assets; track asset.url) { <img [src]="asset.url" [alt]="asset.alt" loading="lazy" /> }</div> }
+                  <p class="qr-evidence"><b>Reference:</b> {{ item.referenceUsed || 'Not recorded' }}
+                    @if (item.levelJustification) { <br /><b>Class fit:</b> {{ item.levelJustification }} }</p>
+                  <button type="button" class="btn btn-secondary" (click)="openEditor(item)">Edit or decide this question</button>
+                </div>
+              }
+            </article>
+          }
+        </div>
+        @if (!visible().length) { <p class="qr-hint">No loaded questions match these filters.</p> }
+        @if (cursor()) { <button type="button" class="btn btn-secondary qr-next" [disabled]="loading() || processing()" (click)="load()">Load next 50 questions</button> }
+        @if (cursor()) { <p class="qr-hint">Selection applies to loaded questions only. Load another page to add it to this selection.</p> }
+      </section>
+    </div>
+  }
+
+  @if (selected().length) {
+    <div class="qr-selection" role="region" aria-label="Selected question actions">
+      <div><strong>{{ selected().length }} selected</strong>
+        @if (selectedFlagged()) { <span>{{ selectedFlagged() }} flagged · excluded from approval</span> }
+        @else { <span>{{ quizDestination() }} quiz & paper · {{ paperDestination() }} paper only</span> }</div>
+      <div class="qr-selection-actions"><button type="button" class="qr-clear" (click)="clearSelection()" [disabled]="processing()">Clear</button>
+        <button type="button" class="btn btn-secondary" (click)="startAction('reject')" [disabled]="processing()">Reject selected</button>
+        <button type="button" class="btn btn-primary" (click)="startAction('approve')" [disabled]="processing() || !eligible().length">Approve {{ eligible().length }}</button></div>
+    </div>
+  }
+
+  @if (confirmAction()) {
+    <div class="qr-confirm-backdrop"><section class="qr-confirm" role="dialog" aria-modal="true" aria-label="Confirm bulk review">
+      <span class="eyebrow">Confirm {{ confirmAction() === 'approve' ? 'publication' : 'rejection' }}</span>
+      @if (confirmAction() === 'approve') { <h2>Approve {{ eligible().length }} questions?</h2>
+        <p>{{ quizDestination() }} will enter learner quizzes and papers; {{ paperDestination() }} written questions will enter papers only.</p>
+        @if (selectedFlagged()) { <p class="qr-hint">{{ selectedFlagged() }} flagged questions remain pending for individual review.</p> }
+      } @else { <h2>Reject {{ selected().length }} questions?</h2>
+        <label>Reason for the creator<textarea rows="3" maxlength="2000" [ngModel]="rejectionNote()" (ngModelChange)="rejectionNote.set($event)" placeholder="Describe what needs correction"></textarea></label> }
+      @if (processing()) { <p role="status">Processed {{ processed() }} of {{ processTotal() }}. Keep this tab open.</p> }
+      <div class="qr-confirm-actions"><button type="button" class="btn btn-secondary" [disabled]="processing()" (click)="confirmAction.set('')">Cancel</button>
+        <button type="button" class="btn btn-primary" [disabled]="processing()" (click)="applySelected()">{{ processing() ? 'Processing…' : 'Confirm ' + confirmAction() }}</button></div>
+    </section></div>
+  }
+
+  @if (editing(); as draft) {
+    @if (edits(); as edit) {
+      <div class="qr-edit-backdrop"><section class="qr-editor" role="dialog" aria-modal="true" aria-label="Edit question">
+        <header><div><span class="eyebrow">Edit & decide</span><h2>{{ draft.chapter }}</h2></div><button type="button" class="btn btn-secondary" (click)="closeEditor()">Close</button></header>
+        <div class="qr-edit-fields">
+          <label>Title<input maxlength="500" [value]="edit.title" (input)="updateEdit('title', $any($event.target).value)" /></label>
+          <label>Question<textarea rows="5" maxlength="20000" [value]="edit.question" (input)="updateEdit('question', $any($event.target).value)"></textarea></label>
+          @if (edit.options.length) { <fieldset><legend>Answer options</legend>
+            @for (option of edit.options; track $index) { <label class="qr-option"><input type="radio" name="qr-correct" [checked]="edit.correctIndex === $index" (change)="setCorrect($index)" />
+              <textarea rows="2" [value]="option" (input)="updateOption($index, $any($event.target).value)"></textarea></label> }
+          </fieldset> }
+          <fieldset><legend>Solution</legend>@for (solution of edit.solutions; track $index) { <textarea rows="4" [value]="solution" (input)="updateSolution($index, $any($event.target).value)"></textarea> }</fieldset>
+          <label>Review note<textarea rows="2" maxlength="2000" [ngModel]="editNote()" (ngModelChange)="editNote.set($event)"></textarea></label>
+        </div>
+        <footer><button type="button" class="btn btn-secondary" [disabled]="processing() || !editNote().trim()" (click)="saveEdited(false)">Reject with note</button>
+          <button type="button" class="btn btn-primary" [disabled]="processing() || !!issue(draft, edit)" (click)="saveEdited(true)">Approve edited question</button></footer>
+      </section></div>
+    }
+  }
+</div>

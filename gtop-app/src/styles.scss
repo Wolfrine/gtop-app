@@ -3,6 +3,8 @@
 @use 'styles/tokens';
 @use 'styles/utilities';
 @use 'styles/typography';
+@use './app/features/question-bank/pages/question-bank-workspace';
+@use './app/features/question-bank/pages/question-review-workbench';
 
 html {
   overscroll-behavior-y: contain;

@@ -22,6 +22,14 @@ vi.mock('@angular/fire/firestore', () => {
     collection: vi.fn((_db, path: string) => ({ path })),
     doc: vi.fn((_db, ...parts: string[]) => ({ path: parts.join('/') })),
     where: vi.fn((field: string, _operator: string, value: unknown) => ({ field, value })),
+    documentId: vi.fn(() => '__name__'),
+    orderBy: vi.fn((field: string) => ({ orderBy: field })),
+    startAfter: vi.fn((cursor: string) => ({ cursor })),
+    getCountFromServer: vi.fn(async (request) => ({ data: () => ({ count: [...memory.documents.keys()].filter((path) =>
+      path.split('/').slice(0, -1).join('/') === request.path && request.constraints.every(
+        (constraint: { field?: string; value?: unknown }) => !constraint.field ||
+          memory.documents.get(path)?.[constraint.field] === constraint.value,
+      )).length }) })),
     limit: vi.fn((max: number) => ({ max })),
     query: vi.fn((ref, ...constraints) => ({ ...ref, constraints })),
     getDoc: vi.fn(async (ref) => snapshot(ref.path)),

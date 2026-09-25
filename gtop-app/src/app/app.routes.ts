@@ -30,6 +30,12 @@ import { QuizRunLobbyComponent } from './pages/quiz-run/quiz-run-lobby/quiz-run-
 
 export const routes: Routes = [
     {
+        path: 'admin/question-bank',
+        loadComponent: () => import('./features/question-bank/pages/question-bank-workspace.page').then(m => m.QuestionBankWorkspacePage),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'], seo: { title: 'Question bank | GTOP Admin', robots: 'noindex, nofollow' } }
+    },
+    {
         path: 'admin/question-paper-generator',
         loadComponent: () => import('./features/question-bank/pages/question-paper-generator.page').then(m => m.QuestionPaperGeneratorPage),
         canActivate: [AuthGuard, RoleGuard],
@@ -37,7 +43,7 @@ export const routes: Routes = [
     },
     {
         path: 'admin/question-review',
-        loadComponent: () => import('./features/question-bank/pages/question-review.page').then(m => m.QuestionReviewPage),
+        loadComponent: () => import('./features/question-bank/pages/question-review-workbench.page').then(m => m.QuestionReviewWorkbenchPage),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['admin'], seo: { title: 'Review new questions | GTOP Admin', robots: 'noindex, nofollow' } }
     },

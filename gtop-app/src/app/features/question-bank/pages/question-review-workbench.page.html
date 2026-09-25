@@ -28,7 +28,7 @@
   }
 
   @if (selected().length) {
-    <div class="qr-selection" [class.has-flags]="selectedFlagged()" role="region" aria-label="Selected question actions">
+    <div class="qr-selection" role="region" aria-label="Selected question actions">
       <div><strong>{{ selected().length }} selected</strong>
         @if (selectedFlagged()) { <span>{{ selectedFlagged() }} flagged · excluded from approval</span> }
         @else { <span>{{ quizDestination() }} quiz & paper · {{ paperDestination() }} paper only</span> }</div>

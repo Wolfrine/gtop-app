@@ -70,6 +70,9 @@
   .qr-page { padding-bottom: 112px; }
   .qr-filter-bar input, .qr-filter-bar select { min-height: 42px; }
   .qr-selection {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
     left: 8px;
     right: 8px;
     bottom: 8px;
@@ -78,7 +81,14 @@
     box-shadow: 0 9px 25px #14284955;
   }
 
-  .qr-selection:not(.has-flags) span { display: none; }
+  .qr-selection > div:first-child {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+
+  .qr-selection-actions { justify-content: flex-end; }
 }
 
 html {

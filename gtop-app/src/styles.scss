@@ -43,6 +43,7 @@
   }
 
   .qb-page .qb-new-paper { display: none; }
+  .qr-page .qr-head-link { display: none; }
 
   .qb-nav, .qr-nav {
     border-color: #cbd8eb;
@@ -76,6 +77,8 @@
     border-radius: 12px;
     box-shadow: 0 9px 25px #14284955;
   }
+
+  .qr-selection:not(.has-flags) span { display: none; }
 }
 
 html {

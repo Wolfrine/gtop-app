@@ -1,0 +1,142 @@
+<div class="page qb-page">
+  <header class="qb-head">
+    <div><p class="eyebrow">Admin · Question module</p><h1>Question bank</h1>
+      <p>Track coverage, direct new questions, and follow them into review and papers.</p></div>
+    <a class="btn btn-primary qb-new-paper" routerLink="/admin/question-paper-generator">Create paper</a>
+  </header>
+
+  <nav class="qb-nav" aria-label="Question module">
+    <a routerLink="/admin/question-paper-generator">Papers</a>
+    <a routerLink="/admin/question-bank" [class.active]="view() === 'coverage'" [attr.aria-current]="view() === 'coverage' ? 'page' : null">Coverage</a>
+    <a routerLink="/admin/question-review">Review</a>
+    <a routerLink="/admin/question-bank" [queryParams]="{view:'bank'}" [class.active]="view() === 'bank'" [attr.aria-current]="view() === 'bank' ? 'page' : null">Bank</a>
+  </nav>
+
+  @if (error()) { <p class="qb-alert" role="alert">{{ error() }}</p> }
+  @if (success()) { <p class="qb-success" role="status">{{ success() }}</p> }
+
+  <div class="qb-scope-search">
+    <label for="qb-scope">Find any syllabus chapter</label>
+    <input id="qb-scope" type="search" placeholder="Search board, class, subject or chapter"
+      [ngModel]="scopeSearch()" (ngModelChange)="scopeSearch.set($event)" autocomplete="off" />
+    @if (scopeMatches().length) {
+      <div class="qb-suggestions" aria-label="Syllabus matches">
+        @for (scope of scopeMatches(); track scope.id) {
+          <button type="button" (click)="selectScope(scope)">
+            <strong>{{ scope.chapter }}</strong><span>{{ scope.board }} · Class {{ scope.standard }} · {{ scope.subject }}</span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="qb-layout" [class.qb-detail-open]="showDetail()">
+    <section class="qb-queue card" aria-label="Question bank priorities">
+      <div class="qb-list-head"><div><span class="eyebrow">Work in progress</span><h2>Priorities</h2></div>
+        <span class="qb-count">{{ filteredPriorities().length }} shown</span></div>
+      <div class="qb-filters">
+        <input aria-label="Filter priorities" type="search" placeholder="Filter loaded priorities"
+          [ngModel]="prioritySearch()" (ngModelChange)="prioritySearch.set($event)" />
+        <select aria-label="Priority status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option value="active">Active and blocked</option><option value="all">All statuses</option>
+          <option value="open">Creating</option><option value="review">Review</option>
+          <option value="blocked">Blocked</option><option value="paused">Paused</option><option value="done">Complete</option>
+        </select>
+      </div>
+      @if (loading() && !priorities().length) { <p class="qb-muted">Loading priorities and syllabus…</p> }
+      @if (!loading() && !filteredPriorities().length) {
+        <p class="qb-empty">No priorities match this view. Search for a syllabus chapter above to set one.</p>
+      }
+      <div class="qb-priority-list">
+        @for (item of filteredPriorities(); track item.id) {
+          <button class="qb-priority" type="button" [class.selected]="selectedPriority()?.id === item.id"
+            (click)="selectPriority(item)">
+            <span class="qb-priority-top"><span class="qb-priority-level">{{ item.priority }}</span>
+              <span class="qb-status" [class.blocked]="item.status === 'blocked'">{{ statusLabel(item.status) }}</span></span>
+            <strong>{{ item.chapter || 'Chapter not specified' }}</strong>
+            <span class="qb-muted">{{ item.board }} · Class {{ item.standard }} · {{ item.subject }}</span>
+            <span class="qb-priority-progress">Target {{ item.requiredCount }} <span>·</span> {{ selectedPriority()?.id === item.id && counts() ? counts()!.pending : (item.pendingCount ?? '—') }} pending</span>
+          </button>
+        }
+      </div>
+      @if (morePriorities()) { <button type="button" class="btn btn-secondary qb-more" (click)="loadMorePriorities()" [disabled]="loading()">Load more priorities</button> }
+      @if (morePriorities()) { <p class="qb-muted qb-small">Filter applies to loaded priorities. Load more to see the rest.</p> }
+    </section>
+
+    <main class="qb-detail" aria-live="polite">
+      @if (selectedScope(); as scope) {
+        <div class="qb-mobile-back"><button type="button" class="btn btn-secondary" (click)="back()">← All priorities</button></div>
+        <div class="qb-detail-head"><div><span class="eyebrow">{{ scope.board }} · Class {{ scope.standard }} · {{ scope.subject }}</span>
+          <h2>{{ scope.chapter }}</h2></div>
+          @if (selectedPriority(); as selected) { <span class="qb-status" [class.blocked]="selected.status === 'blocked'">{{ statusLabel(selected.status) }}</span> }
+        </div>
+        @if (detailError()) { <p class="qb-alert" role="alert">{{ detailError() }}</p> }
+        @if (detailLoading()) { <p class="qb-muted">Checking live coverage and question history…</p> }
+        @if (view() === 'coverage') {
+          <section class="qb-metrics" aria-label="Live chapter coverage">
+            <div><span>Approved for quizzes</span><strong>{{ counts()?.quizApproved ?? '—' }}</strong></div>
+            <div><span>Paper only</span><strong>{{ counts()?.paperOnlyApproved ?? '—' }}</strong></div>
+            <div><span>Awaiting review</span><strong>{{ counts()?.pending ?? '—' }}</strong></div>
+            <div><span>To reach target*</span><strong>{{ notYetApproved() ?? '—' }}</strong></div>
+          </section>
+          <p class="qb-footnote">*Approved shortfall. Pending drafts count as backlog; {{ unassigned() ?? '—' }} more would still be needed if all pending drafts pass.</p>
+          @if (selectedPriority()?.status === 'blocked') {
+            <div class="qb-blocker"><strong>Creation blocked</strong><p>{{ selectedPriority()?.blocker || 'Resolve this priority before approving its drafts or creating more.' }}</p></div>
+          }
+          <section class="card qb-panel">
+            <div class="qb-panel-heading"><div><span class="eyebrow">Admin direction</span><h3>{{ selectedPriority() ? 'Priority settings' : 'Set a chapter priority' }}</h3></div>
+              @if (selectedPriority()?.status === 'open' || selectedPriority()?.status === 'paused') {
+                <button class="btn btn-secondary qb-small-button" type="button" [disabled]="saving()" (click)="togglePause()">{{ selectedPriority()?.status === 'paused' ? 'Resume' : 'Pause' }}</button>
+              }
+            </div>
+            <div class="qb-settings">
+              <label>Approved target<input type="number" min="1" max="100000" [ngModel]="target()" (ngModelChange)="target.set(+$event)" /></label>
+              <label>Urgency<select [ngModel]="urgency()" (ngModelChange)="urgency.set($event)"><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>
+            </div>
+            <p class="qb-field-label">Question types for new batches</p>
+            <div class="qb-type-list">
+              @for (type of typeOptions; track type) {
+                <label [class.on]="types().includes(type)"><input type="checkbox" [checked]="types().includes(type)" (change)="toggleType(type)" />{{ label(type) }}</label>
+              }
+            </div>
+            <div class="qb-panel-actions"><button class="btn btn-primary" type="button" [disabled]="saving() || selectedPriority()?.status === 'blocked'" (click)="savePriority()">{{ saving() ? 'Saving…' : 'Save priority' }}</button>
+              @if (selectedPriority(); as selected) { <a class="btn btn-secondary" routerLink="/admin/question-review" [queryParams]="{priorityId:selected.id}">Review its drafts</a> }
+            </div>
+          </section>
+          @if (selectedPriority(); as selected) {
+            <section class="card qb-panel"><div class="qb-panel-heading"><div><span class="eyebrow">Traceable output</span><h3>Created questions</h3></div><span class="qb-count">{{ created().length }} shown</span></div>
+              @if (!created().length) { <p class="qb-muted">No linked drafts in this priority yet.</p> }
+              <div class="qb-created-list">
+                @for (question of created(); track question.id) {
+                  <div class="qb-created-row"><div><strong>{{ question.question }}</strong><span>{{ label(question.questionType) }} · {{ question.difficulty }}</span></div>
+                    <span class="qb-review-status">{{ question.reviewStatus === 'pending-admin-review' ? 'Pending' : question.reviewStatus === 'approved-paper-only' ? 'Paper only' : question.reviewStatus }}</span></div>
+                }
+              </div>
+              @if (moreCreated()) { <button type="button" class="btn btn-secondary qb-more" (click)="loadMoreCreated()">Load next 25</button> }
+            </section>
+            @if (run(); as recentRun) {
+              <section class="card qb-panel"><span class="eyebrow">Latest creator run</span><h3>What happened</h3>
+                <p>{{ recentRun['summary'] || recentRun['status'] || 'Run recorded.' }}</p>
+                <p class="qb-muted qb-small">Run {{ selected.agentRunId }}</p></section>
+            }
+          }
+        } @else {
+          <section class="card qb-panel"><div class="qb-panel-heading"><div><span class="eyebrow">Approved content</span><h3>Browse the bank</h3></div></div>
+            <div class="qb-bank-switch"><button type="button" [class.active]="source() === 'questions'" (click)="changeSource('questions')">Quiz & paper · {{ counts()?.quizApproved ?? '—' }}</button>
+              <button type="button" [class.active]="source() === 'devQuestions'" (click)="changeSource('devQuestions')">Paper only · {{ counts()?.paperOnlyApproved ?? '—' }}</button></div>
+            <p class="qb-muted"><a routerLink="/admin/mcq-management">Manage existing MCQs</a></p>
+            @if (!bankRows().length && !detailLoading()) { <p class="qb-empty">No approved questions in this group yet.</p> }
+            <div class="qb-bank-list">@for (question of bankRows(); track question.id) {
+              <details class="qb-bank-row"><summary><strong>{{ question.question }}</strong><span>{{ label(question.questionType) }} · {{ question.difficulty }}</span></summary>
+                <p>{{ question.solutions.join(' · ') }}</p></details>
+            }</div>
+            @if (moreBank()) { <button type="button" class="btn btn-secondary qb-more" (click)="loadBank()">Load next 25</button> }
+          </section>
+        }
+      } @else {
+        <div class="card qb-welcome"><span class="eyebrow">Select a syllabus scope</span><h2>See the full question trail</h2>
+          <p>Choose a priority on the left, or search for any chapter above to set its target and inspect approved coverage.</p></div>
+      }
+    </main>
+  </div>
+</div>

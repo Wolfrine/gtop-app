@@ -26,13 +26,13 @@ import {
         </div>
         <div class="button-row qpg-admin-actions">
           <a class="btn btn-secondary" routerLink="/admin/question-review">Review new questions</a>
-          <a class="btn btn-secondary" routerLink="/admin/mcq-management">Question bank</a>
+          <a class="btn btn-secondary" routerLink="/admin/question-bank">Question bank</a>
           <button class="btn btn-secondary" type="button" [disabled]="loading" (click)="loadInitialData()">Refresh</button>
         </div>
       </div>
       <div class="qpg-mobile-toolbar qpg-mobile-only">
         <button class="btn btn-secondary" type="button" (click)="toggleMobileDrafts()">{{ showMobileDrafts ? 'Back to paper' : 'Saved papers' }}</button>
-        <a class="btn btn-secondary" routerLink="/admin/mcq-management">Question bank</a>
+        <a class="btn btn-secondary" routerLink="/admin/question-bank">Question bank</a>
         <details class="qpg-mobile-tools"><summary class="btn btn-secondary">More</summary>
           <div class="qpg-mobile-tools-list"><a class="btn btn-secondary" routerLink="/admin/question-review">Review new questions</a>
             <button class="btn btn-secondary" type="button" [disabled]="loading" (click)="loadInitialData()">Refresh</button></div>
@@ -184,7 +184,7 @@ import {
                   <article class="qpg-gap-row"><div><strong>{{ gap.chapter }}</strong><p>{{ gap.subject }} · {{ gap.sectionTitle }}</p><p class="muted small">{{ gapTypes(gap) }} · {{ gap.difficulty === 'any' ? 'Any difficulty' : label(gap.difficulty) }} · {{ gap.availableCount }} of {{ gap.requiredCount }} matched</p></div><span class="pill warning">{{ gap.gapCount }} needed</span></article>
                 }
               </div>
-              @if (priorityItemsCreated) { <p class="qpg-success-text" role="status">The request is saved. New questions will appear in Review new questions before they can be used in papers.</p> }
+              @if (priorityItemsCreated) { <p class="qpg-success-text" role="status">The request is saved. <a routerLink="/admin/question-bank">Track its priority and progress</a>; new questions will enter admin review before use in papers.</p> }
             </div>
           }
           @if (!loadedSnapshot) {

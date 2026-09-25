@@ -13,6 +13,7 @@ const subject = `Paper Science ${tag}`;
 const board = `E2E Paper ${tag}`;
 const templateId = `paper-template-${tag}`;
 const draftId = `review-draft-${tag}`;
+const priorityId = `review-priority-${tag}`;
 const syllabusId = `paper-motion-${tag}`;
 // A deterministic unbroken token exercises narrow paper headings and draft rows;
 // the random identifier alone could wrap at its hyphen and hide an overflow bug.
@@ -51,11 +52,33 @@ test.beforeAll(async () => {
     }
     await setDoc(doc(db, 'devQuestions', draftId), {
       board, standard: '10', subject, chapter: 'Motion', sourceSyllabusId: syllabusId,
+      sourcePriorityId: priorityId, referenceUsed: 'Motion curriculum review', referenceConfidence: 0.95,
+      boardStandardCheck: { matched: true },
       questionType: 'mcq', difficulty: 'easy', reviewStatus: 'pending-admin-review',
       title: `Review sample ${tag}`, question: 'A test object moves at constant velocity. What is its acceleration?',
       options: ['Zero', 'One metre per second squared'], correctIndex: 0,
       solutions: ['Acceleration is the change in velocity per unit time; constant velocity gives zero.'],
     });
+    await setDoc(doc(db, 'questionBankPriorityItems', priorityId), {
+      board, standard: '10', subject, chapter: 'Motion', sourceSyllabusId: syllabusId,
+      source: 'admin-question-bank-growth', status: 'open', priority: 'high', requiredCount: 1000,
+      questionTypes: ['mcq', 'short_answer'],
+    });
+    for (let index = 0; index < 54; index++) {
+      const written = index === 0;
+      await setDoc(doc(db, 'devQuestions', `batch-${tag}-${String(index).padStart(2, '0')}`), {
+        board, standard: '10', subject, chapter: 'Motion', sourceSyllabusId: syllabusId,
+        sourcePriorityId: priorityId, referenceUsed: 'Motion curriculum review', referenceConfidence: 0.96,
+        boardStandardCheck: { matched: true }, questionType: written ? 'short_answer' : 'mcq',
+        difficulty: index % 3 === 0 ? 'moderate' : 'easy', marks: written ? 2 : 1,
+        reviewStatus: 'pending-admin-review', status: 'dev', paperOnly: written,
+        question: `Batch ${index}: how does a moving object change position in a measured time interval?`,
+        title: `Motion batch ${index}`,
+        options: written ? [] : ['Position changes with time', 'Time does not pass', 'Position never changes', 'Distance is always zero'],
+        correctIndex: written ? -1 : 0,
+        solutions: [`For batch ${index}, displacement is the change in position over the time interval.`],
+      });
+    }
   });
   await deleteApp(app);
 });
@@ -63,7 +86,11 @@ test.beforeAll(async () => {
 test.afterAll(async () => environment?.cleanup());
 
 async function openAdmin(page: Page, route: string) {
-  await page.goto(`${route}?emulator=1&testEmail=${encodeURIComponent(email)}&testPassword=${encodeURIComponent(password)}`);
+  const url = new URL(route, 'http://127.0.0.1:4300');
+  url.searchParams.set('emulator', '1');
+  url.searchParams.set('testEmail', email);
+  url.searchParams.set('testPassword', password);
+  await page.goto(url.pathname + url.search);
 }
 
 test('the current discovery landing works and admin sign-in retains the paper route', async ({ page }, testInfo) => {
@@ -86,7 +113,8 @@ test('current admin navigation reaches both tools and preserves Learning Lab', a
   await page.locator('[aria-label="Question bank tools"]').getByRole('link', { name: 'Question papers', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Question paper generator', exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Question bank', exact: true }).click();
-  await expect(page).toHaveURL(/\/admin\/mcq-management$/);
+  await expect(page).toHaveURL(/\/admin\/question-bank$/);
+  await expect(page.getByRole('heading', { name: 'Question bank', exact: true })).toBeVisible();
   await openAdmin(page, '/learning-lab');
   await expect(page.getByRole('heading', { name: 'Learning Lab.', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Open Plant Reproduction →', exact: true })).toBeVisible();
@@ -100,6 +128,31 @@ test('learner accounts cannot open either admin module', async ({ page }) => {
     await expect(page.locator('app-question-paper-generator-page, app-question-review')).toHaveCount(0);
     await expect(page.locator('app-side-nav a[href="/admin/question-paper-generator"]')).toHaveCount(0);
   }
+});
+
+test('admin sees a chapter priority, live coverage and approved bank at scale', async ({ page }, testInfo) => {
+  await openAdmin(page, `/admin/question-bank?priorityId=${priorityId}`);
+  await expect(page.getByRole('heading', { name: 'Question bank', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Motion', exact: true })).toBeVisible();
+  await expect(page.getByText('55', { exact: true }).first()).toBeVisible();
+  if (await page.locator('.qb-priority.selected').isVisible())
+    await expect(page.locator('.qb-priority.selected .qb-priority-progress')).toContainText('55 pending');
+  await expect(page.getByRole('link', { name: 'Review its drafts' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Save priority' })).toHaveCSS('background-color', 'rgb(36, 84, 181)');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath('priority-coverage.png'), fullPage: true });
+  await page.getByRole('link', { name: 'Bank', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Browse the bank' })).toBeVisible();
+  await expect(page.locator('.qb-bank-row')).toHaveCount(2);
+  await page.screenshot({ path: testInfo.outputPath('approved-bank.png'), fullPage: true });
+  await page.getByRole('link', { name: 'Coverage', exact: true }).click();
+  await page.getByRole('spinbutton', { name: 'Approved target' }).fill('1200');
+  await page.getByRole('button', { name: 'Save priority' }).click();
+  await expect(page.getByText('Priority saved.', { exact: false })).toBeVisible();
+  await environment.withSecurityRulesDisabled(async context => {
+    expect((await getDoc(doc(context.firestore(), 'questionBankPriorityItems', priorityId))).data())
+      .toMatchObject({ requiredCount: 1200, gapCount: 1198, status: 'open' });
+  });
 });
 
 async function expectNoHorizontalOverflow(page: Page) {
@@ -235,24 +288,31 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   await page.getByRole('button', { name: 'Request missing questions', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Questions requested', exact: true })).toBeDisabled();
   await environment.withSecurityRulesDisabled(async context => {
-    const requests = await getDocs(query(collection(context.firestore(), 'questionBankPriorityItems'), where('subject', '==', subject)));
+    const requests = await getDocs(query(collection(context.firestore(), 'questionBankPriorityItems'),
+      where('subject', '==', subject), where('source', '==', 'admin-question-paper-generator')));
     expect(requests.size).toBe(2);
     expect(requests.docs.reduce((sum, item) => sum + item.data().gapCount, 0)).toBe(4);
   });
 });
 
 test('admin review publishes an edited draft and increments its exact syllabus count once', async ({ page }, testInfo) => {
-  await openAdmin(page, '/admin/question-review');
+  await openAdmin(page, `/admin/question-review?priorityId=${priorityId}`);
   await expect(page.getByRole('heading', { name: 'Review new questions', exact: true })).toBeVisible();
-  await page.getByRole('button').filter({ hasText: `Review sample ${tag}` }).click();
-  await page.getByLabel('Title (optional)', { exact: true }).fill(`Approved sample ${tag}`);
-  await expect(page.getByLabel('Title (optional)', { exact: true })).toHaveValue(`Approved sample ${tag}`);
-  await expect(page.getByRole('button', { name: 'Approve & publish', exact: true })).toBeEnabled();
+  await expect(page.getByText('awaiting review', { exact: false }).first()).toBeVisible();
+  await expect(page.locator('.qr-row')).toHaveCount(50);
+  await page.getByRole('button', { name: 'Load next 50 questions' }).click();
+  await expect(page.locator('.qr-row')).toHaveCount(55);
+  const sample = page.locator('.qr-row').filter({ hasText: 'A test object moves at constant velocity' });
+  await sample.getByRole('button', { name: 'Details' }).click();
+  await sample.getByRole('button', { name: 'Edit or decide this question' }).click();
+  await page.getByLabel('Title', { exact: true }).fill(`Approved sample ${tag}`);
+  await expect(page.getByLabel('Title', { exact: true })).toHaveValue(`Approved sample ${tag}`);
+  await expect(page.getByRole('button', { name: 'Approve edited question' })).toBeEnabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole('heading', { name: 'Review new questions', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('question-review.png'), fullPage: true });
-  await page.getByRole('button', { name: 'Approve & publish', exact: true }).click();
-  await expect(page.getByText('Question approved. It is now available for learner quizzes and question papers.', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Approve edited question' }).click();
+  await expect(page.getByText('Edited question approved.', { exact: true })).toBeVisible();
   await environment.withSecurityRulesDisabled(async context => {
     const db = context.firestore();
     const published = await getDoc(doc(db, 'questions', draftId));
@@ -262,5 +322,32 @@ test('admin review publishes an edited draft and increments its exact syllabus c
     expect((await getDoc(doc(db, 'devQuestions', draftId))).data()?.reviewStatus).toBe('approved');
   });
   await page.reload();
-  await expect(page.getByRole('button').filter({ hasText: `Review sample ${tag}` })).toHaveCount(0);
+  await expect(page.locator('.qr-row').filter({ hasText: 'A test object moves at constant velocity' })).toHaveCount(0);
+});
+
+test('admin can select a loaded page and bulk approve objective and written questions', async ({ page }, testInfo) => {
+  await openAdmin(page, `/admin/question-review?priorityId=${priorityId}`);
+  await expect(page.locator('.qr-row')).toHaveCount(50);
+  await page.getByRole('checkbox', { name: 'Select shown' }).check();
+  await expect(page.getByText('50 selected', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Approve 50' })).toBeEnabled();
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({ path: testInfo.outputPath('bulk-review-selected.png'), fullPage: true });
+  // Keep the cross-device test bounded while exercising both publishing destinations.
+  await page.getByRole('checkbox', { name: 'Select shown' }).uncheck();
+  const written = page.locator('.qr-row').filter({ hasText: 'Batch 0: how does a moving object' });
+  const objective = page.locator('.qr-row').filter({ hasText: 'Batch 1: how does a moving object' });
+  await written.locator('input[type="checkbox"]').check();
+  await objective.locator('input[type="checkbox"]').check();
+  await expect(page.getByText('1 quiz & paper · 1 paper only')).toBeVisible();
+  await page.getByRole('button', { name: 'Approve 2' }).click();
+  await expect(page.getByRole('heading', { name: 'Approve 2 questions?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Confirm approve' }).click();
+  await expect(page.getByText('2 approved; 0 need attention.')).toBeVisible();
+  await environment.withSecurityRulesDisabled(async context => {
+    const db = context.firestore();
+    expect((await getDoc(doc(db, 'devQuestions', `batch-${tag}-00`))).data()?.reviewStatus).toBe('approved-paper-only');
+    expect((await getDoc(doc(db, 'questions', `batch-${tag}-00`))).exists()).toBe(false);
+    expect((await getDoc(doc(db, 'questions', `batch-${tag}-01`))).data()?.status).toBe('approved');
+  });
 });

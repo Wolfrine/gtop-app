@@ -129,8 +129,23 @@ export class QuestionPaperRepository {
     if (gaps.length > 450) throw new Error('Reduce the number of sections or chapters before requesting questions.');
     const batch = writeBatch(this.firebase.firestore);
     for (const gap of gaps) {
-      batch.set(doc(collection(this.firebase.firestore, 'questionBankPriorityItems')), {
+      const matches = await getDocs(query(collection(this.firebase.firestore, 'syllabus'),
+        where('board', '==', setup.board), where('standard', '==', setup.standard),
+        where('subject', '==', gap.subject), where('chapter', '==', gap.chapter), limit(2)));
+      if (matches.size !== 1) throw new Error(`The syllabus entry for ${gap.chapter} is missing or ambiguous. Correct it before requesting questions.`);
+      const scopeId = matches.docs[0].id;
+      const signature = JSON.stringify([setup.templateId, gap.sectionId, gap.questionTypes,
+        gap.difficulty, gap.marksPerQuestion]);
+      let hash = 2166136261;
+      for (let i = 0; i < signature.length; i++) hash = Math.imul(hash ^ signature.charCodeAt(i), 16777619);
+      const priorityId = `paper-${scopeId}-${(hash >>> 0).toString(36)}`;
+      const ref = doc(this.firebase.firestore, 'questionBankPriorityItems', priorityId);
+      const existing = await getDoc(ref);
+      if (existing.exists() && existing.data()['status'] === 'blocked')
+        throw new Error(`${gap.chapter} has a blocked priority. Resolve its syllabus issue before requesting more questions.`);
+      batch.set(ref, {
         board: setup.board, standard: setup.standard,
+        sourceSyllabusId: scopeId,
         subjects: [gap.subject], primarySubject: gap.subject, subject: gap.subject,
         chapters: [gap.chapter], chapter: gap.chapter,
         questionType: gap.questionTypes.find((type) => type !== 'any' && type !== 'mixed') ?? 'mcq',
@@ -140,12 +155,13 @@ export class QuestionPaperRepository {
         requiredCount: gap.requiredCount, availableCount: gap.availableCount, gapCount: gap.gapCount,
         marksPerQuestion: gap.marksPerQuestion,
         priority: gap.gapCount >= 10 ? 'critical' : gap.gapCount >= 5 ? 'high' : 'medium',
-        status: 'open', source: 'admin-question-paper-generator',
+        ...(existing.exists() ? {} : { status: 'open', source: 'admin-question-paper-generator',
+          createdBy: actorId, createdAt: serverTimestamp() }),
         sourceTemplateId: setup.templateId, sourceTemplateName: setup.templateName,
         sourceSectionId: gap.sectionId, sourceSectionTitle: gap.sectionTitle,
-        assignedAgent: null, createdBy: actorId, updatedBy: actorId,
-        createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
-      });
+        ...(existing.exists() ? {} : { assignedAgent: null }),
+        updatedBy: actorId, updatedAt: serverTimestamp(),
+      }, { merge: true });
     }
     await batch.commit();
     return gaps.length;

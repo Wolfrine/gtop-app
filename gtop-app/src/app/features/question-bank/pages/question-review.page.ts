@@ -22,8 +22,8 @@ import {
           <p class="eyebrow">Question bank</p>
           <h1>Review new questions</h1>
           <p class="muted">
-            Check the question, correct answer and explanation before making it available to
-            learners.
+            Check each question and its solution before approving it for quizzes or question
+            papers.
           </p>
         </div>
         <a class="btn btn-secondary" routerLink="/admin/question-paper-generator"
@@ -191,8 +191,11 @@ import {
                     </fieldset>
                   } @else {
                     <p class="queue-notice">
-                      Written-answer publishing is not yet supported. You can inspect this draft and
-                      leave a rejection note, but it cannot be published to learner quizzes.
+                      @if (draft.paperOnly) {
+                        This written answer will be available for question papers after approval.
+                      } @else {
+                        This draft needs a paper-only designation before a written answer can be approved.
+                      }
                     </p>
                   }
 
@@ -231,8 +234,13 @@ import {
                 }
                 <div class="review-actions">
                   <p class="muted small">
-                    Approval publishes this reviewed question to the question bank and updates its
-                    chapter total.
+                    @if (draft.paperOnly) {
+                      Approval makes this question available for paper generation. It stays out of
+                      learner quizzes and does not change the chapter's MCQ total.
+                    } @else {
+                      Approval publishes this question for quizzes and papers and updates its
+                      chapter total.
+                    }
                   </p>
                   <div class="button-row">
                     <button
@@ -242,7 +250,7 @@ import {
                       [disabled]="!!saving() || !!approvalProblem()"
                       [attr.aria-describedby]="approvalProblem() ? 'approval-problem' : null"
                     >
-                      {{ saving() === 'approve' ? 'Publishing…' : 'Approve & publish' }}
+                      {{ saving() === 'approve' ? 'Publishing…' : draft.paperOnly ? 'Approve for papers' : 'Approve & publish' }}
                     </button>
                     <button
                       type="button"
@@ -399,7 +407,9 @@ export class QuestionReviewPage implements OnInit {
       this.message.set(
         result.alreadyApproved
           ? 'This question was already approved. No second copy was published.'
-          : 'Question approved. It is now available for learner quizzes and question papers.',
+          : draft.paperOnly
+            ? 'Question approved. It is now available for question papers.'
+            : 'Question approved. It is now available for learner quizzes and question papers.',
       );
     } catch (error) {
       this.error.set(reviewErrorMessage(error));

@@ -55,20 +55,33 @@ export class QuestionPaperRepository {
     const worker = async (): Promise<void> => {
       while (nextScope < unique.length) {
         const scope = unique[nextScope++];
-        let cursor: QueryDocumentSnapshot<DocumentData> | undefined;
-        for (let page = 0; page < 4; page++) {
-          const snapshot = await getDocs(query(collection(this.firebase.firestore, 'questions'),
-            where('board', '==', board), where('standard', '==', standard),
-            where('subject', '==', scope.subject), where('chapter', '==', scope.chapter),
-            ...(cursor ? [startAfter(cursor)] : []), limit(page === 3 ? 501 : 500)));
-          for (const item of snapshot.docs.slice(0, 500)) {
-            const question = normalizeQuestion(item.id, item.data());
-            if (isUsableQuestion(question)) result.questions.push(question);
-            else result.excludedCount++;
+        for (const source of ['questions', 'devQuestions'] as const) {
+          let cursor: QueryDocumentSnapshot<DocumentData> | undefined;
+          for (let page = 0; page < 4; page++) {
+            const snapshot = await getDocs(query(collection(this.firebase.firestore, source),
+              where('board', '==', board), where('standard', '==', standard),
+              where('subject', '==', scope.subject), where('chapter', '==', scope.chapter),
+              ...(source === 'devQuestions' ? [where('reviewStatus', '==', 'approved-paper-only')] : []),
+              ...(cursor ? [startAfter(cursor)] : []), limit(page === 3 ? 501 : 500)));
+            for (const item of snapshot.docs.slice(0, 500)) {
+              const raw = item.data();
+              // The staging collection contains drafts too. Only reviewed paper-only items
+              // are eligible for the admin paper builder; learner quizzes read questions.
+              if (source === 'devQuestions' && raw['paperOnly'] !== true) {
+                result.excludedCount++;
+                continue;
+              }
+              const question = normalizeQuestion(item.id, raw);
+              if (isUsableQuestion(question)) result.questions.push(question);
+              else result.excludedCount++;
+            }
+            if (page === 3 && snapshot.size > 500 &&
+              !result.truncatedScopes.some((item) => chapterKey(item) === chapterKey(scope))) {
+              result.truncatedScopes.push(scope);
+            }
+            if (snapshot.size < 500) break;
+            cursor = snapshot.docs.at(-1);
           }
-          if (page === 3 && snapshot.size > 500) result.truncatedScopes.push(scope);
-          if (snapshot.size < 500) break;
-          cursor = snapshot.docs.at(-1);
         }
       }
     };

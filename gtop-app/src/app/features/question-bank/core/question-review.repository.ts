@@ -35,6 +35,7 @@ export interface ReviewDraft extends ReviewEdits {
   sourceTemplateId: string;
   contentPurpose: string;
   reviewNotes: string;
+  paperOnly: boolean;
   version: string;
 }
 
@@ -69,6 +70,7 @@ export function reviewVersion(raw: Record<string, unknown>): string {
     raw['imageUrl'],
     raw['diagramUrl'],
     raw['marks'],
+    raw['paperOnly'],
     raw['updatedAt'],
   ]);
 }
@@ -98,6 +100,7 @@ export function toReviewDraft(id: string, raw: Record<string, unknown>): ReviewD
     sourceTemplateId: textValue(raw['sourceTemplateId']),
     contentPurpose: textValue(raw['contentPurpose']),
     reviewNotes: textValue(raw['reviewNotes']),
+    paperOnly: raw['paperOnly'] === true,
     version: reviewVersion(raw),
   };
 }
@@ -108,20 +111,25 @@ export function validateReviewEdits(draft: ReviewDraft, edits: ReviewEdits): str
   if (!edits.question.trim()) return 'Enter the question before approving.';
   if (edits.question.length > 20_000 || edits.title.length > 500)
     return 'Shorten the question or title before approving.';
-  if (edits.options.length === 0)
-    return 'Written-answer publishing is not yet supported. Keep this draft for the written-paper workflow or reject it with a note.';
-  if (edits.options.length < 2 || edits.options.length > 10)
-    return 'Use between 2 and 10 answer options.';
-  if (edits.options.some((option) => !option.trim() || option.length > 3000))
-    return 'Every answer option needs text of at most 3,000 characters.';
-  if (new Set(edits.options.map(scopeValue)).size !== edits.options.length)
-    return 'Answer options must be distinct.';
-  if (
-    !Number.isInteger(edits.correctIndex) ||
-    edits.correctIndex < 0 ||
-    edits.correctIndex >= edits.options.length
-  )
-    return 'Select the correct answer.';
+  if (edits.options.length === 0) {
+    if (!draft.paperOnly)
+      return 'This written-answer draft must be marked for question papers before approval.';
+    if (['mcq', 'assertion_reason', 'statement_based'].includes(draft.questionType))
+      return 'This objective question needs answer options and a correct answer.';
+  } else {
+    if (edits.options.length < 2 || edits.options.length > 10)
+      return 'Use between 2 and 10 answer options.';
+    if (edits.options.some((option) => !option.trim() || option.length > 3000))
+      return 'Every answer option needs text of at most 3,000 characters.';
+    if (new Set(edits.options.map(scopeValue)).size !== edits.options.length)
+      return 'Answer options must be distinct.';
+    if (
+      !Number.isInteger(edits.correctIndex) ||
+      edits.correctIndex < 0 ||
+      edits.correctIndex >= edits.options.length
+    )
+      return 'Select the correct answer.';
+  }
   if (!edits.solutions.length || edits.solutions.some((solution) => !solution.trim()))
     return 'Add an explanation or worked solution before approving.';
   if (edits.solutions.join('\n').length > 50_000)
@@ -208,7 +216,16 @@ export class QuestionReviewRepository {
         limit(2),
       ),
     );
-    if (duplicates.docs.some((item) => item.id !== draft.id)) {
+    const paperDuplicates = await getDocs(
+      query(
+        collection(this.firebase.firestore, 'devQuestions'),
+        where('reviewStatus', '==', 'approved-paper-only'),
+        ...scopeFields.map((field) => where(field, '==', textValue(raw[field]))),
+        where('question', '==', content.question),
+        limit(2),
+      ),
+    );
+    if ([...duplicates.docs, ...paperDuplicates.docs].some((item) => item.id !== draft.id)) {
       throw new Error(
         'A question with this wording already exists in this chapter. Review the existing question or reject this duplicate.',
       );
@@ -221,9 +238,9 @@ export class QuestionReviewRepository {
         throw new Error('This draft no longer exists. Refresh the review queue.');
       const fresh = current.data();
       if (
-        fresh['reviewStatus'] === 'approved' &&
-        existing.exists() &&
-        existing.data()['sourceDraftId'] === draft.id
+        (fresh['reviewStatus'] === 'approved-paper-only' && fresh['paperOnly'] === true && !existing.exists()) ||
+        (fresh['reviewStatus'] === 'approved' && existing.exists() &&
+          existing.data()['sourceDraftId'] === draft.id)
       ) {
         return { questionId: draft.id, alreadyApproved: true };
       }
@@ -245,7 +262,7 @@ export class QuestionReviewRepository {
         );
       }
       const count = syllabusData['mcqCount'];
-      if (count !== undefined && (!Number.isInteger(count) || (count as number) < 0)) {
+      if (!draft.paperOnly && count !== undefined && (!Number.isInteger(count) || (count as number) < 0)) {
         throw new Error(
           'The chapter’s question total needs correction. Ask support to fix it before approving.',
         );
@@ -256,7 +273,7 @@ export class QuestionReviewRepository {
         scopeFields.map((field) => [field, textValue(syllabusData[field])]),
       );
       const audit = {
-        reviewStatus: 'approved',
+        reviewStatus: draft.paperOnly ? 'approved-paper-only' : 'approved',
         status: 'approved',
         reviewNotes: reviewNotes.trim(),
         reviewedAt: serverTimestamp(),
@@ -273,8 +290,10 @@ export class QuestionReviewRepository {
         ...audit,
       };
       delete published['id'];
-      transaction.set(bankRef, published);
-      transaction.update(syllabusRef, { mcqCount: increment(1), updatedAt: serverTimestamp() });
+      if (!draft.paperOnly) {
+        transaction.set(bankRef, published);
+        transaction.update(syllabusRef, { mcqCount: increment(1), updatedAt: serverTimestamp() });
+      }
       transaction.update(sourceRef, { ...canonicalScope, ...content, ...audit });
       return { questionId: draft.id, alreadyApproved: false };
     });

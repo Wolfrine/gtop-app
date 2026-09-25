@@ -10,11 +10,14 @@ import { FirebaseClient } from './firebase';
 import { QuestionPaperRepository } from './question-paper.repository';
 import { QuestionReviewRepository } from './question-review.repository';
 
-// Keep real SDK reference/query construction. Stub only the network read so a
+// Keep real SDK reference/query construction. Stub only network reads so a
 // mixed Firebase SDK cannot hide behind an all-mocked repository test.
 vi.mock('@angular/fire/firestore', async importOriginal => {
   const actual = await importOriginal<typeof import('@angular/fire/firestore')>();
-  return { ...actual, getDocs: vi.fn(async () => ({ docs: [], size: 0, empty: true })) };
+  return { ...actual,
+    getDocs: vi.fn(async () => ({ docs: [], size: 0, empty: true })),
+    getCountFromServer: vi.fn(async () => ({ data: () => ({ count: 0 }) })),
+  };
 });
 
 describe('current application Firebase compatibility', () => {

@@ -38,6 +38,14 @@ Admin content-quality surfaces should help decide what needs attention first: fl
 
 Example snapshot: if several students flag the same MCQ or repeatedly choose the same wrong option, an admin review should treat it as a trust signal. The outcome may be confirming the answer, improving the explanation, correcting tags, replacing the question, or marking the item as verified.
 
+## Current-Year Curriculum Trust
+
+The founder wants complete current-year syllabus coverage across boards, standards, subjects and chapters, with administrators able to preview official sources, correct omissions and approve what is accurate. This is part of question-bank trust: existing question coverage cannot define the syllabus, because missing questions would then hide missing teaching content.
+
+A full-syllabus paper should mean the applicable approved curriculum, including its year or examination cohort and assessment scope. Imported content remains provisional until reviewed; an incomplete source inventory must stay visibly incomplete. Later corrections should preserve what earlier papers were based on. These expectations extend [[Decisions]] without claiming that a comprehensive catalogue has already been verified.
+
+Teachers must be able to request chapters absent from the question bank. Such a request expresses intended coverage and exposes a content gap; it does not make unverified generated questions ready for learners.
+
 ## Boundaries And Non-Goals
 
 This page should not define database fields, moderation states, scripts, or dashboard tasks. It preserves the product model for quality. Execution belongs to docs, implementation plans, or the project manager agent.
@@ -56,3 +64,5 @@ When prioritizing product work, question-bank improvements should be favored whe
 
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
+
+- `raw/2026-09-28-current-syllabus-and-paper-coverage.md`

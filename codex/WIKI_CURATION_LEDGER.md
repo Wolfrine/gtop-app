@@ -201,3 +201,13 @@ Use it to answer:
 - Durable memory captured: founder judges the redesigned lab better and accepts the current version for release; founder approval remains distinct from complete visual coverage or measured learner outcomes.
 - Acceptance: existing product map and strategic anchors are preserved; the source review boundary remains explicit. Unrelated pending research remains outside this scope.
 - Project Manager Handoff: promote the accepted development commit and verify the production deployment (PR #45; release commit c567712f73622a49547668369d48508fc3c9af6b). Prior final visual recheck and live account acceptance remain recorded follow-up items, not blockers invented after the founder's explicit release authorization. Action Plan backfill remains subject to authenticated admin access.
+
+### 2026-09-28 - Current Syllabus And Paper Coverage
+
+- Raw note: `raw/2026-09-28-current-syllabus-and-paper-coverage.md`
+- Status: processed
+- Wiki pages updated: `wiki/Home.md`, `wiki/Question Bank Quality.md`, `wiki/Decisions.md`, `wiki/OpenQuestions.md`.
+- Durable memory captured: comprehensive current-year curriculum as independently reviewed scope; official-source preview and admin approval; missing chapters remain requestable; stable content-creation access is preserved. Requested coverage is distinct from verified completeness.
+- Acceptance: Home and Intent preserve the practice-intelligence direction; Decisions and Question Bank Quality explain curriculum trust; unresolved board/medium/cohort and source-completeness choices remain explicit. Execution details stay outside the wiki.
+- Existing June education-research note remains needs-follow-up, outside this scope; other raw notes were already processed according to the ledger.
+- Project Manager Handoff: continue board-by-board source collection and subject-level review; verify desktop/mobile workflows and protected backend release before production; keep progress and blockers in Action Plan YqzW5nyHsDPlWBhBWMA9 and PR #53. Comprehensive data is not yet complete or approved.

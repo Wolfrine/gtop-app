@@ -38,6 +38,12 @@ Quiz Run is positioned as a lighter peer-to-peer practice mode within [[Live Pra
 
 Question-bank improvement should be treated as an ongoing product capability rather than a one-time cleanup. GTOP needs both addition of missing content and improvement of existing content over time. The decision is product-level because a large, trusted question bank is the base for student trust, reports, topic diagnosis, and any serious AI-assisted guidance.
 
+## Full-Syllabus Coverage Needs Independent Verification
+
+The founder authorized a current-year curriculum catalogue spanning boards, standards, subjects and chapters, with source previews and administrator approval. The intended scope must be independent of the questions already available. Full-syllabus requests use the applicable reviewed curriculum; missing or unverified coverage remains visible rather than being silently omitted.
+
+Human syllabus approval and question review are separate trust decisions. Importing official material or requesting a paper is not approval of its accuracy. Preserve earlier approved scope when corrections are made, and retain direct access to established content-creation tasks as admin workflows evolve. See [[Question Bank Quality]].
+
 ## Question Metadata Should Support Diagnosis
 
 GTOP should enrich MCQs beyond chapter alignment when it improves learning diagnosis. Question type, question pattern, topic-level tagging, and multiple tags are product-relevant because they can support stronger weak-area and strong-area feedback.
@@ -106,3 +112,5 @@ GTOP should study what students may expect from education products over the next
 - `raw/2026-09-06-landing-page-release-acceptance.md`
 
 - `raw/2026-09-06-plant-lab-guided-redesign.md`
+
+- `raw/2026-09-28-current-syllabus-and-paper-coverage.md`

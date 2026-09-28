@@ -10,7 +10,7 @@ GTOP's [[Intent]] is to make Growth Tutorials practice easier to start, repeat, 
 
 The core student model is the [[Practice Loop]]: choose relevant practice, answer MCQs, review the result, inspect reports, retry weak areas, and get clearer next-practice guidance. [[Live Practice]] adds social and competitive energy through Live Quiz and Quiz Run, but it should support the same loop instead of fragmenting it.
 
-The strategic base is [[Question Bank Quality]]. A large MCQ bank only matters if it is correct, covered, tagged, and continuously improved. [[Learning Diagnosis]] depends on that base and on enough repeated usage to turn attempts into strong-area, weak-area, topic, and next-action signals.
+The strategic base is [[Question Bank Quality]]. The founder has also chosen comprehensive current-year curriculum coverage with source-backed admin preview and approval, so paper scope does not shrink to the questions already stored. A large MCQ bank only matters if it is correct, covered, tagged, and continuously improved. [[Learning Diagnosis]] depends on that base and on enough repeated usage to turn attempts into strong-area, weak-area, topic, and next-action signals.
 
 [[Student Pulse]] is the clearest exploratory expression of AI-assisted feedback. It should remain grounded in diagnosis and should not overclaim certainty when student activity or question metadata is thin.
 
@@ -36,3 +36,5 @@ The strongest current [[Decisions]] are:
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
 - `raw/2026-09-05-learning-lab-current-lab.md`
+
+- `raw/2026-09-28-current-syllabus-and-paper-coverage.md`

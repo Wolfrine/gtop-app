@@ -354,7 +354,11 @@ test('admin can select a loaded page and bulk approve objective and written ques
 
 test('admin can save a missing custom chapter and a full syllabus request without a bank entry', async ({page},testInfo)=>{
   await openAdmin(page,'/admin/question-paper-generator');
-  if(testInfo.project.name !== 'desktop-chromium' && await page.getByRole('button',{name:'Custom objective',exact:false}).isVisible()) await page.getByRole('button',{name:'Custom objective',exact:false}).click();
+  await expect(page.getByRole('heading',{name:'Question paper generator',exact:true})).toBeVisible();
+  if((page.viewportSize()?.width ?? 1280) <= 640) {
+    await page.locator('.qpg-format-option').filter({hasText:'Custom objective'}).click();
+    await expect(page.getByRole('heading',{name:'Choose what to cover',exact:true})).toBeVisible();
+  }
   await page.getByLabel('Board',{exact:true}).selectOption(board);
   await page.getByLabel('Standard',{exact:true}).selectOption('10');
   await page.getByRole('checkbox',{name:subject,exact:true}).check();
@@ -384,6 +388,7 @@ test('admin previews and approves a complete source-backed subject; published ve
       completeness:'complete',sourceStatus:'official-source',reviewStatus:'draft',notes:'Emulator fixture, not live curriculum data.',revision:1,baseVersionId:''});
   });
   await openAdmin(page,'/syllabus-preview');
+  await expect(page.getByRole('heading',{name:'Syllabus review',exact:true})).toBeVisible();
   await page.getByLabel('Board',{exact:true}).selectOption(board);
   await page.getByLabel('Standard',{exact:true}).selectOption('10');
   await page.getByRole('button',{name:'Preview & review'}).click();

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -23,7 +23,7 @@ export class SyllabusPreviewComponent implements OnInit {
   checked = false; dirty = false; busy = false; error = ''; message = '';
   newBoard = ''; newStandard = ''; newSubject = '';
   imports: { id:string; board?:string; standard?:string; status?:string }[] = [];
-  constructor(private readonly curriculum: CurriculumService, private readonly papers: QuestionPaperRepository, private readonly changeDetector: ChangeDetectorRef) {}
+  constructor(private readonly curriculum: CurriculumService, private readonly papers: QuestionPaperRepository, private readonly changeDetector: ChangeDetectorRef, private readonly zone: NgZone) {}
   async ngOnInit(): Promise<void> { await this.refresh(); }
   get boards(): string[] { return [...new Set([...this.registry.map(item => item.board), ...this.subjects.map(item => item.board)])].sort(); }
   get standards(): string[] { return [...new Set([...(this.registry.find(item => item.board === this.board)?.standards ?? []), ...this.subjects.filter(item => !this.board || item.board === this.board).map(item => item.standard)])].sort((a,b) => a.localeCompare(b, undefined, {numeric:true})); }
@@ -49,7 +49,7 @@ export class SyllabusPreviewComponent implements OnInit {
       this.subjects = result.subjects; this.published = result.published; this.registry = result.seed.boards;
       this.imports = await this.curriculum.imports(this.year);
     } catch (error) { this.error = this.failure(error); }
-    finally { this.busy = false; this.changeDetector.markForCheck(); }
+    finally { this.busy = false; this.zone.run(() => this.changeDetector.markForCheck()); }
   }
   filterBoard(): void { this.standard = ''; }
   async requestImport(): Promise<void> {
@@ -60,7 +60,7 @@ export class SyllabusPreviewComponent implements OnInit {
       this.imports = await this.curriculum.imports(this.year);
       this.message = 'Source import requested. The creator will prepare drafts and report missing or inaccessible sources; admin approval is still required.';
     } catch(error) { this.error = this.failure(error); }
-    finally { this.busy = false; this.changeDetector.markForCheck(); }
+    finally { this.busy = false; this.zone.run(() => this.changeDetector.markForCheck()); }
   }
   preview(item: CurriculumSubject): void {
     this.editor = structuredClone(item); this.checked = false; this.dirty = false;
@@ -96,7 +96,7 @@ export class SyllabusPreviewComponent implements OnInit {
       this.editor = structuredClone(saved); this.dirty = false; this.checked = false;
       this.message = 'Draft saved. Review its sources and chapter list before approval.';
     } catch (error) { this.error = this.failure(error); }
-    finally { this.busy = false; this.changeDetector.markForCheck(); }
+    finally { this.busy = false; this.zone.run(() => this.changeDetector.markForCheck()); }
   }
   markReviewed(): void {
     if (!this.editor || !this.checked || this.dirty || !this.editor.revision || this.errors(this.editor).length || this.editor.reviewStatus === 'approved') return;
@@ -115,14 +115,14 @@ export class SyllabusPreviewComponent implements OnInit {
     this.busy = false;
     await this.refresh();
     this.message = successes.length ? `Approved ${successes.length} subject${successes.length === 1 ? '' : 's'}. The new versions are now available for paper creation.` : '';
-    this.error = failures.join(' '); this.changeDetector.markForCheck();
+    this.error = failures.join(' '); this.zone.run(() => this.changeDetector.markForCheck());
   }
   async loadHistory(): Promise<void> {
     if (!this.editor || this.busy) return;
     this.busy = true;
     try { this.history = await this.curriculum.history(this.editor.id); }
     catch (error) { this.error = this.failure(error); }
-    finally { this.busy = false; this.changeDetector.markForCheck(); }
+    finally { this.busy = false; this.zone.run(() => this.changeDetector.markForCheck()); }
   }
   chapterCount(item: CurriculumSubject): number { return applicableChapters(item, 'summative').length; }
   private failure(error: unknown): string {

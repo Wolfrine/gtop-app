@@ -7,8 +7,8 @@
   <div class="filters">
     <label>Academic year<input aria-label="Academic year" [(ngModel)]="year" placeholder="2026-27" maxlength="7" /></label>
     <button type="button" (click)="refresh()" [disabled]="busy">Load year</button>
-    <label>Board<select [(ngModel)]="board" (ngModelChange)="filterBoard()"><option value="">All boards</option>@for (item of boards; track item) {<option>{{item}}</option>}</select></label>
-    <label>Standard<select [(ngModel)]="standard"><option value="">All standards</option>@for (item of standards; track item) {<option>{{item}}</option>}</select></label>
+    <label>Board<select aria-label="Board" [(ngModel)]="board" (ngModelChange)="filterBoard()"><option value="">All boards</option>@for (item of boards; track item) {<option>{{item}}</option>}</select></label>
+    <label>Standard<select aria-label="Standard" [(ngModel)]="standard"><option value="">All standards</option>@for (item of standards; track item) {<option>{{item}}</option>}</select></label>
     <label>Subject<input [(ngModel)]="search" placeholder="Find a subject" type="search" /></label>
     <label>Review status<select [(ngModel)]="status"><option value="all">All subjects</option><option value="draft">Needs review</option><option value="approved">Approved</option></select></label>
   </div>
@@ -32,7 +32,7 @@
   </section>
   <details class="new-subject"><summary>Add a missing board, standard or subject</summary><div class="filters">
     <label>Board name<input [(ngModel)]="newBoard" list="board-names" /><datalist id="board-names">@for(item of boards;track item){<option [value]="item"></option>}</datalist></label>
-    <label>Standard<input [(ngModel)]="newStandard" /></label><label>Subject<input [(ngModel)]="newSubject" /></label>
+    <label>Standard<input aria-label="New standard" [(ngModel)]="newStandard" /></label><label>Subject<input aria-label="New subject" [(ngModel)]="newSubject" /></label>
     <button type="button" (click)="newDraft()" [disabled]="busy">Create draft</button>
   </div></details>
   @if (editor; as item) {

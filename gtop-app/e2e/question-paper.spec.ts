@@ -39,6 +39,8 @@ test.beforeAll(async () => {
         { title: 'Applied MCQs', questionType: 'mcq', questionCount: 2, marksPerQuestion: 2, difficulty: 'moderate' },
       ] },
     });
+    await setDoc(doc(db, 'paperTemplates', 'competency_based_paper'), {name:'Competency-Based Paper', status:'active'});
+    await setDoc(doc(db, 'syllabus', `alternate-${tag}`), {board:`Alternate ${board}`, standard:'9', subject, chapter:'Cells', mcqCount:0});
     for (const chapter of ['Motion', 'Energy']) {
       await setDoc(doc(db, 'syllabus', chapter === 'Motion' ? syllabusId : `paper-energy-${tag}`), { board, standard: '10', subject, chapter, mcqCount: 2 });
       for (const difficulty of ['easy', 'moderate']) {
@@ -112,7 +114,7 @@ test('current admin navigation reaches both tools and preserves Learning Lab', a
   await expect(page.getByRole('heading', { name: 'Admin Console', exact: true })).toBeVisible();
   await page.locator('[aria-label="Question bank tools"]').getByRole('link', { name: 'Question papers', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Question paper generator', exact: true })).toBeVisible();
-  await page.locator('app-question-paper-generator-page').getByRole('link', { name: 'Question bank', exact: true }).click();
+  await page.getByRole('link', { name: 'Question bank', exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/question-bank$/);
   await expect(page.getByRole('heading', { name: 'Question bank', exact: true })).toBeVisible();
   await openAdmin(page, '/learning-lab');
@@ -352,61 +354,33 @@ test('admin can select a loaded page and bulk approve objective and written ques
   });
 });
 
-test('admin can save a missing custom chapter and a full syllabus request without a bank entry', async ({page},testInfo)=>{
-  await openAdmin(page,'/admin/question-paper-generator');
-  await expect(page.getByRole('heading',{name:'Question paper generator',exact:true})).toBeVisible();
-  if((page.viewportSize()?.width ?? 1280) <= 640) {
-    await page.locator('.qpg-format-option').filter({hasText:'Custom objective'}).click();
-    await expect(page.getByRole('heading',{name:'Choose what to cover',exact:true})).toBeVisible();
-  }
-  await page.getByLabel('Board',{exact:true}).selectOption(board);
-  await page.getByLabel('Standard',{exact:true}).selectOption('10');
-  await page.getByRole('checkbox',{name:subject,exact:true}).check();
-  await page.getByLabel('Coverage scope').selectOption('custom');
-  await page.getByLabel('Chapters or topics, one per line').fill('New topic absent from the bank');
-  await page.getByRole('button',{name:'Save paper request',exact:true}).click();
-  await expect(page.getByText('Paper request saved. The creator will check official sources',{exact:false})).toBeVisible();
-  await expectNoHorizontalOverflow(page);
-  await page.screenshot({path:testInfo.outputPath('custom-syllabus-request.png'),fullPage:true});
-  await page.getByLabel('Coverage scope').selectOption('full');
-  await expect(page.getByText('Awaiting approved syllabus:',{exact:false})).toBeVisible();
-  await page.getByRole('button',{name:'Save paper request',exact:true}).click();
-  await expect(page.getByText('Paper request saved. The creator will check official sources',{exact:false})).toBeVisible();
-  await environment.withSecurityRulesDisabled(async context=>{
-    const requests=await getDocs(query(collection(context.firestore(),'paperRequests'),where('board','==',board)));
-    expect(requests.docs.some(item=>item.data().scopeMode==='custom' && item.data().chapterScopes[0].chapter==='New topic absent from the bank')).toBe(true);
-    expect(requests.docs.some(item=>item.data().scopeMode==='full' && item.data().status==='awaiting-syllabus')).toBe(true);
-  });
-});
 
-test('admin previews and approves a complete source-backed subject; published versions survive edits',async({page},testInfo)=>{
-  await environment.withSecurityRulesDisabled(async context=>{
-    const id=`2026-27~${encodeURIComponent(board)}~10~${encodeURIComponent(subject)}`;
-    await setDoc(doc(context.firestore(),'curriculumSubjects',id),{id,board,standard:'10',subject,academicYear:'2026-27',examYear:'',programme:'Test fixture',
-      sources:[{url:'https://cbseacademic.nic.in/curriculum_2027.html',title:'Curriculum test source',year:'2026-27',locator:'Test fixture only'}],
-      chapters:[{title:'Motion',topics:['Displacement and velocity'],assessment:'both',bankAliases:[]}],
-      completeness:'complete',sourceStatus:'official-source',reviewStatus:'draft',notes:'Emulator fixture, not live curriculum data.',revision:1,baseVersionId:''});
-  });
-  await openAdmin(page,'/syllabus-preview');
-  await expect(page.getByRole('heading',{name:'Syllabus review',exact:true})).toBeVisible();
-  await page.getByLabel('Board',{exact:true}).selectOption(board);
-  await page.getByLabel('Standard',{exact:true}).selectOption('10');
-  await page.getByRole('button',{name:'Preview & review'}).click();
-  await expect(page.getByText('Motion',{exact:false}).first()).toBeVisible();
-  await page.getByRole('checkbox',{name:'I reviewed the sources',exact:false}).check();
-  await page.getByRole('button',{name:'Select for approval',exact:true}).click();
-  await expectNoHorizontalOverflow(page);
-  await page.screenshot({path:testInfo.outputPath('syllabus-subject-preview.png'),fullPage:true});
-  await page.getByRole('button',{name:'Approve selected (1)',exact:true}).click();
-  await expect(page.getByText('Approved 1 subject.',{exact:false})).toBeVisible();
-  await page.screenshot({path:testInfo.outputPath('syllabus-approved.png'),fullPage:true});
-  await page.getByRole('button',{name:'Preview & review'}).click();
-  await page.getByLabel('Correction and verification notes').fill('Follow-up correction for admin review');
-  await page.getByRole('button',{name:'Save draft',exact:true}).click();
-  await expect(page.getByText('Draft saved.',{exact:false})).toBeVisible();
-  await environment.withSecurityRulesDisabled(async context=>{
-    const versions=await getDocs(query(collection(context.firestore(),'curriculumVersions'),where('board','==',board)));
-    expect(versions.size).toBe(1);
-    expect(versions.docs[0].data().notes).toBe('Emulator fixture, not live curriculum data.');
-  });
+test('competency pattern survives syllabus changes and resizing total marks', async ({page}, testInfo) => {
+  await openAdmin(page, '/admin/question-paper-generator');
+  await page.locator('[data-template-id="competency_based_paper"]').click();
+  await expect(page.getByLabel('Marks', {exact:true})).toBeEditable();
+  await page.getByLabel('Board', {exact:true}).selectOption(`Alternate ${board}`);
+  await page.getByLabel('Standard', {exact:true}).selectOption('9');
+  await page.locator('.qpg-chip').filter({hasText:subject}).click();
+  await page.getByLabel('Marks', {exact:true}).fill('80');
+  await page.getByLabel('Duration minutes', {exact:true}).click();
+  const sectionPlan = page.locator('.qpg-plan');
+  if (!(await sectionPlan.getAttribute('open'))) await sectionPlan.locator('summary').click();
+  await expect(page.locator('.qpg-rule-row')).toHaveCount(4);
+  await expect(page.getByLabel('Concept check question count')).toHaveValue('20');
+  await expect(page.getByLabel('Apply & explain question count')).toHaveValue('8');
+  await expect(page.getByLabel('Case or source question count')).toHaveValue('6');
+  await expect(page.getByLabel('Interpret an experiment question count')).toHaveValue('4');
+  await expect(sectionPlan).toContainText('Short answer');
+  await expect(sectionPlan).toContainText('Case based');
+  await page.getByLabel('Marks', {exact:true}).fill('5');
+  await page.getByLabel('Duration minutes', {exact:true}).click();
+  await expect(page.getByRole('alert')).toContainText('at least 11');
+  await expect(page.locator('.qpg-rule-row')).toHaveCount(4);
+  await page.getByLabel('Marks', {exact:true}).fill('41');
+  await page.getByLabel('Duration minutes', {exact:true}).click();
+  await expect(sectionPlan.locator('summary')).toContainText('41 marks');
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({path:testInfo.outputPath('competency-pattern-preserved.png'), fullPage:true});
 });

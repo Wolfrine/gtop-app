@@ -104,3 +104,69 @@ describe('full and missing syllabus requests', () => {
     expect(page.requestSaved).toBe(true);
   });
 });
+
+
+
+describe('paper pattern survives setup changes', () => {
+  function competency() {
+    const result = fixture();
+    result.page.templates = [{ id: 'competency_based_paper', name: 'Competency-Based Paper' }];
+    result.page.choosePaperFormat('competency_based_paper');
+    return result;
+  }
+  it('preserves every competency section across board, standard, subject and total changes', () => {
+    const { page } = competency();
+    const pattern = page.rules.map(({requiredCount, ...rule}) => rule);
+    page.board = 'ICSE'; page.onBoardChange();
+    page.standard = '9'; page.onStandardChange(); page.toggleSubject('Biology');
+    expect(page.templateId).toBe('competency_based_paper');
+    expect(page.rules.map(({requiredCount, ...rule}) => rule)).toEqual(pattern);
+    page.marks = 80; page.onMarksChange();
+    expect(page.errorMessage).toBe('');
+    expect(page.rules.map(rule => rule.requiredCount)).toEqual([20, 8, 6, 4]);
+    expect(page.sectionMarks).toBe(80);
+    expect(page.rules.map(({requiredCount, ...rule}) => rule)).toEqual(pattern);
+    page.marks = 41; page.onMarksChange();
+    expect(page.sectionMarks).toBe(41); expect(page.rules).toHaveLength(4);
+  });
+  it('preserves manually edited counts, difficulty and duration while selecting subjects', () => {
+    const { page } = competency();
+    page.rules[1].requiredCount = 7; page.rules[1].difficulty = 'hard'; page.onRuleChange();
+    page.durationMinutes = 75;
+    const plan = structuredClone(page.rules);
+    page.toggleSubject('Biology'); page.clearSubjects(); page.toggleSubject('Science');
+    page.academicYear = '2027-28'; page.scopeMode = 'custom'; page.scopeChanged();
+    expect(page.rules).toEqual(plan); expect(page.durationMinutes).toBe(75);
+  });
+  it('retains a scoped template visibly and blocks incompatible requests instead of switching to MCQs', async () => {
+    const { page, repository } = fixture();
+    page.templates = [{ id: 'board_40_mark_chapter_test', board: 'CBSE', standard: '10', name: 'CBSE paper' }];
+    page.choosePaperFormat('board_40_mark_chapter_test');
+    const plan = structuredClone(page.rules);
+    page.board = 'ICSE'; page.onBoardChange(); page.standard = '10'; page.onStandardChange();
+    expect(page.templateId).toBe('board_40_mark_chapter_test');
+    expect(page.rules).toEqual(plan);
+    expect(page.paperFormatOptions.some(format => format.id === page.templateId)).toBe(true);
+    expect(page.formatScopeWarning).toContain('does not match');
+    await page.saveRequest(); await page.runCoverage();
+    expect(repository.requestPaper).not.toHaveBeenCalled(); expect(repository.approvedQuestions).not.toHaveBeenCalled();
+    page.board = 'CBSE'; page.onBoardChange(); page.standard = '10'; page.onStandardChange();
+    expect(page.formatScopeWarning).toBe(''); expect(page.rules).toEqual(plan);
+  });
+  it('keeps the last valid plan when marks are too small to include all sections', () => {
+    const { page } = competency();
+    const plan = structuredClone(page.rules);
+    page.marks = 5; page.onMarksChange();
+    expect(page.rules).toEqual(plan); expect(page.errorMessage).toContain('at least 11');
+    expect(page.sectionMarks).toBe(40); expect(page.marks).toBe(5);
+    page.marks = 40; page.onMarksChange(); expect(page.errorMessage).toBe('');
+  });
+  it('saves the resized written and case mix in a missing-chapter request', async () => {
+    const { page, repository } = competency();
+    page.scopeMode = 'custom'; page.customChapters = 'New chapter';
+    page.marks = 80; page.onMarksChange(); await page.saveRequest();
+    expect(repository.requestPaper).toHaveBeenCalledWith(expect.objectContaining({templateId:'competency_based_paper',marks:80}), page.rules, 'admin-1', expect.any(String));
+    expect(page.rules.some(rule => rule.questionTypes.includes('short_answer'))).toBe(true);
+    expect(page.rules.some(rule => rule.questionTypes.includes('case_based'))).toBe(true);
+  });
+});

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildGenerationRules, chapterKey, createPaperPlan, isUsableQuestion, normalizeQuestion,
-  paperPrintHtml, ruleMarks, setupFingerprint, validatePaperDraft, validatePaperSetup,
+  paperPrintHtml, ruleMarks, resizeGenerationRules, setupFingerprint, validatePaperDraft, validatePaperSetup,
   type GenerationRule, type PaperDraftPayload, type PaperGenerationSetup,
 } from './question-paper.domain';
 
@@ -175,5 +175,29 @@ describe('snapshot and answer separation', () => {
     expect(answers).toContain('ANSWER KEY');
     expect(answers).toContain('Explanation for');
     expect(student).toContain('Concave');
+  });
+});
+
+
+describe('resizing a mixed paper', () => {
+  it('keeps all types, tags, difficulty and per-question marks for each valid total', () => {
+    const rules = buildGenerationRules({id:'competency_based_paper'}, ['Science']);
+    rules[1].difficulty = 'hard';
+    const original = structuredClone(rules);
+    for (let target = 11; target <= 120; target++) {
+      const resized = resizeGenerationRules(rules, target);
+      expect(ruleMarks(resized)).toBe(target);
+      expect(resized.map(({requiredCount,...rule}) => rule)).toEqual(original.map(({requiredCount,...rule}) => rule));
+      expect(resized.every(rule => Number.isInteger(rule.requiredCount) && rule.requiredCount > 0)).toBe(true);
+    }
+    expect(rules).toEqual(original);
+  });
+  it('rejects impossible totals without changing the rule definitions', () => {
+    const rules = buildGenerationRules({id:'counted',sections:[{title:'Case study',questionType:'case_based',questionCount:5,marksPerQuestion:4}]}, []);
+    expect(() => resizeGenerationRules(rules, 41)).toThrow(/cannot fit/);
+    expect(() => resizeGenerationRules(rules, 3)).toThrow(/at least 4/);
+    expect(() => resizeGenerationRules(rules, 4.5)).toThrow(/whole paper total/);
+    expect(() => resizeGenerationRules(rules, 2001)).toThrow(/2,000/);
+    expect(ruleMarks(rules)).toBe(20);
   });
 });

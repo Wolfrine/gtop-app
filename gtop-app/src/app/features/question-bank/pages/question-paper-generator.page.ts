@@ -7,7 +7,7 @@ import { SyllabusItem } from '../core/models';
 import { CurriculumService } from '../../../services/curriculum.service';
 import { applicableChapters, currentAcademicYear, type AssessmentPurpose, type CurriculumSubject, type CurriculumSeed } from '../../../services/curriculum.domain';
 import {
-  buildGenerationRules, chapterKey, createPaperPlan, paperPrintHtml, ruleMarks,
+  buildGenerationRules, chapterKey, createPaperPlan, paperPrintHtml, ruleMarks, resizeGenerationRules,
   scopeValue, setupFingerprint, typeLabel, validatePaperSetup,
   type ChapterScope, type CoverageGap, type GeneratedPaperSection, type GenerationRule,
   type NormalizedQuestion, type PaperGenerationSetup, type PaperPlan,
@@ -91,6 +91,7 @@ import {
         @if (isCompactViewport && mobileStep === 1) { <button class="qpg-sample-link" type="button" (click)="mobileSampleOpen = !mobileSampleOpen" [attr.aria-expanded]="mobileSampleOpen">{{ mobileSampleOpen ? 'Hide example question' : 'View example question for this format' }}</button> }
       </section>
       @if (errorMessage) { <div class="card qpg-error" role="alert">{{ errorMessage }}</div> }
+      @if (formatScopeWarning) { <div class="card qpg-warning" role="status">{{ formatScopeWarning }}</div> }
       @if (templateWarning) { <div class="card qpg-warning" role="status">{{ templateWarning }}</div> }
       @if (loading) { <p class="qpg-status" role="status">{{ loadingMessage }}</p> }
       @if (loadedSnapshot && (!isCompactViewport || mobileStep === 4) && !showMobileDrafts) {
@@ -114,7 +115,7 @@ import {
               <option value="">Select standard</option>
               @for (item of standardOptions; track item) { <option [value]="item">{{ item }}</option> }
             </select>@if(customContext){<input aria-label="Standard name" [(ngModel)]="standard" (ngModelChange)="onStandardChange()" />}</label>
-            <label>Marks<input type="number" min="1" max="2000" [(ngModel)]="marks" [readonly]="templateId !== 'auto'" (ngModelChange)="onMarksChange()" /></label>
+            <label>Marks<input type="number" min="1" max="2000" [(ngModel)]="marks" (change)="onMarksChange()" /></label>
             <label>Duration minutes<input type="number" min="1" max="360" [(ngModel)]="durationMinutes" (ngModelChange)="onSetupChange()" /></label>
           </div>
           <label class="qpg-context-toggle"><input type="checkbox" [(ngModel)]="customContext" (ngModelChange)="onSetupChange()" /> Enter a board or standard not listed above</label>
@@ -167,8 +168,8 @@ import {
           @if(scopeMode === 'selected' && missingApprovedSubjects.length){<p class="muted small">Existing-bank chapters for {{missingApprovedSubjects.join(', ')}} have not been verified for {{academicYear}}.</p>}
           <label>Scope instructions<textarea [(ngModel)]="syllabusNotes" (ngModelChange)="onSetupChange()" rows="2" placeholder="Textbook edition, programme, custom scope or other requirements"></textarea></label>
           <details class="qpg-plan" [open]="templateId !== 'auto' && !isCompactViewport">
-            <summary>Section plan · {{ requiredQuestionCount }} questions · {{ marks }} marks</summary>
-            <p class="muted small">Review the template's starting plan. Adjust the counts and marks to suit your test; the paper total updates automatically.</p>
+            <summary>Section plan · {{ requiredQuestionCount }} questions · {{ sectionMarks }} marks</summary>
+            <p class="muted small">Changing total marks adjusts counts while keeping every section. You can also edit section counts and marks; the total updates automatically.</p>
             @for (rule of rules; track rule.id; let i = $index) {
               <div class="qpg-rule-row">
                 <div class="qpg-rule-title"><strong>{{ rule.title }}</strong><span class="muted small">{{ ruleTypes(rule) }}@if (rule.subject) { · {{ rule.subject }} }</span></div>
@@ -457,6 +458,7 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
   async yearChanged(): Promise<void> { this.chapters = []; this.resetResults(); await this.loadCurriculum(); }
   scopeChanged(): void { this.chapters = []; this.resetResults(); }
   async saveRequest(): Promise<void> {
+    if (this.formatScopeWarning || (this.templateId !== 'auto' && !this.selectedTemplate)) { this.errorMessage = this.formatScopeWarning || 'Choose an available paper format before saving.'; return; }
     if (this.loading || this.loadedSnapshot || this.requestSaved) return;
     if (this.selectedScopes.some(scope => !scope.subject || !this.subjects.includes(scope.subject))) { this.errorMessage = 'For multiple subjects, enter each custom line as Subject | Chapter or topic.'; return; }
     this.loading = true; this.errorMessage = '';
@@ -476,11 +478,16 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
         (!templateSubjects.length || !this.subjects.length || templateSubjects.some((subject) => this.subjects.some((selected) => scopeValue(subject) === scopeValue(selected))));
     });
   }
+  get formatScopeWarning(): string {
+    return this.selectedTemplate && !this.matchingTemplates.some(template => template.id === this.templateId)
+      ? `“${this.templateTitle(this.selectedTemplate)}” does not match the selected board, standard or subjects. Your section plan is retained. Choose a compatible format or restore its syllabus selection.` : '';
+  }
+  get sectionMarks(): number { return ruleMarks(this.rules); }
   get selectedTemplate(): QuestionPaperTemplate | null { return this.templates.find((template) => template.id === this.templateId) ?? null; }
   get paperFormatOptions(): { id: string; title: string; family: string; description: string }[] {
     return [
       { id: 'auto', title: 'Custom objective', family: PAPER_EXAMPLES['auto'].family, description: PAPER_EXAMPLES['auto'].description },
-      ...this.matchingTemplates.map((template) => ({
+      ...this.templates.filter(template => template.id === this.templateId || this.matchingTemplates.some(match => match.id === template.id)).map((template) => ({
         id: template.id, title: this.templateTitle(template), family: PAPER_EXAMPLES[template.id]?.family ?? 'Template',
         description: PAPER_EXAMPLES[template.id]?.description ?? template.description ?? template.notes ?? 'Use the stored section plan.',
       })),
@@ -519,8 +526,9 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
       if (!this.standardOptions.includes(this.standard)) this.standard = profile?.standard && this.standardOptions.includes(profile.standard) ? profile.standard : this.standardOptions[0] ?? '';
       this.subjects = this.subjects.filter((subject) => this.subjectOptions.includes(subject));
       this.chapters = this.chapters.filter((id) => this.chapterOptions.some((scope) => scope.id === id));
-      if (!this.matchingTemplates.some((template) => template.id === this.templateId)) this.templateId = 'auto';
-      this.rebuildRules();
+      if (this.templateId !== 'auto' && !this.selectedTemplate) {
+        this.templateWarning = 'The selected format is unavailable. Its section plan is retained; choose an available format to continue.';
+      } else this.refreshRuleSubjects();
       await this.loadDrafts();
     } catch (error) { this.errorMessage = this.message(error); }
     finally { this.loading = false; this.changeDetector.markForCheck(); }
@@ -531,20 +539,23 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     catch (error) { this.draftListError = `Saved papers could not be loaded. ${this.message(error)}`; }
     finally { this.changeDetector.markForCheck(); }
   }
-  onBoardChange(): void { this.customSubjects = []; this.customChapters = ''; this.standard = ''; this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
-  onStandardChange(): void { this.customSubjects = []; this.customChapters = ''; this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
+  onBoardChange(): void { this.customSubjects = []; this.customChapters = ''; this.standard = ''; this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.refreshRuleSubjects(); this.resetResults(); }
+  onStandardChange(): void { this.customSubjects = []; this.customChapters = ''; this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.refreshRuleSubjects(); this.resetResults(); }
   onTemplateChange(): void { this.showSampleAnswer = false; this.rebuildRules(); this.resetResults(); }
   onSetupChange(): void { this.resetResults(); }
-  onMarksChange(): void { if (this.templateId === 'auto') this.rules = buildGenerationRules(null, this.subjects, Number(this.marks)); this.resetResults(); }
+  onMarksChange(): void {
+    this.resetResults();
+    try { this.rules = resizeGenerationRules(this.rules, Number(this.marks)); }
+    catch (error) { this.errorMessage = this.message(error); }
+  }
   onRuleChange(): void { this.marks = ruleMarks(this.rules); this.resetResults(); }
   toggleSubject(subject: string): void {
     this.subjects = this.subjects.includes(subject) ? this.subjects.filter((item) => item !== subject) : [...this.subjects, subject];
     this.chapters = this.chapters.filter((id) => this.chapterOptions.some((scope) => scope.id === id)); this.chapterSearch = '';
-    if (this.templateId !== 'auto' && !this.matchingTemplates.some((template) => template.id === this.templateId)) this.templateId = 'auto';
-    this.rebuildRules(); this.resetResults();
+    this.refreshRuleSubjects(); this.resetResults();
   }
   toggleChapter(id: string): void { this.chapters = this.chapters.includes(id) ? this.chapters.filter((item) => item !== id) : [...this.chapters, id]; this.resetResults(); }
-  clearSubjects(): void { this.subjects = []; this.chapters = []; this.rebuildRules(); this.resetResults(); }
+  clearSubjects(): void { this.subjects = []; this.chapters = []; this.refreshRuleSubjects(); this.resetResults(); }
   selectAllChapters(): void { this.chapters = this.chapterOptions.map((scope) => scope.id); this.resetResults(); }
   clearChapters(): void { this.chapters = []; this.resetResults(); }
   isSubjectSelected(subject: string): boolean { return this.subjects.includes(subject); }
@@ -647,6 +658,13 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     }
     if (!printWindow.closed) { printWindow.focus(); printWindow.print(); }
   }
+  private refreshRuleSubjects(): void {
+    if (!this.rules.length) { this.rebuildRules(); return; }
+    if (this.templateId === 'auto' || !this.selectedTemplate || this.formatScopeWarning) return;
+    const available = buildGenerationRules(this.selectedTemplate, this.subjects, Number(this.marks) || 40);
+    this.rules = available.map(rule => this.rules.find(existing => existing.id === rule.id) ?? rule);
+    this.marks = ruleMarks(this.rules);
+  }
   private rebuildRules(): void {
     const template = this.selectedTemplate;
     this.rules = buildGenerationRules(template, this.subjects, Number(this.marks) || 40);
@@ -663,6 +681,8 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
       templateName: this.selectedTemplate ? this.templateTitle(this.selectedTemplate) : 'Custom objective paper', negativeMarking: this.negativeMarking };
   }
   private validateSetup(): boolean {
+    if (this.templateId !== 'auto' && !this.selectedTemplate) { this.errorMessage = 'Choose an available paper format before continuing.'; return false; }
+    if (this.formatScopeWarning) { this.errorMessage = this.formatScopeWarning; return false; }
     if (this.scopeMode === 'full' && !this.loadedSnapshot && !this.syllabusResolved) { this.errorMessage = 'The full syllabus is not yet approved for every selected subject. Save the paper request to ask for verification.'; return false; }
     this.errorMessage = validatePaperSetup(this.currentSetup(), this.rules); return !this.errorMessage; }
   private isCurrent(): boolean { return this.coverageChecked && this.checkedFingerprint === setupFingerprint(this.currentSetup(), this.rules); }
@@ -682,3 +702,4 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     return error instanceof Error ? error.message : 'Unable to complete this paper operation. Please try again.';
   }
 }
+

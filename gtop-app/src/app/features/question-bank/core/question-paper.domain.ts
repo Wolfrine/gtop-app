@@ -353,6 +353,52 @@ export function buildGenerationRules(
 export function ruleMarks(rules: GenerationRule[]): number {
   return rules.reduce((sum, rule) => sum + rule.requiredCount * rule.marksPerQuestion, 0);
 }
+/** Resize a plan without deleting sections or changing their question types/mark values. */
+export function resizeGenerationRules(rules: GenerationRule[], targetMarks: number): GenerationRule[] {
+  if (!Number.isInteger(targetMarks) || targetMarks < 1 || targetMarks > 2000) {
+    throw new Error('Set a whole paper total between 1 and 2,000 marks.');
+  }
+  if (!rules.length || rules.some(rule => !Number.isInteger(rule.marksPerQuestion) || rule.marksPerQuestion < 1 ||
+    rule.marksPerQuestion > 20 || !Number.isInteger(rule.requiredCount) || rule.requiredCount < 1)) {
+    throw new Error('Set valid section counts and marks before changing the paper total.');
+  }
+  const minimum = rules.reduce((sum, rule) => sum + rule.marksPerQuestion, 0);
+  if (targetMarks < minimum) throw new Error(`Use at least ${minimum} marks to keep every section. The section plan has not changed.`);
+  const total = ruleMarks(rules);
+  // Find an exact whole-question allocation closest to the existing proportions.
+  // At least one question stays in every section, including written/case sections.
+  let costs = new Array<number>(targetMarks + 1).fill(Infinity);
+  costs[0] = 0;
+  const choices: number[][] = [];
+  for (const rule of rules) {
+    const next = new Array<number>(targetMarks + 1).fill(Infinity);
+    const chosen = new Array<number>(targetMarks + 1).fill(0);
+    const ideal = rule.requiredCount * targetMarks / total;
+    for (let subtotal = 0; subtotal <= targetMarks; subtotal++) {
+      if (!Number.isFinite(costs[subtotal])) continue;
+      const maximum = Math.min(400, Math.floor((targetMarks - subtotal) / rule.marksPerQuestion));
+      for (let count = 1; count <= maximum; count++) {
+        const marks = subtotal + count * rule.marksPerQuestion;
+        const cost = costs[subtotal] + (count - ideal) ** 2 / Math.max(1, ideal);
+        if (cost < next[marks]) { next[marks] = cost; chosen[marks] = count; }
+      }
+    }
+    choices.push(chosen); costs = next;
+  }
+  if (!Number.isFinite(costs[targetMarks])) {
+    throw new Error('This total cannot fit the current marks per question. Choose another total or edit the section marks. The section plan has not changed.');
+  }
+  const resized = structuredClone(rules);
+  let remaining = targetMarks;
+  for (let index = rules.length - 1; index >= 0; index--) {
+    resized[index].requiredCount = choices[index][remaining];
+    remaining -= resized[index].requiredCount * resized[index].marksPerQuestion;
+  }
+  if (resized.reduce((sum, rule) => sum + rule.requiredCount, 0) > 400) {
+    throw new Error('This total needs more than 400 questions. Reduce the total or increase the section marks. The section plan has not changed.');
+  }
+  return resized;
+}
 export function setupFingerprint(setup: PaperGenerationSetup, rules: GenerationRule[]): string {
   return JSON.stringify({ ...setup, subjects: [...setup.subjects].sort(), chapters: [...setup.chapters].sort(),
     chapterScopes: [...setup.chapterScopes].sort((a, b) => chapterKey(a).localeCompare(chapterKey(b))), rules });

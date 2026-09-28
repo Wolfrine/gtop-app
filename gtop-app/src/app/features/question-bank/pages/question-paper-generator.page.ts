@@ -8,7 +8,7 @@ import { CurriculumService } from '../../../services/curriculum.service';
 import { applicableChapters, currentAcademicYear, type AssessmentPurpose, type CurriculumSubject, type CurriculumSeed } from '../../../services/curriculum.domain';
 import {
   buildGenerationRules, chapterKey, createPaperPlan, paperPrintHtml, ruleMarks, resizeGenerationRules,
-  scopeValue, setupFingerprint, typeLabel, validatePaperSetup,
+  scopeValue, setupFingerprint, typeLabel, validatePaperSetup, validatePaperStructure,
   type ChapterScope, type CoverageGap, type GeneratedPaperSection, type GenerationRule,
   type NormalizedQuestion, type PaperGenerationSetup, type PaperPlan,
   QuestionPaperRepository, type QuestionPaperTemplate, type SavedPaperDraft, type PaperRequestRecord,
@@ -460,6 +460,8 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
   async saveRequest(): Promise<void> {
     if (this.formatScopeWarning || (this.templateId !== 'auto' && !this.selectedTemplate)) { this.errorMessage = this.formatScopeWarning || 'Choose an available paper format before saving.'; return; }
     if (this.loading || this.loadedSnapshot || this.requestSaved) return;
+    const structureError = validatePaperStructure(this.currentSetup(), this.rules);
+    if (structureError) { this.errorMessage = structureError; return; }
     if (this.selectedScopes.some(scope => !scope.subject || !this.subjects.includes(scope.subject))) { this.errorMessage = 'For multiple subjects, enter each custom line as Subject | Chapter or topic.'; return; }
     this.loading = true; this.errorMessage = '';
     try {

@@ -8,7 +8,7 @@ import { FirebaseClient } from './firebase';
 import { SyllabusItem } from './models';
 import { curriculumKey } from '../../../services/curriculum.domain';
 import {
-  chapterKey, isUsableQuestion, normalizeQuestion, strings, textValue, validatePaperDraft,
+  chapterKey, isUsableQuestion, normalizeQuestion, strings, textValue, validatePaperDraft, validatePaperStructure,
   type ChapterScope, type CoverageGap, type PaperDraftPayload,
   type PaperGenerationSetup, type QuestionBankResult, type QuestionPaperTemplate,
   type SavedPaperDraft, type GenerationRule,
@@ -137,6 +137,8 @@ export class QuestionPaperRepository {
   async requestPaper(setup: PaperGenerationSetup, rules: GenerationRule[], actorId: string, requestId: string): Promise<string> {
     if (!actorId || actorId === 'admin') throw new Error('Sign in again before requesting a paper.');
     if (!setup.title || !setup.board || !setup.standard || !setup.subjects.length) throw new Error('Specify a title, board, standard and subject.');
+    const structureError = validatePaperStructure(setup, rules);
+    if (structureError) throw new Error(structureError);
     if (!/^\d{4}-\d{2}$/.test(setup.academicYear ?? '')) throw new Error('Specify an academic year such as 2026-27.');
     if (setup.scopeMode === 'custom' && !setup.chapterScopes.length) throw new Error('Add at least one custom chapter or topic.');
     if (new TextEncoder().encode(JSON.stringify({setup,rules})).length > 700_000) throw new Error('This request is too large. Shorten the notes.');
@@ -219,3 +221,4 @@ export interface PaperRequestRecord extends PaperGenerationSetup {
   id: string; status: string; childPriorityIds?: string[];
   progress?: {requestedChapters:number;completedChapters:number;pendingReview:number};
 }
+

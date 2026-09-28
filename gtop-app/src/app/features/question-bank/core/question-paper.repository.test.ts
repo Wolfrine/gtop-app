@@ -23,7 +23,7 @@ vi.mock('@angular/fire/firestore', () => ({
 }));
 
 import { FirebaseClient } from './firebase';
-import { QuestionPaperRepository } from './question-paper.repository';
+import { buildGenerationRules, QuestionPaperRepository } from './question-paper.repository';
 
 const scope = { board: 'CBSE', standard: '9', subject: 'Physics', chapter: 'Motion' };
 const base = {
@@ -58,5 +58,15 @@ describe('approved paper question sources', () => {
       'quiz', 'written-approved',
     ]);
     expect(result.truncatedScopes).toEqual([]);
+  });
+});
+
+
+
+describe('paper request section consistency', () => {
+  it('rejects conflicting totals before writing even when syllabus resolution is pending', async () => {
+    const repository = new QuestionPaperRepository({firestore:{}} as FirebaseClient);
+    const rules = buildGenerationRules({id:'competency_based_paper'}, ['Science']);
+    await expect(repository.requestPaper({title:'Requested paper', board:'CBSE', standard:'10', subjects:['Science'], chapters:[], chapterScopes:[], scopeMode:'full', syllabusResolved:false, academicYear:'2026-27', marks:5, durationMinutes:60, templateId:'competency_based_paper', templateName:'Competency', negativeMarking:0}, rules, 'admin-user', 'request-1')).rejects.toThrow(/section marks must add up/);
   });
 });

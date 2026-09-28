@@ -153,12 +153,14 @@ describe('paper pattern survives setup changes', () => {
     page.board = 'CBSE'; page.onBoardChange(); page.standard = '10'; page.onStandardChange();
     expect(page.formatScopeWarning).toBe(''); expect(page.rules).toEqual(plan);
   });
-  it('keeps the last valid plan when marks are too small to include all sections', () => {
-    const { page } = competency();
+  it('keeps the last valid plan and refuses a contradictory saved total', async () => {
+    const { page, repository } = competency();
     const plan = structuredClone(page.rules);
     page.marks = 5; page.onMarksChange();
     expect(page.rules).toEqual(plan); expect(page.errorMessage).toContain('at least 11');
     expect(page.sectionMarks).toBe(40); expect(page.marks).toBe(5);
+    await page.saveRequest();
+    expect(repository.requestPaper).not.toHaveBeenCalled();
     page.marks = 40; page.onMarksChange(); expect(page.errorMessage).toBe('');
   });
   it('saves the resized written and case mix in a missing-chapter request', async () => {

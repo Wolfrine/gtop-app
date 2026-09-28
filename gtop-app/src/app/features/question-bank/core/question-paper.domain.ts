@@ -437,12 +437,7 @@ export function validatePaperDraft(draft: PaperDraftPayload): string {
   }
   return '';
 }
-export function validatePaperSetup(setup: PaperGenerationSetup, rules: GenerationRule[]): string {
-  if (!setup.board || !setup.standard) return 'Select a board and standard.';
-  if (!setup.subjects.length) return 'Select at least one subject.';
-  if (!setup.chapterScopes.length) return 'Select at least one chapter.';
-  if (setup.chapterScopes.length > 60) return 'Select up to 60 chapters for one paper.';
-  if (!setup.title.trim()) return 'Enter a title for the paper.';
+export function validatePaperStructure(setup: Pick<PaperGenerationSetup, 'marks' | 'durationMinutes'>, rules: GenerationRule[]): string {
   if (!Number.isInteger(setup.durationMinutes) || setup.durationMinutes < 1 || setup.durationMinutes > 360) {
     return 'Set a duration between 1 and 360 minutes.';
   }
@@ -453,6 +448,16 @@ export function validatePaperSetup(setup: PaperGenerationSetup, rules: Generatio
   if (rules.reduce((sum, rule) => sum + rule.requiredCount, 0) > 400) return 'Use up to 400 questions per paper.';
   if (ruleMarks(rules) !== setup.marks) return 'The section marks must add up to the paper total.';
   if (setup.marks < 1 || setup.marks > 2000) return 'Set a paper total between 1 and 2,000 marks.';
+  return '';
+}
+export function validatePaperSetup(setup: PaperGenerationSetup, rules: GenerationRule[]): string {
+  if (!setup.board || !setup.standard) return 'Select a board and standard.';
+  if (!setup.subjects.length) return 'Select at least one subject.';
+  if (!setup.chapterScopes.length) return 'Select at least one chapter.';
+  if (setup.chapterScopes.length > 60) return 'Select up to 60 chapters for one paper.';
+  if (!setup.title.trim()) return 'Enter a title for the paper.';
+  const structureError = validatePaperStructure(setup, rules);
+  if (structureError) return structureError;
   if (setup.chapterScopes.some((scope) => !setup.subjects.some((subject) => scopeValue(subject) === scopeValue(scope.subject)))) {
     return 'Every selected chapter must belong to a selected subject.';
   }

@@ -365,7 +365,7 @@ test('competency pattern survives syllabus changes and resizing total marks', as
   await page.getByLabel('Marks', {exact:true}).fill('80');
   await page.getByLabel('Duration minutes', {exact:true}).click();
   const sectionPlan = page.locator('.qpg-plan');
-  if (!(await sectionPlan.getAttribute('open'))) await sectionPlan.locator('summary').click();
+  if ((await sectionPlan.getAttribute('open')) === null) await sectionPlan.locator('summary').click();
   await expect(page.locator('.qpg-rule-row')).toHaveCount(4);
   await expect(page.getByLabel('Concept check question count')).toHaveValue('20');
   await expect(page.getByLabel('Apply & explain question count')).toHaveValue('8');

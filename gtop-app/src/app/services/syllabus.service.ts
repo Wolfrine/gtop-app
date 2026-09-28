@@ -144,7 +144,8 @@ export class SyllabusService {
         board = board.trim(); standard = String(standard).trim(); subject = subject.trim(); chapter = chapter.trim();
         if (!board || !standard || !subject || !chapter) throw new Error('A complete syllabus scope is required.');
         const matches = await getDocs(query(this.syllabusCollection, where('board','==',board),
-            where('standard','==',standard), where('subject','==',subject), where('chapter','==',chapter)));
+            where('standard','in',/^\d+$/.test(standard) ? [standard,Number(standard)] : [standard]),
+            where('subject','==',subject), where('chapter','==',chapter)));
         if (!matches.empty) return;
         const id = 'scope-' + [board,standard,subject,chapter].map(encodeURIComponent).join('~');
         const ref = doc(this.syllabusCollection,id);

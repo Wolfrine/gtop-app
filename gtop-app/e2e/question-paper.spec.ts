@@ -367,6 +367,7 @@ test('admin can save a missing custom chapter and a full syllabus request withou
   await page.getByLabel('Coverage scope').selectOption('full');
   await expect(page.getByText('Awaiting approved syllabus:',{exact:false})).toBeVisible();
   await page.getByRole('button',{name:'Save paper request',exact:true}).click();
+  await expect(page.getByText('Paper request saved. The creator will check official sources',{exact:false})).toBeVisible();
   await environment.withSecurityRulesDisabled(async context=>{
     const requests=await getDocs(query(collection(context.firestore(),'paperRequests'),where('board','==',board)));
     expect(requests.docs.some(item=>item.data().scopeMode==='custom' && item.data().chapterScopes[0].chapter==='New topic absent from the bank')).toBe(true);

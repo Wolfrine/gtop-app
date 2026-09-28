@@ -50,6 +50,9 @@ export interface ReviewDraft extends ReviewEdits {
   priorityStatus: string;
   priorityBlocker: string;
   version: string;
+  academicYear?: string;
+  assessmentPurpose?: string;
+  curriculumVersionId?: string;
 }
 
 export interface ReviewQueue {
@@ -72,6 +75,7 @@ export function reviewVersion(raw: Record<string, unknown>): string {
     raw['reviewStatus'],
     ...scopeFields.map((field) => raw[field]),
     raw['sourceSyllabusId'],
+    raw['academicYear'], raw['assessmentPurpose'], raw['curriculumVersionId'], raw['parentRequestId'],
     raw['title'],
     raw['question'],
     raw['options'],
@@ -112,6 +116,7 @@ export function toReviewDraft(id: string, raw: Record<string, unknown>): ReviewD
     difficulty: normalized.difficulty,
     assets: normalized.assets,
     sourceSyllabusId: textValue(raw['sourceSyllabusId']),
+    academicYear: textValue(raw['academicYear']), assessmentPurpose: textValue(raw['assessmentPurpose']), curriculumVersionId: textValue(raw['curriculumVersionId']),
     sourceTemplateId: textValue(raw['sourceTemplateId']),
     contentPurpose: textValue(raw['contentPurpose']),
     reviewNotes: textValue(raw['reviewNotes']),
@@ -303,6 +308,22 @@ export class QuestionReviewRepository {
         throw new Error('The source priority is missing. Restore its context before approval.');
       if (priority?.data()?.['status'] === 'blocked')
         throw new Error('This priority is blocked. Resolve its syllabus or reference issue before approving its questions.');
+      const requiredVersion = textValue(priority?.data()?.['curriculumVersionId']);
+      const versionId = textValue(fresh['curriculumVersionId']);
+      if (requiredVersion && requiredVersion !== versionId)
+        throw new Error('This question is missing the syllabus version required by its paper request.');
+      if (versionId) {
+        const version = await transaction.get(doc(this.firebase.firestore,'curriculumVersions',versionId));
+        const value = version.data();
+        const chapter = Array.isArray(value?.['chapters']) ? value!['chapters'].find((item: {title:string}) => item.title === fresh['chapter']) : undefined;
+        const purpose = textValue(fresh['assessmentPurpose']);
+        if (!value || value['reviewStatus'] !== 'approved' || !chapter ||
+          ['board','standard','subject','academicYear'].some(field => textValue(fresh[field]) !== textValue(value[field])) ||
+          !['summative','formative','both'].includes(purpose) ||
+          (chapter.assessment === 'formative' && purpose !== 'formative') ||
+          (chapter.assessment === 'summative' && purpose !== 'summative'))
+          throw new Error('The question does not match its approved syllabus version and assessment scope. Ask its creator to correct it.');
+      }
       if (typeof fresh['boardStandardCheck'] === 'object' && fresh['boardStandardCheck'] !== null &&
         (fresh['boardStandardCheck'] as Record<string, unknown>)['matched'] === false)
         throw new Error('This draft did not pass its board and standard check.');

@@ -68,7 +68,7 @@ export class QuestionPaperRepository {
             for (const item of snapshot.docs.slice(0, 500)) {
               const raw = item.data();
               if (assessmentPurpose && scope.curriculumVersionId && (raw['curriculumVersionId'] !== scope.curriculumVersionId ||
-                !['both',assessmentPurpose].includes(String(raw['assessmentPurpose'] ?? '')))) { result.excludedCount++; continue; }
+                !(assessmentPurpose === 'both' ? ['both','summative','formative'] : ['both',assessmentPurpose]).includes(String(raw['assessmentPurpose'] ?? '')))) { result.excludedCount++; continue; }
               // The staging collection contains drafts too. Only reviewed paper-only items
               // are eligible for the admin paper builder; learner quizzes read questions.
               if (source === 'devQuestions' && raw['paperOnly'] !== true) {

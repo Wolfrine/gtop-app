@@ -85,7 +85,7 @@
                   @if (item.options.length) { <ol type="A">@for (option of item.options; track $index) { <li [class.correct]="$index === item.correctIndex">{{ option }}</li> }</ol> }
                   <div><b>Solution</b>@for (solution of item.solutions; track $index) { <p>{{ solution }}</p> }</div>
                   @if (item.assets.length) { <div class="qr-assets">@for (asset of item.assets; track asset.url) { <img [src]="asset.url" [alt]="asset.alt" loading="lazy" /> }</div> }
-                  <p class="qr-evidence"><b>Reference:</b> {{ item.referenceUsed || 'Not recorded' }}
+                  <p class="qr-evidence">@if(item.academicYear){<b>Curriculum:</b> {{item.academicYear}} · {{item.assessmentPurpose}}<br />}<b>Reference:</b> {{ item.referenceUsed || 'Not recorded' }}
                     @if (item.levelJustification) { <br /><b>Class fit:</b> {{ item.levelJustification }} }</p>
                   <button type="button" class="btn btn-secondary" (click)="openEditor(item)">Edit or decide this question</button>
                 </div>

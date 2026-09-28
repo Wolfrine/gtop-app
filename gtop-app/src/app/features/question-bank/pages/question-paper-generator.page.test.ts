@@ -1,6 +1,7 @@
 import '@angular/compiler';
 import { describe, expect, it, vi } from 'vitest';
 import { ChangeDetectorRef } from '@angular/core';
+import { CurriculumService } from '../../../services/curriculum.service';
 import { AuthService } from '../../../services/auth.service';
 import { chapterKey, normalizeQuestion, type QuestionBankResult, QuestionPaperRepository } from '../core/question-paper.repository';
 import { QuestionPaperGeneratorPage } from './question-paper-generator.page';
@@ -13,9 +14,10 @@ function fixture() {
   })], excludedCount: 0, truncatedScopes: [] };
   const repository = {
     approvedQuestions: vi.fn(async () => bank), saveDraft: vi.fn(async () => 'saved-1'),
-    recentDrafts: vi.fn(async () => []), createPriorityItems: vi.fn(async () => 1),
+    recentDrafts: vi.fn(async () => []), recentRequests: vi.fn(async () => []), requestPaper: vi.fn(async () => 'request-1'), createPriorityItems: vi.fn(async () => 1),
   };
   const page = new QuestionPaperGeneratorPage(repository as unknown as QuestionPaperRepository,
+    {seed:vi.fn().mockResolvedValue({boards:[],subjects:[]}),published:vi.fn().mockResolvedValue([])} as unknown as CurriculumService,
     { profile: () => ({ uid: 'admin-1' }) } as unknown as AuthService,
     { markForCheck: vi.fn() } as unknown as ChangeDetectorRef);
   page.syllabus = [{ id: 'light', board: 'CBSE', standard: '10', subject: 'Science', chapter: 'Light', mcqCount: 1 }];
@@ -43,7 +45,7 @@ describe('paper setup state safety', () => {
   it('checks, previews and persists the same complete allocation', async () => {
     const { page, repository } = fixture();
     await page.runCoverage(); await page.generateDraft(); await page.saveDraft();
-    expect(repository.approvedQuestions).toHaveBeenCalledWith('CBSE', '10', [{ subject: 'Science', chapter: 'Light' }]);
+    expect(repository.approvedQuestions).toHaveBeenCalledWith('CBSE', '10', [{ subject: 'Science', chapter: 'Light' }], undefined);
     expect(page.completePaper).toBe(true);
     expect(page.savedDraftId).toBe('saved-1');
     expect(repository.saveDraft).toHaveBeenCalledWith(expect.objectContaining({ marks: 1, actualMarks: 1, subjects: ['Science'], schemaVersion: 2 }));
@@ -78,5 +80,27 @@ describe('paper setup state safety', () => {
     bank.truncatedScopes = [{ subject: 'Science', chapter: 'Light' }];
     page.marks = 2; page.onMarksChange(); await page.runCoverage(); await page.createPriorityItems();
     expect(page.totalGapCount).toBe(1); expect(repository.createPriorityItems).not.toHaveBeenCalled();
+  });
+});
+
+describe('full and missing syllabus requests', () => {
+  it('does not represent the existing bank as a complete approved syllabus', async () => {
+    const {page,repository} = fixture();
+    page.scopeMode = 'full';
+    expect(page.selectedScopes).toEqual([]);
+    await page.runCoverage();
+    expect(repository.approvedQuestions).not.toHaveBeenCalled();
+    expect(page.errorMessage).toMatch(/not yet approved/);
+    await page.saveRequest();
+    expect(repository.requestPaper).toHaveBeenCalledWith(expect.objectContaining({scopeMode:'full',syllabusResolved:false,subjects:['Science']}),expect.any(Array),'admin-1',expect.any(String));
+  });
+  it('saves a chapter absent from the bank and keeps its request ID during coverage', async () => {
+    const {page,repository} = fixture();
+    page.scopeMode = 'custom'; page.customChapters = 'New chapter';
+    await page.saveRequest();
+    const parent = repository.requestPaper.mock.calls[0];
+    expect(parent?.[0]).toMatchObject({scopeMode:'custom',chapterScopes:[{subject:'Science',chapter:'New chapter'}],syllabusResolved:false});
+    await page.runCoverage();
+    expect(page.requestSaved).toBe(true);
   });
 });

@@ -4,12 +4,14 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { PAPER_EXAMPLES, type PaperExample } from '../core/question-paper.examples';
 import { SyllabusItem } from '../core/models';
+import { CurriculumService } from '../../../services/curriculum.service';
+import { applicableChapters, currentAcademicYear, type AssessmentPurpose, type CurriculumSubject, type CurriculumSeed } from '../../../services/curriculum.domain';
 import {
   buildGenerationRules, chapterKey, createPaperPlan, paperPrintHtml, ruleMarks,
   scopeValue, setupFingerprint, typeLabel, validatePaperSetup,
   type ChapterScope, type CoverageGap, type GeneratedPaperSection, type GenerationRule,
   type NormalizedQuestion, type PaperGenerationSetup, type PaperPlan,
-  QuestionPaperRepository, type QuestionPaperTemplate, type SavedPaperDraft,
+  QuestionPaperRepository, type QuestionPaperTemplate, type SavedPaperDraft, type PaperRequestRecord,
 } from '../core/question-paper.repository';
 
 @Component({
@@ -104,17 +106,24 @@ import {
           <legend class="qpg-sr-only">Paper setup</legend>
           <label>Paper title<input type="text" maxlength="140" [(ngModel)]="title" (ngModelChange)="onSetupChange()" /></label>
           <div class="qpg-form-grid">
-            <label>Board<select aria-label="Board" [(ngModel)]="board" (ngModelChange)="onBoardChange()">
+            <label>Board<select [hidden]="customContext" aria-label="Board" [(ngModel)]="board" (ngModelChange)="onBoardChange()">
               <option value="">Select board</option>
               @for (item of boardOptions; track item) { <option [value]="item">{{ item }}</option> }
-            </select></label>
-            <label>Standard<select aria-label="Standard" [(ngModel)]="standard" (ngModelChange)="onStandardChange()">
+            </select>@if(customContext){<input aria-label="Board name" [(ngModel)]="board" (ngModelChange)="onBoardChange()" />}</label>
+            <label>Standard<select [hidden]="customContext" aria-label="Standard" [(ngModel)]="standard" (ngModelChange)="onStandardChange()">
               <option value="">Select standard</option>
               @for (item of standardOptions; track item) { <option [value]="item">{{ item }}</option> }
-            </select></label>
+            </select>@if(customContext){<input aria-label="Standard name" [(ngModel)]="standard" (ngModelChange)="onStandardChange()" />}</label>
             <label>Marks<input type="number" min="1" max="2000" [(ngModel)]="marks" [readonly]="templateId !== 'auto'" (ngModelChange)="onMarksChange()" /></label>
             <label>Duration minutes<input type="number" min="1" max="360" [(ngModel)]="durationMinutes" (ngModelChange)="onSetupChange()" /></label>
           </div>
+          <label class="qpg-context-toggle"><input type="checkbox" [(ngModel)]="customContext" (ngModelChange)="onSetupChange()" /> Enter a board or standard not listed above</label>
+          <div class="qpg-form-grid">
+            <label>Academic year<input maxlength="7" [(ngModel)]="academicYear" (change)="yearChanged()" /></label>
+            <label>Coverage scope<select [(ngModel)]="scopeMode" (ngModelChange)="scopeChanged()"><option value="selected">Selected chapters</option><option value="full">Full approved syllabus</option><option value="custom">Custom chapters or topics</option></select></label>
+            <label>Assessment purpose<select [(ngModel)]="assessmentPurpose" (ngModelChange)="scopeChanged()"><option value="summative">Summative</option><option value="formative">Formative</option><option value="both">Summative and formative</option></select></label>
+          </div>
+          @if(catalogueWarning){<p class="qpg-warning">{{catalogueWarning}}</p>}
           <div class="qpg-selector">
             <div class="qpg-selector-head"><strong>Subjects</strong><button class="btn btn-secondary qpg-mini" type="button" (click)="clearSubjects()">Clear subjects</button></div>
             @if (!board || !standard) { <p class="muted">Choose a board and standard to see subjects.</p> }
@@ -124,10 +133,22 @@ import {
               }
             </div>
           </div>
+          <div class="qpg-add-subject"><label>Missing subject<input [(ngModel)]="extraSubject" placeholder="Enter subject name" /></label><button type="button" class="btn btn-secondary" (click)="addSubject()">Add subject</button></div>
+          @if(scopeMode === 'full') {
+            <div class="qpg-curriculum-note"><strong>Full syllabus · {{academicYear}}</strong>
+              @if(missingApprovedSubjects.length){<p>Awaiting approved syllabus: {{missingApprovedSubjects.join(', ')}}. You can save this request now for official-source verification.</p>}
+              @else {<p>{{selectedScopes.length}} approved chapters apply to this assessment. Questions must be reviewed against these exact syllabus versions and assessment scope.</p>}
+              <a routerLink="/syllabus-preview">Preview or approve syllabus →</a></div>
+          }
+          @if(scopeMode === 'custom') {
+            <label>Chapters or topics, one per line<textarea [(ngModel)]="customChapters" (ngModelChange)="onSetupChange()" rows="5" placeholder="For multiple subjects: Subject | Chapter or topic"></textarea></label>
+            <p class="muted small">Topics outside the approved list will be checked against official sources and sent for syllabus review before question creation.</p>
+          }
+          @if(scopeMode !== 'custom') {
           <div class="qpg-selector">
             <div class="qpg-selector-head"><strong>Chapters</strong><div class="button-row">
-              <button class="btn btn-secondary qpg-mini" type="button" (click)="selectAllChapters()">Select all chapters</button>
-              <button class="btn btn-secondary qpg-mini" type="button" (click)="clearChapters()">Clear chapters</button>
+              <button class="btn btn-secondary qpg-mini" type="button" [disabled]="scopeMode === 'full'" (click)="selectAllChapters()">Select all chapters</button>
+              <button class="btn btn-secondary qpg-mini" type="button" [disabled]="scopeMode === 'full'" (click)="clearChapters()">Clear chapters</button>
             </div></div>
             @if (!subjects.length) { <p class="muted">Choose a subject to see its chapters.</p> }
             @if (isCompactViewport && chapterOptions.length > 8) {
@@ -136,12 +157,15 @@ import {
             }
             <div class="qpg-chip-list qpg-chapters">
               @for (chapter of visibleChapterOptions; track chapter.id) {
-                <label class="qpg-chip" [class.active]="isChapterSelected(chapter.id)"><input type="checkbox" [checked]="isChapterSelected(chapter.id)" (change)="toggleChapter(chapter.id)" /><span>{{ chapter.chapter }}@if (subjects.length > 1) { <small> · {{ chapter.subject }}</small> }</span></label>
+                <label class="qpg-chip" [class.active]="isChapterSelected(chapter.id)"><input type="checkbox" [disabled]="scopeMode === 'full'" [checked]="scopeMode === 'full' || isChapterSelected(chapter.id)" (change)="toggleChapter(chapter.id)" /><span>{{ chapter.chapter }}@if (subjects.length > 1) { <small> · {{ chapter.subject }}</small> }</span></label>
               }
             </div>
             @if (isCompactViewport && chapterSearch && !visibleChapterOptions.length) { <p class="muted small">No chapters match this search.</p> }
             @if (chapters.length) { <p class="muted small">{{ chapters.length }} selected. Questions are spread evenly across the selected chapters within each section.</p> }
           </div>
+          }
+          @if(scopeMode === 'selected' && missingApprovedSubjects.length){<p class="muted small">Existing-bank chapters for {{missingApprovedSubjects.join(', ')}} have not been verified for {{academicYear}}.</p>}
+          <label>Scope instructions<textarea [(ngModel)]="syllabusNotes" (ngModelChange)="onSetupChange()" rows="2" placeholder="Textbook edition, programme, custom scope or other requirements"></textarea></label>
           <details class="qpg-plan" [open]="templateId !== 'auto' && !isCompactViewport">
             <summary>Section plan · {{ requiredQuestionCount }} questions · {{ marks }} marks</summary>
             <p class="muted small">Review the template's starting plan. Adjust the counts and marks to suit your test; the paper total updates automatically.</p>
@@ -157,10 +181,18 @@ import {
               </div>
             }
           </details>
-          <div class="button-row qpg-inline-action"><button class="btn btn-primary" type="button" (click)="runCoverage()">Check availability</button></div>
+          <div class="button-row qpg-request-actions"><button class="btn btn-secondary" type="button" [disabled]="requestSaved" (click)="saveRequest()">{{requestSaved ? 'Request saved' : 'Save paper request'}}</button><button class="btn btn-primary qpg-desktop-check" type="button" (click)="runCoverage()">Check availability</button></div>
         </fieldset>
+        @if(requestMessage){<p class="card qpg-success" role="status">{{requestMessage}}</p>}
       </section>
 
+      @if(requests.length && !showMobileDrafts && (!isCompactViewport || mobileStep === 2)) {
+        <details class="card qpg-requests"><summary>Recent paper requests ({{requests.length}})</summary>
+          @for(request of requests;track request.id){<div class="qpg-request-row"><strong>{{request.title}}</strong><span>{{request.board}} · Standard {{request.standard}} · {{request.academicYear}}</span><span>{{request.status.replaceAll('-', ' ')}}</span>
+            @if(request.progress){<small>{{request.progress.completedChapters}} / {{request.progress.requestedChapters}} chapters complete · {{request.progress.pendingReview}} questions awaiting review</small>}
+            <small>Request {{request.id}}</small></div>}
+        </details>
+      }
       <section class="section" [class.qpg-mobile-hidden]="isCompactViewport && (mobileStep !== 3 || showMobileDrafts)" aria-labelledby="coverage-heading">
         <div class="section-head"><div><p class="eyebrow">Step 3 · coverage</p><h2 id="coverage-heading">Check the question bank</h2></div>
           @if (coverageChecked) { <span class="pill" [class.success]="!totalGapCount" [class.warning]="totalGapCount > 0">{{ totalGapCount ? totalGapCount + ' more needed' : 'Ready to prepare' }}</span> }
@@ -172,7 +204,7 @@ import {
             <article class="card stat"><span class="muted small">Matched without repeats</span><p class="stat-value">{{ matchedQuestionCount }}</p></article>
             <article class="card stat"><span class="muted small">Marks covered</span><p class="stat-value">{{ matchedMarks }}<small> / {{ marks }}</small></p></article>
           </div>
-          @if (excludedCount) { <p class="muted small">{{ excludedCount }} questions were left out because they are not approved, have incomplete answers, or need a diagram.</p> }
+          @if (excludedCount) { <p class="muted small">{{ excludedCount }} questions were left out because they are not approved, have incomplete answers, need a diagram, or have not been reviewed against the selected syllabus version and assessment scope.</p> }
           @if (truncatedScopes.length) { <div class="card qpg-warning" role="status">Some large chapters have more questions than this check could inspect. Counts are a minimum; check a smaller syllabus before requesting missing questions.</div> }
           @if (gaps.length) {
             <div class="card qpg-card">
@@ -258,6 +290,22 @@ import {
 })
 export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
   syllabus: SyllabusItem[] = [];
+  academicYear = currentAcademicYear();
+  scopeMode: 'selected' | 'full' | 'custom' = 'selected';
+  assessmentPurpose: AssessmentPurpose = 'summative';
+  curriculum: CurriculumSubject[] = [];
+  catalogueSeed: CurriculumSeed | null = null;
+  catalogueWarning = '';
+  customContext = false;
+  customChapters = '';
+  syllabusNotes = '';
+  extraSubject = '';
+  customSubjects: string[] = [];
+  requests: PaperRequestRecord[] = [];
+  requestMessage = '';
+  requestSaved = false;
+  private requestId = crypto.randomUUID();
+
   templates: QuestionPaperTemplate[] = [];
   questions: NormalizedQuestion[] = [];
   generatedSections: GeneratedPaperSection[] = [];
@@ -304,6 +352,7 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
 
   constructor(
     private readonly papers: QuestionPaperRepository,
+    private readonly catalogue: CurriculumService,
     private readonly auth: AuthService,
     private readonly changeDetector: ChangeDetectorRef,
   ) {}
@@ -352,17 +401,72 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     if (!this.isCompactViewport) return;
     requestAnimationFrame(() => document.querySelector('.qpg-journey')?.scrollIntoView({ block: 'start', behavior: 'auto' }));
   }
-  get boardOptions(): string[] { return this.unique(this.syllabus.map((item) => item.board)); }
-  get standardOptions(): string[] { return this.unique(this.syllabus.filter((item) => item.board === this.board).map((item) => item.standard)); }
-  get subjectOptions(): string[] { return this.unique(this.syllabus.filter((item) => item.board === this.board && item.standard === this.standard).map((item) => item.subject)); }
+  get boardOptions(): string[] { return this.unique([...this.syllabus.map(item => item.board), ...(this.catalogueSeed?.boards.map(item => item.board) ?? []), ...this.curriculum.map(item => item.board)]); }
+  get standardOptions(): string[] { return this.unique([...this.syllabus.filter(item => item.board === this.board).map(item => item.standard), ...(this.catalogueSeed?.boards.find(item => item.board === this.board)?.standards ?? []), ...this.curriculum.filter(item => item.board === this.board).map(item => item.standard)]); }
+  get subjectOptions(): string[] { return this.unique([...this.syllabus.filter(item => item.board === this.board && item.standard === this.standard).map(item => item.subject), ...this.curriculum.filter(item => item.board === this.board && item.standard === this.standard).map(item => item.subject), ...(this.catalogueSeed?.subjects.filter(item => item.board === this.board && item.standard === this.standard).map(item => item.subject) ?? []), ...this.customSubjects]); }
+  get selectedCurriculum(): CurriculumSubject[] { return this.curriculum.filter(item => item.board === this.board && item.standard === this.standard && item.academicYear === this.academicYear && this.subjects.includes(item.subject)); }
+  get missingApprovedSubjects(): string[] { return this.subjects.filter(subject => !this.selectedCurriculum.some(item => item.subject === subject)); }
   get chapterOptions(): (ChapterScope & { id: string })[] {
-    const scopes = this.syllabus.filter((item) => item.board === this.board && item.standard === this.standard && this.subjects.includes(item.subject))
-      .map((item) => ({ subject: item.subject, chapter: item.chapter, id: chapterKey(item) }));
-    return [...new Map(scopes.map((scope) => [scope.id, scope])).values()]
-      .sort((a, b) => `${a.subject}|${a.chapter}`.localeCompare(`${b.subject}|${b.chapter}`, undefined, { numeric: true }));
+    const scopes: (ChapterScope & {id:string})[] = [];
+    for (const subject of this.subjects) {
+      const approved = this.selectedCurriculum.find(item => item.subject === subject);
+      if (approved) {
+        for (const chapter of applicableChapters(approved, this.assessmentPurpose)) {
+          const scope = {subject,chapter:chapter.title,curriculumVersionId:approved.versionId!,bankAliases:chapter.bankAliases};
+          scopes.push({...scope,id:chapterKey(scope)});
+        }
+      } else if (this.scopeMode !== 'full') {
+        scopes.push(...this.syllabus.filter(item => item.board === this.board && item.standard === this.standard && item.subject === subject)
+          .map(item => ({subject:item.subject,chapter:item.chapter,id:chapterKey(item)})));
+      }
+    }
+    return [...new Map(scopes.map(scope => [scope.id,scope])).values()];
   }
   get selectedScopes(): ChapterScope[] {
-    return this.loadedSnapshot ? [...this.savedScopes] : this.chapterOptions.filter((scope) => this.chapters.includes(scope.id)).map(({ subject, chapter }) => ({ subject, chapter }));
+    if (this.loadedSnapshot) return [...this.savedScopes];
+    if (this.scopeMode === 'custom') return [...new Map(this.customChapters.split('\n').filter(line => line.trim()).map(line => {
+      const index = line.indexOf(' | ');
+      const subject = index >= 0 ? line.slice(0,index).trim() : this.subjects.length === 1 ? this.subjects[0] : '';
+      const chapter = index >= 0 ? line.slice(index+3).trim() : line.trim();
+      const approved = this.chapterOptions.find(item => item.subject === subject && item.chapter === chapter);
+      const scope: ChapterScope = approved ?? {subject,chapter};
+      return [chapterKey(scope),scope] as const;
+    })).values()];
+    return this.chapterOptions.filter(scope => this.scopeMode === 'full' || this.chapters.includes(scope.id)).map(({id,...scope}) => scope);
+  }
+  get syllabusResolved(): boolean {
+    if (this.scopeMode === 'full') return this.subjects.length > 0 && !this.missingApprovedSubjects.length && this.selectedScopes.length > 0;
+    return this.selectedScopes.length > 0 && this.selectedScopes.every(scope => !!scope.curriculumVersionId || (this.scopeMode === 'selected' && this.syllabus.some(item => item.board === this.board && item.standard === this.standard && item.subject === scope.subject && item.chapter === scope.chapter)));
+  }
+  addSubject(): void {
+    const subject = this.extraSubject.trim(); if (!subject) return;
+    this.customSubjects = this.unique([...this.customSubjects,subject]);
+    if (!this.subjects.includes(subject)) this.toggleSubject(subject);
+    this.extraSubject = '';
+  }
+  async loadCurriculum(): Promise<void> {
+    this.catalogueWarning = '';
+    const year = this.academicYear;
+    try {
+      const [seed, curriculum] = await Promise.all([this.catalogue.seed(), this.catalogue.published(year)]);
+      if (year !== this.academicYear) return;
+      this.catalogueSeed = seed; this.curriculum = curriculum;
+    } catch { this.curriculum = []; this.catalogueWarning = 'The approved syllabus catalogue is unavailable. Existing-bank selection still works; full-syllabus requests will wait for verification.'; }
+    this.changeDetector.markForCheck();
+  }
+  async yearChanged(): Promise<void> { this.chapters = []; this.resetResults(); await this.loadCurriculum(); }
+  scopeChanged(): void { this.chapters = []; this.resetResults(); }
+  async saveRequest(): Promise<void> {
+    if (this.loading || this.loadedSnapshot || this.requestSaved) return;
+    if (this.selectedScopes.some(scope => !scope.subject || !this.subjects.includes(scope.subject))) { this.errorMessage = 'For multiple subjects, enter each custom line as Subject | Chapter or topic.'; return; }
+    this.loading = true; this.errorMessage = '';
+    try {
+      await this.papers.requestPaper(this.currentSetup(),structuredClone(this.rules),this.actorId(),this.requestId);
+      this.requestSaved = true;
+      this.requestMessage = this.syllabusResolved ? 'Paper request saved. Its chapter coverage will be checked before questions are created.' : 'Paper request saved. The creator will check official sources and prepare missing syllabus details for admin approval.';
+      this.requests = await this.papers.recentRequests();
+    } catch(error) { this.errorMessage = this.message(error); }
+    finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
   get matchingTemplates(): QuestionPaperTemplate[] {
     return this.templates.filter((template) => {
@@ -408,6 +512,8 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
         return [] as QuestionPaperTemplate[];
       })]);
       this.syllabus = syllabus; this.templates = templates;
+      await this.loadCurriculum();
+      this.requests = await this.papers.recentRequests().catch(() => []);
       const profile = this.auth.profile();
       if (!this.boardOptions.includes(this.board)) this.board = profile?.board && this.boardOptions.includes(profile.board) ? profile.board : this.boardOptions[0] ?? '';
       if (!this.standardOptions.includes(this.standard)) this.standard = profile?.standard && this.standardOptions.includes(profile.standard) ? profile.standard : this.standardOptions[0] ?? '';
@@ -425,8 +531,8 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     catch (error) { this.draftListError = `Saved papers could not be loaded. ${this.message(error)}`; }
     finally { this.changeDetector.markForCheck(); }
   }
-  onBoardChange(): void { this.standard = ''; this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
-  onStandardChange(): void { this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
+  onBoardChange(): void { this.customSubjects = []; this.customChapters = ''; this.standard = ''; this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
+  onStandardChange(): void { this.customSubjects = []; this.customChapters = ''; this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.templateId = 'auto'; this.rebuildRules(); this.resetResults(); }
   onTemplateChange(): void { this.showSampleAnswer = false; this.rebuildRules(); this.resetResults(); }
   onSetupChange(): void { this.resetResults(); }
   onMarksChange(): void { if (this.templateId === 'auto') this.rules = buildGenerationRules(null, this.subjects, Number(this.marks)); this.resetResults(); }
@@ -455,14 +561,14 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
 
   async runCoverage(): Promise<void> {
     if (this.loading || this.loadedSnapshot || !this.validateSetup()) return;
-    this.resetResults();
+    this.resetResults(true);
     const revision = this.revision;
     const setup = this.currentSetup();
     const rules = structuredClone(this.rules);
     const fingerprint = setupFingerprint(setup, rules);
     this.loading = true; this.loadingMessage = 'Checking the selected chapters…';
     try {
-      const result = await this.papers.approvedQuestions(setup.board, setup.standard, setup.chapterScopes);
+      const result = await this.papers.approvedQuestions(setup.board, setup.standard, setup.chapterScopes, this.scopeMode === 'full' ? this.assessmentPurpose : undefined);
       if (revision !== this.revision || fingerprint !== setupFingerprint(this.currentSetup(), this.rules)) return;
       const plan = createPaperPlan(setup, rules, result.questions);
       this.questions = result.questions; this.truncatedScopes = result.truncatedScopes; this.excludedCount = result.excludedCount;
@@ -503,7 +609,7 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     if (!this.isCurrent()) { this.errorMessage = 'The setup changed. Check availability again before requesting questions.'; return; }
     const revision = this.revision;
     this.loading = true; this.loadingMessage = 'Saving the request for missing questions…'; this.errorMessage = '';
-    try { await this.papers.createPriorityItems(this.currentSetup(), this.gaps, this.actorId()); if (revision === this.revision) this.priorityItemsCreated = true; }
+    try { await this.papers.createPriorityItems(this.currentSetup(), this.gaps, this.actorId(), this.requestId, structuredClone(this.rules)); if (revision === this.revision) this.priorityItemsCreated = true; }
     catch (error) { if (revision === this.revision) this.errorMessage = this.message(error); }
     finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
@@ -513,6 +619,8 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     try {
       const draft = await this.papers.draft(id);
       this.resetResults();
+      this.academicYear = draft.academicYear ?? currentAcademicYear(); this.scopeMode = draft.scopeMode ?? 'selected'; this.assessmentPurpose = draft.assessmentPurpose ?? 'summative'; this.syllabusNotes = draft.syllabusNotes ?? '';
+      this.customChapters = draft.scopeMode === 'custom' ? draft.chapterScopes.map(scope => `${scope.subject} | ${scope.chapter}`).join('\n') : '';
       this.board = draft.board; this.standard = draft.standard; this.subjects = [...draft.subjects];
       this.savedScopes = structuredClone(draft.chapterScopes); this.chapters = draft.chapterScopes.map(chapterKey);
       this.title = draft.title; this.templateId = draft.templateId; this.marks = draft.marks;
@@ -524,7 +632,7 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     } catch (error) { this.errorMessage = this.message(error); }
     finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
-  useSavedSetup(): void { this.resetResults(); this.advanceMobileStep(2); }
+  async useSavedSetup(): Promise<void> { this.resetResults(); await this.loadCurriculum(); this.advanceMobileStep(2); }
   async printPaper(answers: boolean): Promise<void> {
     if (!this.completePaper) return;
     const printWindow = window.open('', '_blank', 'width=900,height=800');
@@ -549,14 +657,17 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
   }
   private currentSetup(): PaperGenerationSetup {
     const scopes = this.selectedScopes;
-    return { title: this.title.trim(), board: this.board, standard: this.standard, subjects: [...this.subjects],
+    return { academicYear:this.academicYear, scopeMode:this.scopeMode, assessmentPurpose:this.assessmentPurpose, curriculumVersionIds:[...new Set(scopes.map(scope => scope.curriculumVersionId).filter((id): id is string => !!id))], syllabusResolved:this.loadedSnapshot || this.syllabusResolved, syllabusNotes:this.syllabusNotes.trim(), title: this.title.trim(), board: this.board, standard: this.standard, subjects: [...this.subjects],
       chapters: [...new Set(scopes.map((scope) => scope.chapter))], chapterScopes: scopes,
       marks: Number(this.marks), durationMinutes: Number(this.durationMinutes), templateId: this.templateId,
       templateName: this.selectedTemplate ? this.templateTitle(this.selectedTemplate) : 'Custom objective paper', negativeMarking: this.negativeMarking };
   }
-  private validateSetup(): boolean { this.errorMessage = validatePaperSetup(this.currentSetup(), this.rules); return !this.errorMessage; }
+  private validateSetup(): boolean {
+    if (this.scopeMode === 'full' && !this.loadedSnapshot && !this.syllabusResolved) { this.errorMessage = 'The full syllabus is not yet approved for every selected subject. Save the paper request to ask for verification.'; return false; }
+    this.errorMessage = validatePaperSetup(this.currentSetup(), this.rules); return !this.errorMessage; }
   private isCurrent(): boolean { return this.coverageChecked && this.checkedFingerprint === setupFingerprint(this.currentSetup(), this.rules); }
-  private resetResults(): void {
+  private resetResults(preserveRequest = false): void {
+    if (!preserveRequest) { this.requestId = crypto.randomUUID(); this.requestSaved = false; this.requestMessage = ''; }
     this.revision++; this.questions = []; this.generatedSections = []; this.gaps = []; this.plan = null;
     this.coverageChecked = false; this.checkedFingerprint = ''; this.priorityItemsCreated = false;
     this.savedDraftId = ''; this.errorMessage = ''; this.loadedSnapshot = false; this.truncatedScopes = []; this.excludedCount = 0;

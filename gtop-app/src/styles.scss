@@ -4,6 +4,7 @@
 @use 'styles/utilities';
 @use 'styles/typography';
 @use './app/features/question-bank/pages/question-bank-workspace';
+@use './app/pages/syllabus-preview/syllabus-preview.component';
 @use './app/features/question-bank/pages/question-review-workbench';
 
 :where(.qb-page, .qr-page) .btn {

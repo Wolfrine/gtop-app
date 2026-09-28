@@ -2,10 +2,10 @@
     <h1>Admin Console</h1>
     <!-- Quick Actions -->
     <div class="quick-actions">
-        <button mat-flat-button color="primary" class="fab-button" (click)="addNewMCQ()">
+        <button mat-flat-button color="primary" class="fab-button" routerLink="/admin/add-mcq">
             <mat-icon>add</mat-icon> Add MCQs
         </button>
-        <button mat-stroked-button color="primary" class="fab-button" (click)="createQuiz()">
+        <button mat-stroked-button color="primary" class="fab-button" routerLink="/quiz">
             <mat-icon>quiz</mat-icon> Quick Quiz
         </button>
         <a mat-stroked-button color="primary" class="fab-button" [routerLink]="['/live']" matTooltip="Host or join a live session">
@@ -15,6 +15,7 @@
 
     <!-- Overview Cards -->
     <div class="quick-actions" aria-label="Question bank tools">
+        <a mat-stroked-button color="primary" class="fab-button" routerLink="/syllabus-preview"><mat-icon>menu_book</mat-icon> Syllabus review</a>
         <a mat-flat-button color="primary" class="fab-button" routerLink="/admin/question-bank"><mat-icon>library_books</mat-icon> Question bank</a>
         <a mat-flat-button color="primary" class="fab-button" routerLink="/admin/question-paper-generator"><mat-icon>description</mat-icon> Question papers</a>
         <a mat-stroked-button color="primary" class="fab-button" routerLink="/admin/question-review"><mat-icon>fact_check</mat-icon> Review new questions</a>

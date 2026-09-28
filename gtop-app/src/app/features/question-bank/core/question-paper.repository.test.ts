@@ -5,14 +5,14 @@ const documents = vi.hoisted(() => new Map<string, Record<string, unknown>>());
 vi.mock('./firebase', () => ({ FirebaseClient: class {} }));
 vi.mock('@angular/fire/firestore', () => ({
   collection: vi.fn((_db: unknown, path: string) => ({ path })),
-  where: vi.fn((field: string, _operator: string, value: unknown) => ({ field, value })),
+  where: vi.fn((field: string, operator: string, value: unknown) => ({ field, value, operator })),
   limit: vi.fn((max: number) => ({ max })),
   query: vi.fn((ref, ...constraints) => ({ ...ref, constraints })),
   getDocs: vi.fn(async (request) => {
     const matching = [...documents.entries()].filter(([path, data]) =>
       path.startsWith(request.path + '/') &&
-      request.constraints.every((constraint: { field?: string; value?: unknown }) =>
-        !constraint.field || data[constraint.field] === constraint.value));
+      request.constraints.every((constraint: { field?: string; value?: unknown; operator?: string }) =>
+        !constraint.field || (constraint.operator === 'in' ? (constraint.value as unknown[]).includes(data[constraint.field]) : data[constraint.field] === constraint.value)));
     return {
       docs: matching.map(([path, data]) => ({
         id: path.split('/').at(-1)!, data: () => data,

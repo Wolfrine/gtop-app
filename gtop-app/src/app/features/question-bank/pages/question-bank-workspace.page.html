@@ -2,13 +2,14 @@
   <header class="qb-head">
     <div><p class="eyebrow">Admin · Question module</p><h1>Question bank</h1>
       <p>Track coverage, direct new questions, and follow them into review and papers.</p></div>
-    <a class="btn btn-primary qb-new-paper" routerLink="/admin/question-paper-generator">Create paper</a>
+    <div class="qb-header-actions"><a class="btn btn-secondary" routerLink="/admin/add-mcq">Add MCQs</a><a class="btn btn-secondary" routerLink="/admin/mcq-management">Manage MCQs</a><a class="btn btn-primary qb-new-paper" routerLink="/admin/question-paper-generator">Create paper</a></div>
   </header>
 
   <nav class="qb-nav" aria-label="Question module">
     <a routerLink="/admin/question-paper-generator">Papers</a>
     <a routerLink="/admin/question-bank" [class.active]="view() === 'coverage'" [attr.aria-current]="view() === 'coverage' ? 'page' : null">Coverage</a>
     <a routerLink="/admin/question-review">Review</a>
+    <a routerLink="/syllabus-preview">Syllabus</a>
     <a routerLink="/admin/question-bank" [queryParams]="{view:'bank'}" [class.active]="view() === 'bank'" [attr.aria-current]="view() === 'bank' ? 'page' : null">Bank</a>
   </nav>
 

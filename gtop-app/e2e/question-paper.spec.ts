@@ -351,3 +351,56 @@ test('admin can select a loaded page and bulk approve objective and written ques
     expect((await getDoc(doc(db, 'questions', `batch-${tag}-01`))).data()?.status).toBe('approved');
   });
 });
+
+test('admin can save a missing custom chapter and a full syllabus request without a bank entry', async ({page},testInfo)=>{
+  await openAdmin(page,'/admin/question-paper-generator');
+  if(testInfo.project.name !== 'desktop-chromium' && await page.getByRole('button',{name:'Custom objective',exact:false}).isVisible()) await page.getByRole('button',{name:'Custom objective',exact:false}).click();
+  await page.getByLabel('Board',{exact:true}).selectOption(board);
+  await page.getByLabel('Standard',{exact:true}).selectOption('10');
+  await page.getByRole('checkbox',{name:subject,exact:true}).check();
+  await page.getByLabel('Coverage scope').selectOption('custom');
+  await page.getByLabel('Chapters or topics, one per line').fill('New topic absent from the bank');
+  await page.getByRole('button',{name:'Save paper request',exact:true}).click();
+  await expect(page.getByText('Paper request saved. The creator will check official sources',{exact:false})).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({path:testInfo.outputPath('custom-syllabus-request.png'),fullPage:true});
+  await page.getByLabel('Coverage scope').selectOption('full');
+  await expect(page.getByText('Awaiting approved syllabus:',{exact:false})).toBeVisible();
+  await page.getByRole('button',{name:'Save paper request',exact:true}).click();
+  await environment.withSecurityRulesDisabled(async context=>{
+    const requests=await getDocs(query(collection(context.firestore(),'paperRequests'),where('board','==',board)));
+    expect(requests.docs.some(item=>item.data().scopeMode==='custom' && item.data().chapterScopes[0].chapter==='New topic absent from the bank')).toBe(true);
+    expect(requests.docs.some(item=>item.data().scopeMode==='full' && item.data().status==='awaiting-syllabus')).toBe(true);
+  });
+});
+
+test('admin previews and approves a complete source-backed subject; published versions survive edits',async({page},testInfo)=>{
+  await environment.withSecurityRulesDisabled(async context=>{
+    const id=`2026-27~${encodeURIComponent(board)}~10~${encodeURIComponent(subject)}`;
+    await setDoc(doc(context.firestore(),'curriculumSubjects',id),{id,board,standard:'10',subject,academicYear:'2026-27',examYear:'',programme:'Test fixture',
+      sources:[{url:'https://cbseacademic.nic.in/curriculum_2027.html',title:'Curriculum test source',year:'2026-27',locator:'Test fixture only'}],
+      chapters:[{title:'Motion',topics:['Displacement and velocity'],assessment:'both',bankAliases:[]}],
+      completeness:'complete',sourceStatus:'official-source',reviewStatus:'draft',notes:'Emulator fixture, not live curriculum data.',revision:1,baseVersionId:''});
+  });
+  await openAdmin(page,'/syllabus-preview');
+  await page.getByLabel('Board',{exact:true}).selectOption(board);
+  await page.getByLabel('Standard',{exact:true}).selectOption('10');
+  await page.getByRole('button',{name:'Preview & review'}).click();
+  await expect(page.getByText('Motion',{exact:false}).first()).toBeVisible();
+  await page.getByRole('checkbox',{name:'I reviewed the sources',exact:false}).check();
+  await page.getByRole('button',{name:'Select for approval',exact:true}).click();
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({path:testInfo.outputPath('syllabus-subject-preview.png'),fullPage:true});
+  await page.getByRole('button',{name:'Approve selected (1)',exact:true}).click();
+  await expect(page.getByText('Approved 1 subject.',{exact:false})).toBeVisible();
+  await page.screenshot({path:testInfo.outputPath('syllabus-approved.png'),fullPage:true});
+  await page.getByRole('button',{name:'Preview & review'}).click();
+  await page.getByLabel('Correction and verification notes').fill('Follow-up correction for admin review');
+  await page.getByRole('button',{name:'Save draft',exact:true}).click();
+  await expect(page.getByText('Draft saved.',{exact:false})).toBeVisible();
+  await environment.withSecurityRulesDisabled(async context=>{
+    const versions=await getDocs(query(collection(context.firestore(),'curriculumVersions'),where('board','==',board)));
+    expect(versions.size).toBe(1);
+    expect(versions.docs[0].data().notes).toBe('Emulator fixture, not live curriculum data.');
+  });
+});

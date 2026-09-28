@@ -1,6 +1,6 @@
 import type { Question } from './models';
 
-export interface ChapterScope { subject: string; chapter: string; }
+export interface ChapterScope { subject: string; chapter: string; curriculumVersionId?: string; bankAliases?: {subject: string; chapter: string}[]; }
 export interface QuestionPaperTemplateSection {
   id?: string;
   title?: string;
@@ -128,6 +128,12 @@ export interface PaperGenerationSetup {
   templateId: string;
   templateName: string;
   negativeMarking: number;
+  academicYear?: string;
+  scopeMode?: 'selected' | 'full' | 'custom';
+  assessmentPurpose?: 'summative' | 'formative' | 'both';
+  curriculumVersionIds?: string[];
+  syllabusResolved?: boolean;
+  syllabusNotes?: string;
 }
 export interface PaperDraftPayload extends PaperGenerationSetup {
   schemaVersion: number;

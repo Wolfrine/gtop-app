@@ -53,7 +53,8 @@ export class SideNavComponent implements OnInit {
 
             { label: 'Question bank', icon: 'library_books', route: '/admin/question-bank', badge: 'NEW', tooltip: 'Papers, coverage, review and approved questions' },
             { label: 'Manage Syllabus', icon: 'fact_check', route: '/admin/manage-syllabus' },
-            { label: 'Syllabus Preview', icon: 'menu_book', route: '/syllabus-preview' },
+            { label: 'Add MCQs', icon: 'add', route: '/admin/add-mcq' },
+            { label: 'Syllabus review', icon: 'menu_book', route: '/syllabus-preview' },
             { label: 'User Management', icon: 'group', route: '/admin/user-list' },
 
             { label: 'Admin Console', icon: 'grid_view', route: '/admin', tooltip: 'Access administrative metrics and tools' },

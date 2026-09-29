@@ -311,7 +311,7 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   const requestRow=page.locator('.qm-paper-row').filter({has:page.getByRole('link',{name:'Check & continue'})}).filter({hasText:title});
   await expect(requestRow).toHaveCount(1);
   await expectNoHorizontalOverflow(page);
-  await page.screenshot({path:testInfo.outputPath('papers-home.png'),fullPage:true});
+  await page.screenshot({path:testInfo.outputPath('papers-home.png')});
   await requestRow.getByRole('link',{name:'Check & continue'}).click();
   await expect(page.getByLabel('Marks',{exact:true})).toHaveValue('8');
   await expect(page.getByRole('checkbox',{name:'Motion',exact:true})).toBeChecked();

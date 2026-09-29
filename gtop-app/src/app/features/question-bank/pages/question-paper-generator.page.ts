@@ -38,7 +38,7 @@ import {
         <div [class.qpg-mobile-hidden]="guided && mobileStep !== 1">
         <div class="section-head"><div><p class="eyebrow">Step 1 · paper format</p><h2 id="format-heading">What are you preparing?</h2>
           <p class="muted">Choose a format to start with a section plan. You can adjust question counts and marks below.</p></div></div>
-        
+
         </div>
         <div class="qpg-format-layout">
           <div class="qpg-format-grid" [class.qpg-mobile-hidden]="guided && mobileStep !== 1" role="group" aria-label="Paper formats">

@@ -49,9 +49,12 @@ export class AdminUsageService {
     if(this.flushing||!this.uid||!this.session||(!Object.keys(this.events).length&&!Object.values(this.minutes).some(Boolean)))return;
     const uid=this.uid;const session=this.session;const active=this.minutes;const events=this.events;this.minutes={};this.events={};this.flushing=true;
     const duration=Object.values(active).reduce((a,b)=>a+b,0);
-    const activeMs=Object.fromEntries(Object.entries(active).map(([k,v])=>[k,increment(v)]));
-    const eventCounts=Object.fromEntries(Object.entries(events).map(([k,v])=>[k,increment(v)]));
-    const day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    // Empty maps replace stored maps even with merge:true. A zero increment
+    // preserves prior daily counters during time-only or event-only flushes.
+    const activeMs=Object.fromEntries(Object.entries({[this.area||'other-admin']:0,...active}).map(([k,v])=>[k,increment(v)]));
+    const eventCounts=Object.fromEntries(Object.entries({[(this.area||'other-admin')+'__page_view']:0,...events}).map(([k,v])=>[k,increment(v)]));
+    const parts=new Intl.DateTimeFormat('en',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit',numberingSystem:'latn'}).formatToParts(new Date());
+    const day=['year','month','day'].map(type=>parts.find(part=>part.type===type)?.value).join('-');
     try {await setDoc(doc(this.client.firestore,'adminUsageSessions',day+'_'+session),{schemaVersion:1,day,actorUid:uid,startedAtIso:this.startedAt,updatedAtIso:new Date().toISOString(),updatedAt:serverTimestamp(),
       device:window.innerWidth<641?'phone':window.innerWidth<1100?'tablet':'desktop',activeMs,eventCounts,totalActiveMs:increment(duration)}, {merge:true});}
     catch {if(this.session===session){for(const[k,v]of Object.entries(active))this.minutes[k]=Math.min(3600_000,(this.minutes[k]??0)+v);for(const[k,v]of Object.entries(events))this.events[k]=Math.min(10000,(this.events[k]??0)+v);}}

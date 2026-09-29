@@ -19,6 +19,7 @@ const syllabusId = `paper-motion-${tag}`;
 // the random identifier alone could wrap at its hyphen and hide an overflow bug.
 const title = `Chapter revision ${tag} AdvancedRevisionWithoutBreaksForPhoneLayoutCoverage`;
 let environment: RulesTestEnvironment;
+let adminUid: string;
 const studentEmail = `paper-student-${tag}@gtop.test`;
 
 test.beforeAll(async () => {
@@ -26,6 +27,7 @@ test.beforeAll(async () => {
   const auth = getAuth(app);
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
   const credential = await createUserWithEmailAndPassword(auth, email, password);
+  adminUid = credential.user.uid;
   const student = await createUserWithEmailAndPassword(auth, studentEmail, password);
   environment = await initializeTestEnvironment({ projectId: 'gtop-app', firestore: { host: '127.0.0.1', port: 8080 } });
   await environment.withSecurityRulesDisabled(async context => {
@@ -113,9 +115,9 @@ test('current admin navigation reaches both tools and preserves Learning Lab', a
   await openAdmin(page, '/admin');
   await expect(page.getByRole('heading', { name: 'Admin Console', exact: true })).toBeVisible();
   await page.locator('[aria-label="Question bank tools"]').getByRole('link', { name: 'Question papers', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Question paper generator', exact: true })).toBeVisible();
-  await page.getByRole('link', { name: 'Question bank', exact: true }).click();
-  await expect(page).toHaveURL(/\/admin\/question-bank$/);
+  await expect(page.getByRole('heading', { name: 'Question papers', exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Bank', exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/question-library$/);
   await expect(page.getByRole('heading', { name: 'Question bank', exact: true })).toBeVisible();
   await openAdmin(page, '/learning-lab');
   await expect(page.getByRole('heading', { name: 'Learning Lab.', exact: true })).toBeVisible();
@@ -132,29 +134,39 @@ test('learner accounts cannot open either admin module', async ({ page }) => {
   }
 });
 
-test('admin sees a chapter priority, live coverage and approved bank at scale', async ({ page }, testInfo) => {
+test('admin sees a chapter request, exact coverage and the independent question bank', async ({ page }, testInfo) => {
   await openAdmin(page, `/admin/question-bank?priorityId=${priorityId}`);
-  await expect(page.getByRole('heading', { name: 'Question bank', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Question requests', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Motion', exact: true })).toBeVisible();
   await expect(page.getByText('55', { exact: true }).first()).toBeVisible();
-  if (await page.locator('.qb-priority.selected').isVisible())
-    await expect(page.locator('.qb-priority.selected .qb-priority-progress')).toContainText('55 pending');
   await expect(page.getByRole('link', { name: 'Review its drafts' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Save priority' })).toHaveCSS('background-color', 'rgb(36, 84, 181)');
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expectNoHorizontalOverflow(page);
   await page.screenshot({ path: testInfo.outputPath('priority-coverage.png'), fullPage: true });
-  await page.getByRole('link', { name: 'Bank', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Browse the bank' })).toBeVisible();
-  await expect(page.locator('.qb-bank-row')).toHaveCount(2);
-  await page.screenshot({ path: testInfo.outputPath('approved-bank.png'), fullPage: true });
-  await page.getByRole('link', { name: 'Coverage', exact: true }).click();
   await page.getByRole('spinbutton', { name: 'Approved target' }).fill('1200');
   await page.getByRole('button', { name: 'Save priority' }).click();
   await expect(page.getByText('Priority saved.', { exact: false })).toBeVisible();
   await environment.withSecurityRulesDisabled(async context => {
     expect((await getDoc(doc(context.firestore(), 'questionBankPriorityItems', priorityId))).data())
-      .toMatchObject({ requiredCount: 1200, gapCount: 1198, status: 'open' });
+      .toMatchObject({ requiredCount: 1200, gapCount: 1198, generationDeficit:1143, status: 'open' });
   });
+  await page.getByRole('link', { name: 'Bank', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Question bank',exact:true })).toBeVisible();
+  await page.getByLabel('Board',{exact:true}).selectOption(board);
+  await page.getByLabel('Class',{exact:true}).selectOption('10');
+  await page.getByLabel('Subject',{exact:true}).selectOption(subject);
+  if(await page.locator('.qm-mobile-chapter').isVisible())await page.getByLabel('Chapter',{exact:true}).selectOption(syllabusId);
+  else await page.locator('.qm-chapters').getByRole('button',{name:'Motion',exact:true}).click();
+  await expect(page.locator('.qm-question')).toHaveCount(2);
+  await page.screenshot({ path: testInfo.outputPath('approved-bank.png'), fullPage: true });
+  await page.getByRole('button',{name:/Add written question/}).click();
+  await page.getByLabel('Question',{exact:true}).fill('Explain two ways to measure acceleration in this experimental setup '+tag);
+  await page.getByLabel('Answer / worked solution').fill('Measure velocity at two instants; divide the velocity change by elapsed time.');
+  await page.getByRole('button',{name:'Save question',exact:true}).click();
+  await expect(page.getByText('Question saved in the approved bank.',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:/Written \/ paper/}).click();
+  await expect(page.locator('.qm-question')).toHaveCount(1);
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({path:testInfo.outputPath('written-bank.png'),fullPage:true});
 });
 
 async function expectNoHorizontalOverflow(page: Page) {
@@ -208,8 +220,8 @@ async function expectNoHorizontalOverflow(page: Page) {
 
 test('admin can prepare, print, save and reopen an exact paper, then request missing questions', async ({ page }, testInfo) => {
   await openAdmin(page, '/admin/question-paper-generator');
-  await expect(page.getByRole('heading', { name: 'Question paper generator', exact: true })).toBeVisible();
-  const compact = await page.evaluate(() => innerWidth <= 640);
+  await expect(page.getByRole('heading', { name: 'Create a question paper', exact: true })).toBeVisible();
+  const compact = true;
   if (compact) {
     await expect(page.getByRole('heading', { name: 'Choose what to cover' })).toBeHidden();
     await page.locator('.qpg-format-option').filter({ hasText: `Two-section template ${tag}` }).click();
@@ -278,7 +290,7 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
     await expect(page.getByRole('heading', { name: 'Check the question bank' })).toBeHidden();
     await expect(page.getByRole('heading', { name: 'Recent drafts' })).toBeHidden();
   }
-  await page.getByRole('heading', { name: 'Question paper generator', exact: true }).scrollIntoViewIfNeeded();
+  await page.getByRole('heading', { name: 'Create a question paper', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('saved-paper.png'), fullPage: true });
   await page.getByRole('button', { name: 'Use setup for a new paper', exact: true }).click();
   if (compact) await page.getByRole('button', { name: 'Change', exact: true }).click();
@@ -295,11 +307,35 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
     expect(requests.size).toBe(2);
     expect(requests.docs.reduce((sum, item) => sum + item.data().gapCount, 0)).toBe(4);
   });
+  await page.getByRole('link',{name:'Papers',exact:true}).click();
+  const requestRow=page.locator('.qm-paper-row').filter({has:page.getByRole('link',{name:'Check & continue'})}).filter({hasText:title});
+  await expect(requestRow).toHaveCount(1);
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({path:testInfo.outputPath('papers-home.png'),fullPage:true});
+  await requestRow.getByRole('link',{name:'Check & continue'}).click();
+  await expect(page.getByLabel('Marks',{exact:true})).toHaveValue('8');
+  await expect(page.getByRole('checkbox',{name:'Motion',exact:true})).toBeChecked();
+  await page.getByRole('button',{name:'Check availability',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Questions requested',exact:true})).toBeDisabled();
+  await expect.poll(async()=>environment.withSecurityRulesDisabled(async context=>{
+    const sessions=await getDocs(query(collection(context.firestore(),'adminUsageSessions'),where('actorUid','==',adminUid)));
+    return sessions.docs.reduce((sum,d)=>sum+Number(d.data().eventCounts?.['paper-builder__paper_requested']??0),0);
+  })).toBeGreaterThan(0);
+  await page.getByRole('link',{name:'Papers',exact:true}).click();
+  await requestRow.getByRole('button',{name:'Cancel request',exact:true}).click();
+  await requestRow.getByRole('button',{name:'Confirm cancellation',exact:true}).click();
+  await expect(requestRow).toHaveCount(0);
+  await environment.withSecurityRulesDisabled(async context=>{
+    const requests=await getDocs(query(collection(context.firestore(),'questionBankPriorityItems'),where('subject','==',subject),where('source','==','admin-question-paper-generator')));
+    expect(requests.size).toBe(2);
+    expect(requests.docs.every(d=>d.data().status==='paused')).toBe(true);
+    expect((await getDoc(doc(context.firestore(),'paperRequests',requests.docs[0].data().parentRequestId))).data()?.status).toBe('cancelled');
+  });
 });
 
 test('admin review publishes an edited draft and increments its exact syllabus count once', async ({ page }, testInfo) => {
   await openAdmin(page, `/admin/question-review?priorityId=${priorityId}`);
-  await expect(page.getByRole('heading', { name: 'Review new questions', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Review questions', exact: true })).toBeVisible();
   await expect(page.getByText('awaiting review', { exact: false }).first()).toBeVisible();
   await expect(page.locator('.qr-row')).toHaveCount(50);
   await page.getByRole('button', { name: 'Load next 50 questions' }).click();
@@ -311,7 +347,7 @@ test('admin review publishes an edited draft and increments its exact syllabus c
   await expect(page.getByLabel('Title', { exact: true })).toHaveValue(`Approved sample ${tag}`);
   await expect(page.getByRole('button', { name: 'Approve edited question' })).toBeEnabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.getByRole('heading', { name: 'Review new questions', exact: true }).scrollIntoViewIfNeeded();
+  await page.getByRole('heading', { name: 'Review questions', exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('question-review.png'), fullPage: true });
   await page.getByRole('button', { name: 'Approve edited question' }).click();
   await expect(page.getByText('Edited question approved.', { exact: true })).toBeVisible();
@@ -337,11 +373,12 @@ test('admin can select a loaded page and bulk approve objective and written ques
   await page.screenshot({ path: testInfo.outputPath('bulk-review-selected.png'), fullPage: true });
   // Keep the cross-device test bounded while exercising both publishing destinations.
   await page.getByRole('checkbox', { name: 'Select shown' }).uncheck();
+  await expect(page.locator('.qr-selection')).toHaveCount(0);
   const written = page.locator('.qr-row').filter({ hasText: 'Batch 0: how does a moving object' });
   const objective = page.locator('.qr-row').filter({ hasText: 'Batch 1: how does a moving object' });
   await written.locator('input[type="checkbox"]').check();
   await objective.locator('input[type="checkbox"]').check();
-  await expect(page.getByText('1 quiz & paper · 1 paper only')).toBeVisible();
+  await expect(page.locator('.qr-selection')).toContainText('1 quiz & paper · 1 paper only');
   await page.getByRole('button', { name: 'Approve 2' }).click();
   await expect(page.getByRole('heading', { name: 'Approve 2 questions?' })).toBeVisible();
   await page.getByRole('button', { name: 'Confirm approve' }).click();

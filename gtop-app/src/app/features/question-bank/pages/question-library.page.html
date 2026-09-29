@@ -1,0 +1,43 @@
+<div class="page qm-page">
+  <app-question-module-header active="bank" title="Question bank" description="Find, add and maintain questions by chapter." />
+  @if(error()){<p class="qm-alert" role="alert">{{error()}}</p>}
+  @if(message()){<p class="qb-success" role="status">{{message()}}</p>}
+  <div class="qm-filter-grid">
+    <label>Board<select aria-label="Board" [ngModel]="board()" (ngModelChange)="board.set($event);changeBoard()" [disabled]="busy()">@for(value of boards();track value){<option [value]="value">{{value}}</option>}</select></label>
+    <label>Class<select aria-label="Class" [ngModel]="standard()" (ngModelChange)="standard.set($event);changeStandard()" [disabled]="busy()">@for(value of standards();track value){<option [value]="value">{{value}}</option>}</select></label>
+    <label>Subject<select aria-label="Subject" [ngModel]="subject()" (ngModelChange)="subject.set($event);changeSubject()" [disabled]="busy()">@for(value of subjects();track value){<option [value]="value">{{value}}</option>}</select></label>
+  </div>
+  <div class="qm-link-tools"><a routerLink="/admin/add-mcq">Add / import MCQs</a><a routerLink="/admin/mcq-management">Flagged MCQs & legacy tools</a><a routerLink="/syllabus-preview">Missing chapter? Manage syllabus →</a></div>
+  <label class="qm-mobile-chapter">Chapter<select aria-label="Chapter" [ngModel]="scope()?.id" (ngModelChange)="openChapter($event)" [disabled]="busy()">@for(chapter of chapters();track chapter.id){<option [value]="chapter.id">{{chapter.chapter}}</option>}</select></label>
+  <div class="qm-bank-layout">
+    <aside class="qm-chapters" aria-label="Chapters"><h2>{{chapters().length}} chapters</h2>@for(chapter of chapters();track chapter.id){<button type="button" [class.active]="scope()?.id===chapter.id" (click)="openChapter(chapter.id)" [disabled]="busy()">{{chapter.chapter}}</button>}</aside>
+    <section class="qm-bank-main" aria-label="Chapter question bank">
+      @if(scope();as selected){
+        <h2>{{selected.chapter}}</h2>
+        <div class="qm-bank-tools"><div class="qm-kind-switch" aria-label="Question bank type"><button type="button" [class.active]="source()==='questions'" (click)="changeKind('questions')" [disabled]="busy()">Objective · {{counts()?.quizApproved ?? '—'}}</button><button type="button" [class.active]="source()==='devQuestions'" (click)="changeKind('devQuestions')" [disabled]="busy()">Written / paper · {{counts()?.paperOnlyApproved ?? '—'}}</button></div>
+          <button class="btn btn-secondary" type="button" (click)="edit(null)" [disabled]="busy()">＋ Add written question</button></div>
+        @if(editorOpen){
+          <form id="bank-editor" class="qm-editor" (ngSubmit)="save()"><h3>{{editing?'Edit question':'Add a written question'}}</h3>
+            <label>Question<textarea name="question" rows="4" [(ngModel)]="edits.question" required></textarea></label>
+            <div class="qm-filter-grid"><label>Type<select name="type" [(ngModel)]="edits.questionType" [disabled]="!!editing"><option value="short_answer">Short answer</option><option value="long_answer">Long answer</option><option value="numerical">Numerical</option><option value="case_based">Case based</option><option value="source_based">Source based</option>@if(editing){<option [value]="editing.questionType">{{label(editing.questionType)}}</option>}</select></label><label>Marks<input name="marks" type="number" min="1" max="20" [(ngModel)]="edits.marks" required /></label><label>Difficulty<select name="difficulty" [(ngModel)]="edits.difficulty"><option value="easy">Easy</option><option value="moderate">Moderate</option><option value="hard">Hard</option></select></label></div>
+            @if(editing?.options?.length){<label>Options, one per line<textarea name="options" rows="4" [(ngModel)]="optionsText"></textarea></label><label>Correct option<select name="correct" [(ngModel)]="edits.correctIndex">@for(option of optionsText.split('\n');track $index){<option [ngValue]="$index">{{$index+1}}. {{option}}</option>}</select></label>}
+            <label>Answer / worked solution<textarea name="answer" rows="4" [(ngModel)]="answer" required></textarea></label>
+            @if(!editing){<label>Source or textbook reference<input name="reference" [(ngModel)]="edits.referenceUsed" /></label><p class="qm-muted qm-small">Your admin-authored question goes directly into the written bank. AI-created drafts always need review.</p>}
+            <div class="qm-editor-actions"><button class="btn btn-primary" type="submit" [disabled]="busy()">{{busy()?'Saving…':'Save question'}}</button><button type="button" class="btn btn-secondary" (click)="closeEditor()" [disabled]="busy()">Cancel</button></div>
+          </form>
+        }
+        <div class="qm-bank-filter"><input type="search" aria-label="Search loaded bank questions" placeholder="Search loaded questions" [ngModel]="search()" (ngModelChange)="search.set($event)" /><select aria-label="Filter bank question type" [ngModel]="type()" (ngModelChange)="type.set($event)"><option value="all">All types</option>@for(type of types();track type){<option [value]="type">{{label(type)}}</option>}</select></div>
+        @if(loading()){<p role="status">Loading questions…</p>}
+        @if(!loading()&&!rows().length){<div class="qm-empty"><h3>No {{source()==='questions'?'objective':'written'}} questions yet</h3><p>Add questions yourself, or ask the daily creator to fill this chapter.</p><a class="btn btn-secondary" routerLink="/admin/question-bank" [queryParams]="{syllabusId:selected.id}">Request questions</a></div>}
+        @if(rows().length){<div class="qm-section-title"><label><input type="checkbox" [checked]="allSelected()" (change)="selectVisible()" [disabled]="busy()" /> Select shown</label><span class="qm-muted qm-small">{{visible().length}} of {{rows().length}} loaded</span></div>}
+        <div class="qm-paper-list">@for(question of visible();track question.id){
+          <article class="qm-question"><div class="qm-question-line"><input type="checkbox" [attr.aria-label]="'Select '+question.question" [checked]="selection().has(question.id)" (change)="toggle(question.id)" [disabled]="busy()" /><div><h3>{{question.question}}</h3><small>{{label(question.questionType)}} · {{question.marks}} marks · {{question.difficulty}}</small></div></div>
+            <details><summary>Answer & details</summary>@if(question.options.length){<ol>@for(option of question.options;track $index){<li>{{$index===question.correctIndex?'✓ ':''}}{{option}}</li>}</ol>}@for(asset of question.assets;track asset.url){<img [src]="asset.url" [alt]="asset.alt" loading="lazy" />}@for(solution of question.solutions;track $index){<p>{{solution}}</p>}<button type="button" class="btn btn-secondary" (click)="edit(question)" [disabled]="busy()">Edit question</button></details>
+          </article>
+        }</div>
+        @if(next()){<button class="btn btn-secondary" type="button" (click)="load()" [disabled]="loading()">Load next 25</button><p class="qm-muted qm-small">Search and type filters apply to loaded questions.</p>}
+        @if(selection().size){<div class="qm-selection"><strong>{{selection().size}} selected</strong>@if(confirmArchive){<span>Remove from the active bank?</span><button class="btn btn-secondary" (click)="confirmArchive=false" [disabled]="busy()">Cancel</button><button class="btn btn-danger" (click)="archive()" [disabled]="busy()">Confirm archive</button>}@else{<button class="btn btn-secondary" (click)="confirmArchive=true" [disabled]="busy()">Archive selected</button>}</div>}
+      }@else{<div class="qm-empty"><h2>Choose a chapter</h2><p>Select a board, class and subject to browse their chapters.</p><a routerLink="/syllabus-preview">Add or review syllabus</a></div>}
+    </section>
+  </div>
+</div>

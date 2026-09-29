@@ -198,11 +198,12 @@ export function reviewErrorMessage(error: unknown): string {
 export class QuestionReviewRepository {
   constructor(private readonly firebase: FirebaseClient) {}
 
-  async pending(max = 50, cursor?: string, priorityId?: string): Promise<ReviewQueue> {
+  async pending(max = 50, cursor?: string, priorityId?: string, parentRequestId?:string): Promise<ReviewQueue> {
     const pageLimit = Number.isFinite(max) ? Math.max(1, Math.min(100, Math.floor(max))) : 50;
     if (priorityId && priorityId.includes('/')) throw new Error('The priority reference is invalid.');
     const filters = [where('reviewStatus', '==', pendingStatus),
-      ...(priorityId ? [where('sourcePriorityId', '==', priorityId)] : [])];
+      ...(priorityId ? [where('sourcePriorityId', '==', priorityId)] : []),
+      ...(parentRequestId?[where('parentRequestId','==',parentRequestId)]:[])];
     const scope = query(collection(this.firebase.firestore, 'devQuestions'), ...filters);
     const snapshot = await getDocs(
       query(
@@ -255,6 +256,8 @@ export class QuestionReviewRepository {
     const syllabusRef = doc(this.firebase.firestore, 'syllabus', syllabusId);
     const priorityId = textValue(raw['sourcePriorityId']);
     const priorityRef = priorityId ? doc(this.firebase.firestore, 'questionBankPriorityItems', priorityId) : null;
+    const requestId=textValue(raw['parentRequestId']);
+    const parentRef=requestId?doc(this.firebase.firestore,'paperRequests',requestId):null;
     const content: ReviewEdits = {
       title: edits.title.trim(),
       question: edits.question.trim(),
@@ -289,6 +292,7 @@ export class QuestionReviewRepository {
       const existing = await transaction.get(bankRef);
       const syllabus = await transaction.get(syllabusRef);
       const priority = priorityRef ? await transaction.get(priorityRef) : null;
+      const parent=parentRef?await transaction.get(parentRef):null;
       if (!current.exists())
         throw new Error('This draft no longer exists. Refresh the review queue.');
       const fresh = current.data();
@@ -374,6 +378,8 @@ export class QuestionReviewRepository {
         transaction.update(syllabusRef, { mcqCount: increment(1), updatedAt: serverTimestamp() });
       }
       transaction.update(sourceRef, { ...canonicalScope, ...content, ...audit });
+      if(priorityRef&&priority?.exists())transaction.update(priorityRef,{needsCoverageCheck:true,updatedAt:serverTimestamp()});
+      if(parentRef&&parent?.exists()&&!['cancelled','completed'].includes(parent.data()['status']))transaction.update(parentRef,{needsCoverageCheck:true,status:'awaiting-coverage',updatedAt:serverTimestamp()});
       return { questionId: draft.id, alreadyApproved: false };
     });
   }
@@ -390,6 +396,12 @@ export class QuestionReviewRepository {
       if (!current.exists())
         throw new Error('This draft no longer exists. Refresh the review queue.');
       this.requirePendingVersion(current.data(), draft);
+      const priorityId=textValue(current.data()['sourcePriorityId']);const parentId=textValue(current.data()['parentRequestId']);
+      const priorityRef=priorityId?doc(this.firebase.firestore,'questionBankPriorityItems',priorityId):null;
+      const parentRef=parentId?doc(this.firebase.firestore,'paperRequests',parentId):null;
+      const priority=priorityRef?await transaction.get(priorityRef):null;const parent=parentRef?await transaction.get(parentRef):null;
+      if(priorityRef&&priority?.exists()&&!['paused','blocked','done'].includes(priority.data()['status'])&&(!parent?.exists()||!['cancelled','completed'].includes(parent.data()['status'])))transaction.update(priorityRef,{status:'open',needsCoverageCheck:true,updatedAt:serverTimestamp()});
+      if(parentRef&&parent?.exists()&&!['cancelled','completed'].includes(parent.data()['status']))transaction.update(parentRef,{needsCoverageCheck:true,status:'awaiting-coverage',updatedAt:serverTimestamp()});
       transaction.update(sourceRef, {
         reviewStatus: 'rejected',
         status: 'rejected',
@@ -448,3 +460,4 @@ export class QuestionReviewRepository {
       );
   }
 }
+

@@ -1,6 +1,8 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { QuestionModuleHeaderComponent } from './question-module-header.component';
+import { AdminUsageService } from '../../../services/admin-usage.service';
 import { AuthService } from '../../../services/auth.service';
 import { typeLabel } from '../core/question-paper.domain';
 import {
@@ -23,7 +25,7 @@ function normalizedQuestion(value: string): string {
 @Component({
   selector: 'app-question-review-workbench',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, QuestionModuleHeaderComponent],
   templateUrl: './question-review-workbench.page.html',
 })
 export class QuestionReviewWorkbenchPage implements OnInit {
@@ -49,6 +51,7 @@ export class QuestionReviewWorkbenchPage implements OnInit {
   readonly failures = signal<string[]>([]);
   readonly label = typeLabel;
   readonly priorityId: string | null;
+  readonly requestId: string | null;
 
   readonly repeatedIds = computed(() => {
     const seen = new Map<string, string>();
@@ -96,7 +99,8 @@ export class QuestionReviewWorkbenchPage implements OnInit {
     route: ActivatedRoute,
     private readonly repository: QuestionReviewRepository,
     private readonly auth: AuthService,
-  ) { this.priorityId = route.snapshot.queryParamMap.get('priorityId'); }
+    private readonly usage:AdminUsageService,
+  ) { this.priorityId = route.snapshot.queryParamMap.get('priorityId');this.requestId=route.snapshot.queryParamMap.get('requestId'); }
 
   ngOnInit(): void { void this.load(true); }
 
@@ -105,7 +109,7 @@ export class QuestionReviewWorkbenchPage implements OnInit {
     this.loading.set(true); this.error.set('');
     try {
       const page = await this.repository.pending(50, reset ? undefined : this.cursor() ?? undefined,
-        this.priorityId ?? undefined);
+        this.priorityId ?? undefined,this.requestId??undefined);
       this.items.update((items) => reset ? page.items : [...items, ...page.items]);
       this.cursor.set(page.nextCursor); this.total.set(page.total);
       if (reset) { this.selectedIds.set(new Set()); this.batchId.set('all'); }
@@ -188,6 +192,7 @@ export class QuestionReviewWorkbenchPage implements OnInit {
         if (this.issue(draft, edits)) throw new Error(`Resolve this review issue before approval: ${this.issue(draft, edits)}`);
         await this.repository.approve(draft, edits, this.actorId(), this.editNote());
       } else await this.repository.reject(draft, this.actorId(), this.editNote());
+      this.usage.track(approve?'review_approved':'review_rejected');
       this.removeHandled([draft.id]); this.closeAfterSave();
       this.message.set(approve ? 'Edited question approved.' : 'Question rejected with your note.');
     } catch (error) { this.error.set(reviewErrorMessage(error)); }
@@ -221,6 +226,8 @@ export class QuestionReviewWorkbenchPage implements OnInit {
       } catch (error) { failures.push(`${item.id}: ${reviewErrorMessage(error)}`); }
       this.processed.update((count) => count + 1);
     }
+    this.usage.track(action==='approve'?'review_approved':'review_rejected',handled.length);
+    if(failures.length)this.usage.track('operation_failed',failures.length);
     this.removeHandled(handled); this.failures.set(failures);
     this.message.set(`${handled.length} ${action === 'approve' ? 'approved' : 'rejected'}; ${failures.length} need attention.`);
     this.confirmAction.set(''); this.processing.set(false);

@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { SideNavComponent } from './components/side-nav/side-nav.component';
 import { LoggingService } from './services/logging.service';
+import { AdminUsageService } from './services/admin-usage.service';
 import { SeoService } from './services/seo.service';
 
 
@@ -39,7 +40,8 @@ export class AppComponent implements OnInit {
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private loggingService: LoggingService,
-        private seoService: SeoService
+        private seoService: SeoService,
+        private usage: AdminUsageService
     ) {
         this.router.events.subscribe((event) => {
             // 🚀 SCROLL TO TOP on every route change
@@ -70,6 +72,7 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.authService.initGoogleOneTap();
+        this.usage.start();
     }
 
     @HostListener('window:resize', ['$event'])

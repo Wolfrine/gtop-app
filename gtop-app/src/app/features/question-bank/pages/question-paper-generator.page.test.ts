@@ -19,7 +19,8 @@ function fixture() {
   const page = new QuestionPaperGeneratorPage(repository as unknown as QuestionPaperRepository,
     {seed:vi.fn().mockResolvedValue({boards:[],subjects:[]}),published:vi.fn().mockResolvedValue([])} as unknown as CurriculumService,
     { profile: () => ({ uid: 'admin-1' }) } as unknown as AuthService,
-    { markForCheck: vi.fn() } as unknown as ChangeDetectorRef);
+    { markForCheck: vi.fn() } as unknown as ChangeDetectorRef,
+    {snapshot:{queryParamMap:{get:()=>null}}} as any,{track:vi.fn()} as any);
   page.syllabus = [{ id: 'light', board: 'CBSE', standard: '10', subject: 'Science', chapter: 'Light', mcqCount: 1 }];
   page.board = 'CBSE'; page.standard = '10'; page.subjects = ['Science'];
   page.chapters = [chapterKey({ subject: 'Science', chapter: 'Light' })];
@@ -48,7 +49,7 @@ describe('paper setup state safety', () => {
     expect(repository.approvedQuestions).toHaveBeenCalledWith('CBSE', '10', [{ subject: 'Science', chapter: 'Light' }], undefined);
     expect(page.completePaper).toBe(true);
     expect(page.savedDraftId).toBe('saved-1');
-    expect(repository.saveDraft).toHaveBeenCalledWith(expect.objectContaining({ marks: 1, actualMarks: 1, subjects: ['Science'], schemaVersion: 2 }));
+    expect(repository.saveDraft).toHaveBeenCalledWith(expect.objectContaining({ marks: 1, actualMarks: 1, subjects: ['Science'], schemaVersion: 2 }),undefined);
   });
   it('invalidates preview, coverage and saved identity on title, duration and section changes', async () => {
     const { page } = fixture();

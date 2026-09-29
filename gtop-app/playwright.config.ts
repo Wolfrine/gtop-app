@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const chromiumLaunch = process.env['GTOP_CHROMIUM_PATH'] ? {launchOptions:{executablePath:process.env['GTOP_CHROMIUM_PATH']}} : {};
+
 export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
@@ -9,7 +11,7 @@ export default defineConfig({
   // trace promptly; successful runs still execute the complete device matrix.
   maxFailures: process.env['CI'] ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
-  use: { baseURL: 'http://127.0.0.1:4300', trace: 'on-first-retry' },
+  use: { baseURL: 'http://127.0.0.1:4300', trace: 'on-first-retry', screenshot:'only-on-failure' },
   webServer: {
     command: `${process.platform === 'win32' ? 'npm.cmd' : 'npm'} start -- --configuration development --host 127.0.0.1 --port 4300`,
     url: 'http://127.0.0.1:4300',
@@ -17,11 +19,11 @@ export default defineConfig({
     timeout: 180_000,
   },
   projects: [
-    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'], ...chromiumLaunch } },
     {
       name: 'compact-phone-chromium',
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices['Desktop Chrome'], ...chromiumLaunch,
         viewport: { width: 320, height: 568 },
         isMobile: true,
         hasTouch: true,
@@ -30,7 +32,7 @@ export default defineConfig({
     {
       name: 'android-phone-chromium',
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices['Desktop Chrome'], ...chromiumLaunch,
         viewport: { width: 360, height: 800 },
         isMobile: true,
         hasTouch: true,
@@ -40,7 +42,7 @@ export default defineConfig({
     {
       name: 'landscape-phone-chromium',
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices['Desktop Chrome'], ...chromiumLaunch,
         viewport: { width: 844, height: 390 },
         isMobile: true,
         hasTouch: true,
@@ -48,7 +50,7 @@ export default defineConfig({
     },
     {
       name: 'tablet-portrait-chromium',
-      use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 }, hasTouch: true },
+      use: { ...devices['Desktop Chrome'], ...chromiumLaunch, viewport: { width: 768, height: 1024 }, hasTouch: true },
     },
     {
       name: 'tablet-landscape-webkit',
@@ -56,7 +58,7 @@ export default defineConfig({
     },
     {
       name: 'wide-desktop-chromium',
-      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 1000 } },
+      use: { ...devices['Desktop Chrome'], ...chromiumLaunch, viewport: { width: 1440, height: 1000 } },
     },
   ],
 });

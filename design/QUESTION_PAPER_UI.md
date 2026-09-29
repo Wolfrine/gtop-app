@@ -14,3 +14,8 @@ Desktop and phone: scan format choices; select a written format; reveal its mode
 
 ## Pattern continuity
 Board/class/subject changes retain the selected paper family and edited section rules. A scoped template mismatch is shown explicitly and blocks creation until resolved. Total marks stays editable: resizing preserves every section, type requirement and per-question mark value; impossible totals leave the previous plan intact with an explanation. Cover this transition in the browser regression alongside competency papers at 80, 41 and too-small totals.
+
+## Unified admin module (2026-09-29)
+Papers is the stable home for requests and saved snapshots. Bank, Review and Requests share the same four-tab header, including inside the paper builder. Desktop and phone both use the same four-step builder. Examples, detailed section editing and generated history are disclosed when needed. On phones, chapter selection is a select control; on desktop it is a sidebar. Avoid multiple primary actions for the same step, and preserve readable format actions with long names.
+
+The founder authorized autonomous implementation and release of this redesign. Validate rendered desktop and phone states, request continuation, written content and actual permission rules before promotion.

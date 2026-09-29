@@ -49,6 +49,12 @@ describe('paper template and approved question compatibility', () => {
     ]) expect(isUsableQuestion(question('invalid', overrides))).toBe(false);
     expect(isUsableQuestion(question('valid'))).toBe(true);
   });
+  it('requires written answer depth to match section marks', () => {
+    const written = (id:string, marks:number) => question(id,{options:[],correctIndex:-1,questionType:'short_answer',marks});
+    const rules=[rule('written',{objectiveOnly:false,questionTypes:['short_answer'],marksPerQuestion:5})];
+    expect(createPaperPlan(setup(5),rules,[written('two-mark',2)]).gaps[0].gapCount).toBe(1);
+    expect(createPaperPlan(setup(5),rules,[written('five-mark',5)]).sections[0].questions[0].questionId).toBe('five-mark');
+  });
   it('reads structure sections with their actual marks instead of falling back to MCQ', () => {
     const rules = buildGenerationRules({ id: 'board40', structure: { totalMarks: 40, sections: [
       { label: 'Objective / MCQ / Assertion', marks: 10 }, { label: 'Very Short Answer', marks: 8 },

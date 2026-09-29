@@ -478,6 +478,7 @@ function matches(question: NormalizedQuestion, rule: GenerationRule, scope: Chap
       requirement.competencyTags.every((tag) => question.competencyTags.includes(tag))) :
       rule.questionTypes.includes('any') || rule.questionTypes.includes(question.questionType)) &&
     (!rule.objectiveOnly || question.options.length >= 2) &&
+    (question.options.length >= 2 || question.marks === rule.marksPerQuestion) &&
     (rule.difficulty === 'any' || normalizeDifficulty(rule.difficulty) === question.difficulty) &&
     rule.competencyTags.every((tag) => question.competencyTags.includes(token(tag)));
 }

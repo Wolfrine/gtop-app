@@ -1,6 +1,8 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink, RouterLinkActive } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { QuestionModuleHeaderComponent } from './question-module-header.component';
+import { AdminUsageService } from '../../../services/admin-usage.service';
 import { AuthService } from '../../../services/auth.service';
 import { type SyllabusItem } from '../core/models';
 import { QuestionPaperRepository, typeLabel } from '../core/question-paper.repository';
@@ -12,7 +14,7 @@ import {
 @Component({
   selector: 'app-question-bank-workspace',
   standalone: true,
-  imports: [FormsModule, RouterLink, RouterLinkActive],
+  imports: [FormsModule, RouterLink, RouterLinkActive, QuestionModuleHeaderComponent],
   templateUrl: './question-bank-workspace.page.html',
 })
 export class QuestionBankWorkspacePage implements OnInit {
@@ -45,14 +47,14 @@ export class QuestionBankWorkspacePage implements OnInit {
   readonly label = typeLabel;
   readonly typeOptions = [
     'mcq', 'assertion_reason', 'case_based', 'source_based', 'statement_based',
-    'match_the_following', 'short_answer', 'numerical', 'long_answer',
+    'matching', 'short_answer', 'numerical', 'long_answer',
   ];
 
   readonly filteredPriorities = computed(() => {
     const q = this.prioritySearch().trim().toLowerCase();
     const status = this.statusFilter();
     return this.priorities().filter((item) => {
-      if (status === 'active' && !['open', 'blocked', 'paused'].includes(item.status)) return false;
+      if (status === 'active' && !['open', 'review', 'blocked', 'paused'].includes(item.status)) return false;
       if (status !== 'active' && status !== 'all' && item.status !== status) return false;
       return !q || [item.board, item.standard, item.subject, item.chapter, item.source]
         .join(' ').toLowerCase().includes(q);
@@ -77,6 +79,8 @@ export class QuestionBankWorkspacePage implements OnInit {
 
   constructor(
     private readonly route: ActivatedRoute,
+    private readonly router:Router,
+    private readonly usage:AdminUsageService,
     private readonly auth: AuthService,
     private readonly paper: QuestionPaperRepository,
     private readonly operations: QuestionOperationsRepository,
@@ -84,7 +88,8 @@ export class QuestionBankWorkspacePage implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
-      this.view.set(params.get('view') === 'bank' ? 'bank' : 'coverage');
+      if(params.get('view')==='bank'){void this.router.navigate(['/admin/question-library'],{replaceUrl:true});return;}
+      this.view.set('coverage');
       if (this.view() === 'bank' && this.selectedScope() && !this.bankRows().length)
         void this.loadBank(true);
       const requested = params.get('priorityId');
@@ -100,14 +105,17 @@ export class QuestionBankWorkspacePage implements OnInit {
     if (this.loading()) return;
     this.loading.set(true); this.error.set('');
     try {
-      const [priorityPage, scopes] = await Promise.all([this.operations.priorities(), this.paper.syllabus()]);
+      const [priorityPage, scopes] = await Promise.all([this.operations.priorities(undefined,50,this.route.snapshot.queryParamMap.get('requestId')??undefined), this.paper.syllabus()]);
       this.priorities.set(priorityPage.items);
       this.morePriorities.set(priorityPage.nextCursor);
       this.syllabus.set(scopes);
       const requested = this.route.snapshot.queryParamMap.get('priorityId');
-      const initial = priorityPage.items.find((item) => item.id === requested) ??
+      const scopeId=this.route.snapshot.queryParamMap.get('syllabusId');
+      const chapter=scopes.find(scope=>scope.id===scopeId);
+      if(chapter){await this.selectScope(chapter);return;}
+      const initial = (requested?await this.operations.priority(requested):null) ??
         priorityPage.items.find((item) => item.status === 'open') ?? priorityPage.items[0];
-      if (initial) await this.selectPriority(initial);
+      if (initial) {await this.selectPriority(initial);if(!requested)this.showDetail.set(false);}
     } catch (error) { this.error.set(this.messageFor(error)); }
     finally { this.loading.set(false); }
   }
@@ -117,7 +125,7 @@ export class QuestionBankWorkspacePage implements OnInit {
     if (!cursor || this.loading()) return;
     this.loading.set(true);
     try {
-      const page = await this.operations.priorities(cursor);
+      const page = await this.operations.priorities(cursor,50,this.route.snapshot.queryParamMap.get('requestId')??undefined);
       this.priorities.update((items) => [...items, ...page.items]);
       this.morePriorities.set(page.nextCursor);
     } catch (error) { this.error.set(this.messageFor(error)); }
@@ -203,6 +211,7 @@ export class QuestionBankWorkspacePage implements OnInit {
       this.priorities.set(page.items); this.morePriorities.set(page.nextCursor);
       const updated = page.items.find((item) => item.id === id);
       if (updated) await this.selectPriority(updated);
+      this.usage.track('priority_saved');
       this.success.set('Priority saved. The creator can now use this chapter and question-type mix.');
     } catch (error) { this.detailError.set(this.messageFor(error)); }
     finally { this.saving.set(false); }
@@ -224,7 +233,7 @@ export class QuestionBankWorkspacePage implements OnInit {
 
   back(): void { this.showDetail.set(false); }
   statusLabel(status: string): string {
-    const labels: Record<string, string> = { open: 'Creating', blocked: 'Blocked',
+    const labels: Record<string, string> = { open: 'Queued', blocked: 'Blocked',
       paused: 'Paused', review: 'Review', done: 'Complete' };
     return labels[status] ?? status;
   }

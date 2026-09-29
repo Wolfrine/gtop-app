@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
-  addDoc, collection, doc, getDoc, getDocs, limit, orderBy, query,
+  addDoc, collection, doc, getDoc, getDocs, getCountFromServer, limit, orderBy, query,
   serverTimestamp, startAfter, where, writeBatch, runTransaction,
   type DocumentData, type QueryDocumentSnapshot,
 } from '@angular/fire/firestore';
@@ -11,7 +11,7 @@ import {
   chapterKey, isUsableQuestion, normalizeQuestion, strings, textValue, validatePaperDraft, validatePaperStructure,
   type ChapterScope, type CoverageGap, type PaperDraftPayload,
   type PaperGenerationSetup, type QuestionBankResult, type QuestionPaperTemplate,
-  type SavedPaperDraft, type GenerationRule,
+  type SavedPaperDraft, type GenerationRule, type PaperPlan,
 } from './question-paper.domain';
 
 export * from './question-paper.domain';
@@ -94,7 +94,7 @@ export class QuestionPaperRepository {
     return result;
   }
 
-  async saveDraft(payload: PaperDraftPayload): Promise<string> {
+  async saveDraft(payload: PaperDraftPayload, parentRequestId?:string): Promise<string> {
     // Firestore rejects undefined values and documents above 1 MiB. Fail before writing a partial paper.
     if (!payload.createdBy || payload.createdBy === 'admin') throw new Error('Sign in again before saving this paper.');
     const validation = validatePaperDraft(payload);
@@ -103,14 +103,19 @@ export class QuestionPaperRepository {
     if (new TextEncoder().encode(JSON.stringify(payload)).length > 850_000) {
       throw new Error('This paper is too large to save as one draft. Reduce the number of questions.');
     }
-    const created = await addDoc(collection(this.firebase.firestore, 'paperDrafts'), {
-      ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+    const ref=doc(collection(this.firebase.firestore,'paperDrafts'));
+    await runTransaction(this.firebase.firestore,async tx=>{
+      const parentRef=parentRequestId?doc(this.firebase.firestore,'paperRequests',parentRequestId):null;
+      const parent=parentRef?await tx.get(parentRef):null;
+      if(parent?.exists()&&parent.data()['status']==='cancelled')throw new Error('This request was cancelled. Use its setup for a new paper.');
+      tx.set(ref,{...payload,...(parentRequestId?{parentRequestId}:{}),createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
+      if(parentRef&&parent?.exists()&&parent.data()['status']!=='completed')tx.update(parentRef,{savedDraftId:ref.id,status:payload.coverage.gapCount===0?'completed':parent.data()['status'],updatedAt:serverTimestamp()});
     });
-    return created.id;
+    return ref.id;
   }
 
-  async recentDrafts(): Promise<SavedPaperDraft[]> {
-    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'paperDrafts'), orderBy('createdAt', 'desc'), limit(20)));
+  async recentDrafts(cursor?:string): Promise<SavedPaperDraft[]> {
+    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'paperDrafts'), orderBy('createdAt', 'desc'), ...(cursor?[startAfter(await getDoc(doc(this.firebase.firestore,'paperDrafts',cursor)))]:[]), limit(20)));
     return snapshot.docs.map((item) => ({ ...item.data(), id: item.id, subjects: strings(item.data()['subjects']) }) as SavedPaperDraft);
   }
 
@@ -129,9 +134,45 @@ export class QuestionPaperRepository {
     return draft;
   }
 
-  async recentRequests(): Promise<PaperRequestRecord[]> {
-    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'paperRequests'), orderBy('createdAt', 'desc'), limit(20)));
+  async recentRequests(cursor?:string): Promise<PaperRequestRecord[]> {
+    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'paperRequests'), orderBy('createdAt', 'desc'), ...(cursor?[startAfter(await getDoc(doc(this.firebase.firestore,'paperRequests',cursor)))]:[]), limit(20)));
     return snapshot.docs.map(item => ({...item.data(), id:item.id}) as PaperRequestRecord);
+  }
+
+  async updateRequestCoverage(id:string,plan:PaperPlan,actor:string):Promise<void> {
+    const ref=doc(this.firebase.firestore,'paperRequests',id);
+    const pending=(await getCountFromServer(query(collection(this.firebase.firestore,'devQuestions'),where('parentRequestId','==',id),where('reviewStatus','==','pending-admin-review')))).data().count;
+    await runTransaction(this.firebase.firestore,async tx=>{
+      const snapshot=await tx.get(ref);if(!snapshot.exists()||['cancelled','completed'].includes(snapshot.data()['status']))return;
+      const value=snapshot.data();const scopes=Array.isArray(value['chapterScopes'])?value['chapterScopes']:[];
+      const missing=new Set(plan.gaps.filter(g=>g.gapCount>0).map(chapterKey));
+      tx.update(ref,{status:missing.size?(pending?'awaiting-review':'creating-questions'):'ready',needsCoverageCheck:false,
+        progress:{requestedChapters:scopes.length,completedChapters:Math.max(0,scopes.length-missing.size),pendingReview:pending},
+        updatedAt:serverTimestamp(),updatedBy:actor});
+    });
+  }
+
+  async cancelRequest(id:string,actor:string):Promise<void> {
+    if(!actor||!id||id.includes('/'))throw new Error('Sign in to cancel this request.');
+    const ref=doc(this.firebase.firestore,'paperRequests',id);
+    await runTransaction(this.firebase.firestore,async tx=>{
+      const parent=await tx.get(ref);if(!parent.exists()||parent.data()['status']==='completed')throw new Error('This request has already finished.');
+      const ids=Array.isArray(parent.data()['childPriorityIds'])?parent.data()['childPriorityIds'] as string[]:[];
+      if(ids.length>400)throw new Error('This request is too large to cancel in one operation.');
+      const children=await Promise.all(ids.map(id=>tx.get(doc(this.firebase.firestore,'questionBankPriorityItems',id))));
+      for(const child of children)if(child.exists()&&child.data()['status']!=='done')tx.update(child.ref,{status:'paused',updatedBy:actor,updatedAt:serverTimestamp()});
+      tx.update(ref,{status:'cancelled',cancelledBy:actor,updatedAt:serverTimestamp()});
+    });
+  }
+
+  async request(id:string):Promise<PaperRequestRecord> {
+    if(!id||id.includes('/'))throw new Error('Invalid paper request.');
+    const item=await getDoc(doc(this.firebase.firestore,'paperRequests',id));
+    if(!item.exists())throw new Error('This paper request no longer exists.');
+    const value={...item.data(),id:item.id} as PaperRequestRecord;
+    if(value.status==='cancelled')throw new Error('This request was cancelled. Create a new paper instead.');
+    if(!Array.isArray(value.rules)||!value.rules.length)throw new Error('This older request has no saved section plan. Create a new paper.');
+    return value;
   }
 
   async requestPaper(setup: PaperGenerationSetup, rules: GenerationRule[], actorId: string, requestId: string): Promise<string> {
@@ -140,7 +181,7 @@ export class QuestionPaperRepository {
     const structureError = validatePaperStructure(setup, rules);
     if (structureError) throw new Error(structureError);
     if (!/^\d{4}-\d{2}$/.test(setup.academicYear ?? '')) throw new Error('Specify an academic year such as 2026-27.');
-    if (setup.scopeMode === 'custom' && !setup.chapterScopes.length) throw new Error('Add at least one custom chapter or topic.');
+    if (setup.scopeMode !== 'full' && !setup.chapterScopes.length) throw new Error('Select at least one chapter or enter a custom topic.');
     if (new TextEncoder().encode(JSON.stringify({setup,rules})).length > 700_000) throw new Error('This request is too large. Shorten the notes.');
     const ref = doc(this.firebase.firestore, 'paperRequests', requestId);
     await runTransaction(this.firebase.firestore, async transaction => {
@@ -204,6 +245,7 @@ export class QuestionPaperRepository {
     }
     await runTransaction(this.firebase.firestore, async transaction => {
       const parentSnapshot = await transaction.get(parent);
+      if (parentSnapshot.exists() && ['completed','cancelled'].includes(parentSnapshot.data()['status'])) throw new Error('This paper request is closed. Start a new paper to request more questions.');
       // The parent is the idempotency boundary: retrying a request cannot reopen
       // completed work or replace priorities that the creator already processed.
       if (parentSnapshot.exists() && parentSnapshot.data()['prioritiesCreated'] === true) return;
@@ -218,7 +260,6 @@ export class QuestionPaperRepository {
 }
 
 export interface PaperRequestRecord extends PaperGenerationSetup {
-  id: string; status: string; childPriorityIds?: string[];
+  id: string; status: string; childPriorityIds?: string[]; rules:GenerationRule[]; prioritiesCreated?:boolean;
   progress?: {requestedChapters:number;completedChapters:number;pendingReview:number};
 }
-

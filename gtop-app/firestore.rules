@@ -151,6 +151,24 @@ service cloud.firestore {
         && request.resource.data.status == 'open';
     }
 
+    // Internal admin UX evidence; no learner access and no free-form event payloads.
+    match /adminUsageSessions/{sessionId} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin()
+        && request.resource.data.actorUid == request.auth.uid
+        && (!exists(/databases/$(database)/documents/adminUsageSessions/$(sessionId)) || resource.data.actorUid == request.auth.uid)
+        && request.resource.data.keys().hasOnly(['schemaVersion','day','actorUid','startedAtIso','updatedAtIso','updatedAt','device','activeMs','eventCounts','totalActiveMs'])
+        && request.resource.data.schemaVersion == 1
+        && request.resource.data.activeMs is map
+        && request.resource.data.eventCounts is map
+        && request.resource.data.totalActiveMs is number
+        && request.resource.data.totalActiveMs >= 0
+        && request.resource.data.totalActiveMs <= 604800000
+        && request.resource.data.device in ['phone','tablet','desktop'];
+      allow delete: if isAdmin();
+    }
+    match /adminUsageReports/{reportId} { allow read: if isAdmin(); allow write: if false; }
+
     match /activity/{activityId} {
       allow read, write: if isAdmin();
     }

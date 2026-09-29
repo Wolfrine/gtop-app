@@ -2,7 +2,7 @@
 
 ## Definition
 
-Question-bank quality is the degree to which GTOP's MCQ bank is correct, syllabus-aligned, discoverable, well-covered, well-tagged, and continuously improved. It is the product's trust base.
+Question-bank quality is the degree to which GTOP's objective and written-question banks are correct, syllabus-aligned, discoverable, well-covered, well-tagged, and continuously improved. It is the product's trust base.
 
 Quality is not the same as volume. A large bank matters only when students can reliably practice the right curriculum area and when reports, retry flows, and diagnosis are built on questions that deserve trust.
 
@@ -38,6 +38,24 @@ Admin content-quality surfaces should help decide what needs attention first: fl
 
 Example snapshot: if several students flag the same MCQ or repeatedly choose the same wrong option, an admin review should treat it as a trust signal. The outcome may be confirming the answer, improving the explanation, correcting tags, replacing the question, or marking the item as verified.
 
+## One Admin Journey
+
+Admins must be able to move from a paper request to chapter coverage, generated-question review and a finished paper without learning separate interfaces. The founder identifies mobile complexity and inconsistent paper entry points as a real operating problem. Reducing workload means making the next action clear, retaining context and avoiding duplicate work, not merely shortening labels.
+
+Chapter-wise written-question management belongs alongside objective content. Teachers need to find, add, correct and retire those questions independently of an active generation request. A written answer's depth and marks must fit the paper section; available content must not be relabelled to conceal a shortage. Saved papers should preserve the exact questions and answers the teacher accepted.
+
+Scheduled creation should follow explicit admin demand and account for both approved questions and drafts awaiting review. Finishing a request, cancelling it or rejecting a draft should have predictable consequences. Generated content remains provisional until an admin approves it.
+
+Private activity evidence should help improve this journey: which areas and actions admins use, where operations fail, and approximate active time. It should not create a new reporting task for admins, collect their typed content, or turn activity duration into a productivity ranking. At most a monthly readout is part of the chosen operating routine; actual usability and workload improvements remain to be established through usage and feedback.
+
+## Current-Year Curriculum Trust
+
+The founder wants complete current-year syllabus coverage across boards, standards, subjects and chapters, with administrators able to preview official sources, correct omissions and approve what is accurate. This is part of question-bank trust: existing question coverage cannot define the syllabus, because missing questions would then hide missing teaching content.
+
+A full-syllabus paper should mean the applicable approved curriculum, including its year or examination cohort and assessment scope. Imported content remains provisional until reviewed; an incomplete source inventory must stay visibly incomplete. Later corrections should preserve what earlier papers were based on. These expectations extend [[Decisions]] without claiming that a comprehensive catalogue has already been verified.
+
+Teachers must be able to request chapters absent from the question bank. Such a request expresses intended coverage and exposes a content gap; it does not make unverified generated questions ready for learners.
+
 ## Boundaries And Non-Goals
 
 This page should not define database fields, moderation states, scripts, or dashboard tasks. It preserves the product model for quality. Execution belongs to docs, implementation plans, or the project manager agent.
@@ -56,3 +74,8 @@ When prioritizing product work, question-bank improvements should be favored whe
 
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
+
+- `raw/2026-09-28-current-syllabus-and-paper-coverage.md`
+
+
+- `raw/2026-09-29-admin-question-module.md`

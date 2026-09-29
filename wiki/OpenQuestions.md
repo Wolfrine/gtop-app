@@ -42,6 +42,12 @@ How should topic tagging be structured so it helps weak-area diagnosis without b
 
 How should GTOP resolve the public 50,000+ MCQ claim versus the raw discussion's roughly 1.2 lakh question-bank reference?
 
+## Comprehensive Curriculum Coverage
+
+Which board/programme, language or medium variants, and examination cohorts must be distinguished to fulfil the founder's comprehensive syllabus goal? How should admins review school-selected or locally adapted curricula when there is no single board-wide chapter list for a standard?
+
+What source evidence establishes subject completeness, and how should conflicting editions or official revisions be presented for human review? These uncertainties should remain visible within [[Question Bank Quality]].
+
 ## Live Quiz Versus Quiz Run Positioning
 
 How should [[Live Practice]] explain the difference between hosted Live Quiz events and peer-oriented Quiz Runs so students and admins choose the right mode?
@@ -73,3 +79,5 @@ How should GTOP balance MCQ exam readiness with broader AI-era learning skills?
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
+
+- `raw/2026-09-28-current-syllabus-and-paper-coverage.md`

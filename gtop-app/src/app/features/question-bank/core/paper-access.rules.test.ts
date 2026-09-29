@@ -58,4 +58,17 @@ describe('question-paper browser access', () => {
       }
     }
   });
+  it('restricts internal usage to admin sessions and forbids actor spoofing or content capture', async()=>{
+    const admin=environment.authenticatedContext('paper-admin').firestore();
+    const payload={schemaVersion:1,day:'2026-09-29',actorUid:'paper-admin',startedAtIso:'2026-09-29T00:00:00Z',updatedAtIso:'2026-09-29T00:01:00Z',device:'phone',activeMs:{review:15000},eventCounts:{review__page_view:1},totalActiveMs:15000};
+    await assertSucceeds(setDoc(doc(admin,'adminUsageSessions/session'),payload));
+    await assertSucceeds(getDocs(collection(admin,'adminUsageSessions')));
+    await assertFails(setDoc(doc(admin,'adminUsageSessions/spoof'),{...payload,actorUid:'paper-student'}));
+    await assertFails(setDoc(doc(admin,'adminUsageSessions/content'),{...payload,typedText:'private question'}));
+    for(const db of [environment.authenticatedContext('paper-student').firestore(),environment.unauthenticatedContext().firestore()]){
+      await assertFails(getDocs(collection(db,'adminUsageSessions')));
+      await assertFails(setDoc(doc(db,'adminUsageSessions/forbidden'),payload));
+    }
+  });
+
 });

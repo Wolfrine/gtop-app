@@ -167,6 +167,18 @@ test('admin sees a chapter request, exact coverage and the independent question 
   await expect(page.locator('.qm-question')).toHaveCount(1);
   await expectNoHorizontalOverflow(page);
   await page.screenshot({path:testInfo.outputPath('written-bank.png'),fullPage:true});
+  await page.getByRole('link',{name:'Request more',exact:true}).click();
+  await expect(page.getByRole('checkbox',{name:'Short answer',exact:true})).toBeChecked();
+  await expect(page.getByRole('checkbox',{name:'MCQ',exact:true})).not.toBeChecked();
+  await expect(page.getByRole('spinbutton',{name:'Approved target'})).toHaveValue('20');
+  await page.getByRole('button',{name:'Save priority',exact:true}).click();
+  await expect(page.getByText('Priority saved.',{exact:false})).toBeVisible();
+  await environment.withSecurityRulesDisabled(async context=>{
+    const requests=await getDocs(query(collection(context.firestore(),'questionBankPriorityItems'),where('sourceSyllabusId','==',syllabusId)));
+    const written=requests.docs.find(d=>d.id!==priorityId)?.data();
+    expect(written).toMatchObject({questionTypes:['short_answer'],requiredCount:20,availableCount:1,pendingCount:1,generationDeficit:18});
+    expect((await getDoc(doc(context.firestore(),'questionBankPriorityItems',priorityId))).data()?.requiredCount).toBe(1200);
+  });
 });
 
 async function expectNoHorizontalOverflow(page: Page) {

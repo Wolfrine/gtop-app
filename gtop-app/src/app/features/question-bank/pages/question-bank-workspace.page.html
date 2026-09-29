@@ -67,9 +67,9 @@
             <div><span>Approved for quizzes</span><strong>{{ counts()?.quizApproved ?? '—' }}</strong></div>
             <div><span>Paper only</span><strong>{{ counts()?.paperOnlyApproved ?? '—' }}</strong></div>
             <div><span>Awaiting review</span><strong>{{ counts()?.pending ?? '—' }}</strong></div>
-            <div><span>To reach target*</span><strong>{{ notYetApproved() ?? '—' }}</strong></div>
+            <div><span>{{selectedPriority()?.parentRequestId?'Last checked shortfall':'To reach target*'}}</span><strong>{{ notYetApproved() ?? '—' }}</strong></div>
           </section>
-          <p class="qb-footnote">*Approved shortfall. Pending drafts count as backlog; {{ unassigned() ?? '—' }} more would still be needed if all pending drafts pass.</p>
+          @if(!selectedPriority()?.parentRequestId){<p class="qb-footnote">*For selected question types. Pending drafts count as backlog; {{ unassigned() ?? '—' }} more would still be needed if matching pending drafts pass.</p>}
           @if (selectedPriority()?.status === 'blocked') {
             <div class="qb-blocker"><strong>Creation blocked</strong><p>{{ selectedPriority()?.blocker || 'Resolve this priority before approving its drafts or creating more.' }}</p></div>
           }

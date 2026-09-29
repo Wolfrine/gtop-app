@@ -41,7 +41,9 @@ export class QuestionBankWorkspacePage implements OnInit {
   readonly statusFilter = signal('active');
   readonly source = signal<'questions' | 'devQuestions'>('questions');
   readonly showDetail = signal(false);
-  readonly target = signal(1000);
+  readonly target = signal(50);
+  readonly matchingCoverage = signal<{approved:number;pending:number}|null>(null);
+  private coverageVersion=0;
   readonly urgency = signal('high');
   readonly types = signal<string[]>(['mcq', 'short_answer']);
   readonly label = typeLabel;
@@ -70,12 +72,11 @@ export class QuestionBankWorkspacePage implements OnInit {
     return this.syllabus().filter((item) =>
       `${item.board} ${item.standard} ${item.subject} ${item.chapter}`.toLowerCase().includes(q)).slice(0, 8);
   });
-  readonly approved = computed(() => this.counts()
-    ? this.counts()!.quizApproved + this.counts()!.paperOnlyApproved : null);
-  readonly notYetApproved = computed(() => this.approved() === null ? null
+  readonly approved = computed(() => this.matchingCoverage()?.approved ?? null);
+  readonly notYetApproved = computed(() => this.selectedPriority()?.parentRequestId ? this.selectedPriority()!.gapCount : this.approved() === null ? null
     : Math.max(0, this.target() - this.approved()!));
   readonly unassigned = computed(() => this.notYetApproved() === null ? null
-    : Math.max(0, this.notYetApproved()! - (this.counts()?.pending ?? 0)));
+    : Math.max(0, this.notYetApproved()! - (this.matchingCoverage()?.pending ?? 0)));
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -145,12 +146,13 @@ export class QuestionBankWorkspacePage implements OnInit {
 
   async selectScope(scope: SyllabusItem): Promise<void> {
     this.scopeSearch.set(''); this.selectedPriority.set(null); this.showDetail.set(true);
-    this.target.set(1000); this.urgency.set('high'); this.types.set(['mcq', 'short_answer']);
+    const kind=this.route.snapshot.queryParamMap.get('questionKind');
+    this.target.set(kind==='written'?20:50); this.urgency.set('high'); this.types.set(kind==='written'?['short_answer']:kind==='objective'?['mcq']:['mcq','short_answer']);
     await this.openScope(scope, null);
   }
 
   private async openScope(scope: SyllabusItem | null, priority: PriorityItem | null): Promise<void> {
-    this.selectedScope.set(scope); this.counts.set(null); this.created.set([]);
+    this.selectedScope.set(scope); this.counts.set(null);this.matchingCoverage.set(null);void this.refreshMatchingCoverage(); this.created.set([]);
     this.bankRows.set([]); this.moreCreated.set(null); this.moreBank.set(null); this.run.set(null);
     this.detailError.set(''); this.detailLoading.set(true);
     try {
@@ -195,9 +197,16 @@ export class QuestionBankWorkspacePage implements OnInit {
     } catch (error) { this.detailError.set(this.messageFor(error)); }
   }
 
+  private async refreshMatchingCoverage():Promise<void>{
+    const version=++this.coverageVersion;const scope=this.selectedScope();this.matchingCoverage.set(null);if(!scope||this.selectedPriority()?.parentRequestId)return;
+    try{const counts=await this.operations.typeCounts(scope,this.types());if(version===this.coverageVersion)this.matchingCoverage.set(counts);}
+    catch(error){if(version===this.coverageVersion)this.detailError.set(this.messageFor(error));}
+  }
+
   toggleType(type: string): void {
     this.types.update((items) => items.includes(type)
       ? items.filter((item) => item !== type) : [...items, type]);
+    void this.refreshMatchingCoverage();
   }
 
   async savePriority(): Promise<void> {
@@ -206,10 +215,10 @@ export class QuestionBankWorkspacePage implements OnInit {
     this.saving.set(true); this.detailError.set(''); this.success.set('');
     try {
       const id = await this.operations.setGrowthPriority(scope, this.target(), this.urgency(),
-        this.types(), this.actorId());
+        this.types(), this.actorId(),this.selectedPriority()?.id);
       const page = await this.operations.priorities();
       this.priorities.set(page.items); this.morePriorities.set(page.nextCursor);
-      const updated = page.items.find((item) => item.id === id);
+      const updated = page.items.find((item) => item.id === id)??await this.operations.priority(id);
       if (updated) await this.selectPriority(updated);
       this.usage.track('priority_saved');
       this.success.set('Priority saved. The creator can now use this chapter and question-type mix.');

@@ -6,7 +6,7 @@ import {
 import { FirebaseClient } from './firebase';
 import { type SyllabusItem } from './models';
 import { libraryScopeFilters } from './question-library.repository';
-import { normalizeQuestion, normalizeQuestionType, textValue } from './question-paper.domain';
+import { isUsableQuestion, normalizeQuestion, normalizeQuestionType, textValue } from './question-paper.domain';
 
 export interface PriorityItem {
   id: string;
@@ -22,6 +22,7 @@ export interface PriorityItem {
   parentRequestId: string;
   requiredCount: number;
   availableCount: number;
+  gapCount: number;
   pendingCount: number | null;
   stagedCount: number;
   blocker: string;
@@ -70,6 +71,7 @@ function toPriority(id: string, data: Record<string, unknown>): PriorityItem {
     priority: textValue(data['priority']) || 'medium', status: textValue(data['status']) || 'open',
     source: textValue(data['source']), parentRequestId:textValue(data['parentRequestId']), requiredCount: Number(data['requiredCount']) || 0,
     availableCount: Number(data['availableCount']) || 0,
+    gapCount: Number.isFinite(Number(data['gapCount']))?Math.max(0,Number(data['gapCount'])):Math.max(0,(Number(data['requiredCount'])||0)-(Number(data['availableCount'])||0)),
     pendingCount: typeof progress['pendingDraftCount'] === 'number'
       ? progress['pendingDraftCount'] as number : null,
     stagedCount: Number(progress['stagedCount']) || Number(data['generatedCount']) || 0,
@@ -107,8 +109,8 @@ export class QuestionOperationsRepository {
         for(const item of snapshot.docs.slice(0,500)) {
           const raw=item.data();const question=normalizeQuestion(item.id,raw);
           if(!types.includes(question.questionType))continue;
-          if(source==='questions')quiz++;
-          else if(raw['reviewStatus']==='approved-paper-only'&&raw['paperOnly']===true)written++;
+          if(source==='questions'&&isUsableQuestion(question))quiz++;
+          else if(raw['reviewStatus']==='approved-paper-only'&&raw['paperOnly']===true&&isUsableQuestion(question))written++;
           else if(raw['reviewStatus']==='pending-admin-review')pending++;
         }
         if(snapshot.size<=500)break;
@@ -142,7 +144,7 @@ export class QuestionOperationsRepository {
   }
 
   async setGrowthPriority(scope: SyllabusItem, target: number, priority: string,
-    questionTypes: string[], actorId: string): Promise<string> {
+    questionTypes: string[], actorId: string, existingPriorityId?:string): Promise<string> {
     if (!actorId || actorId === 'admin') throw new Error('Sign in again to set a priority.');
     if (!Number.isInteger(target) || target < 1 || target > 100000)
       throw new Error('Choose a target between 1 and 100,000 questions.');
@@ -151,9 +153,11 @@ export class QuestionOperationsRepository {
     if (!questionTypes.length) throw new Error('Select at least one question type.');
     const coverage = await this.typeCounts(scope,questionTypes);
     const approved = coverage.approved;
+    const typeKey=(types:string[])=>[...new Set(types.map(normalizeQuestionType))].sort().join('_');
     const existing = (await this.forSyllabus(scope)).find((item) =>
-      item.source === 'admin-question-bank-growth' && item.status !== 'done');
-    const id = existing?.id ?? `growth-${scope.id}`;
+      item.source === 'admin-question-bank-growth' && item.status !== 'done' && typeKey(item.questionTypes)===typeKey(questionTypes));
+    const id = existingPriorityId ?? existing?.id ?? doc(collection(this.firebase.firestore,'questionBankPriorityItems')).id;
+    if(id.includes('/'))throw new Error('The priority reference is invalid.');
     const sourceRef = doc(this.firebase.firestore, 'questionBankPriorityItems', id);
     const syllabusRef = doc(this.firebase.firestore, 'syllabus', scope.id);
     await runTransaction(this.firebase.firestore, async (tx) => {
@@ -162,6 +166,8 @@ export class QuestionOperationsRepository {
       if (!syllabus.exists() || ['board', 'standard', 'subject', 'chapter'].some((field) =>
         textValue(syllabus.data()[field]) !== scope[field as keyof SyllabusItem]))
         throw new Error('The syllabus changed. Refresh and select the chapter again.');
+      if(!existingPriorityId&&current.exists()&&typeKey(toPriority(id,current.data()).questionTypes)!==typeKey(questionTypes))throw new Error('Another admin changed this request’s question types. Refresh before saving.');
+      if(current.exists()&&(current.data()['source']!=='admin-question-bank-growth'||current.data()['parentRequestId']||['board','standard','subject','chapter'].some(field=>String(current.data()[field])!==String(scope[field as keyof SyllabusItem]))))throw new Error('This request belongs to another scope or paper. Refresh before editing.');
       if (current.exists() && current.data()['status'] === 'blocked')
         throw new Error('This priority is blocked. Resolve its syllabus or reference issue first.');
       const fields = {

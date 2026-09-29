@@ -57,6 +57,19 @@ describe('shared persistent Firestore reads', () => {
     expect(errors).toHaveLength(1);expect(state.listeners[0].stop).toHaveBeenCalledOnce();
     reads.watch(request()).subscribe();expect(state.listeners).toHaveLength(2);
   });
+  it('pauses on logout and resumes after sign-in without terminating the shared stream', () => {
+    const seen:unknown[]=[];const completed=vi.fn();
+    const sub=reads.watch(request()).subscribe({next:value=>seen.push(value),complete:completed});
+    state.listeners[0].next(snapshot('before-logout',false));seen.length=0;
+    state.identity.next(null);
+    expect(state.listeners[0].stop).toHaveBeenCalledOnce();
+    expect(state.listeners).toHaveLength(1);expect(reads.checking()).toBe(false);
+    state.identity.next({uid:'admin-two'});
+    expect(state.listeners).toHaveLength(2);expect(seen).toEqual([]);
+    state.listeners[1].next(snapshot('after-login',false));
+    expect(seen).toHaveLength(1);expect(completed).not.toHaveBeenCalled();
+    sub.unsubscribe();
+  });
   it('bounds listeners retained during rapid navigation', () => {
     for(let i=0;i<14;i++)reads.watch(request(String(i))).subscribe().unsubscribe();
     expect(state.listeners.filter(listener=>listener.stop.mock.calls.length===0)).toHaveLength(12);

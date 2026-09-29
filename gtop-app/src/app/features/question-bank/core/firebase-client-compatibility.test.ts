@@ -12,9 +12,14 @@ import { Firestore, initializeFirestore, provideFirestore, terminate } from '@an
 import { FirebaseClient } from './firebase';
 import { QuestionPaperRepository } from './question-paper.repository';
 import { QuestionReviewRepository } from './question-review.repository';
+import { of } from 'rxjs';
 
-// Keep real SDK reference/query construction. Stub only network reads so a
+// Keep real SDK reference/query construction. Stub session/network reads so a
 // mixed Firebase SDK cannot hide behind an all-mocked repository test.
+vi.mock('@angular/fire/auth', async importOriginal => ({
+  ...await importOriginal<typeof import('@angular/fire/auth')>(),
+  authState: () => of({ uid: 'compatibility-admin' }),
+}));
 vi.mock('@angular/fire/firestore', async importOriginal => {
   const actual = await importOriginal<typeof import('@angular/fire/firestore')>();
   return { ...actual,

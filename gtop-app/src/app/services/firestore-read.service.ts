@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import { DocumentData, Query, QuerySnapshot, onSnapshot, queryEqual } from '@angular/fire/firestore';
-import { Observable, ReplaySubject, Subject, distinctUntilChanged, map, shareReplay, switchMap, takeUntil, tap } from 'rxjs';
+import { EMPTY, Observable, ReplaySubject, Subject, distinctUntilChanged, map, shareReplay, switchMap, takeUntil, tap } from 'rxjs';
 
 interface ReadEntry {
   query: Query<DocumentData>;
@@ -31,7 +31,9 @@ export class FirestoreReadService implements OnDestroy {
   }
 
   watch(request: Query<DocumentData>): Observable<QuerySnapshot<DocumentData>> {
-    return this.identity$.pipe(switchMap(uid => new Observable<QuerySnapshot<DocumentData>>(subscriber => {
+    // All shared catalogue/module queries require a signed-in user. Keep the
+    // auth subscription alive across logout without starting a denied listener.
+    return this.identity$.pipe(switchMap(uid => uid ? new Observable<QuerySnapshot<DocumentData>>(subscriber => {
       let entry = this.entries.find(item => item.uid === uid && queryEqual(item.query, request));
       const created = !entry;
       if (!entry) {
@@ -65,7 +67,7 @@ export class FirestoreReadService implements OnDestroy {
           idle.slice(0, Math.max(0, idle.length - 12)).forEach(item => this.close(item));
         }
       };
-    })),takeUntil(this.destroyed));
+    }) : EMPTY),takeUntil(this.destroyed));
   }
 
   ngOnDestroy(): void {this.destroyed.next();this.destroyed.complete();this.entries.slice().forEach(entry => this.close(entry)); }

@@ -32,8 +32,8 @@ vi.mock('@angular/fire/firestore', () => {
       )).length }) })),
     limit: vi.fn((max: number) => ({ max })),
     query: vi.fn((ref, ...constraints) => ({ ...ref, constraints })),
-    getDoc: vi.fn(async (ref) => snapshot(ref.path)),
-    getDocs: vi.fn(async (request) => {
+    getDocFromServer: vi.fn(async (ref) => snapshot(ref.path)),
+    getDocsFromServer: vi.fn(async (request) => {
       memory.queries.push(request);
       const candidates = [...memory.documents.keys()].filter((path) => {
         if (path.split('/').slice(0, -1).join('/') !== request.path) return false;

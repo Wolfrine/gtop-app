@@ -1,4 +1,5 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { QuestionModuleHeaderComponent } from './question-module-header.component';
@@ -17,7 +18,7 @@ import {
   imports: [FormsModule, RouterLink, RouterLinkActive, QuestionModuleHeaderComponent],
   templateUrl: './question-bank-workspace.page.html',
 })
-export class QuestionBankWorkspacePage implements OnInit {
+export class QuestionBankWorkspacePage implements OnInit, OnDestroy {
   readonly view = signal<'coverage' | 'bank'>('coverage');
   readonly priorities = signal<PriorityItem[]>([]);
   readonly syllabus = signal<SyllabusItem[]>([]);
@@ -44,6 +45,8 @@ export class QuestionBankWorkspacePage implements OnInit {
   readonly target = signal(50);
   readonly matchingCoverage = signal<{approved:number;pending:number}|null>(null);
   private coverageVersion=0;
+  private coverageRead:Promise<Record<string,{approved:number;pending:number}>>|null=null;
+  private subscriptions=new Subscription();
   readonly urgency = signal('high');
   readonly types = signal<string[]>(['mcq', 'short_answer']);
   readonly label = typeLabel;
@@ -88,7 +91,7 @@ export class QuestionBankWorkspacePage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParamMap.subscribe((params) => {
+    this.subscriptions.add(this.route.queryParamMap.subscribe((params) => {
       if(params.get('view')==='bank'){void this.router.navigate(['/admin/question-library'],{replaceUrl:true});return;}
       this.view.set('coverage');
       if (this.view() === 'bank' && this.selectedScope() && !this.bankRows().length)
@@ -98,9 +101,11 @@ export class QuestionBankWorkspacePage implements OnInit {
         const found = this.priorities().find((item) => item.id === requested);
         if (found) void this.selectPriority(found);
       }
-    });
+    }));
+    this.subscriptions.add(this.paper.syllabusUpdates().subscribe({next:scopes=>this.syllabus.set(scopes),error:e=>this.error.set(this.messageFor(e))}));
     void this.load();
   }
+  ngOnDestroy():void{this.coverageVersion++;this.subscriptions.unsubscribe();}
 
   async load(): Promise<void> {
     if (this.loading()) return;
@@ -152,6 +157,7 @@ export class QuestionBankWorkspacePage implements OnInit {
   }
 
   private async openScope(scope: SyllabusItem | null, priority: PriorityItem | null): Promise<void> {
+    this.coverageRead=null;
     this.selectedScope.set(scope); this.counts.set(null);this.matchingCoverage.set(null);void this.refreshMatchingCoverage(); this.created.set([]);
     this.bankRows.set([]); this.moreCreated.set(null); this.moreBank.set(null); this.run.set(null);
     this.detailError.set(''); this.detailLoading.set(true);
@@ -199,7 +205,7 @@ export class QuestionBankWorkspacePage implements OnInit {
 
   private async refreshMatchingCoverage():Promise<void>{
     const version=++this.coverageVersion;const scope=this.selectedScope();this.matchingCoverage.set(null);if(!scope||this.selectedPriority()?.parentRequestId)return;
-    try{const counts=await this.operations.typeCounts(scope,this.types());if(version===this.coverageVersion)this.matchingCoverage.set(counts);}
+    try{const coverage=await (this.coverageRead??=this.operations.typeCoverage(scope));if(version===this.coverageVersion)this.matchingCoverage.set(this.types().reduce((total,type)=>({approved:total.approved+(coverage[type]?.approved??0),pending:total.pending+(coverage[type]?.pending??0)}),{approved:0,pending:0}));}
     catch(error){if(version===this.coverageVersion)this.detailError.set(this.messageFor(error));}
   }
 

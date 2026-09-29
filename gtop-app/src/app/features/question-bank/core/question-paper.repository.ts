@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import {
-  addDoc, collection, doc, getDoc, getDocs, getCountFromServer, limit, orderBy, query,
+  addDoc, collection, doc, getDoc, getDocFromServer, getDocsFromServer as getDocs, getCountFromServer, limit, orderBy, query,
   serverTimestamp, startAfter, where, writeBatch, runTransaction,
   type DocumentData, type QueryDocumentSnapshot,
 } from '@angular/fire/firestore';
 import { FirebaseClient } from './firebase';
+import { SyllabusService } from '../../../services/syllabus.service';
+import { FirestoreReadService } from '../../../services/firestore-read.service';
+import { filter, firstValueFrom, map } from 'rxjs';
 import { SyllabusItem } from './models';
 import { curriculumKey } from '../../../services/curriculum.domain';
 import {
@@ -18,32 +21,33 @@ export * from './question-paper.domain';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionPaperRepository {
-  constructor(private readonly firebase: FirebaseClient) {}
+  constructor(private readonly firebase: FirebaseClient, private readonly catalogue: SyllabusService, private readonly reads: FirestoreReadService) {}
 
   async syllabus(): Promise<SyllabusItem[]> {
-    const items: SyllabusItem[] = [];
-    let cursor: QueryDocumentSnapshot<DocumentData> | undefined;
-    // Fetch every page: an arbitrary first-page cap can hide entire board/standard options.
-    for (let page = 0; page < 12; page++) {
-      const snapshot = await getDocs(query(collection(this.firebase.firestore, 'syllabus'),
-        ...(cursor ? [startAfter(cursor)] : []), limit(500)));
-      items.push(...snapshot.docs.map((item) => {
-        const raw = item.data();
-        return { id: item.id, board: textValue(raw['board']), standard: textValue(raw['standard']),
-          subject: textValue(raw['subject']), chapter: textValue(raw['chapter']), mcqCount: Number(raw['mcqCount']) || 0 };
-      }).filter((item) => item.board && item.standard && item.subject && item.chapter));
-      if (snapshot.size < 500) return items.sort((a, b) =>
-        `${a.board}|${a.standard}|${a.subject}|${a.chapter}`.localeCompare(`${b.board}|${b.standard}|${b.subject}|${b.chapter}`));
-      cursor = snapshot.docs.at(-1);
-    }
-    throw new Error('The syllabus is too large to load completely. Please ask support to narrow the syllabus catalogue.');
+    return firstValueFrom(this.syllabusUpdates());
+  }
+
+  syllabusUpdates() {
+    return this.catalogue.snapshots$.pipe(filter(state => !state.fromCache || state.items.length > 0), map(state => state.items
+      .filter(item => item.id && item.board && item.standard && item.subject && item.chapter)
+      .map(item => ({ ...item, id: item.id!, standard: String(item.standard) }))
+      .sort((a,b) => `${a.board}|${a.standard}|${a.subject}|${a.chapter}`.localeCompare(`${b.board}|${b.standard}|${b.subject}|${b.chapter}`))));
   }
 
   async templates(): Promise<QuestionPaperTemplate[]> {
-    const snapshot = await getDocs(query(collection(this.firebase.firestore, 'paperTemplates'), limit(100)));
-    return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as QuestionPaperTemplate)
+    return firstValueFrom(this.templateUpdates());
+  }
+  templateUpdates() {
+    return this.reads.watch(query(collection(this.firebase.firestore, 'paperTemplates'), limit(100))).pipe(filter(snapshot => !snapshot.metadata.fromCache || !snapshot.empty), map(snapshot => snapshot.docs.map((item) => ({ id: item.id, ...item.data() }) as QuestionPaperTemplate)
       .filter((item) => !item.status || item.status === 'active')
-      .sort((a, b) => (a.title ?? a.name ?? a.id).localeCompare(b.title ?? b.name ?? b.id));
+      .sort((a, b) => (a.title ?? a.name ?? a.id).localeCompare(b.title ?? b.name ?? b.id))));
+  }
+
+  draftUpdates() {
+    return this.reads.watch(query(collection(this.firebase.firestore, 'paperDrafts'), orderBy('createdAt','desc'), limit(20))).pipe(filter(snapshot => !snapshot.metadata.fromCache || !snapshot.empty), map(snapshot => snapshot.docs.map(item => ({...item.data(),id:item.id,subjects:strings(item.data()['subjects'])}) as SavedPaperDraft)));
+  }
+  requestUpdates() {
+    return this.reads.watch(query(collection(this.firebase.firestore, 'paperRequests'), orderBy('createdAt','desc'), limit(20))).pipe(filter(snapshot => !snapshot.metadata.fromCache || !snapshot.empty), map(snapshot => snapshot.docs.map(item => ({...item.data(),id:item.id}) as PaperRequestRecord)));
   }
 
   async approvedQuestions(board: string, standard: string, scopes: ChapterScope[], assessmentPurpose?: 'summative' | 'formative' | 'both'): Promise<QuestionBankResult> {
@@ -115,6 +119,7 @@ export class QuestionPaperRepository {
   }
 
   async recentDrafts(cursor?:string): Promise<SavedPaperDraft[]> {
+    if(!cursor)return firstValueFrom(this.draftUpdates());
     const snapshot = await getDocs(query(collection(this.firebase.firestore, 'paperDrafts'), orderBy('createdAt', 'desc'), ...(cursor?[startAfter(await getDoc(doc(this.firebase.firestore,'paperDrafts',cursor)))]:[]), limit(20)));
     return snapshot.docs.map((item) => ({ ...item.data(), id: item.id, subjects: strings(item.data()['subjects']) }) as SavedPaperDraft);
   }
@@ -135,6 +140,7 @@ export class QuestionPaperRepository {
   }
 
   async recentRequests(cursor?:string): Promise<PaperRequestRecord[]> {
+    if(!cursor)return firstValueFrom(this.requestUpdates());
     const snapshot = await getDocs(query(collection(this.firebase.firestore, 'paperRequests'), orderBy('createdAt', 'desc'), ...(cursor?[startAfter(await getDoc(doc(this.firebase.firestore,'paperRequests',cursor)))]:[]), limit(20)));
     return snapshot.docs.map(item => ({...item.data(), id:item.id}) as PaperRequestRecord);
   }
@@ -167,7 +173,7 @@ export class QuestionPaperRepository {
 
   async request(id:string):Promise<PaperRequestRecord> {
     if(!id||id.includes('/'))throw new Error('Invalid paper request.');
-    const item=await getDoc(doc(this.firebase.firestore,'paperRequests',id));
+    const item=await getDocFromServer(doc(this.firebase.firestore,'paperRequests',id));
     if(!item.exists())throw new Error('This paper request no longer exists.');
     const value={...item.data(),id:item.id} as PaperRequestRecord;
     if(value.status==='cancelled')throw new Error('This request was cancelled. Create a new paper instead.');
@@ -214,7 +220,7 @@ export class QuestionPaperRepository {
       let scopeId = ids[0];
       if (!scopeId) {
         if (!scope?.curriculumVersionId) throw new Error(`${gap.chapter} needs syllabus review. Save the paper request to ask for source verification.`);
-        const version = await getDoc(doc(this.firebase.firestore, 'curriculumVersions', scope.curriculumVersionId));
+        const version = await getDocFromServer(doc(this.firebase.firestore, 'curriculumVersions', scope.curriculumVersionId));
         if (!version.exists() || version.data()['reviewStatus'] !== 'approved' || version.data()['board'] !== setup.board ||
           version.data()['standard'] !== setup.standard || version.data()['academicYear'] !== setup.academicYear || version.data()['subject'] !== gap.subject ||
           !version.data()['chapters'].some((item: {title:string}) => item.title === gap.chapter)) throw new Error('The selected approved syllabus could not be verified. Refresh the catalogue.');

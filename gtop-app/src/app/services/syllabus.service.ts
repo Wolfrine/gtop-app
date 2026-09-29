@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Firestore, collection, collectionData, doc, getCountFromServer, getDocs, onSnapshot, query, runTransaction, serverTimestamp, setDoc, updateDoc, where, writeBatch } from '@angular/fire/firestore';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
+import { FirestoreReadService } from './firestore-read.service';
 
 export interface SyllabusItem {
     id?: string;
@@ -14,17 +15,19 @@ export interface SyllabusItem {
 @Injectable({
     providedIn: 'root'
 })
-export class SyllabusService {
+export class SyllabusService implements OnDestroy {
 
     private syllabusCollection = collection(this.firestore, 'syllabus');
     syllabus$ = new BehaviorSubject<SyllabusItem[]>([]); // Observable syllabus data for reuse
+    readonly snapshots$ = new ReplaySubject<{ items: SyllabusItem[]; fromCache: boolean }>(1);
+    private subscription?:Subscription;
 
-    constructor(private firestore: Firestore) {
+    constructor(private firestore: Firestore, private readonly reads: FirestoreReadService) {
         this.loadSyllabus();
     }
 
     private loadSyllabus() {
-        onSnapshot(this.syllabusCollection, (snapshot) => {
+        this.subscription=this.reads.watch(this.syllabusCollection).subscribe({ next: snapshot => {
             const syllabus: SyllabusItem[] = snapshot.docs.map(doc => ({
                 id: doc.id,
                 board: doc.data()['board'],
@@ -34,8 +37,10 @@ export class SyllabusService {
                 mcqCount: doc.data()['mcqCount'] || 0 // ✅ Fetch mcqCount, default 0
             }));
             this.syllabus$.next(syllabus);
-        });
+            this.snapshots$.next({ items: syllabus, fromCache: snapshot.metadata.fromCache });
+        }, error: error => this.snapshots$.error(error) });
     }
+    ngOnDestroy():void {this.subscription?.unsubscribe();}
 
     // Optional: Manual refresh
     async refreshSyllabus() {

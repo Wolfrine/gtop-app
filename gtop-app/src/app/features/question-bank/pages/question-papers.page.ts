@@ -1,4 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { RouterLink } from '@angular/router';
 import { QuestionModuleHeaderComponent } from './question-module-header.component';
@@ -41,17 +42,21 @@ import { QuestionPaperRepository, type PaperRequestRecord, type SavedPaperDraft 
     @if(moreDrafts()){<button type="button" class="btn btn-secondary" (click)="loadOlder(true)" [disabled]="loading()">Load older saved papers</button>}
   </div>
 `})
-export class QuestionPapersPage implements OnInit {
+export class QuestionPapersPage implements OnInit, OnDestroy {
   requests=signal<PaperRequestRecord[]>([]); drafts=signal<SavedPaperDraft[]>([]); loading=signal(false); error=signal('');
   moreRequests=signal<string|null>(null);moreDrafts=signal<string|null>(null);busy=signal('');confirmCancel='';
+  private requestSubscription?:Subscription;private draftSubscription?:Subscription;
   constructor(private readonly papers:QuestionPaperRepository,private readonly auth:AuthService) {}
   ngOnInit():void { void this.load(); }
-  async load():Promise<void> { if(this.loading())return;this.loading.set(true);this.error.set('');
-    try { const [requests,drafts]=await Promise.all([this.papers.recentRequests(),this.papers.recentDrafts()]);this.requests.set(requests.filter(r=>r.status!=='cancelled' && r.status!=='completed'));this.drafts.set(drafts);this.moreRequests.set(requests.length===20?requests.at(-1)!.id:null);this.moreDrafts.set(drafts.length===20?drafts.at(-1)!.id:null); }
-    catch(e){this.error.set(e instanceof Error?e.message:'Papers could not load.');}finally{this.loading.set(false);} }
+  ngOnDestroy():void{this.requestSubscription?.unsubscribe();this.draftSubscription?.unsubscribe();}
+  async load():Promise<void> {this.ngOnDestroy();this.loading.set(true);this.error.set('');let requestsReady=false,draftsReady=false;
+    const failed=(e:unknown)=>{this.error.set(e instanceof Error?e.message:'Papers could not load.');this.loading.set(false);};
+    this.requestSubscription=this.papers.requestUpdates().subscribe({next:requests=>{this.requests.set(requests.filter(r=>!['cancelled','completed'].includes(r.status)));this.moreRequests.set(requests.length===20?requests.at(-1)!.id:null);requestsReady=true;this.loading.set(!draftsReady);},error:failed});
+    this.draftSubscription=this.papers.draftUpdates().subscribe({next:drafts=>{this.drafts.set(drafts);this.moreDrafts.set(drafts.length===20?drafts.at(-1)!.id:null);draftsReady=true;this.loading.set(!requestsReady);},error:failed});
+  }
   async loadOlder(saved:boolean):Promise<void>{if(this.loading())return;this.loading.set(true);try{
-    if(saved){const page=await this.papers.recentDrafts(this.moreDrafts()??undefined);this.drafts.update(items=>[...items,...page]);this.moreDrafts.set(page.length===20?page.at(-1)!.id:null);}
-    else{const page=await this.papers.recentRequests(this.moreRequests()??undefined);this.requests.update(items=>[...items,...page.filter(r=>!['cancelled','completed'].includes(r.status))]);this.moreRequests.set(page.length===20?page.at(-1)!.id:null);}
+    if(saved){this.draftSubscription?.unsubscribe();const page=await this.papers.recentDrafts(this.moreDrafts()??undefined);this.drafts.update(items=>[...items,...page]);this.moreDrafts.set(page.length===20?page.at(-1)!.id:null);}
+    else{this.requestSubscription?.unsubscribe();const page=await this.papers.recentRequests(this.moreRequests()??undefined);this.requests.update(items=>[...items,...page.filter(r=>!['cancelled','completed'].includes(r.status))]);this.moreRequests.set(page.length===20?page.at(-1)!.id:null);}
   }catch(e){this.error.set(e instanceof Error?e.message:'Older papers could not load.');}finally{this.loading.set(false);}}
   async cancel(request:PaperRequestRecord):Promise<void>{if(this.confirmCancel!==request.id){this.confirmCancel=request.id;return;}this.busy.set(request.id);try{await this.papers.cancelRequest(request.id,this.auth.profile()?.uid??'');this.requests.update(items=>items.filter(i=>i.id!==request.id));this.confirmCancel='';}catch(e){this.error.set(e instanceof Error?e.message:'Could not cancel request.');}finally{this.busy.set('');}}
   status(r:PaperRequestRecord):string {return ({'awaiting-coverage':'Queued','awaiting-syllabus':'Syllabus needed','awaiting-approval':'Syllabus review','creating-questions':'Questions requested','awaiting-review':'Review needed',ready:'Ready to build',blocked:'Needs attention'} as Record<string,string>)[r.status]??r.status.replaceAll('-',' ');}

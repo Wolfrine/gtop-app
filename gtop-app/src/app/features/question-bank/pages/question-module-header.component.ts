@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { FirestoreReadService } from '../../../services/firestore-read.service';
 
 @Component({
   selector: 'app-question-module-header', standalone: true, imports: [RouterLink],
@@ -13,9 +14,11 @@ import { RouterLink } from '@angular/router';
         <a [routerLink]="tab.url" [class.active]="active === tab.id" [attr.aria-current]="active === tab.id ? 'page' : null">{{ tab.title }}</a>
       }
     </nav>
+    @if(reads.checking()) { <p class="qm-muted" role="status">Checking for updates. Saved results may be incomplete.</p> }
   `,
 })
 export class QuestionModuleHeaderComponent {
+  constructor(readonly reads: FirestoreReadService) {}
   @Input() title = 'Questions & papers';
   @Input() description = '';
   @Input() active: 'papers' | 'bank' | 'review' | 'requests' = 'papers';

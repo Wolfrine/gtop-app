@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { QuestionModuleHeaderComponent } from './question-module-header.component';
 import { AdminUsageService } from '../../../services/admin-usage.service';
@@ -330,6 +331,7 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
   private savedScopes: ChapterScope[] = [];
   private resumedScopes:ChapterScope[]|null=null;
   private resumedResolved=false;
+  private catalogueSubscriptions=new Subscription();
 
   constructor(
     private readonly papers: QuestionPaperRepository,
@@ -340,6 +342,8 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     private readonly usage: AdminUsageService,
   ) {}
   async ngOnInit(): Promise<void> {
+    this.catalogueSubscriptions.add(this.papers.syllabusUpdates().subscribe({next:items=>{this.syllabus=items;this.changeDetector.markForCheck();},error:error=>{this.errorMessage=this.message(error);this.changeDetector.markForCheck();}}));
+    this.catalogueSubscriptions.add(this.papers.templateUpdates().subscribe({next:items=>{this.templates=items;this.changeDetector.markForCheck();},error:()=>{this.templateWarning='Paper templates could not be updated. Reconnect and refresh.';this.changeDetector.markForCheck();}}));
     if (typeof window !== 'undefined') {
       this.viewportQuery = window.matchMedia('(max-width: 640px)');
       this.isCompactViewport = this.viewportQuery.matches;
@@ -350,7 +354,7 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     if(params.get('draftId'))await this.openDraft(params.get('draftId')!);
     else if(params.get('requestId'))await this.resumeRequest(params.get('requestId')!);
   }
-  ngOnDestroy(): void { this.viewportQuery?.removeEventListener('change', this.onViewportChange); }
+  ngOnDestroy(): void { this.catalogueSubscriptions.unsubscribe();this.viewportQuery?.removeEventListener('change', this.onViewportChange); }
   get selectedFormatTitle(): string { return this.paperFormatOptions.find((format) => format.id === this.templateId)?.title ?? this.selectedTemplate?.title ?? 'Saved format'; }
   get filteredChapterCount(): number { return this.chapterOptions.filter((scope) => `${scope.subject} ${scope.chapter}`.toLocaleLowerCase().includes(this.chapterSearch.trim().toLocaleLowerCase())).length; }
   get visibleChapterOptions(): (ChapterScope & { id: string })[] {
@@ -707,4 +711,3 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     return error instanceof Error ? error.message : 'Unable to complete this paper operation. Please try again.';
   }
 }
-

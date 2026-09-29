@@ -211,3 +211,13 @@ Use it to answer:
 - Acceptance: Home and Intent preserve the practice-intelligence direction; Decisions and Question Bank Quality explain curriculum trust; unresolved board/medium/cohort and source-completeness choices remain explicit. Execution details stay outside the wiki.
 - Existing June education-research note remains needs-follow-up, outside this scope; other raw notes were already processed according to the ledger.
 - Project Manager Handoff: continue board-by-board source collection and subject-level review; verify desktop/mobile workflows and protected backend release before production; keep progress and blockers in Action Plan YqzW5nyHsDPlWBhBWMA9 and PR #53. Comprehensive data is not yet complete or approved.
+
+
+### 2026-09-29 - Admin Question Journey And Internal Measurement
+
+- Raw note: `raw/2026-09-29-admin-question-module.md`
+- Status: processed
+- Wiki pages updated: `wiki/Question Bank Quality.md`.
+- Durable memory: one mobile-friendly admin journey, independent written bank maintenance, preserved paper snapshots, demand-based generation and restrained private activity evidence. Observed usability gains remain unproven.
+- Acceptance: the existing Home/Intent strategic context and Decisions/Problems remain intact; the content-quality page explains the new journey without implementation details. Prior June research remains outside this scope.
+- Project Manager Handoff: implementation, maker-checker findings, cross-device validation and release remain tracked in Action Plan MSeIcdBMVfhc08cQM6rv. Review real usage monthly before selecting further improvements.

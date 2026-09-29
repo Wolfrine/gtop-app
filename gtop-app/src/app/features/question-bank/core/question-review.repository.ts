@@ -4,8 +4,8 @@ import {
   doc,
   documentId,
   getCountFromServer,
-  getDoc,
-  getDocs,
+  getDocFromServer as getDoc,
+  getDocsFromServer as getDocs,
   increment,
   limit,
   orderBy,
@@ -460,4 +460,3 @@ export class QuestionReviewRepository {
       );
   }
 }
-

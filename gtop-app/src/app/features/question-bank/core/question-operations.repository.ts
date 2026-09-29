@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
-  collection, doc, documentId, getCountFromServer, getDoc, getDocs, limit,
+  collection, doc, documentId, getCountFromServer, getDocFromServer as getDoc, getDocsFromServer as getDocs, limit,
   orderBy, query, runTransaction, serverTimestamp, startAfter, where,
 } from '@angular/fire/firestore';
 import { FirebaseClient } from './firebase';
@@ -101,24 +101,28 @@ export class QuestionOperationsRepository {
   }
   async typeCounts(scope:SyllabusItem, types:string[]):Promise<{approved:number;pending:number}> {
     types=[...new Set(types.map(normalizeQuestionType))];
-    let quiz=0,written=0,pending=0;
+    const coverage=await this.typeCoverage(scope);
+    return types.reduce((total,type)=>({approved:total.approved+(coverage[type]?.approved??0),pending:total.pending+(coverage[type]?.pending??0)}),{approved:0,pending:0});
+  }
+  async typeCoverage(scope:SyllabusItem):Promise<Record<string,{approved:number;pending:number}>> {
+    const coverage:Record<string,{approved:number;pending:number}>={};
     for(const source of ['questions','devQuestions']) {
       let cursor:string|undefined;
       for(let page=0;page<8;page++) {
         const snapshot=await getDocs(query(collection(this.firebase.firestore,source),...scopeFilters(scope),orderBy(documentId()),...(cursor?[startAfter(cursor)]:[]),limit(501)));
         for(const item of snapshot.docs.slice(0,500)) {
           const raw=item.data();const question=normalizeQuestion(item.id,raw);
-          if(!types.includes(question.questionType))continue;
-          if(source==='questions'&&isUsableQuestion(question))quiz++;
-          else if(raw['reviewStatus']==='approved-paper-only'&&raw['paperOnly']===true&&isUsableQuestion(question))written++;
-          else if(raw['reviewStatus']==='pending-admin-review')pending++;
+          const count=coverage[question.questionType]??(coverage[question.questionType]={approved:0,pending:0});
+          if(source==='questions'&&isUsableQuestion(question))count.approved++;
+          else if(raw['reviewStatus']==='approved-paper-only'&&raw['paperOnly']===true&&isUsableQuestion(question))count.approved++;
+          else if(raw['reviewStatus']==='pending-admin-review')count.pending++;
         }
         if(snapshot.size<=500)break;
         if(page===7)throw new Error('This chapter is too large to verify its type coverage safely. Narrow the request before saving.');
         cursor=snapshot.docs[499].id;
       }
     }
-    return {approved:quiz+written,pending};
+    return coverage;
   }
 
   async forSyllabus(scope: SyllabusItem): Promise<PriorityItem[]> {

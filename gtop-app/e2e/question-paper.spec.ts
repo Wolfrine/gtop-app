@@ -89,6 +89,51 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => environment?.cleanup());
 
+test('persistent bank cache survives reload and reconnects across tabs', async ({ page, context }, testInfo) => {
+  test.skip(!['desktop-chromium','compact-phone-chromium'].includes(testInfo.project.name), 'Persistence is exercised on desktop and the smallest phone.');
+  test.setTimeout(100_000);
+  const cacheBoard=`Cache ${tag}`;const cacheSubject='Cache science';const cacheId=`cache-${tag}`;
+  const original='Which quantity is measured in metres?';const updated='Which SI quantity is measured in metres?';
+  await environment.withSecurityRulesDisabled(async ctx=>{
+    await setDoc(doc(ctx.firestore(),'syllabus',cacheId),{board:cacheBoard,standard:'10',subject:cacheSubject,chapter:'Cached chapter',mcqCount:1});
+    await setDoc(doc(ctx.firestore(),'questions',cacheId),{board:cacheBoard,standard:'10',subject:cacheSubject,chapter:'Cached chapter',question:original,options:['Length','Time'],correctIndex:0,solutions:['Length is measured in metres.'],questionType:'mcq',difficulty:'easy',status:'approved'});
+  });
+  const chooseChapter=async (target:Page)=>{
+    await expect(target.getByRole('heading',{name:'Question bank',exact:true})).toBeVisible({timeout:25_000});
+    await target.getByLabel('Board',{exact:true}).selectOption(cacheBoard);
+    await target.getByLabel('Class',{exact:true}).selectOption('10');
+    await target.getByLabel('Subject',{exact:true}).selectOption(cacheSubject);
+  };
+  await openAdmin(page,'/admin/question-library?persistentCache=1');await chooseChapter(page);
+  await expect(page.locator('.qm-question')).toHaveCount(1);
+  await expect(page.getByText('Checking for updates. Saved results may be incomplete.')).toBeHidden({timeout:15_000});
+  // Keep the app shell and authentication reachable, but make Firestore unavailable.
+  await page.route('http://127.0.0.1:8080/**',route=>route.abort());
+  await page.goto('/admin/question-library?emulator=1&persistentCache=1');await chooseChapter(page);
+  await expect(page.locator('.qm-question')).toContainText(original);
+  await expect(page.getByText('Checking for updates. Saved results may be incomplete.')).toBeVisible();
+  await page.screenshot({path:testInfo.outputPath('bank-cached-reload.png'),fullPage:true});
+  await environment.withSecurityRulesDisabled(async ctx=>{
+    await setDoc(doc(ctx.firestore(),'questions',cacheId),{question:updated},{merge:true});
+  });
+  await expect(page.locator('.qm-question')).toContainText(original);
+  await page.unroute('http://127.0.0.1:8080/**');
+  await page.evaluate(()=>window.dispatchEvent(new Event('online')));
+  await expect(page.locator('.qm-question')).toContainText(updated,{timeout:35_000});
+  await expect(page.getByText('Checking for updates. Saved results may be incomplete.')).toBeHidden({timeout:15_000});
+  const second=await context.newPage();
+  await second.goto('/admin/question-library?emulator=1&persistentCache=1');await chooseChapter(second);
+  await expect(second.locator('.qm-question')).toContainText(updated);
+  await page.getByRole('button',{name:/Add written question/}).click();
+  await page.getByLabel('Question',{exact:true}).fill(`Explain the SI unit of length ${tag}`);
+  await page.getByLabel('Answer / worked solution').fill('The metre is the SI unit of length.');
+  await page.getByRole('button',{name:'Save question',exact:true}).click();
+  await expect(page.getByText('Question saved in the approved bank.',{exact:true})).toBeVisible({timeout:15_000});
+  await second.getByRole('button',{name:/Written \/ paper/}).click();
+  await expect(second.locator('.qm-question')).toContainText(`Explain the SI unit of length ${tag}`);
+  await second.close();
+});
+
 async function openAdmin(page: Page, route: string) {
   const url = new URL(route, 'http://127.0.0.1:4300');
   url.searchParams.set('emulator', '1');

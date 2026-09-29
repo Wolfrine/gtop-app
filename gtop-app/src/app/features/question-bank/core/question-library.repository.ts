@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
-import { collection, doc, documentId, getDocs, limit, orderBy, query, runTransaction, serverTimestamp, startAfter, where } from '@angular/fire/firestore';
+import { collection, doc, documentId, getDocsFromServer as getDocs, limit, orderBy, query, runTransaction, serverTimestamp, startAfter, where } from '@angular/fire/firestore';
 import { currentAcademicYear,curriculumKey } from '../../../services/curriculum.domain';
 import { FirebaseClient } from './firebase';
+import { FirestoreReadService } from '../../../services/firestore-read.service';
+import { map } from 'rxjs';
 import { SyllabusItem } from './models';
 import { normalizeQuestion, type NormalizedQuestion } from './question-paper.domain';
 
@@ -24,7 +26,16 @@ export function libraryScopeFilters(scope:SyllabusItem) {
 }
 @Injectable({providedIn:'root'})
 export class QuestionLibraryRepository {
-  constructor(private readonly firebase:FirebaseClient){}
+  constructor(private readonly firebase:FirebaseClient, private readonly reads:FirestoreReadService){}
+  watch(scope:SyllabusItem, source:'questions'|'devQuestions') {
+    const size=25;
+    return this.reads.watch(query(collection(this.firebase.firestore,source),...libraryScopeFilters(scope),
+      ...(source==='devQuestions'?[where('reviewStatus','==','approved-paper-only'),where('paperOnly','==',true)]:[]),
+      orderBy(documentId()),limit(size+1))).pipe(map(snap=>({
+        items:snap.docs.slice(0,size).map(d=>({...normalizeQuestion(d.id,d.data()),source,revision:bankRevision(d.data())})),
+        next:snap.size>size?snap.docs[size-1].id:null,fromCache:snap.metadata.fromCache,changed:snap.docChanges().length>0,
+    })));
+  }
   async list(scope:SyllabusItem, source:'questions'|'devQuestions', cursor?:string):Promise<{items:LibraryQuestion[];next:string|null}> {
     const snap=await getDocs(query(collection(this.firebase.firestore,source),...libraryScopeFilters(scope),
       ...(source==='devQuestions'?[where('reviewStatus','==','approved-paper-only'),where('paperOnly','==',true)]:[]),

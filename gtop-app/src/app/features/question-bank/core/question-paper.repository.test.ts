@@ -3,12 +3,14 @@ import { describe, expect, it, vi } from 'vitest';
 const documents = vi.hoisted(() => new Map<string, Record<string, unknown>>());
 
 vi.mock('./firebase', () => ({ FirebaseClient: class {} }));
+vi.mock('../../../services/syllabus.service', () => ({ SyllabusService: class {} }));
+vi.mock('../../../services/firestore-read.service', () => ({ FirestoreReadService: class {} }));
 vi.mock('@angular/fire/firestore', () => ({
   collection: vi.fn((_db: unknown, path: string) => ({ path })),
   where: vi.fn((field: string, operator: string, value: unknown) => ({ field, value, operator })),
   limit: vi.fn((max: number) => ({ max })),
   query: vi.fn((ref, ...constraints) => ({ ...ref, constraints })),
-  getDocs: vi.fn(async (request) => {
+  getDocsFromServer: vi.fn(async (request) => {
     const matching = [...documents.entries()].filter(([path, data]) =>
       path.startsWith(request.path + '/') &&
       request.constraints.every((constraint: { field?: string; value?: unknown; operator?: string }) =>
@@ -50,7 +52,7 @@ describe('approved paper question sources', () => {
     documents.set('devQuestions/another-chapter', {
       ...base, chapter: 'Force', paperOnly: true, reviewStatus: 'approved-paper-only',
     });
-    const repository = new QuestionPaperRepository({ firestore: {} } as FirebaseClient);
+    const repository = new QuestionPaperRepository({ firestore: {} } as FirebaseClient, {} as any, {} as any);
     const result = await repository.approvedQuestions('CBSE', '9', [
       { subject: 'Physics', chapter: 'Motion' },
     ]);
@@ -65,7 +67,7 @@ describe('approved paper question sources', () => {
 
 describe('paper request section consistency', () => {
   it('rejects conflicting totals before writing even when syllabus resolution is pending', async () => {
-    const repository = new QuestionPaperRepository({firestore:{}} as FirebaseClient);
+    const repository = new QuestionPaperRepository({firestore:{}} as FirebaseClient, {} as any, {} as any);
     const rules = buildGenerationRules({id:'competency_based_paper'}, ['Science']);
     await expect(repository.requestPaper({title:'Requested paper', board:'CBSE', standard:'10', subjects:['Science'], chapters:[], chapterScopes:[], scopeMode:'full', syllabusResolved:false, academicYear:'2026-27', marks:5, durationMinutes:60, templateId:'competency_based_paper', templateName:'Competency', negativeMarking:0}, rules, 'admin-user', 'request-1')).rejects.toThrow(/section marks must add up/);
   });

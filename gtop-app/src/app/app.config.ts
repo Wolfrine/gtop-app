@@ -7,7 +7,7 @@ import { provideClientHydration } from '@angular/platform-browser';
 
 // Firebase services
 import { provideFirebaseApp, initializeApp, FirebaseApp } from '@angular/fire/app';
-import { provideFirestore, initializeFirestore, persistentLocalCache, connectFirestoreEmulator } from '@angular/fire/firestore';
+import { provideFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator } from '@angular/fire/firestore';
 import { Auth, provideAuth, getAuth, connectAuthEmulator, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -40,7 +40,11 @@ export const appConfig: ApplicationConfig = {
         // Enable Firestore Persistence
         provideFirestore(() => {
             const app = inject(FirebaseApp);
-            const firestore = initializeFirestore(app, useEmulators ? { experimentalForceLongPolling: true } : { localCache: persistentLocalCache() });
+            const persistent = !useEmulators || params.get('persistentCache') === '1';
+            const firestore = initializeFirestore(app, {
+                ...(useEmulators ? { experimentalForceLongPolling: true } : {}),
+                ...(persistent ? { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) } : {}),
+            });
             if (useEmulators) connectFirestoreEmulator(firestore, '127.0.0.1', 8080);
             return firestore;
         }),

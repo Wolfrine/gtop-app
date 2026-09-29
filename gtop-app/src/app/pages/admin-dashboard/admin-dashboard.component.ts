@@ -48,11 +48,4 @@ export class AdminDashboardComponent implements OnInit {
         this.totalMCQs = await this.mcqService.getTotalMCQCount();
     }
 
-    addNewMCQ() {
-        console.log("Redirecting to Add MCQ page...");
-    }
-
-    createQuiz() {
-        console.log("Redirecting to Create Quiz page...");
-    }
 }

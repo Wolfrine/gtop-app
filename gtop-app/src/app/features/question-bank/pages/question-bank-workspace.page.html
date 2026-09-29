@@ -1,16 +1,6 @@
 <div class="page qb-page">
-  <header class="qb-head">
-    <div><p class="eyebrow">Admin · Question module</p><h1>Question bank</h1>
-      <p>Track coverage, direct new questions, and follow them into review and papers.</p></div>
-    <a class="btn btn-primary qb-new-paper" routerLink="/admin/question-paper-generator">Create paper</a>
-  </header>
-
-  <nav class="qb-nav" aria-label="Question module">
-    <a routerLink="/admin/question-paper-generator">Papers</a>
-    <a routerLink="/admin/question-bank" [class.active]="view() === 'coverage'" [attr.aria-current]="view() === 'coverage' ? 'page' : null">Coverage</a>
-    <a routerLink="/admin/question-review">Review</a>
-    <a routerLink="/admin/question-bank" [queryParams]="{view:'bank'}" [class.active]="view() === 'bank'" [attr.aria-current]="view() === 'bank' ? 'page' : null">Bank</a>
-  </nav>
+  <app-question-module-header active="requests" title="Question requests" description="Choose a chapter, set the question types and follow its progress." />
+  <div class="qm-link-tools"><a routerLink="/admin/question-papers">Track paper requests →</a><a routerLink="/admin/question-library">Browse approved questions →</a><a routerLink="/syllabus-preview">Manage syllabus →</a></div>
 
   @if (error()) { <p class="qb-alert" role="alert">{{ error() }}</p> }
   @if (success()) { <p class="qb-success" role="status">{{ success() }}</p> }
@@ -32,14 +22,14 @@
 
   <div class="qb-layout" [class.qb-detail-open]="showDetail()">
     <section class="qb-queue card" aria-label="Question bank priorities">
-      <div class="qb-list-head"><div><span class="eyebrow">Work in progress</span><h2>Priorities</h2></div>
+      <div class="qb-list-head"><div><span class="eyebrow">Work in progress</span><h2>Chapter requests</h2></div>
         <span class="qb-count">{{ filteredPriorities().length }} shown</span></div>
       <div class="qb-filters">
         <input aria-label="Filter priorities" type="search" placeholder="Filter loaded priorities"
           [ngModel]="prioritySearch()" (ngModelChange)="prioritySearch.set($event)" />
         <select aria-label="Priority status" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
-          <option value="active">Active and blocked</option><option value="all">All statuses</option>
-          <option value="open">Creating</option><option value="review">Review</option>
+          <option value="active">Active requests</option><option value="all">All statuses</option>
+          <option value="open">Queued</option><option value="review">Review</option>
           <option value="blocked">Blocked</option><option value="paused">Paused</option><option value="done">Complete</option>
         </select>
       </div>
@@ -65,7 +55,7 @@
 
     <main class="qb-detail" aria-live="polite">
       @if (selectedScope(); as scope) {
-        <div class="qb-mobile-back"><button type="button" class="btn btn-secondary" (click)="back()">← All priorities</button></div>
+        <div class="qb-mobile-back"><button type="button" class="btn btn-secondary" (click)="back()">← All requests</button></div>
         <div class="qb-detail-head"><div><span class="eyebrow">{{ scope.board }} · Class {{ scope.standard }} · {{ scope.subject }}</span>
           <h2>{{ scope.chapter }}</h2></div>
           @if (selectedPriority(); as selected) { <span class="qb-status" [class.blocked]="selected.status === 'blocked'">{{ statusLabel(selected.status) }}</span> }
@@ -77,13 +67,14 @@
             <div><span>Approved for quizzes</span><strong>{{ counts()?.quizApproved ?? '—' }}</strong></div>
             <div><span>Paper only</span><strong>{{ counts()?.paperOnlyApproved ?? '—' }}</strong></div>
             <div><span>Awaiting review</span><strong>{{ counts()?.pending ?? '—' }}</strong></div>
-            <div><span>To reach target*</span><strong>{{ notYetApproved() ?? '—' }}</strong></div>
+            <div><span>{{selectedPriority()?.parentRequestId?'Last checked shortfall':'To reach target*'}}</span><strong>{{ notYetApproved() ?? '—' }}</strong></div>
           </section>
-          <p class="qb-footnote">*Approved shortfall. Pending drafts count as backlog; {{ unassigned() ?? '—' }} more would still be needed if all pending drafts pass.</p>
+          @if(!selectedPriority()?.parentRequestId){<p class="qb-footnote">*For selected question types. Pending drafts count as backlog; {{ unassigned() ?? '—' }} more would still be needed if matching pending drafts pass.</p>}
           @if (selectedPriority()?.status === 'blocked') {
             <div class="qb-blocker"><strong>Creation blocked</strong><p>{{ selectedPriority()?.blocker || 'Resolve this priority before approving its drafts or creating more.' }}</p></div>
           }
-          <section class="card qb-panel">
+          @if(selectedPriority()?.parentRequestId){<p class="qb-muted">This request follows the paper's section plan. <a routerLink="/admin/question-paper-generator" [queryParams]="{requestId:selectedPriority()?.parentRequestId}">Return to its paper →</a></p>}
+          @else {<section class="card qb-panel">
             <div class="qb-panel-heading"><div><span class="eyebrow">Admin direction</span><h3>{{ selectedPriority() ? 'Priority settings' : 'Set a chapter priority' }}</h3></div>
               @if (selectedPriority()?.status === 'open' || selectedPriority()?.status === 'paused') {
                 <button class="btn btn-secondary qb-small-button" type="button" [disabled]="saving()" (click)="togglePause()">{{ selectedPriority()?.status === 'paused' ? 'Resume' : 'Pause' }}</button>
@@ -102,9 +93,9 @@
             <div class="qb-panel-actions"><button class="btn btn-primary" type="button" [disabled]="saving() || selectedPriority()?.status === 'blocked'" (click)="savePriority()">{{ saving() ? 'Saving…' : 'Save priority' }}</button>
               @if (selectedPriority(); as selected) { <a class="btn btn-secondary" routerLink="/admin/question-review" [queryParams]="{priorityId:selected.id}">Review its drafts</a> }
             </div>
-          </section>
+          </section>}
           @if (selectedPriority(); as selected) {
-            <section class="card qb-panel"><div class="qb-panel-heading"><div><span class="eyebrow">Traceable output</span><h3>Created questions</h3></div><span class="qb-count">{{ created().length }} shown</span></div>
+            <details class="card qb-panel qb-created-details"><summary>Created questions <span class="qb-count">{{ created().length }} loaded</span></summary>
               @if (!created().length) { <p class="qb-muted">No linked drafts in this priority yet.</p> }
               <div class="qb-created-list">
                 @for (question of created(); track question.id) {
@@ -113,7 +104,7 @@
                 }
               </div>
               @if (moreCreated()) { <button type="button" class="btn btn-secondary qb-more" (click)="loadMoreCreated()">Load next 25</button> }
-            </section>
+            </details>
             @if (run(); as recentRun) {
               <section class="card qb-panel"><span class="eyebrow">Latest creator run</span><h3>What happened</h3>
                 <p>{{ recentRun['summary'] || recentRun['status'] || 'Run recorded.' }}</p>

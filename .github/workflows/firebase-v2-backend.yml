@@ -1,6 +1,20 @@
 name: GTOP protected Firebase backend
 
 on:
+  workflow_call:
+    inputs:
+      deploy_backend:
+        type: boolean
+        default: false
+      deployment_scope:
+        type: string
+        default: firestore-rules-only
+      allow_planned_rule_change:
+        type: boolean
+        default: false
+    secrets:
+      FIREBASE_SERVICE_ACCOUNT:
+        required: true
   workflow_dispatch:
     inputs:
       deploy_backend:

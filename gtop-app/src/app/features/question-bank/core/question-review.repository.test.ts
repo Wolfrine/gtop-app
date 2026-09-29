@@ -365,6 +365,45 @@ describe('atomic question approval and rejection', () => {
     expect(memory.writes).toEqual([]);
   });
 
+  it('rejects a paper question whose approved syllabus version belongs to another year', async () => {
+    const current = { ...source(), academicYear: '2026-27', curriculumVersionId: 'v1', assessmentPurpose: 'summative' };
+    memory.documents.set('devQuestions/draft-1', current);
+    memory.documents.set('curriculumVersions/v1', {
+      ...scope, academicYear: '2025-26', reviewStatus: 'approved',
+      chapters: [{ title: 'Motion', assessment: 'both' }],
+    });
+    draft = toReviewDraft('draft-1', current);
+    await expect(repository.approve(draft, edits, 'admin-1')).rejects.toThrow('approved syllabus version');
+    expect(memory.writes).toEqual([]);
+  });
+
+  it('keeps formative-only chapters out of summative question approvals', async () => {
+    const current = { ...source(), academicYear: '2026-27', curriculumVersionId: 'v1', assessmentPurpose: 'summative' };
+    memory.documents.set('devQuestions/draft-1', current);
+    memory.documents.set('curriculumVersions/v1', {
+      ...scope, academicYear: '2026-27', reviewStatus: 'approved',
+      chapters: [{ title: 'Motion', assessment: 'formative' }],
+    });
+    draft = toReviewDraft('draft-1', current);
+    await expect(repository.approve(draft, edits, 'admin-1')).rejects.toThrow('assessment scope');
+    expect(memory.writes).toEqual([]);
+    current.assessmentPurpose = 'formative';
+    memory.documents.set('devQuestions/draft-1', current);
+    draft = toReviewDraft('draft-1', current);
+    await repository.approve(draft, edits, 'admin-1');
+    expect(memory.documents.get('questions/draft-1')).toMatchObject({
+      academicYear: '2026-27', curriculumVersionId: 'v1', assessmentPurpose: 'formative',
+    });
+  });
+
+  it('rejects a concurrent syllabus-version change instead of approving unseen metadata', async () => {
+    memory.beforeTransaction = () => memory.documents.set('devQuestions/draft-1', {
+      ...source(), academicYear: '2026-27', curriculumVersionId: 'unseen-version', assessmentPurpose: 'summative',
+    });
+    await expect(repository.approve(draft, edits, 'admin-1')).rejects.toThrow('changed while you were reviewing');
+    expect(memory.writes).toEqual([]);
+  });
+
   it('refuses stale edits if a creator changes the draft while approval is being prepared', async () => {
     memory.beforeTransaction = () =>
       memory.documents.set('devQuestions/draft-1', { ...source(), correctIndex: 2 });

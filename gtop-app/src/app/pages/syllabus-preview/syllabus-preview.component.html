@@ -1,100 +1,83 @@
-<div class="page-container">
-  <header class="header">
-    <h1>Syllabus Preview</h1>
-    <p>Compare new syllabus changes with current system</p>
-    <div class="legend">
-      <app-status-pill type="new"></app-status-pill>
-      <app-status-pill type="existing"></app-status-pill>
-      <app-status-pill type="removed"></app-status-pill>
-    </div>
-    <button mat-raised-button color="primary" (click)="savePreview()">
-      Save Preview
-    </button>
+<div class="catalogue">
+  <header class="catalogue-head"><div><p class="eyebrow">Admin · Curriculum</p><h1>Syllabus review</h1>
+    <p>Verify the year's chapters against official sources, then approve complete subjects.</p></div>
+    <div class="actions"><a routerLink="/admin/question-paper-generator">Create paper</a><a routerLink="/admin/manage-syllabus">Manage question-bank chapters</a></div>
   </header>
-
-  <div class="selection-grid">
-    <div class="selection-card">
-      <h2>Board</h2>
-      <div class="field-wrapper">
-        <select [(ngModel)]="selectedBoard" (change)="onBoardChange()">
-          <option value="" disabled selected>Choose board</option>
-          <option *ngFor="let b of boards" [value]="b">{{ b }}</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="selection-card">
-      <h2>Standard</h2>
-      <div class="field-wrapper">
-        <select [(ngModel)]="selectedStandard" (change)="onStandardChange()" [disabled]="!standards.length">
-          <option value="" disabled selected>Choose class</option>
-          <option *ngFor="let s of standards" [value]="s">{{ s }}</option>
-        </select>
-      </div>
-    </div>
+  <p class="notice">The existing question bank is a starting inventory. Unverified entries are drafts; they do not establish complete coverage for a board or class.</p>
+  <div class="filters">
+    <label>Academic year<input aria-label="Academic year" [(ngModel)]="year" placeholder="2026-27" maxlength="7" /></label>
+    <button type="button" (click)="refresh()" [disabled]="busy">Load year</button>
+    <label>Board<select aria-label="Board" [(ngModel)]="board" (ngModelChange)="filterBoard()"><option value="">All boards</option>@for (item of boards; track item) {<option>{{item}}</option>}</select></label>
+    <label>Standard<select aria-label="Standard" [(ngModel)]="standard"><option value="">All standards</option>@for (item of standards; track item) {<option>{{item}}</option>}</select></label>
+    <label>Subject<input [(ngModel)]="search" placeholder="Find a subject" type="search" /></label>
+    <label>Review status<select [(ngModel)]="status"><option value="all">All subjects</option><option value="draft">Needs review</option><option value="approved">Approved</option></select></label>
   </div>
-
-  <div class="subjects-grid" *ngIf="selectedBoard && selectedStandard">
-    <app-subject-card
-      *ngFor="let sub of subjects"
-      (click)="selectedSubjectName=sub.subject; onSubjectChange()"
-      [selected]="selectedSubjectName===sub.subject"
-      [name]="sub.subject"
-      [chapterCount]="sub.chapters.length"
-      [questionCount]="getSubjectQuestionCount(sub)">
-    </app-subject-card>
-  </div>
-
-  <div class="summary-card" *ngIf="selectedSubject">
-    <app-section-title title="Changes Summary" icon="↕"></app-section-title>
-    <div class="summary-grid">
-      <div class="summary-item" [class.off]="!showNew" (click)="toggleFilter('new')">
-        <div class="summary-count new">{{ getChangesSummary(selectedSubject).new }}</div>
-        <div class="summary-label">New Chapters</div>
+  <div class="stats"><span><b>{{subjects.length}}</b> subjects in inventory</span><span><b>{{approvedCount}}</b> approved for {{year}}</span><span><b>{{selected.size}}</b> selected for approval</span></div>
+  <div class="actions"><button type="button" (click)="requestImport()" [disabled]="busy">Request official syllabus import</button><span>{{board || 'All listed boards'}} · {{standard ? 'Standard ' + standard : 'All listed standards'}} · {{year}}</span></div>
+  @if(imports.length){<details class="changes"><summary>Source import requests ({{imports.length}})</summary>@for(request of imports;track request.id){<p>{{request.board || 'All listed boards'}} · {{request.standard || 'All listed standards'}} · {{request.status}}</p>}</details>}
+  @if (sourceNote) { <p class="source-note">{{sourceNote.note}} <a [href]="sourceNote.sourceUrl" target="_blank" rel="noopener noreferrer">Official curriculum portal ↗</a></p> }
+  @if (busy) { <p role="status">Loading or saving syllabus…</p> }
+  @if (error) { <p class="error" role="alert">{{error}}</p> }
+  @if (message) { <p class="success" role="status">{{message}}</p> }
+  <section class="inventory" aria-label="Subject inventory">
+    <div class="section-heading"><h2>Subjects to verify <span>{{filtered.length}}</span></h2>
+      <button class="primary" type="button" (click)="approve()" [disabled]="busy || !selected.size">Approve selected ({{selected.size}})</button></div>
+    @if (!filtered.length && !busy) { <p class="empty">No subject list has been imported for this selection. Add a subject below or request a full syllabus from the paper creator.</p> }
+    @for (item of filtered; track item.id) {
+      <div class="subject-row"><div><strong>{{item.subject}}</strong><small>{{item.board}} · Standard {{item.standard}} · {{item.academicYear}} @if(item.examYear) { · Exam {{item.examYear}} }</small></div>
+        <div><span class="status" [class.approved]="item.reviewStatus === 'approved'">{{label(item)}}</span><small>{{item.chapters.length}} chapters · {{item.sources.length}} sources</small></div>
+        <div class="actions">@if(selected.has(item.id)) {<button type="button" (click)="unselect(item.id)">Unselect</button>}<button type="button" (click)="preview(item)" [disabled]="busy">Preview & review</button></div>
       </div>
-      <div class="summary-item" [class.off]="!showExisting" (click)="toggleFilter('existing')">
-        <div class="summary-count existing">{{ getChangesSummary(selectedSubject).existing }}</div>
-        <div class="summary-label">Existing</div>
-      </div>
-      <div class="summary-item" [class.off]="!showAbsent" (click)="toggleFilter('absent')">
-        <div class="summary-count absent">{{ getChangesSummary(selectedSubject).absent }}</div>
-        <div class="summary-label">Absent</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="chapters-grid" *ngIf="selectedSubject">
-    <div class="chapter-card" *ngFor="let ch of filteredChapters">
-        <div class="chapter-title">
-          <span>{{ ch.chapterNo ? ch.chapterNo + '. ' : '' }}{{ ch.title }}</span>
-          <div class="title-actions">
-            <button
-              *ngIf="ch.status === 'new'"
-              class="add-btn"
-              (click)="addChapter(ch)"
-              title="Add chapter"
-            >
-              ➕
-            </button>
-            <app-status-pill [type]="ch.status || 'existing'"></app-status-pill>
+    }
+  </section>
+  <details class="new-subject"><summary>Add a missing board, standard or subject</summary><div class="filters">
+    <label>Board name<input [(ngModel)]="newBoard" list="board-names" /><datalist id="board-names">@for(item of boards;track item){<option [value]="item"></option>}</datalist></label>
+    <label>Standard<input aria-label="New standard" [(ngModel)]="newStandard" /></label><label>Subject<input aria-label="New subject" [(ngModel)]="newSubject" /></label>
+    <button type="button" (click)="newDraft()" [disabled]="busy">Create draft</button>
+  </div></details>
+  @if (editor; as item) {
+    <section id="subject-preview" class="preview" aria-label="Subject preview">
+      <div class="section-heading"><div><p class="eyebrow">{{item.board}} · Standard {{item.standard}} · {{item.academicYear}}</p><h2>{{item.subject}}</h2></div><span class="status">{{dirty ? 'Unsaved changes' : label(item)}}</span></div>
+      <p class="notice">Approval publishes a new subject version. Earlier versions and existing questions remain available in history. Chapter lists are separate from question availability.</p>
+      <fieldset [disabled]="busy"><legend>Source and review details</legend>
+        <div class="filters"><label>Programme / textbook edition<input [(ngModel)]="item.programme" (ngModelChange)="edit()" /></label><label>Exam year, if applicable<input [(ngModel)]="item.examYear" (ngModelChange)="edit()" /></label></div>
+        @for (source of item.sources; track i; let i = $index) {
+          <div class="source"><div class="filters"><label>Official source title<input [(ngModel)]="source.title" (ngModelChange)="edit()" /></label><label>Applicable year<input [(ngModel)]="source.year" (ngModelChange)="edit()" /></label></div>
+            <label>Official HTTPS link<input [(ngModel)]="source.url" (ngModelChange)="edit()" type="url" /></label>
+            <label>Page / section locator<input [(ngModel)]="source.locator" (ngModelChange)="edit()" /></label>
+            <div class="actions">@if(source.url.startsWith('https://')){<a [href]="source.url" target="_blank" rel="noopener noreferrer">Open source ↗</a>}<button type="button" (click)="item.sources.splice(i,1); edit()">Remove source</button></div>
           </div>
-        </div>
-      <div class="chapter-content">
-        <div class="chapter-count">
-          <span class="icon">📄</span>
-          <div>{{ ch.mcqCount || 0 }}</div>
-        </div>
-        <div *ngIf="ch.status === 'new'" class="chapter-new">
-          ✨ New chapter - needs mapping to current system
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="empty" *ngIf="!selectedBoard || !selectedStandard">
-    Select Board and Standard to view subjects
-  </div>
-  <div class="empty" *ngIf="selectedBoard && selectedStandard && !selectedSubject">
-    Select a Subject to view chapters
-  </div>
+        }
+        <button type="button" (click)="addSource()">Add official source</button>
+        <label>Correction and verification notes<textarea [(ngModel)]="item.notes" (ngModelChange)="edit()" rows="3"></textarea></label>
+        <label>Official weightage, practical and assessment notes<textarea [(ngModel)]="item.assessmentNotes" (ngModelChange)="edit()" rows="3" placeholder="Record only published weightage and assessment requirements"></textarea></label>
+        <div class="filters"><label>Source verification<select [(ngModel)]="item.sourceStatus" (ngModelChange)="edit()"><option value="unverified">Not verified</option><option value="official-source">Verified against official sources</option></select></label>
+          <label>Subject completeness<select [(ngModel)]="item.completeness" (ngModelChange)="edit()"><option value="incomplete">Incomplete / needs checking</option><option value="complete">All chapters and topics checked</option></select></label></div>
+        <h3>Chapters and topics</h3><p>{{chapterCount(item)}} chapters apply to summative assessment. Formative-only chapters are listed separately by their scope.</p>
+        @for(chapter of item.chapters;track i;let i=$index){
+          <details class="chapter"><summary><span>{{i+1}}. {{chapter.title || 'New chapter'}}</span><small>{{chapter.assessment}} · {{chapter.topics.length}} topics</small></summary>
+            <label>Chapter title<input [(ngModel)]="chapter.title" (ngModelChange)="edit()" /></label>
+            @if(chapter.publishedMarks !== undefined){<p>Official theory weightage: {{chapter.publishedMarks}} marks. The paper's section plan must be checked separately.</p>}
+            <label>Topics, one per line<textarea [ngModel]="chapter.topics.join('\n')" (ngModelChange)="topics(i,$event)" rows="4"></textarea></label>
+            <label>Additional formative-only topics, one per line<textarea [ngModel]="(chapter.formativeTopics || []).join('\n')" (ngModelChange)="formativeTopics(i,$event)" rows="2"></textarea></label>
+            <label>Assessment scope<select [(ngModel)]="chapter.assessment" (ngModelChange)="edit()"><option value="both">Summative and formative</option><option value="summative">Summative only</option><option value="formative">Formative only</option></select></label>
+            <label>Existing bank aliases, one “Subject | Chapter” per line<textarea [ngModel]="aliasText(i)" (ngModelChange)="aliases(i,$event)" rows="2"></textarea></label><p class="muted">Only map names that you have checked refer to the same syllabus content.</p>
+            <button type="button" (click)="removeChapter(i)">Remove from this draft</button>
+          </details>
+        }
+        <button type="button" (click)="addChapter()">Add chapter</button>
+      </fieldset>
+      <details class="changes"><summary>Changes from the last approved version</summary><p>Added: {{changes.added.join(', ') || 'None'}}</p><p>Removed: {{changes.removed.join(', ') || 'None'}}</p><p>Content / scope changed: {{changes.changed.join(', ') || 'None'}}</p></details>
+      @if(omittedBankChapters.length){<p class="notice">Existing bank chapters absent from this draft: {{omittedBankChapters.join(', ')}}. Their questions will be preserved; check whether an alias or a curriculum change explains the difference.</p>}
+      @if(errors(item).length){<ul class="validation">@for(issue of errors(item);track issue){<li>{{issue}}</li>}</ul>}
+      <div class="review-actions"><button type="button" class="primary" (click)="save()" [disabled]="busy || (!dirty && item.revision > 0)">Save draft</button>
+        <label class="check"><input type="checkbox" [(ngModel)]="checked" [disabled]="busy || dirty || !item.revision || errors(item).length > 0 || item.reviewStatus === 'approved'" />I reviewed the sources, year, complete chapter list, topics and assessment scope.</label>
+        <button type="button" (click)="markReviewed()" [disabled]="!checked || busy || dirty">Select for approval</button></div>
+      <details class="history"><summary (click)="loadHistory()">Approved version history</summary>
+        @if(!history.length){<p>No earlier approved versions.</p>}
+        @for(version of history;track version.versionId){<button type="button" (click)="viewedHistory = version">Revision {{version.revision}} · {{version.chapters.length}} chapters</button>}
+        @if(viewedHistory;as previous){<p>Approved by {{previous.approvedBy}} · Version {{previous.versionId}}</p><ol>@for(chapter of previous.chapters;track $index){<li>{{chapter.title}} ({{chapter.assessment}})<p>{{chapter.topics.join('; ')}}</p></li>}</ol>}
+      </details>
+    </section>
+  }
 </div>

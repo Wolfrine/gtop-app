@@ -1,6 +1,6 @@
 import type { Question } from './models';
 
-export interface ChapterScope { subject: string; chapter: string; }
+export interface ChapterScope { subject: string; chapter: string; curriculumVersionId?: string; bankAliases?: {subject: string; chapter: string}[]; }
 export interface QuestionPaperTemplateSection {
   id?: string;
   title?: string;
@@ -128,6 +128,12 @@ export interface PaperGenerationSetup {
   templateId: string;
   templateName: string;
   negativeMarking: number;
+  academicYear?: string;
+  scopeMode?: 'selected' | 'full' | 'custom';
+  assessmentPurpose?: 'summative' | 'formative' | 'both';
+  curriculumVersionIds?: string[];
+  syllabusResolved?: boolean;
+  syllabusNotes?: string;
 }
 export interface PaperDraftPayload extends PaperGenerationSetup {
   schemaVersion: number;
@@ -347,6 +353,52 @@ export function buildGenerationRules(
 export function ruleMarks(rules: GenerationRule[]): number {
   return rules.reduce((sum, rule) => sum + rule.requiredCount * rule.marksPerQuestion, 0);
 }
+/** Resize a plan without deleting sections or changing their question types/mark values. */
+export function resizeGenerationRules(rules: GenerationRule[], targetMarks: number): GenerationRule[] {
+  if (!Number.isInteger(targetMarks) || targetMarks < 1 || targetMarks > 2000) {
+    throw new Error('Set a whole paper total between 1 and 2,000 marks.');
+  }
+  if (!rules.length || rules.some(rule => !Number.isInteger(rule.marksPerQuestion) || rule.marksPerQuestion < 1 ||
+    rule.marksPerQuestion > 20 || !Number.isInteger(rule.requiredCount) || rule.requiredCount < 1)) {
+    throw new Error('Set valid section counts and marks before changing the paper total.');
+  }
+  const minimum = rules.reduce((sum, rule) => sum + rule.marksPerQuestion, 0);
+  if (targetMarks < minimum) throw new Error(`Use at least ${minimum} marks to keep every section. The section plan has not changed.`);
+  const total = ruleMarks(rules);
+  // Find an exact whole-question allocation closest to the existing proportions.
+  // At least one question stays in every section, including written/case sections.
+  let costs = new Array<number>(targetMarks + 1).fill(Infinity);
+  costs[0] = 0;
+  const choices: number[][] = [];
+  for (const rule of rules) {
+    const next = new Array<number>(targetMarks + 1).fill(Infinity);
+    const chosen = new Array<number>(targetMarks + 1).fill(0);
+    const ideal = rule.requiredCount * targetMarks / total;
+    for (let subtotal = 0; subtotal <= targetMarks; subtotal++) {
+      if (!Number.isFinite(costs[subtotal])) continue;
+      const maximum = Math.min(400, Math.floor((targetMarks - subtotal) / rule.marksPerQuestion));
+      for (let count = 1; count <= maximum; count++) {
+        const marks = subtotal + count * rule.marksPerQuestion;
+        const cost = costs[subtotal] + (count - ideal) ** 2 / Math.max(1, ideal);
+        if (cost < next[marks]) { next[marks] = cost; chosen[marks] = count; }
+      }
+    }
+    choices.push(chosen); costs = next;
+  }
+  if (!Number.isFinite(costs[targetMarks])) {
+    throw new Error('This total cannot fit the current marks per question. Choose another total or edit the section marks. The section plan has not changed.');
+  }
+  const resized = structuredClone(rules);
+  let remaining = targetMarks;
+  for (let index = rules.length - 1; index >= 0; index--) {
+    resized[index].requiredCount = choices[index][remaining];
+    remaining -= resized[index].requiredCount * resized[index].marksPerQuestion;
+  }
+  if (resized.reduce((sum, rule) => sum + rule.requiredCount, 0) > 400) {
+    throw new Error('This total needs more than 400 questions. Reduce the total or increase the section marks. The section plan has not changed.');
+  }
+  return resized;
+}
 export function setupFingerprint(setup: PaperGenerationSetup, rules: GenerationRule[]): string {
   return JSON.stringify({ ...setup, subjects: [...setup.subjects].sort(), chapters: [...setup.chapters].sort(),
     chapterScopes: [...setup.chapterScopes].sort((a, b) => chapterKey(a).localeCompare(chapterKey(b))), rules });
@@ -385,12 +437,7 @@ export function validatePaperDraft(draft: PaperDraftPayload): string {
   }
   return '';
 }
-export function validatePaperSetup(setup: PaperGenerationSetup, rules: GenerationRule[]): string {
-  if (!setup.board || !setup.standard) return 'Select a board and standard.';
-  if (!setup.subjects.length) return 'Select at least one subject.';
-  if (!setup.chapterScopes.length) return 'Select at least one chapter.';
-  if (setup.chapterScopes.length > 60) return 'Select up to 60 chapters for one paper.';
-  if (!setup.title.trim()) return 'Enter a title for the paper.';
+export function validatePaperStructure(setup: Pick<PaperGenerationSetup, 'marks' | 'durationMinutes'>, rules: GenerationRule[]): string {
   if (!Number.isInteger(setup.durationMinutes) || setup.durationMinutes < 1 || setup.durationMinutes > 360) {
     return 'Set a duration between 1 and 360 minutes.';
   }
@@ -401,6 +448,16 @@ export function validatePaperSetup(setup: PaperGenerationSetup, rules: Generatio
   if (rules.reduce((sum, rule) => sum + rule.requiredCount, 0) > 400) return 'Use up to 400 questions per paper.';
   if (ruleMarks(rules) !== setup.marks) return 'The section marks must add up to the paper total.';
   if (setup.marks < 1 || setup.marks > 2000) return 'Set a paper total between 1 and 2,000 marks.';
+  return '';
+}
+export function validatePaperSetup(setup: PaperGenerationSetup, rules: GenerationRule[]): string {
+  if (!setup.board || !setup.standard) return 'Select a board and standard.';
+  if (!setup.subjects.length) return 'Select at least one subject.';
+  if (!setup.chapterScopes.length) return 'Select at least one chapter.';
+  if (setup.chapterScopes.length > 60) return 'Select up to 60 chapters for one paper.';
+  if (!setup.title.trim()) return 'Enter a title for the paper.';
+  const structureError = validatePaperStructure(setup, rules);
+  if (structureError) return structureError;
   if (setup.chapterScopes.some((scope) => !setup.subjects.some((subject) => scopeValue(subject) === scopeValue(scope.subject)))) {
     return 'Every selected chapter must belong to a selected subject.';
   }
@@ -421,6 +478,7 @@ function matches(question: NormalizedQuestion, rule: GenerationRule, scope: Chap
       requirement.competencyTags.every((tag) => question.competencyTags.includes(tag))) :
       rule.questionTypes.includes('any') || rule.questionTypes.includes(question.questionType)) &&
     (!rule.objectiveOnly || question.options.length >= 2) &&
+    (question.options.length >= 2 || question.marks === rule.marksPerQuestion) &&
     (rule.difficulty === 'any' || normalizeDifficulty(rule.difficulty) === question.difficulty) &&
     rule.competencyTags.every((tag) => question.competencyTags.includes(token(tag)));
 }

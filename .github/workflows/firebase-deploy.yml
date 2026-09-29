@@ -25,8 +25,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  reviewed-backend:
+    if: github.ref_name == 'main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.target == 'production' && inputs.confirm_production))
+    uses: ./.github/workflows/firebase-v2-backend.yml
+    with:
+      deploy_backend: true
+      deployment_scope: firestore-rules-only
+      allow_planned_rule_change: true
+    secrets: inherit
+
   build-and-deploy:
+    needs: reviewed-backend
     if: >-
+      always() && !cancelled() && (needs.reviewed-backend.result == 'success' || needs.reviewed-backend.result == 'skipped') &&
       (github.event_name != 'push' || github.event.head_commit != null) &&
       (github.event_name != 'workflow_dispatch' || inputs.target != 'production' || inputs.confirm_production)
     runs-on: ubuntu-latest

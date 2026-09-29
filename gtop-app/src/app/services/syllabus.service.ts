@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, doc, getCountFromServer, getDocs, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, doc, getCountFromServer, getDocs, onSnapshot, query, runTransaction, serverTimestamp, setDoc, updateDoc, where, writeBatch } from '@angular/fire/firestore';
 import { BehaviorSubject } from 'rxjs';
 
 export interface SyllabusItem {
@@ -28,7 +28,7 @@ export class SyllabusService {
             const syllabus: SyllabusItem[] = snapshot.docs.map(doc => ({
                 id: doc.id,
                 board: doc.data()['board'],
-                standard: doc.data()['standard'],
+                standard: String(doc.data()['standard']),
                 subject: doc.data()['subject'],
                 chapter: doc.data()['chapter'],
                 mcqCount: doc.data()['mcqCount'] || 0 // ✅ Fetch mcqCount, default 0
@@ -39,8 +39,8 @@ export class SyllabusService {
 
     // Optional: Manual refresh
     async refreshSyllabus() {
-        const snapshot = await collectionData(this.syllabusCollection, { idField: 'id' }).toPromise();
-        this.syllabus$.next(snapshot as SyllabusItem[]);
+        const snapshot = await getDocs(this.syllabusCollection);
+        this.syllabus$.next(snapshot.docs.map(item => ({ ...item.data(), id:item.id, standard:String(item.data()['standard']) })) as SyllabusItem[]);
     }
 
     async updateSyllabusCountsFromIndexedDB() {
@@ -141,36 +141,19 @@ export class SyllabusService {
     }
 
     async insertComboIfNotExists(board: string, standard: string, subject: string, chapter: string): Promise<void> {
-    const existing = this.syllabus$.value.find(item =>
-        item.board === board &&
-        item.standard === standard &&
-        item.subject === subject &&
-        item.chapter === chapter
-    );
-
-    if (!existing) {
-        if (!board || !standard || !subject || !chapter) {
-            console.error('Cannot insert syllabus combo. One or more fields are undefined:', {
-                board,
-                standard,
-                subject,
-                chapter
-            });
-            return;
-        }
-
-        const syllabusRef = doc(collection(this.firestore, 'syllabus'));
-        await setDoc(syllabusRef, {
-            board,
-            standard,
-            subject,
-            chapter,
-            mcqCount: 0,
-            createdAt: serverTimestamp()
+        board = board.trim(); standard = String(standard).trim(); subject = subject.trim(); chapter = chapter.trim();
+        if (!board || !standard || !subject || !chapter) throw new Error('A complete syllabus scope is required.');
+        const matches = await getDocs(query(this.syllabusCollection, where('board','==',board),
+            where('standard','in',/^\d+$/.test(standard) ? [standard,Number(standard)] : [standard]),
+            where('subject','==',subject), where('chapter','==',chapter)));
+        if (!matches.empty) return;
+        const id = 'scope-' + [board,standard,subject,chapter].map(encodeURIComponent).join('~');
+        const ref = doc(this.syllabusCollection,id);
+        await runTransaction(this.firestore, async transaction => {
+            const current = await transaction.get(ref);
+            if (!current.exists()) transaction.set(ref,{board,standard,subject,chapter,mcqCount:0,createdAt:serverTimestamp()});
         });
     }
-}
-
 
     async updateMcqCountForCombo(board: string, standard: string, subject: string, chapter: string): Promise<void> {
         const syllabusQuery = query(

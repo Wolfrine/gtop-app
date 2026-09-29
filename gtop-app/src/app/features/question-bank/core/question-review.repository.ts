@@ -50,6 +50,9 @@ export interface ReviewDraft extends ReviewEdits {
   priorityStatus: string;
   priorityBlocker: string;
   version: string;
+  academicYear?: string;
+  assessmentPurpose?: string;
+  curriculumVersionId?: string;
 }
 
 export interface ReviewQueue {
@@ -72,6 +75,7 @@ export function reviewVersion(raw: Record<string, unknown>): string {
     raw['reviewStatus'],
     ...scopeFields.map((field) => raw[field]),
     raw['sourceSyllabusId'],
+    raw['academicYear'], raw['assessmentPurpose'], raw['curriculumVersionId'], raw['parentRequestId'],
     raw['title'],
     raw['question'],
     raw['options'],
@@ -112,6 +116,7 @@ export function toReviewDraft(id: string, raw: Record<string, unknown>): ReviewD
     difficulty: normalized.difficulty,
     assets: normalized.assets,
     sourceSyllabusId: textValue(raw['sourceSyllabusId']),
+    academicYear: textValue(raw['academicYear']), assessmentPurpose: textValue(raw['assessmentPurpose']), curriculumVersionId: textValue(raw['curriculumVersionId']),
     sourceTemplateId: textValue(raw['sourceTemplateId']),
     contentPurpose: textValue(raw['contentPurpose']),
     reviewNotes: textValue(raw['reviewNotes']),
@@ -193,11 +198,12 @@ export function reviewErrorMessage(error: unknown): string {
 export class QuestionReviewRepository {
   constructor(private readonly firebase: FirebaseClient) {}
 
-  async pending(max = 50, cursor?: string, priorityId?: string): Promise<ReviewQueue> {
+  async pending(max = 50, cursor?: string, priorityId?: string, parentRequestId?:string): Promise<ReviewQueue> {
     const pageLimit = Number.isFinite(max) ? Math.max(1, Math.min(100, Math.floor(max))) : 50;
     if (priorityId && priorityId.includes('/')) throw new Error('The priority reference is invalid.');
     const filters = [where('reviewStatus', '==', pendingStatus),
-      ...(priorityId ? [where('sourcePriorityId', '==', priorityId)] : [])];
+      ...(priorityId ? [where('sourcePriorityId', '==', priorityId)] : []),
+      ...(parentRequestId?[where('parentRequestId','==',parentRequestId)]:[])];
     const scope = query(collection(this.firebase.firestore, 'devQuestions'), ...filters);
     const snapshot = await getDocs(
       query(
@@ -250,6 +256,8 @@ export class QuestionReviewRepository {
     const syllabusRef = doc(this.firebase.firestore, 'syllabus', syllabusId);
     const priorityId = textValue(raw['sourcePriorityId']);
     const priorityRef = priorityId ? doc(this.firebase.firestore, 'questionBankPriorityItems', priorityId) : null;
+    const requestId=textValue(raw['parentRequestId']);
+    const parentRef=requestId?doc(this.firebase.firestore,'paperRequests',requestId):null;
     const content: ReviewEdits = {
       title: edits.title.trim(),
       question: edits.question.trim(),
@@ -284,6 +292,7 @@ export class QuestionReviewRepository {
       const existing = await transaction.get(bankRef);
       const syllabus = await transaction.get(syllabusRef);
       const priority = priorityRef ? await transaction.get(priorityRef) : null;
+      const parent=parentRef?await transaction.get(parentRef):null;
       if (!current.exists())
         throw new Error('This draft no longer exists. Refresh the review queue.');
       const fresh = current.data();
@@ -303,6 +312,22 @@ export class QuestionReviewRepository {
         throw new Error('The source priority is missing. Restore its context before approval.');
       if (priority?.data()?.['status'] === 'blocked')
         throw new Error('This priority is blocked. Resolve its syllabus or reference issue before approving its questions.');
+      const requiredVersion = textValue(priority?.data()?.['curriculumVersionId']);
+      const versionId = textValue(fresh['curriculumVersionId']);
+      if (requiredVersion && requiredVersion !== versionId)
+        throw new Error('This question is missing the syllabus version required by its paper request.');
+      if (versionId) {
+        const version = await transaction.get(doc(this.firebase.firestore,'curriculumVersions',versionId));
+        const value = version.data();
+        const chapter = Array.isArray(value?.['chapters']) ? value!['chapters'].find((item: {title:string}) => item.title === fresh['chapter']) : undefined;
+        const purpose = textValue(fresh['assessmentPurpose']);
+        if (!value || value['reviewStatus'] !== 'approved' || !chapter ||
+          ['board','standard','subject','academicYear'].some(field => textValue(fresh[field]) !== textValue(value[field])) ||
+          !['summative','formative','both'].includes(purpose) ||
+          (chapter.assessment === 'formative' && purpose !== 'formative') ||
+          (chapter.assessment === 'summative' && purpose !== 'summative'))
+          throw new Error('The question does not match its approved syllabus version and assessment scope. Ask its creator to correct it.');
+      }
       if (typeof fresh['boardStandardCheck'] === 'object' && fresh['boardStandardCheck'] !== null &&
         (fresh['boardStandardCheck'] as Record<string, unknown>)['matched'] === false)
         throw new Error('This draft did not pass its board and standard check.');
@@ -353,6 +378,8 @@ export class QuestionReviewRepository {
         transaction.update(syllabusRef, { mcqCount: increment(1), updatedAt: serverTimestamp() });
       }
       transaction.update(sourceRef, { ...canonicalScope, ...content, ...audit });
+      if(priorityRef&&priority?.exists())transaction.update(priorityRef,{needsCoverageCheck:true,updatedAt:serverTimestamp()});
+      if(parentRef&&parent?.exists()&&!['cancelled','completed'].includes(parent.data()['status']))transaction.update(parentRef,{needsCoverageCheck:true,status:'awaiting-coverage',updatedAt:serverTimestamp()});
       return { questionId: draft.id, alreadyApproved: false };
     });
   }
@@ -369,6 +396,12 @@ export class QuestionReviewRepository {
       if (!current.exists())
         throw new Error('This draft no longer exists. Refresh the review queue.');
       this.requirePendingVersion(current.data(), draft);
+      const priorityId=textValue(current.data()['sourcePriorityId']);const parentId=textValue(current.data()['parentRequestId']);
+      const priorityRef=priorityId?doc(this.firebase.firestore,'questionBankPriorityItems',priorityId):null;
+      const parentRef=parentId?doc(this.firebase.firestore,'paperRequests',parentId):null;
+      const priority=priorityRef?await transaction.get(priorityRef):null;const parent=parentRef?await transaction.get(parentRef):null;
+      if(priorityRef&&priority?.exists()&&!['paused','blocked','done'].includes(priority.data()['status'])&&(!parent?.exists()||!['cancelled','completed'].includes(parent.data()['status'])))transaction.update(priorityRef,{status:'open',needsCoverageCheck:true,updatedAt:serverTimestamp()});
+      if(parentRef&&parent?.exists()&&!['cancelled','completed'].includes(parent.data()['status']))transaction.update(parentRef,{needsCoverageCheck:true,status:'awaiting-coverage',updatedAt:serverTimestamp()});
       transaction.update(sourceRef, {
         reviewStatus: 'rejected',
         status: 'rejected',
@@ -427,3 +460,4 @@ export class QuestionReviewRepository {
       );
   }
 }
+

@@ -5,7 +5,8 @@ import {
 } from '@angular/fire/firestore';
 import { FirebaseClient } from './firebase';
 import { type SyllabusItem } from './models';
-import { normalizeQuestion, textValue } from './question-paper.domain';
+import { libraryScopeFilters } from './question-library.repository';
+import { isUsableQuestion, normalizeQuestion, normalizeQuestionType, textValue } from './question-paper.domain';
 
 export interface PriorityItem {
   id: string;
@@ -18,8 +19,10 @@ export interface PriorityItem {
   priority: string;
   status: string;
   source: string;
+  parentRequestId: string;
   requiredCount: number;
   availableCount: number;
+  gapCount: number;
   pendingCount: number | null;
   stagedCount: number;
   blocker: string;
@@ -53,8 +56,7 @@ export interface CreatedQuestionRow extends BankRow {
 }
 
 function scopeFilters(scope: SyllabusItem) {
-  return [where('board', '==', scope.board), where('standard', '==', scope.standard),
-    where('subject', '==', scope.subject), where('chapter', '==', scope.chapter)];
+  return libraryScopeFilters(scope);
 }
 
 function toPriority(id: string, data: Record<string, unknown>): PriorityItem {
@@ -67,8 +69,9 @@ function toPriority(id: string, data: Record<string, unknown>): PriorityItem {
     questionTypes: Array.isArray(data['questionTypes'])
       ? data['questionTypes'].map(textValue) : [textValue(data['questionType'])].filter(Boolean),
     priority: textValue(data['priority']) || 'medium', status: textValue(data['status']) || 'open',
-    source: textValue(data['source']), requiredCount: Number(data['requiredCount']) || 0,
+    source: textValue(data['source']), parentRequestId:textValue(data['parentRequestId']), requiredCount: Number(data['requiredCount']) || 0,
     availableCount: Number(data['availableCount']) || 0,
+    gapCount: Number.isFinite(Number(data['gapCount']))?Math.max(0,Number(data['gapCount'])):Math.max(0,(Number(data['requiredCount'])||0)-(Number(data['availableCount'])||0)),
     pendingCount: typeof progress['pendingDraftCount'] === 'number'
       ? progress['pendingDraftCount'] as number : null,
     stagedCount: Number(progress['stagedCount']) || Number(data['generatedCount']) || 0,
@@ -82,13 +85,40 @@ function toPriority(id: string, data: Record<string, unknown>): PriorityItem {
 export class QuestionOperationsRepository {
   constructor(private readonly firebase: FirebaseClient) {}
 
-  async priorities(cursor?: string, max = 50): Promise<{ items: PriorityItem[]; nextCursor: string | null }> {
+  async priorities(cursor?: string, max = 50, parentRequestId?:string): Promise<{ items: PriorityItem[]; nextCursor: string | null }> {
     const pageSize = Math.min(100, Math.max(1, max));
     const snapshot = await getDocs(query(collection(this.firebase.firestore, 'questionBankPriorityItems'),
-      orderBy(documentId()), ...(cursor ? [startAfter(cursor)] : []), limit(pageSize + 1)));
+      ...(parentRequestId?[where('parentRequestId','==',parentRequestId)]:[]), orderBy(documentId()), ...(cursor ? [startAfter(cursor)] : []), limit(pageSize + 1)));
     const visible = snapshot.docs.slice(0, pageSize);
     return { items: visible.map((item) => toPriority(item.id, item.data())),
       nextCursor: snapshot.size > pageSize ? visible.at(-1)?.id ?? null : null };
+  }
+
+  async priority(id:string):Promise<PriorityItem|null> {
+    if(!id||id.includes('/'))return null;
+    const result=await getDoc(doc(this.firebase.firestore,'questionBankPriorityItems',id));
+    return result.exists()?toPriority(result.id,result.data()):null;
+  }
+  async typeCounts(scope:SyllabusItem, types:string[]):Promise<{approved:number;pending:number}> {
+    types=[...new Set(types.map(normalizeQuestionType))];
+    let quiz=0,written=0,pending=0;
+    for(const source of ['questions','devQuestions']) {
+      let cursor:string|undefined;
+      for(let page=0;page<8;page++) {
+        const snapshot=await getDocs(query(collection(this.firebase.firestore,source),...scopeFilters(scope),orderBy(documentId()),...(cursor?[startAfter(cursor)]:[]),limit(501)));
+        for(const item of snapshot.docs.slice(0,500)) {
+          const raw=item.data();const question=normalizeQuestion(item.id,raw);
+          if(!types.includes(question.questionType))continue;
+          if(source==='questions'&&isUsableQuestion(question))quiz++;
+          else if(raw['reviewStatus']==='approved-paper-only'&&raw['paperOnly']===true&&isUsableQuestion(question))written++;
+          else if(raw['reviewStatus']==='pending-admin-review')pending++;
+        }
+        if(snapshot.size<=500)break;
+        if(page===7)throw new Error('This chapter is too large to verify its type coverage safely. Narrow the request before saving.');
+        cursor=snapshot.docs[499].id;
+      }
+    }
+    return {approved:quiz+written,pending};
   }
 
   async forSyllabus(scope: SyllabusItem): Promise<PriorityItem[]> {
@@ -114,17 +144,20 @@ export class QuestionOperationsRepository {
   }
 
   async setGrowthPriority(scope: SyllabusItem, target: number, priority: string,
-    questionTypes: string[], actorId: string): Promise<string> {
+    questionTypes: string[], actorId: string, existingPriorityId?:string): Promise<string> {
     if (!actorId || actorId === 'admin') throw new Error('Sign in again to set a priority.');
     if (!Number.isInteger(target) || target < 1 || target > 100000)
       throw new Error('Choose a target between 1 and 100,000 questions.');
     if (!['critical', 'high', 'medium', 'low'].includes(priority)) throw new Error('Choose a priority level.');
+    questionTypes=[...new Set(questionTypes.map(normalizeQuestionType))];
     if (!questionTypes.length) throw new Error('Select at least one question type.');
-    const coverage = await this.counts(scope);
-    const approved = coverage.quizApproved + coverage.paperOnlyApproved;
+    const coverage = await this.typeCounts(scope,questionTypes);
+    const approved = coverage.approved;
+    const typeKey=(types:string[])=>[...new Set(types.map(normalizeQuestionType))].sort().join('_');
     const existing = (await this.forSyllabus(scope)).find((item) =>
-      item.source !== 'admin-question-paper-generator' && item.status !== 'done');
-    const id = existing?.id ?? `growth-${scope.id}`;
+      item.source === 'admin-question-bank-growth' && item.status !== 'done' && typeKey(item.questionTypes)===typeKey(questionTypes));
+    const id = existingPriorityId ?? existing?.id ?? doc(collection(this.firebase.firestore,'questionBankPriorityItems')).id;
+    if(id.includes('/'))throw new Error('The priority reference is invalid.');
     const sourceRef = doc(this.firebase.firestore, 'questionBankPriorityItems', id);
     const syllabusRef = doc(this.firebase.firestore, 'syllabus', scope.id);
     await runTransaction(this.firebase.firestore, async (tx) => {
@@ -133,6 +166,8 @@ export class QuestionOperationsRepository {
       if (!syllabus.exists() || ['board', 'standard', 'subject', 'chapter'].some((field) =>
         textValue(syllabus.data()[field]) !== scope[field as keyof SyllabusItem]))
         throw new Error('The syllabus changed. Refresh and select the chapter again.');
+      if(!existingPriorityId&&current.exists()&&typeKey(toPriority(id,current.data()).questionTypes)!==typeKey(questionTypes))throw new Error('Another admin changed this request’s question types. Refresh before saving.');
+      if(current.exists()&&(current.data()['source']!=='admin-question-bank-growth'||current.data()['parentRequestId']||['board','standard','subject','chapter'].some(field=>String(current.data()[field])!==String(scope[field as keyof SyllabusItem]))))throw new Error('This request belongs to another scope or paper. Refresh before editing.');
       if (current.exists() && current.data()['status'] === 'blocked')
         throw new Error('This priority is blocked. Resolve its syllabus or reference issue first.');
       const fields = {
@@ -141,7 +176,7 @@ export class QuestionOperationsRepository {
         chapter: scope.chapter, chapters: [scope.chapter], sourceSyllabusId: scope.id,
         questionType: questionTypes[0], questionTypes, acceptableQuestionTypes: questionTypes,
         requiredCount: target, availableCount: approved,
-        gapCount: Math.max(0, target - approved), priority, status: 'open', updatedBy: actorId,
+        gapCount: Math.max(0, target - approved), pendingCount:coverage.pending, generationDeficit:Math.max(0,target-approved-coverage.pending), priority, status:approved>=target?'done':coverage.pending>=target-approved?'review':'open', updatedBy: actorId,
         updatedAt: serverTimestamp(),
       };
       if (current.exists()) tx.update(sourceRef, fields);

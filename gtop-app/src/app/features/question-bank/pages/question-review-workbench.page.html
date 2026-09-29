@@ -1,13 +1,6 @@
 <div class="page qr-page">
-  <header class="qr-head"><div><p class="eyebrow">Admin · Question module</p><h1>Review new questions</h1>
-    <p>Scan a batch, select the questions that belong, and publish them together.</p></div>
-    <a class="btn btn-secondary qr-head-link" routerLink="/admin/question-bank">Coverage & priorities</a></header>
-  <nav class="qr-nav" aria-label="Question module">
-    <a routerLink="/admin/question-paper-generator">Papers</a>
-    <a routerLink="/admin/question-bank">Coverage</a>
-    <a class="active" aria-current="page" routerLink="/admin/question-review">Review</a>
-    <a routerLink="/admin/question-bank" [queryParams]="{view:'bank'}">Bank</a>
-  </nav>
+  <app-question-module-header active="review" title="Review questions" description="Select a batch. Check answers. Approve or return together." />
+  @if(requestId){<div class="qm-link-tools"><a routerLink="/admin/question-paper-generator" [queryParams]="{requestId:requestId}">← Return to this paper after review</a></div>}
 
   @if (error()) { <div class="qr-alert" role="alert">{{ error() }}</div> }
   @if (message()) { <div class="qr-success" role="status">{{ message() }}</div> }
@@ -85,7 +78,7 @@
                   @if (item.options.length) { <ol type="A">@for (option of item.options; track $index) { <li [class.correct]="$index === item.correctIndex">{{ option }}</li> }</ol> }
                   <div><b>Solution</b>@for (solution of item.solutions; track $index) { <p>{{ solution }}</p> }</div>
                   @if (item.assets.length) { <div class="qr-assets">@for (asset of item.assets; track asset.url) { <img [src]="asset.url" [alt]="asset.alt" loading="lazy" /> }</div> }
-                  <p class="qr-evidence"><b>Reference:</b> {{ item.referenceUsed || 'Not recorded' }}
+                  <p class="qr-evidence">@if(item.academicYear){<b>Curriculum:</b> {{item.academicYear}} · {{item.assessmentPurpose}}<br />}<b>Reference:</b> {{ item.referenceUsed || 'Not recorded' }}
                     @if (item.levelJustification) { <br /><b>Class fit:</b> {{ item.levelJustification }} }</p>
                   <button type="button" class="btn btn-secondary" (click)="openEditor(item)">Edit or decide this question</button>
                 </div>
@@ -134,3 +127,4 @@
     }
   }
 </div>
+

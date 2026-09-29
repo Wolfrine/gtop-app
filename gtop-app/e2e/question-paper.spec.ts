@@ -317,10 +317,10 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
   await expect(page.getByRole('checkbox',{name:'Motion',exact:true})).toBeChecked();
   await page.getByRole('button',{name:'Check availability',exact:true}).click();
   await expect(page.getByRole('button',{name:'Questions requested',exact:true})).toBeDisabled();
-  await expect.poll(async()=>environment.withSecurityRulesDisabled(async context=>{
+  await expect.poll(async()=>{let count=0;await environment.withSecurityRulesDisabled(async context=>{
     const sessions=await getDocs(query(collection(context.firestore(),'adminUsageSessions'),where('actorUid','==',adminUid)));
-    return sessions.docs.reduce((sum,d)=>sum+Number(d.data().eventCounts?.['paper-builder__paper_requested']??0),0);
-  })).toBeGreaterThan(0);
+    count=sessions.docs.reduce((sum,d)=>sum+Number(d.data().eventCounts?.['paper-builder__paper_requested']??0),0);
+  });return count;}).toBeGreaterThan(0);
   await page.getByRole('link',{name:'Papers',exact:true}).click();
   await requestRow.getByRole('button',{name:'Cancel request',exact:true}).click();
   await requestRow.getByRole('button',{name:'Confirm cancellation',exact:true}).click();

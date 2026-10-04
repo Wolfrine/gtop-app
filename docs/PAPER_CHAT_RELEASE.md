@@ -14,6 +14,8 @@ Application validation and backend deployment run concurrently. Hosting promotio
 
 The live service check found that the app's configured Firebase image bucket had not been provisioned. The separate paper-backend setup workflow uses the same existing runtime delegation and the official default-bucket API to create and link only that configured bucket in the database region. It installs server-only direct-client rules on a newly provisioned empty bucket and reads back the actual Storage metadata and Firebase link. Existing populated buckets and existing rules are preserved. No billing changes, IAM grants or permanent credentials are introduced.
 
+That setup passed, including actual runtime upload and Firebase token-download of identical image bytes, followed by safe removal of the unique temporary object. All four functions and live admin notification configuration also passed. Hosting published the tested app, but its separate verification runner lacked Playwright dependencies. The promotion job now installs those dependencies and Chromium, verifies the paper-chat sign-in return path, and retains the actual desktop/mobile hosted-page screenshots. The final release remains gated on this complete live check.
+
 ## Release completion
 
 1. Verify backend deployment, active rules, anonymous-access denial, authenticated existing-admin configuration and Firebase Storage bucket.

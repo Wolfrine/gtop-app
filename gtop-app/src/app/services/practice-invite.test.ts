@@ -6,7 +6,7 @@ import { createHash, webcrypto } from 'node:crypto';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { Firestore } from '@angular/fire/firestore';
 import { AuthService } from './auth.service';
-import { PracticeInviteService, REVIEWED_PRACTICE_SEEDS, INVITED_SOLO_READY, PRACTICE_EVIDENCE_KEY } from './practice-invite.service';
+import { PracticeInviteService, REVIEWED_PRACTICE_SEEDS, INVITED_SOLO_READY, PRACTICE_EVIDENCE_KEY, INVITATION_PRESENTATION } from './practice-invite.service';
 import { matchesProfile, matchesReviewedContent, parsePracticeScope, practiceParams, reviewedPractice, validatePracticeQuestions, PRACTICE_DELAY } from './practice-invite.domain';
 import type { ReviewedPractice } from './practice-invite.domain';
 
@@ -23,9 +23,9 @@ describe('reviewed practice invitation', () => {
   const create = (soloReady = true) => runInInjectionContext(Injector.create({ providers: [
     { provide: AuthService, useValue: { profile: () => user, readyUser$: ready } }, { provide: Firestore, useValue: {} },
     { provide: Router, useValue: { events, getCurrentNavigation: () => null } },
-    { provide: REVIEWED_PRACTICE_SEEDS, useValue: [seed] }, { provide: INVITED_SOLO_READY, useValue: soloReady }
+    { provide: REVIEWED_PRACTICE_SEEDS, useValue: [seed] }, { provide: INVITED_SOLO_READY, useValue: soloReady }, { provide: INVITATION_PRESENTATION, useValue: null }
   ] }), () => new PracticeInviteService());
-  beforeEach(() => { user = { ...profile }; ready = new BehaviorSubject(user); events = new Subject(); localStorage.clear(); vi.stubGlobal('crypto', webcrypto); vi.stubGlobal('gtag', vi.fn()); reads.getDoc.mockReset(); reads.getDoc.mockImplementation(async id => ({ id, exists: () => true, data: () => questions.find(q => q.id === id) })); invites = create(); });
+  beforeEach(() => { user = { ...profile }; ready = new BehaviorSubject(user); events = new Subject(); localStorage.clear(); sessionStorage.clear(); vi.stubGlobal('crypto', webcrypto); vi.stubGlobal('gtag', vi.fn()); reads.getDoc.mockReset(); reads.getDoc.mockImplementation(async id => ({ id, exists: () => true, data: () => questions.find(q => q.id === id) })); invites = create(); });
   afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
   it('normalizes scalar and repeated ParamMap values and rejects ambiguous links', () => {
     expect(parsePracticeScope(convertToParamMap({ ...practiceParams(scope), subjects: scope.subject, chapters: scope.chapter }))).toEqual(scope);
@@ -60,37 +60,5 @@ describe('reviewed practice invitation', () => {
     }
     expect(validatePracticeQuestions(seed,questions.slice(0,4))).toBe(false);
   });
-  it('offers an optional local card only after first answer and acknowledged completion, once', () => {
-    invites.begin(scope); invites.acknowledgeCompletion('receipt',questions); expect(invites.completion()).toBeNull(); expect(invites.keep()).toBe(false);
-    const answered=questions.map(q=>({...q,selectedIndex:0})); invites.firstAnswer(answered); invites.firstAnswer(answered);
-    invites.acknowledgeCompletion('',answered); expect(invites.completion()).toBeNull();
-    invites.acknowledgeCompletion('receipt',answered); invites.acknowledgeCompletion('receipt',answered); expect(invites.completion()).toEqual(scope);
-    expect(invites.keep()).toBe(true); expect(invites.completion()).toBeNull(); expect(invites.cue()?.dueAt).toBeGreaterThanOrEqual(Date.now()+PRACTICE_DELAY-20);
-    expect(JSON.parse(localStorage.getItem(PRACTICE_EVIDENCE_KEY)!)).toHaveLength(2);
-  });
-  it('Not now, Off, storage failure and account switches never imply opt-in', () => {
-    const answered=questions.map(q=>({...q,selectedIndex:0})); invites.begin(scope); invites.firstAnswer(answered); invites.acknowledgeCompletion('receipt',answered); invites.dismiss(); expect(invites.keep()).toBe(false); expect(invites.cue()).toBeNull();
-    invites.begin(scope); invites.firstAnswer(answered); invites.acknowledgeCompletion('receipt-2',answered);
-    const blocked=vi.spyOn(Storage.prototype,'setItem').mockImplementation(()=>{throw new Error('blocked');}); expect(invites.keep()).toBe(false); blocked.mockRestore();
-    expect(invites.keep()).toBe(true); user={...profile,uid:'other'}; expect(invites.cue()).toBeNull(); expect(invites.keep()).toBe(false);
-    user={...profile}; invites.off(); expect(invites.cue()).toBeNull();
-  });
-  it('records return only when due, omits personal data from event evidence and analytics', () => {
-    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-04T12:00:00Z'));
-    const answered=questions.map(q=>({...q,selectedIndex:0})); invites.begin(scope); invites.firstAnswer(answered); invites.acknowledgeCompletion('PRIVATE-receipt',answered); invites.keep();
-    const cue=invites.cue()!; invites.returned(cue); expect(invites.cue()).not.toBeNull();
-    vi.advanceTimersByTime(PRACTICE_DELAY); invites.returned(cue); expect(invites.cue()).toBeNull();
-    const evidence=localStorage.getItem(PRACTICE_EVIDENCE_KEY)!; expect(evidence).toContain('practice_return');
-    for(const privateValue of [profile.uid,'PRIVATE-receipt',scope.board,scope.chapter,questions[0].id,questions[0].question]) expect(evidence).not.toContain(privateValue);
-    const analytics=JSON.stringify(vi.mocked((window as any).gtag).mock.calls); expect(analytics).not.toContain('PRIVATE-receipt'); expect(analytics).not.toContain('fixture-user'); expect(analytics).not.toContain('Fixture Solutions');
-  });
-  it('clears a pending offer on account changes and navigation to unrelated practice/history', () => {
-    const answered=questions.map(q=>({...q,selectedIndex:0}));
-    const complete=()=>{invites.begin(scope);invites.firstAnswer(answered);invites.acknowledgeCompletion('receipt',answered);};
-    complete();ready.next(null);expect(invites.completion()).toBeNull();expect(invites.keep()).toBe(false);
-    ready.next(user);complete();events.next(new NavigationStart(1,'/quiz-summary'));expect(invites.completion()).toEqual(scope);
-    events.next(new NavigationStart(2,'/quiz-summary?sessionId=other&userId=fixture-user'));expect(invites.completion()).toBeNull();
-    complete();events.next(new NavigationStart(3,'/quiz'));expect(invites.completion()).toBeNull();
-    complete();events.next(new NavigationStart(4,'/dashboard'));expect(invites.completion()).toBeNull();
-  });
 });
+

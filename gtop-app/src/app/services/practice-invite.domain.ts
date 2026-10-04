@@ -28,7 +28,7 @@ export function practiceReturns(params: Pick<ParamMap, 'getAll'>): { returnTo?: 
   }
   return result;
 }
-export function sameScope(a: PracticeScope, b: PracticeScope): boolean { return fields.every(key => a[key] === b[key]); }
+export function sameScope(a: PracticeScope, b: PracticeScope): boolean { return !!a && !!b && fields.every(key => a[key] === b[key]); }
 export function matchesProfile(scope: PracticeScope, profile: any): boolean {
   return !!profile?.uid && (profile.role === 'admin' || (profile.board === scope.board && profile.standard === scope.standard));
 }
@@ -38,6 +38,7 @@ export function reviewedPractice(scope: PracticeScope, seeds: readonly ReviewedP
 }
 /** Review proves relevance; runtime checks protect against missing, changed or unusable documents. */
 export function validatePracticeQuestions(seed: ReviewedPractice, questions: any[]): boolean {
+  if (!Array.isArray(questions) || questions.some(q => !q || typeof q !== 'object')) return false;
   return questions.length === 5 && new Set(questions.map(q => q.id)).size === 5 && seed.questionIds.every(id => questions.some(q => q.id === id)) && questions.every(q =>
     sameScope(q, seed.scope) && (!q.status || q.status === 'approved') && !q.paperOnly && (!q.questionType || q.questionType === 'mcq') &&
     typeof q.question === 'string' && q.question.trim().length > 0 && Array.isArray(q.options) && q.options.length >= 2 && q.options.length <= 4 && q.options.every((option: unknown) => typeof option === 'string' && option.trim().length > 0) &&

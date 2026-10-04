@@ -12,20 +12,21 @@ import { practiceParams, practiceReturns } from './practice-invite.domain';
 
 const scope={board:'Fixture Board',standard:'12',subject:'Science',chapter:'Motion'};
 const setup=(readyUser$:any, profile:any) => {
+  let navigation:any={id:1};
   const auth={readyUser$,profile:()=>profile};
-  const router={createUrlTree:vi.fn((path,options)=>({path,options}))};
+  const router={createUrlTree:vi.fn((path,options)=>({path,options})),getCurrentNavigation:()=>navigation};
   const quiz={setPendingRetry:vi.fn()};
-  const invites={clearAttempt:vi.fn(),seed:vi.fn(()=>({scope})),questions:vi.fn(async()=>Array(5).fill({id:'fixture'})),begin:vi.fn()};
+  const invites={clearAttempt:vi.fn(),seed:vi.fn(()=>({scope})),questions:vi.fn(async()=>Array(5).fill({id:'fixture'})),prepare:vi.fn(async()=>({attemptId:'fixture-attempt'})),commit:vi.fn(()=>true)};
   const injector=Injector.create({providers:[{provide:AuthService,useValue:auth},{provide:Router,useValue:router},{provide:QuizService,useValue:quiz},{provide:PracticeInviteService,useValue:invites}]});
   const guard=(extra={})=>runInInjectionContext(injector,()=>practiceInviteGuard({queryParamMap:convertToParamMap({...practiceParams(scope),practice:'invite',...extra})} as any,{} as any));
-  return {guard,auth,router,quiz,invites};
+  return {guard,auth,router,quiz,invites,setNavigation:(value:any)=>navigation=value};
 };
 describe('invitation launch guard',()=>{
   it('waits for restored profile even when other canActivate guards run concurrently',async()=>{
     const ready=new Subject<any>();const state=setup(ready,null);let settled=false;
     const pending=Promise.resolve(state.guard()).then(value=>{settled=true;return value;});await Promise.resolve();expect(settled).toBe(false);expect(state.invites.questions).not.toHaveBeenCalled();
     const profile={uid:'fixture-user',role:'user',board:scope.board,standard:scope.standard};state.auth.profile=()=>profile;
-    ready.next(profile);expect(await pending).toBe(true);expect(state.quiz.setPendingRetry).toHaveBeenCalledOnce();expect(state.invites.begin).toHaveBeenCalledWith(scope);
+    ready.next(profile);expect(await pending).toBe(true);expect(state.quiz.setPendingRetry).not.toHaveBeenCalled();expect(state.invites.commit).toHaveBeenCalledWith({attemptId:'fixture-attempt'});
   });
   it('refuses conflicting live/run/retry modes before reading any questions',async()=>{
     const profile={uid:'fixture-user',role:'admin',board:'Other',standard:'10'};const state=setup(new BehaviorSubject(profile),profile);
@@ -64,6 +65,22 @@ describe('invitation launch guard',()=>{
     const params=Object.fromEntries(new URL(redirect.options.queryParams.returnUrl,'https://gtop.test').searchParams);
     const user={uid:'fixture-user',role:'user',board:scope.board,standard:scope.standard};const state=setup(new BehaviorSubject(user),user);
     const sanitized:any=await state.guard(params);expect(sanitized.options.queryParams).toEqual({...practiceParams(scope),practice:'invite',hubReturnPath:'/dashboard'});
-    expect(await state.guard(sanitized.options.queryParams)).toBe(true);expect(state.quiz.setPendingRetry).toHaveBeenCalledOnce();
+    expect(await state.guard(sanitized.options.queryParams)).toBe(true);expect(state.invites.commit).toHaveBeenCalledOnce();expect(state.quiz.setPendingRetry).not.toHaveBeenCalled();
+  });
+  it('does not stage a source when navigation leaves during server reads or asynchronous preparation',async()=>{
+    const user={uid:'fixture-user',role:'user',board:scope.board,standard:scope.standard};
+    for(const phase of ['questions','prepare'] as const){
+      const state=setup(new BehaviorSubject(user),user);let resolve:any;
+      state.invites[phase].mockImplementation(()=>new Promise(r=>resolve=r) as any);
+      const pending=Promise.resolve(state.guard());await vi.waitFor(()=>expect(resolve).toBeTypeOf('function'));
+      state.setNavigation({id:2});resolve(phase==='questions'?Array(5).fill({id:'fixture'}):{attemptId:'stale'});
+      expect(await pending).toBe(false);expect(state.invites.commit).not.toHaveBeenCalled();expect(state.quiz.setPendingRetry).not.toHaveBeenCalled();
+    }
+  });
+  it('cancelled fetch failures and account changes cannot commit an invitation source',async()=>{
+    const user={uid:'fixture-user',role:'user',board:scope.board,standard:scope.standard};const state=setup(new BehaviorSubject(user),user);let reject:any;
+    state.invites.questions.mockImplementation(()=>new Promise((_,r)=>reject=r));const pending=Promise.resolve(state.guard());await vi.waitFor(()=>expect(reject).toBeTypeOf('function'));state.setNavigation(null);reject(new Error('offline'));
+    expect(await pending).toBe(false);expect(state.invites.commit).not.toHaveBeenCalled();
+    const changed=setup(new BehaviorSubject(user),user);changed.invites.prepare.mockImplementation(async()=>{changed.auth.profile=()=>({...user,uid:'other'});return {attemptId:'stale'};});expect(await changed.guard()).toMatchObject({path:['/practice']});expect(changed.invites.commit).not.toHaveBeenCalled();
   });
 });

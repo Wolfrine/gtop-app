@@ -22,7 +22,7 @@ export class PracticeInviteComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       this.scope.set(parsePracticeScope(params)); this.error.set(params.get('unavailable') ? 'These five questions could not be checked. Try again when you are online, or ask for a new practice link.' : '');
-      if (this.scope()) this.invites.track('invite_open');
+      const scope = this.scope(); if (scope) this.invites.track(this.invites.seed(scope) && !this.error() ? 'invite_open' : 'invite_exposure');
     });
     this.auth.readyUser$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(profile => { this.profile.set(profile); this.ready.set(true); });
   }

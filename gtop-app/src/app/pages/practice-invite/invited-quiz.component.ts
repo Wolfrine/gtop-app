@@ -7,5 +7,6 @@ import { PracticeInviteService } from '../../services/practice-invite.service';
 export class InvitedQuizComponent {
   @ViewChild(QuizPageComponent) player?: QuizPageComponent;
   private readonly invites = inject(PracticeInviteService);
-  captureAnswer(): void { if (this.player) this.invites.firstAnswer(this.player.questions); }
+  private readonly attemptId = this.invites.current()?.attemptId;
+  captureAnswer(): void { if (this.player && this.attemptId) this.invites.checkpoint(this.attemptId, this.player.questions, this.player.currentQuestionIndex); }
 }

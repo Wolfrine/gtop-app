@@ -1,0 +1,44 @@
+# Reviewed asynchronous practice invitation
+
+Status: draft infrastructure, launch gated. This branch does not deploy or enable the experiment.
+
+The experiment tests whether a small, curriculum-specific invitation helps learners start and return to solo practice. It does not promise ten users a day or inferred growth. Supplied usage evidence was sparse: 74 CBSE Class 12 attempts from four learners, and 23 Solutions attempts from one learner. Misclassified questions appeared in the supplied sample. No GA reports were read for this implementation.
+
+## Implemented boundary
+
+- Admins use the existing Custom Quiz setup to choose one board/class/subject/chapter and five questions, then copy a practice link when that exact reviewed set is available. No recipients or contacts are stored or contacted.
+- `/practice` shows escaped scope labels and a revision preview. It reads no questions. Copy links contain curriculum scope and count only, without question IDs, answers or learner data.
+- The invited `/quiz` route waits for hydrated authentication, rejects live/run/retry parameters, checks the learner's own board/class (intentional admin freedom), then fetches the five exact reviewed documents from the server. Missing, changed, unusable or mismatched content stops launch. There is no random fallback.
+- The pending-question adapter reuses the existing asynchronous solo player. `returnUrl` retains invitation intent through existing authentication/profile setup. Invitation `returnTo` and `hubReturnPath` accept only a single permitted relative destination (`/`, `/dashboard`, `/reports`, `/profile`, `/practice`, `/admin`); schemes, external/protocol-relative URLs, nested query URLs, unknown routes and repeated values are discarded before player input, including direct links after interrupted login. Learner profiles are not changed by a link.
+- Only an acknowledged current-attempt completion may show the optional return offer, after results/review. `Not now` stores no cue. `Keep this practice on my dashboard` stores one account-specific card locally on this device, due after 24 hours and explicitly described as “shown when you open GTOP.” `Off` removes it. There are no timers, browser notification requests, push, email or SMS.
+
+## Exact content source
+
+The parent supplied `gtop-solutions-pilot-content-review.json`, Library `libfile_0197fc7810cc819185b47ed698d528ea`, version 0, 13,763 bytes. It was materialized and read on the Windows executor; all five supplied SHA-256 content hashes were independently recomputed locally. `reviewed-practices.ts` contains only IDs, scope, review reference and hashes. Full content snapshots remain private, outside this repository.
+
+The set is source-backed introductory revision after concepts have been introduced, not a full chapter mastery diagnostic or a claim of human teacher sign-off. Runtime SHA-256 checks preserve exact strings/array order over `[board, standard, subject, chapter, question, options, correctIndex, solutions]`. Review does not approve random questions elsewhere in the chapter. Other curriculum scopes can be added through separately reviewed manifests.
+
+## Reliability integration required before enablement
+
+`INVITED_SOLO_READY` in `practice-invite.service.ts` defaults to `false`. Parent owns combined integration and release review. Do not enable it merely because content review passed.
+
+The independent reliability branch owns `quiz.service.ts`, `quiz-page/*` and `quiz-summary/*`; this branch leaves those files untouched. Read-only inspection of [draft PR #57](https://github.com/Wolfrine/gtop-app/pull/57), commit `a8d57bbbdf20939fa9e8b0073baba9179facfa98`, confirmed stable option presentation and canonical index helpers. Parent is reviewing a mobile reachability repair; use its updated dependency commit before final integration. All five source correct answers are index 0.
+
+The invited-player wrapper calls `PracticeInviteService.firstAnswer(questions)` after a real option interaction. PR #57's `QuizService.saveQuizResult` returns `Promise<string>` with the acknowledged result ID; `QuizSummaryComponent.retrySave` currently discards it in `.then(() => ...)`. The parent can pass that actual resolved ID to `PracticeInviteService.acknowledgeCompletion(receiptId, questions)` in that success callback. Never call it for optimistic/cache-only writes, errors, historical result views, ordinary retries, live quizzes or QuizRun. The service checks current account, scope, exact five IDs, first answer and duplicate receipts, and clears attempt state on account/route changes.
+
+The adapter currently queues through `QuizService.setPendingRetry` because this is main's explicit-question solo path. Its context is `source: 'summary', type: 'all'` for compatibility with the current `RetryContext` union. PR #57 classifies every pending set as `quizType: 'retry'` and prioritizes it over an in-progress restored session. Before enablement, give reviewed invitations an explicit question-source/provenance path in the reliability-owned loader, with session restoration scoped to the reviewed revision/IDs and user. Revalidate source hashes without discarding saved answers or reshuffling options on reload. Do not substitute its custom/random fetch path. The new invitation service's provenance/first-answer state is in memory; preserving the offer across an interrupted result save requires binding/restoring that provenance from the reliability attempt session, without showing offers on historical results.
+
+PR #57 persists result question IDs, indices and option orders, then expands historical summaries from current source documents. Its tab session contains full question snapshots, but the permanent result does not. The reviewed pack requires exact question/options/explanation snapshots for historical scoring/review; parent must verify or supply that persistence boundary before launch. Content hashes at initial launch alone do not solve subsequent source edits.
+
+After wiring, validate the actual reviewed set through shuffled answer, save failure/retry, acknowledged completion, reload/history review, 24-hour return and Off/Not-now journeys. Then enable the gate in a reviewed integration commit. The public Playwright default-gate expectation will need to be changed to assert the integrated ready behavior and authenticated server-only launch.
+
+## Evidence and limits
+
+- Required production build passed with existing-style bundle/component budget warnings.
+- Focused invitation/domain/guard suite: 15 passing tests, including interrupted login and malicious/repeated returns. Repository module suite: 96 passing tests.
+- Public browser checks: 24 Chromium cases passed across six configured desktop/phone/tablet projects. Eight WebKit cases could not start because the executable was absent; the local download attempt timed out at the vendor mirrors.
+- Actual Angular desktop 1440×1000 and phones 390×844 / 320×700 rendered preview, paused gate, mismatch, invalid, error, solo, offer, saved, due and Off states. Isolated fixtures blocked external traffic and result writes. Offer screenshots use a simulated acknowledgment and do not prove a real save. Separate critic and QA verified mobile inner scrolling reaches every answer and Next. Additional actual touch checks used CDP swipes and visible touchscreen taps, selecting all four answers and advancing to question two at 390/320 without scrollIntoView or click auto-scroll. This validates baseline main, not the pending reliability repair. Admin Custom Quiz rendered empty selection, paused sharing, labelled selectable clipboard fallback and content failure at all three sizes; clipboard failure was simulated. Final independent share-section score was 8.2 with no scoped visual blocker.
+- Independent visual critic scored scope 8.5, consent/error hierarchy 8.5, responsiveness 8, overall 8.3. QA found and verified corrections to guard hydration, conflicting modes and account/route lifetime. Formal Central five-cycle/parent-checkpoint acceptance is still unverified; the bounded surface review is not owner approval.
+- Font/icon network was blocked in fixture captures, so the existing shell shows fallback icon text. The new invitation/cue surfaces use no icon dependency. Screenshots and independent review reports remain private/local or in Library, rather than publishing question content in this repository.
+
+`invite_open → practice_first_answer → acknowledged_completion → practice_return` hooks append at most 100 anonymous stage/timestamp events to `gtop.practice.evidence.v1`, and call the existing `gtag` if available. They send no user/recipient IDs, scope labels, URLs with query values, question IDs, content or answers. This is instrumented local evidence, not unique-user acquisition counts or proof that GA received events. No Functions, rules, production questions, paper-chat files, account settings or consent settings were changed.

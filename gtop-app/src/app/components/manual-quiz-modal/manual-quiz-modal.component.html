@@ -44,6 +44,7 @@
             <mat-radio-button value="adaptive">Adaptive</mat-radio-button>
         </mat-radio-group>
     </div>
+    <app-practice-share *ngIf="isAdmin" [scope]="invitationScope"></app-practice-share>
 </div>
 
 <div mat-dialog-actions align="end">

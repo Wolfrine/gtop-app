@@ -24,11 +24,23 @@ import { LivePlayerComponent } from './pages/live/live-player/live-player.compon
 import { LiveSummaryComponent } from './pages/live/live-summary/live-summary.component';
 import { QuizRunLandingComponent } from './pages/quiz-run/quiz-run-landing/quiz-run-landing.component';
 import { QuizRunLobbyComponent } from './pages/quiz-run/quiz-run-lobby/quiz-run-lobby.component';
+import { invitedQuizMatch, practiceInviteGuard } from './services/practice-invite.guard';
 
 
 
 
 export const routes: Routes = [
+    {
+        path: 'practice',
+        loadComponent: () => import('./pages/practice-invite/practice-invite.component').then(m => m.PracticeInviteComponent),
+        data: { seo: { title: 'Five-question practice | GTOP', robots: 'noindex, nofollow' } }
+    },
+    {
+        path: 'quiz', canMatch: [invitedQuizMatch],
+        loadComponent: () => import('./pages/practice-invite/invited-quiz.component').then(m => m.InvitedQuizComponent),
+        canActivate: [AuthGuard, RoleGuard, practiceInviteGuard],
+        data: { roles: ['user', 'admin'], seo: { title: 'Your five-question practice | GTOP', robots: 'noindex, nofollow' } }
+    },
     {
         path: 'admin/question-papers/legacy',
         loadComponent: () => import('./features/question-bank/pages/question-papers.page').then(m => m.QuestionPapersPage),
@@ -268,7 +280,7 @@ export const routes: Routes = [
     },
     {
         path: 'quiz-summary',
-        component: QuizSummaryComponent,
+        loadComponent: () => import('./pages/practice-invite/practice-summary.component').then(m => m.PracticeSummaryComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: {
             roles: ['user', 'admin'],

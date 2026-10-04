@@ -1,0 +1,16 @@
+<main class="practice-invite" aria-labelledby="practice-title">
+  <a class="back-link" routerLink="/">GTOP home</a>
+  <ng-container *ngIf="scope() as selected; else invalid">
+    <span class="kicker">A SMALL PRACTICE STEP</span>
+    <h1 id="practice-title">Revisit {{ selected.chapter }}.</h1>
+    <p class="intro">Five questions. Your own pace.</p>
+    <dl class="scope"><div><dt>Curriculum</dt><dd>{{ selected.board }} · Class {{ selected.standard }}</dd></div><div><dt>Subject</dt><dd>{{ selected.subject }}</dd></div><div><dt>Chapter</dt><dd>{{ selected.chapter }}</dd></div></dl>
+    <p class="explanation">Use this as a short revision after you have studied the concepts. Answer on your own, then review the explanations. This is a small practice set, not a full chapter assessment.</p>
+    <div class="state" *ngIf="!available && !error() && !mismatch"><h2>Practice is being checked</h2><p>A checked set of five questions is needed before this invitation can start. Ask the person who shared it for an updated link.</p></div>
+    <div class="state" *ngIf="mismatch"><h2>This link is for a different curriculum</h2><p>Your profile is {{ profile().board }} · Class {{ profile().standard }}. This practice is for {{ selected.board }} · Class {{ selected.standard }}. Ask for a matching link, or return to your dashboard.</p><a mat-stroked-button routerLink="/dashboard">Go to my dashboard</a></div>
+    <p class="error" role="alert" *ngIf="error() && !mismatch">{{ error() }}</p>
+    <div class="actions" *ngIf="!mismatch && available"><button mat-flat-button color="primary" (click)="start()" [disabled]="!ready()">{{ !ready() ? 'Checking sign-in…' : profile() ? 'Start five questions' : 'Sign in to practise' }}</button><p>Questions are available after sign-in. {{ profile()?.role === 'admin' ? 'As an admin, you can intentionally practise this curriculum.' : 'Your board and class must match this invitation.' }}</p></div>
+    <p class="privacy">Solo practice. No participant list or public ranking.</p>
+  </ng-container>
+  <ng-template #invalid><span class="kicker">PRACTICE INVITATION</span><h1 id="practice-title">This link needs a little help.</h1><p class="intro">Ask for a new link with one board, class, subject and chapter, and five questions.</p><a mat-stroked-button routerLink="/dashboard">Go to my dashboard</a></ng-template>
+</main>

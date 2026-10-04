@@ -1,0 +1,15 @@
+:host { display: block; }
+.practice-invite { box-sizing: border-box; max-width: 760px; margin: 0 auto; padding: 36px 28px 60px; color: var(--text, #14213d); }
+.back-link { display: inline-block; margin-bottom: 32px; color: #2854a3; font-weight: 650; padding: 8px 0; }
+.kicker { display: block; color: #52617a; font-size: .75rem; font-weight: 750; letter-spacing: .1em; }
+h1 { margin: 12px 0; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; overflow-wrap: anywhere; }
+.intro { margin: 0 0 28px; color: #4e607c; font-size: 1.25rem; }
+.scope { border-block: 1px solid #ccd6e4; padding: 20px 0; display: grid; gap: 18px; grid-template-columns: 1.2fr 1fr 1.3fr; }
+dt { font-size: .78rem; color: #52617a; margin-bottom: 6px; } dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+.explanation { line-height: 1.65; margin-block: 24px; }
+.actions { margin-top: 28px; } .actions p, .privacy { color: #52617a; font-size: .88rem; line-height: 1.55; }
+.privacy { border-top: 1px solid #ccd6e4; padding-top: 20px; margin-top: 28px; }
+.state { margin-block: 24px; border-left: 4px solid #aa731a; background: #fff7e9; padding: 18px 20px; } .state h2 { margin: 0 0 8px; font-size: 1.12rem; } .state p { margin: 0 0 12px; line-height: 1.6; }
+.error { color: #a12727; border-left: 4px solid #a12727; padding: 12px 16px; background: #fff1f1; line-height: 1.6; }
+:where(a,button):focus-visible { outline: 3px solid #aa731a; outline-offset: 4px; }
+@media (max-width: 600px) { .practice-invite { padding: 20px 20px 40px; } .back-link { margin-bottom: 24px; } .scope { grid-template-columns: 1fr; gap: 14px; } .actions button { width: 100%; height: auto; min-height: 48px; padding: 12px 18px; } }

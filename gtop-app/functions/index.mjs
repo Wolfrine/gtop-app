@@ -12,7 +12,7 @@ initializeApp({storageBucket:'gtop-app.firebasestorage.app'});
 const db=getFirestore();const bucket=getStorage().bucket();
 const stamp=()=>FieldValue.serverTimestamp();
 const region='us-central1';
-const current=(request,conversation,paper)=>request?.source==='admin-paper-chat'&&!['cancelled','completed'].includes(request.status)&&conversation?.activeRequestId===paper.parentRequestId&&request.revision===paper.requestRevision;
+const current=(request,conversation,paper)=>request?.source==='admin-paper-chat'&&['queued','generating','publishing'].includes(request.status)&&conversation?.activeRequestId===paper.parentRequestId&&request.revision===paper.requestRevision;
 const cleanId=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{1,140}$/.test(value);
 const contentHash=paper=>hash(Object.fromEntries(['title','board','standard','subjects','chapters','durationMinutes','marks','instructions','sections','conversationId','parentRequestId','requestRevision'].map(field=>[field,paper[field]??null])));
 
@@ -36,7 +36,7 @@ export const publishPaper=onDocumentWritten({document:'paperDrafts/{paperId}',re
   let accepted=false;
   await db.runTransaction(async tx=>{
     const [paper,request,conversation]=await Promise.all([tx.get(ref),tx.get(requestRef),tx.get(conversationRef)]);
-    if(paper.data()?.status==='ready')return;
+    if(paper.data()?.readyToPublish!==true||paper.data()?.status==='ready')return;
     if(!current(request.data(),conversation.data(),candidate)){tx.update(ref,{status:'superseded',readyToPublish:false});return;}
     if(paper.data()?.publicationLease?.expiresAt>Date.now())return;
     tx.update(ref,{status:'publishing',publicationLease:{id:lease,expiresAt:Date.now()+300_000}});
@@ -76,7 +76,8 @@ export const publishPaper=onDocumentWritten({document:'paperDrafts/{paperId}',re
     console.error('Paper publication failed',paperId,error.message);
     await db.runTransaction(async tx=>{
       const [paper,request,conversation]=await Promise.all([tx.get(ref),tx.get(requestRef),tx.get(conversationRef)]);
-      if(paper.data()?.publicationLease?.id!==lease||!current(request.data(),conversation.data(),candidate))return;
+      if(paper.data()?.publicationLease?.id!==lease)return;
+      if(!current(request.data(),conversation.data(),candidate)){tx.update(ref,{status:'superseded',readyToPublish:false,updatedAt:stamp()});return;}
       const reason=String(error.message).slice(0,500);
       tx.update(ref,{status:'publication-error',readyToPublish:false,error:reason,updatedAt:stamp()});
       tx.update(requestRef,{status:'error',error:reason,updatedAt:stamp()});

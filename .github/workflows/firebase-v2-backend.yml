@@ -98,10 +98,15 @@ jobs:
         run: |
           case "$DEPLOYMENT_SCOPE" in
             firestore-rules-only) targets=firestore:rules ;;
-            paper-chat-backend) targets=firestore:rules,firestore:indexes,functions:paper-service ;;
+            paper-chat-backend) targets=firestore:rules,firestore:indexes ;;
             *) echo "Unsupported backend deployment scope"; exit 1 ;;
           esac
           npx firebase-tools@15 deploy --only "$targets" --project gtop-app --non-interactive
+          if [ "$DEPLOYMENT_SCOPE" = "paper-chat-backend" ]; then
+            # --force explicitly enables the reviewed idempotent retry policies.
+            # Keep it scoped to this codebase so existing indexes are preserved.
+            npx firebase-tools@15 deploy --only functions:paper-service --project gtop-app --non-interactive --force
+          fi
       - name: Verify active question-paper permissions after deployment
         if: inputs.deploy_backend
         working-directory: gtop-app

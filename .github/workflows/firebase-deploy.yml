@@ -6,6 +6,7 @@ on:
     paths:
       - "gtop-app/**"
       - ".github/workflows/firebase-deploy.yml"
+      - ".github/workflows/firebase-v2-backend.yml"
   workflow_dispatch:
     inputs:
       target:

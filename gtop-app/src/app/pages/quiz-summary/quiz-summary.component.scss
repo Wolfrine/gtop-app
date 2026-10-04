@@ -8,6 +8,7 @@
   margin:auto;
   padding:32px;
   display:grid;
+  grid-template-columns:100%;
   gap:24px;
 }
 .score-card.card {
@@ -82,6 +83,7 @@
   margin:14px 0 22px;
 }
 .chip {
+  overflow-wrap:anywhere;
   padding:6px 10px;
   border-radius:7px;
   background:#ffffff14;
@@ -108,13 +110,12 @@
 }
 .actions .mat-mdc-unelevated-button:disabled {
   background:#46556c;
-  color:#c5cfdd;
 }
 .actions .mat-mdc-outlined-button {
   --mdc-outlined-button-outline-color:#58708f;
   color:#e6edf7;
 }
-.actions .mat-mdc-outlined-button:disabled {
+.actions button:disabled {
   color:#c5cfdd;
 }
 .review-heading {

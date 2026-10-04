@@ -34,7 +34,7 @@
 
     <!-- Question -->
     <mat-card appCard class="question-card">
-        <span class="question-number">Q{{currentQuestionIndex+1}}</span><h2>{{ questions[currentQuestionIndex].question }}</h2>
+        <span class="question-number">Q{{currentQuestionIndex+1}}</span><h2 #questionHeading tabindex="-1">{{ questions[currentQuestionIndex].question }}</h2>
     </mat-card>
 
     <!-- Options -->

@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
@@ -33,8 +33,8 @@ import { canonicalIndex, presentLiveQuestion, presentQuestion } from '../../serv
     styleUrls: ['./quiz-page.component.scss']
 })
 export class QuizPageComponent implements OnInit, OnDestroy {
-
     @ViewChild('quizRoot', { static: true }) quizRoot?: ElementRef<HTMLDivElement>;
+    @ViewChild('questionHeading') questionHeading?: ElementRef<HTMLHeadingElement>;
 
     optionsLabel = ['A', 'B', 'C', 'D'];
 
@@ -50,6 +50,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     private currentParams: Record<string, any> = {};
     private loadedContextKey = '';
     private historyNavigation = false;
+    private liveLoadInProgress = false;
 
     currentQuestionIndex = 0;
     // Live mode
@@ -72,7 +73,6 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     private retryContext: RetryContext | null = null;
     private hasSubmittedLiveAnswer = false;
     private sawActiveRun = false;
-    private lastTouchY = 0;
     private hubReturnUrl: string | null = null;
     private hubReturnPath: string | null = null;
 
@@ -105,7 +105,11 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         if (this.liveMode && this.sessionId) {
             // Subscribe to session and drive UI from it
             this.sessionUnsub = this.liveService.observeSession<any>(this.sessionId, (s) => {
-                if (!s) return;
+                if (!s) {
+                    this.loading = false;
+                    this.loadError = 'This live quiz could not be found. Return to the dashboard and join again.';
+                    return;
+                }
                 const sessionMode = (s.mode || 'live');
                 if (this.liveMode && !this.liveModeType) {
                     this.liveModeType = sessionMode;
@@ -121,13 +125,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
                 if (sessionMode === 'run' && s.status === 'active') {
                     this.sawActiveRun = true;
                 }
-                if (Array.isArray(s.questionIds) && s.questionIds.length && this.questions.length === 0) {
-                    this.liveService.fetchQuestionsForSession(s).then(qs => {
-                        const byId = new Map(qs.map((q: any) => [q.id, q]));
-                        this.questions = s.questionIds.map((id: string) => byId.get(id)).filter(Boolean)
-                            .map((question: any) => presentLiveQuestion(question, this.sessionId!, this.authService.profile()?.uid || ''));
-                        this.loading = false;
-                    });
+                if (Array.isArray(s.questionIds) && s.questionIds.length && this.questions.length === 0 && !this.liveLoadInProgress && !this.navigatedToSummary) {
+                    void this.loadLiveQuiz(s);
                 }
                 this.updateFromSchedule();
             });
@@ -151,6 +150,45 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             this.currentParams = params;
             void this.loadSoloQuiz();
         });
+    }
+
+    private async loadLiveQuiz(session: any): Promise<void> {
+        this.liveLoadInProgress = true;
+        const version = this.requestVersion;
+        const uid = this.authService.profile()?.uid;
+        try {
+            if (!uid) throw new Error('Sign in again to restore your live quiz.');
+            const saved = await this.liveService.fetchSavedResultForSession(this.sessionId!);
+            if (version !== this.requestVersion) return;
+            if (saved) {
+                this.navigatedToSummary = true;
+                void this.router.navigate(['/quiz-summary'], {
+                    state: { session: saved, questionSummaries: saved.questions, quizType: saved.quizType,
+                        fromLive: true, saved: true, sessionId: this.sessionId, practiceUid: uid,
+                        liveMode: saved.quizType, returnTo: this.hubReturnUrl, hubReturnPath: this.hubReturnPath },
+                    queryParams: this.hubReturnUrl ? { returnTo: this.hubReturnUrl, hubReturnPath: this.hubReturnPath || undefined } : undefined
+                });
+                return;
+            }
+            const fetched = await this.liveService.fetchQuestionsForSession(session);
+            const byId = new Map(fetched.map((question: any) => [question.id, question]));
+            const ordered = session.questionIds.map((id: string) => byId.get(id));
+            if (ordered.some((question: any) => !question)) throw new Error('Some questions in this live quiz are unavailable. Reopen the quiz or return to the dashboard.');
+            const restored = await this.liveService.restoreOwnAnswersForSession(this.sessionId!, ordered);
+            if (version !== this.requestVersion) return;
+            if (this.authService.profile()?.uid !== uid) throw new Error('Your account changed. Reopen the live quiz.');
+            this.questions = restored.map(question => presentLiveQuestion(question, this.sessionId!, uid));
+            this.hasSubmittedLiveAnswer = restored.some(question => question.selectedIndex != null);
+            this.loadError = '';
+            this.updateFromSchedule();
+        } catch (error) {
+            if (version === this.requestVersion) this.loadError = error instanceof Error ? error.message : 'Your live quiz could not be restored. Check your connection and reopen it.';
+        } finally {
+            if (version === this.requestVersion) {
+                this.loading = false;
+                this.liveLoadInProgress = false;
+            }
+        }
     }
 
     async loadSoloQuiz(force = false): Promise<void> {
@@ -268,59 +306,6 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         if (this.participantsUnsub) this.participantsUnsub();
     }
 
-    @HostListener('window:touchstart', ['$event'])
-    onWindowTouchStart(event: TouchEvent) {
-        if (!this.shouldInterceptPullToRefresh(event)) {
-            return;
-        }
-        this.lastTouchY = event.touches[0].clientY;
-    }
-
-    @HostListener('window:touchmove', ['$event'])
-    onWindowTouchMove(event: TouchEvent) {
-        if (!this.shouldInterceptPullToRefresh(event)) {
-            return;
-        }
-
-        const currentY = event.touches[0].clientY;
-        const deltaY = currentY - this.lastTouchY;
-        this.lastTouchY = currentY;
-
-        if (deltaY <= 0) {
-            return;
-        }
-
-        const container = this.quizRoot?.nativeElement;
-        if (!container) {
-            return;
-        }
-
-        const atTop = container.scrollTop <= 0;
-        const canScroll = container.scrollHeight > container.clientHeight;
-
-        if ((atTop || !canScroll) && event.cancelable) {
-            event.preventDefault();
-        }
-    }
-
-    private shouldInterceptPullToRefresh(event: TouchEvent): boolean {
-        if (event.touches.length !== 1) {
-            return false;
-        }
-        const container = this.quizRoot?.nativeElement;
-        if (!container) {
-            return false;
-        }
-        const target = event.target as Node | null;
-        if (!target) {
-            return false;
-        }
-        return container.contains(target);
-    }
-
-
-
-
     selectOption(optionIndex: number) {
         const q = this.questions[this.currentQuestionIndex];
         if (!q) return;
@@ -353,6 +338,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         if (this.currentQuestionIndex < this.questions.length - 1) {
             this.currentQuestionIndex++;
             this.persistPractice();
+            this.focusCurrentQuestion();
         } else {
             this.openSoloSummary();
         }
@@ -361,6 +347,18 @@ export class QuizPageComponent implements OnInit, OnDestroy {
 
     getProgressPercent() {
         return this.questions.length ? ((this.currentQuestionIndex + 1) / this.questions.length) * 100 : 0;
+    }
+
+    private focusCurrentQuestion(): void {
+        const version = this.requestVersion;
+        const index = this.currentQuestionIndex;
+        const focus = () => {
+            if (version !== this.requestVersion || index !== this.currentQuestionIndex) return;
+            this.quizRoot?.nativeElement.scrollIntoView({ block: 'start' });
+            this.questionHeading?.nativeElement.focus({ preventScroll: true });
+        };
+        if (typeof requestAnimationFrame === 'function') requestAnimationFrame(focus);
+        else queueMicrotask(focus);
     }
 
     private updateFromSchedule() {
@@ -376,6 +374,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             // clear leaderboard subscription when question changes
             if (this.answersUnsub) { this.answersUnsub(); this.answersUnsub = null; }
             this.leaderboard = [];
+            this.currentQuestionIndex = idx;
+            this.focusCurrentQuestion();
         }
         this.currentQuestionIndex = idx;
         const intoQuestion = elapsedSec % Math.max(1, this.perQuestionSeconds);

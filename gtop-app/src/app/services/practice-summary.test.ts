@@ -20,9 +20,10 @@ function setup(nav: any = {}, params: any = {}, profile: any = user) {
         fetchUserQuizResults: vi.fn(async () => []), getQuestions: vi.fn(() => questions),
         prepareRetryFromExistingAttempt: vi.fn(async () => undefined) };
     const router = { getCurrentNavigation: () => ({ extras: { state: nav } }), navigate: vi.fn() };
-    const component = new QuizSummaryComponent(quiz as any, { readyUser$: new BehaviorSubject(profile) } as any,
+    const profiles = new BehaviorSubject(profile);
+    const component = new QuizSummaryComponent(quiz as any, { readyUser$: profiles } as any,
         router as any, { snapshot: { queryParams: params } } as any, {} as any);
-    return { component, quiz, router };
+    return { component, quiz, router, profiles };
 }
 describe('summary result acknowledgement and recovery', () => {
     beforeEach(() => sessionStorage.clear());
@@ -76,6 +77,118 @@ describe('summary result acknowledgement and recovery', () => {
         await component.retrySave();
         expect(quiz.saveQuizResult).not.toHaveBeenCalled();
         component.ngOnDestroy();
+    });
+    it('blocks save retry when the learning profile changes after an offline failure', async () => {
+        writePracticeSession(session());
+        const { component, quiz, profiles } = setup();
+        quiz.saveQuizResult.mockRejectedValueOnce(Error('offline'));
+        component.ngOnInit(); await flush();
+        profiles.next({ ...user, board: 'ICSE', standard: '8' }); await flush();
+        await component.retrySave();
+        expect(quiz.saveQuizResult).toHaveBeenCalledTimes(1);
+        expect(component.canSave).toBe(false);
+        expect(component.saveState).toBe('error');
+        expect(component.saveError).toContain('profile');
+        expect(readPracticeSession(user.uid)?.saved).toBe(false);
+        component.ngOnDestroy();
+    });
+    it('blocks old attempt saving when the account changes after an offline failure', async () => {
+        writePracticeSession(session());
+        const { component, quiz, profiles } = setup();
+        quiz.saveQuizResult.mockRejectedValueOnce(Error('offline'));
+        component.ngOnInit(); await flush();
+        profiles.next({ ...user, uid: 'other-student' }); await flush();
+        await component.retrySave();
+        expect(quiz.saveQuizResult).toHaveBeenCalledTimes(1);
+        expect(component.currentUserId).toBe('other-student');
+        expect(component.canSave).toBe(false);
+        expect(component.questions).toEqual([]);
+        expect(readPracticeSession(user.uid)?.saved).toBe(false);
+        component.ngOnDestroy();
+    });
+    it('ignores a previous account acknowledgement after logout and retains recovery under its owner', async () => {
+        writePracticeSession(session());
+        const { component, quiz, profiles } = setup();
+        let acknowledge!: (id: string) => void;
+        quiz.saveQuizResult.mockImplementation(() => new Promise(resolve => acknowledge = resolve));
+        component.ngOnInit(); await flush();
+        profiles.next(null); await flush();
+        expect(component.currentUserId).toBeNull();
+        expect(component.canSave).toBe(false);
+        expect(component.saveState).toBe('error');
+        acknowledge('saved'); await flush();
+        expect(component.saveState).toBe('error');
+        expect(component.questions).toEqual([]);
+        expect(readPracticeSession(user.uid)?.saved).toBe(false);
+        profiles.next(user); await flush();
+        await component.retrySave();
+        expect(quiz.saveQuizResult).toHaveBeenCalledTimes(1);
+        component.ngOnDestroy();
+        // Reopening under the original owner safely recovers the same durable attempt.
+        const reopened = setup(); reopened.component.ngOnInit(); await flush();
+        expect(reopened.quiz.saveQuizResult).toHaveBeenCalledWith(user.uid, expect.objectContaining({ attemptId: 'attempt-one' }));
+        reopened.component.ngOnDestroy();
+    });
+    it('prevents an old loading history response from appearing under a new account', async () => {
+        const { component, quiz, profiles } = setup({}, { sessionId: 'old-result', userId: user.uid });
+        let finishHistory!: (value: any) => void;
+        quiz.fetchUserQuizResults.mockImplementation(() => new Promise(resolve => finishHistory = resolve));
+        component.ngOnInit(); await flush();
+        profiles.next({ ...user, uid: 'other-student' });
+        finishHistory([{ id: 'old-result', questions: [{ questionId: 'q', selectedIndex: 0, correctIndex: 0 }] }]);
+        await flush();
+        expect(component.questions).toEqual([]);
+        expect(component.saveState).toBe('error');
+        expect(quiz.expandSummariesToQuestions).not.toHaveBeenCalled();
+        expect(quiz.saveQuizResult).not.toHaveBeenCalled();
+        component.ngOnDestroy();
+    });
+    it('prevents a late expanded historical review from repopulating an invalidated summary', async () => {
+        const { component, quiz, profiles } = setup({ questionSummaries: [{ questionId: 'q', selectedIndex: 0, correctIndex: 0 }] });
+        let finishExpand!: (value: any) => void;
+        quiz.expandSummariesToQuestions.mockImplementation(() => new Promise(resolve => finishExpand = resolve));
+        component.ngOnInit(); await flush();
+        profiles.next({ ...user, role: 'admin' });
+        finishExpand(questions); await flush();
+        expect(component.questions).toEqual([]);
+        expect(component.canSave).toBe(false);
+        expect(component.saveState).toBe('error');
+        expect(quiz.saveQuizResult).not.toHaveBeenCalled();
+        component.ngOnDestroy();
+    });
+    it('retains admin curriculum freedom when unrelated admin profile defaults change', async () => {
+        const admin = { uid: 'admin', role: 'admin', board: 'ICSE', standard: '8' };
+        const { component, quiz, profiles } = setup({ questions, practiceUid: admin.uid, attemptId: 'admin-selected-cbse' }, {}, admin);
+        quiz.saveQuizResult.mockRejectedValueOnce(Error('offline'));
+        component.ngOnInit(); await flush();
+        profiles.next({ ...admin, board: 'IGCSE', standard: '12' });
+        await component.retrySave();
+        expect(component.saveState).toBe('saved');
+        expect(quiz.saveQuizResult.mock.calls.map(call => call[0])).toEqual(['admin', 'admin']);
+        expect(quiz.saveQuizResult.mock.calls.map(call => call[1].attemptId)).toEqual(['admin-selected-cbse', 'admin-selected-cbse']);
+        component.ngOnDestroy();
+    });
+    it('treats equivalent learner board aliases as the same profile during retry', async () => {
+        const igcseUser = { ...user, board: 'Cambridge IGCSE' };
+        const { component, quiz, profiles } = setup({ questions: [{ ...bank, board: 'IGCSE' }], practiceUid: user.uid, attemptId: 'igcse' }, {}, igcseUser);
+        quiz.saveQuizResult.mockRejectedValueOnce(Error('offline'));
+        component.ngOnInit(); await flush();
+        profiles.next({ ...igcseUser, board: 'IGCSE' });
+        await component.retrySave();
+        expect(component.saveState).toBe('saved');
+        expect(quiz.saveQuizResult).toHaveBeenCalledTimes(2);
+        component.ngOnDestroy();
+    });
+    it('unsubscribes and ignores a late write acknowledgement after destruction', async () => {
+        writePracticeSession(session());
+        const { component, quiz, profiles } = setup();
+        let acknowledge!: (id: string) => void;
+        quiz.saveQuizResult.mockImplementation(() => new Promise(resolve => acknowledge = resolve));
+        component.ngOnInit(); await flush();
+        component.ngOnDestroy();
+        acknowledge('saved'); profiles.next({ ...user, uid: 'other-student' }); await flush();
+        expect(component.currentUserId).toBe(user.uid);
+        expect(readPracticeSession(user.uid)?.saved).toBe(false);
     });
     it('allows admin historical learner deep links, preserving historical records without saving', async () => {
         const { component, quiz } = setup({}, { userId: 'student', sessionId: 'historical' }, { uid: 'admin', role: 'admin' });

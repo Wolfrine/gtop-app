@@ -21,6 +21,46 @@ describe('canonical question presentation', () => {
         expect(explanationText(shown)).toBe('Option D is correct.\n\nReason one.\n\nReason two.\n\nReason three.');
     });
 
+    it('still shuffles and relabels a supported explicit answer reference', () => {
+        const original = { ...bank, solutions: ['The correct answer is Option A.', 'Reasoning remains visible.'] };
+        const shown = presentQuestion(original, () => 0);
+        expect(shown.options).toEqual(['wrong1', 'wrong2', 'wrong3', 'right']);
+        expect(shown.solutions).toEqual(['The correct answer is Option D.', 'Reasoning remains visible.']);
+        expect(canonicalQuestion(shown)).toEqual(original);
+    });
+
+    it.each([
+        'The correct answer is A.',
+        'The correct answer is A',
+        'A',
+        'Choice A is correct.',
+        'choice A',
+        'answer (A)',
+        'The answer is (A).',
+        'The answer is "A".',
+        'A) This option is correct.',
+        'A: This option is correct.',
+        'A and B are both mentioned.',
+        'A is correct because the quantity increases.',
+    ])('preserves canonical order for an unhandled explanation reference: %s', reference => {
+        const original = { ...bank, solutions: [reference, 'Keep this second reasoning paragraph.'] };
+        const shown = presentQuestion(original, () => 0);
+        expect(shown.options).toEqual(original.options);
+        expect(shown.optionOrder).toEqual([0, 1, 2, 3]);
+        expect(shown.correctIndex).toBe(0);
+        expect(shown.solutions).toEqual(original.solutions);
+        const restored = restorePresentation(original, shown.optionOrder, 0, 0);
+        expect(canonicalQuestion(restored)).toEqual({ ...original, selectedIndex: 0 });
+        expect(presentQuestion({ ...canonicalQuestion(restored), selectedIndex: null }, () => 0).options).toEqual(original.options);
+    });
+
+    it('also preserves order for unhandled references in question text or answer choices', () => {
+        const prompt = { ...bank, question: 'Which of choice A and choice C is correct?' };
+        expect(presentQuestion(prompt, () => 0).options).toEqual(prompt.options);
+        const choices = { ...bank, options: ['first', 'second', 'Choice A', 'fourth'] };
+        expect(presentQuestion(choices, () => 0).options).toEqual(choices.options);
+    });
+
     it('roundtrips saved presentation and leaves historical canonical summaries intact', () => {
         const restored = restorePresentation(bank, [2, 0, 3, 1], 0, 0);
         expect(restored.selectedIndex).toBe(1);

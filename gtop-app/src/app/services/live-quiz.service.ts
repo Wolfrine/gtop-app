@@ -6,6 +6,8 @@ import {
   setDoc,
   getDocs,
   getDoc,
+  getDocFromServer,
+  getDocsFromServer,
   query,
   where,
   orderBy,
@@ -186,6 +188,36 @@ export class LiveQuizService {
     }
 
     return results;
+  }
+
+  /** Re-entry reviews the acknowledged result, including legacy automatic result IDs. */
+  async fetchSavedResultForSession(sessionId: string): Promise<any | null> {
+    const uid = this.auth.currentUser?.uid;
+    if (!uid) throw new Error('User not authenticated');
+    const snapshot = await getDocsFromServer(query(collection(this.firestore, 'QuizResults'), where('userId', '==', uid)));
+    if (this.auth.currentUser?.uid !== uid) throw new Error('Your account changed. Reopen the live quiz.');
+    const attempts = snapshot.docs.map(item => ({ id: item.id, ...item.data() } as any))
+      .filter(item => item.userId === uid && item.sessionId === sessionId &&
+        ['live', 'run'].includes(item.quizType) && Array.isArray(item.questions) && item.questions.length);
+    const stableId = `live-${sessionId}-${uid}`;
+    return attempts.find(item => item.attemptId === stableId) || attempts.sort((a, b) =>
+      Number(b.timestamp?.toMillis?.() || 0) - Number(a.timestamp?.toMillis?.() || 0))[0] || null;
+  }
+
+  /** Answers use canonical indices and question positions, independent of display order. */
+  async restoreOwnAnswersForSession(sessionId: string, questions: any[]): Promise<any[]> {
+    const uid = this.auth.currentUser?.uid;
+    if (!uid) throw new Error('User not authenticated');
+    const answers = await Promise.all(questions.map((_, index) => getDocFromServer(
+      doc(this.firestore, `LiveSessions/${sessionId}/answers/${index}/items/${uid}`))));
+    if (this.auth.currentUser?.uid !== uid) throw new Error('Your account changed. Reopen the live quiz.');
+    return questions.map((question, index) => {
+      const answer = answers[index].exists() ? answers[index].data() : null;
+      const selected = answer?.['selectedIndex'];
+      const selectedIndex = answer?.['uid'] === uid && Number.isInteger(selected) &&
+        Number(selected) >= 0 && Number(selected) < (question.options?.length || 0) ? selected : null;
+      return { ...question, selectedIndex };
+    });
   }
 
   /**

@@ -17,6 +17,17 @@ function relabel(text: any, order: number[]): any {
     });
 }
 
+function hasUnhandledOptionReference(text: unknown): boolean {
+    if (typeof text !== 'string') return false;
+    // Only explicit "Option A" is safely relabelled. Preserve the bank's order
+    // for bare/quoted labels and answer/choice references with ambiguous wording.
+    const unhandled = text.replace(/\boption\s+[A-Z]\b/gi, 'option');
+    return /^\s*[A-D]\s*$/i.test(unhandled) ||
+        /\b[A-D]\s*(?:[).:;,!?"'\u2019\u201d\u2013\u2014]|(?:and|or|&)\s*[A-D])/i.test(unhandled) ||
+        /\b(?:answer|choice|alternative|response|label|letter)\s*(?:(?:is|was|would\s+be|should\s+be)\s*|[:=]\s*)?["'(\s]*[A-D]\b/i.test(unhandled) ||
+        /\b[A-D]\s+(?:is|was)\s+(?:correct|incorrect|right|wrong|true|false)\b/i.test(unhandled);
+}
+
 export function canonicalQuestion(question: any): any {
     if (!validOrder(question.optionOrder, question.options?.length || 0)) return { ...question };
     const options: any[] = [];
@@ -55,8 +66,8 @@ export function presentQuestion(question: any, random = Math.random): any {
     // Positional answer choices ("all above", "A and C") require editorial review before shuffling.
     const dependent = options.some((text: any) => typeof text === 'string' &&
         /\b(?:above|below|option\s+[A-Z]|[A-D]\s*(?:and|or|&)\s*[A-D])\b/i.test(text)) ||
-        [canonical.question, ...(Array.isArray(canonical.solutions) ? canonical.solutions : [canonical.solutions])]
-            .some(text => typeof text === 'string' && /\b[A-D]\s*(?:[):]|(?:and|or|&)\s*[A-D])/i.test(text));
+        [...options, canonical.question, ...(Array.isArray(canonical.solutions) ? canonical.solutions : [canonical.solutions])]
+            .some(hasUnhandledOptionReference);
     if (!dependent) {
         for (let i = order.length - 1; i > 0; i--) {
             const j = Math.floor(random() * (i + 1));

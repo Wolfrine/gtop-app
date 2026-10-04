@@ -39,6 +39,13 @@ jobs:
           const project=await fetch('https://cloudresourcemanager.googleapis.com/v1/projects/gtop-app',{headers});
           if(project.ok){
             const {projectNumber}=await project.json();
+            const policy=await fetch('https://cloudresourcemanager.googleapis.com/v1/projects/gtop-app:getIamPolicy',{method:'POST',headers,body:'{}'});
+            if(policy.ok){
+              const bindings=(await policy.json()).bindings??[];
+              for(const email of [credential.client_email,projectNumber+'-compute@developer.gserviceaccount.com','service-'+projectNumber+'@gcp-sa-pubsub.iam.gserviceaccount.com','service-'+projectNumber+'@gcp-sa-eventarc.iam.gserviceaccount.com']){
+                console.log('Existing roles for '+email+':',bindings.filter(b=>b.members?.includes('serviceAccount:'+email)).map(b=>b.role).join(', '));
+              }
+            }
             for(const email of ['gtop-app@appspot.gserviceaccount.com',projectNumber+'-compute@developer.gserviceaccount.com']){
               const result=await fetch('https://iam.googleapis.com/v1/projects/gtop-app/serviceAccounts/'+encodeURIComponent(email)+':testIamPermissions',{method:'POST',headers,body:JSON.stringify({permissions:['iam.serviceAccounts.actAs']})});
               console.log('Act as '+email+':',result.ok?((await result.json()).permissions??[]).includes('iam.serviceAccounts.actAs'):('inspection HTTP '+result.status));

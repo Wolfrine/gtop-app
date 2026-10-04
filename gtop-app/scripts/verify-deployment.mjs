@@ -40,9 +40,9 @@ try {
     await page.getByRole('heading', { name: /A little practice/i }).waitFor({ timeout: 30000 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'Page overflows viewport');
     await page.screenshot({ path: `test-results/deployed-site/landing-${viewport.width}.png`, fullPage: true });
-    await page.goto(new URL('/admin/question-paper-generator', base).href);
+    await page.goto(new URL('/admin/question-papers', base).href);
     await page.getByRole('heading', { name: /A little practice/i }).waitFor({ timeout: 30000 });
-    assert.equal(new URL(page.url()).searchParams.get('returnUrl'), '/admin/question-paper-generator', 'Admin sign-in loses the requested paper page');
+    assert.equal(new URL(page.url()).searchParams.get('returnUrl'), '/admin/question-papers', 'Admin sign-in loses the requested paper chat');
     assert.deepEqual(errors, [], 'Hosted pages raised uncaught errors');
     await page.close();
   }

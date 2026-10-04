@@ -104,6 +104,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: gtop-app/package-lock.json
+      - name: Install live verification dependencies
+        run: npm ci
+        working-directory: gtop-app
+      - name: Install the live verification browser
+        run: npx playwright install --with-deps chromium
+        working-directory: gtop-app
       - uses: actions/download-artifact@v4
         with:
           name: verified-application-${{ github.sha }}
@@ -123,6 +131,14 @@ jobs:
           DEPLOY_ORIGIN: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'https://gtop-app.web.app' || github.event_name == 'workflow_dispatch' && 'https://dev-gtop-app.web.app' || github.ref_name == 'main' && 'https://gtop-app.web.app' || 'https://dev-gtop-app.web.app' }}
         run: node scripts/verify-deployment.mjs "$DEPLOY_ORIGIN" "$GITHUB_SHA"
         working-directory: gtop-app
+      - name: Keep actual hosted-page verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployed-current-application
+          path: gtop-app/test-results/deployed-site
+          retention-days: 7
+          if-no-files-found: ignore
   verify-shared-backend:
     needs: promote-hosting
     runs-on: ubuntu-latest

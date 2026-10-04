@@ -1,0 +1,7 @@
+.gcloudignore
+.git
+node_modules
+*-debug.log
+*.test.mjs
+publication.integration.mjs
+verify-deployment.mjs

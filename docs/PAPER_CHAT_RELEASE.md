@@ -1,43 +1,23 @@
-# Paper chat release status and Firebase access fix
+# Paper chat release
 
-Updated: 2026-10-04. The implementation is merged in PR [56](https://github.com/Wolfrine/gtop-app/pull/56). It is built and tested, but is **not live**. Production hosting promotion is gated behind successful backend deployment and verification. Chat processing remains disabled in `Agents/questionBankCreator` until that verification succeeds.
+The implementation is merged in [PR 56](https://github.com/Wolfrine/gtop-app/pull/56). Production promotion and worker activation require successful live verification.
 
-## Confirmed blocker
+## Deployment route
 
-[Production run 37187728832](https://github.com/Wolfrine/gtop-app/actions/runs/37187728832) passed rules, publisher unit tests and actual publication integration, then failed creating the `paperMessages` Firestore index with HTTP 403.
+The original Firebase CLI deployment failed with HTTP 403 creating a Firestore index. The existing deployment account has index read access, Cloud Functions Admin, Cloud Run Admin, Service Account User and Service Account Token Creator, but lacks index creation and project IAM mutation.
 
-[Read-only access inspection 37188161688](https://github.com/Wolfrine/gtop-app/actions/runs/37188161688) identified the deployment account as `firebase-adminsdk-fbsvc@gtop-app.iam.gserviceaccount.com`. It has function deployment, Cloud Run IAM and runtime impersonation access, but lacks `datastore.indexes.create`, `datastore.indexes.update` and `resourcemanager.projects.setIamPolicy`. No credentials or tokens were logged; no IAM bindings were changed by the inspection.
+[Read-only delegation verification 37188889398](https://github.com/Wolfrine/gtop-app/actions/runs/37188889398) successfully minted a temporary token for the already-authorized runtime account. It verified index creation, Eventarc receive and Cloud Run invoke permissions. No new IAM bindings or persistent credentials were created.
 
-## Project-owner action
+GitHub Actions now uses a temporary, datastore-scoped token for the three reviewed indexes. It preserves existing indexes and waits for READY. Rules are deployed with the original account. The Google Cloud CLI deploys exactly the four paper functions using the existing runtime permissions and the actual Firestore location, with matching retry policies, limits and paper-service labels. This avoids the Firebase CLI's unnecessary project-IAM bootstrap changes where effective runtime permissions already exist. Function states, runtime, source commit and trigger configuration are read back.
 
-Open [GTOP project IAM](https://console.cloud.google.com/iam-admin/iam?project=gtop-app). Grant **Cloud Datastore Index Admin** (`roles/datastore.indexAdmin`) to the deployment account above. This permits the three checked-in paper-chat indexes; it does not grant project-wide IAM administration. See [Firebase's index permission documentation](https://firebase.google.com/docs/firestore/query-data/indexing#roles_and_permissions).
+Application validation and backend deployment run concurrently. Hosting promotion waits for both, uses the verified build artifact from the same commit, and checks actual hosted version and assets.
 
-The installed Firebase CLI also bootstraps the following roles for the first background-function service. Its role inspection found no explicit bindings for these roles. This is a likely subsequent requirement, inferred from the installed CLI's `ensureServiceAgentRoles` implementation; the production function deployment has not reached that stage yet. A project owner can preconfigure these bindings rather than granting the deployment account permission to change project IAM:
+## Release completion
 
-| Principal | Role |
-| --- | --- |
-| `78765581239-compute@developer.gserviceaccount.com` | Cloud Run Invoker (`roles/run.invoker`) |
-| `78765581239-compute@developer.gserviceaccount.com` | Eventarc Event Receiver (`roles/eventarc.eventReceiver`) |
-| `service-78765581239@gcp-sa-pubsub.iam.gserviceaccount.com` | Service Account Token Creator (`roles/iam.serviceAccountTokenCreator`) |
+1. Verify backend deployment, active rules, anonymous-access denial, authenticated existing-admin configuration and Firebase Storage bucket.
+2. Verify final app tests, hosting promotion and served commit/asset checks.
+3. Atomically activate questionBankAgentInstructions/paper-chat-v1 and Agents/questionBankCreator.paperChatEnabled using fresh update tokens; record the verified commit and activation time.
+4. Read back the schedule: 08:00, 10:00, 12:00, 14:00, 16:00, 18:00 and 20:00 Asia/Kolkata. Confirm bank reuse first and no manual question approval for chat papers.
+5. Mark action plan PyvGBkV1TytX9MMzXH1i Done after live release and worker activation. The urgent papers require actual admin requirements; no fictional production requests are created.
 
-These are Firebase CLI bootstrap bindings, not permission for the admin to approve questions. Cloud Run invocation and Eventarc receiver roles are documented in [Eventarc permissions](https://cloud.google.com/eventarc/docs/roles-permissions). Verify the service-agent principal exists before granting it; the deployment has already requested service identities. Existing managed service-agent roles must also remain intact.
-
-From a project-owner Cloud Shell session, the corresponding commands are:
-
-```sh
-gcloud projects add-iam-policy-binding gtop-app --member=serviceAccount:firebase-adminsdk-fbsvc@gtop-app.iam.gserviceaccount.com --role=roles/datastore.indexAdmin
-gcloud projects add-iam-policy-binding gtop-app --member=serviceAccount:78765581239-compute@developer.gserviceaccount.com --role=roles/run.invoker
-gcloud projects add-iam-policy-binding gtop-app --member=serviceAccount:78765581239-compute@developer.gserviceaccount.com --role=roles/eventarc.eventReceiver
-gcloud projects add-iam-policy-binding gtop-app --member=serviceAccount:service-78765581239@gcp-sa-pubsub.iam.gserviceaccount.com --role=roles/iam.serviceAccountTokenCreator
-```
-
-## Resume and verify
-
-1. Rerun the failed production workflow, or dispatch **Deploy current GTOP application** with target `production` and `confirm_production` enabled. The user has already authorized this release.
-2. Require backend deployment, active-rule verification, anonymous-access denial, authenticated existing-admin configuration and Firebase Storage bucket verification to succeed.
-3. Require the final app checks, hosting promotion and served commit/asset verification to succeed.
-4. Atomically activate `questionBankAgentInstructions/paper-chat-v1` and set `Agents/questionBankCreator.paperChatEnabled` to true with fresh update-token preconditions. Record the verified release commit and activation time.
-5. Read back the automation schedule and worker configuration. The saved schedule is 08:00, 10:00, 12:00, 14:00, 16:00, 18:00 and 20:00 Asia/Kolkata, with bank reuse first and no manual question approval for chat papers.
-6. Mark action plan `PyvGBkV1TytX9MMzXH1i` Done only after live release and worker activation. The two urgent papers still need their actual requirements submitted by the admin; no fictional production requests have been created.
-
-Local and development verification covered module logic, Firestore and database rules, publisher validation and real emulator delivery, the full browser matrix, five desktop/mobile visual review cycles, and actual A4 student/answer PDFs with image, maths and page counters. Visual status is agent-reviewed; owner acceptance remains pending. Real-device push and a production generated-image request still need real-user exercise.
+Verification already covers module/rule checks, publisher validation and actual emulator delivery, the browser matrix, five desktop/mobile visual review cycles and A4 student/answer PDFs with image, maths and page counters. Visual status is agent-reviewed; owner acceptance is pending. Real-device push and a production generated-image request need real-user exercise.

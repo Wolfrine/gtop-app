@@ -35,14 +35,12 @@ jobs:
       allow_planned_rule_change: true
     secrets: inherit
 
-  build-and-deploy:
-    needs: reviewed-backend
+  build-and-verify:
     if: >-
-      always() && !cancelled() && (needs.reviewed-backend.result == 'success' || needs.reviewed-backend.result == 'skipped') &&
+      !cancelled() &&
       (github.event_name != 'push' || github.event.head_commit != null) &&
       (github.event_name != 'workflow_dispatch' || inputs.target != 'production' || inputs.confirm_production)
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'firebase-production' || 'firebase-development' }}
     permissions:
       contents: read
       checks: write
@@ -73,6 +71,43 @@ jobs:
           npx playwright install --with-deps chromium webkit
           npm run e2e
         working-directory: gtop-app
+      - name: Keep the verified application build for promotion
+        uses: actions/upload-artifact@v4
+        with:
+          name: verified-application-${{ github.sha }}
+          path: gtop-app/dist/gtop-app/browser
+          retention-days: 1
+          if-no-files-found: error
+      - name: Keep review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-application-verification
+          path: |
+            gtop-app/test-results
+            gtop-app/playwright-report
+          retention-days: 7
+          if-no-files-found: ignore
+
+  promote-hosting:
+    needs: [reviewed-backend, build-and-verify]
+    if: >-
+      always() && !cancelled() && needs.build-and-verify.result == 'success' &&
+      (needs.reviewed-backend.result == 'success' || needs.reviewed-backend.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'firebase-production' || 'firebase-development' }}
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/download-artifact@v4
+        with:
+          name: verified-application-${{ github.sha }}
+          path: gtop-app/dist/gtop-app/browser
       - name: Deploy current GTOP application
         id: deploy
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -88,19 +123,8 @@ jobs:
           DEPLOY_ORIGIN: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'https://gtop-app.web.app' || github.event_name == 'workflow_dispatch' && 'https://dev-gtop-app.web.app' || github.ref_name == 'main' && 'https://gtop-app.web.app' || 'https://dev-gtop-app.web.app' }}
         run: node scripts/verify-deployment.mjs "$DEPLOY_ORIGIN" "$GITHUB_SHA"
         working-directory: gtop-app
-      - name: Keep review evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: current-application-verification
-          path: |
-            gtop-app/test-results
-            gtop-app/playwright-report
-          retention-days: 7
-          if-no-files-found: ignore
-
   verify-shared-backend:
-    needs: build-and-deploy
+    needs: promote-hosting
     runs-on: ubuntu-latest
     permissions:
       contents: read

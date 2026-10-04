@@ -106,7 +106,19 @@ export class PaperChatPage implements OnInit, OnDestroy {
     setTimeout(() => this.composer?.nativeElement.focus(), 0);
   }
   conversationTitle(item: PaperConversation): string { return item.title?.trim() || this.papers().find(paper => paper.conversationId === item.id)?.title?.trim() || 'Untitled paper chat'; }
-  requestFor(message: PaperChatMessage): PaperChatRequest | undefined { return message.role !== 'admin' && message.requestId ? this.requests().find(item => item.id === message.requestId) : undefined; }
+  requestFor(message: PaperChatMessage): PaperChatRequest | undefined {
+    if (message.role === 'admin' || !message.requestId) return undefined;
+    const linked = this.messages().filter(item => item.requestId === message.requestId && item.role !== 'admin');
+    const latest = linked.at(-1);
+    return latest?.id === message.id ? this.requests().find(item => item.id === message.requestId) : undefined;
+  }
+  showMessage(message: PaperChatMessage): boolean {
+    return message.role !== 'system' || !this.requests().some(item => item.id === message.requestId) || !!this.requestFor(message) || !!message.paperId;
+  }
+  showMessageText(message: PaperChatMessage): boolean {
+    if (message.role === 'system' && this.requests().some(item => item.id === message.requestId)) return false;
+    return !(message.role === 'agent' && this.requestFor(message)?.status === 'needs-info');
+  }
   paperFor(id: string): ChatSavedPaper | undefined { return this.papers().find(item => item.id === id); }
   briefPreview(request: PaperChatRequest): string { return request.brief.length > 220 ? request.brief.slice(0,220).trimEnd() + '…' : request.brief; }
   canOpenPaper(id: string): boolean { const paper = this.paperFor(id); return !paper || this.isReadyPaper(paper); }

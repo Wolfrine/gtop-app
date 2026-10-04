@@ -36,6 +36,18 @@ jobs:
           const granted=new Set((await response.json()).permissions??[]);
           console.log('Granted:',permissions.filter(p=>granted.has(p)).join(', '));
           console.log('Missing:',permissions.filter(p=>!granted.has(p)).join(', '));
+          const delegatedEmail='78765581239-compute@developer.gserviceaccount.com';
+          const delegated=await fetch('https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/'+encodeURIComponent(delegatedEmail)+':generateAccessToken',{method:'POST',headers,body:JSON.stringify({scope:['https://www.googleapis.com/auth/cloud-platform'],lifetime:'600s'})});
+          console.log('Existing runtime-account delegation HTTP:',delegated.status);
+          if(delegated.ok){
+            const {accessToken}=await delegated.json();
+            const checked=['datastore.indexes.create','datastore.indexes.update','resourcemanager.projects.setIamPolicy','eventarc.events.receiveEvent','run.routes.invoke'];
+            const permissionCheck=await fetch('https://cloudresourcemanager.googleapis.com/v1/projects/gtop-app:testIamPermissions',{method:'POST',headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({permissions:checked})});
+            if(!permissionCheck.ok)throw Error('Delegated permission check HTTP '+permissionCheck.status);
+            const allowed=new Set((await permissionCheck.json()).permissions??[]);
+            console.log('Delegated granted:',checked.filter(p=>allowed.has(p)).join(', '));
+            console.log('Delegated missing:',checked.filter(p=>!allowed.has(p)).join(', '));
+          }
           const project=await fetch('https://cloudresourcemanager.googleapis.com/v1/projects/gtop-app',{headers});
           if(project.ok){
             const {projectNumber}=await project.json();

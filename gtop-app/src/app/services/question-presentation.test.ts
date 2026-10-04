@@ -42,6 +42,10 @@ describe('canonical question presentation', () => {
         'A: This option is correct.',
         'A and B are both mentioned.',
         'A is correct because the quantity increases.',
+        'A is the correct answer because the quantity increases.',
+        'a is the correct answer because the quantity increases.',
+        'The correct answer, after checking each statement carefully, is A',
+        'B provides the only valid response under these conditions.',
     ])('preserves canonical order for an unhandled explanation reference: %s', reference => {
         const original = { ...bank, solutions: [reference, 'Keep this second reasoning paragraph.'] };
         const shown = presentQuestion(original, () => 0);
@@ -59,6 +63,20 @@ describe('canonical question presentation', () => {
         expect(presentQuestion(prompt, () => 0).options).toEqual(prompt.options);
         const choices = { ...bank, options: ['first', 'second', 'Choice A', 'fourth'] };
         expect(presentQuestion(choices, () => 0).options).toEqual(choices.options);
+    });
+
+    it('keeps scientific symbols and units intact while relabelling an explicit Option reference', () => {
+        const original = { ...bank, question: 'What current flows through the resistor?',
+            options: ['2 A', '3 A', '4 A', '5 A'], solutions: [
+                'A current of 2 A flows through the resistor.',
+                'The magnetic field B has units of tesla; capacitance C = Q/V.',
+                'Option A is correct.',
+            ] };
+        const shown = presentQuestion(original, () => 0);
+        expect(shown.options).toEqual(['3 A', '4 A', '5 A', '2 A']);
+        expect(shown.correctIndex).toBe(3);
+        expect(shown.solutions).toEqual([...original.solutions.slice(0, 2), 'Option D is correct.']);
+        expect(canonicalQuestion(shown)).toEqual(original);
     });
 
     it('roundtrips saved presentation and leaves historical canonical summaries intact', () => {

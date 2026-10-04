@@ -221,3 +221,12 @@ Use it to answer:
 - Durable memory: one mobile-friendly admin journey, independent written bank maintenance, preserved paper snapshots, demand-based generation and restrained private activity evidence. Observed usability gains remain unproven.
 - Acceptance: the existing Home/Intent strategic context and Decisions/Problems remain intact; the content-quality page explains the new journey without implementation details. Prior June research remains outside this scope.
 - Project Manager Handoff: implementation, maker-checker findings, cross-device validation and release remain tracked in Action Plan MSeIcdBMVfhc08cQM6rv. Review real usage monthly before selecting further improvements.
+
+### 2026-10-04 - Conversational Paper Delivery And Bank Reuse
+
+- Raw note: `raw/2026-10-04-paper-chat-bank-first.md`.
+- Status: processed.
+- Wiki pages updated: Home, Question Bank Quality, Decisions and OpenQuestions.
+- Durable memory: founder replaces paper navigation/priority/review work with conversational requirements and notified delivery; reuse suitable existing questions before generating gaps; two-hour daytime service rhythm; no manual question approval for chat papers; future flagging remains open. Curriculum and learner-bank trust remain independent.
+- Acceptance: Home/Intent retain practice intelligence and content trust; Decisions explains the workload rationale and urgent real-use context; uncertainties and unverified workload/quality outcomes remain explicit. Prior education-research curation remains outside this scope.
+- Project Manager Handoff: implement and verify the authorized workflow under Action Plan PyvGBkV1TytX9MMzXH1i, release it, update the existing scheduler and test the urgent real requests when submitted. No fictitious production papers are requested as demonstration.

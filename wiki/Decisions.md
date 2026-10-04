@@ -42,7 +42,13 @@ Question-bank improvement should be treated as an ongoing product capability rat
 
 The founder authorized a current-year curriculum catalogue spanning boards, standards, subjects and chapters, with source previews and administrator approval. The intended scope must be independent of the questions already available. Full-syllabus requests use the applicable reviewed curriculum; missing or unverified coverage remains visible rather than being silently omitted.
 
-Human syllabus approval and question review are separate trust decisions. Importing official material or requesting a paper is not approval of its accuracy. Preserve earlier approved scope when corrections are made, and retain direct access to established content-creation tasks as admin workflows evolve. See [[Question Bank Quality]].
+Human syllabus approval and question quality are separate trust decisions. The later chat-paper decision removes manual question approval from paper delivery, while preserving checked content and independent curriculum trust. Importing official material or requesting a paper is not approval of its accuracy. Preserve earlier approved scope when corrections are made, and retain direct access to established content-creation tasks as admin workflows evolve. See [[Question Bank Quality]].
+
+## Paper Requests Become Conversations
+
+The founder chose chat-based requirements because navigating priorities, completion and paper assembly imposed too much admin effort. A scheduled agent should reuse suitable bank questions, generate gaps and return a printable paper plus a separate answer key in the same conversation, with notification and a complete saved-paper view. Runs occur every two hours from 8 AM to 8 PM India time.
+
+Chat papers have no manual question-approval gate. Future flagging may support corrections, but it is not a condition for initial delivery. This decision changes the paper workflow without treating unchecked learner-bank publication or an incomplete syllabus as acceptable. Two or more urgent papers provide the immediate real-use context; a feature release alone does not prove paper quality or reduced admin workload. See [[Question Bank Quality]].
 
 ## Question Metadata Should Support Diagnosis
 
@@ -114,3 +120,5 @@ GTOP should study what students may expect from education products over the next
 - `raw/2026-09-06-plant-lab-guided-redesign.md`
 
 - `raw/2026-09-28-current-syllabus-and-paper-coverage.md`
+
+- `raw/2026-10-04-paper-chat-bank-first.md`

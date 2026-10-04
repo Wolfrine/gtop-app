@@ -60,6 +60,8 @@ What should happen after students flag questions? GTOP has the signal, but the i
 
 Which [[Question Bank Quality]] signals should admins see first: coverage gaps, flags, stale questions, repeated wrong answers, or missing topic tags?
 
+What should future paper-question flagging do to correct a newly generated item while preserving previously delivered paper snapshots? The initial chat workflow intentionally has no manual question-approval gate.
+
 ## Growth Tutorials Ecosystem Relationship
 
 How much should GTOP expose Hub return paths, Growth Tutorials branding, or cross-product navigation without weakening its independence as a standalone product?
@@ -81,3 +83,5 @@ How should GTOP balance MCQ exam readiness with broader AI-era learning skills?
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
 
 - `raw/2026-09-28-current-syllabus-and-paper-coverage.md`
+
+- `raw/2026-10-04-paper-chat-bank-first.md`

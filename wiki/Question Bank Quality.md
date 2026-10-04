@@ -40,11 +40,11 @@ Example snapshot: if several students flag the same MCQ or repeatedly choose the
 
 ## One Admin Journey
 
-Admins must be able to move from a paper request to chapter coverage, generated-question review and a finished paper without learning separate interfaces. The founder identifies mobile complexity and inconsistent paper entry points as a real operating problem. Reducing workload means making the next action clear, retaining context and avoiding duplicate work, not merely shortening labels.
+Admins should express a paper requirement in a conversation and return to a finished paper in that same conversation, with all saved papers easy to find and a notification when the result is ready. The founder identifies mobile complexity and inconsistent paper entry points as a real operating problem. Reducing workload means making the next action clear, retaining context and avoiding duplicate work, not merely shortening labels.
 
-Chapter-wise written-question management belongs alongside objective content. Teachers need to find, add, correct and retire those questions independently of an active generation request. A written answer's depth and marks must fit the paper section; available content must not be relabelled to conceal a shortage. Saved papers should preserve the exact questions and answers the teacher accepted.
+Chapter-wise written-question management belongs alongside objective content. Teachers need to find, add, correct and retire those questions independently of an active generation request. A written answer's depth and marks must fit the paper section; available content must not be relabelled to conceal a shortage. Saved papers should preserve the exact delivered questions and a separate answer key; later requests should produce a new version rather than changing an earlier paper.
 
-Scheduled creation should follow explicit admin demand and account for both approved questions and drafts awaiting review. Finishing a request, cancelling it or rejecting a draft should have predictable consequences. Generated content remains provisional until an admin approves it.
+The founder replaced the earlier manual question-approval gate for chat papers with automatic generation and delivery. The agent checks suitable existing questions first and creates only what is missing, preserving scope, type, marks and difficulty. The chosen service rhythm is every two hours from 8 AM to 8 PM India time. A saved request, ongoing work, a need for clarification and a completed paper must be distinguishable; cancelling or revising pending work must have predictable consequences. Automatic delivery still requires checked answers and usable diagrams. New question flagging is a later option, and chat-paper delivery does not by itself publish content to learners.
 
 Private activity evidence should help improve this journey: which areas and actions admins use, where operations fail, and approximate active time. It should not create a new reporting task for admins, collect their typed content, or turn activity duration into a productivity ranking. At most a monthly readout is part of the chosen operating routine; actual usability and workload improvements remain to be established through usage and feedback.
 
@@ -79,3 +79,5 @@ When prioritizing product work, question-bank improvements should be favored whe
 
 
 - `raw/2026-09-29-admin-question-module.md`
+
+- `raw/2026-10-04-paper-chat-bank-first.md`

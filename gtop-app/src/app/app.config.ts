@@ -12,6 +12,8 @@ import { Auth, provideAuth, getAuth, connectAuthEmulator, signInWithEmailAndPass
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideDatabase, getDatabase, connectDatabaseEmulator } from '@angular/fire/database';
+import { INVITATION_PRESENTATION, INVITED_SOLO_READY } from './services/practice-invite.service';
+import { presentQuestion, restorePresentation, validOrder, canonicalIndex } from './services/question-presentation';
 
 // Local integration tests use isolated emulators; query parameters cannot switch a hosted site.
 const params = new URLSearchParams(window.location.search);
@@ -30,6 +32,8 @@ const firebaseConfig = {
 
 export const appConfig: ApplicationConfig = {
     providers: [
+        { provide: INVITATION_PRESENTATION, useValue: { presentQuestion, restorePresentation, validOrder, canonicalIndex } },
+        { provide: INVITED_SOLO_READY, useValue: useEmulators },
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
         provideHttpClient(),

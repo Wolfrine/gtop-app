@@ -5,6 +5,7 @@
     <p *ngIf="saveState === 'saved'">Your result is saved in Reports.</p>
     <p *ngIf="saveState === 'error'" role="alert">{{ saveError }}</p>
     <button mat-stroked-button *ngIf="saveState === 'error' && canSave" (click)="retrySave()" [disabled]="savePending">Try saving again</button>
+    <button mat-stroked-button *ngIf="saveState === 'saved' && practiceReturnScope" (click)="backToInvitation()">Back to invitation</button>
   </mat-card>
 
   <!-- Score Overview -->

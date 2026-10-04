@@ -55,14 +55,27 @@ export class PracticeInviteService {
     return questions;
   }
   /** Preparation has no storage/global-source mutation; guard commits after navigation/account checks. */
-  async prepare(scope: PracticeScope, sources: any[], returns: { returnTo?: string; hubReturnPath?: string }): Promise<InvitationAttempt> {
+  async recover(scope: PracticeScope, returns: { returnTo?: string; hubReturnPath?: string }): Promise<InvitationAttempt | null> {
+    const profile = this.auth.profile(); const seed = this.seed(scope);
+    const generation = this.generation; const navigationId = this.router?.getCurrentNavigation()?.id;
+    if (!profile?.uid || !seed || !this.presentation || this.returnIntent) return null;
+    const raw = JSON.parse(sessionStorage.getItem(invitationStorageKey(profile.uid)) || 'null');
+    if (!raw || !sameScope(raw.scope || {}, scope)) return null;
+    const restored = await restoreInvitationAttempt(raw, profile, seed, this.presentation);
+    if (!restored) throw new Error('practice-session-invalid');
+    const { returnTo, hubReturnPath, ...base } = restored;
+    const candidate = { ...base, ...returns };
+    this.candidates.set(candidate, { generation, navigationId }); return candidate;
+  }
+  async prepare(scope: PracticeScope, sources: any[], returns: { returnTo?: string; hubReturnPath?: string }, retryOf?: string): Promise<InvitationAttempt> {
     const profile = this.auth.profile(); const seed = this.seed(scope);
     const generation = this.generation; const navigationId = this.router?.getCurrentNavigation()?.id;
     if (!seed || !this.presentation || !matchesProfile(scope, profile)) throw new Error('practice-adapter-unavailable');
     const previous = JSON.parse(sessionStorage.getItem(invitationStorageKey(profile.uid)) || 'null');
     const restored = previous && sameScope(previous.scope || {}, scope) ? await restoreInvitationAttempt(previous, profile, seed, this.presentation) : null;
     if (previous && sameScope(previous.scope || {}, scope) && !restored) throw new Error('practice-session-invalid');
-    const attempt = restored && !restored.acknowledgedReceipt ? restored : await createInvitationAttempt(profile, seed, sources, this.presentation, crypto.randomUUID());
+    if (retryOf && (restored?.attemptId !== retryOf || !restored.acknowledgedReceipt)) throw new Error('practice-retry-unavailable');
+    const attempt = restored && !restored.acknowledgedReceipt ? restored : await createInvitationAttempt(profile, seed, sources, this.presentation, crypto.randomUUID(), retryOf ? restored! : undefined);
     const intent = this.returnIntent;
     const returnCue = intent && intent.uid === profile.uid && sameScope(intent.cue.scope, scope) ? intent.cue : null;
     const { returnTo, hubReturnPath, ...base } = attempt;
@@ -83,8 +96,8 @@ export class PracticeInviteService {
     let raw: any; try { raw = JSON.parse(sessionStorage.getItem(invitationStorageKey(profile.uid)) || 'null'); } catch { return false; }
     const seed = raw && this.seed(raw.scope); if (!seed || raw.attemptId !== attemptId) return false;
     const restored = await restoreInvitationAttempt(raw, profile, seed, this.presentation);
-    if (!restored?.completed || !this.owns(restored) || generation !== this.generation ||
-      (navigationId !== undefined && this.router?.getCurrentNavigation()?.id !== navigationId)) return false;
+    // NavigationEnd clears getCurrentNavigation; NavigationStart already invalidates generation.
+    if (!restored?.completed || !this.owns(restored) || generation !== this.generation) return false;
     this.generation++; this.active = restored;
     this.completion.set(restored.acknowledgedReceipt && restored.offerDecision === 'pending' ? restored.scope : null);
     return true;

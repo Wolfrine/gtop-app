@@ -9,7 +9,8 @@
         <h1>{{ profileRequired ? 'Choose your curriculum' : 'Quiz unavailable' }}</h1>
         <p>{{ loadError }}</p>
         <button mat-raised-button color="primary" *ngIf="profileRequired" (click)="goToProfile()">Add board and class</button>
-        <button mat-raised-button color="primary" *ngIf="!profileRequired && !liveMode" (click)="loadSoloQuiz(true)">Try again</button>
+        <button mat-raised-button color="primary" *ngIf="previousResultAvailable" (click)="openPreviousResult()">Save previous result</button>
+        <button mat-raised-button color="primary" *ngIf="!profileRequired && !liveMode && !previousResultAvailable" (click)="loadSoloQuiz(true)">Try again</button>
         <button mat-button (click)="goToDashboard()">Back to dashboard</button>
     </mat-card>
     <ng-container *ngIf="!loading && !loadError && questions.length">

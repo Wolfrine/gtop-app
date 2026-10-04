@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
@@ -15,6 +15,8 @@ import { combineLatest, Subscription } from 'rxjs';
 import { PracticeContext, questionsMatchPractice, resolvePracticeContext } from '../../services/practice-context';
 import { createPracticeAttemptId, PracticeSession, readPracticeSession, writePracticeSession } from '../../services/practice-session';
 import { canonicalIndex, presentLiveQuestion, presentQuestion } from '../../services/question-presentation';
+import { PracticeInviteService } from '../../services/practice-invite.service';
+import { matchesProfile } from '../../services/practice-invite.domain';
 
 @Component({
     selector: 'app-quiz-page',
@@ -43,6 +45,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     loading = true;
     loadError = '';
     profileRequired = false;
+    previousResultAvailable = false;
     private soloSubscription?: Subscription;
     private requestVersion = 0;
     private practiceSession: PracticeSession | null = null;
@@ -81,7 +84,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         private liveService: LiveQuizService,
         private router: Router,
         private route: ActivatedRoute,
-        private authService: AuthService
+        private authService: AuthService,
+        @Optional() private invites: PracticeInviteService | null = null
     ) { }
 
     ngOnInit(): void {
@@ -212,6 +216,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         this.loading = true;
         this.loadError = '';
         this.profileRequired = false;
+        this.previousResultAvailable = false;
         this.questions = [];
         this.currentQuestionIndex = 0;
         this.hubReturnUrl = this.currentParams['returnTo'] || null;
@@ -219,6 +224,28 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         this.practiceSession = null;
         this.retryContext = null;
         try {
+            if (this.currentParams['practice'] === 'invite') {
+                const previous = readPracticeSession(profile.uid);
+                if (previous?.completed && !previous.saved && previous.source?.kind !== 'invitation') {
+                    this.previousResultAvailable = true;
+                    throw new Error('Your previous quiz result is still unsaved. Save it first, then return to this invitation. Your previous answers are retained in this tab.');
+                }
+                const attempt = this.invites?.current();
+                if (!attempt || attempt.uid !== profile.uid || attempt.role !== (profile.role || 'user') || !matchesProfile(attempt.scope, profile))
+                    throw new Error('This practice could not be restored. Reopen its invitation link.');
+                this.questions = attempt.questions;
+                this.currentQuestionIndex = attempt.currentQuestionIndex;
+                this.practiceSession = { version: 1, uid: attempt.uid, role: attempt.role, routeKey: context.routeKey,
+                    attemptId: attempt.attemptId, quizType: 'custom', source: { kind: 'invitation', attemptId: attempt.attemptId, revision: attempt.revision },
+                    questions: this.questions, currentQuestionIndex: attempt.currentQuestionIndex, completed: attempt.completed,
+                    saved: !!attempt.acknowledgedReceipt, returnTo: attempt.returnTo, hubReturnPath: attempt.hubReturnPath };
+                this.hubReturnUrl = attempt.returnTo || null;
+                this.hubReturnPath = attempt.hubReturnPath || null;
+                writePracticeSession(this.practiceSession);
+                if (attempt.completed) this.openSoloSummary();
+                else this.invites?.started(attempt.attemptId);
+                return;
+            }
             const restored = readPracticeSession(profile.uid);
             if (restored?.completed && !restored.saved) {
                 const profileContext = resolvePracticeContext(profile, {});
@@ -278,21 +305,33 @@ export class QuizPageComponent implements OnInit, OnDestroy {
 
     goToProfile(): void { void this.router.navigate(['/profile-setup']); }
     goToDashboard(): void { void this.router.navigate([this.currentProfile?.role === 'admin' ? '/admin' : '/dashboard']); }
+    openPreviousResult(): void {
+        const previous = readPracticeSession(this.currentProfile?.uid);
+        if (!previous?.completed || previous.saved || previous.source?.kind === 'invitation') return;
+        void this.router.navigate(['/quiz-summary'], { state: { attemptId: previous.attemptId, practiceUid: previous.uid,
+            practiceReturnScope: this.invites?.current()?.scope } });
+    }
     get reviewingSavedAttempt(): boolean { return !!(this.practiceSession?.completed && this.practiceSession.saved); }
 
-    private persistPractice(completed = false): void {
-        if (!this.practiceSession) return;
+    private persistPractice(completed = false): boolean {
+        if (!this.practiceSession) return false;
+        if (this.practiceSession.source?.kind === 'invitation' && !this.practiceSession.completed &&
+            !this.invites?.checkpoint(this.practiceSession.attemptId, this.questions, this.currentQuestionIndex, completed)) {
+            this.loadError = 'Your progress could not be retained in this tab. Allow site storage and reopen this practice.';
+            return false;
+        }
         this.practiceSession = { ...this.practiceSession, questions: this.questions, currentQuestionIndex: this.currentQuestionIndex,
             completed: completed || this.practiceSession.completed };
         writePracticeSession(this.practiceSession);
+        return true;
     }
 
     private openSoloSummary(): void {
-        this.persistPractice(true);
+        if (!this.persistPractice(true)) return;
         this.quizService.setQuestions(this.questions);
         void this.router.navigate(['/quiz-summary'], {
             state: { questions: this.questions, practiceUid: this.practiceSession?.uid, attemptId: this.practiceSession?.attemptId, quizType: this.practiceSession?.quizType,
-                saved: this.practiceSession?.saved, returnTo: this.hubReturnUrl, hubReturnPath: this.hubReturnPath },
+                saved: this.practiceSession?.saved, source: this.practiceSession?.source, returnTo: this.hubReturnUrl, hubReturnPath: this.hubReturnPath },
             queryParams: this.hubReturnUrl ? { returnTo: this.hubReturnUrl, hubReturnPath: this.hubReturnPath || undefined } : undefined
         });
     }

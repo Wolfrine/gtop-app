@@ -30,6 +30,6 @@ export class PracticeInviteComponent implements OnInit {
     const scope = this.scope(); if (!scope || this.mismatch || !this.available) return;
     // AuthGuard retains the entire requested URL through sign-in and profile setup.
     const params = this.route.snapshot.queryParamMap;
-    void this.router.navigate(['/quiz'], { queryParams: { ...practiceParams(scope), practice: 'invite', ...practiceReturns(params) } });
+    void this.router.navigate(['/quiz'], { queryParams: { ...practiceParams(scope), practice: 'invite', ...practiceReturns(params) }, state: { newInvitation: true } });
   }
 }

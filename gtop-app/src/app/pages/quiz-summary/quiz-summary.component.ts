@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
@@ -16,6 +16,8 @@ import { ChartConfiguration } from 'chart.js';
 import { MatIconModule } from '@angular/material/icon';
 import { LiveSummaryComponent } from '../live/live-summary/live-summary.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { PracticeInviteService } from '../../services/practice-invite.service';
+import { PracticeScope, practiceParams, matchesProfile } from '../../services/practice-invite.domain';
 
 @Component({
     selector: 'app-quiz-summary',
@@ -44,6 +46,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     saveError = '';
     canSave = false;
     private attemptId = '';
+    private invitationAttemptId = '';
+    practiceReturnScope: PracticeScope | null = null;
     private quizType = 'quick';
     private currentUser: any = null;
     private ownerIdentity: string | null = null;
@@ -81,7 +85,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         private authService: AuthService,
         private router: Router,
         private route: ActivatedRoute,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        @Optional() private invites: PracticeInviteService | null = null
     ) { }
 
     ngOnInit() {
@@ -137,6 +142,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
 
     private async loadSummary(navState: any, version: number) {
         const user = this.currentUser;
+        if (this.invites?.seed(navState.practiceReturnScope) && matchesProfile(navState.practiceReturnScope, user))
+            this.practiceReturnScope = navState.practiceReturnScope;
         const uid = user.uid;
         const params = this.route.snapshot.queryParams || {};
         this.hubReturnUrl = navState.returnTo || params['returnTo'] || null;
@@ -154,10 +161,12 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                 historical = (await this.quizService.fetchUserQuizResults(params['userId']))
                     .find(r => r.id === params['sessionId']);
                 if (!this.isCurrentSummary(version)) return;
+                if (!historical) { this.saveState = 'error'; this.saveError = 'This saved attempt could not be loaded. Open it from your reports.'; return; }
             }
             const summaries = navState.questionSummaries || historical?.questions;
             if (Array.isArray(summaries) && summaries.length) {
-                const questions = await this.quizService.expandSummariesToQuestions(summaries);
+                if (historical?.source?.kind === 'invitation' && !historical.invitation) throw new Error('missing-invitation-history');
+                const questions = await this.quizService.expandSummariesToQuestions(summaries, historical?.invitation);
                 if (!this.isCurrentSummary(version)) return;
                 this.saved = true;
                 this.saveState = 'saved';
@@ -180,6 +189,19 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                 this.attemptId = useSession ? session!.attemptId : (navState.attemptId || createPracticeAttemptId());
                 this.quizType = useSession ? session!.quizType : (navState.quizType || 'quick');
                 this.saved = useSession ? !!session!.saved : !!navState.saved;
+                const source = useSession ? session!.source : navState.source;
+                if (source?.kind === 'invitation') {
+                    if (source.attemptId !== this.attemptId || !this.invites || !await this.invites.resumeSummary(this.attemptId))
+                        throw new Error('invitation-summary-unavailable');
+                    if (!this.isCurrentSummary(version)) return;
+                    const attempt = this.invites.current();
+                    if (!attempt || attempt.attemptId !== this.attemptId || !attempt.completed) throw new Error('invitation-summary-unavailable');
+                    this.invitationAttemptId = attempt.attemptId;
+                    this.questions = attempt.questions;
+                    this.quizType = 'custom';
+                    this.saved = !!attempt.acknowledgedReceipt;
+                    this.hubReturnUrl = attempt.returnTo || null;
+                }
                 if (!this.fromLive && this.questions.length && !this.saved &&
                     (!questionsMatchPractice(this.questions, resolvePracticeContext(user, {})) ||
                     (useSession && session!.role !== (user.role || 'user')))) {
@@ -207,6 +229,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         const sample = this.questions[0];
         this.attemptId ||= createPracticeAttemptId();
         const attemptId = this.attemptId;
+        const invitation = this.invitationAttemptId ? this.invites?.result(attemptId) : undefined;
         this.saveState = 'saving';
         this.saveError = '';
         const acknowledgementTimer = setTimeout(() => {
@@ -217,6 +240,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         this.acknowledgementTimer = acknowledgementTimer;
         const pendingSave = this.quizService.saveQuizResult(uid, {
             attemptId,
+            ...(invitation ? { invitation } : {}),
             userName: this.currentUser.displayName || 'Unknown',
             board: sample.board,
             standard: sample.standard,
@@ -230,11 +254,12 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                 correctIndex: canonicalIndex(q, q.correctIndex) as number,
                 ...(q.optionOrder ? { optionOrder: q.optionOrder } : {})
             }))
-        }).then(() => {
+        }).then(receiptId => {
             if (!this.isCurrentSummary(version)) return;
             this.saved = true;
             this.saveState = 'saved';
             this.saveError = '';
+            if (this.invitationAttemptId === attemptId) this.invites?.acknowledgeCompletion(attemptId, receiptId);
             const session = readPracticeSession(uid);
             if (session?.attemptId === attemptId) writePracticeSession({ ...session, saved: true });
             // Keep browser history entries tied to their own acknowledged attempt.
@@ -266,6 +291,10 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
             return;
         }
         window.location.assign(this.hubReturnUrl);
+    }
+    backToInvitation(): void {
+        if (this.practiceReturnScope && this.saved && this.isCurrentSummary())
+            void this.router.navigate(['/practice'], { queryParams: practiceParams(this.practiceReturnScope) });
     }
 
     get totalQuestions() {
@@ -330,6 +359,13 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
 
     async retryAll() {
         if (!this.saved) return;
+        const invitation = this.invites?.current();
+        if (this.invitationAttemptId && invitation?.attemptId === this.invitationAttemptId) {
+            void this.router.navigate(['/quiz'], { queryParams: { ...practiceParams(invitation.scope), practice: 'invite',
+                returnTo: invitation.returnTo, hubReturnPath: invitation.hubReturnPath },
+                state: { invitationRetryOf: invitation.attemptId } });
+            return;
+        }
         try {
             await this.quizService.prepareRetryFromExistingAttempt({
                 questions: this.questions,

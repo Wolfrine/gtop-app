@@ -87,4 +87,17 @@ describe('actual solo invitation integration', () => {
     expect(summary.saveState).toBe('error'); expect(s.invites.completion()).toBeNull(); expect(s.invites.cue()).toBeNull();
     summary.ngOnDestroy(); player.ngOnDestroy();
   });
+  it('retains the exact completed attempt and explains a failed summary navigation without offering consent', async () => {
+    const s = setup(); const attempt = await s.invites.prepare(scope, sources, {}); s.invites.commit(attempt);
+    const player = s.player(); player.ngOnInit(); await flush();
+    const router = (player as any).router;
+    router.navigate.mockRejectedValueOnce(new Error('dynamic-import-offline'));
+    for (let i = 0; i < 5; i++) { player.selectOption(player.questions[i].correctIndex); player.nextQuestion(); }
+    await flush();
+    expect(player.completedResultAvailable).toBe(true); expect(player.openingSummary).toBe(false);
+    expect(player.loadError).toContain('retained in this tab');
+    expect(s.invites.current()?.attemptId).toBe(attempt.attemptId); expect(s.invites.current()?.completed).toBe(true);
+    expect(readPracticeSession(profile.uid)?.attemptId).toBe(attempt.attemptId); expect(s.invites.completion()).toBeNull();
+    player.ngOnDestroy();
+  });
 });

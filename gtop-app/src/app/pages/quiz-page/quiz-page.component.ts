@@ -46,6 +46,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     loadError = '';
     profileRequired = false;
     previousResultAvailable = false;
+    completedResultAvailable = false;
+    openingSummary = false;
     private soloSubscription?: Subscription;
     private requestVersion = 0;
     private practiceSession: PracticeSession | null = null;
@@ -217,6 +219,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         this.loadError = '';
         this.profileRequired = false;
         this.previousResultAvailable = false;
+        this.completedResultAvailable = false;
+        this.openingSummary = false;
         this.questions = [];
         this.currentQuestionIndex = 0;
         this.hubReturnUrl = this.currentParams['returnTo'] || null;
@@ -313,6 +317,16 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         void this.router.navigate(['/quiz-summary'], { state: { attemptId: previous.attemptId, practiceUid: previous.uid,
             practiceReturnScope: this.invites?.current()?.scope } });
     }
+    reloadCompletedResult(): void {
+        if (!this.practiceSession?.completed || this.practiceSession.uid !== this.currentProfile?.uid) return;
+        if (navigator.onLine === false) {
+            this.loadError = 'You are still offline. Your completed answers are retained in this tab. Reconnect, then reload the completed result.';
+            return;
+        }
+        // A failed dynamic module load may be cached for this document. Reload resets it;
+        // the dedicated invitation guard restores the same completed attempt from this tab.
+        window.location.reload();
+    }
     get reviewingSavedAttempt(): boolean { return !!(this.practiceSession?.completed && this.practiceSession.saved); }
 
     private persistPractice(completed = false): boolean {
@@ -329,13 +343,23 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     }
 
     private openSoloSummary(): void {
+        if (this.openingSummary) return;
         if (!this.persistPractice(true)) return;
         this.quizService.setQuestions(this.questions);
-        void this.router.navigate(['/quiz-summary'], {
+        this.openingSummary = true;
+        const version = this.requestVersion;
+        const attemptId = this.practiceSession?.attemptId;
+        const failed = () => {
+            if (version !== this.requestVersion || this.practiceSession?.attemptId !== attemptId) return;
+            this.openingSummary = false;
+            this.completedResultAvailable = true;
+            this.loadError = 'Your completed answers are retained in this tab. Reconnect, then reload the completed result to save it.';
+        };
+        void Promise.resolve(this.router.navigate(['/quiz-summary'], {
             state: { questions: this.questions, practiceUid: this.practiceSession?.uid, attemptId: this.practiceSession?.attemptId, quizType: this.practiceSession?.quizType,
                 saved: this.practiceSession?.saved, source: this.practiceSession?.source, returnTo: this.hubReturnUrl, hubReturnPath: this.hubReturnPath },
             queryParams: this.hubReturnUrl ? { returnTo: this.hubReturnUrl, hubReturnPath: this.hubReturnPath || undefined } : undefined
-        });
+        })).then(opened => { if (opened === false) failed(); }).catch(failed);
     }
 
     ngOnDestroy(): void {

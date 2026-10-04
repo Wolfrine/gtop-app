@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
 
 const project='gtop-app';
 const bucketName='gtop-app.firebasestorage.app';
@@ -71,4 +72,28 @@ assert.equal(metadata.status,200);assert.equal(metadata.data.name,bucketName);
 const readback=await request(endpoint,delegated);
 assert.equal(readback.data.bucket?.name?.split('/').at(-1),bucketName);
 console.log('Firebase image bucket exists and is linked:',bucketName,'location:',metadata.data.location);
+// Verify the same write/download path used by paper diagrams, then remove only
+// this unique probe with an object-generation precondition. No paper is created.
+const probe='paper-assets/deployment-check/'+(process.env.GITHUB_RUN_ID??'check')+'-'+randomUUID()+'.png';
+const bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/a9sAAAAASUVORK5CYII=','base64');
+const objectEndpoint='https://storage.googleapis.com/storage/v1/b/'+bucketName+'/o/'+encodeURIComponent(probe);
+let generation;
+try{
+  const uploaded=await fetch('https://storage.googleapis.com/upload/storage/v1/b/'+bucketName+'/o?uploadType=media&name='+encodeURIComponent(probe)+'&ifGenerationMatch=0',{method:'POST',headers:{Authorization:delegated.Authorization,'Content-Type':'image/png'},body:bytes,signal:AbortSignal.timeout(30000)});
+  assert(uploaded.ok,'The existing runtime must be able to store paper images.');
+  generation=(await uploaded.json()).generation;
+  assert(generation,'A probe object generation is required for safe cleanup.');
+  const token=randomUUID();
+  await request(objectEndpoint+'?ifGenerationMatch='+generation,delegated,'PATCH',{metadata:{firebaseStorageDownloadTokens:token}});
+  const downloaded=await fetch('https://firebasestorage.googleapis.com/v0/b/'+bucketName+'/o/'+encodeURIComponent(probe)+'?alt=media&token='+token,{signal:AbortSignal.timeout(30000)});
+  assert(downloaded.ok,'Firebase diagram download URLs must work.');
+  assert.deepEqual(Buffer.from(await downloaded.arrayBuffer()),bytes,'Firebase must return the exact stored image bytes.');
+  console.log('Verified actual runtime image upload and Firebase token download.');
+}finally{
+  if(generation){
+    const deleted=await fetch(objectEndpoint+'?ifGenerationMatch='+generation,{method:'DELETE',headers:delegated,signal:AbortSignal.timeout(30000)});
+    assert(deleted.ok,'The temporary image probe must be removed.');
+    console.log('Removed the unique temporary image probe.');
+  }
+}
 console.log('No IAM grants, credentials, paper requests or existing objects changed.');

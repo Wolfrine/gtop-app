@@ -1,5 +1,12 @@
 <div class="summary-container">
 
+  <mat-card appCard aria-live="polite" *ngIf="saveState !== 'idle'">
+    <p *ngIf="saveState === 'saving'">Saving your result… Keep this tab open until it is saved.</p>
+    <p *ngIf="saveState === 'saved'">Your result is saved in Reports.</p>
+    <p *ngIf="saveState === 'error'" role="alert">{{ saveError }}</p>
+    <button mat-stroked-button *ngIf="saveState === 'error' && canSave" (click)="retrySave()" [disabled]="savePending">Try saving again</button>
+  </mat-card>
+
   <!-- Score Overview -->
   <mat-card appCard class="score-card">
     <div class="score-grid">
@@ -17,10 +24,10 @@
           </span>
         </div>
         <div class="actions">
-          <button mat-flat-button color="primary" (click)="retryIncorrect()" [disabled]="!hasIncorrectAnswers">
+          <button mat-flat-button color="primary" (click)="retryIncorrect()" [disabled]="saveState !== 'saved' || !hasIncorrectAnswers">
             <mat-icon>refresh</mat-icon> Retry Incorrect
           </button>
-          <button mat-stroked-button color="primary" (click)="retryAll()">
+          <button mat-stroked-button color="primary" (click)="retryAll()" [disabled]="saveState !== 'saved'">
             <mat-icon>replay</mat-icon> Retry Entire Quiz
           </button>
           <button mat-stroked-button *ngIf="hubReturnUrl" (click)="backToHub()">
@@ -30,6 +37,7 @@
             <mat-icon>home</mat-icon> Back to Dashboard
           </button>
         </div>
+        <p *ngIf="totalQuestions && saveState !== 'saved'">Save this result before starting a retry so your completed attempt stays in Reports.</p>
 
       </div>
     </div>
@@ -94,7 +102,6 @@
                 {{ optionLabels[q.correctIndex] }} {{ q.options[q.correctIndex] }}
               </span>
             </div>
-            <p class="explanation" *ngIf="q.solutions?.[q.correctIndex]"><strong>Explanation:</strong> {{ q.solutions[q.correctIndex] }}</p>
           </div>
 
           <div class="mcq-solution" *ngIf="q.selectedIndex == q.correctIndex">
@@ -103,6 +110,7 @@
               {{ optionLabels[q.correctIndex] }} {{ q.options[q.correctIndex] }}
             </span>
           </div>
+          <p class="explanation" style="white-space: pre-line" *ngIf="explanationText(q)"><strong>Explanation:</strong> {{ explanationText(q) }}</p>
         </div>
       </mat-expansion-panel>
     </mat-accordion>

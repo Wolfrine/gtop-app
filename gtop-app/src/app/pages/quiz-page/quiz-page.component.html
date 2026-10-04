@@ -1,6 +1,18 @@
 <div class="quiz-container" #quizRoot>
 
     <div class="quiz-kicker"><span></span> A LITTLE FOCUS GOES A LONG WAY</div>
+    <mat-card appCard *ngIf="loading" role="status">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <p>Loading your quiz…</p>
+    </mat-card>
+    <mat-card appCard *ngIf="loadError" role="alert">
+        <h1>{{ profileRequired ? 'Choose your curriculum' : 'Quiz unavailable' }}</h1>
+        <p>{{ loadError }}</p>
+        <button mat-raised-button color="primary" *ngIf="profileRequired" (click)="goToProfile()">Add board and class</button>
+        <button mat-raised-button color="primary" *ngIf="!profileRequired && !liveMode" (click)="loadSoloQuiz(true)">Try again</button>
+        <button mat-button (click)="goToDashboard()">Back to dashboard</button>
+    </mat-card>
+    <ng-container *ngIf="!loading && !loadError && questions.length">
     <!-- Header -->
     <div class="quiz-header">
         <h1>Question <strong>{{ currentQuestionIndex + 1 }}</strong><span> of {{ questions.length }}</span></h1>
@@ -22,15 +34,16 @@
 
     <!-- Question -->
     <mat-card appCard class="question-card">
-        <span class="question-number">Q{{currentQuestionIndex+1}}</span><h2>{{ questions[currentQuestionIndex].question }}</h2>
+        <span class="question-number">Q{{currentQuestionIndex+1}}</span><h2 #questionHeading tabindex="-1">{{ questions[currentQuestionIndex].question }}</h2>
     </mat-card>
 
     <!-- Options -->
-    <p class="option-instruction">Choose one answer.</p>
+    <p class="option-instruction">{{ reviewingSavedAttempt ? 'Your saved answer.' : 'Choose one answer.' }}</p>
     <div class="options-container">
         <button type="button" *ngFor="let option of questions[currentQuestionIndex].options; let i = index" class="option-card card"
             [class.selected]="questions[currentQuestionIndex].selectedIndex === i"
             [attr.aria-pressed]="questions[currentQuestionIndex].selectedIndex === i"
+            [disabled]="reviewingSavedAttempt"
             [class.frozen]="liveMode && questions[currentQuestionIndex].selectedIndex !== null"
             (click)="selectOption(i)">
             <span class="answer-letter">{{optionsLabel[i]}}</span><span class="answer-copy">{{ option }}</span><span class="answer-indicator" aria-hidden="true"></span>
@@ -58,4 +71,5 @@
         </mat-list>
     </div>
 
+    </ng-container>
 </div>

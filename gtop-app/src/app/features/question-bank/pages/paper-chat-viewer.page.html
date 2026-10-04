@@ -1,0 +1,15 @@
+<div class="qm-page pcv-page">
+  <app-question-module-header active="all" title="Saved paper" description="Your question paper and answer key are saved separately." [create]="false" />
+  <a class="pcv-back" routerLink="/admin/question-papers/all" queryParamsHandling="preserve">← All papers</a>
+  @if(loading()){<div class="pcv-loading" role="status">Loading saved paper…</div>}
+  @if(error()){<section class="pcv-alert" role="alert"><h2>This paper could not open</h2><p>{{error()}}</p><button class="btn btn-secondary" type="button" (click)="load()">Try again</button></section>}
+  @if(paper();as paper){
+    <header class="pcv-heading"><div><span class="pcv-status" [class.pcv-draft]="!ready()">{{ready()?'Saved snapshot':'Incomplete draft'}}</span><h2>{{paper.title}}</h2><p>{{paper.board}} · Class {{paper.standard}} · {{paper.subjects.join(', ')}} · {{paper.marks}} marks</p>@if(paper.durationMinutes){<small>{{paper.durationMinutes}} minutes</small>}</div>@if(paper.conversationId){<a class="pcv-link" [routerLink]="['/admin/question-papers/chat',paper.conversationId]" queryParamsHandling="preserve">View conversation ↗</a>}</header>
+    @if(!ready()){<div class="pcv-draft-notice"><p>{{paper.actualMarks}} of {{paper.marks}} marks saved. Complete this earlier draft before printing.</p><a [routerLink]="['/admin/question-paper-generator']" [queryParams]="{draftId:paper.id}" queryParamsHandling="merge">Continue in manual builder →</a></div>}
+    <div class="pcv-document-tools"><div class="pcv-document-switch" role="group" aria-label="Saved document"><button type="button" [disabled]="printing()" [class.active]="!answers()" [attr.aria-pressed]="!answers()" (click)="switchDocument(false)">Question paper</button><button type="button" [disabled]="printing()" [class.active]="answers()" [attr.aria-pressed]="answers()" (click)="switchDocument(true)">Answer key</button></div><button class="btn btn-primary" type="button" (click)="print()" [disabled]="!ready()||!documentReady()||printing()||!!imageError()">{{printing()?'Preparing print…':answers()?'Print answer key / Save PDF':'Print paper / Save PDF'}}</button></div>
+    <div class="pcv-document-label" [class.pcv-answer-label]="answers()"><strong>{{answers()?'Answer key':'Question paper'}}</strong><span>{{answers()?'Teacher copy · keep separate from students':'Student copy · answers are kept separately'}}</span></div>
+    @if(imageError()){<div class="pcv-image-alert" role="alert"><p>{{imageError()}}</p><button type="button" class="pcv-link" (click)="load()">Reload paper</button></div>}
+    @if(document()){<div class="pcv-sheet"><iframe #documentFrame [srcdoc]="document()" sandbox="allow-same-origin allow-modals" [style.height.px]="documentHeight()" [title]="(answers()?'Answer key for ':'Question paper: ')+paper.title" (load)="onDocumentLoad()"></iframe></div>}
+    <p class="pcv-print-hint">Choose “Save as PDF” in your device's print options to download this {{answers()?'answer key':'paper'}}.</p>
+  }
+</div>

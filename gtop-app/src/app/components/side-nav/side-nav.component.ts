@@ -51,7 +51,7 @@ export class SideNavComponent implements OnInit {
 
             { label: 'Action Plan', icon: 'assignment_turned_in', route: '/admin/action-plan', badge: 'LIVE', tooltip: 'Coordinate priorities, owners, progress and blockers' },
 
-            { label: 'Questions & papers', icon: 'library_books', route: '/admin/question-papers', badge: 'NEW', tooltip: 'Papers, coverage, review and approved questions' },
+            { label: 'Questions & papers', icon: 'library_books', route: '/admin/question-papers', badge: 'NEW', tooltip: 'Request a paper, follow the agent and open saved papers' },
             { label: 'Manage Syllabus', icon: 'fact_check', route: '/admin/manage-syllabus' },
             { label: 'Add MCQs', icon: 'add', route: '/admin/add-mcq' },
             { label: 'Syllabus review', icon: 'menu_book', route: '/syllabus-preview' },

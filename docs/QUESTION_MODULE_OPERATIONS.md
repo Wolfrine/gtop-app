@@ -1,7 +1,10 @@
 # Question module operations
 
 ## Admin journey
-- `/admin/question-papers`: active paper requests, next actions, cancellation, saved snapshots and older-page loading.
+- `/admin/question-papers`: chat requirements, recent conversations, confirmed saved requests, agent progress, attachments and notifications.
+- `/admin/question-papers/all`: paged saved papers, loaded-item search, ready/draft filters and separate answer keys.
+- `/admin/question-papers/view/:paperId`: immutable student paper/teacher answer key, diagram readiness and print/Save PDF.
+- `/admin/question-papers/legacy`: earlier manual coverage requests and cancellation.
 - `/admin/question-paper-generator`: format → syllabus/sections → exact approved coverage → preview, answer key and print/PDF. `requestId` resumes pinned curriculum/rules; `draftId` opens the original snapshot. A complete saved request becomes completed.
 - `/admin/question-library`: independent board/class/subject/chapter navigation, objective and written/paper banks, manual written creation, edits, archive and pagination. Search explicitly applies to loaded questions. Admin-authored written answers stay outside the learner MCQ collection.
 - `/admin/question-review`: pending review, corrections, bounded bulk approval/rejection and request-scoped return links.
@@ -10,7 +13,9 @@
 Written questions must match section marks. Objective paper formats retain their scoring rules. Reviewed syllabus versions and exact stored snapshots remain the trust boundaries; catalogue completeness is not implied by this release.
 
 ## Scheduled creator
-The existing daily 08:00 Asia/Kolkata creator reads `questionBankAgentInstructions/creator-workflow-v3` first, retaining subject quality/reference contracts. It replaces conflicting legacy cooldown and force-run policies.
+For chat requests, [PAPER_CHAT_WORKER.md](PAPER_CHAT_WORKER.md) supersedes the legacy manual approval workflow. The existing automation runs every two hours at 08:00, 10:00, 12:00, 14:00, 16:00, 18:00 and 20:00 Asia/Kolkata. It reuses exact suitable bank snapshots first and automatically validates new questions; no human question approval is required. The publication service saves private separate HTML artifacts and atomically posts delivery/notifications only for the current request revision. Browser push is opt-in; in-app notifications always persist. Images upload to Firebase Storage through checksum-verified staging.
+
+Legacy chapter-growth requests retain their review policy. The creator reads `questionBankAgentInstructions/creator-workflow-v3` first, retaining subject quality/reference contracts. It replaces conflicting legacy cooldown and force-run policies.
 
 Only explicit admin requests are eligible. Reconcile approved and pending counts; generate max(target − approved − pending, 0). Pending-only coverage is review work, never completion. Parent paper requests retain their exact type, section, marks, year and curriculum constraints; allocate with the shared `createPaperPlan` behavior. Completed/cancelled parents remain terminal.
 
@@ -35,4 +40,4 @@ Cached results can be incomplete. The module shows a checking status while activ
 Regression coverage includes query sharing, listener cleanup, account changes and retry, plus real emulator-backed desktop and 320 px browser journeys for persistent reload with Firestore unavailable, reconnection after an external edit, and confirmed written-question saves across tabs. Emulator persistence is opt-in through a localhost-only test flag; production always uses the shared persistent setup.
 
 ## Release
-A main push calls the existing protected backend workflow for Firestore rules, then runs module/rules/browser gates before hosting. Rehearsal or unconfirmed manual dispatch must not deploy live rules. The protected environment and post-deploy active-rule verification remain in place. Local portable Chromium override is scoped to Chromium projects; CI still covers Chromium and WebKit devices.
+A main push calls the existing protected backend workflow for scoped paper-service functions, Firestore rules and additive chat indexes, then runs module/rules/browser gates before hosting. Rehearsal or unconfirmed manual dispatch must not deploy live rules. The protected environment and post-deploy active-rule verification remain in place. Local portable Chromium override is scoped to Chromium projects; CI still covers Chromium and WebKit devices.

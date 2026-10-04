@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const chromiumLaunch = process.env['GTOP_CHROMIUM_PATH'] ? {launchOptions:{executablePath:process.env['GTOP_CHROMIUM_PATH']}} : {};
+const chromiumLaunch = process.env['GTOP_CHROMIUM_PATH'] ? {launchOptions:{executablePath:process.env['GTOP_CHROMIUM_PATH'],args:['--disable-gpu','--no-zygote']}} : {};
 
 export default defineConfig({
   testDir: './e2e',

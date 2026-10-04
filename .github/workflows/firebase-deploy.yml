@@ -30,7 +30,7 @@ jobs:
     uses: ./.github/workflows/firebase-v2-backend.yml
     with:
       deploy_backend: true
-      deployment_scope: firestore-rules-only
+      deployment_scope: paper-chat-backend
       allow_planned_rule_change: true
     secrets: inherit
 

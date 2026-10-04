@@ -121,6 +121,28 @@ service cloud.firestore {
     match /paperRequests/{requestId} {
       allow read, create, update: if isAdmin();
     }
+    match /paperConversations/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if isAdmin() && request.resource.data.ownerUid == resource.data.ownerUid;
+    }
+    match /paperMessages/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.role in ['admin','system']
+        && (request.resource.data.role == 'system' || request.resource.data.createdBy == request.auth.uid);
+    }
+    match /paperQuestions/{id} { allow read: if isAdmin(); allow write: if false; }
+    match /paperArtifacts/{id}/documents/{name} { allow read: if isAdmin(); allow write: if false; }
+    match /paperNotifications/{id} {
+      allow read: if isAdmin() && resource.data.ownerUid == request.auth.uid;
+      allow update: if isAdmin() && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read'])
+        && request.resource.data.read is bool;
+    }
+    match /paperAssetUploads/{id} {
+      allow read: if isAdmin(); allow write: if false;
+      match /parts/{partId} { allow read, write: if false; }
+    }
     match /curriculumImports/{requestId} {
       allow read, create, update: if isAdmin();
     }

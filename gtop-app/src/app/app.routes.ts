@@ -30,10 +30,34 @@ import { QuizRunLobbyComponent } from './pages/quiz-run/quiz-run-lobby/quiz-run-
 
 export const routes: Routes = [
     {
-        path: 'admin/question-papers',
+        path: 'admin/question-papers/legacy',
         loadComponent: () => import('./features/question-bank/pages/question-papers.page').then(m => m.QuestionPapersPage),
         canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'], seo: { title: 'Earlier paper requests | GTOP Admin', robots: 'noindex, nofollow' } },
+    },
+    {
+        path: 'admin/question-papers/view/:paperId',
+        loadComponent: () => import('./features/question-bank/pages/paper-chat-viewer.page').then(m => m.PaperChatViewerPage),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'], seo: { title: 'Saved paper | GTOP Admin', robots: 'noindex, nofollow' } },
+    },
+    {
+        path: 'admin/question-papers/all',
+        loadComponent: () => import('./features/question-bank/pages/paper-chat-library.page').then(m => m.PaperChatLibraryPage),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'], seo: { title: 'All papers | GTOP Admin', robots: 'noindex, nofollow' } },
+    },
+    {
+        path: 'admin/question-papers',
+        loadComponent: () => import('./features/question-bank/pages/paper-chat.page').then(m => m.PaperChatPage),
+        canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['admin'], seo: { title: 'Questions & papers | GTOP', robots: 'noindex, nofollow' } },
+    },
+    {
+        path: 'admin/question-papers/chat/:conversationId',
+        loadComponent: () => import('./features/question-bank/pages/paper-chat.page').then(m => m.PaperChatPage),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'], seo: { title: 'Paper chat | GTOP Admin', robots: 'noindex, nofollow' } },
     },
     {
         path: 'admin/question-library',

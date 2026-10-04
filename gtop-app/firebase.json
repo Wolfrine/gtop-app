@@ -124,7 +124,8 @@
     }
   ],
   "firestore": {
-    "rules": "firestore.rules"
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   },
   "database": {
     "rules": "database.rules.json"
@@ -143,5 +144,18 @@
       "enabled": false
     },
     "singleProjectMode": false
-  }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "paper-service",
+      "runtime": "nodejs22",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "*-debug.log",
+        "*.test.mjs"
+      ]
+    }
+  ]
 }

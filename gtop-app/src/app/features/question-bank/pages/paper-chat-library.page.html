@@ -1,0 +1,26 @@
+<div class="qm-page pcl-page">
+  <app-question-module-header active="all" title="All papers" description="Saved question papers and their answer keys, including earlier drafts." [create]="false" />
+  <div class="pcl-intro"><p>{{loading()?'Loading your paper shelf…':papers().length+' saved '+(papers().length===1?'paper':'papers')+' loaded'}}</p><a class="btn btn-primary" routerLink="/admin/question-papers" queryParamsHandling="preserve">New paper chat <span aria-hidden="true">+</span></a></div>
+  <div class="pcl-filters"><label for="pcl-search">Find a saved paper<input id="pcl-search" type="search" placeholder="Title, subject, board or chapter" [ngModel]="search()" (ngModelChange)="search.set($event)" /></label><label for="pcl-status">Show<select id="pcl-status" [ngModel]="filter()" (ngModelChange)="filter.set($event)"><option value="all">All saved papers</option><option value="ready">Ready to print</option><option value="draft">Earlier drafts</option></select></label></div>
+  @if(!loading()&&papers().length){<p class="pcl-result-count" role="status">{{visible().length}} {{visible().length===1?'paper':'papers'}} shown@if(search().trim()||filter()!=='all'){<span> · of {{papers().length}} loaded</span>}@if(cursor()){<span> · Older papers are available below</span>}</p>}
+  @if(error()){<div class="pcl-alert" role="alert"><p>{{error()}}</p><button class="pcl-link" type="button" (click)="load()">Try again</button></div>}
+  @if(loading()){<p class="pcl-loading" role="status">Loading saved papers…</p>}
+  @if(!loading()&&!papers().length&&!error()){
+    <section class="pcl-empty"><img src="/assets/illustrations/practice-orbit.svg" alt="" /><h2>Your paper shelf starts here</h2><p>Ask the paper agent for a question paper. The finished paper and answer key will stay here for your next class.</p><a class="btn btn-primary" routerLink="/admin/question-papers" queryParamsHandling="preserve">Ask for a paper</a></section>
+  }
+  @if(!loading()&&papers().length&&!visible().length){<section class="pcl-no-results"><h2>No matching papers</h2><p>Try a different title, subject or board. Search applies to the papers loaded here.</p><button class="pcl-link" type="button" (click)="search.set('');filter.set('all')">Clear filters</button></section>}
+  <div class="pcl-list">
+    @for(paper of visible();track paper.id){
+      <article class="pcl-paper">
+        <div class="pcl-paper-symbol" aria-hidden="true"><span>GTOP</span><i></i><i></i><i></i><i></i></div>
+        <div class="pcl-paper-copy"><div class="pcl-paper-topline"><span class="pcl-status" [class.pcl-ready]="ready(paper)" [class.pcl-unavailable]="!openable(paper)" [class.pcl-status-error]="paper.status==='publication-error'">{{status(paper)}}</span><time>{{date(paper.createdAt)}}</time></div><h2>{{paper.title || 'Untitled question paper'}}</h2><p>{{paper.board}} · Class {{paper.standard}} · {{paper.subjects.join(', ')}} · {{paper.marks}} marks</p>@if(chapters(paper)){<small>{{chapters(paper)}}</small>}@if(paper.status==='draft'&&!ready(paper)){<p class="pcl-draft-note">{{paper.actualMarks}} of {{paper.marks}} marks saved. Complete the draft before printing.</p>}</div>
+        <div class="pcl-paper-actions">
+          @if(openable(paper)){<a class="btn" [class.btn-primary]="ready(paper)" [class.btn-secondary]="!ready(paper)" [routerLink]="['/admin/question-papers/view',paper.id]" queryParamsHandling="preserve">{{ready(paper)?'Open paper':'Open draft'}} <span aria-hidden="true">↗</span></a>@if(ready(paper)){<a class="pcl-link" [routerLink]="['/admin/question-papers/view',paper.id]" [queryParams]="{answers:'1'}" queryParamsHandling="merge">Answer key</a>}}
+          @else {<span class="pcl-unavailable-note">{{unavailableReason(paper)}}</span>}
+          @if(paper.conversationId){<a class="pcl-link" [routerLink]="['/admin/question-papers/chat',paper.conversationId]" queryParamsHandling="preserve">View conversation</a>}
+        </div>
+      </article>
+    }
+  </div>
+  @if(cursor()){<div class="pcl-load-more"><button class="btn btn-secondary" type="button" (click)="older()" [disabled]="loadingMore()">{{loadingMore()?'Loading…':'Load older papers'}}</button><p>Search and filters apply to the papers loaded here.</p></div>}
+</div>

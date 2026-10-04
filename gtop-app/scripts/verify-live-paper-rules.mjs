@@ -26,7 +26,8 @@ try {
   const file = join(directory, 'firestore.rules');
   await writeFile(file, source.content);
   const { ACCESS_TOKEN: omitted, ...testEnvironment } = process.env;
-  const result = spawnSync('npx', ['--yes', 'firebase-tools@15', 'emulators:exec', '--only', 'firestore', '--project', 'demo-paper-access', 'vitest run src/app/features/question-bank/core/paper-access.rules.test.ts src/app/features/question-bank/core/curriculum.rules.test.ts'], {
+  const chatChecks = process.env.GITHUB_REF_NAME === 'main' || process.env.GTOP_VERIFY_PAPER_CHAT === '1' ? ' src/app/features/question-bank/core/paper-chat.rules.test.ts' : '';
+  const result = spawnSync('npx', ['--yes', 'firebase-tools@15', 'emulators:exec', '--only', 'firestore', '--project', 'demo-paper-access', 'vitest run src/app/features/question-bank/core/paper-access.rules.test.ts src/app/features/question-bank/core/curriculum.rules.test.ts' + chatChecks], {
     stdio: 'inherit', env: { ...testEnvironment, GTOP_RULES_FILE: file },
   });
   if (result.status !== 0) {

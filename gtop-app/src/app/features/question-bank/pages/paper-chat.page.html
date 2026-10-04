@@ -1,0 +1,78 @@
+<div class="qm-page pc-page">
+  <app-question-module-header active="papers" title="Question papers" description="Tell us what you need. Come back to a ready-to-print paper." [create]="false" />
+  <div class="pc-tools">
+    <p>Question bank first. New questions only when needed.</p>
+    <details class="pc-notifications">
+      <summary>Updates @if(unread()){<span class="pc-count">{{unread()}}</span>}</summary>
+      <div class="pc-notification-list">
+        <h2>Paper updates</h2>
+        @if(notificationError()){<p class="pc-notice" role="alert">{{notificationError()}}</p>}
+        @if(!notifications().length){<p class="pc-muted">Your paper updates will appear here.</p>}
+        @for(item of notifications(); track item.id){
+          <button type="button" [class.unread]="!item.read" (click)="openNotification(item)"><span>{{item.text}}</span><small>{{date(item.createdAt)}}{{item.read?' · Read':''}}</small></button>
+        }
+        <button type="button" class="pc-push" (click)="enablePush()" [disabled]="actionBusy()==='push'">{{actionBusy()==='push'?'Enabling…':'Enable device notifications'}}</button>
+        @if(pushMessage()){<p class="pc-muted" role="status">{{pushMessage()}}</p>}
+      </div>
+    </details>
+  </div>
+  @if(error()){<div class="pc-alert" role="alert"><p>{{error()}}</p><button type="button" class="pc-link" (click)="retry()">Try again</button></div>}
+  <div class="pc-mobile-history">
+    <label for="pc-conversation">Conversation</label>
+    <div><select id="pc-conversation" [ngModel]="conversationId()" (ngModelChange)="goToThread($event)"><option value="">New paper chat</option>@for(item of conversations();track item.id){<option [value]="item.id">{{conversationTitle(item)}}</option>}</select><a routerLink="/admin/question-papers" class="pc-new-chat" aria-label="Start a new paper chat" queryParamsHandling="preserve">+ New</a></div>
+  </div>
+  <div class="pc-workspace">
+    <aside class="pc-history" aria-label="Recent paper conversations">
+      <a class="pc-start-chat" routerLink="/admin/question-papers" queryParamsHandling="preserve">New paper chat <span aria-hidden="true">+</span></a>
+      <h2>Recent chats</h2>
+      @if(loadingHistory()){<p class="pc-muted" role="status">Loading chats…</p>}
+      @if(!loadingHistory()&&!conversations().length){<p class="pc-muted">Your paper conversations will stay here.</p>}
+      <nav>@for(item of conversations();track item.id){<a [routerLink]="['/admin/question-papers/chat',item.id]" [class.active]="item.id===conversationId()" [attr.aria-current]="item.id===conversationId()?'page':null" queryParamsHandling="preserve"><strong>{{conversationTitle(item)}}</strong><span>{{status(item.status)}} · {{date(item.updatedAt)}}</span></a>}</nav>
+      <p class="pc-history-note">You can leave while the agent works. A ready paper and its answer key stay in the conversation.</p>
+    </aside>
+    <section class="pc-conversation" aria-label="Paper chat">
+      <header class="pc-thread-heading"><div><p>{{conversationId()?'Paper conversation':'New paper chat'}}</p><h2>{{conversation()?conversationTitle(conversation()!):(conversationId()?'Your paper requirement':'A paper for your next lesson')}}</h2></div>@if(conversationId()){<a routerLink="/admin/question-papers" class="pc-link" queryParamsHandling="preserve">New chat +</a>}</header>
+      <div class="pc-thread" #thread tabindex="0" aria-label="Conversation messages">
+        @if(loading()){<p class="pc-loading" role="status">Loading conversation…</p>}
+        @if(!conversationId()){
+          <div class="pc-welcome"><img src="/assets/illustrations/practice-orbit.svg" alt="" /><h3>What paper do you need?</h3><p>Include the board, class, subject, marks and chapters. Add question types or a duration if you have a preference.</p><p class="pc-example">For example: “ICSE 9 Biology, 40 marks, chapters 2–10.”</p><small>Saved immediately · Prepared at the next scheduled run</small></div>
+        }
+        @if(!loading()&&conversationId()&&!messages().length&&!error()) {<p class="pc-loading">Send a requirement below to continue this conversation.</p>}
+        @for(message of messages();track message.id){@if(showMessage(message)){
+          <article class="pc-message" [class.pc-message-admin]="message.role==='admin'" [class.pc-message-system]="message.role==='system'">
+            <div class="pc-message-label"><strong>{{message.role==='admin'?'You':message.role==='system'?'Request update':'GTOP paper agent'}}</strong><time>{{date(message.createdAt)}}</time></div>
+            @if(showMessageText(message)){<p class="pc-message-text">{{message.text}}</p>}
+            @if(requestFor(message);as request){@if(request.status!=='completed'){
+              <section class="pc-request" [class.pc-request-error]="request.status==='error'" [class.pc-request-cancelled]="request.status==='cancelled'" [attr.aria-label]="status(request.status)+' request'">
+                <span class="pc-status" [class.pc-status-error]="request.status==='error'" [class.pc-status-neutral]="request.status==='cancelled'">{{status(request.status)}}</span>
+                <p class="pc-request-brief">{{briefPreview(request)}}</p>
+                @if(request.brief.length>220){<details class="pc-full-brief"><summary>Full requirement</summary><p>{{request.brief}}</p></details>}
+                @if(request.status==='queued'){<p>Next agent run: <strong>{{nextRunLabel()}}</strong></p><small>The question bank is checked first.</small>}
+                @else if(request.status==='needs-info'){<h3>{{message.role==='agent'?message.text:'The agent needs a little more detail'}}</h3><p>Reply below to continue the paper.</p>}
+                @else if(request.status==='error'){<h3>This request needs attention</h3><p>{{request.error || 'The agent could not complete the paper. Update the requirement and send it again.'}}</p><button type="button" class="pc-link" (click)="editRequest(request)">Edit & resend requirement</button>}
+                @else if(request.status==='cancelled'){<p>This request is no longer being prepared.</p>}
+                @else{<h3>{{request.progress?.step || status(request.status)}}</h3><p>The paper and answer key will appear here when ready.</p>}
+                @if(request.status!=='needs-info' && (request.progress?.reused || 0)+(request.progress?.generated || 0)>0){<div class="pc-bank-progress"><span><strong>{{request.progress!.reused}}</strong> from the bank</span><span><strong>{{request.progress!.generated}}</strong> newly prepared</span></div>}
+                @if(['queued','needs-info','generating','publishing'].includes(request.status)){<footer><span>{{request.status==='needs-info'?'Your reply is needed before work can continue.':"We'll send a paper update when it is ready."}}</span><button type="button" class="pc-link" (click)="cancel(request)" [disabled]="actionBusy()===request.id">{{actionBusy()===request.id?'Cancelling…':'Cancel request'}}</button></footer>}
+              </section>
+            }}
+            @if(message.paperId && canOpenPaper(message.paperId)){
+              <section class="pc-paper-card"><div class="pc-paper-symbol" aria-hidden="true"><span>GTOP</span><i></i><i></i><i></i><i></i></div><div><span class="pc-status pc-status-ready">Ready to print</span><h3>{{paperFor(message.paperId)?.title || 'Your question paper'}}</h3>@if(paperFor(message.paperId);as paper){<p>{{paperScope(paper)}}</p>@if(paperChapters(paper)){<small>{{paperChapters(paper)}}</small>}}<div class="pc-paper-actions"><a class="btn btn-primary" [routerLink]="['/admin/question-papers/view',message.paperId]" queryParamsHandling="preserve">Open paper <span aria-hidden="true">↗</span></a><a class="btn btn-secondary" [routerLink]="['/admin/question-papers/view',message.paperId]" [queryParams]="{answers:'1'}" queryParamsHandling="merge">Answer key</a></div></div></section>
+            }
+          </article>
+        }}
+        @for(request of unlinkedRequests();track request.id){<section class="pc-request"><span class="pc-status">{{status(request.status)}}</span><h3>{{request.brief}}</h3><p>{{request.progress?.step || 'Your requirement is saved.'}}</p>@if(request.status==='queued'){<p>Next agent run: {{nextRunLabel()}}</p>}@if(request.status==='error'){<p>{{request.error}}</p><button class="pc-link" type="button" (click)="editRequest(request)">Edit & resend requirement</button>}@if(['queued','needs-info','generating','publishing'].includes(request.status)){<button class="pc-link" type="button" (click)="cancel(request)" [disabled]="actionBusy()===request.id">Cancel request</button>}</section>}
+        @if(unlinkedPapers().length){<details class="pc-saved-context" [open]="!pending()"><summary>Also saved in this conversation <span>({{unlinkedPapers().length}})</span></summary>
+        @for(paper of unlinkedPapers();track paper.id){<section class="pc-paper-card"><div class="pc-paper-symbol" aria-hidden="true"><span>GTOP</span><i></i><i></i><i></i><i></i></div><div><span class="pc-status pc-status-ready">Saved paper</span><h3>{{paper.title}}</h3><p>{{paperScope(paper)}}</p>@if(paperChapters(paper)){<small>{{paperChapters(paper)}}</small>}@if(paper.createdAt){<time class="pc-snapshot-date">Saved {{date(paper.createdAt)}}</time>}<div class="pc-paper-actions"><a class="btn btn-primary" [routerLink]="['/admin/question-papers/view',paper.id]" queryParamsHandling="preserve">Open paper ↗</a><a class="btn btn-secondary" [routerLink]="['/admin/question-papers/view',paper.id]" [queryParams]="{answers:'1'}" queryParamsHandling="merge">Answer key</a></div></div></section>}
+        </details>}
+      </div>
+      <form class="pc-composer" (ngSubmit)="send()">
+        <label for="pc-requirement">Paper requirement</label>
+        <textarea #composer id="pc-requirement" name="requirement" rows="3" maxlength="12000" [(ngModel)]="requirement" (keydown)="handleComposerKey($event)" [disabled]="sending()" placeholder="e.g. ICSE 9 Biology, 40 marks, chapters 2–10" aria-describedby="pc-composer-hint"></textarea>
+        <div class="pc-composer-footer"><p id="pc-composer-hint">{{pending()?.status==='needs-info'?'Reply to the agent to continue.':pending()?'A follow-up replaces the pending requirement.':'Next agent run: '+nextRunLabel()}}</p><button class="btn btn-primary" type="submit" [disabled]="sending()||!requirement.trim()">{{sending()?'Saving…':'Send'}} <span aria-hidden="true">↑</span></button></div>
+        @if(sendError()){<p class="pc-save-error" role="alert">{{sendError()}}<span>Your typed requirement is still here.</span></p>}
+        @if(sent()){<p class="pc-saved" role="status">{{sent()}}</p>}
+      </form>
+    </section>
+  </div>
+</div>

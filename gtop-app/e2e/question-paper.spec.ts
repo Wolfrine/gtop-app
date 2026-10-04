@@ -158,11 +158,11 @@ test('the current discovery landing works and admin sign-in retains the paper ro
 
 test('current admin navigation reaches both tools and preserves Learning Lab', async ({ page }) => {
   await openAdmin(page, '/admin');
-  await expect(page.getByRole('heading', { name: 'Admin Console', exact: true })).toBeVisible();
-  await page.locator('[aria-label="Question bank tools"]').getByRole('link', { name: 'Question papers', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Admin Console', exact: true })).toBeVisible({ timeout: 25_000 });
+  await page.locator('[aria-label="Question bank tools"]').getByRole('link', { name: 'Paper chat', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Question papers', exact: true })).toBeVisible();
-  await page.getByRole('link', { name: 'Bank', exact: true }).click();
-  await expect(page).toHaveURL(/\/admin\/question-library$/);
+  await page.getByRole('link', { name: 'Bank tools', exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/question-library(?:\?|$)/);
   await expect(page.getByRole('heading', { name: 'Question bank', exact: true })).toBeVisible();
   await openAdmin(page, '/learning-lab');
   await expect(page.getByRole('heading', { name: 'Learning Lab.', exact: true })).toBeVisible();
@@ -194,7 +194,7 @@ test('admin sees a chapter request, exact coverage and the independent question 
     expect((await getDoc(doc(context.firestore(), 'questionBankPriorityItems', priorityId))).data())
       .toMatchObject({ requiredCount: 1200, gapCount: 1198, generationDeficit:1143, status: 'open' });
   });
-  await page.getByRole('link', { name: 'Bank', exact: true }).click();
+  await page.getByRole('link', { name: 'Bank tools', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Question bank',exact:true })).toBeVisible();
   await page.getByLabel('Board',{exact:true}).selectOption(board);
   await page.getByLabel('Class',{exact:true}).selectOption('10');
@@ -364,7 +364,8 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
     expect(requests.size).toBe(2);
     expect(requests.docs.reduce((sum, item) => sum + item.data().gapCount, 0)).toBe(4);
   });
-  await page.getByRole('link',{name:'Papers',exact:true}).click();
+  await page.getByRole('link',{name:'Bank tools',exact:true}).click();
+  await page.getByRole('link',{name:'Earlier paper requests',exact:true}).click();
   const requestRow=page.locator('.qm-paper-row').filter({has:page.getByRole('link',{name:'Check & continue'})}).filter({hasText:title});
   await expect(requestRow).toHaveCount(1);
   await expectNoHorizontalOverflow(page);
@@ -378,7 +379,8 @@ test('admin can prepare, print, save and reopen an exact paper, then request mis
     const sessions=await getDocs(query(collection(context.firestore(),'adminUsageSessions'),where('actorUid','==',adminUid)));
     count=sessions.docs.reduce((sum,d)=>sum+Number(d.data().eventCounts?.['paper-builder__paper_requested']??0),0);
   });return count;}).toBeGreaterThan(0);
-  await page.getByRole('link',{name:'Papers',exact:true}).click();
+  await page.getByRole('link',{name:'Bank tools',exact:true}).click();
+  await page.getByRole('link',{name:'Earlier paper requests',exact:true}).click();
   await requestRow.getByRole('button',{name:'Cancel request',exact:true}).click();
   await requestRow.getByRole('button',{name:'Confirm cancellation',exact:true}).click();
   await expect(requestRow).toHaveCount(0);

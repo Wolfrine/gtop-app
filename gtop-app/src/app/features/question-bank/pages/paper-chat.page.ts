@@ -23,6 +23,8 @@ export class PaperChatPage implements OnInit, OnDestroy {
   readonly papers = signal<ChatSavedPaper[]>([]);
   readonly notifications = signal<PaperNotification[]>([]);
   readonly conversationId = signal('');
+  private readonly clock = signal(Date.now());
+  private readonly clockTimer = setInterval(() => this.clock.set(Date.now()),30_000);
   readonly loading = signal(false);
   readonly loadingHistory = signal(true);
   readonly error = signal('');
@@ -50,7 +52,7 @@ export class PaperChatPage implements OnInit, OnDestroy {
     this.subscriptions.add(this.route.paramMap.subscribe(params => this.open(params.get('conversationId') ?? '')));
   }
   ngOnDestroy(): void {
-    this.rememberDraft();
+    this.rememberDraft(); clearInterval(this.clockTimer);
     this.subscriptions.unsubscribe(); this.threadSubscriptions.unsubscribe(); this.historySubscriptions.unsubscribe();
     if (this.scrollTimer) clearTimeout(this.scrollTimer);
   }
@@ -103,13 +105,14 @@ export class PaperChatPage implements OnInit, OnDestroy {
     this.requirement = request.brief; this.sent.set('Update the requirement below, then send it to the agent.');
     setTimeout(() => this.composer?.nativeElement.focus(), 0);
   }
+  conversationTitle(item: PaperConversation): string { return item.title?.trim() || this.papers().find(paper => paper.conversationId === item.id)?.title?.trim() || 'Untitled paper chat'; }
   requestFor(message: PaperChatMessage): PaperChatRequest | undefined { return message.role !== 'admin' && message.requestId ? this.requests().find(item => item.id === message.requestId) : undefined; }
   paperFor(id: string): ChatSavedPaper | undefined { return this.papers().find(item => item.id === id); }
   briefPreview(request: PaperChatRequest): string { return request.brief.length > 220 ? request.brief.slice(0,220).trimEnd() + '…' : request.brief; }
   canOpenPaper(id: string): boolean { const paper = this.paperFor(id); return !paper || this.isReadyPaper(paper); }
   private isReadyPaper(paper: ChatSavedPaper): boolean { return paper.status === 'ready' || paper.status === 'draft' && !!paper.sections?.length && paper.actualMarks === paper.marks && !paper.coverage?.gapCount; }
   status(status: PaperChatRequest['status']): string { return paperStatusLabels[status]; }
-  nextRunLabel(): string { return new Intl.DateTimeFormat('en-IN', {timeZone:'Asia/Kolkata',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(nextPaperRun()) + ' IST'; }
+  nextRunLabel(): string { return new Intl.DateTimeFormat('en-IN', {timeZone:'Asia/Kolkata',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(nextPaperRun(new Date(this.clock()))) + ' IST'; }
   date(value: unknown): string {
     const item = value as {toDate?: () => Date; seconds?: number; iso?: string} | undefined;
     const date = item?.toDate?.() ?? (item?.seconds ? new Date(item.seconds * 1000) : new Date(item?.iso ?? String(value ?? '')));

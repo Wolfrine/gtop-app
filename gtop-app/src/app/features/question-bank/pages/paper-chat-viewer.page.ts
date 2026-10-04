@@ -70,7 +70,7 @@ export class PaperChatViewerPage implements OnInit, OnDestroy {
     const html = (this.answers() ? paper.answerHtml : paper.paperHtml) || (paper.sections?.length ? paperPrintHtml(paper,paper.sections,this.answers()) : '');
     if (!html) {this.error.set('This saved paper has no printable content. Open its conversation to check the request.'); this.document.set(null); return;}
     // The iframe prohibits scripts. Screen-only fitting leaves the saved print layout intact.
-    const fitting = '<style media="screen">html{background:#fff;overflow-x:hidden}body{box-sizing:border-box;max-width:800px;margin:0 auto;padding:34px 32px}img,svg,table{max-width:100%}pre{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:500px){body{padding:24px 18px;font-size:13px}h1{font-size:21px}h2{font-size:16px}header span{float:none}}</style>';
+    const fitting = '<style media="screen">html{background:#fff;overflow-x:hidden}body{box-sizing:border-box;max-width:800px;margin:0 auto;padding:34px 32px}img,svg,table{max-width:100%}pre{white-space:pre-wrap;overflow-wrap:anywhere}.katex{display:inline-block;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:2px 0;vertical-align:middle}.katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden}@media(max-width:500px){body{padding:24px 18px;font-size:13px}h1{font-size:21px}h2{font-size:16px}header span{float:none}}</style>';
     const fitted = html.includes('</head>') ? html.replace('</head>',fitting+'</head>') : fitting+html;
     this.documentReady.set(false); this.imageError.set('');
     this.document.set(this.sanitizer.bypassSecurityTrustHtml(fitted));

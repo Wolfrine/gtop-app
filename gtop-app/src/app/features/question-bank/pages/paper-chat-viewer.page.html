@@ -10,6 +10,6 @@
     <div class="pcv-document-label" [class.pcv-answer-label]="answers()"><strong>{{answers()?'Answer key':'Question paper'}}</strong><span>{{answers()?'Teacher copy · keep separate from students':'Student copy · answers are kept separately'}}</span></div>
     @if(imageError()){<div class="pcv-image-alert" role="alert"><p>{{imageError()}}</p><button type="button" class="pcv-link" (click)="load()">Reload paper</button></div>}
     @if(document()){<div class="pcv-sheet"><iframe #documentFrame [srcdoc]="document()" sandbox="allow-same-origin allow-modals" [style.height.px]="documentHeight()" [title]="(answers()?'Answer key for ':'Question paper: ')+paper.title" (load)="onDocumentLoad()"></iframe></div>}
-    <p class="pcv-print-hint">Choose “Save as PDF” in your device's print options to download this {{answers()?'answer key':'paper'}}.</p>
+    <p class="pcv-print-hint">Choose “Save as PDF” in your device's print options to download this {{answers()?'answer key':'paper'}}. If your print options include “Headers and footers”, turn them off for a clean copy.</p>
   }
 </div>

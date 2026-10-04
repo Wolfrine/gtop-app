@@ -46,11 +46,11 @@ test('delivered paper, separate answers, notification and older archive remain a
   });
   await open(page,'/admin/question-papers/chat/'+conversationId);await expect(page.getByText('Your paper is ready. Reused 1 bank question and created 0 new questions.',{exact:true})).toBeVisible();
   await page.getByRole('link',{name:'Open paper',exact:false}).first().click();
-  await expect(page.frameLocator('iframe').getByText(stem,{exact:true})).toBeVisible();await expect(page.frameLocator('iframe').getByText(secret,{exact:true})).toHaveCount(0);
+  await expect(page.frameLocator('.pcv-sheet iframe').getByText(stem,{exact:true})).toBeVisible();await expect(page.frameLocator('.pcv-sheet iframe').getByText(secret,{exact:true})).toHaveCount(0);
   await expect(page.getByRole('button',{name:'Print paper / Save PDF',exact:true})).toBeEnabled();
-  await page.frameLocator('iframe').locator('body').evaluate(()=>{(window as any).print=()=>{(window as any).__paperPrintCalled=true;};});
-  await page.getByRole('button',{name:'Print paper / Save PDF',exact:true}).click();expect(await page.frameLocator('iframe').locator('body').evaluate(()=>!!(window as any).__paperPrintCalled)).toBe(true);
-  await page.getByRole('button',{name:'Answer key',exact:true}).click();await expect(page.frameLocator('iframe').getByText(secret,{exact:true})).toBeVisible();await expect(page.getByText('Teacher copy · keep separate from students',{exact:true})).toBeVisible();
+  await page.frameLocator('.pcv-sheet iframe').locator('body').evaluate(()=>{(window as any).print=()=>{(window as any).__paperPrintCalled=true;};});
+  await page.getByRole('button',{name:'Print paper / Save PDF',exact:true}).click();expect(await page.frameLocator('.pcv-sheet iframe').locator('body').evaluate(()=>!!(window as any).__paperPrintCalled)).toBe(true);
+  await page.getByRole('button',{name:'Answer key',exact:true}).click();await expect(page.frameLocator('.pcv-sheet iframe').getByText(secret,{exact:true})).toBeVisible();await expect(page.getByText('Teacher copy · keep separate from students',{exact:true})).toBeVisible();
   await fits(page);await page.screenshot({path:info.outputPath('paper-answer-key.png'),fullPage:true});
   await page.getByRole('link',{name:'All papers',exact:false}).first().click();await page.getByLabel('Find a saved paper').fill(tag);await expect(page.locator('.pcl-paper').filter({hasText:title})).toBeVisible();await fits(page);
   await page.goto('/admin/question-papers/chat/'+conversationId+'?emulator=1');await page.locator('.pc-notifications summary').click();await page.getByRole('button').filter({hasText:title+' is ready.'}).click();

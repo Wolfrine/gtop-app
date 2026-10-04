@@ -112,7 +112,10 @@
 }
 .actions .mat-mdc-outlined-button {
   --mdc-outlined-button-outline-color:#58708f;
-  --mdc-outlined-button-label-text-color:#e6edf7;
+  color:#e6edf7;
+}
+.actions .mat-mdc-outlined-button:disabled {
+  color:#c5cfdd;
 }
 .review-heading {
   display:flex;

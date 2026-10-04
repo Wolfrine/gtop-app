@@ -7,7 +7,10 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { QuizService } from '../../services/quiz.service';
 import { AuthService } from '../../services/auth.service';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
+import { canonicalIndex, explanationText } from '../../services/question-presentation';
+import { readPracticeSession, writePracticeSession, createPracticeAttemptId } from '../../services/practice-session';
+import { questionsMatchPractice, resolvePracticeContext } from '../../services/practice-context';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { MatIconModule } from '@angular/material/icon';
@@ -37,6 +40,15 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     optionLabels = ['A)', 'B)', 'C)', 'D)'];
     private userSub!: Subscription;
     private saved = false;
+    saveState: 'idle' | 'saving' | 'saved' | 'error' = 'idle';
+    saveError = '';
+    canSave = false;
+    private attemptId = '';
+    private quizType = 'quick';
+    private currentUser: any = null;
+    private pendingSave: Promise<void> | null = null;
+    private acknowledgementTimer: ReturnType<typeof setTimeout> | null = null;
+    explanationText = explanationText;
     fromLive = false;
     liveSessionId: string | null = null;
     liveMode: 'live' | 'run' | null = null;
@@ -69,104 +81,118 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        const navState: any = (this.router.getCurrentNavigation()?.extras?.state) || (history.state || {});
-        const summaries = navState?.questionSummaries;
-        const navSession = navState?.session;
-        this.fromLive = !!navState?.fromLive;
-        this.liveSessionId = navState?.liveSessionId || navState?.sessionId || null;
-        this.liveMode = navState?.liveMode || (this.fromLive ? 'live' : null);
-        this.hubReturnUrl = navState?.returnTo || null;
-        const navQuizType = (navState?.quizType || '').toLowerCase();
-        if (navQuizType === 'run') {
-            this.fromLive = true;
-            this.liveMode = 'run';
-        } else if (navQuizType === 'live') {
-            this.fromLive = true;
-            this.liveMode = 'live';
-        }
-
-        if (Array.isArray(summaries) && summaries.length) {
-            // Expand summaries to full questions
-            this.quizService.expandSummariesToQuestions(summaries).then(qs => {
-                this.questions = qs;
-                this.updateChart();
-            });
-            this.saved = true; // avoid re-saving when viewing past session
-        } else if (navSession?.questions?.length) {
-            // Fallback if a whole session object was provided
-            this.quizService.expandSummariesToQuestions(navSession.questions).then(qs => {
-                this.questions = qs;
-                this.updateChart();
-            });
-            this.saved = true;
-            const type = (navSession.quizType || '').toLowerCase();
-            if (type === 'run') {
-                this.fromLive = true;
-                this.liveMode = 'run';
-            } else if (type === 'live') {
-                this.fromLive = true;
-                this.liveMode = 'live';
-            }
-        } else {
-            // Deep link fallback using query params
-            this.route.queryParams.subscribe(async params => {
-                this.hubReturnUrl = this.hubReturnUrl || params['returnTo'] || null;
-                const sessionId = params['sessionId'];
-                const userId = params['userId'];
-                if (sessionId && userId) {
-                    const results = await this.quizService.fetchUserQuizResults(userId);
-                    const session = results.find(r => r.id === sessionId);
-                    if (session?.questions?.length) {
-                        const qs = await this.quizService.expandSummariesToQuestions(session.questions);
-                        this.questions = qs;
-                        const type = (session.quizType || '').toLowerCase();
-                        if (type === 'run') {
-                            this.fromLive = true;
-                            this.liveMode = 'run';
-                            this.liveSessionId = session.sessionId || sessionId;
-                        } else if (type === 'live') {
-                            this.fromLive = true;
-                            this.liveMode = 'live';
-                            this.liveSessionId = session.sessionId || sessionId;
-                        }
-                        this.updateChart();
-                        this.saved = true;
-                        return;
-                    }
-                }
-                // Default: current attempt questions
-                this.questions = this.quizService.getQuestions();
-                this.updateChart();
-            });
-        }
-
-        this.userSub = this.authService.getUser().subscribe(user => {
+        const navState: any = this.router.getCurrentNavigation()?.extras?.state || history.state || {};
+        this.userSub = this.authService.readyUser$.pipe(take(1)).subscribe(user => {
+            this.currentUser = user;
             this.currentUserId = user?.uid ?? null;
-
-            if (user && this.questions.length > 0 && !this.saved) {
-                const sample = this.questions[0];
-
-                this.quizService.saveQuizResult(user.uid, {
-                    userName: user.displayName || 'Unknown',
-                    board: sample.board,
-                    standard: sample.standard,
-                    subject: sample.subject,
-                    chapter: sample.chapter,
-                    quizType: this.fromLive ? (this.liveMode === 'run' ? 'run' : 'live') : 'quick',
-                    sessionId: this.fromLive ? this.liveSessionId || undefined : undefined,
-                    questions: this.questions.map(q => ({
-                        id: q.id,
-                        selectedIndex: q.selectedIndex,
-                        correctIndex: q.correctIndex
-                    }))
-                });
-
-                this.saved = true;
-            }
+            if (user) void this.loadSummary(navState);
         });
     }
 
+    private async loadSummary(navState: any) {
+        const params = this.route.snapshot.queryParams || {};
+        this.hubReturnUrl = navState.returnTo || params['returnTo'] || null;
+        this.fromLive = !!navState.fromLive;
+        this.liveSessionId = navState.liveSessionId || navState.sessionId || null;
+        this.liveMode = navState.liveMode || (this.fromLive ? 'live' : null);
+        try {
+            let historical = navState.session;
+            if (params['sessionId'] && params['userId'] &&
+                (params['userId'] === this.currentUserId || this.currentUser.role === 'admin')) {
+                historical = (await this.quizService.fetchUserQuizResults(params['userId']))
+                    .find(r => r.id === params['sessionId']);
+            }
+            const summaries = navState.questionSummaries || historical?.questions;
+            if (Array.isArray(summaries) && summaries.length) {
+                this.saved = true;
+                this.saveState = 'saved';
+                const type = historical?.quizType || navState.quizType;
+                if (type === 'run' || type === 'live') {
+                    this.fromLive = true;
+                    this.liveMode = type;
+                    this.liveSessionId = historical?.sessionId || this.liveSessionId;
+                }
+                this.questions = await this.quizService.expandSummariesToQuestions(summaries);
+            } else if (params['sessionId']) {
+                this.saveError = 'This saved attempt could not be loaded. Open it from your reports.';
+                this.saveState = 'error';
+                return;
+            } else {
+                const session = readPracticeSession(this.currentUserId!);
+                if (navState.practiceUid && navState.practiceUid !== this.currentUserId) return;
+                const useSession = !this.fromLive && session?.completed &&
+                    (!navState.attemptId || navState.attemptId === session.attemptId);
+                this.questions = useSession ? session!.questions : (navState.questions || []);
+                this.attemptId = useSession ? session!.attemptId : (navState.attemptId || createPracticeAttemptId());
+                this.quizType = useSession ? session!.quizType : (navState.quizType || 'quick');
+                this.saved = useSession ? !!session!.saved : !!navState.saved;
+                if (!this.fromLive && this.questions.length && !this.saved &&
+                    (!questionsMatchPractice(this.questions, resolvePracticeContext(this.currentUser, {})) ||
+                    (useSession && session!.role !== (this.currentUser.role || 'user')))) {
+                    this.saveState = 'error';
+                    this.saveError = 'Your learning profile changed. Start a quiz for your current board and class.';
+                    return;
+                }
+                this.saveState = this.saved ? 'saved' : 'idle';
+                this.hubReturnUrl ||= session?.returnTo || null;
+            }
+            this.updateChart();
+            this.canSave = this.questions.length > 0 && !this.saved;
+            if (this.questions.length && !this.saved) void this.retrySave();
+        } catch (error) {
+            this.saveState = 'error';
+            this.saveError = 'Your attempt could not be loaded. Try opening it again.';
+        }
+    }
+
+    async retrySave(): Promise<void> {
+        if (!this.canSave || this.saved || !this.currentUser || !this.questions.length || this.pendingSave) return;
+        const uid = this.currentUser.uid;
+        const sample = this.questions[0];
+        this.attemptId ||= createPracticeAttemptId();
+        this.saveState = 'saving';
+        this.saveError = '';
+        this.acknowledgementTimer = setTimeout(() => {
+            this.saveState = 'error';
+            this.saveError = 'Saving is taking longer than expected. Keep this tab open and reconnect; your answers are retained.';
+        }, 15000);
+        this.pendingSave = this.quizService.saveQuizResult(uid, {
+            attemptId: this.attemptId,
+            userName: this.currentUser.displayName || 'Unknown',
+            board: sample.board,
+            standard: sample.standard,
+            subject: sample.subject,
+            chapter: sample.chapter,
+            quizType: this.fromLive ? (this.liveMode === 'run' ? 'run' : 'live') : this.quizType,
+            sessionId: this.fromLive ? this.liveSessionId || undefined : undefined,
+            questions: this.questions.map(q => ({
+                id: q.id,
+                selectedIndex: canonicalIndex(q, q.selectedIndex) as any,
+                correctIndex: canonicalIndex(q, q.correctIndex) as number,
+                ...(q.optionOrder ? { optionOrder: q.optionOrder } : {})
+            }))
+        }).then(() => {
+            this.saved = true;
+            this.saveState = 'saved';
+            this.saveError = '';
+            const session = readPracticeSession(uid);
+            if (session?.attemptId === this.attemptId) writePracticeSession({ ...session, saved: true });
+            // Keep browser history entries tied to their own acknowledged attempt.
+            if (history.state?.attemptId === this.attemptId) history.replaceState({ ...history.state, saved: true }, '');
+        }).catch(() => {
+            this.saveState = 'error';
+            this.saveError = 'Your result has not been saved. Your answers are retained in this tab. Reconnect and try again.';
+        }).finally(() => {
+            if (this.acknowledgementTimer) clearTimeout(this.acknowledgementTimer);
+            this.pendingSave = null;
+        });
+        await this.pendingSave;
+    }
+
+    get savePending() { return !!this.pendingSave; }
+
     ngOnDestroy() {
+        if (this.acknowledgementTimer) clearTimeout(this.acknowledgementTimer);
         if (this.userSub) this.userSub.unsubscribe();
     }
 
@@ -213,7 +239,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     }
 
     async retryIncorrect() {
-        if (!this.hasIncorrectAnswers) return;
+        if (!this.saved || !this.hasIncorrectAnswers) return;
 
         try {
             await this.quizService.prepareRetryFromExistingAttempt({
@@ -238,6 +264,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     }
 
     async retryAll() {
+        if (!this.saved) return;
         try {
             await this.quizService.prepareRetryFromExistingAttempt({
                 questions: this.questions,

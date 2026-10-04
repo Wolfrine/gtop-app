@@ -23,16 +23,18 @@ async function indexToken(){
   }
   return delegatedToken;
 }
-const signature=fields=>JSON.stringify(fields.filter(f=>f.fieldPath!=='__name__'));
+const fullFields=fields=>fields.some(f=>f.fieldPath==='__name__')?fields:[...fields,{fieldPath:'__name__',order:fields.at(-1)?.order??'ASCENDING'}];
+const signature=fields=>JSON.stringify(fullFields(fields));
 async function matching(wanted){
   const list=await api(root+wanted.collectionGroup+'/indexes',initialToken);
-  return (list.indexes??[]).find(index=>index.queryScope===wanted.queryScope&&signature(index.fields)===signature(wanted.fields));
+  const parent='projects/'+project+'/databases/(default)/collectionGroups/'+wanted.collectionGroup+'/indexes/';
+  return (list.indexes??[]).find(index=>index.name?.startsWith(parent)&&index.queryScope===wanted.queryScope&&signature(index.fields)===signature(wanted.fields));
 }
 for(const wanted of indexes){
   assert(['paperMessages','paperRequests','paperNotifications'].includes(wanted.collectionGroup),'Only the reviewed chat indexes may be deployed.');
   let index=await matching(wanted);
   if(!index){
-    await api(root+wanted.collectionGroup+'/indexes',await indexToken(),'POST',{queryScope:wanted.queryScope,fields:wanted.fields});
+    await api(root+wanted.collectionGroup+'/indexes',await indexToken(),'POST',{queryScope:wanted.queryScope,fields:fullFields(wanted.fields)});
     console.log('Created required index:',wanted.collectionGroup);
   }else console.log('Preserved matching index:',wanted.collectionGroup,index.state);
   const deadline=Date.now()+12*60*1000;

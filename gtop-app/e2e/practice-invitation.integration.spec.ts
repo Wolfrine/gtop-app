@@ -40,8 +40,11 @@ async function capture(page:Page,info:TestInfo,name:string){
  const canvases=await settledCanvases(page);
  const files=['src/app/app.config.ts','src/app/services/practice-invite.service.ts','src/app/services/practice-invite-session.ts','src/app/services/practice-invite.guard.ts','src/app/services/quiz.service.ts','src/app/services/question-presentation.ts','src/app/pages/quiz-page/quiz-page.component.ts','src/app/pages/quiz-summary/quiz-summary.component.ts','src/app/pages/quiz-summary/quiz-summary.component.html'];
  const candidate={head:execFileSync('git',['rev-parse','HEAD'],{cwd:path.resolve(__dirname,'..'),encoding:'utf8'}).trim(),hashes:Object.fromEntries(files.map(file=>[file,createHash('sha256').update(fs.readFileSync(path.resolve(__dirname,'..',file))).digest('hex')]))};
+ const fingerprintPath=process.env.GTOP_INVITATION_BUILD_FINGERPRINT_PATH;
+ const buildFingerprint=fingerprintPath?JSON.parse(fs.readFileSync(fingerprintPath,'utf8')):null;
+ if(buildFingerprint)expect(buildFingerprint.head).toBe(candidate.head);
  const dom=await page.evaluate(()=>({fonts:document.fonts.status,values:[...document.querySelectorAll('.stat-body .value')].map(element=>({text:element.textContent,rect:element.getBoundingClientRect().toJSON(),fontFamily:getComputedStyle(element).fontFamily,fontSize:getComputedStyle(element).fontSize,fontWeight:getComputedStyle(element).fontWeight,lineHeight:getComputedStyle(element).lineHeight,overflow:getComputedStyle(element).overflow}))}));
- fs.writeFileSync(info.outputPath(name+'.json'),JSON.stringify({candidate,dom,canvases},null,2));
+ fs.writeFileSync(info.outputPath(name+'.json'),JSON.stringify({candidate,buildFingerprint,dom,canvases},null,2));
  await page.screenshot({path:info.outputPath(name+'.png'),fullPage:true,animations:'disabled'});
 }
 async function settledCanvases(page:Page){
@@ -78,6 +81,18 @@ async function acknowledged(page:Page){await expect(page.getByText('Your result 
 async function reloadRetryAtQ2(page:Page,before:any,info:TestInfo,name:string){
  await correct(page,0);await page.getByRole('button',{name:'Next',exact:true}).click();await expect(page.locator('.quiz-header h1')).toContainText('2');const checkpoint=await session(page);await reload(page);await expect(page.locator('.quiz-header h1')).toContainText('2');const after=await session(page);expect(after.attemptId).toBe(before.attemptId);expect(after.parentAttemptId).toBe(before.parentAttemptId);expect(after.questions).toEqual(checkpoint.questions);expect(after.currentQuestionIndex).toBe(1);expect(await page.evaluate(()=>({newInvitation:history.state.newInvitation,retryOf:history.state.invitationRetryOf}))).toEqual({newInvitation:undefined,retryOf:undefined});await capture(page,info,name);
 }
+async function touchManualLink(page:Page){
+ const cdp=await page.context().newCDPSession(page);const body=page.locator('[mat-dialog-content]');const input=page.getByLabel('Practice link',{exact:true});
+ for(let attempt=0;attempt<8;attempt++){
+  const hit=await input.evaluate(element=>{const box=element.getBoundingClientRect();return document.elementFromPoint(box.x+box.width/2,box.y+box.height/2)===element;});
+  if(hit){const box=(await input.boundingBox())!;await page.touchscreen.tap(box.x+box.width/2,box.y+box.height/2);await cdp.detach();return;}
+  const box=(await body.boundingBox())!;const x=box.x+box.width/2,start=box.y+box.height-25,end=box.y+25;
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y:start,radiusX:5,radiusY:5,force:1}]});
+  for(let step=1;step<=12;step++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:start+(end-start)*step/12,radiusX:5,radiusY:5,force:1}]});await page.waitForTimeout(20);}
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await page.waitForTimeout(150);
+ }
+ await cdp.detach();throw Error('Manual link unreachable by visible modal-body touch swipes');
+}
 
 test('real reviewed solo attempt reloads and server acknowledgement offers voluntary dashboard cue',async({page},info)=>{
  await open(page,'learner');await expect(page.getByRole('button',{name:'Start five questions',exact:true})).toBeVisible();await capture(page,info,'reviewed-preview');await start(page);await capture(page,info,'reviewed-solo');
@@ -112,7 +127,7 @@ test('admin custom setup copies only selected curriculum and provides a manual f
  await context.grantPermissions(['clipboard-read','clipboard-write'],{origin:'http://127.0.0.1:4300'});await open(page,'admin','/dashboard');await page.getByRole('button',{name:'Custom Quiz',exact:true}).click();const modal=page.getByRole('dialog');await expect(modal).toBeVisible();await expect(modal.getByRole('button',{name:'Copy practice link',exact:true})).toBeDisabled();
  for(const [name,value,multiple] of [['Board','CBSE',false],['Standard','12',false],['Subjects','Chemistry',true],['Chapters','Solutions',true]] as const){await modal.getByRole('combobox',{name,exact:true}).click();await page.getByRole('option',{name:value,exact:true}).click();if(multiple)await page.keyboard.press('Escape');}
  await modal.getByRole('spinbutton',{name:'Number of Questions'}).fill('5');await expect(modal.getByRole('button',{name:'Copy practice link',exact:true})).toBeEnabled();await modal.getByRole('button',{name:'Copy practice link',exact:true}).click();await expect(modal.locator('app-practice-share [role=status]')).toContainText('Practice link copied');const value=await page.evaluate(()=>navigator.clipboard.readText());const url=new URL(value);expect(url.origin).toBe('http://127.0.0.1:4300');expect(url.pathname).toBe('/practice');expect(Object.fromEntries(url.searchParams)).toEqual({board:'CBSE',standard:'12',subjects:'Chemistry',chapters:'Solutions',count:'5'});await capture(page,info,'actual-admin-copy-practice-link');
- await page.evaluate(()=>{navigator.clipboard.writeText=async()=>{throw new DOMException('QA clipboard unavailable','NotAllowedError');};});await modal.getByRole('button',{name:'Copy practice link',exact:true}).click();await expect(modal.locator('app-practice-share [role=status]')).toContainText('Select the link below');await expect(modal.getByLabel('Practice link',{exact:true})).toHaveValue(value);await expect(modal.getByLabel('Practice link',{exact:true})).toHaveAttribute('readonly','');await capture(page,info,'actual-admin-copy-manual-fallback');
+ await page.evaluate(()=>{navigator.clipboard.writeText=async()=>{throw new DOMException('QA clipboard unavailable','NotAllowedError');};});await modal.getByRole('button',{name:'Copy practice link',exact:true}).click();await expect(modal.locator('app-practice-share [role=status]')).toContainText('Select the link below');const input=modal.getByLabel('Practice link',{exact:true});await expect(input).toHaveValue(value);await expect(input).toHaveAttribute('readonly','');await capture(page,info,'actual-admin-copy-manual-fallback');if((page.viewportSize()?.width||1440)<600){await touchManualLink(page);await expect(input).toBeFocused();await capture(page,info,'actual-admin-manual-link-touch-reachable');await page.keyboard.press('Shift+Tab');}await page.keyboard.press('Tab');await expect(input).toBeFocused();expect(await input.evaluate(element=>({start:(element as HTMLInputElement).selectionStart,end:(element as HTMLInputElement).selectionEnd}))).toEqual({start:0,end:value.length});const box=await input.boundingBox();expect(box).not.toBeNull();expect(await input.evaluate(element=>{const box=element.getBoundingClientRect();return document.elementFromPoint(box.x+box.width/2,box.y+box.height/2)===element;})).toBe(true);await capture(page,info,'actual-admin-manual-link-keyboard-reachable');
 });
 
 test('offline save exposes no offer and retry acknowledges exactly one result',async({page,context},info)=>{
@@ -170,5 +185,3 @@ test('saved invitation history retains reviewed snapshots after local bank edit 
  await open(page,'other');await page.getByRole('button',{name:'Start five questions',exact:true}).click();await expect(page.locator('.option-card')).toHaveCount(0);await expect(page.getByRole('alert')).toBeVisible();expect(await session(page,'other')).toBeNull();await capture(page,info,'actual-changed-reviewed-bank-fails-closed');
  }finally{await environment.withSecurityRulesDisabled(async ctx=>{await setDoc(doc(ctx.firestore(),'questions',fixture.questionIds[0]),bank);});}
 });
-
-

@@ -22,10 +22,17 @@ function hasUnhandledOptionReference(text: unknown): boolean {
     // Only explicit "Option A" is safely relabelled. Preserve the bank's order
     // for bare/quoted labels and answer/choice references with ambiguous wording.
     const unhandled = text.replace(/\boption\s+[A-Z]\b/gi, 'option');
+    // A standalone label in an answer-related clause is ambiguous even when
+    // modifiers separate it from the answer wording. Don't rewrite scientific
+    // symbols: clauses without answer context remain eligible for shuffling.
+    const answerClause = unhandled.split(/[.!?;\n]/).some(clause =>
+        /\b(?:answers?|choices?|alternatives?|responses?|labels?|letters?)\b/i.test(clause) &&
+        /\b[A-D]\b/.test(clause));
     return /^\s*[A-D]\s*$/i.test(unhandled) ||
         /\b[A-D]\s*(?:[).:;,!?"'\u2019\u201d\u2013\u2014]|(?:and|or|&)\s*[A-D])/i.test(unhandled) ||
         /\b(?:answer|choice|alternative|response|label|letter)\s*(?:(?:is|was|would\s+be|should\s+be)\s*|[:=]\s*)?["'(\s]*[A-D]\b/i.test(unhandled) ||
-        /\b[A-D]\s+(?:is|was)\s+(?:correct|incorrect|right|wrong|true|false)\b/i.test(unhandled);
+        /\b[A-D]\s+(?:is|was)\s+(?:the\s+)?(?:correct|incorrect|right|wrong|true|false)\b/i.test(unhandled) ||
+        answerClause;
 }
 
 export function canonicalQuestion(question: any): any {

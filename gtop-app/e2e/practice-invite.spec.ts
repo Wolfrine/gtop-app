@@ -3,15 +3,18 @@ import { expect, test } from '@playwright/test';
 const invite='/practice?board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5';
 test.beforeEach(async({page})=>{
   // Public preview tests use no accounts, writes, or production network traffic.
-  await page.route('**/*',route=>route.request().url().startsWith('http://127.0.0.1:4300')?route.continue():route.abort());
+  await page.route('**/*',route=>{
+    const url=new URL(route.request().url());
+    return url.origin==='http://127.0.0.1:4300'||['fonts.googleapis.com','fonts.gstatic.com'].includes(url.hostname)?route.continue():route.abort();
+  });
 });
-test('public preview exposes scope, fails closed pending integration and does not expose questions',async({page})=>{
+test('public preview exposes reviewed scope and sign-in without exposing questions',async({page})=>{
   await page.goto(invite);
   await expect(page.getByRole('heading',{name:'Revisit Solutions.'})).toBeVisible();
   await expect(page.getByText('CBSE · Class 12',{exact:true})).toBeVisible();
   await expect(page.getByText('Five questions. Your own pace.',{exact:true})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Practice is being checked'})).toBeVisible();
-  await expect(page.getByRole('button',{name:/Start five questions|Sign in to practise/})).toHaveCount(0);
+  await expect(page.getByRole('heading',{name:'Practice is being checked'})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Sign in to practise',exact:true})).toBeVisible();
   await expect(page.locator('app-quiz-page')).toHaveCount(0);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
@@ -30,6 +33,6 @@ test('untrusted labels render as escaped text',async({page})=>{
 });
 test('content failure displays one clear state',async({page})=>{
   await page.goto(invite+'&unavailable=1');
-  await expect(page.getByRole('alert')).toContainText('could not be checked');
+  await expect(page.getByRole('alert')).toContainText('could not be opened');
   await expect(page.getByRole('heading',{name:'Practice is being checked'})).toHaveCount(0);
 });

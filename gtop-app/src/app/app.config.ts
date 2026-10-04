@@ -39,7 +39,7 @@ const firebaseConfig = {
 export const appConfig: ApplicationConfig = {
     providers: [
         { provide: INVITATION_PRESENTATION, useValue: { presentQuestion, restorePresentation, validOrder, canonicalIndex } },
-        { provide: INVITED_SOLO_READY, useValue: useEmulators },
+        { provide: INVITED_SOLO_READY, useValue: true },
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
         provideHttpClient(),

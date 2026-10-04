@@ -14,8 +14,27 @@ async function request(url,headers,method='GET',body){
 const minted=await request('https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/'+encodeURIComponent(runtime)+':generateAccessToken',original,'POST',{scope:['https://www.googleapis.com/auth/cloud-platform'],lifetime:'600s'});
 assert.equal(minted.status,200,'Existing runtime delegation must work.');
 const delegated={Authorization:'Bearer '+minted.data.accessToken,'Content-Type':'application/json'};
+const service='https://serviceusage.googleapis.com/v1/projects/gtop-app/services/firebasestorage.googleapis.com';
+const serviceState=await request(service,delegated);
+if(serviceState.data.state!=='ENABLED'){
+  const enabled=await request(service+':enable',delegated,'POST',{});
+  assert(enabled.data.name,'Firebase Storage API enablement must return an operation.');
+  let complete=false;
+  for(let attempt=0;attempt<40;attempt++){
+    const operation=await request('https://serviceusage.googleapis.com/v1/'+enabled.data.name,delegated);
+    if(operation.data.done){assert(!operation.data.error,operation.data.error?.message);complete=true;break;}
+    await new Promise(resolve=>setTimeout(resolve,3000));
+  }
+  assert(complete,'Firebase Storage API enablement must complete before bucket setup.');
+  console.log('Enabled the Firebase Storage API required by the configured image bucket.');
+}
 const endpoint='https://firebasestorage.googleapis.com/v1alpha/projects/'+project+'/defaultBucket';
-let linked=await request(endpoint,delegated);
+let linked;
+for(let attempt=0;attempt<24;attempt++){
+  try{linked=await request(endpoint,delegated);break;}
+  catch(error){if(!/API has not been used|it is disabled|SERVICE_DISABLED/.test(error.message)||attempt===23)throw error;}
+  await new Promise(resolve=>setTimeout(resolve,5000));
+}
 let provisioned=false;
 if(linked.status===404){
   const previous=await request('https://storage.googleapis.com/storage/v1/b/'+bucketName,delegated);

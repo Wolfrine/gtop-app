@@ -25,7 +25,7 @@ async function indexToken(){
 }
 const signature=fields=>JSON.stringify(fields.filter(f=>f.fieldPath!=='__name__'));
 async function matching(wanted){
-  const list=await api(root+wanted.collectionGroup+'/indexes?pageSize=100',initialToken);
+  const list=await api(root+wanted.collectionGroup+'/indexes',initialToken);
   return (list.indexes??[]).find(index=>index.queryScope===wanted.queryScope&&signature(index.fields)===signature(wanted.fields));
 }
 for(const wanted of indexes){

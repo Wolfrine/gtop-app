@@ -1,9 +1,9 @@
-name: Inspect paper backend deployment access
+name: Verify paper backend access and image storage
 
 on:
   push:
     branches: [main]
-    paths: [".github/workflows/paper-backend-access.yml"]
+    paths: [".github/workflows/paper-backend-access.yml", ".github/scripts/provision-paper-storage.mjs"]
   workflow_dispatch:
 
 jobs:
@@ -71,3 +71,7 @@ jobs:
           }
           console.log('Read-only inspection complete. No IAM bindings or production data changed.');
           NODE
+      - name: Verify and provision the configured Firebase image bucket
+        env:
+          ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
+        run: node .github/scripts/provision-paper-storage.mjs

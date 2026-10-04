@@ -12,6 +12,8 @@ GitHub Actions now uses a temporary, datastore-scoped token for the three review
 
 Application validation and backend deployment run concurrently. Hosting promotion waits for both, uses the verified build artifact from the same commit, and checks actual hosted version and assets.
 
+The live service check found that the app's configured Firebase image bucket had not been provisioned. The separate paper-backend setup workflow uses the same existing runtime delegation and the official default-bucket API to create and link only that configured bucket in the database region. It installs server-only direct-client rules on a newly provisioned empty bucket and reads back the actual Storage metadata and Firebase link. Existing populated buckets and existing rules are preserved. No billing changes, IAM grants or permanent credentials are introduced.
+
 ## Release completion
 
 1. Verify backend deployment, active rules, anonymous-access denial, authenticated existing-admin configuration and Firebase Storage bucket.

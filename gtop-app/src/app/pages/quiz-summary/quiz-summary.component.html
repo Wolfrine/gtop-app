@@ -1,15 +1,23 @@
 <div class="summary-container">
+  <mat-card appCard *ngIf="loadingSummary" role="status"><p>Loading your completed attempt.</p></mat-card>
+  <mat-card appCard *ngIf="!loadingSummary && !questions.length && saveState === 'idle'" role="status">
+    <p>No completed attempt is available in this tab. Start a quiz from your dashboard.</p>
+    <button mat-stroked-button routerLink="/dashboard">Back to Dashboard</button>
+  </mat-card>
 
   <mat-card appCard aria-live="polite" *ngIf="saveState !== 'idle'">
+    <h1 *ngIf="saveState === 'error' && !questions.length">Attempt unavailable</h1>
     <p *ngIf="saveState === 'saving'">Saving your result… Keep this tab open until it is saved.</p>
     <p *ngIf="saveState === 'saved'">Your result is saved in Reports.</p>
     <p *ngIf="saveState === 'error'" role="alert">{{ saveError }}</p>
     <button mat-stroked-button *ngIf="saveState === 'error' && canSave" (click)="retrySave()" [disabled]="savePending">Try saving again</button>
+    <button mat-stroked-button *ngIf="saveState === 'error' && !questions.length" routerLink="/reports">Open Reports</button>
+    <button mat-stroked-button *ngIf="saveState === 'error' && !questions.length" routerLink="/dashboard">Back to Dashboard</button>
     <button mat-stroked-button *ngIf="saveState === 'saved' && practiceReturnScope" (click)="backToInvitation()">Back to invitation</button>
   </mat-card>
 
   <!-- Score Overview -->
-  <mat-card appCard class="score-card">
+  <mat-card appCard class="score-card" *ngIf="questions.length">
     <div class="score-grid">
       <div class="chart">
         <canvas baseChart [data]="doughnutData" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
@@ -51,13 +59,13 @@
   </mat-card>
 
   <!-- Detailed Solutions -->
-  <div class="review-heading"><div><span class="review-kicker">TURN ANSWERS INTO UNDERSTANDING</span><h2 class="details-header">Let’s take a closer look.</h2></div>        <div class="filters">
+  <div class="review-heading" *ngIf="questions.length"><div><span class="review-kicker">TURN ANSWERS INTO UNDERSTANDING</span><h2 class="details-header">Let's take a closer look.</h2></div>        <div class="filters">
           <button mat-button (click)="toggleIncorrectOnly()" [color]="incorrectOnly ? 'primary' : undefined">
             <mat-icon>{{ incorrectOnly ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
             Show only incorrect
           </button>
         </div></div>
-  <mat-accordion>
+  <mat-accordion *ngIf="questions.length">
       <mat-expansion-panel *ngFor="let q of filteredQuestions; let i = index">
         <mat-expansion-panel-header>
           <mat-panel-title>

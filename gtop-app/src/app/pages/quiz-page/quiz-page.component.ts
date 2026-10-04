@@ -246,7 +246,9 @@ export class QuizPageComponent implements OnInit, OnDestroy {
                 else this.invites?.started(attempt.attemptId);
                 return;
             }
-            const restored = readPracticeSession(profile.uid);
+            const retained = readPracticeSession(profile.uid);
+            // An in-progress invitation has its own validated route/source; ordinary quizzes never adopt it.
+            const restored = retained?.source?.kind === 'invitation' && !retained.completed ? null : retained;
             if (restored?.completed && !restored.saved) {
                 const profileContext = resolvePracticeContext(profile, {});
                 if (restored.role !== (profile.role || 'user') || !questionsMatchPractice(restored.questions, profileContext)) {

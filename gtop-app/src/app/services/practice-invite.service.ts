@@ -40,7 +40,7 @@ export class PracticeInviteService {
       const [path, search] = event.url.split('?'); const params = new URLSearchParams(search || '');
       const state = this.router?.getCurrentNavigation()?.extras.state;
       const invitedSolo = path === '/quiz' && params.get('practice') === 'invite';
-      const currentSummary = path === '/quiz-summary' && !params.has('sessionId') && !params.has('userId') && !state?.['fromLive'] && !state?.['questionSummaries'] && !state?.['session'] && (!state?.['attemptId'] || state['attemptId'] === this.active.attemptId);
+      const currentSummary = path === '/quiz-summary' && !params.has('sessionId') && !params.has('userId') && !state?.['fromLive'] && !state?.['questionSummaries'] && !state?.['session'] && state?.['attemptId'] === this.active.attemptId;
       if (!invitedSolo && !currentSummary) this.clearAttempt();
     });
   }

@@ -17,7 +17,13 @@ import { presentQuestion, restorePresentation, validOrder, canonicalIndex } from
 
 // Local integration tests use isolated emulators; query parameters cannot switch a hosted site.
 const params = new URLSearchParams(window.location.search);
-const useEmulators = ['localhost', '127.0.0.1'].includes(window.location.hostname) && params.has('emulator');
+const localHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+let useEmulators = localHost && params.has('emulator');
+// Keep isolated local QA in its emulators across real route reloads; hosted sites ignore it.
+if (localHost) try {
+    if (useEmulators) sessionStorage.setItem('gtop.local-emulators', '1');
+    useEmulators ||= sessionStorage.getItem('gtop.local-emulators') === '1';
+} catch { /* The explicit localhost query remains sufficient if storage is unavailable. */ }
 
 // Firebase Configuration
 const firebaseConfig = {

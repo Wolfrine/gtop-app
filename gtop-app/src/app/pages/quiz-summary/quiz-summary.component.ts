@@ -45,6 +45,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     saveState: 'idle' | 'saving' | 'saved' | 'error' = 'idle';
     saveError = '';
     canSave = false;
+    loadingSummary = true;
     private attemptId = '';
     private invitationAttemptId = '';
     practiceReturnScope: PracticeScope | null = null;
@@ -128,6 +129,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         this.saved = false;
         this.attemptId = '';
         this.questions = [];
+        this.loadingSummary = false;
         this.fromLive = false;
         this.liveSessionId = null;
         this.liveMode = null;
@@ -219,6 +221,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
             if (!this.isCurrentSummary(version)) return;
             this.saveState = 'error';
             this.saveError = 'Your attempt could not be loaded. Try opening it again.';
+        } finally {
+            if (this.isCurrentSummary(version)) this.loadingSummary = false;
         }
     }
 

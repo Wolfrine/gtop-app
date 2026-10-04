@@ -10,6 +10,7 @@ export const practiceInviteGuard: CanActivateFn = async route => {
   const router = inject(Router); const auth = inject(AuthService); const invites = inject(PracticeInviteService);
   const navigationId = router.getCurrentNavigation()?.id;
   const state = router.getCurrentNavigation()?.extras?.state;
+  const historyAttemptId = router.getCurrentNavigation()?.trigger === 'popstate' ? state?.['invitationAttemptId'] : undefined;
   const currentNavigation = () => navigationId !== undefined && router.getCurrentNavigation()?.id === navigationId;
   invites.clearAttempt();
   const scope = parsePracticeScope(route.queryParamMap);
@@ -26,7 +27,7 @@ export const practiceInviteGuard: CanActivateFn = async route => {
   if (!matchesProfile(scope, profile) || !invites.seed(scope)) return preview();
   try {
     if (!state?.['newInvitation'] && !state?.['invitationRetryOf'] && typeof invites.recover === 'function') {
-      const recovered = await invites.recover(scope, returns);
+      const recovered = await invites.recover(scope, returns, historyAttemptId);
       if (!currentNavigation()) return false;
       if (recovered) return invites.commit(recovered) || preview(true);
     }

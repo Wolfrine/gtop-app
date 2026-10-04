@@ -34,6 +34,7 @@ describe('reviewed practice invitation', () => {
   });
   it('respects ordinary learner curriculum and intentional admin freedom', () => {
     expect(matchesProfile(scope, profile)).toBe(true);
+    expect(matchesProfile(scope, { ...profile, standard: 12 })).toBe(true);
     expect(matchesProfile(scope, { ...profile, standard:'10' })).toBe(false);
     expect(matchesProfile(scope, { ...profile, board:'Other' })).toBe(false);
     expect(matchesProfile(scope, { ...profile, role:'admin', board:'Other', standard:'10' })).toBe(true);

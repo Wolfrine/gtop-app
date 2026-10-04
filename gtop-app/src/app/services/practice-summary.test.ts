@@ -213,4 +213,18 @@ describe('summary result acknowledgement and recovery', () => {
         expect(component.saveState).toBe('saved');
         component.ngOnDestroy();
     });
+    it('routes a historical owned invitation retry through its scoped source and original parent identity', async () => {
+        const invitationScope = { board: 'CBSE', standard: '10', subject: 'Math', chapter: 'Numbers' };
+        const { component, quiz, router } = setup({}, { userId: user.uid, sessionId: 'historical-invite' });
+        quiz.fetchUserQuizResults.mockResolvedValue([{ id: 'historical-invite', userId: user.uid, quizType: 'custom',
+            source: { kind: 'invitation' }, invitation: { scope: invitationScope, attemptId: 'original-invitation' },
+            questions: [{ questionId: 'q', selectedIndex: 0, correctIndex: 0 }] }] as any);
+        component.ngOnInit(); await flush();
+        expect(component.invitationScope).toEqual(invitationScope);
+        await component.retryAll();
+        expect(quiz.prepareRetryFromExistingAttempt).not.toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith(['/quiz'], expect.objectContaining({ state: { invitationRetryOf: 'original-invitation' },
+            queryParams: expect.objectContaining({ practice: 'invite', subjects: ['Math'], chapters: ['Numbers'], count: 5 }) }));
+        component.ngOnDestroy();
+    });
 });

@@ -1,4 +1,5 @@
 import type { ParamMap } from '@angular/router';
+import { normalizePracticeBoard } from './practice-context';
 
 export interface PracticeScope { board: string; standard: string; subject: string; chapter: string; }
 export interface ReviewedPractice { scope: PracticeScope; questionIds: readonly string[]; revision: string; reviewEvidence: string; contentHashes: Readonly<Record<string, string>>; }
@@ -30,7 +31,7 @@ export function practiceReturns(params: Pick<ParamMap, 'getAll'>): { returnTo?: 
 }
 export function sameScope(a: PracticeScope, b: PracticeScope): boolean { return !!a && !!b && fields.every(key => a[key] === b[key]); }
 export function matchesProfile(scope: PracticeScope, profile: any): boolean {
-  return !!profile?.uid && (profile.role === 'admin' || (profile.board === scope.board && profile.standard === scope.standard));
+  return !!scope && !!profile?.uid && (profile.role === 'admin' || (normalizePracticeBoard(profile.board) === normalizePracticeBoard(scope.board) && String(profile.standard ?? '').trim() === scope.standard));
 }
 export function reviewedPractice(scope: PracticeScope, seeds: readonly ReviewedPractice[]): ReviewedPractice | null {
   const seed = seeds.find(item => sameScope(scope, item.scope));

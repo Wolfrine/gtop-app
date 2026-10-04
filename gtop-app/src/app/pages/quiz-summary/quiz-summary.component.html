@@ -24,7 +24,9 @@
         <div class="chart-center"><strong>{{ accuracyPercent }}%</strong><span>ACCURACY</span></div>
       </div>
       <div class="stats">
-        <span class="summary-kicker">QUIZ SUMMARY</span><h1 class="title">See what clicked.</h1><p class="summary-intro">Every answer tells you something. Take a look, then take your next step.</p>
+        <span class="summary-kicker">{{ invitationScope ? 'INVITED PRACTICE' : 'QUIZ SUMMARY' }}</span><h1 class="title">See what clicked.</h1>
+        <p class="summary-intro" *ngIf="invitationScope; else ordinaryIntro">Five questions on {{ invitationScope.chapter }}. Review the explanations, then revisit when you are ready.</p>
+        <ng-template #ordinaryIntro><p class="summary-intro">Every answer tells you something. Take a look, then take your next step.</p></ng-template>
         <div class="chips">
           <span class="chip">Total: {{ totalQuestions }}</span>
           <span class="chip">Correct: {{ correctAnswers }}</span>
@@ -33,11 +35,11 @@
           </span>
         </div>
         <div class="actions">
-          <button mat-flat-button color="primary" (click)="retryIncorrect()" [disabled]="saveState !== 'saved' || !hasIncorrectAnswers">
+          <button mat-flat-button color="primary" *ngIf="!invitationScope" (click)="retryIncorrect()" [disabled]="saveState !== 'saved' || !hasIncorrectAnswers">
             <mat-icon>refresh</mat-icon> Retry Incorrect
           </button>
           <button mat-stroked-button color="primary" (click)="retryAll()" [disabled]="saveState !== 'saved'">
-            <mat-icon>replay</mat-icon> Retry Entire Quiz
+            <mat-icon>replay</mat-icon> {{ invitationScope ? 'Revisit five questions' : 'Retry Entire Quiz' }}
           </button>
           <button mat-stroked-button *ngIf="hubReturnUrl" (click)="backToHub()">
             <mat-icon>launch</mat-icon> Back to Hub

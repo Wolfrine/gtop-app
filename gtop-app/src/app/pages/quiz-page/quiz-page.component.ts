@@ -246,8 +246,12 @@ export class QuizPageComponent implements OnInit, OnDestroy {
                 this.hubReturnUrl = attempt.returnTo || null;
                 this.hubReturnPath = attempt.hubReturnPath || null;
                 writePracticeSession(this.practiceSession);
-                if (attempt.completed) this.openSoloSummary();
-                else this.invites?.started(attempt.attemptId);
+                // Launch/retry is deliberate once. A hard reload restores this attempt;
+                // it must never replay a retained navigation-state retry directive.
+                const { newInvitation, invitationRetryOf, ...historyState } = history.state || {};
+                history.replaceState({ ...historyState, invitationAttemptId: attempt.attemptId }, '');
+                if (attempt.completed && (!attempt.acknowledgedReceipt || !this.historyNavigation)) this.openSoloSummary();
+                else if (!attempt.completed) this.invites?.started(attempt.attemptId);
                 return;
             }
             const retained = readPracticeSession(profile.uid);

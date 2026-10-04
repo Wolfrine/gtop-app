@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
 import { REVIEWED_PRACTICES } from './reviewed-practices';
 import { PracticeScope, PracticeCue, ReviewedPractice, PRACTICE_DELAY, matchesProfile, reviewedPractice, matchesReviewedContent, validCue, sameScope } from './practice-invite.domain';
 import { InvitationAttempt, InvitationPresentation, createInvitationAttempt, restoreInvitationAttempt, checkpointInvitation,
-  invitationStorageKey, invitationReceiptId, invitationResult } from './practice-invite-session';
+  invitationStorageKey, invitationReceiptId, invitationResult, invitationHistory } from './practice-invite-session';
 
 export const REVIEWED_PRACTICE_SEEDS = new InjectionToken<readonly ReviewedPractice[]>('Reviewed practice seeds', { providedIn: 'root', factory: () => REVIEWED_PRACTICES });
 export const INVITED_SOLO_READY = new InjectionToken<boolean>('Invited solo engineering ready', { providedIn: 'root', factory: () => false });
@@ -55,12 +55,13 @@ export class PracticeInviteService {
     return questions;
   }
   /** Preparation has no storage/global-source mutation; guard commits after navigation/account checks. */
-  async recover(scope: PracticeScope, returns: { returnTo?: string; hubReturnPath?: string }): Promise<InvitationAttempt | null> {
+  async recover(scope: PracticeScope, returns: { returnTo?: string; hubReturnPath?: string }, historyAttemptId?: string): Promise<InvitationAttempt | null> {
     const profile = this.auth.profile(); const seed = this.seed(scope);
     const generation = this.generation; const navigationId = this.router?.getCurrentNavigation()?.id;
     if (!profile?.uid || !seed || !this.presentation || this.returnIntent) return null;
     const raw = JSON.parse(sessionStorage.getItem(invitationStorageKey(profile.uid)) || 'null');
     if (!raw || !sameScope(raw.scope || {}, scope)) return null;
+    if (historyAttemptId && raw.attemptId !== historyAttemptId) throw new Error('practice-history-in-reports');
     const restored = await restoreInvitationAttempt(raw, profile, seed, this.presentation);
     if (!restored) throw new Error('practice-session-invalid');
     const { returnTo, hubReturnPath, ...base } = restored;
@@ -72,10 +73,31 @@ export class PracticeInviteService {
     const generation = this.generation; const navigationId = this.router?.getCurrentNavigation()?.id;
     if (!seed || !this.presentation || !matchesProfile(scope, profile)) throw new Error('practice-adapter-unavailable');
     const previous = JSON.parse(sessionStorage.getItem(invitationStorageKey(profile.uid)) || 'null');
+    if (previous?.completed && !previous.acknowledgedReceipt && !sameScope(previous.scope || {}, scope)) throw new Error('practice-save-before-retry');
     const restored = previous && sameScope(previous.scope || {}, scope) ? await restoreInvitationAttempt(previous, profile, seed, this.presentation) : null;
     if (previous && sameScope(previous.scope || {}, scope) && !restored) throw new Error('practice-session-invalid');
-    if (retryOf && (restored?.attemptId !== retryOf || !restored.acknowledgedReceipt)) throw new Error('practice-retry-unavailable');
-    const attempt = restored && !restored.acknowledgedReceipt ? restored : await createInvitationAttempt(profile, seed, sources, this.presentation, crypto.randomUUID(), retryOf ? restored! : undefined);
+    let parent = restored;
+    if (retryOf && (!parent?.acknowledgedReceipt || parent.attemptId !== retryOf)) {
+      // A deliberate historical retry resolves only this account's acknowledged private result.
+      // Never transfer another learner's result identity through an invitation URL.
+      if (restored?.completed && !restored.acknowledgedReceipt) throw new Error('practice-save-before-retry');
+      if (typeof retryOf !== 'string' || !retryOf || retryOf.length > 160) throw new Error('practice-retry-unavailable');
+      const saved = await getDocFromServer(doc(this.firestore, 'QuizResults', invitationReceiptId(profile.uid, retryOf)));
+      const result: any = saved.exists() && saved.data();
+      const questions = result?.userId === profile.uid && result?.attemptId === retryOf && result?.source?.kind === 'invitation' &&
+        await invitationHistory(result.invitation, seed, this.presentation);
+      if (!questions) throw new Error('practice-retry-unavailable');
+      const payload = result.invitation;
+      if (!Array.isArray(result.questions) || result.questions.length !== 5 || result.questions.some((q: any, i: number) =>
+        q.questionId !== payload.answers[i].questionId || q.selectedIndex !== payload.answers[i].selectedIndex || q.correctIndex !== payload.answers[i].correctIndex ||
+        JSON.stringify(q.optionOrder) !== JSON.stringify(payload.answers[i].optionOrder))) throw new Error('practice-retry-unavailable');
+      parent = { version: 1, uid: profile.uid, role: profile.role || 'user', attemptId: retryOf,
+        entryType: payload.entryType, scope: seed.scope, revision: seed.revision, questionIds: payload.questionIds,
+        contentHashes: payload.contentHashes, snapshots: payload.snapshots, questions,
+        currentQuestionIndex: 4, firstAnswer: true, completed: true, acknowledgedReceipt: saved.id, offerDecision: 'pending' };
+    }
+    const attempt = retryOf ? await createInvitationAttempt(profile, seed, sources, this.presentation, crypto.randomUUID(), parent!) :
+      restored && !restored.acknowledgedReceipt ? restored : await createInvitationAttempt(profile, seed, sources, this.presentation, crypto.randomUUID());
     const intent = this.returnIntent;
     const returnCue = intent && intent.uid === profile.uid && sameScope(intent.cue.scope, scope) ? intent.cue : null;
     const { returnTo, hubReturnPath, ...base } = attempt;

@@ -48,6 +48,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     loadingSummary = true;
     private attemptId = '';
     private invitationAttemptId = '';
+    invitationScope: PracticeScope | null = null;
+    private invitationParentAttemptId = '';
     practiceReturnScope: PracticeScope | null = null;
     private quizType = 'quick';
     private currentUser: any = null;
@@ -78,6 +80,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         responsive: true,
         maintainAspectRatio: false,
         cutout: '70%',
+        animation: globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? false : undefined,
         plugins: { legend: { display: false } }
     };
 
@@ -128,6 +131,10 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
         this.canSave = false;
         this.saved = false;
         this.attemptId = '';
+        this.invitationAttemptId = '';
+        this.invitationParentAttemptId = '';
+        this.invitationScope = null;
+        this.practiceReturnScope = null;
         this.questions = [];
         this.loadingSummary = false;
         this.fromLive = false;
@@ -179,6 +186,10 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                     this.liveSessionId = historical?.sessionId || this.liveSessionId;
                 }
                 this.questions = questions;
+                if (historical?.invitation) {
+                    this.invitationScope = historical.invitation.scope;
+                    this.invitationParentAttemptId = historical.userId === uid ? historical.invitation.attemptId : '';
+                }
             } else if (params['sessionId']) {
                 this.saveError = 'This saved attempt could not be loaded. Open it from your reports.';
                 this.saveState = 'error';
@@ -199,6 +210,8 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
                     const attempt = this.invites.current();
                     if (!attempt || attempt.attemptId !== this.attemptId || !attempt.completed) throw new Error('invitation-summary-unavailable');
                     this.invitationAttemptId = attempt.attemptId;
+                    this.invitationParentAttemptId = attempt.attemptId;
+                    this.invitationScope = attempt.scope;
                     this.questions = attempt.questions;
                     this.quizType = 'custom';
                     this.saved = !!attempt.acknowledgedReceipt;
@@ -337,7 +350,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
     }
 
     async retryIncorrect() {
-        if (!this.saved || !this.hasIncorrectAnswers) return;
+        if (!this.saved || !this.hasIncorrectAnswers || this.invitationScope) return;
 
         try {
             await this.quizService.prepareRetryFromExistingAttempt({
@@ -363,11 +376,16 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
 
     async retryAll() {
         if (!this.saved) return;
-        const invitation = this.invites?.current();
-        if (this.invitationAttemptId && invitation?.attemptId === this.invitationAttemptId) {
-            void this.router.navigate(['/quiz'], { queryParams: { ...practiceParams(invitation.scope), practice: 'invite',
-                returnTo: invitation.returnTo, hubReturnPath: invitation.hubReturnPath },
-                state: { invitationRetryOf: invitation.attemptId } });
+        if (this.invitationScope) {
+            const invitation = this.invites?.current();
+            if (!this.invitationParentAttemptId) {
+                void this.router.navigate(['/practice'], { queryParams: practiceParams(this.invitationScope) });
+                return;
+            }
+            const owned = invitation?.attemptId === this.invitationParentAttemptId ? invitation : null;
+            void this.router.navigate(['/quiz'], { queryParams: { ...practiceParams(this.invitationScope), practice: 'invite',
+                returnTo: owned?.returnTo, hubReturnPath: owned?.hubReturnPath },
+                state: { invitationRetryOf: this.invitationParentAttemptId } });
             return;
         }
         try {

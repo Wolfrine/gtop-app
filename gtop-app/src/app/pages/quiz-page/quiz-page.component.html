@@ -56,7 +56,7 @@
     <div class="next-button" *ngIf="!liveMode">
         <button mat-raised-button color="primary" (click)="nextQuestion()"
             [disabled]="openingSummary || questions[currentQuestionIndex].selectedIndex === null">
-            {{ openingSummary ? 'Opening result' : currentQuestionIndex + 1 === questions.length ? 'Submit' : 'Next' }}
+            {{ openingSummary ? 'Opening result' : reviewingSavedAttempt ? 'View saved result' : currentQuestionIndex + 1 === questions.length ? 'Submit' : 'Next' }}
         </button>
     </div>
 

@@ -16,10 +16,16 @@ assert(process.env.ACCESS_TOKEN,'Existing deployment access token is required.')
 const log=data=>console.log(JSON.stringify(data));
 const stable=value=>JSON.stringify(value,(_,item)=>item&&typeof item==='object'&&!Array.isArray(item)?Object.fromEntries(Object.entries(item).sort(([a],[b])=>a.localeCompare(b))):item);
 const fingerprint=value=>createHash('sha256').update(stable(value)).digest('hex');
+const safeError=value=>String(value??'').replace(/Bearer\s+\S+|ya29\.[\w.-]+|eyJ[\w.-]+|([?&](?:token|key|access_token|signature)=)[^&\s]+/gi,'[redacted]').slice(0,4000);
 async function api(url,method='GET',body){
   const response=await fetch(url,{method,headers:{Authorization:'Bearer '+process.env.ACCESS_TOKEN,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(30000)});
   const result=await response.json().catch(()=>({}));
-  if(!response.ok)throw Error(method+' '+new URL(url).pathname+' HTTP '+response.status+' '+(result.error?.status??'')+'. No automatic retry or broader permissions will be attempted.');
+  if(!response.ok){
+    // Retain the validation reason for this one reviewed request. Never print
+    // headers, bearer credentials, request environment values or raw responses.
+    log({type:'cloud-api-error',method,path:new URL(url).pathname,http:response.status,status:result.error?.status,message:safeError(result.error?.message),details:safeError(JSON.stringify(result.error?.details??[]))});
+    throw Error(method+' '+new URL(url).pathname+' HTTP '+response.status+' '+(result.error?.status??'')+'. No automatic retry or broader permissions will be attempted.');
+  }
   return result;
 }
 const invariantFields=['name','description','entryPoint','runtime','timeout','availableMemoryMb','serviceAccountEmail','labels','buildEnvironmentVariables','network','maxInstances','minInstances','vpcConnector','vpcConnectorEgressSettings','ingressSettings','kmsKeyName','buildWorkerPool','secretEnvironmentVariables','secretVolumes','dockerRepository','dockerRegistry','buildServiceAccount','sourceArchiveUrl','sourceRepository','sourceUploadUrl','eventTrigger','httpsTrigger','automaticUpdatePolicy','onDeployUpdatePolicy'];
@@ -47,8 +53,8 @@ if(before.environmentVariables?.GCLOUD_PROJECT===project){
   const environmentVariables={...(before.environmentVariables??{}),GCLOUD_PROJECT:project};
   log({action:'patch-environment-only',function:name,updateMask:'environmentVariables',previousVersion:before.versionId,previousUpdateTime:before.updateTime,preservedConfigurationSha256:fingerprint(invariants(before)),existingEnvironmentCount:Object.keys(before.environmentVariables??{}).length});
   let operation=await api(endpoint+'?updateMask=environmentVariables','PATCH',{name,environmentVariables});
+  log({operation:safeError(operation.name),operationAccepted:true});
   assert(typeof operation.name==='string'&&/^(?:operations\/[-\w]+|projects\/gtop-app\/locations\/us-central1\/operations\/[-\w]+)$/.test(operation.name),'Unexpected operation resource; stop and inspect manually.');
-  log({operation:operation.name});
   const operationUrl='https://cloudfunctions.googleapis.com/v1/'+operation.name;
   for(let attempt=0;!operation.done&&attempt<36;attempt++){
     await setTimeout(10000);operation=await api(operationUrl);

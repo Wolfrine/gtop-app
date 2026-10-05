@@ -6,10 +6,12 @@
         <p>Loading your quiz…</p>
     </mat-card>
     <mat-card appCard *ngIf="loadError" role="alert">
-        <h1>{{ profileRequired ? 'Choose your curriculum' : 'Quiz unavailable' }}</h1>
+        <h1>{{ profileRequired ? 'Choose your curriculum' : completedResultAvailable ? 'Completed answers retained' : 'Quiz unavailable' }}</h1>
         <p>{{ loadError }}</p>
         <button mat-raised-button color="primary" *ngIf="profileRequired" (click)="goToProfile()">Add board and class</button>
-        <button mat-raised-button color="primary" *ngIf="!profileRequired && !liveMode" (click)="loadSoloQuiz(true)">Try again</button>
+        <button mat-raised-button color="primary" *ngIf="previousResultAvailable" (click)="openPreviousResult()">Save previous result</button>
+        <button mat-raised-button color="primary" *ngIf="completedResultAvailable" (click)="reloadCompletedResult()">Reload completed result</button>
+        <button mat-raised-button color="primary" *ngIf="!profileRequired && !liveMode && !previousResultAvailable && !completedResultAvailable" (click)="loadSoloQuiz(true)">Try again</button>
         <button mat-button (click)="goToDashboard()">Back to dashboard</button>
     </mat-card>
     <ng-container *ngIf="!loading && !loadError && questions.length">
@@ -53,8 +55,8 @@
     <!-- Next/Submit Button (hidden in live mode) -->
     <div class="next-button" *ngIf="!liveMode">
         <button mat-raised-button color="primary" (click)="nextQuestion()"
-            [disabled]="questions[currentQuestionIndex].selectedIndex === null">
-            {{ currentQuestionIndex + 1 === questions.length ? 'Submit' : 'Next' }}
+            [disabled]="openingSummary || questions[currentQuestionIndex].selectedIndex === null">
+            {{ openingSummary ? 'Opening result' : reviewingSavedAttempt ? 'View saved result' : currentQuestionIndex + 1 === questions.length ? 'Submit' : 'Next' }}
         </button>
     </div>
 

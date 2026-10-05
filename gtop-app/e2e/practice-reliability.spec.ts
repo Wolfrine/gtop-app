@@ -1,8 +1,10 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { warmPracticeSummary } from './practice-summary-fixture';
 import { initializeApp, deleteApp } from 'firebase/app';
 import { connectAuthEmulator, createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import { initializeTestEnvironment, type RulesTestEnvironment } from '@firebase/rules-unit-testing';
 import { collection, doc, getDocs, query, setDoc, where, Timestamp } from 'firebase/firestore';
+import { createHash } from 'node:crypto';
 
 // Unique curricula prevent concurrent suites/projects from changing this fixture.
 const tag = `practice-${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -119,6 +121,23 @@ test('learner direct custom link cannot override profile and accepts scalar topi
   await screenshot(page, info, 'learner-custom');
 });
 
+test('account A solo answers survive account B starting practice in the same tab', async ({ page }, info) => {
+  await open(page, 'learner');
+  await expect(page.locator('.question-card')).toContainText('Own curriculum', { timeout: 25_000 });
+  await page.locator('.option-card').filter({ hasText: 'Length' }).click();
+  const original = await page.evaluate(() => JSON.parse(sessionStorage.getItem('gtop.practice-session.v1')!));
+  await open(page, 'admin', `/quiz?board=${encodeURIComponent(otherBoard)}&standard=8&subjects=Physics&chapters=Motion&count=2`);
+  await expect(page.locator('.question-card')).toContainText('Other curriculum');
+  const second = await page.evaluate(() => JSON.parse(sessionStorage.getItem('gtop.practice-session.v1')!));
+  expect(second.uid).not.toBe(original.uid);
+  expect(second.attemptId).not.toBe(original.attemptId);
+  expect(await page.evaluate(owner => JSON.parse(sessionStorage.getItem(`gtop.practice-session.v1.${encodeURIComponent(owner)}`)!), original.uid)).toEqual(original);
+  await open(page, 'learner');
+  await expect(page.locator('.option-card.selected')).toContainText('Length');
+  expect(await page.evaluate(owner => JSON.parse(sessionStorage.getItem(`gtop.practice-session.v1.${encodeURIComponent(owner)}`)!), original.uid)).toEqual(original);
+  await screenshot(page, info, 'account-a-restored-after-b');
+});
+
 test('admin retains explicit selection of another board and class', async ({ page }, info) => {
   await open(page, 'admin', `/quiz?board=${encodeURIComponent(otherBoard)}&standard=8&subjects=Physics&chapters=Motion&count=2`);
   await expect(page.locator('.question-card')).toContainText('Other curriculum', { timeout: 25_000 });
@@ -169,6 +188,7 @@ test('Cambridge profile and syllabus find historical IGCSE question records', as
 test('offline result visibly fails, retries once online and remains one acknowledged attempt', async ({ page, context }, info) => {
   await open(page, 'learner', '/quiz?subjects=Physics&chapters=Motion&count=2');
   await expect(page.locator('.question-card')).toContainText('Own curriculum', { timeout: 25_000 });
+  await warmPracticeSummary(page);
   const session = await page.evaluate(() => JSON.parse(sessionStorage.getItem('gtop.practice-session.v1')!));
   await context.setOffline(true);
   await answerAll(page);
@@ -191,6 +211,7 @@ test('offline result visibly fails, retries once online and remains one acknowle
   await page.evaluate(() => {
     const value = JSON.parse(sessionStorage.getItem('gtop.practice-session.v1')!);
     sessionStorage.setItem('gtop.practice-session.v1', JSON.stringify({ ...value, saved: false }));
+    sessionStorage.setItem(`gtop.practice-session.v1.${encodeURIComponent(value.uid)}`, JSON.stringify({ ...value, saved: false }));
   });
   await page.goto('/quiz-summary?emulator=1');
   await expect(page.getByText('Your result is saved in Reports.')).toBeVisible();
@@ -219,4 +240,33 @@ test('historical result without board or option order opens unchanged and does n
   await expect(page.getByText('This second paragraph is also reasoning.', { exact: false })).toBeVisible();
   expect((await ownResults()).length).toBe(countBefore);
   await screenshot(page, info, 'historical-review');
+});
+
+test('saved invitation history survives retirement of its reviewed revision without re-saving or offering consent', async ({ page }, info) => {
+  const scope = { board, standard: '10', subject, chapter };
+  const attemptId = `${tag}-retired`;
+  const snapshots = Array.from({ length: 5 }, (_, i) => ({ ...scope, id: `${attemptId}-${i}`,
+    question: `Archived practice ${i}: which quantity measures length?`, options: ['Length', 'Time'],
+    correctIndex: 0, solutions: ['Length measures distance.'], selectedIndex: null }));
+  const answers = snapshots.map(q => ({ questionId: q.id, selectedIndex: 0, correctIndex: 0, optionOrder: [1, 0] }));
+  const invitation = { version: 1, attemptId, entryType: 'invitation', revision: `${tag}-retired-revision`, scope,
+    questionIds: snapshots.map(q => q.id), snapshots, answers,
+    contentHashes: Object.fromEntries(snapshots.map(q => [q.id, createHash('sha256').update(JSON.stringify(
+      [q.board, q.standard, q.subject, q.chapter, q.question, q.options, q.correctIndex, q.solutions])).digest('hex')])) };
+  const id = `attempt-${encodeURIComponent(accounts.learner.uid)}:${encodeURIComponent(attemptId)}`;
+  await environment.withSecurityRulesDisabled(async local => setDoc(doc(local.firestore(), 'QuizResults', id), {
+    userId: accounts.learner.uid, userName: 'Local archived learner', ...scope, attemptId, quizType: 'custom',
+    source: { kind: 'invitation', revision: invitation.revision }, invitation, timestamp: Timestamp.now(),
+    questions: answers.map(a => ({ ...a, isCorrect: true })), totalQuestions: 5, correctAnswers: 5, wrongAnswers: 0, percentage: 100,
+  }));
+  const saved = (await ownResults()).find(result => result.id === id);
+  await open(page, 'learner', `/quiz-summary?sessionId=${encodeURIComponent(id)}&userId=${accounts.learner.uid}`);
+  await expect(page.getByText('Your result is saved in Reports.')).toBeVisible({ timeout: 25_000 });
+  await page.getByRole('button', { name: 'Q1:', exact: false }).click();
+  await expect(page.getByText('Archived practice 0: which quantity measures length?', { exact: true })).toBeVisible();
+  await expect(page.locator('mat-expansion-panel').first().locator('.mcq-option').first()).toContainText('A) Time');
+  await expect(page.locator('mat-expansion-panel').first().getByText('Length measures distance.', { exact: false })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Keep this practice on my dashboard' })).toHaveCount(0);
+  expect((await ownResults()).find(result => result.id === id)).toEqual(saved);
+  await screenshot(page, info, 'retired-invitation-history');
 });

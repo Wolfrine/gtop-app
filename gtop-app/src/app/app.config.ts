@@ -12,10 +12,18 @@ import { Auth, provideAuth, getAuth, connectAuthEmulator, signInWithEmailAndPass
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideDatabase, getDatabase, connectDatabaseEmulator } from '@angular/fire/database';
+import { INVITATION_PRESENTATION, INVITED_SOLO_READY } from './services/practice-invite.service';
+import { presentQuestion, restorePresentation, validOrder, canonicalIndex } from './services/question-presentation';
 
 // Local integration tests use isolated emulators; query parameters cannot switch a hosted site.
 const params = new URLSearchParams(window.location.search);
-const useEmulators = ['localhost', '127.0.0.1'].includes(window.location.hostname) && params.has('emulator');
+const localHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+let useEmulators = localHost && params.has('emulator');
+// Keep isolated local QA in its emulators across real route reloads; hosted sites ignore it.
+if (localHost) try {
+    if (useEmulators) sessionStorage.setItem('gtop.local-emulators', '1');
+    useEmulators ||= sessionStorage.getItem('gtop.local-emulators') === '1';
+} catch { /* The explicit localhost query remains sufficient if storage is unavailable. */ }
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -30,6 +38,8 @@ const firebaseConfig = {
 
 export const appConfig: ApplicationConfig = {
     providers: [
+        { provide: INVITATION_PRESENTATION, useValue: { presentQuestion, restorePresentation, validOrder, canonicalIndex } },
+        { provide: INVITED_SOLO_READY, useValue: true },
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
         provideHttpClient(),

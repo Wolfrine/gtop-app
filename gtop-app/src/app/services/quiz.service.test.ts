@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReplaySubject } from 'rxjs';
 import { QuizService } from './quiz.service';
 import { presentQuestion } from './question-presentation';
+import { createHash, webcrypto } from 'node:crypto';
 
 const state = vi.hoisted(() => ({
     records: new Map<string, any>(), queries: [] as any[], writes: [] as any[],
@@ -252,6 +253,26 @@ describe('acknowledged immutable quiz attempts', () => {
         expect(current[0].options).toEqual(['three', 'one', 'two']);
         expect(current[0].selectedIndex).toBe(1); expect(current[0].correctIndex).toBe(1);
         expect(current[0].solutions).toHaveLength(2);
+    });
+    it('reads saved invitation answers after their revision leaves the active manifest without fetching current content', async () => {
+        vi.stubGlobal('crypto', webcrypto);
+        try {
+            const snapshots = Array.from({ length: 5 }, (_, i) => bankQuestion(`archived-${i}`));
+            const answers = snapshots.map(q => ({ questionId: q.id, selectedIndex: 0, correctIndex: 0, optionOrder: [2, 0, 1] }));
+            const invitation = { version: 1, attemptId: 'owned-archived-attempt', entryType: 'invitation', revision: 'retired-fixture-v1',
+                scope: { board: cbse.board, standard: cbse.standard, subject: cbse.subject, chapter: cbse.chapter },
+                questionIds: snapshots.map(q => q.id), snapshots, answers,
+                contentHashes: Object.fromEntries(snapshots.map(q => [q.id, createHash('sha256').update(JSON.stringify(
+                    [q.board, q.standard, q.subject, q.chapter, q.question, q.options, q.correctIndex, q.solutions])).digest('hex')])) };
+            const summaries = answers.map(answer => ({ ...answer, isCorrect: true }));
+            const restored = await service.expandSummariesToQuestions(summaries, invitation);
+            expect(restored.map(q => q.id)).toEqual(invitation.questionIds);
+            expect(restored[0].options).toEqual(['three', 'one', 'two']);
+            expect(restored[0].selectedIndex).toBe(1);
+            expect(state.queries).toHaveLength(0);
+            expect(state.writes).toHaveLength(0);
+            await expect(service.expandSummariesToQuestions(summaries.map((s,i) => i ? s : { ...s, selectedIndex: 1 }), invitation)).rejects.toThrow('invalid-invitation-history');
+        } finally { vi.unstubAllGlobals(); }
     });
     it('canonicalizes an in-memory presented question before a fresh retry', () => {
         const question = presentQuestion({ ...bankQuestion('cbse-question'), selectedIndex: 0 }, () => 0);

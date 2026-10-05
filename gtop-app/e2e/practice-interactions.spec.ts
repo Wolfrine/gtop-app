@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Locator, type TestInfo } from '@playwright/test';
+import { warmPracticeSummary } from './practice-summary-fixture';
 import { writeFile } from 'node:fs/promises';
 import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator, createUserWithEmailAndPassword } from 'firebase/auth';
@@ -215,6 +216,7 @@ async function resultCount() {
 
 test('mounted offline summary invalidates on profile change and retains original attempt', async ({ page, context }) => {
   await open(page, 'Short');
+  await warmPracticeSummary(page);
   const beforeCount = await resultCount();
   await context.setOffline(true);
   await page.locator('.option-card').filter({ hasText: 'Length' }).click();
@@ -228,7 +230,7 @@ test('mounted offline summary invalidates on profile change and retains original
     await context.setOffline(false);
     await expect(page.getByRole('alert')).toContainText('Your learning profile changed.');
     await expect(page.getByRole('button', { name: 'Try saving again' })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Retry Entire Quiz', exact: false })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Retry Entire Quiz', exact: false })).toHaveCount(0);
     expect(await resultCount()).toBe(beforeCount);
     expect(await page.evaluate(() => sessionStorage.getItem('gtop.practice-session.v1'))).toBe(retained);
   } finally {
@@ -241,6 +243,7 @@ test('mounted offline summary invalidates on profile change and retains original
 
 test('cross-tab account switch invalidates the already mounted unsaved summary', async ({ page, context }) => {
   await open(page, 'Short');
+  await warmPracticeSummary(page);
   const beforeCount = await resultCount();
   await context.setOffline(true);
   await page.locator('.option-card').filter({ hasText: 'Length' }).click();
@@ -255,6 +258,43 @@ test('cross-tab account switch invalidates the already mounted unsaved summary',
   await expect(page.getByRole('button', { name: 'Try saving again' })).toHaveCount(0);
   expect(await resultCount()).toBe(beforeCount);
   expect(await page.evaluate(() => sessionStorage.getItem('gtop.practice-session.v1'))).toBe(retained);
+  await other.close();
+});
+
+test('mounted live attempt stops on account change before another answer or summary save', async ({ page, context }, info) => {
+  const sessionId = `${tag}-account-switch`;
+  await environment.withSecurityRulesDisabled(async local => {
+    const db = local.firestore();
+    const start = Timestamp.fromMillis(Date.now() - 1000);
+    await setDoc(doc(db, 'LiveSessions', sessionId), {
+      hostId: uid, hostName: 'Local fixture', mode: 'live', status: 'active',
+      questionIds: [`${tag}-Short`, `${tag}-Long`], scheduledStartAt: start, anchorAt: start, anchorIndex: 0,
+      perQuestionSeconds: 90, scope: { board: 'CBSE', standard: '10' },
+    });
+    for (const owner of [uid, secondUid]) await setDoc(doc(db, 'LiveSessions', sessionId, 'participants', owner), { uid: owner, displayName: 'Local learner', joinedAt: start });
+  });
+  const params = new URLSearchParams({ emulator: '1', testEmail: email, testPassword: password, live: '1', sessionId });
+  await page.goto(`/quiz?${params}`);
+  await expect(page.locator('.question-card')).toContainText('Which quantity', { timeout: 25_000 });
+  await page.locator('.option-card').filter({ hasText: 'Length' }).click();
+  await expect.poll(async () => {
+    let saved = false;
+    await environment.withSecurityRulesDisabled(async local => { saved = (await getDoc(doc(local.firestore(), 'LiveSessions', sessionId, 'answers', '0', 'items', uid))).exists(); });
+    return saved;
+  }).toBe(true);
+  const other = await context.newPage();
+  const otherParams = new URLSearchParams({ emulator: '1', testEmail: `other-${email}`, testPassword: password });
+  await other.goto(`/dashboard?${otherParams}`);
+  await expect(page.getByRole('alert')).toContainText('Your account changed.');
+  await expect(page.locator('.option-card')).toHaveCount(0);
+  await environment.withSecurityRulesDisabled(async local => {
+    const db = local.firestore();
+    await setDoc(doc(db, 'LiveSessions', sessionId), { status: 'ended' }, { merge: true });
+    expect((await getDoc(doc(db, 'LiveSessions', sessionId, 'answers', '1', 'items', secondUid))).exists()).toBe(false);
+    expect((await getDocs(query(collection(db, 'QuizResults'), where('sessionId', '==', sessionId)))).size).toBe(0);
+  });
+  await expect(page).toHaveURL(/\/quiz\?/);
+  await page.screenshot({ path: info.outputPath('live-account-changed.png'), fullPage: true, animations: 'disabled' });
   await other.close();
 });
 

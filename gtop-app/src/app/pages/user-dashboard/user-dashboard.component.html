@@ -3,6 +3,7 @@
     <div><span class="section-kicker">YOUR LEARNING SPACE</span><h1>Hello, {{ userName || 'Learner' }}.</h1><p class="welcome-line">Good questions lead to great discoveries.</p></div>
     <p class="profile-context">{{ userSubjects || '—' }} <span>·</span> Standard {{ userStandard || '—' }}</p>
   </header>
+  <app-practice-return-card></app-practice-return-card>
   <div class="dashboard-grid">
     <mat-card appCard class="welcome-card">
       <img class="practice-art" src="assets/illustrations/practice-orbit.svg" alt="" aria-hidden="true">

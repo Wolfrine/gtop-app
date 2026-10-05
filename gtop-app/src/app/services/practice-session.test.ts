@@ -6,6 +6,20 @@ const session: PracticeSession = { version: 1, uid: 'student', role: 'user', rou
   currentQuestionIndex: 0, completed: false, saved: false };
 describe('tab-local practice restoration', () => {
   beforeEach(() => sessionStorage.clear());
+  it('migrates legacy account A before B writes and clears only B current records', () => {
+    sessionStorage.setItem('gtop.practice-session.v1', JSON.stringify(session));
+    writePracticeSession({ ...session, uid: 'other-student', attemptId: 'other-attempt' });
+    clearPracticeSession();
+    expect(readPracticeSession('other-student')).toBeNull();
+    expect(readPracticeSession('student')).toEqual(session);
+  });
+  it('retains account A answers and identity when account B starts a different attempt in the same tab', () => {
+    writePracticeSession(session);
+    const other = { ...session, uid: 'other-student', attemptId: 'attempt-other', currentQuestionIndex: 0 };
+    writePracticeSession(other);
+    expect(readPracticeSession('student')).toEqual(session);
+    expect(readPracticeSession('other-student')).toEqual(other);
+  });
   it('preserves answer, presentation order, cursor and attempt identity across route instances', () => {
     writePracticeSession(session);
     expect(readPracticeSession('student')).toEqual(session);

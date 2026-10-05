@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
+import { PracticeShareComponent } from '../../pages/practice-invite/practice-share.component';
 
 @Component({
     selector: 'app-manual-quiz-modal',
@@ -22,7 +23,8 @@ import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
         MatInputModule,
         MatRadioModule,
         MatButtonModule,
-        FormsModule
+        FormsModule,
+        PracticeShareComponent
     ],
     templateUrl: './manual-quiz-modal.component.html',
     styleUrls: ['./manual-quiz-modal.component.scss']
@@ -47,6 +49,11 @@ export class ManualQuizModalComponent implements OnInit {
     // Quiz Setup
     questionCount: number = 10;
     difficultyLevel: string = 'adaptive';
+
+    get invitationScope() {
+        return this.board && this.standard && this.selectedSubjects.length === 1 && this.selectedChapters.length === 1 && this.questionCount === 5
+            ? { board: this.board, standard: this.standard, subject: this.selectedSubjects[0], chapter: this.selectedChapters[0] } : null;
+    }
 
     // All syllabus matching selected board/standard
     filteredSyllabus: SyllabusItem[] = [];

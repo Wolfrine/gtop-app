@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
@@ -15,6 +15,8 @@ import { combineLatest, Subscription } from 'rxjs';
 import { PracticeContext, questionsMatchPractice, resolvePracticeContext } from '../../services/practice-context';
 import { createPracticeAttemptId, PracticeSession, readPracticeSession, writePracticeSession } from '../../services/practice-session';
 import { canonicalIndex, presentLiveQuestion, presentQuestion } from '../../services/question-presentation';
+import { PracticeInviteService } from '../../services/practice-invite.service';
+import { matchesProfile } from '../../services/practice-invite.domain';
 
 @Component({
     selector: 'app-quiz-page',
@@ -43,6 +45,9 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     loading = true;
     loadError = '';
     profileRequired = false;
+    previousResultAvailable = false;
+    completedResultAvailable = false;
+    openingSummary = false;
     private soloSubscription?: Subscription;
     private requestVersion = 0;
     private practiceSession: PracticeSession | null = null;
@@ -51,6 +56,9 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     private loadedContextKey = '';
     private historyNavigation = false;
     private liveLoadInProgress = false;
+    private liveUid: string | null = null;
+    private liveAccountChanged = false;
+    private liveUserSubscription?: Subscription;
 
     currentQuestionIndex = 0;
     // Live mode
@@ -81,7 +89,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         private liveService: LiveQuizService,
         private router: Router,
         private route: ActivatedRoute,
-        private authService: AuthService
+        private authService: AuthService,
+        @Optional() private invites: PracticeInviteService | null = null
     ) { }
 
     ngOnInit(): void {
@@ -103,8 +112,14 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         }
 
         if (this.liveMode && this.sessionId) {
+            this.liveUid = this.authService.profile()?.uid || null;
+            this.liveUserSubscription = this.authService.readyUser$.subscribe(profile => {
+                if (!this.liveUid || profile?.uid !== this.liveUid) this.invalidateLiveQuiz();
+            });
+            if (this.liveAccountChanged) return;
             // Subscribe to session and drive UI from it
             this.sessionUnsub = this.liveService.observeSession<any>(this.sessionId, (s) => {
+                if (this.liveAccountChanged) return;
                 if (!s) {
                     this.loading = false;
                     this.loadError = 'This live quiz could not be found. Return to the dashboard and join again.';
@@ -132,6 +147,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             });
             // Track participants count for per-question submission summary
             this.participantsUnsub = this.liveService.observeParticipants(this.sessionId, (list) => {
+                if (this.liveAccountChanged) return;
                 this.participantsCount = Array.isArray(list) ? list.length : 0;
             });
             // Tick every second for timer updates
@@ -155,10 +171,10 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     private async loadLiveQuiz(session: any): Promise<void> {
         this.liveLoadInProgress = true;
         const version = this.requestVersion;
-        const uid = this.authService.profile()?.uid;
+        const uid = this.liveUid;
         try {
             if (!uid) throw new Error('Sign in again to restore your live quiz.');
-            const saved = await this.liveService.fetchSavedResultForSession(this.sessionId!);
+            const saved = await this.liveService.fetchSavedResultForSession(this.sessionId!, uid);
             if (version !== this.requestVersion) return;
             if (saved) {
                 this.navigatedToSummary = true;
@@ -174,7 +190,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             const byId = new Map(fetched.map((question: any) => [question.id, question]));
             const ordered = session.questionIds.map((id: string) => byId.get(id));
             if (ordered.some((question: any) => !question)) throw new Error('Some questions in this live quiz are unavailable. Reopen the quiz or return to the dashboard.');
-            const restored = await this.liveService.restoreOwnAnswersForSession(this.sessionId!, ordered);
+            const restored = await this.liveService.restoreOwnAnswersForSession(this.sessionId!, ordered, uid);
             if (version !== this.requestVersion) return;
             if (this.authService.profile()?.uid !== uid) throw new Error('Your account changed. Reopen the live quiz.');
             this.questions = restored.map(question => presentLiveQuestion(question, this.sessionId!, uid));
@@ -212,6 +228,9 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         this.loading = true;
         this.loadError = '';
         this.profileRequired = false;
+        this.previousResultAvailable = false;
+        this.completedResultAvailable = false;
+        this.openingSummary = false;
         this.questions = [];
         this.currentQuestionIndex = 0;
         this.hubReturnUrl = this.currentParams['returnTo'] || null;
@@ -219,7 +238,35 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         this.practiceSession = null;
         this.retryContext = null;
         try {
-            const restored = readPracticeSession(profile.uid);
+            if (this.currentParams['practice'] === 'invite') {
+                const previous = readPracticeSession(profile.uid);
+                if (previous?.completed && !previous.saved && previous.source?.kind !== 'invitation') {
+                    this.previousResultAvailable = true;
+                    throw new Error('Your previous quiz result is still unsaved. Save it first, then return to this invitation. Your previous answers are retained in this tab.');
+                }
+                const attempt = this.invites?.current();
+                if (!attempt || attempt.uid !== profile.uid || attempt.role !== (profile.role || 'user') || !matchesProfile(attempt.scope, profile))
+                    throw new Error('This practice could not be restored. Reopen its invitation link.');
+                this.questions = attempt.questions;
+                this.currentQuestionIndex = attempt.currentQuestionIndex;
+                this.practiceSession = { version: 1, uid: attempt.uid, role: attempt.role, routeKey: context.routeKey,
+                    attemptId: attempt.attemptId, quizType: 'custom', source: { kind: 'invitation', attemptId: attempt.attemptId, revision: attempt.revision },
+                    questions: this.questions, currentQuestionIndex: attempt.currentQuestionIndex, completed: attempt.completed,
+                    saved: !!attempt.acknowledgedReceipt, returnTo: attempt.returnTo, hubReturnPath: attempt.hubReturnPath };
+                this.hubReturnUrl = attempt.returnTo || null;
+                this.hubReturnPath = attempt.hubReturnPath || null;
+                writePracticeSession(this.practiceSession);
+                // Launch/retry is deliberate once. A hard reload restores this attempt;
+                // it must never replay a retained navigation-state retry directive.
+                const { newInvitation, invitationRetryOf, ...historyState } = history.state || {};
+                history.replaceState({ ...historyState, invitationAttemptId: attempt.attemptId }, '');
+                if (attempt.completed && (!attempt.acknowledgedReceipt || !this.historyNavigation)) this.openSoloSummary();
+                else if (!attempt.completed) this.invites?.started(attempt.attemptId);
+                return;
+            }
+            const retained = readPracticeSession(profile.uid);
+            // An in-progress invitation has its own validated route/source; ordinary quizzes never adopt it.
+            const restored = retained?.source?.kind === 'invitation' && !retained.completed ? null : retained;
             if (restored?.completed && !restored.saved) {
                 const profileContext = resolvePracticeContext(profile, {});
                 if (restored.role !== (profile.role || 'user') || !questionsMatchPractice(restored.questions, profileContext)) {
@@ -278,28 +325,61 @@ export class QuizPageComponent implements OnInit, OnDestroy {
 
     goToProfile(): void { void this.router.navigate(['/profile-setup']); }
     goToDashboard(): void { void this.router.navigate([this.currentProfile?.role === 'admin' ? '/admin' : '/dashboard']); }
+    openPreviousResult(): void {
+        const previous = readPracticeSession(this.currentProfile?.uid);
+        if (!previous?.completed || previous.saved || previous.source?.kind === 'invitation') return;
+        void this.router.navigate(['/quiz-summary'], { state: { attemptId: previous.attemptId, practiceUid: previous.uid,
+            practiceReturnScope: this.invites?.current()?.scope } });
+    }
+    reloadCompletedResult(): void {
+        if (!this.practiceSession?.completed || this.practiceSession.uid !== this.currentProfile?.uid) return;
+        if (navigator.onLine === false) {
+            this.loadError = 'You are still offline. Your completed answers are retained in this tab. Reconnect, then reload the completed result.';
+            return;
+        }
+        // A failed dynamic module load may be cached for this document. Reload resets it;
+        // the dedicated invitation guard restores the same completed attempt from this tab.
+        window.location.reload();
+    }
     get reviewingSavedAttempt(): boolean { return !!(this.practiceSession?.completed && this.practiceSession.saved); }
 
-    private persistPractice(completed = false): void {
-        if (!this.practiceSession) return;
+    private persistPractice(completed = false): boolean {
+        if (!this.practiceSession) return false;
+        if (this.practiceSession.source?.kind === 'invitation' && !this.practiceSession.completed &&
+            !this.invites?.checkpoint(this.practiceSession.attemptId, this.questions, this.currentQuestionIndex, completed)) {
+            this.loadError = 'Your progress could not be retained in this tab. Allow site storage and reopen this practice.';
+            return false;
+        }
         this.practiceSession = { ...this.practiceSession, questions: this.questions, currentQuestionIndex: this.currentQuestionIndex,
             completed: completed || this.practiceSession.completed };
         writePracticeSession(this.practiceSession);
+        return true;
     }
 
     private openSoloSummary(): void {
-        this.persistPractice(true);
+        if (this.openingSummary) return;
+        if (!this.persistPractice(true)) return;
         this.quizService.setQuestions(this.questions);
-        void this.router.navigate(['/quiz-summary'], {
+        this.openingSummary = true;
+        const version = this.requestVersion;
+        const attemptId = this.practiceSession?.attemptId;
+        const failed = () => {
+            if (version !== this.requestVersion || this.practiceSession?.attemptId !== attemptId) return;
+            this.openingSummary = false;
+            this.completedResultAvailable = true;
+            this.loadError = 'Your completed answers are retained in this tab. Reconnect, then reload the completed result to save it.';
+        };
+        void Promise.resolve(this.router.navigate(['/quiz-summary'], {
             state: { questions: this.questions, practiceUid: this.practiceSession?.uid, attemptId: this.practiceSession?.attemptId, quizType: this.practiceSession?.quizType,
-                saved: this.practiceSession?.saved, returnTo: this.hubReturnUrl, hubReturnPath: this.hubReturnPath },
+                saved: this.practiceSession?.saved, source: this.practiceSession?.source, returnTo: this.hubReturnUrl, hubReturnPath: this.hubReturnPath },
             queryParams: this.hubReturnUrl ? { returnTo: this.hubReturnUrl, hubReturnPath: this.hubReturnPath || undefined } : undefined
-        });
+        })).then(opened => { if (opened === false) failed(); }).catch(failed);
     }
 
     ngOnDestroy(): void {
         this.requestVersion++;
         this.soloSubscription?.unsubscribe();
+        this.liveUserSubscription?.unsubscribe();
         if (this.sessionUnsub) this.sessionUnsub();
         if ((this as any)._tick) clearInterval((this as any)._tick);
         if (this.answersUnsub) this.answersUnsub();
@@ -307,6 +387,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     }
 
     selectOption(optionIndex: number) {
+        if (this.liveMode && !this.liveAccountIsCurrent()) return;
         const q = this.questions[this.currentQuestionIndex];
         if (!q) return;
         if (this.practiceSession?.completed) return;
@@ -318,9 +399,12 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             if (!this.sessionId) return;
             const base = this.anchorAt ?? this.startAt ?? new Date();
             const questionStartAt = new Date(base.getTime() + (this.currentQuestionIndex - this.anchorIndex) * this.perQuestionSeconds * 1000);
-            this.liveService.submitAnswer(this.sessionId, this.currentQuestionIndex, canonicalIndex(q, optionIndex)!, questionStartAt).catch(() => {});
+            this.liveService.submitAnswer(this.sessionId, this.currentQuestionIndex, canonicalIndex(q, optionIndex)!, questionStartAt, this.liveUid!).catch(error => {
+                if ((error as Error).message.includes('account changed')) this.invalidateLiveQuiz();
+            });
             if (this.answersUnsub) this.answersUnsub();
             this.answersUnsub = this.liveService.observeAnswers(this.sessionId, this.currentQuestionIndex, (items) => {
+                if (this.liveAccountChanged) return;
                 this.leaderboard = (items || [])
                     .map(it => ({ uid: (it as any).uid, displayName: (it as any).displayName, responseMs: Number((it as any).responseMs || 0) }))
                     .sort((a, b) => a.responseMs - b.responseMs);
@@ -362,6 +446,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     }
 
     private updateFromSchedule() {
+        if (this.liveMode && !this.liveAccountIsCurrent()) return;
         if (!this.liveMode || !this.startAt) return;
         if (this.status === 'ended') { this.countdownValue = ''; this.navigateToSummaryIfReady(true, true); /* keep ticking until questions are loaded */ }
         const base = this.anchorAt ?? this.startAt;
@@ -390,6 +475,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     }
 
     private navigateToSummaryIfReady(ended: boolean, hitEndByTime: boolean) {
+        if (!this.liveAccountIsCurrent()) return;
         if (this.navigatedToSummary) return;
         if (!this.questions || this.questions.length === 0) return;
         // Navigate when session ended or last question time elapses
@@ -406,8 +492,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
                 state: {
                     fromLive: true,
                     questions: this.questions,
-                    practiceUid: this.authService.profile()?.uid,
-                    attemptId: `live-${this.sessionId}-${this.authService.profile()?.uid}`,
+                    practiceUid: this.liveUid,
+                    attemptId: `live-${this.sessionId}-${this.liveUid}`,
                     liveMode: this.liveModeType || 'live',
                     sessionId: this.sessionId,
                     returnTo: this.hubReturnUrl,
@@ -425,6 +511,27 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         const m = Math.floor(totalSec / 60);
         const s = totalSec % 60;
         return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+
+    private liveAccountIsCurrent(): boolean {
+        if (!this.liveAccountChanged && this.liveUid && this.authService.profile()?.uid === this.liveUid) return true;
+        this.invalidateLiveQuiz();
+        return false;
+    }
+
+    private invalidateLiveQuiz(): void {
+        if (this.liveAccountChanged) return;
+        this.liveAccountChanged = true;
+        this.requestVersion++;
+        this.questions = [];
+        this.leaderboard = [];
+        this.participantsCount = 0;
+        this.loading = false;
+        this.loadError = 'Your account changed. Reopen the live quiz to continue with your own answers.';
+        this.sessionUnsub?.();
+        this.answersUnsub?.();
+        this.participantsUnsub?.();
+        if ((this as any)._tick) clearInterval((this as any)._tick);
     }
 
 }

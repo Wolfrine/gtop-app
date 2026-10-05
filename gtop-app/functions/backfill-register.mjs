@@ -1,23 +1,23 @@
 import {Firestore} from 'firebase-admin/firestore';
-import {GoogleAuth,Impersonated,OAuth2Client} from 'google-auth-library';
+import {GoogleAuth,OAuth2Client} from 'google-auth-library';
 import {runBackfill} from './paper-register.mjs';
+import {createDelegatedFirestore} from './delegated-firestore.mjs';
 
 // Uses the same existing runtime delegation as deploy-paper-indexes.mjs. No
 // source documents, permanent keys or IAM grants are written. Trigger deployment
 // must precede this step; its checkpoint is safe to resume after exit code 2.
 const project=process.env.GCLOUD_PROJECT||'gtop-app';
 if(!process.env.FIRESTORE_EMULATOR_HOST&&!process.argv.includes('--live-derived-index'))throw Error('Pass --live-derived-index to authorize writing the derived register using existing credentials.');
-let delegatedAuth;
+let db;
 if(!process.env.FIRESTORE_EMULATOR_HOST){
   // ADC is used only to refresh the existing impersonation source credential.
   // All datastore reads/writes still use the same pre-authorized runtime target.
   let sourceClient;
   if(process.env.GOOGLE_APPLICATION_CREDENTIALS)sourceClient=await new GoogleAuth({scopes:['https://www.googleapis.com/auth/cloud-platform']}).getClient();
   else{if(!process.env.ACCESS_TOKEN)throw Error('Existing deployment ADC or an authenticated deployment token is required.');sourceClient=new OAuth2Client();sourceClient.setCredentials({access_token:process.env.ACCESS_TOKEN});}
-  const authClient=new Impersonated({sourceClient,targetPrincipal:'78765581239-compute@developer.gserviceaccount.com',targetScopes:['https://www.googleapis.com/auth/datastore'],lifetime:1200});
-  delegatedAuth=new GoogleAuth({projectId:project,authClient});
+  db=createDelegatedFirestore(project,sourceClient);
 }
-const db=new Firestore({projectId:project,...(delegatedAuth?{auth:delegatedAuth}:{})});
+else db=new Firestore({projectId:project});
 const boundedInteger=(name,fallback,maximum)=>{
   const value=Number(process.env[name]??fallback);
   if(!Number.isInteger(value)||value<1||value>maximum)throw Error(`${name} must be an integer from 1 to ${maximum}.`);

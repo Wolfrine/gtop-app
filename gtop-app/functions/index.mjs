@@ -6,7 +6,7 @@ import {getStorage} from 'firebase-admin/storage';
 import {onDocumentWritten,onDocumentCreated} from 'firebase-functions/v2/firestore';
 import {onRequest} from 'firebase-functions/v2/https';
 import webpush from 'web-push';
-import {hash,validatePaper,validateBankSnapshot,renderPaper,imageType} from './paper-engine.mjs';
+import {hash,paperContentHash as contentHash,validatePaper,validateBankSnapshot,renderPaper,imageType} from './paper-engine.mjs';
 import {projectSource,refreshRegister,searchRegister} from './paper-register.mjs';
 
 initializeApp({storageBucket:'gtop-app.firebasestorage.app'});
@@ -15,7 +15,6 @@ const stamp=()=>FieldValue.serverTimestamp();
 const region='us-central1';
 const current=(request,conversation,paper)=>request?.source==='admin-paper-chat'&&['queued','generating','publishing'].includes(request.status)&&conversation?.activeRequestId===paper.parentRequestId&&request.revision===paper.requestRevision;
 const cleanId=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{1,140}$/.test(value);
-const contentHash=paper=>hash(Object.fromEntries(['title','board','standard','subjects','chapters','durationMinutes','marks','instructions','sections','conversationId','parentRequestId','requestRevision'].map(field=>[field,paper[field]??null])));
 
 async function immutableFile(path,content,contentType,metadata={}){
   const file=bucket.file(path);const checksum=hash(content);

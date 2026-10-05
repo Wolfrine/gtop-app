@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 import { PracticeInviteService, INVITATION_PRESENTATION, INVITED_SOLO_READY, REVIEWED_PRACTICE_SEEDS } from './practice-invite.service';
 import { presentQuestion, restorePresentation, validOrder, canonicalIndex } from './question-presentation';
 import { invitationReceiptId } from './practice-invite-session';
-import { readPracticeSession, writePracticeSession } from './practice-session';
+import { clearPracticeSession, readPracticeSession, writePracticeSession } from './practice-session';
 import { practiceParams } from './practice-invite.domain';
 import { QuizPageComponent } from '../pages/quiz-page/quiz-page.component';
 import { QuizSummaryComponent } from '../pages/quiz-summary/quiz-summary.component';
@@ -77,7 +77,7 @@ describe('actual solo invitation integration', () => {
       questions: [sources[0]], currentQuestionIndex: 0, completed: true, saved: false });
     const blocked = s.player(); blocked.ngOnInit(); await flush();
     expect(blocked.loadError).toContain('previous quiz result'); expect(readPracticeSession(profile.uid)?.attemptId).toBe('unsaved-ordinary'); blocked.ngOnDestroy();
-    sessionStorage.removeItem('gtop.practice-session.v1');
+    clearPracticeSession();
     const player = s.player(); player.ngOnInit(); await flush();
     for (let i = 0; i < 5; i++) { player.selectOption(player.questions[i].correctIndex); player.nextQuestion(); }
     let acknowledge!: (id: string) => void;

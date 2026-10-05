@@ -5,6 +5,7 @@ export interface PracticeSession {
   routeKey: string;
   attemptId: string;
   quizType: 'quick' | 'custom' | 'retry';
+  source?: { kind: 'invitation'; attemptId: string; revision: string };
   questions: any[];
   currentQuestionIndex: number;
   completed: boolean;

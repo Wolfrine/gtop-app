@@ -1,21 +1,32 @@
 <div class="summary-container">
+  <mat-card appCard *ngIf="loadingSummary" role="status"><p>Loading your completed attempt.</p></mat-card>
+  <mat-card appCard *ngIf="!loadingSummary && !questions.length && saveState === 'idle'" role="status">
+    <p>No completed attempt is available in this tab. Start a quiz from your dashboard.</p>
+    <button mat-stroked-button routerLink="/dashboard">Back to Dashboard</button>
+  </mat-card>
 
   <mat-card appCard aria-live="polite" *ngIf="saveState !== 'idle'">
+    <h1 *ngIf="saveState === 'error' && !questions.length">Attempt unavailable</h1>
     <p *ngIf="saveState === 'saving'">Saving your result… Keep this tab open until it is saved.</p>
     <p *ngIf="saveState === 'saved'">Your result is saved in Reports.</p>
     <p *ngIf="saveState === 'error'" role="alert">{{ saveError }}</p>
     <button mat-stroked-button *ngIf="saveState === 'error' && canSave" (click)="retrySave()" [disabled]="savePending">Try saving again</button>
+    <button mat-stroked-button *ngIf="saveState === 'error' && !questions.length" routerLink="/reports">Open Reports</button>
+    <button mat-stroked-button *ngIf="saveState === 'error' && !questions.length" routerLink="/dashboard">Back to Dashboard</button>
+    <button mat-stroked-button *ngIf="saveState === 'saved' && practiceReturnScope" (click)="backToInvitation()">Back to invitation</button>
   </mat-card>
 
   <!-- Score Overview -->
-  <mat-card appCard class="score-card">
+  <mat-card appCard class="score-card" *ngIf="questions.length">
     <div class="score-grid">
       <div class="chart">
         <canvas baseChart [data]="doughnutData" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
         <div class="chart-center"><strong>{{ accuracyPercent }}%</strong><span>ACCURACY</span></div>
       </div>
       <div class="stats">
-        <span class="summary-kicker">QUIZ SUMMARY</span><h1 class="title">See what clicked.</h1><p class="summary-intro">Every answer tells you something. Take a look, then take your next step.</p>
+        <span class="summary-kicker">{{ invitationScope ? 'INVITED PRACTICE' : 'QUIZ SUMMARY' }}</span><h1 class="title">See what clicked.</h1>
+        <p class="summary-intro" *ngIf="invitationScope; else ordinaryIntro">Five questions on {{ invitationScope.chapter }}. Review the explanations, then revisit when you are ready.</p>
+        <ng-template #ordinaryIntro><p class="summary-intro">Every answer tells you something. Take a look, then take your next step.</p></ng-template>
         <div class="chips">
           <span class="chip">Total: {{ totalQuestions }}</span>
           <span class="chip">Correct: {{ correctAnswers }}</span>
@@ -24,11 +35,11 @@
           </span>
         </div>
         <div class="actions">
-          <button mat-flat-button color="primary" (click)="retryIncorrect()" [disabled]="saveState !== 'saved' || !hasIncorrectAnswers">
+          <button mat-flat-button color="primary" *ngIf="!invitationScope" (click)="retryIncorrect()" [disabled]="saveState !== 'saved' || !hasIncorrectAnswers">
             <mat-icon>refresh</mat-icon> Retry Incorrect
           </button>
           <button mat-stroked-button color="primary" (click)="retryAll()" [disabled]="saveState !== 'saved'">
-            <mat-icon>replay</mat-icon> Retry Entire Quiz
+            <mat-icon>replay</mat-icon> {{ invitationScope ? 'Revisit five questions' : 'Retry Entire Quiz' }}
           </button>
           <button mat-stroked-button *ngIf="hubReturnUrl" (click)="backToHub()">
             <mat-icon>launch</mat-icon> Back to Hub
@@ -50,13 +61,13 @@
   </mat-card>
 
   <!-- Detailed Solutions -->
-  <div class="review-heading"><div><span class="review-kicker">TURN ANSWERS INTO UNDERSTANDING</span><h2 class="details-header">Let’s take a closer look.</h2></div>        <div class="filters">
+  <div class="review-heading" *ngIf="questions.length"><div><span class="review-kicker">TURN ANSWERS INTO UNDERSTANDING</span><h2 class="details-header">Let's take a closer look.</h2></div>        <div class="filters">
           <button mat-button (click)="toggleIncorrectOnly()" [color]="incorrectOnly ? 'primary' : undefined">
             <mat-icon>{{ incorrectOnly ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
             Show only incorrect
           </button>
         </div></div>
-  <mat-accordion>
+  <mat-accordion *ngIf="questions.length">
       <mat-expansion-panel *ngFor="let q of filteredQuestions; let i = index">
         <mat-expansion-panel-header>
           <mat-panel-title>

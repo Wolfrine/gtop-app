@@ -4,7 +4,9 @@ import { SyllabusService, SyllabusItem } from './syllabus.service';
 import { Timestamp } from '@angular/fire/firestore';
 import { filter, firstValueFrom, timeout } from 'rxjs';
 import { normalizePracticeBoard } from './practice-context';
-import { canonicalIndex, canonicalQuestion, restorePresentation } from './question-presentation';
+import { canonicalIndex, canonicalQuestion, restorePresentation, presentQuestion, validOrder } from './question-presentation';
+import { invitationHistory } from './practice-invite-session';
+import { REVIEWED_PRACTICES } from './reviewed-practices';
 
 export interface QuizCurriculumScope { board: string; standard: string; }
 
@@ -145,6 +147,7 @@ export class QuizService {
         quizType: string;
         sessionId?: string;
         attemptId?: string;
+        invitation?: any;
         questions: {
             id: string;
             selectedIndex: number | null;
@@ -153,6 +156,25 @@ export class QuizService {
         }[];
     }): Promise<string> {
         if (!userId) throw new Error('missing-user-id');
+        let invitation: any;
+        if (resultData.invitation !== undefined) {
+            const input = resultData.invitation;
+            const seed = REVIEWED_PRACTICES.find(item => item.revision === input?.revision);
+            const history = seed && await invitationHistory(input, seed, { presentQuestion, restorePresentation, validOrder, canonicalIndex });
+            if (!history || input.attemptId !== resultData.attemptId || resultData.quizType !== 'custom' ||
+                ['board', 'standard', 'subject', 'chapter'].some(key => (resultData as any)[key] !== input.scope[key]) ||
+                resultData.questions.length !== 5 || resultData.questions.some((q, i) => q.id !== input.answers[i].questionId ||
+                    q.selectedIndex !== input.answers[i].selectedIndex || q.correctIndex !== input.answers[i].correctIndex ||
+                    JSON.stringify(q.optionOrder) !== JSON.stringify(input.answers[i].optionOrder))) throw new Error('invalid-invitation-result');
+            // Explicit whitelist: private reviewed content and provenance, never arbitrary caller fields.
+            invitation = { version: 1, attemptId: input.attemptId, entryType: input.entryType,
+                ...(typeof input.parentAttemptId === 'string' ? { parentAttemptId: input.parentAttemptId } : {}),
+                scope: { ...seed!.scope }, revision: seed!.revision, questionIds: [...seed!.questionIds], contentHashes: { ...seed!.contentHashes },
+                snapshots: input.snapshots.map((q: any) => ({ id: q.id, board: q.board, standard: q.standard, subject: q.subject,
+                    chapter: q.chapter, question: q.question, options: [...q.options], correctIndex: q.correctIndex, solutions: [...q.solutions], selectedIndex: null })),
+                answers: input.answers.map((a: any) => ({ questionId: a.questionId, optionOrder: [...a.optionOrder], selectedIndex: a.selectedIndex, correctIndex: a.correctIndex })) };
+            if (new TextEncoder().encode(JSON.stringify(invitation)).length > 256000) throw new Error('invitation-result-too-large');
+        }
         if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new Error('offline');
         const quizId = resultData.attemptId
             ? `attempt-${encodeURIComponent(userId)}:${encodeURIComponent(resultData.attemptId)}`
@@ -176,6 +198,10 @@ export class QuizService {
         };
         if (resultData.sessionId) quizDoc.sessionId = resultData.sessionId;
         if (resultData.attemptId) quizDoc.attemptId = resultData.attemptId;
+        if (invitation) {
+            quizDoc.invitation = invitation;
+            quizDoc.source = { kind: 'invitation', revision: invitation.revision, entryType: invitation.entryType };
+        }
         const resultRef = doc(this.firestore, `QuizResults/${quizId}`);
         const equal = (a: any, b: any): boolean => {
             if (a === b) return true;
@@ -473,7 +499,15 @@ export class QuizService {
      * Public helper to expand stored summaries back to full question docs
      * and merge selected/correct indices for review views.
      */
-    async expandSummariesToQuestions(summaries: QuizResultQuestion[]): Promise<any[]> {
+    async expandSummariesToQuestions(summaries: QuizResultQuestion[], invitation?: any): Promise<any[]> {
+        if (invitation !== undefined) {
+            const seed = REVIEWED_PRACTICES.find(item => item.revision === invitation?.revision);
+            const restored = seed && await invitationHistory(invitation, seed, { presentQuestion, restorePresentation, validOrder, canonicalIndex });
+            if (!restored || summaries.length !== 5 || summaries.some((s, i) => s.questionId !== invitation.answers[i].questionId ||
+                s.selectedIndex !== invitation.answers[i].selectedIndex || s.correctIndex !== invitation.answers[i].correctIndex ||
+                JSON.stringify(s.optionOrder) !== JSON.stringify(invitation.answers[i].optionOrder))) throw new Error('invalid-invitation-history');
+            return restored;
+        }
         const ids = summaries.map(s => s.questionId).filter(Boolean);
         const full = await this.fetchQuestionsByIds(ids);
         const byId = new Map<string, QuizResultQuestion>(summaries.map(s => [s.questionId, s]));

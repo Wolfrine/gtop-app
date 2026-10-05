@@ -10,6 +10,7 @@ import { ManualQuizModalComponent } from '../../components/manual-quiz-modal/man
 import { AuthService } from '../../services/auth.service';
 import { QuizService } from '../../services/quiz.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { PracticeReturnCardComponent } from '../practice-invite/practice-return.component';
 
 @Component({
     selector: 'app-user-dashboard',
@@ -21,7 +22,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         RouterModule,
         MatIconModule,
         MatTooltipModule,
-        AppCardDirective
+        AppCardDirective,
+        PracticeReturnCardComponent
     ],
     templateUrl: './user-dashboard.component.html',
     styleUrls: ['./user-dashboard.component.scss']

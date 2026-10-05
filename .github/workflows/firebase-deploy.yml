@@ -26,8 +26,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  release-scope:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      backend_required: ${{ steps.scope.outputs.backend_required }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Keep frontend releases within their reviewed scope
+        id: scope
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+          RELEASE_BEFORE: ${{ github.event.before }}
+        run: |
+          node <<'NODE'
+          const {execFileSync} = require('node:child_process');
+          const {appendFileSync} = require('node:fs');
+          const before = process.env.RELEASE_BEFORE || '';
+          let required = true;
+          if (process.env.RELEASE_EVENT === 'push' && /^[a-f0-9]{40}$/.test(before) && !/^0+$/.test(before)) {
+            const files = execFileSync('git', ['diff', '--no-renames', '--name-only', '-z', before, process.env.GITHUB_SHA], {encoding: 'utf8'}).split('\0').filter(Boolean);
+            // Only known frontend and documentation paths can skip backend deployment.
+            // Unknown paths, missing history, and explicit dispatches retain the backend gate.
+            const frontendOnly = /^(?:gtop-app\/(?:src\/|e2e\/)|docs\/|\.github\/workflows\/firebase-deploy\.yml$)/;
+            required = files.some(file => !frontendOnly.test(file));
+            console.log(`Reviewed release: ${files.length} changed paths; backend required: ${required}`);
+          }
+          appendFileSync(process.env.GITHUB_OUTPUT, `backend_required=${required}\n`);
+          NODE
+
   reviewed-backend:
-    if: github.ref_name == 'main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.target == 'production' && inputs.confirm_production))
+    needs: release-scope
+    if: needs.release-scope.outputs.backend_required == 'true' && github.ref_name == 'main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.target == 'production' && inputs.confirm_production))
     uses: ./.github/workflows/firebase-v2-backend.yml
     with:
       deploy_backend: true
@@ -93,9 +126,9 @@ jobs:
           if-no-files-found: ignore
 
   promote-hosting:
-    needs: [reviewed-backend, build-and-verify]
+    needs: [release-scope, reviewed-backend, build-and-verify]
     if: >-
-      always() && !cancelled() && needs.build-and-verify.result == 'success' &&
+      always() && !cancelled() && needs.release-scope.result == 'success' && needs.build-and-verify.result == 'success' &&
       (needs.reviewed-backend.result == 'success' || needs.reviewed-backend.result == 'skipped') &&
       (github.event_name != 'workflow_dispatch' || inputs.target != 'production' || github.ref_name == 'main')
     runs-on: ubuntu-latest

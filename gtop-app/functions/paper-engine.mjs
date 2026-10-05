@@ -4,6 +4,16 @@ import {readFileSync} from 'node:fs';
 
 const escape=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 export const hash=value=>createHash('sha256').update(typeof value==='string'||Buffer.isBuffer(value)?value:JSON.stringify(value)).digest('hex');
+const canonicalJson=value=>JSON.stringify(value,(_key,item)=>item&&typeof item==='object'&&!Array.isArray(item)
+  ?Object.fromEntries(Object.keys(item).sort().map(key=>[key,item[key]])):item);
+// Firestore event and transactional snapshots can enumerate map keys in
+// different orders. Compare values canonically while retaining array order.
+// Artifact byte checksums continue using the unchanged hash() above.
+export function paperContentHash(paper){
+  const fields=['title','board','standard','subjects','chapters','durationMinutes','marks','instructions','sections','conversationId','parentRequestId','requestRevision'];
+  const content=Object.fromEntries(fields.map(field=>[field,paper[field]??null]));
+  return hash(canonicalJson(content));
+}
 const kind=value=>String(value??'mcq').trim().toLowerCase().replace(/[ -]+/g,'_');
 const aliases={mcq_single:'mcq',single_choice:'mcq',single_correct:'mcq',multiple_choice:'mcq',multiple_choice_question:'mcq',objective:'mcq',assertion_and_reason:'assertion_reason',assertion_reasoning:'assertion_reason',match_the_following:'matching',match:'matching',fill_in_the_blank:'fill_blank',fill_in_the_blanks:'fill_blank',fill_blanks:'fill_blank',short:'short_answer',long:'long_answer',very_short:'very_short_answer',numerical_based:'numerical',case_study:'case_based',statement:'statement_based',application:'short_answer',analysis:'short_answer',reason:'short_answer'};
 const questionType=value=>aliases[kind(value)]??kind(value);
@@ -55,7 +65,7 @@ export function validateBankSnapshot(question,source){
   if(JSON.stringify(question.options??[])!==JSON.stringify(source.options??[])||Number(question.correctIndex??-1)!==Number(source.correctIndex??-1)||JSON.stringify(question.solutions)!==JSON.stringify(solutions))throw Error('Question answers or options differ from the saved source.');
   const assets=[...(source.assets??[])];const image=source.imageUrl??source.diagramUrl;
   if(image&&!assets.some(asset=>asset.url===image))assets.push({url:image,alt:source.imageAlt||'Question diagram'});
-  if(JSON.stringify(question.assets??[])!==JSON.stringify(assets)||JSON.stringify(question.blocks??[])!==JSON.stringify(source.blocks??[]))throw Error('Question diagrams or content blocks differ from the saved source.');
+  if(canonicalJson(question.assets??[])!==canonicalJson(assets)||canonicalJson(question.blocks??[])!==canonicalJson(source.blocks??[]))throw Error('Question diagrams or content blocks differ from the saved source.');
 }
 function text(value){
   return String(value??'').split(/(\$\$[\s\S]*?\$\$|\$[^$\n]+\$)/g).map(part=>{

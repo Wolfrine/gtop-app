@@ -46,9 +46,15 @@ Human syllabus approval and question quality are separate trust decisions. The l
 
 ## Paper Requests Become Conversations
 
-The founder chose chat-based requirements because navigating priorities, completion and paper assembly imposed too much admin effort. A scheduled agent should reuse suitable bank questions, generate gaps and return a printable paper plus a separate answer key in the same conversation, with notification and a complete saved-paper view. Runs occur every two hours from 8 AM to 8 PM India time.
+The founder chose chat-based requirements because navigating priorities, completion and paper assembly imposed too much admin effort. A scheduled agent should reuse suitable bank questions, generate gaps and return a printable paper plus a separate answer key under the same stable paper record, retaining the requirement conversation as context, with notification and a complete saved-paper view. Runs occur every two hours from 8 AM to 8 PM India time.
 
 Chat papers have no manual question-approval gate. Future flagging may support corrections, but it is not a condition for initial delivery. This decision changes the paper workflow without treating unchecked learner-bank publication or an incomplete syllabus as acceptable. Two or more urgent papers provide the immediate real-use context; a feature release alone does not prove paper quality or reduced admin workload. See [[Question Bank Quality]].
+
+## Judge Paper Simplicity Across The Returning Admin Journey
+
+The founder's correction makes the complete mobile admin lifecycle the quality bar, including a return after years and thousands of papers. Requirement discovery, discoverable submission status, scheduled-generation clarity, retrieval and revision belong to one experience. A stable paper identity connects the request and its outputs; pending changes must not remove access to the last completed paper and answer key. See [[Question Bank Quality]] and [[Problems]].
+
+Assess that whole journey with realistic history volume. A promising design comparison, a first-request demonstration or an implementation checklist cannot establish final design acceptance or reduced admin effort. Labels for access, creator attribution, notifications and printable output must follow the service's actual capabilities.
 
 ## Question Metadata Should Support Diagnosis
 
@@ -122,3 +128,4 @@ GTOP should study what students may expect from education products over the next
 - `raw/2026-09-28-current-syllabus-and-paper-coverage.md`
 
 - `raw/2026-10-04-paper-chat-bank-first.md`
+- `raw/2026-10-04-returning-admin-paper-journey.md`

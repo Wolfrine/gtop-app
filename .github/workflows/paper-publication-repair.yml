@@ -1,0 +1,43 @@
+name: MUTATION - repair existing paper publisher project environment
+
+on:
+  push:
+    branches: [codex/paper-publication-repair]
+    paths:
+      - .github/workflows/paper-publication-repair.yml
+      - .github/scripts/paper-publication-repair.mjs
+
+permissions:
+  contents: read
+
+# Serialize with the existing main application deployment workflow. The GCF v1
+# PATCH API has no etag/update-time precondition; direct cloud changes cannot be
+# atomically locked. Do not run another backend deployment during this repair.
+concurrency:
+  group: current-gtop-refs/heads/main
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    if: github.repository == 'Wolfrine/gtop-app' && github.run_attempt == 1 && !github.event.deleted && !github.event.forced
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: firebase-live-backend
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Authenticate with the existing protected deployment identity
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+      - name: MUTATION - add project environment to the existing publisher only
+        env:
+          ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
+        run: node .github/scripts/paper-publication-repair.mjs

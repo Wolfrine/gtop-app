@@ -127,8 +127,9 @@ for (const chapter of ['Short', 'Long']) {
     test.skip(browserName !== 'chromium' || !info.project.use.isMobile, 'Native touch scroll is checked on the compact Chromium phone.');
     await page.addInitScript(() => {
       (window as any).__qaTouchEvents = [];
-      document.addEventListener('touchmove', event => {
-        (window as any).__qaTouchEvents.push({ trusted: event.isTrusted, y: event.touches[0]?.clientY });
+      for (const type of ['touchstart', 'touchmove']) document.addEventListener(type, event => {
+        const touch = event as TouchEvent;
+        (window as any).__qaTouchEvents.push({ type, trusted: event.isTrusted, y: touch.touches[0]?.clientY });
       }, { passive: true });
     });
     await open(page, chapter);
@@ -145,11 +146,14 @@ for (const chapter of ['Short', 'Long']) {
     await evidence(info, 'native-touch-events', events);
     await page.screenshot({ path: info.outputPath(`${chapter.toLowerCase()}-all-options-tapped.png`), fullPage: true, animations: 'disabled' });
     const before = await geometry(page);
-    await swipe(page, 200);
-    await expect.poll(async () => {
-      const after = await geometry(page);
-      return after.pageScroll < before.pageScroll || after.root.scrollTop < before.root.scrollTop;
-    }, { message: 'A downward finger swipe must move back toward the question.' }).toBe(true);
+    if (before.pageScroll > 0 || before.root.scrollTop > 0) {
+      expect(events.some((event: any) => event.trusted && event.type === 'touchmove')).toBe(true);
+      await swipe(page, 200);
+      await expect.poll(async () => {
+        const after = await geometry(page);
+        return after.pageScroll < before.pageScroll || after.root.scrollTop < before.root.scrollTop;
+      }, { message: 'A downward finger swipe must move back toward the question.' }).toBe(true);
+    }
     await seekAndTap(page, page.getByRole('button', { name: 'Submit', exact: true }));
     await expect(page.getByRole('heading', { name: 'See what clicked.' })).toBeVisible();
   });

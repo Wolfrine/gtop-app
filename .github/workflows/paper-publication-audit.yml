@@ -1,0 +1,36 @@
+name: Read-only paper publication audit
+
+on:
+  push:
+    branches: [codex/paper-publication-audit]
+    paths:
+      - .github/workflows/paper-publication-audit.yml
+      - .github/scripts/paper-publication-audit.mjs
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    if: github.repository == 'Wolfrine/gtop-app' && !github.event.deleted && !github.event.forced
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    environment: firebase-live-backend
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Authenticate using the existing deployment identity
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+      - name: Read function configuration and bounded publication logs
+        env:
+          ACCESS_TOKEN: '${{ steps.auth.outputs.access_token }}'
+        run: node .github/scripts/paper-publication-audit.mjs

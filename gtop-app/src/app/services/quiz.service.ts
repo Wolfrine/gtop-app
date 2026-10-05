@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, onSnapshot, doc, getDoc, setDoc, runTransaction, increment } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, doc, getDoc, getDocFromServer, setDoc, runTransaction, increment } from '@angular/fire/firestore';
 import { SyllabusService, SyllabusItem } from './syllabus.service';
 import { Timestamp } from '@angular/fire/firestore';
+import { filter, firstValueFrom, timeout } from 'rxjs';
+import { normalizePracticeBoard } from './practice-context';
+import { canonicalIndex, canonicalQuestion, restorePresentation } from './question-presentation';
+
+export interface QuizCurriculumScope { board: string; standard: string; }
 
 @Injectable({
     providedIn: 'root'
@@ -37,7 +42,7 @@ export class QuizService {
         }
 
         const sanitized = questions.map(q => ({
-            ...q,
+            ...canonicalQuestion(q),
             selectedIndex: null
         }));
 
@@ -61,58 +66,54 @@ export class QuizService {
     /**
      * ✅ Quick Quiz → Random chapter
      */
-    async fetchQuestionsFromRandomChapter(): Promise<any[]> {
-        return new Promise((resolve, reject) => {
-            const syllabusSub = this.syllabusService.syllabus$.subscribe((syllabusData: SyllabusItem[]) => {
-                try {
-                    const filtered = syllabusData.filter(item => item.mcqCount > 0);
-                    if (filtered.length === 0) {
-                        syllabusSub.unsubscribe();
-                        reject('No chapters with MCQs found.');
-                        return;
-                    }
+    async fetchQuestionsFromRandomChapter(scope?: QuizCurriculumScope): Promise<any[]> {
+        const board = scope ? normalizePracticeBoard(scope.board) : '';
+        const standard = scope ? String(scope.standard ?? '').trim() : '';
+        if (scope && (!board || !standard)) throw new Error('profile-required');
+        const matchesScope = (item: SyllabusItem) => item.mcqCount > 0 && (!scope ||
+            (normalizePracticeBoard(item.board) === board && String(item.standard).trim() === standard));
 
-                    const randomIndex = Math.floor(Math.random() * filtered.length);
-                    const selected = filtered[randomIndex];
+        // syllabus$ starts with a placeholder []; wait for an actual catalogue snapshot.
+        const snapshot = await firstValueFrom(this.syllabusService.snapshots$.pipe(
+            filter(snapshot => !snapshot.fromCache || snapshot.items.some(matchesScope)),
+            timeout({ first: 15_000 })
+        ));
+        const eligible = snapshot.items.filter(matchesScope);
+        if (!eligible.length) throw new Error(scope
+            ? 'No chapters with MCQs found for this curriculum.'
+            : 'No chapters with MCQs found.');
 
-                    const questionsCollection = collection(this.firestore, 'questions');
-                    const fetchQuery = query(
-                        questionsCollection,
-                        where('board', '==', selected.board),
-                        where('standard', '==', selected.standard),
-                        where('subject', '==', selected.subject),
-                        where('chapter', '==', selected.chapter)
-                    );
-
-                    const unsubscribe = onSnapshot(fetchQuery, (snapshot) => {
-                        let questions = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data(),
-                            selectedIndex: null
-                        }));
-
-                        unsubscribe(); // ✅ Immediately unsubscribe Firestore listener
-                        syllabusSub.unsubscribe(); // ✅ Unsubscribe syllabus listener too
-
-                        // Shuffle + pick 10
-                        questions = questions.sort(() => 0.5 - Math.random());
-                        resolve(questions.slice(0, 10));
-                    }, (error) => {
-                        unsubscribe();
-                        syllabusSub.unsubscribe();
-                        reject(error);
-                    });
-
-                } catch (error) {
-                    syllabusSub.unsubscribe();
-                    reject(error);
-                }
-            });
-        });
+        const selected = eligible[Math.floor(Math.random() * eligible.length)];
+        const questions = await this.fetchCurriculumQuestions(selected.board, String(selected.standard), [
+            where('subject', '==', selected.subject), where('chapter', '==', selected.chapter)
+        ]);
+        return this.shuffleQuestions(questions).slice(0, 10);
     }
 
+    private async fetchCurriculumQuestions(board: string, standard: string, constraints: any[]): Promise<any[]> {
+        const normalized = normalizePracticeBoard(board);
+        // Query each historical alias separately: another `in` would multiply the
+        // custom subject/chapter disjunctions and can exceed Firestore's query limit.
+        const boards = normalized === 'IGCSE' ? ['IGCSE', 'Cambridge IGCSE'] : [normalized];
+        const snapshots = await Promise.all(boards.map(value => getDocs(query(
+            collection(this.firestore, 'questions'), where('board', '==', value),
+            where('standard', '==', standard), ...constraints
+        ))));
+        const questions = new Map<string, any>();
+        snapshots.forEach(snapshot => snapshot.docs.forEach(item => questions.set(item.id, {
+            ...item.data(), id: item.id, selectedIndex: null
+        })));
+        return [...questions.values()];
+    }
 
-
+    private shuffleQuestions(questions: any[]): any[] {
+        const shuffled = [...questions];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
 
     /**
      * ✅ Custom Quiz → Based on selected subjects, chapters, count
@@ -124,52 +125,17 @@ export class QuizService {
         selectedChapters: string[],
         questionCount: number
     ): Promise<any[]> {
-        return new Promise((resolve, reject) => {
-            try {
-                const questionsCollection = collection(this.firestore, 'questions');
-
-                let fetchQuery = query(
-                    questionsCollection,
-                    where('board', '==', board),
-                    where('standard', '==', standard)
-                );
-
-                if (selectedSubjects.length > 0) {
-                    fetchQuery = query(fetchQuery, where('subject', 'in', selectedSubjects));
-                }
-
-                if (selectedChapters.length > 0) {
-                    fetchQuery = query(fetchQuery, where('chapter', 'in', selectedChapters));
-                }
-
-                const unsubscribe = onSnapshot(fetchQuery, (snapshot) => {
-                    let questions = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data(),
-                        selectedIndex: null
-                    }));
-
-                    unsubscribe(); // 🔄 Detach after one-time fetch
-
-                    // 🔀 Shuffle & limit
-                    questions = questions.sort(() => 0.5 - Math.random());
-                    resolve(questions.slice(0, questionCount));
-                }, (error) => {
-                    unsubscribe();
-                    reject(error);
-                });
-
-            } catch (error) {
-                reject(error);
-            }
-        });
+        const normalized = normalizePracticeBoard(board);
+        const classValue = String(standard ?? '').trim();
+        if (!normalized || !classValue) throw new Error('profile-required');
+        const constraints = [];
+        if (selectedSubjects.length) constraints.push(where('subject', 'in', selectedSubjects));
+        if (selectedChapters.length) constraints.push(where('chapter', 'in', selectedChapters));
+        const questions = await this.fetchCurriculumQuestions(normalized, classValue, constraints);
+        return this.shuffleQuestions(questions).slice(0, questionCount);
     }
 
-
-
-    /**
-     * 🚀 Future → Save Quiz Result
-     */
+    /** Save canonical answer indices; optionOrder retains the attempt's display order. */
     async saveQuizResult(userId: string, resultData: {
         userName: string;
         board: string;
@@ -178,50 +144,76 @@ export class QuizService {
         chapter: string;
         quizType: string;
         sessionId?: string;
+        attemptId?: string;
         questions: {
             id: string;
-            selectedIndex: number;
+            selectedIndex: number | null;
             correctIndex: number;
+            optionOrder?: number[];
         }[];
-    }) {
-        try {
-            const quizId = doc(collection(this.firestore, 'QuizResults')).id; // auto-generated ID
+    }): Promise<string> {
+        if (!userId) throw new Error('missing-user-id');
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new Error('offline');
+        const quizId = resultData.attemptId
+            ? `attempt-${encodeURIComponent(userId)}:${encodeURIComponent(resultData.attemptId)}`
+            : doc(collection(this.firestore, 'QuizResults')).id;
+        if (quizId.length > 1400) throw new Error('invalid-attempt-id');
+        const isCorrect = (q: { selectedIndex: number | null; correctIndex: number }) =>
+            Number.isInteger(q.selectedIndex) && Number(q.selectedIndex) >= 0 && q.selectedIndex === q.correctIndex;
+        const totalQuestions = resultData.questions.length;
+        const correctAnswers = resultData.questions.filter(isCorrect).length;
+        const quizDoc: any = {
+            userId, userName: resultData.userName, board: resultData.board,
+            standard: resultData.standard, subject: resultData.subject, chapter: resultData.chapter,
+            quizType: resultData.quizType, totalQuestions, correctAnswers,
+            wrongAnswers: totalQuestions - correctAnswers,
+            percentage: totalQuestions ? Math.round((correctAnswers / totalQuestions) * 100) : 0,
+            timestamp: Timestamp.now(),
+            questions: resultData.questions.map(q => ({
+                questionId: q.id, selectedIndex: q.selectedIndex, correctIndex: q.correctIndex,
+                isCorrect: isCorrect(q), ...(q.optionOrder ? { optionOrder: [...q.optionOrder] } : {})
+            }))
+        };
+        if (resultData.sessionId) quizDoc.sessionId = resultData.sessionId;
+        if (resultData.attemptId) quizDoc.attemptId = resultData.attemptId;
+        const resultRef = doc(this.firestore, `QuizResults/${quizId}`);
+        const equal = (a: any, b: any): boolean => {
+            if (a === b) return true;
+            if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return false;
+            if (Array.isArray(a) !== Array.isArray(b)) return false;
+            const keys = Object.keys(a);
+            return keys.length === Object.keys(b).length && keys.every(key =>
+                Object.prototype.hasOwnProperty.call(b, key) && equal(a[key], b[key]));
+        };
+        const matches = (existing: any) => Object.keys(quizDoc).filter(key => key !== 'timestamp')
+            .every(key => equal(existing[key], quizDoc[key]));
 
-            const totalQuestions = resultData.questions.length;
-            const correctAnswers = resultData.questions.filter(q => q.selectedIndex === q.correctIndex).length;
-            const wrongAnswers = totalQuestions - correctAnswers;
-            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
-
-            const quizDoc: any = {
-                userId,
-                userName: resultData.userName,
-                standard: resultData.standard,
-                subject: resultData.subject,
-                chapter: resultData.chapter,
-                quizType: resultData.quizType,
-                totalQuestions,
-                correctAnswers,
-                wrongAnswers,
-                percentage,
-                timestamp: Timestamp.now(),
-                questions: resultData.questions.map(q => ({
-                    questionId: q.id,
-                    selectedIndex: q.selectedIndex,
-                    correctIndex: q.correctIndex,
-                    isCorrect: q.selectedIndex === q.correctIndex
-                }))
-            };
-            if (resultData.sessionId) {
-                quizDoc.sessionId = resultData.sessionId;
+        if (resultData.attemptId) {
+            // Existing attempts are immutable, including admin retries. The current
+            // learner rules deny reads of missing results, so only that denial may
+            // proceed to create; no security rule change is needed.
+            let existing;
+            try { existing = await getDocFromServer(resultRef); }
+            catch (error: any) { if (error?.code !== 'permission-denied') throw error; }
+            if (existing?.exists()) {
+                if (!matches(existing.data())) throw new Error('attempt-id-conflict');
+                return quizId;
             }
-
-            const resultRef = doc(this.firestore, `QuizResults/${quizId}`);
-            await setDoc(resultRef, quizDoc);
-
-            console.log('✅ Quiz result saved:', quizId);
-        } catch (error) {
-            console.error('❌ Error saving quiz result:', error);
         }
+        try {
+            await setDoc(resultRef, quizDoc);
+        } catch (error) {
+            // A lost acknowledgement or concurrent retry may already have committed.
+            // Verify on the server, never a locally pending Firestore write.
+            if (resultData.attemptId) {
+                try {
+                    const existing = await getDocFromServer(resultRef);
+                    if (existing.exists() && matches(existing.data())) return quizId;
+                } catch { /* Preserve the original save failure for visible retry. */ }
+            }
+            throw error;
+        }
+        return quizId;
     }
 
     //*** 🚀 Future → Fetch Quiz Results
@@ -412,8 +404,8 @@ export class QuizService {
             standard: question.standard ?? null,
             subject: question.subject ?? null,
             chapter: question.chapter ?? null,
-            correctIndex: typeof question.correctIndex === 'number' ? question.correctIndex : null,
-            selectedIndex: typeof question.selectedIndex === 'number' ? question.selectedIndex : null
+            correctIndex: canonicalIndex(question, question.correctIndex),
+            selectedIndex: canonicalIndex(question, question.selectedIndex)
         };
 
         // A single commit keeps report creation and its count consistent, including retries.
@@ -487,6 +479,7 @@ export class QuizService {
         const byId = new Map<string, QuizResultQuestion>(summaries.map(s => [s.questionId, s]));
         return full.map(q => {
             const s = byId.get(q.id);
+            if (s?.optionOrder) return restorePresentation(q, s.optionOrder, s.selectedIndex, s.correctIndex);
             return {
                 ...q,
                 selectedIndex: s?.selectedIndex ?? q.selectedIndex ?? null,
@@ -510,7 +503,8 @@ export interface RetryContext {
 
 export interface QuizResultQuestion {
     questionId: string;
-    selectedIndex: number;
+    selectedIndex: number | null;
     correctIndex: number;
     isCorrect: boolean;
+    optionOrder?: number[];
 }

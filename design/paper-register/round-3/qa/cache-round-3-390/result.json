@@ -1,0 +1,29 @@
+{
+  "round": 3,
+  "width": 390,
+  "startedAt": "2026-10-04T12:09:36.689Z",
+  "checks": [
+    {
+      "name": "persistent Firestore cache supports offline revisit and unacknowledged draft reconnects once",
+      "passed": true
+    },
+    {
+      "name": "gateway permission denial evicts cached visible rows and ends loading truthfully",
+      "passed": false,
+      "error": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: false\nReceived: true"
+    },
+    {
+      "name": "sign-out,account switch and role loss do not retain another authorized session",
+      "passed": true
+    }
+  ],
+  "uncaught": [],
+  "indexedDbNames": [
+    "firebase-heartbeat-database",
+    "firebaseLocalStorageDb",
+    "firestore/[DEFAULT]/gtop-app/main"
+  ],
+  "offlineOperationId": "b9b8a1a2-23ed-4684-8034-d2487eaafd10",
+  "roleDeniedStatus": 403,
+  "finishedAt": "2026-10-04T12:09:42.709Z"
+}

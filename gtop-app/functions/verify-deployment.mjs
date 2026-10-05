@@ -16,6 +16,9 @@ const response=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:s
 assert(response.ok,'Existing admin authentication must work.');const identity=await response.json();
 const config=await fetch(gateway+'/config',{headers:{Authorization:'Bearer '+identity.idToken},signal:AbortSignal.timeout(30000)});
 assert(config.ok,'Signed-in admins must be able to enable browser notifications.');assert((await config.json()).publicKey?.length>50,'A valid public push key is required.');
+const register=await fetch(gateway+'/register?limit=1',{headers:{Authorization:'Bearer '+identity.idToken},signal:AbortSignal.timeout(30000)});
+assert(register.ok,'Existing admins must be able to open the bounded paper register.');
+const registerData=await register.json();assert.equal(registerData.indexReady,true,'Complete historical projection verification is required before hosting.');assert(Array.isArray(registerData.items)&&registerData.items.length<=1,'Register response must be bounded.');
 const [storageReady]=await getStorage().bucket().exists();
 assert(storageReady,'The configured Firebase Storage bucket must exist before diagram delivery.');
 console.log('Live paper backend verified: anonymous denial, existing admin access, public push configuration and Firebase diagram bucket. No fictional requests or papers created.');

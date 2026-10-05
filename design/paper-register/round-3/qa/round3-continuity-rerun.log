@@ -1,0 +1,38 @@
+FAIL Bank tools has an accessible name and reaches the canonical bank: expect(locator).toHaveAttribute(expected) failed
+
+Locator: getByRole('link', { name: 'Bank tools', exact: true })
+Expected pattern: /\/admin\/question-library/
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveAttribute" getByRole('link', { name: 'Bank tools', exact: true }) with timeout 5000ms
+  - waiting for getByRole('link', { name: 'Bank tools', exact: true })
+
+FAIL filtered historical register resumes query filter loaded pages and useful position after detail: expect(locator).toHaveValue(expected) failed
+
+Locator:  getByRole('textbox', { name: 'Search all papers', exact: true })
+Expected: "qa-journey-1791113551930"
+Received: ""
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveValue" getByRole('textbox', { name: 'Search all papers', exact: true }) with timeout 5000ms
+  - waiting for getByRole('textbox', { name: 'Search all papers', exact: true })
+    14 × locator resolved to <input name="search" maxlength="240" id="paper-search" ng-reflect-model="" ng-reflect-name="search" ng-reflect-maxlength="240" class="ng-untouched ng-pristine ng-valid" placeholder="Search title, subject, request words or ID"/>
+       - unexpected value ""
+
+FAIL filtered historical register resumes after saved output and deep link reload: expect(locator).toHaveValue(expected) failed
+
+Locator:  getByRole('textbox', { name: 'Search all papers', exact: true })
+Expected: "qa-journey-1791113551930"
+Received: ""
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveValue" getByRole('textbox', { name: 'Search all papers', exact: true }) with timeout 5000ms
+  - waiting for getByRole('textbox', { name: 'Search all papers', exact: true })
+    14 × locator resolved to <input name="search" maxlength="240" id="paper-search" ng-reflect-model="" ng-reflect-name="search" ng-reflect-maxlength="240" class="ng-untouched ng-pristine ng-valid" placeholder="Search title, subject, request words or ID"/>
+       - unexpected value ""
+
+PASS real gateway search continues through a page with zero new families

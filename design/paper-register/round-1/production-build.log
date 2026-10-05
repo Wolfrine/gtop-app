@@ -1,0 +1,93 @@
+- Building...
+
+Initial chunk files   | Names                          |  Raw size | Estimated transfer size
+chunk-IS23VYEL.js     | -                              | 792.81 kB |               146.66 kB
+main-ZFX5K253.js      | main                           | 761.80 kB |               158.21 kB
+chunk-TSXMDX3Z.js     | -                              | 329.30 kB |                53.53 kB
+styles-CU2T5LPY.css   | styles                         | 268.34 kB |                37.41 kB
+chunk-TSJGQDRH.js     | -                              | 192.10 kB |                55.40 kB
+chunk-AOPAI6TQ.js     | -                              | 137.10 kB |                36.01 kB
+chunk-PYGVKEUS.js     | -                              |  45.53 kB |                 8.84 kB
+polyfills-IVQMIKRD.js | polyfills                      |  33.71 kB |                11.02 kB
+chunk-PH2RGL5R.js     | -                              |  18.04 kB |                 5.16 kB
+chunk-XYBQSJI6.js     | -                              |  18.02 kB |                 5.63 kB
+chunk-OYH7PQJC.js     | -                              |   9.73 kB |                 3.07 kB
+chunk-AS2QJYRE.js     | -                              |   5.14 kB |                 1.78 kB
+chunk-3RE37YHL.js     | -                              |   4.87 kB |                 1.66 kB
+chunk-OTHRI33Q.js     | -                              |   4.10 kB |                 1.03 kB
+chunk-6Z7MQE72.js     | -                              |   3.96 kB |                 1.49 kB
+
+                      | Initial total                  |   2.56 MB |               526.90 kB
+
+Lazy chunk files      | Names                          |  Raw size | Estimated transfer size
+chunk-QKVPX6VA.js     | browser                        |  62.22 kB |                16.49 kB
+chunk-IBHHXIQ3.js     | question-paper-generator-page  |  60.90 kB |                14.09 kB
+chunk-AQHUSTUA.js     | plant-lab-component            |  58.29 kB |                14.79 kB
+chunk-BT4H6WY3.js     | paper-chat-page                |  35.49 kB |                 9.44 kB
+chunk-ZLY7AL4S.js     | question-review-workbench-page |  33.72 kB |                 9.24 kB
+chunk-LHZKR6KR.js     | current-lab-component          |  28.22 kB |                 7.88 kB
+chunk-6OJWGTHN.js     | action-plan-component          |  23.75 kB |                 6.00 kB
+chunk-D5DJLZ2H.js     | question-bank-workspace-page   |  22.97 kB |                 6.11 kB
+chunk-S34LNWD5.js     | question-library-page          |  19.72 kB |                 5.30 kB
+chunk-VTF3Y7HX.js     | -                              |  13.55 kB |                 4.13 kB
+chunk-2B6RXO7I.js     | -                              |  13.52 kB |                 3.82 kB
+chunk-U75BKD7L.js     | plant-results-component        |  11.24 kB |                 3.49 kB
+chunk-ZUT3SFIX.js     | lab-results-component          |  10.59 kB |                 3.32 kB
+chunk-WZHWOVB3.js     | paper-chat-viewer-page         |   9.08 kB |                 3.09 kB
+chunk-ZDPJJXF4.js     | question-papers-page           |   7.80 kB |                 2.35 kB
+...and 4 more lazy chunks files. Use "--verbose" to show all the files.
+
+Output location: /workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/dist/gtop-app
+
+Application bundle generation complete. [28.431 seconds]
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/features/question-bank/pages/paper-chat.page.html:57:467:
+      57 │ ....standard}} · {{paper.subjects?.join(', ')}} · {{paper.marks}...
+         ╵                                 ~~~~
+
+  Error occurs in the template of component PaperChatPage.
+
+    src/app/features/question-bank/pages/paper-chat.page.ts:10:104:
+      10 │ ...ts:[FormsModule,RouterLink],templateUrl:'./paper-chat.page.html'})
+         ╵                                            ~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/features/question-bank/pages/paper-chat.page.html:60:23:
+      60 │         @if(current()?.status==='completed'&&!editing()){<button t...
+         ╵                        ~~~~~~
+
+  Error occurs in the template of component PaperChatPage.
+
+    src/app/features/question-bank/pages/paper-chat.page.ts:10:104:
+      10 │ ...ts:[FormsModule,RouterLink],templateUrl:'./paper-chat.page.html'})
+         ╵                                            ~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] bundle initial exceeded maximum budget. Budget 2.00 MB was not met by 576.55 kB with a total of 2.56 MB.
+
+
+▲ [WARNING] src/app/pages/quiz-page/quiz-page.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.72 kB with a total of 3.72 kB.
+
+
+▲ [WARNING] src/app/pages/mcq-management/mcq-management.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 591 bytes with a total of 2.58 kB.
+
+
+▲ [WARNING] src/app/pages/quiz-summary/quiz-summary.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.95 kB with a total of 3.95 kB.
+
+
+▲ [WARNING] src/app/pages/action-plan/action-plan.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.90 kB with a total of 3.90 kB.
+
+
+▲ [WARNING] src/app/pages/admin-dashboard/user-list/user-list.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.11 kB with a total of 3.11 kB.
+
+
+▲ [WARNING] src/app/pages/reports-page/reports-page.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.89 kB with a total of 3.89 kB.
+
+
+▲ [WARNING] src/app/pages/profile/profile.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 92 bytes with a total of 2.09 kB.
+
+

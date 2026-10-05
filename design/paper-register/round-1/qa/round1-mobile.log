@@ -1,0 +1,27 @@
+PASS old title beyond initial caps is discoverable in global register
+PASS historical submitted requirement is globally searchable
+FAIL timestamp-less legacy completed paper stays ready and openable: expect(locator).toBeVisible() failed
+
+Locator: locator('.pcv-sheet iframe').contentFrame().getByText('Explain membrane folding.', { exact: true })
+Expected: visible
+Timeout: 20000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" locator('.pcv-sheet iframe').contentFrame().getByText('Explain membrane folding.', { exact: true }) with timeout 20000ms
+  - waiting for locator('.pcv-sheet iframe').contentFrame().getByText('Explain membrane folding.', { exact: true })
+
+FAIL old chat link reveals submitted requirements after reload: expect(locator).toBeVisible() failed
+
+Locator: getByRole('heading', { name: 'qa-journey-1791113551930 buried paleontology target', exact: true })
+Expected: visible
+Error: strict mode violation: getByRole('heading', { name: 'qa-journey-1791113551930 buried paleontology target', exact: true }) resolved to 2 elements:
+    1) <h1>qa-journey-1791113551930 buried paleontology targ…</h1> aka locator('h1')
+    2) <h3>qa-journey-1791113551930 buried paleontology targ…</h3> aka getByRole('region', { name: 'Completed version' }).getByRole('heading', { name: 'qa-journey-1791113551930' })
+
+Call log:
+  - Expect "toBeVisible" getByRole('heading', { name: 'qa-journey-1791113551930 buried paleontology target', exact: true }) with timeout 20000ms
+  - waiting for getByRole('heading', { name: 'qa-journey-1791113551930 buried paleontology target', exact: true })
+
+PASS new natural-language request saves once and keeps full brief accessible
+PASS clarification preserves completed versions and separates student/key output

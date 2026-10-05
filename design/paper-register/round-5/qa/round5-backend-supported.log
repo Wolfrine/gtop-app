@@ -1,0 +1,30 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> test
+> node --test *.test.mjs
+
+✔ ready schema permits hosting through existing short-lived delegation and one datastore GET only (4.223114ms)
+✔ absent, incomplete and mismatched schemas skip without writing source or derived data (1.833141ms)
+✔ authentication and transport failures stay errors rather than reporting index readiness (1.001186ms)
+✔ workflow gates development promotion when protected backend is skipped and preserves production verification (0.460779ms)
+✔ reuse counts describe this run even when a source was generated earlier (1.123756ms)
+✔ incomplete totals, answers, sections and repeated questions cannot publish (0.383425ms)
+✔ required images are real Firebase assets with descriptions (0.516301ms)
+✔ reuse preserves content, answer, marks, type, difficulty and illustrations (0.441731ms)
+✔ legacy aliases and answer strings reuse without changing their meaning (0.149501ms)
+✔ student HTML omits answers and renders safe text, tables and maths (5.23155ms)
+✔ asset checksums hash the actual bytes and image type excludes active SVG (1.012032ms)
+✔ metadata search preserves complete IDs, Unicode words and historical requirement terms (4.046865ms)
+✔ legacy readiness requires a complete persisted paper and current ready papers remain ready (0.172264ms)
+✔ search limits and continuation binding are explicit (1.226447ms)
+✔ Gen1 adapters discover the runtime project before handling gcloud events (393.837006ms)
+✔ Firebase and emulator project configuration is preserved without discovery (367.03779ms)
+✔ unavailable runtime project fails initialization without a fabricated fallback (354.311824ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1203.680651

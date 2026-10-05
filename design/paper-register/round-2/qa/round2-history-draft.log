@@ -1,0 +1,12 @@
+FAIL long activity retrieves original message beyond150 and request beyond100: expect(locator).toBeVisible() failed
+
+Locator: getByText('ORIGINAL-HISTORY-qa-journey-1791113551930: ICSE Biology 80 marks, diagrams required.', { exact: true })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByText('ORIGINAL-HISTORY-qa-journey-1791113551930: ICSE Biology 80 marks, diagrams required.', { exact: true }) with timeout 5000ms
+  - waiting for getByText('ORIGINAL-HISTORY-qa-journey-1791113551930: ICSE Biology 80 marks, diagrams required.', { exact: true })
+
+PASS unsent new requirement persists through online reload

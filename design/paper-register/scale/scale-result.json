@@ -1,0 +1,5584 @@
+{
+  "projectId": "demo-gtop-journey-scale",
+  "localOnly": true,
+  "startedAt": "2026-10-04T12:03:53.982Z",
+  "migration": [
+    {
+      "ready": false,
+      "processed": 10000,
+      "state": {
+        "schemaVersion": 1,
+        "ready": false,
+        "phase": "project",
+        "collectionIndex": 1,
+        "cursor": "qa-scale-1791115433982-09975-request",
+        "checked": 10000,
+        "repaired": 0
+      }
+    },
+    {
+      "ready": false,
+      "processed": 10000,
+      "state": {
+        "schemaVersion": 1,
+        "ready": false,
+        "phase": "verify",
+        "repaired": 0,
+        "startedAt": {
+          "_seconds": 1791115436,
+          "_nanoseconds": 991000000
+        },
+        "collectionIndex": 0,
+        "cursor": "qa-scale-1791115433982-09091",
+        "checked": 20000,
+        "updatedAt": {
+          "_seconds": 1791115670,
+          "_nanoseconds": 824000000
+        }
+      }
+    },
+    {
+      "ready": false,
+      "processed": 10000,
+      "state": {
+        "schemaVersion": 1,
+        "ready": false,
+        "repaired": 0,
+        "startedAt": {
+          "_seconds": 1791115436,
+          "_nanoseconds": 991000000
+        },
+        "phase": "verify",
+        "collectionIndex": 2,
+        "cursor": "qa-scale-1791115433982-08204",
+        "checked": 30000,
+        "updatedAt": {
+          "_seconds": 1791116224,
+          "_nanoseconds": 397000000
+        }
+      }
+    },
+    {
+      "ready": false,
+      "processed": 10000,
+      "state": {
+        "schemaVersion": 1,
+        "ready": false,
+        "repaired": 0,
+        "startedAt": {
+          "_seconds": 1791115436,
+          "_nanoseconds": 991000000
+        },
+        "phase": "reconcile",
+        "collectionIndex": 0,
+        "cursor": "p-qa-scale-1791115433982-08158",
+        "checked": 40000,
+        "updatedAt": {
+          "_seconds": 1791116848,
+          "_nanoseconds": 847000000
+        }
+      }
+    },
+    {
+      "ready": true,
+      "processed": 6362,
+      "state": {
+        "schemaVersion": 1,
+        "ready": true,
+        "repaired": 0,
+        "startedAt": {
+          "_seconds": 1791115436,
+          "_nanoseconds": 991000000
+        },
+        "phase": "ready",
+        "collectionIndex": 1,
+        "cursor": null,
+        "checked": 46362,
+        "updatedAt": {
+          "_seconds": 1791117580,
+          "_nanoseconds": 562000000
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "migration checkpoints beyond10k and final readiness",
+      "passed": true
+    },
+    {
+      "name": "complete genuine cursor traversal",
+      "passed": true,
+      "pages": 335,
+      "families": 10023
+    },
+    {
+      "name": "dateless oldest paper and old submitted requirement searchable",
+      "passed": true
+    },
+    {
+      "name": "duplicate family continuation reaches older match after zero-new page",
+      "passed": true,
+      "pages": 3,
+      "zeroNewPages": 1,
+      "uniqueFamilies": 2
+    }
+  ],
+  "queryMetrics": [
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 30
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 30,
+      "scanned": 30,
+      "continuing": true
+    },
+    {
+      "q": "",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegister",
+          "ceiling": 30,
+          "returned": 3
+        }
+      ],
+      "summaryReads": 0,
+      "stateReads": 1,
+      "returned": 3,
+      "scanned": 3,
+      "continuing": false
+    },
+    {
+      "q": "OLDEST-FULL-SEARCH-TARGET",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegisterSearch",
+          "ceiling": 200,
+          "returned": 1
+        }
+      ],
+      "summaryReads": 1,
+      "stateReads": 1,
+      "returned": 1,
+      "scanned": 1,
+      "continuing": false
+    },
+    {
+      "q": "RARE-ORIGINAL-REQUIREMENT-qa-scale-1791115433982",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegisterSearch",
+          "ceiling": 200,
+          "returned": 1
+        }
+      ],
+      "summaryReads": 1,
+      "stateReads": 1,
+      "returned": 1,
+      "scanned": 1,
+      "continuing": false
+    },
+    {
+      "q": "DUPLICATE-SCAN-qa-scale-1791115433982",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegisterSearch",
+          "ceiling": 200,
+          "returned": 200
+        }
+      ],
+      "summaryReads": 1,
+      "stateReads": 1,
+      "returned": 1,
+      "scanned": 200,
+      "continuing": true
+    },
+    {
+      "q": "DUPLICATE-SCAN-qa-scale-1791115433982",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegisterSearch",
+          "ceiling": 200,
+          "returned": 200
+        }
+      ],
+      "summaryReads": 1,
+      "stateReads": 1,
+      "returned": 1,
+      "scanned": 200,
+      "continuing": true
+    },
+    {
+      "q": "DUPLICATE-SCAN-qa-scale-1791115433982",
+      "view": "all",
+      "candidateQueries": [
+        {
+          "path": "paperRegisterSearch",
+          "ceiling": 200,
+          "returned": 23
+        }
+      ],
+      "summaryReads": 2,
+      "stateReads": 1,
+      "returned": 2,
+      "scanned": 23,
+      "continuing": false
+    }
+  ],
+  "seededDocuments": 15454,
+  "manifest": {
+    "prefix": "qa-scale-1791115433982",
+    "uid": "qa-scale-admin",
+    "totalRows": 10023,
+    "totalDocuments": 15454,
+    "oldestPaper": "qa-scale-1791115433982-00000",
+    "oldestChat": "qa-scale-1791115433982-00001",
+    "latest": "qa-scale-1791115433982-10020",
+    "yearSpan": "2010–2025",
+    "duplicateTerm": "DUPLICATE-SCAN-qa-scale-1791115433982",
+    "repeatedFamily": "qa-scale-1791115433982-repeated-family",
+    "oldMatchedFamily": "qa-scale-1791115433982-old-matched-family"
+  },
+  "finishedAt": "2026-10-04T12:46:40.167Z"
+}

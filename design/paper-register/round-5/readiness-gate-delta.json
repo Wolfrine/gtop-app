@@ -1,0 +1,25 @@
+{
+  "beforeCandidate": "832cbf8c0fa28659275f5d0439534e24fdadb7779fb9c7e33505c4f99639b106",
+  "afterCandidate": "6a68eadc9752d658399362e78c417ec11857351a124f812d0e6b67c1b90c013e",
+  "beforeSource": "600695ae2ba9d93005e029a4775640f19705748d70e85aa277d088918f2cfc22",
+  "afterSource": "14da81b17538cdca5b484e0b09bb1906f7ee8bac95ff9ed16b43280eaa8cbd11",
+  "changedFiles": {
+    ".github/workflows/firebase-deploy.yml": {
+      "before": "6d36939c546fc4381d25b3dcc1a8dd0d02df0ffc53314bf46c56d315c2500781",
+      "after": "98fbedd11aef9016289153b579cd7584738b7c294abd3fa1df2894d29fbf6957"
+    },
+    "gtop-app/functions/hosting-readiness.test.mjs": {
+      "before": null,
+      "after": "0d6fab4cf5a5fb4f45564ef76b8e77222ccf9972c717fc679d2b1b857af64d67"
+    },
+    "gtop-app/scripts/check-paper-register-ready.mjs": {
+      "before": null,
+      "after": "7e4c29221e72e6545d6442e7c3dc8d0abcde6ffb50bb54f285eb9d5cbe63afb2"
+    }
+  },
+  "applicationSourceUnchanged": true,
+  "productionBuildFilesIdentical": true,
+  "fixtureIdentical": true,
+  "renderManifestSha256": "fb017c7e0cb1c93fcddf8e824f7eda5485b529ea2a6822f3c54382e06d8de055",
+  "scope": "CI-only readiness script, workflow gates and their test. Deployed UI/runtime source and all current renders unchanged. New backend aggregate fingerprint includes a test file; runtime handlers unchanged."
+}

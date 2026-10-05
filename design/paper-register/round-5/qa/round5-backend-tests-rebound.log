@@ -1,0 +1,24 @@
+✔ gcloud deployment installs the project required by actual Firebase event adapters (382.651946ms)
+✔ deployment verification rejects an active function missing its required project environment (56.283528ms)
+✔ ready schema permits hosting through existing short-lived delegation and one datastore GET only (3.632316ms)
+✔ absent, incomplete and mismatched schemas skip without writing source or derived data (1.603704ms)
+✔ authentication and transport failures stay errors rather than reporting index readiness (1.698124ms)
+✔ workflow gates development promotion when protected backend is skipped and preserves production verification (0.284279ms)
+✔ reuse counts describe this run even when a source was generated earlier (1.48554ms)
+✔ incomplete totals, answers, sections and repeated questions cannot publish (0.475942ms)
+✔ required images are real Firebase assets with descriptions (0.528089ms)
+✔ reuse preserves content, answer, marks, type, difficulty and illustrations (0.569079ms)
+✔ legacy aliases and answer strings reuse without changing their meaning (0.153276ms)
+✔ student HTML omits answers and renders safe text, tables and maths (5.454061ms)
+✔ asset checksums hash the actual bytes and image type excludes active SVG (1.091059ms)
+✔ metadata search preserves complete IDs, Unicode words and historical requirement terms (4.069661ms)
+✔ legacy readiness requires a complete persisted paper and current ready papers remain ready (0.192203ms)
+✔ search limits and continuation binding are explicit (1.170165ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 529.574406

@@ -1,0 +1,9 @@
+PASS: actual service starts and restores an account-owned attempt
+[2026-10-05T06:19:37.969Z]  @firebase/firestore: Firestore (11.4.0): GrpcConnection RPC 'Write' stream 0x671cf1c0 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L60:24 for 'update' @ L60, false for 'update' @ L299, false for 'update' @ L60, false for 'update' @ L299
+PASS: other learners and signed-out clients cannot read or alter attempts
+PASS: concurrent predictions, assessment retries, and feedback preserve the first saved responses
+[2026-10-05T06:19:38.676Z]  @firebase/firestore: Firestore (11.4.0): GrpcConnection RPC 'Write' stream 0x671cf1da error. Code: 7 Message: 7 PERMISSION_DENIED: 
+evaluation error at L60:24 for 'update' @ L60, false for 'update' @ L299, false for 'update' @ L60, false for 'update' @ L299
+PASS: existing profile fields are preserved; only admins can open cross-account results
+PASS: retention is bounded and expired attempts cannot overwrite newer history

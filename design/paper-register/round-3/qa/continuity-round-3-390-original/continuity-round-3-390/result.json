@@ -1,0 +1,70 @@
+{
+  "round": 3,
+  "width": 390,
+  "startedAt": "2026-10-04T12:09:56.968Z",
+  "checks": [
+    {
+      "name": "Bank tools has an accessible name and reaches the canonical bank",
+      "passed": false,
+      "error": "Error: page.evaluate: Error: Expecting instance of DOM Element\n    at assertDomElement (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4888:11)\n    at Object.getComponent$1 [as getComponent] (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4730:16)\n    at eval (eval at evaluate (:311:30), <anonymous>:1:25)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    },
+    {
+      "name": "filtered historical register resumes query filter loaded pages and useful position after detail",
+      "passed": false,
+      "error": "Error: page.evaluate: Error: Expecting instance of DOM Element\n    at assertDomElement (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4888:11)\n    at Object.getComponent$1 [as getComponent] (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4730:16)\n    at eval (eval at evaluate (:311:30), <anonymous>:1:25)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    },
+    {
+      "name": "filtered historical register resumes after saved output and deep link reload",
+      "passed": false,
+      "error": "Error: page.evaluate: Error: Expecting instance of DOM Element\n    at assertDomElement (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4888:11)\n    at Object.getComponent$1 [as getComponent] (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4730:16)\n    at eval (eval at evaluate (:311:30), <anonymous>:1:25)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    },
+    {
+      "name": "real gateway search continues through a page with zero new families",
+      "passed": false,
+      "error": "Error: page.evaluate: Error: Expecting instance of DOM Element\n    at assertDomElement (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4888:11)\n    at Object.getComponent$1 [as getComponent] (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4730:16)\n    at eval (eval at evaluate (:311:30), <anonymous>:1:25)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+    }
+  ],
+  "uncaught": [],
+  "gateway": [
+    {
+      "status": 200,
+      "query": "?view=all&q=&mine=0&limit=30",
+      "scanned": 30,
+      "items": [
+        "24b9c30d-89ec-46e9-a21a-86ed38a521b5",
+        "523c9626-701b-40f8-bfb0-0c4a7792b8ce",
+        "b9b8a1a2-23ed-4684-8034-d2487eaafd10",
+        "qa-journey-1791113551930-restored-stale-390-1791114986024",
+        "qa-journey-1791113551930-late-send-390-1791114984796",
+        "qa-journey-1791113551930-many-versions-390-1791114983241",
+        "qa-journey-1791113551930-restored-stale-390-1791114774537",
+        "qa-journey-1791113551930-late-send-390-1791114767594",
+        "qa-journey-1791113551930-many-versions-390-1791114760837",
+        "qa-journey-1791113551930-state-cancelled-320-1791114495921",
+        "qa-journey-1791113551930-state-error-320-1791114495371",
+        "qa-journey-1791113551930-state-publishing-320-1791114494856",
+        "qa-journey-1791113551930-state-generating-320-1791114494272",
+        "qa-journey-1791113551930-state-queued-320-1791114493692",
+        "qa-journey-1791113551930-cancel-race-320-1791114492904",
+        "qa-journey-1791113551930-clarification-320-1791114491995",
+        "qa-journey-1791113551930-two-tab-320-1791114490209",
+        "qa-journey-1791113551930-state-cancelled-1280-1791114489181",
+        "qa-journey-1791113551930-state-error-1280-1791114488595",
+        "qa-journey-1791113551930-state-publishing-1280-1791114488093",
+        "qa-journey-1791113551930-state-generating-1280-1791114487555",
+        "qa-journey-1791113551930-state-queued-1280-1791114486962",
+        "qa-journey-1791113551930-cancel-race-1280-1791114486126",
+        "qa-journey-1791113551930-clarification-1280-1791114484998",
+        "qa-journey-1791113551930-two-tab-1280-1791114482558",
+        "4faebd47-ad78-470d-a601-a709c72961db",
+        "5cac57ca-a3e1-456b-abde-97629c774afa",
+        "legacy-paper-qa-journey-1791113551930-dateless-legacy",
+        "visual-v1-mathematics",
+        "visual-v1-chemistry"
+      ],
+      "nextCursor": true,
+      "indexReady": true
+    }
+  ],
+  "finishedAt": "2026-10-04T12:11:13.277Z"
+}

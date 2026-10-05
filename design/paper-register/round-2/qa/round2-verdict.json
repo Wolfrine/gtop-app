@@ -1,0 +1,57 @@
+{
+  "round": 2,
+  "verdict": "blocked",
+  "sourceFingerprint": "dd4b78a2acc0836029bfb5165344adaa1353e1a36109e5b3d187637c536e6b9c",
+  "execution": "Independent frozen/hash-verified checker scripts executed unchanged by implementer in its isolated local service shell; checker reviewed raw logs, JSON and failure screenshot. Round3 HTML/style edits began after navigation test completion.",
+  "repository": {
+    "passed": 4,
+    "failed": 0,
+    "closed": "same-operation concurrent replay acknowledgment"
+  },
+  "browser": {
+    "passed": 10,
+    "failed": 4,
+    "viewports": [
+      1280,
+      320,
+      390
+    ],
+    "uncaughtErrors": 0
+  },
+  "blockers": [
+    {
+      "priority": "P1",
+      "file": "gtop-app/src/app/features/question-bank/pages/paper-chat.page.ts",
+      "methods": [
+        "open",
+        "loadOlderHistory"
+      ],
+      "finding": "Load earlier activity is enabled from request count before message history is ready; the fast-click161-message fixture ends with empty activity and original submitted requirement remains inaccessible.",
+      "evidence": "evidence/round-2-390-targeted/result.json and failure-1.png"
+    },
+    {
+      "priority": "P1",
+      "file": "gtop-app/src/app/features/question-bank/pages/paper-chat.page.ts",
+      "methods": [
+        "loadOlderHistory",
+        "loadOlderVersions",
+        "send"
+      ],
+      "finding": "Awaited results are applied after record navigation: controlled actual-data responses place A history and A saved versions into B; delayed successful send redirects B back to A.",
+      "evidence": "evidence/navigation-round-2-390/result.json; three failures with real repository results delayed until after navigation"
+    }
+  ],
+  "passingFlows": [
+    "two-tab stale reply retains typed text and rejects stale mutation",
+    "clarification reply preserves immutable saved v1/v2",
+    "completion racing cancellation remains completed with truthful notice",
+    "queued,generating,publishing,error,cancelled actions",
+    "unsent draft survives online reload",
+    "restored stale draft keeps original revision protection"
+  ],
+  "remainingFinalGates": [
+    "offline/cache/auth boundaries",
+    "10k scale and duplicate continuation",
+    "final whole-flow device and print verification"
+  ]
+}

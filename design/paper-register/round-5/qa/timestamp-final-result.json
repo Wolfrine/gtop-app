@@ -1,0 +1,78 @@
+{
+  "projectId": "demo-gtop-timestamp-final",
+  "localOnly": true,
+  "baseline": false,
+  "startedAt": "2026-10-05T06:11:36.667Z",
+  "backendSha256": "daa5f2047cf995a325ad8ad84e08211fd10ab4fdc0563cf4e29a6cc992c3acc1",
+  "scriptSha256": "a2cd91371bf6a0b5b5181b6e22974f5e6619a215dd140c6deeed518d9b314607",
+  "checks": [
+    {
+      "name": "projection timestamp older",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp middle",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp ts-newer",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp malformed",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp iso-only",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp published",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp fallback",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp dateless",
+      "passed": true
+    },
+    {
+      "name": "searched and unsearched cursor order both use latest source timestamp",
+      "passed": true
+    },
+    {
+      "name": "family summary reads current request and conversation ISO timestamps",
+      "passed": true
+    },
+    {
+      "name": "projection and family refresh preserve every canonical source and update time",
+      "passed": true
+    }
+  ],
+  "cursorOrder": [
+    [
+      "legacy-paper-timestamp-1791180696667-dateless",
+      "legacy-request-timestamp-1791180696667-ts-newer",
+      "legacy-request-timestamp-1791180696667-older",
+      "legacy-request-timestamp-1791180696667-iso-only",
+      "legacy-request-timestamp-1791180696667-middle",
+      "legacy-request-timestamp-1791180696667-malformed",
+      "legacy-paper-timestamp-1791180696667-published",
+      "legacy-paper-timestamp-1791180696667-fallback"
+    ],
+    [
+      "legacy-paper-timestamp-1791180696667-dateless",
+      "legacy-request-timestamp-1791180696667-ts-newer",
+      "legacy-request-timestamp-1791180696667-older",
+      "legacy-request-timestamp-1791180696667-iso-only",
+      "legacy-request-timestamp-1791180696667-middle",
+      "legacy-request-timestamp-1791180696667-malformed",
+      "legacy-paper-timestamp-1791180696667-published",
+      "legacy-paper-timestamp-1791180696667-fallback"
+    ]
+  ],
+  "finishedAt": "2026-10-05T06:11:37.600Z",
+  "verdict": "PASS"
+}

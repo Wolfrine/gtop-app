@@ -160,7 +160,7 @@ test('current admin navigation reaches both tools and preserves Learning Lab', a
   await openAdmin(page, '/admin');
   await expect(page.getByRole('heading', { name: 'Admin Console', exact: true })).toBeVisible({ timeout: 25_000 });
   await page.locator('[aria-label="Question bank tools"]').getByRole('link', { name: 'Paper chat', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Question papers', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Papers', exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Bank tools', exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/question-library(?:\?|$)/);
   await expect(page.getByRole('heading', { name: 'Question bank', exact: true })).toBeVisible();

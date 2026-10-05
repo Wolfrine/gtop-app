@@ -1,0 +1,32 @@
+{
+  "verdict": "ACCEPTED_WITH_TOOLING_DEVIATION",
+  "reviewedAt": "2026-10-05T06:16:51.053094+00:00",
+  "shimSha256": "dfcde67ef3e8eea17e6db357d4cfdff02ea8929498596f6494e22135b62fffe3",
+  "shimSource": "// Local execution sandbox supports loopback TCP, but not filesystem Unix sockets.\n// Adapt only Firebase CLI worker transport; handlers/runtime/requests are unchanged.\nconst base='/root/.npm/_npx/735f5eb4e60f1e66/node_modules/firebase-tools/lib/emulator/';\nconst shared=require(base+'functionsEmulatorShared.js');\nlet port=12500;\nshared.getTemporarySocketPath=()=>String(port++);\nconst {IPCConn}=require(base+'functionsEmulator.js');\nIPCConn.prototype.httpReqOpts=function(){return {host:'127.0.0.1',port:Number(this.socketPath)};};\n",
+  "reason": "Unmodified CLI Node worker could not listen/connect to Unix sockets; raw direct log records EPERM. Loopback TCP works in the execution sandbox.",
+  "equivalence": "Only in-memory CLI getTemporarySocketPath and IPCConn.httpReqOpts are overridden. Node worker process creation, runtime module loading, gateway HTTP routing, event dispatch, request body/header handling, handler code, Auth and Firestore emulators remain unchanged. Installed Node worker path has no inspected supported TCP toggle; debugger mode still uses IPCConn.",
+  "notEquivalent": "Transport is a local CLI adaptation, not a stock emulator invocation. Worker numeric ports start at12500; parent forwards over127.0.0.1. Host Node24 differs from configured deployment Node22. This is behavioral local evidence, not a deployed-cloud runtime or production latency test.",
+  "projectIdentity": {
+    "browserAndGateway": "gtop-app local emulator namespace matching existing app config and fixture export; not a demo-prefixed project",
+    "timestamp": "demo-gtop-timestamp-baseline and demo-gtop-timestamp-final; direct Firestore regression before shim",
+    "endpoints": [
+      "127.0.0.1:4400 production static app",
+      "127.0.0.1:4300 development app",
+      "127.0.0.1:5001/gtop-app/us-central1/paperGateway",
+      "127.0.0.1:8080 Firestore",
+      "127.0.0.1:9099 Auth",
+      "127.0.0.1:9000 Realtime Database"
+    ]
+  },
+  "firebaseToolsVersion": "15.32.1",
+  "inspectedCliHashes": {
+    "functionsEmulator.js": "0704e9b033e25ab8b32a572c0a8d040627edc7bf5d72f9bba83b51447db7ccad",
+    "functionsEmulatorShared.js": "7cc072aa17eb493d19a3b507e614a2adf00c6d5365aabd25794ff08ef9bcbc56",
+    "functionsEmulatorRuntime.js": "224e604c745fd538ce13b56ea651aa9c955cd32b8e629d8e118f6564c6f9c50a"
+  },
+  "evidence": [
+    "register-emulators-round5-direct.log",
+    "register-emulators-round5-tcp.log"
+  ],
+  "limits": "Browser/gateway assertions must still execute and pass. No application handler substitutes or bypasses count as normal integration success. All browser tests force localhost emulator settings; generated UI fixture data is local only."
+}

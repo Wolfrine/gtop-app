@@ -1,0 +1,27 @@
+{
+  "round": 4,
+  "width": 390,
+  "startedAt": "2026-10-04T12:38:41.801Z",
+  "checks": [
+    {
+      "name": "saved answer iframe clears when the current admin role is revoked",
+      "passed": false,
+      "error": "Error: expect(locator).toHaveCount(expected) failed\n\nLocator:  locator('.pcv-sheet iframe')\nExpected: 0\nReceived: 1\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveCount\" locator('.pcv-sheet iframe') with timeout 5000ms\n  - waiting for locator('.pcv-sheet iframe')\n    14 × locator resolved to 1 element\n       - unexpected value \"1\"\n"
+    },
+    {
+      "name": "saved answer iframe clears on actual sign-out",
+      "passed": true
+    },
+    {
+      "name": "saved answer cannot survive a cross-tab account switch to a non-admin",
+      "passed": false,
+      "error": "Error: expect(locator).toHaveCount(expected) failed\n\nLocator:  locator('.pcv-sheet iframe')\nExpected: 0\nReceived: 1\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveCount\" locator('.pcv-sheet iframe') with timeout 5000ms\n  - waiting for locator('.pcv-sheet iframe')\n    14 × locator resolved to 1 element\n       - unexpected value \"1\"\n"
+    },
+    {
+      "name": "an authorized read resolving after role loss cannot restore the saved answer",
+      "passed": true
+    }
+  ],
+  "uncaught": [],
+  "finishedAt": "2026-10-04T12:38:58.302Z"
+}

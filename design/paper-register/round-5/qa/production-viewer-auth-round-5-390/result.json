@@ -1,0 +1,29 @@
+{
+  "round": 5,
+  "width": 390,
+  "mode": "actual production DOM only",
+  "startedAt": "2026-10-05T06:16:32.635Z",
+  "scriptSha256": "c14c351e7e39f8a5db6b5c0a8a4a0166e0eed5d8064f2b9839d1f7ae1f1674ee",
+  "checks": [
+    {
+      "name": "production live role revoke removes saved answer iframe and Print",
+      "passed": true
+    },
+    {
+      "name": "production cross-tab learner switch removes saved answer iframe and Print",
+      "passed": true
+    }
+  ],
+  "uncaught": [],
+  "productionScripts": [
+    {
+      "path": "/polyfills-IVQMIKRD.js",
+      "sha256": "69dcea045643dd0de998a3cd0ccbbb46b46bff2651a87a56c73c28eb208e8f98"
+    },
+    {
+      "path": "/main-236N7ROQ.js",
+      "sha256": "ca914cfe88142829fd120fec640127ff039de5ddad4a08d777147bb623c0c1b1"
+    }
+  ],
+  "finishedAt": "2026-10-05T06:16:34.701Z"
+}

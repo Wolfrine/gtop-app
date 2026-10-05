@@ -1,0 +1,246 @@
+{
+  "purpose": "Normalized formal acceptance IDs for already-required core desktop/mobile,320px,output,loading/error/empty and retrieval categories. Extra captures remain supplementary; this does not imply all73parent inspection.",
+  "count": 40,
+  "states": [
+    {
+      "id": "register-1440",
+      "path": "design/paper-register/round-5/register-1440.png",
+      "sha256": "f84cc3076a092a897c5bd4ea2fe2e70fd05349c8f66a6538eff1d30c74536e6f",
+      "viewport": "desktop"
+    },
+    {
+      "id": "register-390",
+      "path": "design/paper-register/round-5/register-390.png",
+      "sha256": "bd272ab4837baf8bea269a10cf6b3d0d8e9aa7f027b9e40f0552e0a305d6ef79",
+      "viewport": "mobile"
+    },
+    {
+      "id": "new-1440",
+      "path": "design/paper-register/round-5/new-1440.png",
+      "sha256": "5bf94b16f4cc8a3feb5369a7f3bee8840db75d28ee2c14bc08ea680bd0b1e111",
+      "viewport": "desktop"
+    },
+    {
+      "id": "new-390",
+      "path": "design/paper-register/round-5/new-390.png",
+      "sha256": "ac00890d953db7966a1c82c184059c630d3a50bb7a88ea4f0cb7c4b7fe55f336",
+      "viewport": "mobile"
+    },
+    {
+      "id": "clarification-1440",
+      "path": "design/paper-register/round-5/clarification-1440.png",
+      "sha256": "b583a87afc5c8e0ec63997bd5c799c2727d301c89d91c7cfed01b34d84e0021e",
+      "viewport": "desktop"
+    },
+    {
+      "id": "clarification-390",
+      "path": "design/paper-register/round-5/clarification-390.png",
+      "sha256": "08fe4c8e23c25014fb342445798fb5f24900f20cef5f258ea98573a263e99bd6",
+      "viewport": "mobile"
+    },
+    {
+      "id": "revision-1440",
+      "path": "design/paper-register/round-5/revision-1440.png",
+      "sha256": "7c9ec2417fe0b60ff23ad38ee9390cee48157d71527f84855437ddb927c44d31",
+      "viewport": "desktop"
+    },
+    {
+      "id": "revision-390",
+      "path": "design/paper-register/round-5/revision-390.png",
+      "sha256": "a91df3ebce851394e003cefd1be33d0772ea3f9f72121a3cde33b3b4a254709c",
+      "viewport": "mobile"
+    },
+    {
+      "id": "completed-1440",
+      "path": "design/paper-register/round-5/completed-1440.png",
+      "sha256": "e85f607a84da749c2a1f357f066d6c50931509cc82e7d1ec736c1b6589433670",
+      "viewport": "desktop"
+    },
+    {
+      "id": "completed-390",
+      "path": "design/paper-register/round-5/completed-390.png",
+      "sha256": "d7395792a6f19a50153a7077b0341054240910b24eff26b30ce15441a83d5b53",
+      "viewport": "mobile"
+    },
+    {
+      "id": "failure-1440",
+      "path": "design/paper-register/round-5/failure-1440.png",
+      "sha256": "e45ec9bbfd98d1028070501736fb19f257a99428cf04d2056b0f4ce755c14a36",
+      "viewport": "desktop"
+    },
+    {
+      "id": "failure-390",
+      "path": "design/paper-register/round-5/failure-390.png",
+      "sha256": "ad292ced7653e8faf5a2280384b3504f738959afeb8510b6571732a7369fb909",
+      "viewport": "mobile"
+    },
+    {
+      "id": "search-results-1440",
+      "path": "design/paper-register/round-5/search-results-1440.png",
+      "sha256": "4cff17db410fb1f760a7ede2ee49d86b9fbabbfb9c6442bfe23c6d771c449eff",
+      "viewport": "desktop"
+    },
+    {
+      "id": "search-results-390",
+      "path": "design/paper-register/round-5/search-results-390.png",
+      "sha256": "74792a2fb02cf566371024cd37f1b82f14729cf79dd4678b70c304d7d4602443",
+      "viewport": "mobile"
+    },
+    {
+      "id": "no-results-1440",
+      "path": "design/paper-register/round-5/no-results-1440.png",
+      "sha256": "e96bbff8b7873cc4f6f6c2931fc016778c2ffbd9aa6ba52bf89372d74297e084",
+      "viewport": "desktop"
+    },
+    {
+      "id": "no-results-390",
+      "path": "design/paper-register/round-5/no-results-390.png",
+      "sha256": "9354f5dc9a8d3bceea908624fdd942e53c7bb945a9bbd5a8266d627029ef95c5",
+      "viewport": "mobile"
+    },
+    {
+      "id": "query-loading-1440",
+      "path": "design/paper-register/round-5/query-loading-1440.png",
+      "sha256": "6e37db4de0a88a27706e08c0f5668308b55762832bbfebef18f3216f6adfc201",
+      "viewport": "desktop"
+    },
+    {
+      "id": "query-loading-390",
+      "path": "design/paper-register/round-5/query-loading-390.png",
+      "sha256": "030dd80cc306df6efe5da1dbc7bcea311e061badbd0e95c209e810a00be39b7a",
+      "viewport": "mobile"
+    },
+    {
+      "id": "query-error-1440",
+      "path": "design/paper-register/round-5/query-error-1440.png",
+      "sha256": "7c52586729175af02589556397fd84e7b9328dd687610d6cbb1a7f6eafbec74d",
+      "viewport": "desktop"
+    },
+    {
+      "id": "query-error-390",
+      "path": "design/paper-register/round-5/query-error-390.png",
+      "sha256": "4934f6a7e63721df081a787cd87557af49eee6e6ca08981671d439fc35a9e316",
+      "viewport": "mobile"
+    },
+    {
+      "id": "send-error-1440",
+      "path": "design/paper-register/round-5/send-error-1440.png",
+      "sha256": "83bf3b00ea93deab4151da6b90801f74a3139fb34724fb758b7b363c8470c8dd",
+      "viewport": "desktop"
+    },
+    {
+      "id": "send-error-390",
+      "path": "design/paper-register/round-5/send-error-390.png",
+      "sha256": "1e72d5d03b8b1eb1dcca3bf16ea4c0b19269ef1dfac14c8522eb9816e2716654",
+      "viewport": "mobile"
+    },
+    {
+      "id": "first-request-empty-view-1440",
+      "path": "design/paper-register/round-5/first-request-empty-view-1440.png",
+      "sha256": "4c5ee0664c22e6dc1ea4ff741ebc8ec2d71390486da1b5c1f948e392cac8c903",
+      "viewport": "desktop"
+    },
+    {
+      "id": "first-request-empty-view-390",
+      "path": "design/paper-register/round-5/first-request-empty-view-390.png",
+      "sha256": "e20ae34951da753dd29afbc7ee9f474ca2f65e9814b0581165b7a2016f62b8a5",
+      "viewport": "mobile"
+    },
+    {
+      "id": "saved-paper-1440",
+      "path": "design/paper-register/round-5/saved-paper-1440.png",
+      "sha256": "d4a67af4b99f4234ab79fbbc7865448b45d7f16163877380a328f0d1a40440f7",
+      "viewport": "desktop"
+    },
+    {
+      "id": "saved-paper-390",
+      "path": "design/paper-register/round-5/saved-paper-390.png",
+      "sha256": "98faacd0c18d7e8fdec87402ded81462f73450f0125b91ac25b4778aced135bb",
+      "viewport": "mobile"
+    },
+    {
+      "id": "saved-key-1440",
+      "path": "design/paper-register/round-5/saved-key-1440.png",
+      "sha256": "f5f2371c6854028e9b737f327564239e2d1dc13d95e41d4339a553562bb0adf2",
+      "viewport": "desktop"
+    },
+    {
+      "id": "saved-key-390",
+      "path": "design/paper-register/round-5/saved-key-390.png",
+      "sha256": "5ea37e54f3e9b859dfa57a513a6a94bf82f4f0257a0edccc7d43f7954d29865a",
+      "viewport": "mobile"
+    },
+    {
+      "id": "register-320",
+      "path": "design/paper-register/round-5/register-320.png",
+      "sha256": "9c22ad3a24589cedefe9d3903ba8e70ad4f9f839c4a441b6c063d12d73d7af77",
+      "viewport": "mobile"
+    },
+    {
+      "id": "clarification-320",
+      "path": "design/paper-register/round-5/clarification-320.png",
+      "sha256": "9920b4abd187ab9d839830ae8dbbea6d2265c660001b614c6998850ad1fa0b02",
+      "viewport": "mobile"
+    },
+    {
+      "id": "revision-320",
+      "path": "design/paper-register/round-5/revision-320.png",
+      "sha256": "883611cee57cf0a2a04fd6e546f61324242ff6950ce4e589ef95272c2e3314de",
+      "viewport": "mobile"
+    },
+    {
+      "id": "saved-paper-320",
+      "path": "design/paper-register/round-5/saved-paper-320.png",
+      "sha256": "1c66fe47728e256484352f2afd57d4ac9ad7fa65108d592ee1055400d4c76b6e",
+      "viewport": "mobile"
+    },
+    {
+      "id": "pdf-paper-page-1",
+      "path": "design/paper-register/round-5/pdf-paper-page-1.png",
+      "sha256": "9d1eebcc305d9138f6fffb868d692652de1878098ac338615f0ad8ba031fb338",
+      "viewport": "desktop"
+    },
+    {
+      "id": "pdf-key-page-1",
+      "path": "design/paper-register/round-5/pdf-key-page-1.png",
+      "sha256": "4713957c092e9b675e548820787fd705c32274cb9fd861e4abb53e5e814f2194",
+      "viewport": "desktop"
+    },
+    {
+      "id": "saved-legacy-390",
+      "path": "design/paper-register/round-5/saved-legacy-390.png",
+      "sha256": "1d150c46b7efa374b5d6278819404b2465347f2f215f5879811abae21b0738a7",
+      "viewport": "mobile"
+    },
+    {
+      "id": "notification-return-390",
+      "path": "design/paper-register/round-5/notification-return-390.png",
+      "sha256": "57da2381814ea47892bcdb067d3e110cd2dbbc42b19df5e27dddbbe140029d71",
+      "viewport": "mobile"
+    },
+    {
+      "id": "results-end-390",
+      "path": "design/paper-register/round-5/results-end-390.png",
+      "sha256": "b809de07776d69dd7bbc24f22f145d73ccfc5f2a13e2523417819deb61b1cc0a",
+      "viewport": "mobile"
+    },
+    {
+      "id": "history-beginning-390",
+      "path": "design/paper-register/round-5/history-beginning-390.png",
+      "sha256": "1dc9dc0ba48f23d516ab59d48a6289d151c62be6065536f0a4a26ebc07556bae",
+      "viewport": "mobile"
+    },
+    {
+      "id": "multiple-pages-390",
+      "path": "design/paper-register/round-5/multiple-pages-390.png",
+      "sha256": "8927b68d6b81f4df783914d1431d2a24f6afd2a639929e958476bf7c665217b2",
+      "viewport": "mobile"
+    },
+    {
+      "id": "long-record-390",
+      "path": "design/paper-register/round-5/long-record-390.png",
+      "sha256": "e47963d05530262ab280de1feb34a0f3b6344a4093b027987589d62c298cf347",
+      "viewport": "mobile"
+    }
+  ]
+}

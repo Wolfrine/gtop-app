@@ -1,0 +1,24 @@
+FAIL Bank tools has an accessible name and reaches the canonical bank: page.evaluate: Error: Expecting instance of DOM Element
+    at assertDomElement (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4888:11)
+    at Object.getComponent$1 [as getComponent] (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4730:16)
+    at eval (eval at evaluate (:311:30), <anonymous>:1:25)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+FAIL filtered historical register resumes query filter loaded pages and useful position after detail: page.evaluate: Error: Expecting instance of DOM Element
+    at assertDomElement (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4888:11)
+    at Object.getComponent$1 [as getComponent] (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4730:16)
+    at eval (eval at evaluate (:311:30), <anonymous>:1:25)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+FAIL filtered historical register resumes after saved output and deep link reload: page.evaluate: Error: Expecting instance of DOM Element
+    at assertDomElement (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4888:11)
+    at Object.getComponent$1 [as getComponent] (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4730:16)
+    at eval (eval at evaluate (:311:30), <anonymous>:1:25)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+FAIL real gateway search continues through a page with zero new families: page.evaluate: Error: Expecting instance of DOM Element
+    at assertDomElement (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4888:11)
+    at Object.getComponent$1 [as getComponent] (http://127.0.0.1:4300/@fs/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/.angular/cache/17.3.12/vite/deps/chunk-3TD43MHO.js?v=fa1268da:4730:16)
+    at eval (eval at evaluate (:311:30), <anonymous>:1:25)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)

@@ -1,0 +1,22 @@
+Retained diagnostic excerpt from real Firebase emulator before removing top-level await. Initial gateway request then failed HeadersTimeoutError; see round5-gateway-supported.log. Superseded by final source and successful final actual gateway integration.
+
+Error [ERR_REQUIRE_ASYNC_MODULE]: require() cannot be used on an ESM graph with top-level await. Use import() instead. To see where the top-level await comes from, use --experimental-print-required-tla.
+  From /root/.npm/_npx/735f5eb4e60f1e66/node_modules/firebase-tools/lib/emulator/functionsEmulatorRuntime.js 
+  Requiring /workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/functions/runtime.mjs 
+    at ModuleJobSync.runSync (node:internal/modules/esm/module_job:539:13)
+    at ModuleLoader.importSyncForRequire (node:internal/modules/esm/loader:343:47)
+    at loadESMFromCJS (node:internal/modules/cjs/loader:1690:24)
+    at Module._compile (node:internal/modules/cjs/loader:1854:5)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.require (node:internal/modules/cjs/loader:1617:12)
+    at require (node:internal/modules/helpers:153:16)
+⚠  We were unable to load your functions code. (see above)
+⚠  functions: Failed to initialize and load triggers. This shouldn't happen: require() cannot be used on an ESM graph with top-level await. Use import() instead. To see where the top-level await comes from, use --experimental-print-required-tla.
+  From /root/.npm/_npx/735f5eb4e60f1e66/node_modules/firebase-tools/lib/emulator/functionsEmulatorRuntime.js 
+  Requiring /workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/functions/runtime.mjs 
+⚠  Your function was killed because it raised an unhandled error.
+⬢  functions: Failed to handle request for function us-central1-paperGateway
+⬢  functions: Failed to start functions in /workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/functions: Failed to load function.

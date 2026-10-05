@@ -1,0 +1,17 @@
+{
+  "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+  "acceptanceSha256": "32496856db45a1989fa018d810788e2be1c87150ce6190a98dcac2cdec2e7aa1",
+  "validatorSha256": "a5ea9eb29a857e51c674e80a961dfcbbacff6815e594a42e6e59a6279131821e",
+  "command": [
+    "python",
+    "/root/.codex/plugins/cache/created-by-me-remote/central/0.1.0/skills/visual-design-director/scripts/validate_design_acceptance.py",
+    "design/acceptance.json",
+    "--evidence-root",
+    ".",
+    "--candidate",
+    "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013"
+  ],
+  "exitCode": 0,
+  "output": "Evidence contract passes. This proves process/evidence integrity, not aesthetic quality or owner approval.",
+  "meaning": "Evidence-contract validation only; not an aesthetic judgment, owner acceptance, or deployment verification."
+}

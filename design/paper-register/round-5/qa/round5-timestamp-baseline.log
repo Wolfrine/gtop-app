@@ -1,0 +1,46 @@
+FAIL projection timestamp older: Expected values to be strictly equal:
++ actual - expected
+
++ 1514764800000
+- 1704067200000
+
+PASS projection timestamp middle
+PASS projection timestamp ts-newer
+PASS projection timestamp malformed
+FAIL projection timestamp iso-only: Expected values to be strictly equal:
++ actual - expected
+
++ 1262304000000
+- 1672531200000
+
+FAIL projection timestamp published: Expected values to be strictly equal:
++ actual - expected
+
++ 1483228800000
+- 1577836800000
+
+PASS projection timestamp fallback
+PASS projection timestamp dateless
+FAIL searched and unsearched cursor order both use latest source timestamp: Expected values to be strictly deep-equal:
++ actual - expected
+
+  [
+    'legacy-paper-timestamp-1791180695358-dateless',
+    'legacy-request-timestamp-1791180695358-ts-newer',
+-   'legacy-request-timestamp-1791180695358-older',
+-   'legacy-request-timestamp-1791180695358-iso-only',
+    'legacy-request-timestamp-1791180695358-middle',
+    'legacy-request-timestamp-1791180695358-malformed',
++   'legacy-request-timestamp-1791180695358-older',
+    'legacy-paper-timestamp-1791180695358-published',
++   'legacy-request-timestamp-1791180695358-iso-only',
+    'legacy-paper-timestamp-1791180695358-fallback'
+  ]
+
+FAIL family summary reads current request and conversation ISO timestamps: Expected values to be strictly equal:
++ actual - expected
+
++ 1451606400000
+- 1798761600000
+
+PASS projection and family refresh preserve every canonical source and update time

@@ -1,0 +1,143 @@
+{
+  "round": 5,
+  "verdict": "PASS",
+  "scope": "Independent functional QA of the frozen local candidate; separate from visual criticism, owner acceptance and deployed production validation.",
+  "reviewedAt": "2026-10-05T06:23:40.207942+00:00",
+  "candidate": "832cbf8c0fa28659275f5d0439534e24fdadb7779fb9c7e33505c4f99639b106",
+  "sourceFingerprint": "600695ae2ba9d93005e029a4775640f19705748d70e85aa277d088918f2cfc22",
+  "productionBuildFingerprint": "676f8ba6aa8addb4ec9251f93171830742822a22bdc7b76d2cd63ce80d8719bc",
+  "backendFingerprint": "5ba471d514ea1c5bd4b28e31e37c4284806bc1adaafed48bb3624f0f3dd16c37",
+  "backendSha256": "daa5f2047cf995a325ad8ad84e08211fd10ab4fdc0563cf4e29a6cc992c3acc1",
+  "fixtureSha256": "4e5fba2b588571eab66851b497c623497d8c803559d821c0bd18b40c6b520199",
+  "qaFixtureManifestSha256": "2d7cf00e58ee38ef22c1c86fdb28ad1cdb4e7d7c53abdddada54754e27ed1c6f",
+  "renderManifestSha256": "fb017c7e0cb1c93fcddf8e824f7eda5485b529ea2a6822f3c54382e06d8de055",
+  "candidateManifestSha256": "384f2170a3138077f41d0e94b1da7e72de2ed5ed02656bf0830d5b8d6cdae003",
+  "identityValidation": {
+    "sourceFiles": 382,
+    "productionBuildFiles": 136,
+    "renderFiles": 73,
+    "mismatches": 0,
+    "servedMain": "main-236N7ROQ.js",
+    "servedMainSha256": "ca914cfe88142829fd120fec640127ff039de5ddad4a08d777147bb623c0c1b1",
+    "servedProductionScripts": "Fetched hashes from every production test run match current frozen dist files. Production debug access absent."
+  },
+  "execution": "Reviewer authored/inspected hash-frozen tests. Implementation agent executed them unchanged in one retained local service namespace. Reviewer independently inspected source changes, logs, result JSON, exact source/build/fixture/render hashes, and actual production auth screenshots. No application edits by QA; no production writes.",
+  "checks": {
+    "production-round-5-1280": {
+      "passed": 9,
+      "total": 9,
+      "uncaught": 0,
+      "resultSha256": "67f862d336aafd836549745e1e5dc8688e4a8a843db1b06c15ce04b5d60c4f6b"
+    },
+    "production-round-5-390": {
+      "passed": 9,
+      "total": 9,
+      "uncaught": 0,
+      "resultSha256": "64354a4c8d5dcc02a55ff3dcb7eebba6682a79244cce2ab9cd88b685e30f1736"
+    },
+    "production-round-5-320": {
+      "passed": 9,
+      "total": 9,
+      "uncaught": 0,
+      "resultSha256": "2347a3a64c75871716d26053444bf9d022c4a7933ddbe74633d29e69d01ee313"
+    },
+    "production-viewer-auth-round-5-390": {
+      "passed": 2,
+      "total": 2,
+      "uncaught": 0,
+      "resultSha256": "1295a35702efa2c4d34dde515d9a354598a5ef7b399de788fa4c1f436bf26db5"
+    },
+    "viewer-auth-round-5-390": {
+      "passed": 4,
+      "total": 4,
+      "uncaught": 0,
+      "resultSha256": "1080794781a546fbe7ee109720efc3e619679cdf8cd7548e71dcfe0f4ec4eac4"
+    },
+    "continuity-round-5-390": {
+      "passed": 4,
+      "total": 4,
+      "uncaught": 0,
+      "resultSha256": "6d0f3b982a1c2faa675ec6104d7f989469b565b0223bd48805e20532281f974e"
+    },
+    "cache-context-round-5-390": {
+      "passed": 3,
+      "total": 3,
+      "uncaught": 0,
+      "resultSha256": "0009285198cc8a214abb788cc2bdd0caed389f9cc966a3501d90b8409924642e"
+    }
+  },
+  "productionCoverage": "At 1280, 390, 320: old global title and historical brief retrieval, dateless ready output, old-link reload/fullbrief, new request, older versions with separated question/key, iframe print invocation, full 161 messages / 161 requests with exhausted paging, unsent draft reload. Two additional DOM-only production checks revoke live role and switch account in another tab, requiring protected iframe and Print removal.",
+  "developmentCoverage": "Live role revoke, sign-out, cross-tab learner switch and held authorized read released after revoke all pass. Continuity checks preserve search/Ready/Mine/pages/selected position across detail/output/reload, mobile Bank navigation, and real gateway zero-new-family continuation. Cache checks cover persistent/offline revisit, one reconnect save,403 cache eviction, identity/role isolation.",
+  "closedFindings": [
+    "Round 4 P1: rendered answer and Print no longer survive live role loss or cross-tab learner switch in actual production bundle.",
+    "Round 4 P1: a held authorized read released after role loss cannot restore the answer (development-source promise-race test).",
+    "Worker ISO timestamp now wins when newer than retained updatedAt; sorted searched and unsearched cursors agree."
+  ],
+  "knownMaterialFindings": [],
+  "normalReleaseSuites": {
+    "productionBuild": "PASS; known existing stylesheet budget warnings",
+    "module": {
+      "passed": 81,
+      "files": 11
+    },
+    "backend": {
+      "passed": 12,
+      "includes": "two deployment-environment regression cases"
+    },
+    "firestoreRules": {
+      "passed": 32,
+      "files": 6
+    },
+    "realtimeDatabaseRules": {
+      "passed": 1,
+      "note": "Unchanged test passed after proxy env removal; initial clearDatabase setup timeout retained."
+    },
+    "learningLabRules": {
+      "passed": 5
+    },
+    "plantLabRules": {
+      "passed": 5
+    },
+    "existingChatAndQuestionPaperE2E": {
+      "passed": 24,
+      "viewports": "desktop and 320; development server; previous desktop archive failure now passes"
+    },
+    "registerIntegration": "PASS",
+    "gatewayIntegration": "PASS anonymous 401, learner 403, admin search, actual source triggers and bounded response",
+    "publicationIntegration": "PASS exact snapshot, separate answers, one delivery, rejected bad totals and superseded requests"
+  },
+  "scaleAndTimestamp": {
+    "newTimestampRegression": {
+      "passed": 11,
+      "baselineExpectedFailures": 5,
+      "scriptSha256": "a2cd91371bf6a0b5b5181b6e22974f5e6619a215dd140c6deeed518d9b314607"
+    },
+    "scale": "Historical PASS on a41c781298fe4f40e87682c423d43b696c2c904d9c0ed271b04ebf1179eebd17 carried forward only for unchanged query/cursor/backfill mechanisms.10,023 families, 15,454 sources, 46,362 checks, 335 pages, 340 bounded queries. Not rerun or relabeled as a new-hash scale pass; see timestamp-scale-review.json and prior scale-verdict.json.",
+    "cliResume": "Prior inspected bounded 7-pass/resume evidence retained; no new claim of a full-scale rerun."
+  },
+  "limitations": [
+    "Local Firebase CLI worker transport uses an inspected scratch-only Unix-socket-to-TCP shim after sandbox EPERM; real handler/auth/Firestore/gateway paths remain in use. See emulator-transport-review.json.",
+    "Browser emulator namespace is gtop-app matching app configuration and fixture export, with explicit localhost emulator endpoints. Timestamp regression uses separate demo-prefixed projects.",
+    "Local backend runtime is Node 24; deployment declares Node 22. These results do not assert deployed-cloud runtime behavior or production latency.",
+    "Deep held-promise race checks use development Angular debug access. Production authorization checks and all production journeys use DOM-only assertions with debug access absent.",
+    "Visual approval and owner acceptance belong to separate review gates."
+  ],
+  "independentArtifactHashes": {
+    "timestamp-order-qa.mjs": "a2cd91371bf6a0b5b5181b6e22974f5e6619a215dd140c6deeed518d9b314607",
+    "timestamp-baseline-result.json": "d4ae2f4083ee39ffd0d4e127b96225196ab22801393c34cc21adf2029f71bba1",
+    "timestamp-final-result.json": "46e449236812edd5e350e055ee83ce885c72d7c0ccef812e03896664870c4cbc",
+    "timestamp-scale-review.json": "8a3bb2107aa47e5447c15269362c350ff1dd61022613483022af5c62636c5364",
+    "timestamp-backend-diff.patch": "97c1bb1422162c4d5105a45caa31af170e126a838297432650b5f42910a95264",
+    "emulator-transport-review.json": "b5c9f77401befb85f591c33e55d067a98076bc60808ae57bb12487afaaa003b6",
+    "production-browser-qa.mjs": "ea4c9d8c837c3483016e673c95be0b0097221c51768e28a4cefb47553c7d4c2d",
+    "production-viewer-auth-qa.mjs": "c14c351e7e39f8a5db6b5c0a8a4a0166e0eed5d8064f2b9839d1f7ae1f1674ee",
+    "viewer-auth-qa.mjs": "8f60f6ac616de0a65e51f565995b533c7558384f3b3adf3a053314afd976b4e4",
+    "continuity-qa.mjs": "9523b5a3207269c76fc013e7e332410b1d518633e9969bd351ba22574731182e",
+    "cache-context-qa.mjs": "7770ff4f43fa723b46a79ce9905b08680af0bb620eb30d2c5b8e579e230d685e",
+    "fixtures.mjs": "22e9871d0ed2a60c2c031b8ac99a7dd6bcaba99db7c9101c3fd1dd99fe27641d",
+    "manifest.json": "2d7cf00e58ee38ef22c1c86fdb28ad1cdb4e7d7c53abdddada54754e27ed1c6f",
+    "round5-timestamp-baseline.log": "e1641d0fd19aa45642af3089e1938f72270601600eb86709f55957036ed42b73",
+    "round5-timestamp-final.log": "6d6b923e47efe4425202e18bec4eb0ca048b67a4d0925af66f347c5f742d3f8d",
+    "round5-viewer-auth-complete.log": "10fadd1fff277d73a6547b83e26e4a55c14e30da3e2c432407a73968449490f5"
+  }
+}

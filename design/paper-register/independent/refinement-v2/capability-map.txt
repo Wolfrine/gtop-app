@@ -1,0 +1,39 @@
+SERVICE-TRUTH ANNOTATION — REFINEMENT V2
+4 October 2026 · annotations only; no change to the independent original proposal or frozen visual designs
+
+The renders and handoff contain both supported service behavior and proposed product capabilities. They are a design specification, not evidence that every pictured control exists. This annotation is the implementation authority where a visual concept implies unsupported behavior. Do not ship a control that only looks functional.
+
+VERIFIED FOR THIS DELIVERY
+
+• Authenticated admins can read paper records, conversation history and outputs, and reply, revise and cancel. Preserve current admin-wide access.
+• ownerUid is immutable creator attribution. Display Requested by; no reassignment control or creator-only access restriction.
+• In-app updates are recipient-scoped. Device push is opt-in. No email promise.
+• Output may be an immutable printable HTML artifact. Open paper and browser Print / Save PDF are truthful when wired to the saved artifact. A separate answer key must resolve its own content/print surface; no server-generated PDF-download promise.
+• The agent is scheduled every two hours, 08:00–20:00 Asia/Kolkata. The UI can describe the next scheduled opportunity without promising completion or an operational watchdog.
+
+PROPOSED CAPABILITIES — NOT VERIFIED AS IMPLEMENTED
+
+Attach images: the current admin journey has no upload capability. The pictured Attach images button, per-image usage choices, upload progress and replace-image recovery are design requirements only. Omit the button and related upload claims from the delivery until an actual authenticated upload/storage/reference flow exists. Preserve image references already supported by the service; do not invent successful uploads.
+
+Needed by: the optional date/time picker, persisted deadline metadata, deadline-risk computation and deadline ordering are proposed. An admin can describe timing in natural language using the supported request input, but that alone does not establish a tracked deadline. Do not expose a date picker, calculated deadline badge or priority promise without stored/validated metadata and supported behavior.
+
+Academic/date facets: class, board, subject, chapter and created/completed-date filters in the history concept are intended retrieval features. Only render a working facet when the relevant metadata, query semantics and counts are implemented. Use available supported search/retrieval behavior in the current delivery; do not simulate filtering or imply complete archive coverage from a bounded local list. The 10,482-paper/137-result screenshot is illustrative test content, not a service capacity or query result claim.
+
+Archive: archiving, Include archived and restore are proposed capabilities. Omit them until durable state and retrieval semantics exist. Never substitute deletion for archive or hide a record locally while claiming a persistent archive.
+
+Structured clarification choices: the two radio answers demonstrate the desired clarification UX, but structured choice generation/handling is not verified. The supported fallback is to display the actual clarification text and accept a natural-language reply. Do not invent radio choices or suggest the service generated them. Only offer choices if their semantic answers are real and submitting them uses the supported reply action. Retain explicit Send answer and preserve draft reply text on failure.
+
+One-click Try again: there is no implemented retry/watchdog service. The failure screenshot's Try again button is a proposed requirement, not an existing endpoint. Do not show a nonfunctional retry action or promise automatic retry, recovery attempts or stale-job detection. Use a verified existing action only when it truly resumes work, and label its actual behavior accurately. Otherwise retain the request/history and show the failure plus currently supported request/reply/revision actions; do not claim retry is available.
+
+Preserved drafts: draft persistence and its scope must be verified. Do not claim Saved, private server storage or cross-device continuity from an unsaved local textarea. “Draft · not submitted” avoids that claim. If local persistence is implemented, say “Saved on this device.”
+
+OTHER DELIVERY RULES
+
+• All pictured example statuses, attribution, counts, attempts and artifact previews are synthetic design evidence. Production labels must bind to actual service state.
+• The core selected architecture remains useful with supported functionality: one durable Papers register, direct natural-language request/reply, observable asynchronous status, immutable completed artifacts and distinct active revision context.
+• Unsupported pictured capabilities should remain explicit backlog/design intentions. Do not add disabled or decorative facades merely to match the mockup.
+• A completed output remains readable when a new request is pending; preserve existing stored content. The actual version/revision object and actions must map to implemented service semantics rather than assume a new backend model.
+
+INDEPENDENT REVIEW CRAFT NOTE
+
+The independent critic personally reviewed six v2 concept views and found no remaining concept-direction blocker in those views. This is not production or owner acceptance. For implementation, do not reproduce tiny/light prototype supporting text: target at least 13px for operational timing/helper text and 12px for secondary metadata, with accessible contrast. The small evidence watermark is not product UI. Real full-paper pagination and print quality still require implementation QA; print examples are explicitly excerpts.

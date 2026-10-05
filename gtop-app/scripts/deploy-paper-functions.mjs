@@ -11,7 +11,8 @@ const specs=[
   {name:'paperGateway',memory:'256Mi',timeout:'60s',max:3},
   {name:'paperChatPublishPaper',memory:'512Mi',timeout:'300s',max:2,path:'paperDrafts/{paperId}',type:'write'},
   {name:'paperChatUploadAsset',memory:'512Mi',timeout:'300s',max:2,path:'paperAssetUploads/{assetId}',type:'write'},
-  {name:'paperChatNotifyAdmin',memory:'256Mi',timeout:'60s',max:2,path:'paperNotifications/{notificationId}',type:'create'}
+  {name:'paperChatNotifyAdmin',memory:'256Mi',timeout:'60s',max:2,path:'paperNotifications/{notificationId}',type:'create'},
+  ...['Conversation','Request','Paper','Message'].map((name,i)=>({name:'paperRegister'+name,memory:'256Mi',timeout:'120s',max:2,path:['paperConversations','paperRequests','paperDrafts','paperMessages'][i]+'/{id}',type:'write'}))
 ];
 function command(args,capture=false){
   return new Promise((resolve,reject)=>{
@@ -46,4 +47,4 @@ for(const name of ['publishPaper','uploadPaperAsset','notifyPaperAdmin']){
   catch(error){if(/NOT_FOUND|not found|does not exist/i.test(error.message))continue;throw error;}
   if(failed.state==='FAILED'&&failed.labels?.['firebase-functions-codebase']==='paper-service')await command(['functions','delete',name,'--project='+project,'--region=us-central1','--gen2','--quiet']);
 }
-console.log('All four reviewed functions are active with the verified runtime and triggers.');
+console.log('All eight reviewed functions are active with the verified runtime and triggers.');

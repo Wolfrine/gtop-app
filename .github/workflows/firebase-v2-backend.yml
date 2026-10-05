@@ -66,7 +66,7 @@ jobs:
       - name: Verify paper service integration
         if: inputs.deployment_scope == 'paper-chat-backend'
         working-directory: gtop-app
-        run: npx firebase-tools@15 emulators:exec --only firestore,functions --project demo-gtop 'node functions/publication.integration.mjs'
+        run: npx firebase-tools@15 emulators:exec --only auth,firestore,functions --project demo-gtop 'node functions/publication.integration.mjs && node functions/register.integration.mjs && node functions/backfill-cli.integration.mjs && REGISTER_GATEWAY_URL=http://127.0.0.1:5001/demo-gtop/us-central1/paperGateway node functions/register-gateway.integration.mjs'
       - name: Authenticate Firebase
         id: auth
         uses: google-github-actions/auth@v2
@@ -114,6 +114,13 @@ jobs:
         env:
           ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
         run: node scripts/deploy-paper-functions.mjs
+      - name: Backfill and verify all historical register sources
+        timeout-minutes: 45
+        if: inputs.deploy_backend && inputs.deployment_scope == 'paper-chat-backend'
+        working-directory: gtop-app/functions
+        env:
+          ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
+        run: node backfill-register.mjs --live-derived-index --until-ready
       - name: Verify active question-paper permissions after deployment
         if: inputs.deploy_backend
         working-directory: gtop-app

@@ -43,9 +43,15 @@ export const routes: Routes = [
     },
     {
         path: 'admin/question-papers/all',
-        loadComponent: () => import('./features/question-bank/pages/paper-chat-library.page').then(m => m.PaperChatLibraryPage),
+        loadComponent: () => import('./features/question-bank/pages/paper-chat.page').then(m => m.PaperChatPage),
         canActivate: [AuthGuard, RoleGuard],
         data: { roles: ['admin'], seo: { title: 'All papers | GTOP Admin', robots: 'noindex, nofollow' } },
+    },
+    {
+        path: 'admin/question-papers/new',
+        loadComponent: () => import('./features/question-bank/pages/paper-chat.page').then(m => m.PaperChatPage),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'], paperMode: 'new', seo: { title: 'New paper | GTOP Admin', robots: 'noindex, nofollow' } },
     },
     {
         path: 'admin/question-papers',

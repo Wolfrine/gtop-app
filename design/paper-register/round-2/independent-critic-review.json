@@ -1,0 +1,178 @@
+{
+  "round": 2,
+  "reviewer": "/root/independent_journey_critic",
+  "candidate_source_fingerprint": "dd4b78a2acc0836029bfb5165344adaa1353e1a36109e5b3d187637c536e6b9c",
+  "fixture_sha256": "8e6f9db282f736b021884bb9bb795c1060380dcd9979908842fd5c13c3a01a71",
+  "candidate_metadata_path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/candidate.json",
+  "candidate_metadata_sha256": "47e18626d8b562ac8a4f3404b25c45c07d33a34e8a66bb2f76d3a57a6e0fad0d",
+  "reviewed_before_parent_scores": true,
+  "scores": {
+    "product_meaning": 8,
+    "action_clarity": 7.5,
+    "async_truth": 8,
+    "durable_retrieval": 6.5,
+    "output_continuity": 8,
+    "mobile_layout": 6.5,
+    "visual_craft": 6.5
+  },
+  "overall": 7.3,
+  "verdict": "blocked",
+  "evidence": [
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/register-1440.png",
+      "sha256": "76e2665b59645865860077a7fad966c4b5bb978f0ade8250feed4b7a8f03bfb2",
+      "state": "register",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/register-320.png",
+      "sha256": "b8f5cd9dc4ab6c736c97481fa096258628b78aa90aa9108292a7bbb38c9d279d",
+      "state": "register",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/new-1440.png",
+      "sha256": "947d0239094547e90b3c14905036bdaea301af2b08483765ba49a3dbfa9c10ba",
+      "state": "new",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/new-320.png",
+      "sha256": "86ddcf4238687bed50bc14be4126f89e1a9df7656dcec942a566f4128c9e2e46",
+      "state": "new",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/clarification-1440.png",
+      "sha256": "f67e6192d564874d04ec7835c4dd93fca474ec9b4701c5def8ce75e885c8eec7",
+      "state": "clarification",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/clarification-320.png",
+      "sha256": "636bafcf8bdb18656c27eb96a82a4a7040d639d3eebcdafa9904a48235d1da1c",
+      "state": "clarification",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/revision-1440.png",
+      "sha256": "a65bd3dad865b8c124f338ed7221608a864643e658c2b74f56525acd51b68f30",
+      "state": "revision",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/revision-320.png",
+      "sha256": "b05050ec403052c2c896c860a02b18af00c03b6f350cff86988d0727a54a1679",
+      "state": "revision",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/failure-1440.png",
+      "sha256": "9970eb0bae39f608ac667256917ee2c6b607a35b1a157d11ec3de74b84f76197",
+      "state": "failure",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/failure-320.png",
+      "sha256": "52197dbfbdcaddfea0f21ed64023fd8086f7f1b05e4bb2bc5957630b9879cd22",
+      "state": "failure",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/completed-1440.png",
+      "sha256": "09b7273bb09fc660c6982c9f2e2738d1779b0bf9ef1a54aaba7ca723f5aee12b",
+      "state": "completed",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-2/completed-320.png",
+      "sha256": "f83e753b568e3508b27201e8ae04283567545e485e28d0dfae89182c93ea2bf6",
+      "state": "completed",
+      "viewport_width": 320,
+      "personally_viewed": true
+    }
+  ],
+  "visible_improvements": [
+    "Desktop register no longer occluded",
+    "Search/status words no longer fragment",
+    "Distinct displayed ID suffixes and Copy ID detail action",
+    "Near-title Open version 1 shortcut",
+    "Elapsed scheduled opportunity explicitly acknowledged with next current opportunity"
+  ],
+  "findings": [
+    {
+      "dimension": "product_meaning",
+      "reason": "Natural-language first request, scheduled processing, distinct paper/key and supported in-app updates are clear. Admin upload explicitly outside release scope; no fake control required."
+    },
+    {
+      "dimension": "action_clarity",
+      "reason": "Current action leads history. Ready-only output should precede View current request accordion; correction action remains clear."
+    },
+    {
+      "dimension": "async_truth",
+      "reason": "Current next opportunity and elapsed-wait explanation explicit. No completion guarantee or fake progress shown."
+    },
+    {
+      "dimension": "durable_retrieval",
+      "reason": "Search terms/status/creator scope and distinct IDs now legible. Six different same-day records do not demonstrate long-history, repeated-title or query/no-result behavior."
+    },
+    {
+      "dimension": "output_continuity",
+      "reason": "Version1 ready+Request2 queued visible together with immediate Open version1 shortcut; separate paper/key remain below."
+    },
+    {
+      "dimension": "mobile_layout",
+      "reason": "Word fragmentation fixed; failure title squeezed into four lines by unshrinking adjacent badge; active revision uses ~440px with repeated explanations. 390px not yet supplied."
+    },
+    {
+      "dimension": "visual_craft",
+      "reason": "Quiet readable core surface substantially improved; broken icon fallback still visible in all chrome; disproportionate footer and narrow panel rhythm need refinement."
+    }
+  ],
+  "generic_risk_assessments": [
+    {
+      "decision": "Semantic panels",
+      "assessment": "justified",
+      "reason": "Different current task and output objects warrant separation."
+    },
+    {
+      "decision": "Serif display type",
+      "assessment": "refine",
+      "reason": "Fits paper domain but must not be squeezed to word-per-line failure heading."
+    },
+    {
+      "decision": "Large chrome/footer",
+      "assessment": "defective",
+      "reason": "Unresolved icon fragments and irrelevant long footer tail weaken polished working-product impression."
+    }
+  ],
+  "reference_gap": "Register now recovers aligned scan structure. Drive remains stronger in visible retrieval context; long-history evidence is needed. Linear-like concise state communication could reduce verbose revision panel.",
+  "layer_actions": {
+    "type": "refine narrow header flex wrapping",
+    "color": "retain",
+    "spacing": "compact repetitive revision copy and mobile footer",
+    "composition": "put ready output before request accordion",
+    "navigation": "repair icon fallback",
+    "imagery": "none required for this verified release input scope"
+  },
+  "unobserved_states": [
+    "390px viewport",
+    "Expanded current request and long activity",
+    "Search/no-results/repeated long titles across dates",
+    "Actual printable output",
+    "Notification deep-link states",
+    "Motion"
+  ],
+  "qa_verdict": "Functional QA remains separate; no browser interaction tested by critic. No visual acceptance inferred from reported QA."
+}

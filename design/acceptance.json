@@ -1,0 +1,1183 @@
+{
+  "schema_version": 2,
+  "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+  "status": "agent-reviewed",
+  "owner_verdict": {
+    "status": "not-reviewed",
+    "evidence": "The owner rejected the earlier direction and requested a fresh independent redesign. No owner review of this replacement has occurred."
+  },
+  "blockers": [],
+  "scope": "Visual and local functional acceptance of the admin paper-register surface. Production deployment, backfill readiness, real-request recovery and hosted verification remain release gates; this record does not assert their completion.",
+  "perception_packet": {
+    "product_object": "One durable paper record connecting requirements, current work, conversation and immutable completed versions.",
+    "user_job": "Submit a requirement, find it later, answer the current question, and open the correct completed paper and separate key.",
+    "screen_state": "Register, new requirement, current clarification, queued revision with prior output, failure, historical retrieval, saved viewer and printable output across desktop and mobile.",
+    "eye_path": "Paper identity and state, current required action or available completed version, then original requirement and earlier activity.",
+    "outcome_100ms": "Hypothesis: the paper/task or register dominates; no measured timing claim.",
+    "outcome_1s": "Hypothesis: the admin identifies the current state; no measured comprehension claim.",
+    "outcome_5s": "Hypothesis: the next action or print route is clear; no measured usability claim."
+  },
+  "critical_dimensions": {
+    "product_meaning": "Information hierarchy; natural-language request and durable paper object; current task before history.",
+    "action_clarity": "Exact clarification and primary answer visible on 390px without traversing history; clear return from notification.",
+    "async_truth": "Observed state or next scheduled opportunity, no fake completion time/progress; truthful loading, error and unsent state.",
+    "durable_retrieval": "Global historical retrieval, distinguishing identity, full dates, bounded continuation and history context.",
+    "output_continuity": "Completed version remains available with active revision; separate paper/key; immutable selected output identity carried to print.",
+    "mobile_layout": "320/390px reachability, readable controls and typography, no horizontal dependency, useful action hierarchy.",
+    "visual_craft": "Compact density, readable typography, coherent composition and visual continuity with selected C."
+  },
+  "roles": {
+    "designer": "/root/question_completion_implementation",
+    "visual_critic": "/root/question_completion_critic",
+    "parent": "/root",
+    "qa": "/root/release_qa"
+  },
+  "role_provenance": {
+    "original_clean_slate_designer": "/root/independent_admin_journey and /root/clean_slate_question_design; see frozen proposal and direction records",
+    "blind_selector": "/root/blind_direction_selector",
+    "stronger_implementation": "/root/stronger_round_three",
+    "final_evidence_assembler": "/root/release_completion; no visual scoring or application edits"
+  },
+  "baseline": {
+    "description": "Rejected paper-chat interface, retained for comparison. By explicit user instruction, original independent designer and blind selector saw no baseline, existing app or parent ideas. Continuation critic and parent compared the baseline only after the original direction was frozen.",
+    "evidence": {
+      "path": "design/paper-register/baseline/previous-chat-desktop.png",
+      "sha256": "d8c54b0b25599cbc670728a97fe1cfde3c3970e06475a48f99329d3f75016ae1"
+    }
+  },
+  "comparisons": [
+    {
+      "reference": "linear-inbox",
+      "matched_task_state": "Actionable update list separate from underlying durable record",
+      "observed_gap": "Linear's rows offer denser secondary context. Current Updates uses simple title/event/time rows, sufficient for the demonstrated two events; selection now reveals the current record.",
+      "disposition": "Retain concise update treatment; no requirement to imitate palette or notification lifecycle.",
+      "evidence": {
+        "path": "design/paper-register/independent/references/linear-inbox.png",
+        "sha256": "2af0ef9c8493bef7b3b34fb285de31c259f9cca4bf0f6fa0f56319b6f4a955bf"
+      }
+    },
+    {
+      "reference": "intercom-shared-ticket",
+      "matched_task_state": "Stable record identity attached to conversation and current state",
+      "observed_gap": "Intercom keeps properties and conversation simultaneously visible. This paper flow intentionally puts the current task first and discloses prior activity; both identity and action remain clear.",
+      "disposition": "Retain task-first record composition and corrected notification return.",
+      "evidence": {
+        "path": "design/paper-register/independent/references/intercom-shared-ticket.webp",
+        "sha256": "30980572dd79358302f1608b335d490c92c0d5eed012d900c2261de48d38c224"
+      }
+    },
+    {
+      "reference": "google-drive-filters",
+      "matched_task_state": "Prominent persistent retrieval controls and explicit scope",
+      "observed_gap": "Drive exposes richer visible facets. This implementation offers supported word search, status and creator scope with continuation/end context; it is less expressive but truthful.",
+      "disposition": "Retain supported retrieval controls. Do not fabricate academic/date facets merely to imitate reference.",
+      "evidence": {
+        "path": "design/paper-register/independent/references/google-drive-filters.png",
+        "sha256": "cb92193c08b8981c94f47c0580b05b469899c2fed63baefd39e19e4b4fc4fd7f"
+      }
+    }
+  ],
+  "direction_mode": "new-or-reset",
+  "direction_candidates": [
+    {
+      "id": "A",
+      "visual_difference": "Conversation-first composition with recent chats as entry.",
+      "evidence": {
+        "path": "design/paper-register/independent/renders/neutral-A-desktop.png",
+        "sha256": "98ecf70258c2a6a358b8cba65f689495da5277409f44e05daa416f8cfb5ecd1a"
+      }
+    },
+    {
+      "id": "B",
+      "visual_difference": "Status/work queue arranged into parallel workflow lanes.",
+      "evidence": {
+        "path": "design/paper-register/independent/renders/neutral-B-desktop.png",
+        "sha256": "9561a6ad83bc62ee7e0a10b6db6b39c1ff676d4085c1c01e581a284e841b1665"
+      }
+    },
+    {
+      "id": "C",
+      "visual_difference": "Durable register with compact cross-record scanning and separate record detail.",
+      "evidence": {
+        "path": "design/paper-register/independent/renders/neutral-C-desktop.png",
+        "sha256": "b0cdba55da941e3d41c98da5f0fb16178d7ed3b5dad8086014c70d4f8738b3e5"
+      }
+    }
+  ],
+  "selected_direction": {
+    "id": "C",
+    "reason": "Independent neutral-image selector chose the stable register for years of retrieval and visible revision/output relationship. The original exploratory recommendation was not passed to the clean selector.",
+    "decision": {
+      "path": "design/paper-register/independent/clean-selection-review.md",
+      "sha256": "4c39e66f656397ad42ecda9d557a0c49e51f024edb0862c0eae1a0b6becfce1b"
+    }
+  },
+  "required_states": [
+    {
+      "id": "register-1440",
+      "marker": "Requests and completed papers, together.",
+      "viewport": "desktop"
+    },
+    {
+      "id": "register-390",
+      "marker": "Requests and completed papers, together.",
+      "viewport": "mobile"
+    },
+    {
+      "id": "new-1440",
+      "marker": "What should the paper include?",
+      "viewport": "desktop"
+    },
+    {
+      "id": "new-390",
+      "marker": "What should the paper include?",
+      "viewport": "mobile"
+    },
+    {
+      "id": "clarification-1440",
+      "marker": "Should this paper total 40 or 44 marks? Your pattern adds up to 44.",
+      "viewport": "desktop"
+    },
+    {
+      "id": "clarification-390",
+      "marker": "Should this paper total 40 or 44 marks? Your pattern adds up to 44.",
+      "viewport": "mobile"
+    },
+    {
+      "id": "revision-1440",
+      "marker": "Request 2 · Queued",
+      "viewport": "desktop"
+    },
+    {
+      "id": "revision-390",
+      "marker": "Request 2 · Queued",
+      "viewport": "mobile"
+    },
+    {
+      "id": "completed-1440",
+      "marker": "Version 1 · ready to print",
+      "viewport": "desktop"
+    },
+    {
+      "id": "completed-390",
+      "marker": "Version 1 · ready to print",
+      "viewport": "mobile"
+    },
+    {
+      "id": "failure-1440",
+      "marker": "This request could not finish",
+      "viewport": "desktop"
+    },
+    {
+      "id": "failure-390",
+      "marker": "This request could not finish",
+      "viewport": "mobile"
+    },
+    {
+      "id": "search-results-1440",
+      "marker": "All matching papers shown · 2 records in this view",
+      "viewport": "desktop"
+    },
+    {
+      "id": "search-results-390",
+      "marker": "All matching papers shown · 2 records in this view",
+      "viewport": "mobile"
+    },
+    {
+      "id": "no-results-1440",
+      "marker": "No matching papers",
+      "viewport": "desktop"
+    },
+    {
+      "id": "no-results-390",
+      "marker": "No matching papers",
+      "viewport": "mobile"
+    },
+    {
+      "id": "query-loading-1440",
+      "marker": "Loading papers…",
+      "viewport": "desktop"
+    },
+    {
+      "id": "query-loading-390",
+      "marker": "Loading papers…",
+      "viewport": "mobile"
+    },
+    {
+      "id": "query-error-1440",
+      "marker": "Papers could not update. Reconnect and try again.",
+      "viewport": "desktop"
+    },
+    {
+      "id": "query-error-390",
+      "marker": "Papers could not update. Reconnect and try again.",
+      "viewport": "mobile"
+    },
+    {
+      "id": "send-error-1440",
+      "marker": "This request could not be saved. Your text is kept. Try again when connected.",
+      "viewport": "desktop"
+    },
+    {
+      "id": "send-error-390",
+      "marker": "This request could not be saved. Your text is kept. Try again when connected.",
+      "viewport": "mobile"
+    },
+    {
+      "id": "first-request-empty-view-1440",
+      "marker": "No papers created by you yet",
+      "viewport": "desktop"
+    },
+    {
+      "id": "first-request-empty-view-390",
+      "marker": "No papers created by you yet",
+      "viewport": "mobile"
+    },
+    {
+      "id": "saved-paper-1440",
+      "marker": "Print paper / Save PDF",
+      "viewport": "desktop"
+    },
+    {
+      "id": "saved-paper-390",
+      "marker": "Print paper / Save PDF",
+      "viewport": "mobile"
+    },
+    {
+      "id": "saved-key-1440",
+      "marker": "Print answer key / Save PDF",
+      "viewport": "desktop"
+    },
+    {
+      "id": "saved-key-390",
+      "marker": "Print answer key / Save PDF",
+      "viewport": "mobile"
+    },
+    {
+      "id": "register-320",
+      "marker": "Requests and completed papers, together.",
+      "viewport": "mobile"
+    },
+    {
+      "id": "clarification-320",
+      "marker": "Should this paper total 40 or 44 marks? Your pattern adds up to 44.",
+      "viewport": "mobile"
+    },
+    {
+      "id": "revision-320",
+      "marker": "Request 2 · Queued",
+      "viewport": "mobile"
+    },
+    {
+      "id": "saved-paper-320",
+      "marker": "Print paper / Save PDF",
+      "viewport": "mobile"
+    },
+    {
+      "id": "pdf-paper-page-1",
+      "marker": "Saved paper ID: visual-v1-geography-v1 · Version 1; student copy",
+      "viewport": "desktop"
+    },
+    {
+      "id": "pdf-key-page-1",
+      "marker": "Saved paper ID: visual-v1-geography-v1 · Version 1; teacher answer key",
+      "viewport": "desktop"
+    },
+    {
+      "id": "saved-legacy-390",
+      "marker": "Version not recorded",
+      "viewport": "mobile"
+    },
+    {
+      "id": "notification-return-390",
+      "marker": "Should this paper total 40 or 44 marks? Your pattern adds up to 44.",
+      "viewport": "mobile"
+    },
+    {
+      "id": "results-end-390",
+      "marker": "All matching papers shown · 65 records in this view",
+      "viewport": "mobile"
+    },
+    {
+      "id": "history-beginning-390",
+      "marker": "Beginning of saved activity reached.",
+      "viewport": "mobile"
+    },
+    {
+      "id": "multiple-pages-390",
+      "marker": "59 records shown",
+      "viewport": "mobile"
+    },
+    {
+      "id": "long-record-390",
+      "marker": "Class 12 Physics — Electromagnetic induction, alternating current and electromagnetic waves",
+      "viewport": "mobile"
+    }
+  ],
+  "evidence": [
+    {
+      "state": "register-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Requests and completed papers, together.",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/register-1440.png",
+      "sha256": "f84cc3076a092a897c5bd4ea2fe2e70fd05349c8f66a6538eff1d30c74536e6f",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "register-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Requests and completed papers, together.",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/register-390.png",
+      "sha256": "bd272ab4837baf8bea269a10cf6b3d0d8e9aa7f027b9e40f0552e0a305d6ef79",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "new-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "What should the paper include?",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/new-1440.png",
+      "sha256": "5bf94b16f4cc8a3feb5369a7f3bee8840db75d28ee2c14bc08ea680bd0b1e111",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "new-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "What should the paper include?",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/new-390.png",
+      "sha256": "ac00890d953db7966a1c82c184059c630d3a50bb7a88ea4f0cb7c4b7fe55f336",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "clarification-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Should this paper total 40 or 44 marks? Your pattern adds up to 44.",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/clarification-1440.png",
+      "sha256": "b583a87afc5c8e0ec63997bd5c799c2727d301c89d91c7cfed01b34d84e0021e",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "clarification-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Should this paper total 40 or 44 marks? Your pattern adds up to 44.",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/clarification-390.png",
+      "sha256": "08fe4c8e23c25014fb342445798fb5f24900f20cef5f258ea98573a263e99bd6",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "revision-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Request 2 · Queued",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/revision-1440.png",
+      "sha256": "7c9ec2417fe0b60ff23ad38ee9390cee48157d71527f84855437ddb927c44d31",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "revision-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Request 2 · Queued",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/revision-390.png",
+      "sha256": "a91df3ebce851394e003cefd1be33d0772ea3f9f72121a3cde33b3b4a254709c",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "completed-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Version 1 · ready to print",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/completed-1440.png",
+      "sha256": "e85f607a84da749c2a1f357f066d6c50931509cc82e7d1ec736c1b6589433670",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "completed-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Version 1 · ready to print",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/completed-390.png",
+      "sha256": "d7395792a6f19a50153a7077b0341054240910b24eff26b30ce15441a83d5b53",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "failure-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "This request could not finish",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/failure-1440.png",
+      "sha256": "e45ec9bbfd98d1028070501736fb19f257a99428cf04d2056b0f4ce755c14a36",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "failure-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "This request could not finish",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/failure-390.png",
+      "sha256": "ad292ced7653e8faf5a2280384b3504f738959afeb8510b6571732a7369fb909",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "search-results-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "All matching papers shown · 2 records in this view",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/search-results-1440.png",
+      "sha256": "4cff17db410fb1f760a7ede2ee49d86b9fbabbfb9c6442bfe23c6d771c449eff",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "search-results-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "All matching papers shown · 2 records in this view",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/search-results-390.png",
+      "sha256": "74792a2fb02cf566371024cd37f1b82f14729cf79dd4678b70c304d7d4602443",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "no-results-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "No matching papers",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/no-results-1440.png",
+      "sha256": "e96bbff8b7873cc4f6f6c2931fc016778c2ffbd9aa6ba52bf89372d74297e084",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "no-results-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "No matching papers",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/no-results-390.png",
+      "sha256": "9354f5dc9a8d3bceea908624fdd942e53c7bb945a9bbd5a8266d627029ef95c5",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "query-loading-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Loading papers…",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/query-loading-1440.png",
+      "sha256": "6e37db4de0a88a27706e08c0f5668308b55762832bbfebef18f3216f6adfc201",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "query-loading-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Loading papers…",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/query-loading-390.png",
+      "sha256": "030dd80cc306df6efe5da1dbc7bcea311e061badbd0e95c209e810a00be39b7a",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "query-error-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Papers could not update. Reconnect and try again.",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/query-error-1440.png",
+      "sha256": "7c52586729175af02589556397fd84e7b9328dd687610d6cbb1a7f6eafbec74d",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "query-error-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Papers could not update. Reconnect and try again.",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/query-error-390.png",
+      "sha256": "4934f6a7e63721df081a787cd87557af49eee6e6ca08981671d439fc35a9e316",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "send-error-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "This request could not be saved. Your text is kept. Try again when connected.",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/send-error-1440.png",
+      "sha256": "83bf3b00ea93deab4151da6b90801f74a3139fb34724fb758b7b363c8470c8dd",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "send-error-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "This request could not be saved. Your text is kept. Try again when connected.",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/send-error-390.png",
+      "sha256": "1e72d5d03b8b1eb1dcca3bf16ea4c0b19269ef1dfac14c8522eb9816e2716654",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "first-request-empty-view-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "No papers created by you yet",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/first-request-empty-view-1440.png",
+      "sha256": "4c5ee0664c22e6dc1ea4ff741ebc8ec2d71390486da1b5c1f948e392cac8c903",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "first-request-empty-view-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "No papers created by you yet",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/first-request-empty-view-390.png",
+      "sha256": "e20ae34951da753dd29afbc7ee9f474ca2f65e9814b0581165b7a2016f62b8a5",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "saved-paper-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Print paper / Save PDF",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/saved-paper-1440.png",
+      "sha256": "d4a67af4b99f4234ab79fbbc7865448b45d7f16163877380a328f0d1a40440f7",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "saved-paper-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Print paper / Save PDF",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/saved-paper-390.png",
+      "sha256": "98faacd0c18d7e8fdec87402ded81462f73450f0125b91ac25b4778aced135bb",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "saved-key-1440",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Print answer key / Save PDF",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/saved-key-1440.png",
+      "sha256": "f5f2371c6854028e9b737f327564239e2d1dc13d95e41d4339a553562bb0adf2",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "saved-key-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Print answer key / Save PDF",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/saved-key-390.png",
+      "sha256": "5ea37e54f3e9b859dfa57a513a6a94bf82f4f0257a0edccc7d43f7954d29865a",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "register-320",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Requests and completed papers, together.",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/register-320.png",
+      "sha256": "9c22ad3a24589cedefe9d3903ba8e70ad4f9f839c4a441b6c063d12d73d7af77",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "clarification-320",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Should this paper total 40 or 44 marks? Your pattern adds up to 44.",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/clarification-320.png",
+      "sha256": "9920b4abd187ab9d839830ae8dbbea6d2265c660001b614c6998850ad1fa0b02",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "revision-320",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Request 2 · Queued",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/revision-320.png",
+      "sha256": "883611cee57cf0a2a04fd6e546f61324242ff6950ce4e589ef95272c2e3314de",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "saved-paper-320",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Print paper / Save PDF",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/saved-paper-320.png",
+      "sha256": "1c66fe47728e256484352f2afd57d4ac9ad7fa65108d592ee1055400d4c76b6e",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "pdf-paper-page-1",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Saved paper ID: visual-v1-geography-v1 · Version 1; student copy",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/pdf-paper-page-1.png",
+      "sha256": "9d1eebcc305d9138f6fffb868d692652de1878098ac338615f0ad8ba031fb338",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "pdf-key-page-1",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Saved paper ID: visual-v1-geography-v1 · Version 1; teacher answer key",
+      "viewport": "desktop",
+      "path": "design/paper-register/round-5/pdf-key-page-1.png",
+      "sha256": "4713957c092e9b675e548820787fd705c32274cb9fd861e4abb53e5e814f2194",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "saved-legacy-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Version not recorded",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/saved-legacy-390.png",
+      "sha256": "1d150c46b7efa374b5d6278819404b2465347f2f215f5879811abae21b0738a7",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "notification-return-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Should this paper total 40 or 44 marks? Your pattern adds up to 44.",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/notification-return-390.png",
+      "sha256": "57da2381814ea47892bcdb067d3e110cd2dbbc42b19df5e27dddbbe140029d71",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "results-end-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "All matching papers shown · 65 records in this view",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/results-end-390.png",
+      "sha256": "b809de07776d69dd7bbc24f22f145d73ccfc5f2a13e2523417819deb61b1cc0a",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "history-beginning-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Beginning of saved activity reached.",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/history-beginning-390.png",
+      "sha256": "1dc9dc0ba48f23d516ab59d48a6289d151c62be6065536f0a4a26ebc07556bae",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "multiple-pages-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "59 records shown",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/multiple-pages-390.png",
+      "sha256": "8927b68d6b81f4df783914d1431d2a24f6afd2a639929e958476bf7c665217b2",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    },
+    {
+      "state": "long-record-390",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "observed_marker": "Class 12 Physics — Electromagnetic induction, alternating current and electromagnetic waves",
+      "viewport": "mobile",
+      "path": "design/paper-register/round-5/long-record-390.png",
+      "sha256": "e47963d05530262ab280de1feb34a0f3b6344a4093b027987589d62c298cf347",
+      "checks": {
+        "state_identity": true,
+        "overflow": false,
+        "broken_images": false,
+        "page_errors": false
+      }
+    }
+  ],
+  "coverage_note": "Forty normalized formal states drawn from the required core desktop/mobile, narrow 320px, retrieval, output, loading/error/empty categories. Parent personally viewed all forty plus five supplementary final captures; critic all seventy-three. QA review here means source/render identity and functional checks, not an invented personal visual score. Two PDF state checks refer to actual page rasters; browser errors and DOM overflow are not applicable to static PDF pages. No broken image is visible in these text-paper fixtures.",
+  "cycles": [
+    {
+      "id": 1,
+      "visual_finding": "Initial register/new/detail implementation established the durable family; actual renders exposed navigation occlusion, missing icon font, fragmented narrow labels and excessive spacing. Independent visual overall 5.6.",
+      "qa_finding": "Independent repository QA found a same-operation concurrent replay can save correctly yet report PERMISSION_DENIED. Core historical lookup and preserved links passed after retained locator correction.",
+      "evidence": {
+        "path": "design/paper-register/round-1/register-1440.png",
+        "sha256": "15fb9ff45de5305e9deb82d8a43c459dc3ca1bc37e4fb962426f6499700365c7"
+      },
+      "visual_review": {
+        "path": "design/paper-register/round-1/independent-critic-review.json",
+        "sha256": "cc216240e7a5607f5d65c85995a651cd592b8bab7a7e860fb0cee45be0792c5a"
+      }
+    },
+    {
+      "id": 2,
+      "visual_finding": "Repaired fixed-rail spacing, local icon loading, record identity, schedule wording and ready-output access. Independent visual overall 7.3; compact mobile typography and historical states remained below target.",
+      "qa_finding": "Replay correction passed. Independent 161-message and delayed-response tests exposed inaccessible earliest history and cross-record late history/version/send contamination.",
+      "evidence": {
+        "path": "design/paper-register/round-2/register-1440.png",
+        "sha256": "76e2665b59645865860077a7fad966c4b5bb978f0ade8250feed4b7a8f03bfb2"
+      },
+      "visual_review": {
+        "path": "design/paper-register/round-2/independent-critic-review.json",
+        "sha256": "bdfedba80242d8f5760cd802feb3519821f257bdb38ada34d8433437d161d3a2"
+      }
+    },
+    {
+      "id": 3,
+      "visual_finding": "Stronger round-three pass tightened typography, task-first clarification, available-output hierarchy and responsive geometry. Independent visual overall 8 but retrieval 7.5; parent retrieval 7 required concrete historical and boundary states.",
+      "qa_finding": "History and cross-record race repairs passed. Independent QA still found permission-denial loading stuck, register return-context loss and unreachable mobile Bank tools.",
+      "evidence": {
+        "path": "design/paper-register/round-3/register-1440.png",
+        "sha256": "d999feeeefb5c698191705e934a52d0f06318321789e27ce734484ca33e21583"
+      },
+      "visual_review": {
+        "path": "design/paper-register/round-3/independent-critic-review.json",
+        "sha256": "baaa3df69efa6f54939d02cf4a6d8e4090896c055d1a95043984d69a2d37b29a"
+      }
+    },
+    {
+      "id": 4,
+      "visual_finding": "Added historical same-title retrieval, pagination and beginning/end context, loading/empty/error evidence, saved paper/key and notification navigation. Visual overall 7.8: output identity missing, mobile Updates overlay persisted, blank Mine guidance misleading and viewer styling disconnected.",
+      "qa_finding": "Cache, navigation, paging and CLI continuation passed. Independent authorization checks exposed a saved answer iframe and Print surviving live role loss, cross-tab learner switch and a held authorized read.",
+      "evidence": {
+        "path": "design/paper-register/round-4/register-1440.png",
+        "sha256": "a8d957a20e6f448d4885bb4589db5baf540f0b7076cc89f9bf51e1aab8a23d3a"
+      },
+      "visual_review": {
+        "path": "design/paper-register/round-4/independent-critic-review.json",
+        "sha256": "e76e967f0cc94f348d58e2abaed015e87a38cac3a3a0bac035928185ebcc1c23"
+      }
+    },
+    {
+      "id": 5,
+      "visual_finding": "Corrected recorded output identity in viewer and actual PDF, closed Updates before navigation, added truthful first-request Mine guidance and coherent green viewer shell. Actual production-bundle render set passed independent visual review at 8.1 with every critical dimension >=8.",
+      "qa_finding": "Independent production journeys, role/account removal, delayed-read race, continuity/cache, timestamp ordering and final synchronous runtime adapter/gateway/publication/register checks pass. A reused-project fixture failure is retained alongside unchanged isolated-project PASS; production deployment remains a distinct gate.",
+      "evidence": {
+        "path": "design/paper-register/round-5/register-1440.png",
+        "sha256": "f84cc3076a092a897c5bd4ea2fe2e70fd05349c8f66a6538eff1d30c74536e6f"
+      },
+      "visual_review": {
+        "path": "design/paper-register/round-5/independent-critic-review.json",
+        "sha256": "2a06f50891a4fb26d7af3f4bf3add0acf7d19b04b1f1cc6e7ac58949da304fc1"
+      }
+    }
+  ],
+  "parent_checkpoints": [
+    {
+      "cycle": 3,
+      "judgment": "Substantive visual improvement and credible selected direction. Continue to rounds4–5; no acceptance yet.",
+      "evidence": {
+        "path": "design/paper-register/round-3/register-1440.png",
+        "sha256": "d999feeeefb5c698191705e934a52d0f06318321789e27ce734484ca33e21583"
+      },
+      "record": {
+        "path": "design/paper-register/round-3/parent-checkpoint.json",
+        "sha256": "0427e6a4205fee7345a7d949eeaf0ff54f8b4f84d15304242e3f8f7e482c3a77"
+      }
+    },
+    {
+      "cycle": 5,
+      "judgment": "The current register and task-first detail form a coherent, usable admin journey. Visual pass for the personally viewed actual production-bundle states; technical deployment acceptance remains separate.",
+      "evidence": {
+        "path": "design/paper-register/round-5/register-1440.png",
+        "sha256": "f84cc3076a092a897c5bd4ea2fe2e70fd05349c8f66a6538eff1d30c74536e6f"
+      },
+      "record": {
+        "path": "design/paper-register/round-5/parent-checkpoint.json",
+        "sha256": "2a0f91dc6b095bbfabf175906098d3885e5f26dd0700ed2193f4a88f84834447"
+      }
+    }
+  ],
+  "designer_capability_record": "Separate clean designer and blind selector used inherited available model capability. Actual randomly selected stronger implementation pass: round 3, /root/stronger_round_three, gpt-6-astra with high reasoning. Retained stronger-designer-review.json records scope and exact edited files. Final source-only rebindings are neither new cycles nor new visual scores.",
+  "reviews": {
+    "visual_critic": {
+      "reviewer": "/root/question_completion_critic",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "verdict": "pass",
+      "overall": 8.1,
+      "scores": {
+        "product_meaning": 8.2,
+        "action_clarity": 8.2,
+        "async_truth": 8,
+        "durable_retrieval": 8,
+        "output_continuity": 8.2,
+        "mobile_layout": 8,
+        "visual_craft": 8
+      },
+      "inspected_sha256": [
+        "f84cc3076a092a897c5bd4ea2fe2e70fd05349c8f66a6538eff1d30c74536e6f",
+        "bd272ab4837baf8bea269a10cf6b3d0d8e9aa7f027b9e40f0552e0a305d6ef79",
+        "5bf94b16f4cc8a3feb5369a7f3bee8840db75d28ee2c14bc08ea680bd0b1e111",
+        "ac00890d953db7966a1c82c184059c630d3a50bb7a88ea4f0cb7c4b7fe55f336",
+        "b583a87afc5c8e0ec63997bd5c799c2727d301c89d91c7cfed01b34d84e0021e",
+        "08fe4c8e23c25014fb342445798fb5f24900f20cef5f258ea98573a263e99bd6",
+        "7c9ec2417fe0b60ff23ad38ee9390cee48157d71527f84855437ddb927c44d31",
+        "a91df3ebce851394e003cefd1be33d0772ea3f9f72121a3cde33b3b4a254709c",
+        "e85f607a84da749c2a1f357f066d6c50931509cc82e7d1ec736c1b6589433670",
+        "d7395792a6f19a50153a7077b0341054240910b24eff26b30ce15441a83d5b53",
+        "e45ec9bbfd98d1028070501736fb19f257a99428cf04d2056b0f4ce755c14a36",
+        "ad292ced7653e8faf5a2280384b3504f738959afeb8510b6571732a7369fb909",
+        "4cff17db410fb1f760a7ede2ee49d86b9fbabbfb9c6442bfe23c6d771c449eff",
+        "74792a2fb02cf566371024cd37f1b82f14729cf79dd4678b70c304d7d4602443",
+        "e96bbff8b7873cc4f6f6c2931fc016778c2ffbd9aa6ba52bf89372d74297e084",
+        "9354f5dc9a8d3bceea908624fdd942e53c7bb945a9bbd5a8266d627029ef95c5",
+        "6e37db4de0a88a27706e08c0f5668308b55762832bbfebef18f3216f6adfc201",
+        "030dd80cc306df6efe5da1dbc7bcea311e061badbd0e95c209e810a00be39b7a",
+        "7c52586729175af02589556397fd84e7b9328dd687610d6cbb1a7f6eafbec74d",
+        "4934f6a7e63721df081a787cd87557af49eee6e6ca08981671d439fc35a9e316",
+        "83bf3b00ea93deab4151da6b90801f74a3139fb34724fb758b7b363c8470c8dd",
+        "1e72d5d03b8b1eb1dcca3bf16ea4c0b19269ef1dfac14c8522eb9816e2716654",
+        "4c5ee0664c22e6dc1ea4ff741ebc8ec2d71390486da1b5c1f948e392cac8c903",
+        "e20ae34951da753dd29afbc7ee9f474ca2f65e9814b0581165b7a2016f62b8a5",
+        "d4a67af4b99f4234ab79fbbc7865448b45d7f16163877380a328f0d1a40440f7",
+        "98faacd0c18d7e8fdec87402ded81462f73450f0125b91ac25b4778aced135bb",
+        "f5f2371c6854028e9b737f327564239e2d1dc13d95e41d4339a553562bb0adf2",
+        "5ea37e54f3e9b859dfa57a513a6a94bf82f4f0257a0edccc7d43f7954d29865a",
+        "9c22ad3a24589cedefe9d3903ba8e70ad4f9f839c4a441b6c063d12d73d7af77",
+        "9920b4abd187ab9d839830ae8dbbea6d2265c660001b614c6998850ad1fa0b02",
+        "883611cee57cf0a2a04fd6e546f61324242ff6950ce4e589ef95272c2e3314de",
+        "1c66fe47728e256484352f2afd57d4ac9ad7fa65108d592ee1055400d4c76b6e",
+        "9d1eebcc305d9138f6fffb868d692652de1878098ac338615f0ad8ba031fb338",
+        "4713957c092e9b675e548820787fd705c32274cb9fd861e4abb53e5e814f2194",
+        "1d150c46b7efa374b5d6278819404b2465347f2f215f5879811abae21b0738a7",
+        "57da2381814ea47892bcdb067d3e110cd2dbbc42b19df5e27dddbbe140029d71",
+        "b809de07776d69dd7bbc24f22f145d73ccfc5f2a13e2523417819deb61b1cc0a",
+        "1dc9dc0ba48f23d516ab59d48a6289d151c62be6065536f0a4a26ebc07556bae",
+        "8927b68d6b81f4df783914d1431d2a24f6afd2a639929e958476bf7c665217b2",
+        "e47963d05530262ab280de1feb34a0f3b6344a4093b027987589d62c298cf347"
+      ],
+      "reason": "New paper presents one real free-text request. Register and record foreground the paper, exact action and separate completed outputs. The empty Mine state now explains creator scope and provides an appropriate direct action. At 390px the complete marks-conflict question, answer field and Send reply fit before request/history; the same order holds at 320px. Notification selection closes Updates and reveals the destination title and active clarification. Blank-query Mine no longer instructs trying different search words. Next opportunity includes date and IST, and explanatory copy distinguishes a start opportunity from completion. Waiting after an earlier opportunity is acknowledged. Loading, query failure, no results and failed submission have visibly different explanations. The failed-send capture retains the actual input. Legacy output explicitly says Version not recorded. Two identical long academic titles retain distinct shortened IDs and full 2024/2022 dates, with Copy ID in detail. Continue search shows 59 loaded records and the exhausted result shows all 65. History shows 150 activity/100 request context, then 161/161 and beginning reached, including the 2011 original at desktop. Whole-word and eight-word limitations remain explicit. The science record simultaneously shows Version 1 ready and Request 2 queued, with separate links and an active revision section. Paper/key viewer and actual PDF page rasters show the same saved paper ID visual-v1-geography-v1 and recorded Version 1, with clearly separate student and teacher content. Fixture inspection links that immutable saved row to the originating geography record and request revision 1. Saved paper ID is honestly the artifact identity, not mislabeled as the conversation identity. All four register views and Bank tools remain visible. Text and long titles wrap within one column; reply and output controls remain legible at 320px. Narrow notification return exposes the current object. Desktop rows translate into stacked records rather than compressed columns. The saved viewer now uses the same green controls, quiet paper background, typography and reduced navigation as the record journey. The redundant Saved paper hero and blue tab layer are removed. Document-level headings and identity remain distinct from the workspace controls. Amber clarification, green saved output and restrained failure treatment carry actual meaning.",
+      "generic_cues": [
+        "justified: They separate different objects and actions; the older version does not masquerade as the active request.",
+        "resolved: Current shell removes the extra hero and aligns the controls with the green workspace. Repeated document title inside the immutable printable page is purposeful, not another competing app hero.",
+        "justified: Simple status content matches an operational register. Copy now distinguishes blank creator scope, a searched no-match result, loading and failed access."
+      ],
+      "record": {
+        "path": "design/paper-register/round-5/independent-critic-review.json",
+        "sha256": "2a06f50891a4fb26d7af3f4bf3add0acf7d19b04b1f1cc6e7ac58949da304fc1"
+      },
+      "rebind": {
+        "path": "design/paper-register/round-5/independent-critic-rebind.json",
+        "sha256": "a26d11b9edbfbc5446fb9c5a9a948d3a1dde9cc24e82e03f73a208dee3245d87"
+      }
+    },
+    "parent": {
+      "reviewer": "/root",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "verdict": "pass",
+      "overall": 8.1,
+      "scores": {
+        "product_meaning": 8.2,
+        "action_clarity": 8.2,
+        "async_truth": 8.2,
+        "durable_retrieval": 8,
+        "output_continuity": 8.3,
+        "mobile_layout": 8,
+        "visual_craft": 8
+      },
+      "inspected_sha256": [
+        "f84cc3076a092a897c5bd4ea2fe2e70fd05349c8f66a6538eff1d30c74536e6f",
+        "bd272ab4837baf8bea269a10cf6b3d0d8e9aa7f027b9e40f0552e0a305d6ef79",
+        "5bf94b16f4cc8a3feb5369a7f3bee8840db75d28ee2c14bc08ea680bd0b1e111",
+        "ac00890d953db7966a1c82c184059c630d3a50bb7a88ea4f0cb7c4b7fe55f336",
+        "b583a87afc5c8e0ec63997bd5c799c2727d301c89d91c7cfed01b34d84e0021e",
+        "08fe4c8e23c25014fb342445798fb5f24900f20cef5f258ea98573a263e99bd6",
+        "7c9ec2417fe0b60ff23ad38ee9390cee48157d71527f84855437ddb927c44d31",
+        "a91df3ebce851394e003cefd1be33d0772ea3f9f72121a3cde33b3b4a254709c",
+        "e85f607a84da749c2a1f357f066d6c50931509cc82e7d1ec736c1b6589433670",
+        "d7395792a6f19a50153a7077b0341054240910b24eff26b30ce15441a83d5b53",
+        "e45ec9bbfd98d1028070501736fb19f257a99428cf04d2056b0f4ce755c14a36",
+        "ad292ced7653e8faf5a2280384b3504f738959afeb8510b6571732a7369fb909",
+        "4cff17db410fb1f760a7ede2ee49d86b9fbabbfb9c6442bfe23c6d771c449eff",
+        "74792a2fb02cf566371024cd37f1b82f14729cf79dd4678b70c304d7d4602443",
+        "e96bbff8b7873cc4f6f6c2931fc016778c2ffbd9aa6ba52bf89372d74297e084",
+        "9354f5dc9a8d3bceea908624fdd942e53c7bb945a9bbd5a8266d627029ef95c5",
+        "6e37db4de0a88a27706e08c0f5668308b55762832bbfebef18f3216f6adfc201",
+        "030dd80cc306df6efe5da1dbc7bcea311e061badbd0e95c209e810a00be39b7a",
+        "7c52586729175af02589556397fd84e7b9328dd687610d6cbb1a7f6eafbec74d",
+        "4934f6a7e63721df081a787cd87557af49eee6e6ca08981671d439fc35a9e316",
+        "83bf3b00ea93deab4151da6b90801f74a3139fb34724fb758b7b363c8470c8dd",
+        "1e72d5d03b8b1eb1dcca3bf16ea4c0b19269ef1dfac14c8522eb9816e2716654",
+        "4c5ee0664c22e6dc1ea4ff741ebc8ec2d71390486da1b5c1f948e392cac8c903",
+        "e20ae34951da753dd29afbc7ee9f474ca2f65e9814b0581165b7a2016f62b8a5",
+        "d4a67af4b99f4234ab79fbbc7865448b45d7f16163877380a328f0d1a40440f7",
+        "98faacd0c18d7e8fdec87402ded81462f73450f0125b91ac25b4778aced135bb",
+        "f5f2371c6854028e9b737f327564239e2d1dc13d95e41d4339a553562bb0adf2",
+        "5ea37e54f3e9b859dfa57a513a6a94bf82f4f0257a0edccc7d43f7954d29865a",
+        "9c22ad3a24589cedefe9d3903ba8e70ad4f9f839c4a441b6c063d12d73d7af77",
+        "9920b4abd187ab9d839830ae8dbbea6d2265c660001b614c6998850ad1fa0b02",
+        "883611cee57cf0a2a04fd6e546f61324242ff6950ce4e589ef95272c2e3314de",
+        "1c66fe47728e256484352f2afd57d4ac9ad7fa65108d592ee1055400d4c76b6e",
+        "9d1eebcc305d9138f6fffb868d692652de1878098ac338615f0ad8ba031fb338",
+        "4713957c092e9b675e548820787fd705c32274cb9fd861e4abb53e5e814f2194",
+        "1d150c46b7efa374b5d6278819404b2465347f2f215f5879811abae21b0738a7",
+        "57da2381814ea47892bcdb067d3e110cd2dbbc42b19df5e27dddbbe140029d71",
+        "b809de07776d69dd7bbc24f22f145d73ccfc5f2a13e2523417819deb61b1cc0a",
+        "1dc9dc0ba48f23d516ab59d48a6289d151c62be6065536f0a4a26ebc07556bae",
+        "8927b68d6b81f4df783914d1431d2a24f6afd2a639929e958476bf7c665217b2",
+        "e47963d05530262ab280de1feb34a0f3b6344a4093b027987589d62c298cf347"
+      ],
+      "reason": "Paper records have searchable stable identity, dates and four visible status views. Desktop rows and narrow stacked records retain the same purpose without a growing selector. The current clarification question precedes its answer field and named Send reply action. Selecting an update exposes this task without the old popover covering it. A saved version remains usable while the revision is queued; the original/current requirement and older activity remain discoverable on the same record. New paper has one text entry with the necessary academic and paper inputs described. Failed saving retains that text; query failure, loading and creator-filtered emptiness have distinct messages and recoveries. Search results visibly distinguish old same-titled records by dates and IDs. End-of-results and beginning-of-history states make retrieval limits clear. Scale claims rely separately on QA, not these visual observations. Saved student paper and teacher key are distinct and carry recorded output identity/version into actual print output. Unknown legacy versions remain explicit. 320px views have readable current actions and visible Bank tools; color reinforces textual states without substituting for them. Additional direct desktop/mobile inspections confirm current failures and empty search states offer appropriate recovery, saved viewer remains coherent across widths, and long historical records retain actionable controls and continuation/end context.",
+      "generic_cues": [
+        "justified: Panels distinguish actionable clarification, available saved outputs and active revisions.",
+        "resolved: Titles, state labels and touch controls remain readable in the inspected narrow states.",
+        "justified: Restrained green and amber correspond to actual outcomes. No decorative charts or fabricated progress obscure work."
+      ],
+      "record": {
+        "path": "design/paper-register/round-5/parent-checkpoint.json",
+        "sha256": "2a0f91dc6b095bbfabf175906098d3885e5f26dd0700ed2193f4a88f84834447"
+      }
+    },
+    "qa": {
+      "reviewer": "/root/release_qa",
+      "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+      "verdict": "pass",
+      "inspected_sha256": [
+        "f84cc3076a092a897c5bd4ea2fe2e70fd05349c8f66a6538eff1d30c74536e6f",
+        "bd272ab4837baf8bea269a10cf6b3d0d8e9aa7f027b9e40f0552e0a305d6ef79",
+        "5bf94b16f4cc8a3feb5369a7f3bee8840db75d28ee2c14bc08ea680bd0b1e111",
+        "ac00890d953db7966a1c82c184059c630d3a50bb7a88ea4f0cb7c4b7fe55f336",
+        "b583a87afc5c8e0ec63997bd5c799c2727d301c89d91c7cfed01b34d84e0021e",
+        "08fe4c8e23c25014fb342445798fb5f24900f20cef5f258ea98573a263e99bd6",
+        "7c9ec2417fe0b60ff23ad38ee9390cee48157d71527f84855437ddb927c44d31",
+        "a91df3ebce851394e003cefd1be33d0772ea3f9f72121a3cde33b3b4a254709c",
+        "e85f607a84da749c2a1f357f066d6c50931509cc82e7d1ec736c1b6589433670",
+        "d7395792a6f19a50153a7077b0341054240910b24eff26b30ce15441a83d5b53",
+        "e45ec9bbfd98d1028070501736fb19f257a99428cf04d2056b0f4ce755c14a36",
+        "ad292ced7653e8faf5a2280384b3504f738959afeb8510b6571732a7369fb909",
+        "4cff17db410fb1f760a7ede2ee49d86b9fbabbfb9c6442bfe23c6d771c449eff",
+        "74792a2fb02cf566371024cd37f1b82f14729cf79dd4678b70c304d7d4602443",
+        "e96bbff8b7873cc4f6f6c2931fc016778c2ffbd9aa6ba52bf89372d74297e084",
+        "9354f5dc9a8d3bceea908624fdd942e53c7bb945a9bbd5a8266d627029ef95c5",
+        "6e37db4de0a88a27706e08c0f5668308b55762832bbfebef18f3216f6adfc201",
+        "030dd80cc306df6efe5da1dbc7bcea311e061badbd0e95c209e810a00be39b7a",
+        "7c52586729175af02589556397fd84e7b9328dd687610d6cbb1a7f6eafbec74d",
+        "4934f6a7e63721df081a787cd87557af49eee6e6ca08981671d439fc35a9e316",
+        "83bf3b00ea93deab4151da6b90801f74a3139fb34724fb758b7b363c8470c8dd",
+        "1e72d5d03b8b1eb1dcca3bf16ea4c0b19269ef1dfac14c8522eb9816e2716654",
+        "4c5ee0664c22e6dc1ea4ff741ebc8ec2d71390486da1b5c1f948e392cac8c903",
+        "e20ae34951da753dd29afbc7ee9f474ca2f65e9814b0581165b7a2016f62b8a5",
+        "d4a67af4b99f4234ab79fbbc7865448b45d7f16163877380a328f0d1a40440f7",
+        "98faacd0c18d7e8fdec87402ded81462f73450f0125b91ac25b4778aced135bb",
+        "f5f2371c6854028e9b737f327564239e2d1dc13d95e41d4339a553562bb0adf2",
+        "5ea37e54f3e9b859dfa57a513a6a94bf82f4f0257a0edccc7d43f7954d29865a",
+        "9c22ad3a24589cedefe9d3903ba8e70ad4f9f839c4a441b6c063d12d73d7af77",
+        "9920b4abd187ab9d839830ae8dbbea6d2265c660001b614c6998850ad1fa0b02",
+        "883611cee57cf0a2a04fd6e546f61324242ff6950ce4e589ef95272c2e3314de",
+        "1c66fe47728e256484352f2afd57d4ac9ad7fa65108d592ee1055400d4c76b6e",
+        "9d1eebcc305d9138f6fffb868d692652de1878098ac338615f0ad8ba031fb338",
+        "4713957c092e9b675e548820787fd705c32274cb9fd861e4abb53e5e814f2194",
+        "1d150c46b7efa374b5d6278819404b2465347f2f215f5879811abae21b0738a7",
+        "57da2381814ea47892bcdb067d3e110cd2dbbc42b19df5e27dddbbe140029d71",
+        "b809de07776d69dd7bbc24f22f145d73ccfc5f2a13e2523417819deb61b1cc0a",
+        "1dc9dc0ba48f23d516ab59d48a6289d151c62be6065536f0a4a26ebc07556bae",
+        "8927b68d6b81f4df783914d1431d2a24f6afd2a639929e958476bf7c665217b2",
+        "e47963d05530262ab280de1feb34a0f3b6344a4093b027987589d62c298cf347"
+      ],
+      "reason": "Independent original browser/cache/rules/authorization evidence remains bound to unchanged frontend, fixture and production bundle. Current reviewer verified exact final source and affected runtime/readiness tests, gateway, publication and isolated register integration; known local transport/runtime limits are preserved. Production deployment/recovery is not established by these local results.",
+      "record": {
+        "path": "design/paper-register/round-5/qa/final-candidate-rebind.json",
+        "sha256": "fe812b901987b8b0acb16333afcf2ea3dba02621d591fef219d7d7d85182a2ff"
+      },
+      "original_record": {
+        "path": "design/paper-register/round-5/qa/round5-verdict.json",
+        "sha256": "331c113b81282750873ed534696823e9e510d1a3856b1bdebab36ffc4afb9970"
+      }
+    }
+  },
+  "candidate_record": {
+    "path": "design/paper-register/round-5/candidate.json",
+    "sha256": "8fd12ae665eb61d2b29f9308f66fad3d8e879e66e0d42076df684d90d8508f35"
+  },
+  "source_only_rebinding": {
+    "path": "design/paper-register/round-5/final-source-delta.json",
+    "sha256": "a6c2c6f7dcadb28914e5c81ddccb006c3495cd82ad4d6f11a3ffc820a30caca9"
+  },
+  "release_manifest": "design/paper-register/release-manifest.json",
+  "central_release": {
+    "path": "design/paper-register/independent/central-release.json",
+    "sha256": "a205751c64acb911b5fee6f193aaa53278e13fedcee0b8780808667f9a8433c9"
+  }
+}

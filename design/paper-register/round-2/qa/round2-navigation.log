@@ -1,0 +1,26 @@
+FAIL late earlier-history response cannot mix one record into another: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+FAIL late earlier-version response cannot replace another records saved outputs: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+FAIL late send acknowledgment keeps the current record and its new typed draft: expect(page).toHaveURL(expected) failed
+
+Expected pattern: /\/chat\/qa-journey-1791113551930-old-chat\?/
+Received string:  "http://127.0.0.1:4300/admin/question-papers/chat/qa-journey-1791113551930-late-send-390-1791114767594?emulator=1&persistentCache=1&testEmail=qa-journey-1791113551930@gtop.test&testPassword=Independent-journey-2026"
+Timeout: 5000ms
+
+Call log:
+  - Expect "toHaveURL" with timeout 5000ms
+    14 × locator resolved to <html lang="en">…</html>
+       - unexpected value "http://127.0.0.1:4300/admin/question-papers/chat/qa-journey-1791113551930-late-send-390-1791114767594?emulator=1&persistentCache=1&testEmail=qa-journey-1791113551930@gtop.test&testPassword=Independent-journey-2026"
+
+PASS restored stale draft retains its original revision check when editor reopens

@@ -17,5 +17,6 @@ describe('private active-time measurement',()=>{
     expect(usageArea('/admin/question-review?requestId=private-id')).toBe('review');
     expect(usageArea('/quiz?student=private')).toBe('');
     expect(usageArea('/admin/question-paper-generator')).toBe('paper-builder');
+    for(const route of ['/admin/question-papers','/admin/question-papers/new','/admin/question-papers/chat/private-id','/admin/question-papers/view/private-id?answers=1','/admin/question-papers/all'])expect(usageArea(route)).toBe('papers');
   });
 });

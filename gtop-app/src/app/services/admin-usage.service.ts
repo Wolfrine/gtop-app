@@ -4,14 +4,14 @@ import { doc, increment, serverTimestamp, setDoc } from '@angular/fire/firestore
 import { AuthService } from './auth.service';
 import { FirebaseClient } from '../features/question-bank/core/firebase';
 
-export type UsageEvent = 'page_view'|'paper_step'|'coverage_checked'|'paper_requested'|'paper_saved'|'paper_printed'|'review_approved'|'review_rejected'|'bank_saved'|'bank_archived'|'priority_saved'|'operation_failed';
+export type UsageEvent = 'page_view'|'paper_step'|'coverage_checked'|'paper_requested'|'paper_replied'|'paper_revised'|'paper_cancelled'|'paper_searched'|'paper_opened'|'paper_saved'|'paper_printed'|'review_approved'|'review_rejected'|'bank_saved'|'bank_archived'|'priority_saved'|'operation_failed';
 export function activeInterval(now:number, previous:number, lastInput:number, visible:boolean, focused:boolean):number {
   return visible&&focused&&now-lastInput<60_000?Math.max(0,Math.min(now-previous,15_000)):0;
 }
 export function usageArea(url:string):string {
   const path=url.split(/[?#]/)[0];
   if(path==='/admin/question-paper-generator')return 'paper-builder';
-  if(path==='/admin/question-papers')return 'papers';
+  if(path==='/admin/question-papers'||path.startsWith('/admin/question-papers/'))return 'papers';
   if(path==='/admin/question-review')return 'review';
   if(path==='/admin/question-library'||path==='/admin/mcq-management'||path==='/admin/add-mcq')return 'bank';
   if(path==='/admin/question-bank')return 'requests';

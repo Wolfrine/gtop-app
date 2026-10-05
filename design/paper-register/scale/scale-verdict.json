@@ -1,0 +1,72 @@
+{
+  "verdict": "PASS",
+  "execution": "Reviewer directly ran actual backend exports against real Firestore in isolated local demo-gtop-journey-scale; all application/CLI commands ran in one private network namespace. No production or shared UI fixture writes.",
+  "backendSha256": "a41c781298fe4f40e87682c423d43b696c2c904d9c0ed271b04ebf1179eebd17",
+  "sourceHashes": {
+    "/workspace/scratch/0a41fddf9e8a/question-journey-qa/scale-fixtures.mjs": "a0602cc5b9ba26417749b16df25a1f5258e772e2e97d983609afbac3720a50b0",
+    "/workspace/scratch/0a41fddf9e8a/question-journey-qa/scale-qa.mjs": "0c3d5ea351f7fc71be8f27581482df0803961de75978013e11eb49dae9bebc7b",
+    "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/functions/paper-register.mjs": "a41c781298fe4f40e87682c423d43b696c2c904d9c0ed271b04ebf1179eebd17"
+  },
+  "sourceDocuments": 15454,
+  "families": 10023,
+  "yearSpan": "2010\u20132025",
+  "migration": {
+    "passChecks": [
+      10000,
+      10000,
+      10000,
+      10000,
+      6362
+    ],
+    "totalChecks": 46362,
+    "ready": true,
+    "repaired": 0
+  },
+  "retrieval": {
+    "allFamilyPages": 335,
+    "uniqueFamilies": 10023,
+    "queryCalls": 340,
+    "maxCandidateLimit": 200,
+    "maxCandidateDocuments": 200,
+    "maxObservedSummaryReads": 2,
+    "maxReadinessReads": 1,
+    "assertedPerCallSummaryCeiling": 200
+  },
+  "checks": [
+    {
+      "name": "migration checkpoints beyond10k and final readiness",
+      "passed": true
+    },
+    {
+      "name": "complete genuine cursor traversal",
+      "passed": true,
+      "pages": 335,
+      "families": 10023
+    },
+    {
+      "name": "dateless oldest paper and old submitted requirement searchable",
+      "passed": true
+    },
+    {
+      "name": "duplicate family continuation reaches older match after zero-new page",
+      "passed": true,
+      "pages": 3,
+      "zeroNewPages": 1,
+      "uniqueFamilies": 2
+    }
+  ],
+  "startedAt": "2026-10-04T12:03:53.982Z",
+  "finishedAt": "2026-10-04T12:46:40.167Z",
+  "exitCode": 0,
+  "emulatorShutdown": "Confirmed normal Firebase CLI shutdown after assertions.",
+  "evidence": [
+    "scale-result.json",
+    "scale-qa.log",
+    "scale-source-identity.json"
+  ],
+  "limits": [
+    "This test exercised real indexed projections and queries, not HTTP authentication or UI rendering; separate shared-project gateway/browser tests cover that integration.",
+    "Observed summary reads peaked at2 for rare/duplicate-family searches; code/candidate bound and instrumentation enforce a ceiling200 for every tested call.",
+    "Emulator timing included concurrent host memory pressure and is not a production latency benchmark."
+  ]
+}

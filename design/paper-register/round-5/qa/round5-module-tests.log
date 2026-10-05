@@ -1,0 +1,17 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> gtop-app@0.0.0 test:module
+> vitest run --exclude "src/**/*.rules.test.ts"
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 /workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app
+
+
+ Test Files  11 passed (11)
+      Tests  81 passed (81)
+   Start at  15:08:11
+   Duration  2.71s (transform 3.11s, setup 0ms, import 6.76s, tests 452ms, environment 5.41s)
+

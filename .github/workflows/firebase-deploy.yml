@@ -58,6 +58,9 @@ jobs:
       - name: Install current application
         run: npm ci
         working-directory: gtop-app
+      - name: Install and verify local paper service for browser checks
+        run: npm ci && npm test
+        working-directory: gtop-app/functions
       - name: Validate module logic and backend permissions
         run: npm run test:module && npm run test:rules && npm run test:database-rules
         working-directory: gtop-app
@@ -93,12 +96,15 @@ jobs:
     needs: [reviewed-backend, build-and-verify]
     if: >-
       always() && !cancelled() && needs.build-and-verify.result == 'success' &&
-      (needs.reviewed-backend.result == 'success' || needs.reviewed-backend.result == 'skipped')
+      (needs.reviewed-backend.result == 'success' || needs.reviewed-backend.result == 'skipped') &&
+      (github.event_name != 'workflow_dispatch' || inputs.target != 'production' || github.ref_name == 'main')
     runs-on: ubuntu-latest
     environment: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'firebase-production' || 'firebase-development' }}
     permissions:
       contents: read
       checks: write
+    outputs:
+      promoted: ${{ steps.deploy.outcome == 'success' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -106,6 +112,21 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: gtop-app/package-lock.json
+      - name: Authenticate read-only development readiness check
+        if: needs.reviewed-backend.result == 'skipped'
+        id: readiness-auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+      - name: Check shared paper register before development promotion
+        if: needs.reviewed-backend.result == 'skipped'
+        id: register-ready
+        working-directory: gtop-app
+        env:
+          ACCESS_TOKEN: "${{ steps.readiness-auth.outputs.access_token }}"
+        run: node scripts/check-paper-register-ready.mjs
       - name: Install live verification dependencies
         run: npm ci
         working-directory: gtop-app
@@ -118,6 +139,7 @@ jobs:
           path: gtop-app/dist/gtop-app/browser
       - name: Deploy current GTOP application
         id: deploy
+        if: needs.reviewed-backend.result == 'success' || steps.register-ready.outputs.ready == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
@@ -127,6 +149,7 @@ jobs:
           channelId: live
           target: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'prod-gtop-app' || github.event_name == 'workflow_dispatch' && 'dev-gtop-app' || github.ref_name == 'main' && 'prod-gtop-app' || 'dev-gtop-app' }}
       - name: Verify actual hosted release and assets
+        if: steps.deploy.outcome == 'success'
         env:
           DEPLOY_ORIGIN: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'https://gtop-app.web.app' || github.event_name == 'workflow_dispatch' && 'https://dev-gtop-app.web.app' || github.ref_name == 'main' && 'https://gtop-app.web.app' || 'https://dev-gtop-app.web.app' }}
         run: node scripts/verify-deployment.mjs "$DEPLOY_ORIGIN" "$GITHUB_SHA"
@@ -141,6 +164,7 @@ jobs:
           if-no-files-found: ignore
   verify-shared-backend:
     needs: promote-hosting
+    if: needs.promote-hosting.outputs.promoted == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read

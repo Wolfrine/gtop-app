@@ -1,0 +1,30 @@
+--- scale-tested-backend
++++ round5-backend
+@@ -8,6 +8,9 @@
+ const strings=value=>Array.isArray(value)?value.map(text).filter(Boolean):[];
+ const validId=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{1,140}$/.test(value);
+ export const millis=value=>typeof value?.toMillis==='function'?value.toMillis():typeof value==='number'?value:typeof value==='string'?(Date.parse(value)||0):0;
++// The scheduled worker can retain updatedAt while writing updatedAtIso. Use
++// the latest valid recorded change, not field presence, across both writers.
++const changedAt=data=>Math.max(...[data?.updatedAt,data?.updatedAtIso,data?.publishedAt].map(value=>millis(value)).filter(Number.isFinite),0);
+ const version=snapshot=>snapshot.updateTime?String(snapshot.updateTime.seconds)+'.'+String(snapshot.updateTime.nanoseconds).padStart(9,'0'):'';
+ const sourceKey=(collection,id)=>PREFIX[collection]+'-'+id;
+ const clean=value=>Object.fromEntries(Object.entries(value).filter(([,v])=>v!==undefined));
+@@ -44,7 +47,7 @@
+   const brief=text(data.brief||data.rawBrief||data.requirements||data.description);
+   const title=text(data.title||data.name||brief.slice(0,140))||'Untitled paper';
+   const createdAt=millis(data.createdAt)||millis(snapshot.createTime);
+-  const updatedAt=millis(data.updatedAt)||millis(data.publishedAt)||createdAt;
++  const updatedAt=changedAt(data)||createdAt;
+   return clean({schemaVersion:REGISTER_VERSION,sourceCollection:collection,sourceId:id,sourceVersion:version(snapshot),familyId:family.id,...family,
+     sourceKind:collection==='paperDrafts'?'paper':collection==='paperRequests'?'request':'conversation',title,brief,ownerUid:text(data.ownerUid||data.requestedBy||data.createdBy),createdAt,updatedAt,sortTime:updatedAt,
+     status:text(data.status)||'draft',ready:collection==='paperDrafts'&&isReadyPaper(data),revision:Number(data.requestRevision||data.revision)||0,linkedPaperId:collection==='paperRequests'&&validId(data.savedDraftId)?data.savedDraftId:undefined,...scope,
+@@ -107,7 +110,7 @@
+     const creator=validId(ownerUid)?(await tx.get(db.doc('users/'+ownerUid))).data():undefined;
+     const row=clean({id:familyId,kind:latest.kind,conversationId:latest.conversationId,legacyRequestId:latest.legacyRequestId,legacyPaperId:latest.legacyPaperId,
+       title:text(conversation?.title||request?.title||paper?.title||latest.title)||'Untitled paper',ownerUid,creatorName:text(creator?.displayName||creator?.name)||undefined,
+-      createdAt:millis(conversation?.createdAt)||millis(request?.createdAt)||latest.createdAt,updatedAt:Math.max(millis(conversation?.updatedAt),millis(request?.updatedAt),latest.updatedAt),
++      createdAt:millis(conversation?.createdAt)||millis(request?.createdAt)||latest.createdAt,updatedAt:Math.max(changedAt(conversation),changedAt(request),latest.updatedAt),
+       status,activeRequestId:requestId,requestRevision:Number(request?.revision||conversation?.revision)||0,brief:text(request?.brief||request?.rawBrief||latest.brief),
+       progress:request?.progress,error:text(request?.error)||undefined,nextRunAtIso:request?.nextRunAtIso,hasReady:!!paper,
+       needsAction:['needs-info','error','awaiting-review'].includes(status)||(latest.kind==='legacy'&&!!request&&status==='ready'&&!paper),

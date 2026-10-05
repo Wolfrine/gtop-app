@@ -1,0 +1,43 @@
+{
+  "round": 1,
+  "width": 1280,
+  "startedAt": "2026-10-04T11:39:38.742Z",
+  "checks": [
+    {
+      "name": "timestamp-less legacy completed paper stays ready and openable",
+      "passed": true
+    },
+    {
+      "name": "old chat link reveals submitted requirements after reload",
+      "passed": true
+    }
+  ],
+  "uncaught": [],
+  "gateway": [
+    {
+      "status": 200,
+      "query": "?view=all&q=&mine=0&limit=30",
+      "scanned": 30,
+      "items": 30,
+      "nextCursor": true,
+      "indexReady": true
+    },
+    {
+      "status": 200,
+      "query": "?view=ready&q=&mine=0&limit=30",
+      "scanned": 30,
+      "items": 30,
+      "nextCursor": true,
+      "indexReady": true
+    },
+    {
+      "status": 200,
+      "query": "?view=ready&q=DATELESS-ARCHIVE-TARGET&mine=0&limit=30",
+      "scanned": 1,
+      "items": 1,
+      "nextCursor": false,
+      "indexReady": true
+    }
+  ],
+  "finishedAt": "2026-10-04T11:39:40.828Z"
+}

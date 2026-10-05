@@ -1,0 +1,78 @@
+{
+  "round": 1,
+  "width": 1280,
+  "startedAt": "2026-10-04T11:37:00.651Z",
+  "checks": [
+    {
+      "name": "old title beyond initial caps is discoverable in global register",
+      "passed": true
+    },
+    {
+      "name": "historical submitted requirement is globally searchable",
+      "passed": true
+    },
+    {
+      "name": "timestamp-less legacy completed paper stays ready and openable",
+      "passed": false,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: locator('.pcv-sheet iframe').contentFrame().getByText('Explain membrane folding.', { exact: true })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" locator('.pcv-sheet iframe').contentFrame().getByText('Explain membrane folding.', { exact: true }) with timeout 20000ms\n  - waiting for locator('.pcv-sheet iframe').contentFrame().getByText('Explain membrane folding.', { exact: true })\n"
+    },
+    {
+      "name": "old chat link reveals submitted requirements after reload",
+      "passed": false,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'qa-journey-1791113551930 buried paleontology target', exact: true })\nExpected: visible\nError: strict mode violation: getByRole('heading', { name: 'qa-journey-1791113551930 buried paleontology target', exact: true }) resolved to 2 elements:\n    1) <h1>qa-journey-1791113551930 buried paleontology targ…</h1> aka locator('h1')\n    2) <h3>qa-journey-1791113551930 buried paleontology targ…</h3> aka getByRole('region', { name: 'Completed version' }).getByRole('heading', { name: 'qa-journey-1791113551930' })\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('heading', { name: 'qa-journey-1791113551930 buried paleontology target', exact: true }) with timeout 20000ms\n  - waiting for getByRole('heading', { name: 'qa-journey-1791113551930 buried paleontology target', exact: true })\n"
+    },
+    {
+      "name": "new natural-language request saves once and keeps full brief accessible",
+      "passed": true
+    },
+    {
+      "name": "clarification preserves completed versions and separates student/key output",
+      "passed": true
+    }
+  ],
+  "uncaught": [],
+  "gateway": [
+    {
+      "status": 200,
+      "query": "?view=all&q=buried+paleontology&mine=0&limit=30",
+      "scanned": 2,
+      "items": 1,
+      "nextCursor": false,
+      "indexReady": true
+    },
+    {
+      "status": 200,
+      "query": "?view=all&q=&mine=0&limit=30",
+      "scanned": 30,
+      "items": 30,
+      "nextCursor": true,
+      "indexReady": true
+    },
+    {
+      "status": 200,
+      "query": "?view=all&q=REQUIRED-BRIEF-qa-journey-1791113551930&mine=0&limit=30",
+      "scanned": 1,
+      "items": 1,
+      "nextCursor": false,
+      "indexReady": true
+    },
+    {
+      "status": 200,
+      "query": "?view=ready&q=REQUIRED-BRIEF-qa-journey-1791113551930&mine=0&limit=30",
+      "scanned": 1,
+      "items": 1,
+      "nextCursor": false,
+      "indexReady": true
+    },
+    {
+      "status": 200,
+      "query": "?view=ready&q=DATELESS-ARCHIVE-TARGET&mine=0&limit=30",
+      "scanned": 1,
+      "items": 1,
+      "nextCursor": false,
+      "indexReady": true
+    }
+  ],
+  "createdRequest": "5cac57ca-a3e1-456b-abde-97629c774afa",
+  "finishedAt": "2026-10-04T11:37:26.341Z"
+}

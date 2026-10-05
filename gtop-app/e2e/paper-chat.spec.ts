@@ -16,21 +16,21 @@ test.beforeAll(async()=>{
 test.afterAll(async()=>environment?.cleanup());
 async function open(page:Page,path='/admin/question-papers'){
   await page.goto(path+'?emulator=1&testEmail='+encodeURIComponent(email)+'&testPassword='+encodeURIComponent(password));
-  await expect(page.getByRole('heading',{name:'Question papers',exact:true})).toBeVisible({timeout:25000});
+  await expect(page.locator('.pr-page')).toBeVisible({timeout:25000});
 }
 async function fits(page:Page){await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
 async function mine(){let items:any[]=[];await environment.withSecurityRulesDisabled(async ctx=>{items=(await getDocs(query(collection(ctx.firestore(),'paperRequests'),where('requestedBy','==',uid)))).docs.map(d=>({...d.data(),id:d.id}));});return items;}
 
 test('chat saves a real requirement, supersedes pending work and restores cancellation after reload',async({page},info)=>{
-  await open(page);await page.getByLabel('Paper requirement',{exact:true}).fill('ICSE 9 Biology, Cells, 2 marks. Short answer.');await page.getByRole('button',{name:'Send',exact:true}).click();
-  await expect(page.locator('.pc-request').getByText('Queued',{exact:true}).first()).toBeVisible();
+  await open(page,'/admin/question-papers/new');await page.getByLabel('Paper requirement',{exact:true}).fill('ICSE 9 Biology, Cells, 2 marks. Short answer.');await page.getByRole('button',{name:'Submit request',exact:true}).click();
+  await expect(page.locator('.pr-request-state').getByText('Queued',{exact:true}).first()).toBeVisible();
   await expect.poll(async()=> (await mine()).length).toBe(1);const first=(await mine())[0];
-  await page.getByLabel('Paper requirement',{exact:true}).fill('Make it 4 marks instead, keeping the same scope.');await page.getByRole('button',{name:'Send',exact:true}).click();
+  await page.getByRole('button',{name:'Update requirement',exact:true}).click();await page.getByLabel('Paper requirement',{exact:true}).fill('Make it 4 marks instead, keeping the same scope.');await page.getByRole('button',{name:'Submit revision',exact:true}).click();
   await expect.poll(async()=> (await mine()).length).toBe(2);const records=await mine();expect(records.find(item=>item.id===first.id).status).toBe('cancelled');
   const current=records.find(item=>item.id!==first.id);expect(current.revision).toBe(2);expect(current.source).toBe('admin-paper-chat');
   await page.getByRole('button',{name:'Cancel request',exact:true}).click();
   await expect.poll(async()=> (await mine()).find(item=>item.id===current.id).status).toBe('cancelled');
-  await page.reload();await expect(page.locator('.pc-message-text').filter({hasText:'Make it 4 marks instead, keeping the same scope.'})).toBeVisible();
+  await page.reload();await page.getByRole('button',{name:/Activity and earlier requests/}).click();await expect(page.locator('.pr-history').getByText('Make it 4 marks instead, keeping the same scope.',{exact:true})).toBeVisible();
   await fits(page);await page.screenshot({path:info.outputPath('chat-cancelled.png'),fullPage:true});
 });
 
@@ -44,7 +44,7 @@ test('delivered paper, separate answers, notification and older archive remain a
     await setDoc(doc(db,'paperMessages',tag+'-delivery'),{role:'agent',conversationId,text:'Your paper is ready. Reused 1 bank question and created 0 new questions.',paperId,createdAt:now});
     await setDoc(doc(db,'paperNotifications',tag+'-notification'),{ownerUid:uid,conversationId,paperId,text:title+' is ready.',read:false,createdAt:now});
   });
-  await open(page,'/admin/question-papers/chat/'+conversationId);await expect(page.getByText('Your paper is ready. Reused 1 bank question and created 0 new questions.',{exact:true})).toBeVisible();
+  await open(page,'/admin/question-papers/chat/'+conversationId);await page.getByRole('button',{name:/Activity and earlier requests/}).click();await expect(page.getByText('Your paper is ready. Reused 1 bank question and created 0 new questions.',{exact:true})).toBeVisible();
   await page.getByRole('link',{name:'Open paper',exact:false}).first().click();
   await expect(page.frameLocator('.pcv-sheet iframe').getByText(stem,{exact:true})).toBeVisible();await expect(page.frameLocator('.pcv-sheet iframe').getByText(secret,{exact:true})).toHaveCount(0);
   await expect(page.getByRole('button',{name:'Print paper / Save PDF',exact:true})).toBeEnabled();
@@ -52,16 +52,16 @@ test('delivered paper, separate answers, notification and older archive remain a
   await page.getByRole('button',{name:'Print paper / Save PDF',exact:true}).click();expect(await page.frameLocator('.pcv-sheet iframe').locator('body').evaluate(()=>!!(window as any).__paperPrintCalled)).toBe(true);
   await page.getByRole('button',{name:'Answer key',exact:true}).click();await expect(page.frameLocator('.pcv-sheet iframe').getByText(secret,{exact:true})).toBeVisible();await expect(page.getByText('Teacher copy · keep separate from students',{exact:true})).toBeVisible();
   await fits(page);await page.screenshot({path:info.outputPath('paper-answer-key.png'),fullPage:true});
-  await page.getByRole('link',{name:'All papers',exact:false}).first().click();await page.getByLabel('Find a saved paper').fill(tag);await expect(page.locator('.pcl-paper').filter({hasText:title})).toBeVisible();await fits(page);
-  await page.goto('/admin/question-papers/chat/'+conversationId+'?emulator=1');await page.locator('.pc-notifications summary').click();await page.getByRole('button').filter({hasText:title+' is ready.'}).click();
+  await page.getByRole('link',{name:'All papers',exact:false}).first().click();await page.getByLabel('Search all papers').fill(tag);await page.getByRole('button',{name:'Search',exact:true}).click();await expect(page.locator('.pr-record').filter({hasText:title})).toBeVisible({timeout:20000});await fits(page);
+  await page.goto('/admin/question-papers/chat/'+conversationId+'?emulator=1');await page.locator('.pr-updates summary').click();await page.getByRole('button').filter({hasText:title+' is ready.'}).click();
   await expect.poll(async()=>{let read=false;await environment.withSecurityRulesDisabled(async ctx=>{read=!!(await getDoc(doc(ctx.firestore(),'paperNotifications',tag+'-notification'))).data()?.read;});return read;}).toBe(true);
 });
 
 test('offline send retains the typed requirement until a server save is confirmed',async({page})=>{
-  await open(page);await page.getByLabel('Paper requirement',{exact:true}).fill('ICSE 9 Biology 40 marks across Cells.');
+  await open(page,'/admin/question-papers/new');await page.getByLabel('Paper requirement',{exact:true}).fill('ICSE 9 Biology 40 marks across Cells.');
   await page.route('http://127.0.0.1:8080/**',route=>route.abort());
   // The transaction must not acknowledge a server save while offline. Restore
   // connection to let the SDK resolve, then inspect the retained/confirmed state.
-  await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByLabel('Paper requirement',{exact:true})).toHaveValue('ICSE 9 Biology 40 marks across Cells.');
+  await page.getByRole('button',{name:'Submit request',exact:true}).click();await expect(page.getByLabel('Paper requirement',{exact:true})).toHaveValue('ICSE 9 Biology 40 marks across Cells.');
   await page.unroute('http://127.0.0.1:8080/**');
 });

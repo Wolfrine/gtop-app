@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Locator, type TestInfo } from '@playwright/test';
+import { warmPracticeSummary } from './practice-summary-fixture';
 import { writeFile } from 'node:fs/promises';
 import { initializeApp, deleteApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator, createUserWithEmailAndPassword } from 'firebase/auth';
@@ -211,6 +212,7 @@ async function resultCount() {
 
 test('mounted offline summary invalidates on profile change and retains original attempt', async ({ page, context }) => {
   await open(page, 'Short');
+  await warmPracticeSummary(page);
   const beforeCount = await resultCount();
   await context.setOffline(true);
   await page.locator('.option-card').filter({ hasText: 'Length' }).click();
@@ -224,7 +226,7 @@ test('mounted offline summary invalidates on profile change and retains original
     await context.setOffline(false);
     await expect(page.getByRole('alert')).toContainText('Your learning profile changed.');
     await expect(page.getByRole('button', { name: 'Try saving again' })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Retry Entire Quiz', exact: false })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Retry Entire Quiz', exact: false })).toHaveCount(0);
     expect(await resultCount()).toBe(beforeCount);
     expect(await page.evaluate(() => sessionStorage.getItem('gtop.practice-session.v1'))).toBe(retained);
   } finally {
@@ -237,6 +239,7 @@ test('mounted offline summary invalidates on profile change and retains original
 
 test('cross-tab account switch invalidates the already mounted unsaved summary', async ({ page, context }) => {
   await open(page, 'Short');
+  await warmPracticeSummary(page);
   const beforeCount = await resultCount();
   await context.setOffline(true);
   await page.locator('.option-card').filter({ hasText: 'Length' }).click();

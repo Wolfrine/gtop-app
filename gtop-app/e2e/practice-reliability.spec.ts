@@ -1,4 +1,5 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { warmPracticeSummary } from './practice-summary-fixture';
 import { initializeApp, deleteApp } from 'firebase/app';
 import { connectAuthEmulator, createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import { initializeTestEnvironment, type RulesTestEnvironment } from '@firebase/rules-unit-testing';
@@ -169,6 +170,7 @@ test('Cambridge profile and syllabus find historical IGCSE question records', as
 test('offline result visibly fails, retries once online and remains one acknowledged attempt', async ({ page, context }, info) => {
   await open(page, 'learner', '/quiz?subjects=Physics&chapters=Motion&count=2');
   await expect(page.locator('.question-card')).toContainText('Own curriculum', { timeout: 25_000 });
+  await warmPracticeSummary(page);
   const session = await page.evaluate(() => JSON.parse(sessionStorage.getItem('gtop.practice-session.v1')!));
   await context.setOffline(true);
   await answerAll(page);

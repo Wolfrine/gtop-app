@@ -69,8 +69,9 @@ jobs:
     secrets: inherit
 
   build-and-verify:
+    needs: release-scope
     if: >-
-      !cancelled() &&
+      !cancelled() && needs.release-scope.result == 'success' &&
       (github.event_name != 'push' || github.event.head_commit != null) &&
       (github.event_name != 'workflow_dispatch' || inputs.target != 'production' || inputs.confirm_production)
     runs-on: ubuntu-latest
@@ -126,9 +127,9 @@ jobs:
           if-no-files-found: ignore
 
   promote-hosting:
-    needs: [release-scope, reviewed-backend, build-and-verify]
+    needs: [reviewed-backend, build-and-verify]
     if: >-
-      always() && !cancelled() && needs.release-scope.result == 'success' && needs.build-and-verify.result == 'success' &&
+      always() && !cancelled() && needs.build-and-verify.result == 'success' &&
       (needs.reviewed-backend.result == 'success' || needs.reviewed-backend.result == 'skipped') &&
       (github.event_name != 'workflow_dispatch' || inputs.target != 'production' || github.ref_name == 'main')
     runs-on: ubuntu-latest

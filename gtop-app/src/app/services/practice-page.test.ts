@@ -176,11 +176,12 @@ describe('ordinary learner quiz route and restoration', () => {
     const submitAnswer = vi.fn(async () => undefined);
     (setup.component as any).liveService = { submitAnswer, observeAnswers: () => () => {} };
     setup.component.liveMode = true;
+    (setup.component as any).liveUid = learner.uid;
     setup.component.sessionId = 'live-session';
     setup.component.timeRemainingSec = 10;
     setup.component.questions = [{ ...question, options: ['3', '5', '4', '6'], optionOrder: [1, 2, 0, 3], correctIndex: 2 }];
     setup.component.selectOption(2);
-    expect(submitAnswer).toHaveBeenCalledWith('live-session', 0, 0, expect.any(Date));
+    expect(submitAnswer).toHaveBeenCalledWith('live-session', 0, 0, expect.any(Date), learner.uid);
     expect(setup.component.questions[0].selectedIndex).toBe(2);
     setup.component.ngOnDestroy();
   });
@@ -232,6 +233,21 @@ describe('timed live quiz re-entry', () => {
     (setup.component as any).liveService = live;
     return { ...setup, live, session };
   }
+  it('invalidates a mounted live attempt when another account signs in', async () => {
+    const setup = livePage();
+    setup.component.ngOnInit(); await flush();
+    expect(setup.component.questions[0].selectedIndex).not.toBeNull();
+    setup.readyUser$.next({ ...learner, uid: 'other-student' });
+    setup.component.currentQuestionIndex = 1;
+    setup.component.timeRemainingSec = 20;
+    setup.component.selectOption(0);
+    vi.advanceTimersByTime(45000);
+    expect(setup.live.submitAnswer).not.toHaveBeenCalled();
+    expect(setup.router.navigate).not.toHaveBeenCalled();
+    expect(setup.component.loadError).toContain('account changed');
+    expect(setup.component.questions).toHaveLength(0);
+    setup.component.ngOnDestroy();
+  });
   it('reviews a completed acknowledged session without creating a changed result or loading fresh bank answers', async () => {
     const setup = livePage('ended');
     const saved = { id: 'legacy-result', userId: 'student', sessionId: 'timed', quizType: 'run',
@@ -261,7 +277,7 @@ describe('timed live quiz re-entry', () => {
     expect(advanceFocus).toHaveBeenCalledOnce();
     const displayAnswer = restored.component.questions[1].optionOrder.indexOf(0);
     restored.component.selectOption(displayAnswer);
-    expect(restored.live.submitAnswer).toHaveBeenCalledWith('timed', 1, 0, expect.any(Date));
+    expect(restored.live.submitAnswer).toHaveBeenCalledWith('timed', 1, 0, expect.any(Date), learner.uid);
     vi.advanceTimersByTime(16000);
     expect(advanceFocus).toHaveBeenCalledOnce();
     expect(restored.router.navigate).toHaveBeenCalledWith(['/quiz-summary'], expect.objectContaining({

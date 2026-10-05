@@ -1,4 +1,4 @@
-import { PracticeScope, ReviewedPractice, matchesProfile, matchesReviewedContent, sameScope } from './practice-invite.domain';
+import { PracticeScope, PracticeContent, ReviewedPractice, matchesProfile, matchesReviewedContent, sameScope, validPracticeContent } from './practice-invite.domain';
 
 /** Implement with PR57's existing presentation helpers; no second shuffle/scoring implementation. */
 export interface InvitationPresentation {
@@ -81,7 +81,13 @@ export function invitationResult(attempt: InvitationAttempt, presentation: Invit
       selectedIndex: presentation.canonicalIndex(q, q.selectedIndex), correctIndex: presentation.canonicalIndex(q, q.correctIndex) })) });
 }
 /** History uses the acknowledged immutable snapshots, even if the source bank was edited later. */
-export async function invitationHistory(result: any, seed: ReviewedPractice, presentation: InvitationPresentation): Promise<any[] | null> {
+export async function invitationHistory(result: any, seed: PracticeContent | undefined, presentation: InvitationPresentation): Promise<any[] | null> {
+  // History is read from an owned saved result. Its content metadata validates snapshots,
+  // but never authorizes a new invitation: launch/retry still require the active reviewed seed.
+  if (!seed) {
+    if (!validPracticeContent(result)) return null;
+    seed = { scope: result.scope, revision: result.revision, questionIds: result.questionIds, contentHashes: result.contentHashes };
+  }
   if (!result || result.version !== 1 || result.revision !== seed.revision || !sameScope(result.scope || {}, seed.scope) ||
     !['invitation', 'invitation-retry'].includes(result.entryType) || !result.attemptId ||
     JSON.stringify(result.questionIds) !== JSON.stringify(seed.questionIds) || seed.questionIds.some(id => result.contentHashes?.[id] !== seed.contentHashes[id]) || !Array.isArray(result.answers) || result.answers.length !== 5 ||

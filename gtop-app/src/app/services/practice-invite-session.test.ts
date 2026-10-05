@@ -69,6 +69,17 @@ describe('durable reviewed invitation contract',()=>{
     const retry=await invites.prepareRetry(a.attemptId,sources);expect(retry.attemptId).not.toBe(a.attemptId);expect(retry.entryType).toBe('invitation-retry');expect(retry.parentAttemptId).toBe(a.attemptId);expect(retry.questions.every(q=>q.selectedIndex===null)).toBe(true);expect(retry.firstAnswer).toBe(false);expect(retry.acknowledgedReceipt).toBeUndefined();
     expect(invites.commit(retry)).toBe(true);expect((await invites.prepare(scope,sources,{})).attemptId).toBe(retry.attemptId);
   });
+  it('reads retired revisions from saved immutable metadata without approving a new launch',async()=>{
+    const attempt=await complete();const result=invites.result(attempt.attemptId);
+    expect(await invitationHistory(result,undefined,presentation)).toEqual(answered(attempt.questions));
+    expect(await invitationHistory({...result,scope:{...scope,chapter:''}},undefined,presentation)).toBeNull();
+    expect(await invitationHistory({...result,contentHashes:{}},undefined,presentation)).toBeNull();
+    const corrupted={...result,snapshots:result.snapshots.map((q:any,i:number)=>i?q:{...q,question:'Changed snapshot'})};
+    expect(await invitationHistory(corrupted,undefined,presentation)).toBeNull();
+    const invalidOrder={...result,answers:result.answers.map((a:any,i:number)=>i?a:{...a,optionOrder:[0,0]})};
+    expect(await invitationHistory(invalidOrder,undefined,presentation)).toBeNull();
+    expect(await invitationHistory(result,{...seed,revision:'replacement'},presentation)).toBeNull();
+  });
   it('keeps a voluntary 24h local cue, reports failed Off honestly, then removes it when storage permits',async()=>{
     const a=await complete();expect(acknowledge(a.attemptId)).toBe(true);expect(invites.keep()).toBe(true);expect(invites.cue()?.dueAt).toBeGreaterThanOrEqual(Date.now()+PRACTICE_DELAY-30);
     const card=runInInjectionContext(Injector.create({providers:[{provide:PracticeInviteService,useValue:invites},{provide:AuthService,useValue:{readyUser$:ready}},{provide:Router,useValue:{}}]}),()=>new PracticeReturnCardComponent());card.ngOnInit();

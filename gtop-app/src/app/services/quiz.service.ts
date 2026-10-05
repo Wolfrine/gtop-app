@@ -502,7 +502,7 @@ export class QuizService {
     async expandSummariesToQuestions(summaries: QuizResultQuestion[], invitation?: any): Promise<any[]> {
         if (invitation !== undefined) {
             const seed = REVIEWED_PRACTICES.find(item => item.revision === invitation?.revision);
-            const restored = seed && await invitationHistory(invitation, seed, { presentQuestion, restorePresentation, validOrder, canonicalIndex });
+            const restored = await invitationHistory(invitation, seed, { presentQuestion, restorePresentation, validOrder, canonicalIndex });
             if (!restored || summaries.length !== 5 || summaries.some((s, i) => s.questionId !== invitation.answers[i].questionId ||
                 s.selectedIndex !== invitation.answers[i].selectedIndex || s.correctIndex !== invitation.answers[i].correctIndex ||
                 JSON.stringify(s.optionOrder) !== JSON.stringify(invitation.answers[i].optionOrder))) throw new Error('invalid-invitation-history');

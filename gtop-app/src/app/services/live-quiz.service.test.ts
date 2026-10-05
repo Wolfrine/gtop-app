@@ -1,6 +1,7 @@
 import '@angular/compiler';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LiveQuizService } from './live-quiz.service';
+import { setDoc } from '@angular/fire/firestore';
 
 const state = vi.hoisted(() => ({ records: new Map<string, any>(), error: null as any, requests: [] as any[] }));
 function snapshot(path: string) {
@@ -32,7 +33,15 @@ vi.mock('@angular/fire/firestore', () => ({
 const question = { id: 'one', options: ['A', 'B', 'C'], correctIndex: 1, selectedIndex: null };
 const result = { userId: 'learner', sessionId: 'session', quizType: 'run', questions: [{ questionId: 'one', selectedIndex: 1, correctIndex: 1 }] };
 describe('live attempt re-entry and answer restoration', () => {
-  beforeEach(() => { state.records.clear(); state.requests = []; state.error = null; });
+  beforeEach(() => { state.records.clear(); state.requests = []; state.error = null; vi.clearAllMocks(); });
+  it('rejects a mounted account A attempt while Firebase Auth has already changed to B', async () => {
+    const service = new LiveQuizService({} as any, { currentUser: { uid: 'other' } } as any);
+    await expect(service.fetchSavedResultForSession('session', 'learner')).rejects.toThrow('account changed');
+    await expect(service.restoreOwnAnswersForSession('session', [question], 'learner')).rejects.toThrow('account changed');
+    await expect(service.submitAnswer('session', 0, 1, new Date(), 'learner')).rejects.toThrow('account changed');
+    expect(state.requests).toHaveLength(0);
+    expect(setDoc).not.toHaveBeenCalled();
+  });
   it('opens the acknowledged immutable attempt first, while retaining legacy results', async () => {
     const service = new LiveQuizService({} as any, { currentUser: { uid: 'learner' } } as any);
     state.records.set('QuizResults/legacy', { ...result, timestamp: { toMillis: () => 20 } });

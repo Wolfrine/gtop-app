@@ -191,9 +191,10 @@ export class LiveQuizService {
   }
 
   /** Re-entry reviews the acknowledged result, including legacy automatic result IDs. */
-  async fetchSavedResultForSession(sessionId: string): Promise<any | null> {
+  async fetchSavedResultForSession(sessionId: string, expectedUid?: string): Promise<any | null> {
     const uid = this.auth.currentUser?.uid;
     if (!uid) throw new Error('User not authenticated');
+    if (expectedUid && uid !== expectedUid) throw new Error('Your account changed. Reopen the live quiz.');
     const snapshot = await getDocsFromServer(query(collection(this.firestore, 'QuizResults'), where('userId', '==', uid)));
     if (this.auth.currentUser?.uid !== uid) throw new Error('Your account changed. Reopen the live quiz.');
     const attempts = snapshot.docs.map(item => ({ id: item.id, ...item.data() } as any))
@@ -205,9 +206,10 @@ export class LiveQuizService {
   }
 
   /** Answers use canonical indices and question positions, independent of display order. */
-  async restoreOwnAnswersForSession(sessionId: string, questions: any[]): Promise<any[]> {
+  async restoreOwnAnswersForSession(sessionId: string, questions: any[], expectedUid?: string): Promise<any[]> {
     const uid = this.auth.currentUser?.uid;
     if (!uid) throw new Error('User not authenticated');
+    if (expectedUid && uid !== expectedUid) throw new Error('Your account changed. Reopen the live quiz.');
     const answers = await Promise.all(questions.map((_, index) => getDocFromServer(
       doc(this.firestore, `LiveSessions/${sessionId}/answers/${index}/items/${uid}`))));
     if (this.auth.currentUser?.uid !== uid) throw new Error('Your account changed. Reopen the live quiz.');
@@ -235,9 +237,10 @@ export class LiveQuizService {
   /**
    * Submit an answer for the current user at a given question index.
    */
-  async submitAnswer(sessionId: string, index: number, selectedIndex: number, questionStartAt: Date): Promise<void> {
+  async submitAnswer(sessionId: string, index: number, selectedIndex: number, questionStartAt: Date, expectedUid?: string): Promise<void> {
     const user = this.auth.currentUser;
     if (!user) throw new Error('User not authenticated');
+    if (expectedUid && user.uid !== expectedUid) throw new Error('Your account changed. Reopen the live quiz.');
 
     const responseMs = Math.max(0, Date.now() - questionStartAt.getTime());
     const ref = doc(this.firestore, `LiveSessions/${sessionId}/answers/${String(index)}/items/${user.uid}`);

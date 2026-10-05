@@ -56,6 +56,9 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     private loadedContextKey = '';
     private historyNavigation = false;
     private liveLoadInProgress = false;
+    private liveUid: string | null = null;
+    private liveAccountChanged = false;
+    private liveUserSubscription?: Subscription;
 
     currentQuestionIndex = 0;
     // Live mode
@@ -109,8 +112,14 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         }
 
         if (this.liveMode && this.sessionId) {
+            this.liveUid = this.authService.profile()?.uid || null;
+            this.liveUserSubscription = this.authService.readyUser$.subscribe(profile => {
+                if (!this.liveUid || profile?.uid !== this.liveUid) this.invalidateLiveQuiz();
+            });
+            if (this.liveAccountChanged) return;
             // Subscribe to session and drive UI from it
             this.sessionUnsub = this.liveService.observeSession<any>(this.sessionId, (s) => {
+                if (this.liveAccountChanged) return;
                 if (!s) {
                     this.loading = false;
                     this.loadError = 'This live quiz could not be found. Return to the dashboard and join again.';
@@ -138,6 +147,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             });
             // Track participants count for per-question submission summary
             this.participantsUnsub = this.liveService.observeParticipants(this.sessionId, (list) => {
+                if (this.liveAccountChanged) return;
                 this.participantsCount = Array.isArray(list) ? list.length : 0;
             });
             // Tick every second for timer updates
@@ -161,10 +171,10 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     private async loadLiveQuiz(session: any): Promise<void> {
         this.liveLoadInProgress = true;
         const version = this.requestVersion;
-        const uid = this.authService.profile()?.uid;
+        const uid = this.liveUid;
         try {
             if (!uid) throw new Error('Sign in again to restore your live quiz.');
-            const saved = await this.liveService.fetchSavedResultForSession(this.sessionId!);
+            const saved = await this.liveService.fetchSavedResultForSession(this.sessionId!, uid);
             if (version !== this.requestVersion) return;
             if (saved) {
                 this.navigatedToSummary = true;
@@ -180,7 +190,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             const byId = new Map(fetched.map((question: any) => [question.id, question]));
             const ordered = session.questionIds.map((id: string) => byId.get(id));
             if (ordered.some((question: any) => !question)) throw new Error('Some questions in this live quiz are unavailable. Reopen the quiz or return to the dashboard.');
-            const restored = await this.liveService.restoreOwnAnswersForSession(this.sessionId!, ordered);
+            const restored = await this.liveService.restoreOwnAnswersForSession(this.sessionId!, ordered, uid);
             if (version !== this.requestVersion) return;
             if (this.authService.profile()?.uid !== uid) throw new Error('Your account changed. Reopen the live quiz.');
             this.questions = restored.map(question => presentLiveQuestion(question, this.sessionId!, uid));
@@ -369,6 +379,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.requestVersion++;
         this.soloSubscription?.unsubscribe();
+        this.liveUserSubscription?.unsubscribe();
         if (this.sessionUnsub) this.sessionUnsub();
         if ((this as any)._tick) clearInterval((this as any)._tick);
         if (this.answersUnsub) this.answersUnsub();
@@ -376,6 +387,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     }
 
     selectOption(optionIndex: number) {
+        if (this.liveMode && !this.liveAccountIsCurrent()) return;
         const q = this.questions[this.currentQuestionIndex];
         if (!q) return;
         if (this.practiceSession?.completed) return;
@@ -387,9 +399,12 @@ export class QuizPageComponent implements OnInit, OnDestroy {
             if (!this.sessionId) return;
             const base = this.anchorAt ?? this.startAt ?? new Date();
             const questionStartAt = new Date(base.getTime() + (this.currentQuestionIndex - this.anchorIndex) * this.perQuestionSeconds * 1000);
-            this.liveService.submitAnswer(this.sessionId, this.currentQuestionIndex, canonicalIndex(q, optionIndex)!, questionStartAt).catch(() => {});
+            this.liveService.submitAnswer(this.sessionId, this.currentQuestionIndex, canonicalIndex(q, optionIndex)!, questionStartAt, this.liveUid!).catch(error => {
+                if ((error as Error).message.includes('account changed')) this.invalidateLiveQuiz();
+            });
             if (this.answersUnsub) this.answersUnsub();
             this.answersUnsub = this.liveService.observeAnswers(this.sessionId, this.currentQuestionIndex, (items) => {
+                if (this.liveAccountChanged) return;
                 this.leaderboard = (items || [])
                     .map(it => ({ uid: (it as any).uid, displayName: (it as any).displayName, responseMs: Number((it as any).responseMs || 0) }))
                     .sort((a, b) => a.responseMs - b.responseMs);
@@ -431,6 +446,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     }
 
     private updateFromSchedule() {
+        if (this.liveMode && !this.liveAccountIsCurrent()) return;
         if (!this.liveMode || !this.startAt) return;
         if (this.status === 'ended') { this.countdownValue = ''; this.navigateToSummaryIfReady(true, true); /* keep ticking until questions are loaded */ }
         const base = this.anchorAt ?? this.startAt;
@@ -459,6 +475,7 @@ export class QuizPageComponent implements OnInit, OnDestroy {
     }
 
     private navigateToSummaryIfReady(ended: boolean, hitEndByTime: boolean) {
+        if (!this.liveAccountIsCurrent()) return;
         if (this.navigatedToSummary) return;
         if (!this.questions || this.questions.length === 0) return;
         // Navigate when session ended or last question time elapses
@@ -475,8 +492,8 @@ export class QuizPageComponent implements OnInit, OnDestroy {
                 state: {
                     fromLive: true,
                     questions: this.questions,
-                    practiceUid: this.authService.profile()?.uid,
-                    attemptId: `live-${this.sessionId}-${this.authService.profile()?.uid}`,
+                    practiceUid: this.liveUid,
+                    attemptId: `live-${this.sessionId}-${this.liveUid}`,
                     liveMode: this.liveModeType || 'live',
                     sessionId: this.sessionId,
                     returnTo: this.hubReturnUrl,
@@ -494,6 +511,27 @@ export class QuizPageComponent implements OnInit, OnDestroy {
         const m = Math.floor(totalSec / 60);
         const s = totalSec % 60;
         return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+
+    private liveAccountIsCurrent(): boolean {
+        if (!this.liveAccountChanged && this.liveUid && this.authService.profile()?.uid === this.liveUid) return true;
+        this.invalidateLiveQuiz();
+        return false;
+    }
+
+    private invalidateLiveQuiz(): void {
+        if (this.liveAccountChanged) return;
+        this.liveAccountChanged = true;
+        this.requestVersion++;
+        this.questions = [];
+        this.leaderboard = [];
+        this.participantsCount = 0;
+        this.loading = false;
+        this.loadError = 'Your account changed. Reopen the live quiz to continue with your own answers.';
+        this.sessionUnsub?.();
+        this.answersUnsub?.();
+        this.participantsUnsub?.();
+        if ((this as any)._tick) clearInterval((this as any)._tick);
     }
 
 }

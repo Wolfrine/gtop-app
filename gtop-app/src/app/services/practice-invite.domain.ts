@@ -3,10 +3,14 @@ import { normalizePracticeBoard } from './practice-context';
 
 export interface PracticeScope { board: string; standard: string; subject: string; chapter: string; }
 export interface ReviewedPractice { scope: PracticeScope; questionIds: readonly string[]; revision: string; reviewEvidence: string; contentHashes: Readonly<Record<string, string>>; }
+export type PracticeContent = Omit<ReviewedPractice, 'reviewEvidence'>;
 export interface PracticeCue { scope: PracticeScope; revision: string; dueAt: number; }
 export const PRACTICE_DELAY = 24 * 60 * 60 * 1000;
 const fields = ['board', 'standard', 'subject', 'chapter'] as const;
 const label = (value: unknown): value is string => typeof value === 'string' && value.trim() === value && value.length > 0 && value.length <= 120 && !/[\u0000-\u001f\u007f]/.test(value);
+export const validPracticeContent = (value: any): value is PracticeContent => !!value && fields.every(key => label(value.scope?.[key])) &&
+  label(value.revision) && Array.isArray(value.questionIds) && value.questionIds.length === 5 && new Set(value.questionIds).size === 5 &&
+  value.questionIds.every((id: unknown) => label(id) && !id.includes('/') && /^[a-f0-9]{64}$/.test(value.contentHashes?.[id]));
 
 /** getAll handles scalar and repeated Angular query values without a string-to-array cast. */
 export function parsePracticeScope(params: Pick<ParamMap, 'getAll'>): PracticeScope | null {
@@ -38,7 +42,7 @@ export function reviewedPractice(scope: PracticeScope, seeds: readonly ReviewedP
   return seed && seed.questionIds.length === 5 && new Set(seed.questionIds).size === 5 && seed.questionIds.every(id => label(id) && !id.includes('/') && /^[a-f0-9]{64}$/.test(seed.contentHashes[id])) && label(seed.revision) && label(seed.reviewEvidence) ? seed : null;
 }
 /** Review proves relevance; runtime checks protect against missing, changed or unusable documents. */
-export function validatePracticeQuestions(seed: ReviewedPractice, questions: any[]): boolean {
+export function validatePracticeQuestions(seed: PracticeContent, questions: any[]): boolean {
   if (!Array.isArray(questions) || questions.some(q => !q || typeof q !== 'object')) return false;
   return questions.length === 5 && new Set(questions.map(q => q.id)).size === 5 && seed.questionIds.every(id => questions.some(q => q.id === id)) && questions.every(q =>
     sameScope(q, seed.scope) && (!q.status || q.status === 'approved') && !q.paperOnly && (!q.questionType || q.questionType === 'mcq') &&
@@ -46,7 +50,7 @@ export function validatePracticeQuestions(seed: ReviewedPractice, questions: any
     Number.isInteger(q.correctIndex) && q.correctIndex >= 0 && q.correctIndex < q.options.length &&
     Array.isArray(q.solutions) && typeof q.solutions[q.correctIndex] === 'string' && q.solutions[q.correctIndex].trim().length > 0);
 }
-export async function matchesReviewedContent(seed: ReviewedPractice, questions: any[]): Promise<boolean> {
+export async function matchesReviewedContent(seed: PracticeContent, questions: any[]): Promise<boolean> {
   if (!validatePracticeQuestions(seed, questions)) return false;
   const checks = await Promise.all(questions.map(async q => {
     const bytes = new TextEncoder().encode(JSON.stringify([q.board, q.standard, q.subject, q.chapter, q.question, q.options, q.correctIndex, q.solutions]));

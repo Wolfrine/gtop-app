@@ -198,7 +198,7 @@ jobs:
           if-no-files-found: ignore
   verify-shared-backend:
     needs: promote-hosting
-    if: needs.promote-hosting.outputs.promoted == 'true'
+    if: needs.promote-hosting.outputs.promoted == 'true' && !cancelled()
     runs-on: ubuntu-latest
     permissions:
       contents: read

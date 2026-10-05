@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 /workspace/scratch/0a41fddf9e8a/question-journey-qa
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  04:47:59
+   Duration  2.16s (transform 56ms, setup 0ms, import 250ms, tests 1.41s, environment 374ms)
+

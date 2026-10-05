@@ -1,0 +1,4 @@
+PASS stale two-tab reply retains text and does not supersede the winner
+PASS clarification reply queues a revision and leaves both saved versions unchanged
+PASS completion racing cancellation remains completed and reports the true outcome
+PASS queued,generating,publishing,error and cancelled records expose truthful actions

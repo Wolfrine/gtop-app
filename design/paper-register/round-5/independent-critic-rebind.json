@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "round": 5,
+  "reviewer": "/root/question_completion_critic",
+  "record_type": "bounded visual evidence rebind",
+  "original_candidate": "832cbf8c0fa28659275f5d0439534e24fdadb7779fb9c7e33505c4f99639b106",
+  "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+  "candidate_source_fingerprint": "d42c68a62b9893ac876a38b77d351953a6854b5fa8195cea2652373486fc4b52",
+  "backend_fingerprint": "f8deae6d27de19badda24a1739898c03a3b1d3f9a74637db2fda48d1f8dd79a0",
+  "production_build_fingerprint": "676f8ba6aa8addb4ec9251f93171830742822a22bdc7b76d2cd63ce80d8719bc",
+  "fixture_sha256": "4e5fba2b588571eab66851b497c623497d8c803559d821c0bd18b40c6b520199",
+  "candidate_metadata_sha256": "8fd12ae665eb61d2b29f9308f66fad3d8e879e66e0d42076df684d90d8508f35",
+  "render_manifest_sha256": "fb017c7e0cb1c93fcddf8e824f7eda5485b529ea2a6822f3c54382e06d8de055",
+  "original_review": {
+    "path": "design/paper-register/round-5/independent-critic-review.json",
+    "sha256": "2a06f50891a4fb26d7af3f4bf3add0acf7d19b04b1f1cc6e7ac58949da304fc1",
+    "preserved_byte_for_byte": true
+  },
+  "original_candidate_record": {
+    "path": "design/paper-register/round-5/candidate-before-readiness-gate.json",
+    "sha256": "384f2170a3138077f41d0e94b1da7e72de2ed5ed02656bf0830d5b8d6cdae003"
+  },
+  "independent_verification": {
+    "checked_at": "2026-10-05T06:44:35.885Z",
+    "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+    "expected": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+    "source_files": 384,
+    "sourceFingerprint": "d42c68a62b9893ac876a38b77d351953a6854b5fa8195cea2652373486fc4b52",
+    "source_mismatches": [],
+    "production_build_files": 136,
+    "production_build_fingerprint": "676f8ba6aa8addb4ec9251f93171830742822a22bdc7b76d2cd63ce80d8719bc",
+    "production_build_matches": true,
+    "build_manifest_unchanged": true,
+    "frontend_source_unchanged": true,
+    "fixture_matches_original": true,
+    "fixtureSha256": "4e5fba2b588571eab66851b497c623497d8c803559d821c0bd18b40c6b520199",
+    "backendFingerprint": "f8deae6d27de19badda24a1739898c03a3b1d3f9a74637db2fda48d1f8dd79a0",
+    "render_count": 73,
+    "all_render_hashes_match": true,
+    "render_manifest_sha256": "fb017c7e0cb1c93fcddf8e824f7eda5485b529ea2a6822f3c54382e06d8de055",
+    "original_review_sha256": "2a06f50891a4fb26d7af3f4bf3add0acf7d19b04b1f1cc6e7ac58949da304fc1",
+    "candidate_metadata_sha256": "8fd12ae665eb61d2b29f9308f66fad3d8e879e66e0d42076df684d90d8508f35",
+    "original_candidate_metadata_sha256": "384f2170a3138077f41d0e94b1da7e72de2ed5ed02656bf0830d5b8d6cdae003",
+    "actual_source_delta": [
+      {
+        "path": ".github/workflows/firebase-deploy.yml",
+        "before": "6d36939c546fc4381d25b3dcc1a8dd0d02df0ffc53314bf46c56d315c2500781",
+        "after": "98fbedd11aef9016289153b579cd7584738b7c294abd3fa1df2894d29fbf6957"
+      },
+      {
+        "path": "gtop-app/functions/deployment.test.mjs",
+        "before": "122920188d5781db18628ff3a32e6fbb3247d76c07976a6e864de1beca81cdb0",
+        "after": null
+      },
+      {
+        "path": "gtop-app/functions/hosting-readiness.test.mjs",
+        "before": null,
+        "after": "0d6fab4cf5a5fb4f45564ef76b8e77222ccf9972c717fc679d2b1b857af64d67"
+      },
+      {
+        "path": "gtop-app/functions/runtime.mjs",
+        "before": "0de67675d5671b0b23e0903dec76013544bdb512311c74fc89e7ff11721f83ff",
+        "after": "d95b64d7d8bf2c0ac2a351a62156eb054993d9785f0ea1861d11e239b7dc8f8a"
+      },
+      {
+        "path": "gtop-app/functions/runtime.test.mjs",
+        "before": null,
+        "after": "5a0f603fb1751807d247f87f72fe4590fdd3239bf758a8df701d9b7f26f8ad21"
+      },
+      {
+        "path": "gtop-app/scripts/check-paper-register-ready.mjs",
+        "before": null,
+        "after": "7e4c29221e72e6545d6442e7c3dc8d0abcde6ffb50bb54f285eb9d5cbe63afb2"
+      },
+      {
+        "path": "gtop-app/scripts/deploy-paper-functions.mjs",
+        "before": "334572972c95ef18b91b1ee3899d13743f32beb1b9ebcaad5b92aecf70f29598",
+        "after": "224d7305daf73616daea872dfbafe7d75c0d64b7c9af44f6cea5c7c9caec49b2"
+      }
+    ],
+    "delta_manifest_matches": true
+  },
+  "scope": "Retain the original independently scored visual evidence for an identical frontend, production bundle, fixture and image set after CI/backend-only source changes.",
+  "verdict": "pass",
+  "scores": {
+    "product_meaning": 8.2,
+    "action_clarity": 8.2,
+    "async_truth": 8,
+    "durable_retrieval": 8,
+    "output_continuity": 8.2,
+    "mobile_layout": 8,
+    "visual_craft": 8
+  },
+  "overall": 8.1,
+  "scores_origin": "Copied without alteration from the original independent visual review, frozen before parent scores at 2026-10-05T06:18:53.558Z.",
+  "new_visual_cycle": false,
+  "new_renders": false,
+  "new_visual_scoring": false,
+  "visual_blockers": [],
+  "basis": "Every actual current production file rehashed and matches the reviewed bundle; every frontend source manifest hash is unchanged; fixture bytes and all 73 personally inspected render files match the original review. The exact seven changed paths are CI, deployment script, runtime adapter and tests. Source change is not misrepresented as the same whole candidate: the original and final candidate IDs are both recorded.",
+  "limits": [
+    "This rebind preserves visual judgments of the identical rendered frontend only. It does not certify the changed backend runtime initialization, deployment environment or readiness behavior.",
+    "Separate QA must review the affected backend/deployment changes and bind its final verdict to this candidate.",
+    "No new parent review, owner approval, deployment, production-data inspection, render cycle or visual score is claimed here.",
+    "Original reference/baseline provenance, observed states, print limitations and unobserved motion remain exactly as stated in the original review."
+  ],
+  "current_acceptance_status": "unverified by this critic record alone",
+  "current_acceptance_reason": "The visual gate passes for the identical frontend evidence; full agent-reviewed status depends on the parent's final judgment and separate final QA for this candidate."
+}

@@ -1,0 +1,4 @@
+PASS late earlier-history response cannot mix one record into another
+PASS late earlier-version response cannot replace another records saved outputs
+PASS late send acknowledgment keeps the current record and its new typed draft
+PASS restored stale draft retains its original revision check when editor reopens

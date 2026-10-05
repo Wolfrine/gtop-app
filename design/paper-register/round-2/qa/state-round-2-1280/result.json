@@ -1,0 +1,25 @@
+{
+  "round": 2,
+  "width": 1280,
+  "startedAt": "2026-10-04T11:48:02.457Z",
+  "checks": [
+    {
+      "name": "stale two-tab reply retains text and does not supersede the winner",
+      "passed": true
+    },
+    {
+      "name": "clarification reply queues a revision and leaves both saved versions unchanged",
+      "passed": true
+    },
+    {
+      "name": "completion racing cancellation remains completed and reports the true outcome",
+      "passed": true
+    },
+    {
+      "name": "queued,generating,publishing,error and cancelled records expose truthful actions",
+      "passed": true
+    }
+  ],
+  "uncaught": [],
+  "finishedAt": "2026-10-04T11:48:09.786Z"
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "version": "0.1.0",
+  "central_repository": "Wolfrine/Central",
+  "central_base_revision": "ba1235fe7b220842778414f3f70fca38e7df4c53",
+  "harness_upstream": {
+    "repository": "Wolfrine/Harness_Designer",
+    "revision": "5106e8c2b15050d0353d2117fcb1cfebf06cef7a",
+    "mode": "compact adapted workflows; upstream repository unchanged"
+  },
+  "canonical_inputs_sha256": {
+    "design/skills/visual-design-director/SKILL.md": "1a68dd70932e1d8c82dbd6f75fc35fae45522b9c5a58334c9002af716c42f7b3",
+    "design/skills/visual-design-director/references/designer.md": "7ec7d397a040dfbcc29c2e1724dec5f2bcd8525f4f334c124e846a1d5ca074de",
+    "design/skills/visual-design-director/references/critic.md": "ee08229e9712cbdf71cb11be5a430d88323fdd7ff1f6ae12b50965afdc27afb9",
+    "design/skills/visual-design-director/agents/openai.yaml": "c5aefc34bed4fcd7da8df58b9708b89656d62017c5367a5b1c4f2c34ffbfb512",
+    "design/anti-patterns/GENERIC_AI_UI.md": "e10c131ccf3af70a4a7fc502252c6a4e40f436cc9d143b910d89bde3812e4a18",
+    "design/intelligence/PERCEPTUAL_DESIGN_FOUNDATIONS.md": "cce8b7e3086183e4c68544f9d903b57d18f665551bc2154e6a6e694915ec2b92",
+    "design/evaluation/IMPLEMENTATION_EVIDENCE.md": "7e8ca0e1f27e33e38003adec5313cdc512d586f1146e665f90d45175d4996fef",
+    "design/tools/validate_design_acceptance.py": "a5ea9eb29a857e51c674e80a961dfcbbacff6815e594a42e6e59a6279131821e",
+    "design/tools/test_design_acceptance.py": "f123d3a6303d3fa5e8eb1d29bcda6d160f368a5a1e3cbe5d4efcaa15dcb8a97c",
+    "sefpo/SEFPO_PROTOCOL.md": "8c471693639738e9721b418949e55379e301b441b3711616267b782b64d44d99",
+    "sefpo/EXAMPLES.md": "88ed755dc6c74407fdc842ba5ebf896ede68868097424baf07191dede7c8dfbf"
+  },
+  "packaged_files_sha256": {
+    ".codex-plugin/plugin.json": "134a0c5e8edc8dd3de241d50c403dd9b05305bdb5771bc8aa052c8084e0db1e5",
+    "README.md": "ec90b158e49b2ba9bf1f0c6d283757018a28af8cbfec5fe0518fdd667ec2fcdc",
+    "THIRD_PARTY_NOTICES.txt": "b29f8b006b8e9d02af9de44b19683ed88557e56519dec30bf9b887784115b6bb",
+    "licenses/Harness_Designer-Apache-2.0.txt": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "skills/central-maintenance/SKILL.md": "46d95636948b2253cce7491d2166702d8345586bb7dbba769d064e630a19aa90",
+    "skills/central-maintenance/agents/openai.yaml": "95a3c5d7859ecb95f84c1bad196fc6a1045a3e66415143d5b995e022eda5725d",
+    "skills/central-maintenance/references/release.md": "b05fd5e890cb27ffd19e5fd79bf67c0705f601f9ea4af62b9da9240b8d8e2153",
+    "skills/harness-review/SKILL.md": "51c55ff108d41deb273b004e16ef9fb3340d813d8035244000d58100b4373bb5",
+    "skills/harness-review/agents/openai.yaml": "0979e9973e521c701407cb5dd50f0680462585b01c658f0e47c9503cb4f4374a",
+    "skills/harness-review/references/review.md": "5b2ceafc501045e1b3551ff5570be4ea41bb23404787d31148786db866463946",
+    "skills/harness-setup/SKILL.md": "be0ed50ba3ffdfa9fedd61c01184a532a95b61cb47abeeb2a4ceeb078868f641",
+    "skills/harness-setup/agents/openai.yaml": "5dfe795dc4ec259dde68a9bf6930733c5f33f3d97351196117f539db158dcc0d",
+    "skills/harness-setup/references/dashboard.md": "0f62d0e5aa24cf681e3006203964c4d70717a0e10bc110e972aebd7cd4ed8a26",
+    "skills/harness-setup/references/setup.md": "f9c02ece7f0d5d42a49236b92c42baee4eaee3ce318f5712dc7ba9327b39eeb5",
+    "skills/sefpo/SKILL.md": "b72746ecf41790c8b620ff78624b71f17231a209f8280bf7829b968b9cdb52bb",
+    "skills/sefpo/agents/openai.yaml": "66e7e784ed25520f03b44fd4cc16c01524ffc4a0f772495a3ec00f061c0b2d6b",
+    "skills/sefpo/references/examples.md": "88ed755dc6c74407fdc842ba5ebf896ede68868097424baf07191dede7c8dfbf",
+    "skills/sefpo/references/protocol.md": "8c471693639738e9721b418949e55379e301b441b3711616267b782b64d44d99",
+    "skills/visual-design-director/SKILL.md": "750394b5b522a01ccb5d951725b7f2e05b48ad383d3f762fe9e6648f7fde1aa2",
+    "skills/visual-design-director/agents/openai.yaml": "c5aefc34bed4fcd7da8df58b9708b89656d62017c5367a5b1c4f2c34ffbfb512",
+    "skills/visual-design-director/references/anti-patterns.md": "e10c131ccf3af70a4a7fc502252c6a4e40f436cc9d143b910d89bde3812e4a18",
+    "skills/visual-design-director/references/critic.md": "b2594757fe66a762fb98fca779c9a0b3bfb176e97f7f80106f3a3b8c50c9ff6f",
+    "skills/visual-design-director/references/designer.md": "7ec7d397a040dfbcc29c2e1724dec5f2bcd8525f4f334c124e846a1d5ca074de",
+    "skills/visual-design-director/references/implementation-evidence.md": "2ab3df2f9192efdd060f5b23073273689d2b891a68f8395a91e2362b79b313fb",
+    "skills/visual-design-director/references/perception.md": "cce8b7e3086183e4c68544f9d903b57d18f665551bc2154e6a6e694915ec2b92",
+    "skills/visual-design-director/scripts/test_design_acceptance.py": "f123d3a6303d3fa5e8eb1d29bcda6d160f368a5a1e3cbe5d4efcaa15dcb8a97c",
+    "skills/visual-design-director/scripts/validate_design_acceptance.py": "a5ea9eb29a857e51c674e80a961dfcbbacff6815e594a42e6e59a6279131821e"
+  },
+  "excluded": [
+    "Process OS"
+  ],
+  "installation": "Package existence does not establish account installation."
+}

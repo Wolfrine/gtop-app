@@ -7,7 +7,7 @@ import { FirestoreReadService } from '../../../services/firestore-read.service';
   template: `
     <header class="qm-header">
       <div><p class="eyebrow">Admin / Questions & papers</p><h1>{{ title }}</h1><p class="qm-description">{{ description }}</p></div>
-      @if (create) { <a class="btn btn-primary" routerLink="/admin/question-papers" queryParamsHandling="preserve">New paper chat <span aria-hidden="true">+</span></a> }
+      @if (create) { <a class="btn btn-primary" routerLink="/admin/question-papers/new" queryParamsHandling="preserve">New paper <span aria-hidden="true">+</span></a> }
     </header>
     <nav class="qm-nav qm-paper-nav" aria-label="Question module">
       @for (tab of tabs; track tab.id) {
@@ -28,7 +28,7 @@ export class QuestionModuleHeaderComponent {
   @Input() active: 'papers' | 'all' | 'bank' | 'review' | 'requests' = 'papers';
   @Input() create = true;
   readonly tabs = [
-    {id:'papers', title:'Paper chat', url:'/admin/question-papers'},
+    {id:'papers', title:'New paper', url:'/admin/question-papers/new'},
     {id:'all', title:'All papers', url:'/admin/question-papers/all'},
     {id:'bank', title:'Bank tools', url:'/admin/question-library'},
   ];

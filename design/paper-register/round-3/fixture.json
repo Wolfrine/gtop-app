@@ -1,0 +1,418 @@
+{
+  "version": "register-visual-v3-expanded",
+  "localOnly": true,
+  "email": "register-visual-v1@gtop.test",
+  "uid": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+  "records": [
+    {
+      "path": "users/3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+      "data": {
+        "uid": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "email": "register-visual-v1@gtop.test",
+        "displayName": "Priya Kapoor",
+        "role": "admin",
+        "board": "CBSE",
+        "standard": "10"
+      }
+    },
+    {
+      "path": "paperConversations/visual-v1-mathematics",
+      "data": {
+        "title": "Class 10 Mathematics",
+        "ownerUid": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "status": "needs-info",
+        "activeRequestId": "visual-v1-mathematics-request",
+        "revision": 1,
+        "createdAt": "2026-10-04T07:20:00.000Z",
+        "updatedAt": "2026-10-04T08:00:00.000Z"
+      }
+    },
+    {
+      "path": "paperRequests/visual-v1-mathematics-request",
+      "data": {
+        "source": "admin-paper-chat",
+        "conversationId": "visual-v1-mathematics",
+        "brief": "CBSE Class 10 Mathematics, Quadratic equations. 40 marks, 60 minutes. Include short answers and application questions.",
+        "requestedBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "revision": 1,
+        "status": "needs-info",
+        "createdAt": "2026-10-04T07:40:00.000Z",
+        "updatedAt": "2026-10-04T08:00:00.000Z",
+        "nextRunAtIso": "2026-10-04T10:30:00.000Z",
+        "progress": {
+          "step": "Checking the existing question bank",
+          "reused": 8,
+          "generated": 0
+        }
+      }
+    },
+    {
+      "path": "paperMessages/visual-v1-mathematics-submitted",
+      "data": {
+        "conversationId": "visual-v1-mathematics",
+        "requestId": "visual-v1-mathematics-request",
+        "role": "admin",
+        "createdBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "text": "CBSE Class 10 Mathematics. Quadratic equations, 40 marks.",
+        "createdAt": "2026-10-04T07:40:00.000Z"
+      }
+    },
+    {
+      "path": "paperMessages/visual-v1-mathematics-question",
+      "data": {
+        "conversationId": "visual-v1-mathematics",
+        "requestId": "visual-v1-mathematics-request",
+        "role": "agent",
+        "text": "Should this paper total 40 or 44 marks? Your pattern adds up to 44.",
+        "createdAt": "2026-10-04T08:00:00.000Z"
+      }
+    },
+    {
+      "path": "paperConversations/visual-v1-chemistry",
+      "data": {
+        "title": "Class 9 Chemistry",
+        "ownerUid": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "status": "needs-info",
+        "activeRequestId": "visual-v1-chemistry-request",
+        "revision": 1,
+        "createdAt": "2026-10-04T07:19:00.000Z",
+        "updatedAt": "2026-10-04T07:59:00.000Z"
+      }
+    },
+    {
+      "path": "paperRequests/visual-v1-chemistry-request",
+      "data": {
+        "source": "admin-paper-chat",
+        "conversationId": "visual-v1-chemistry",
+        "brief": "ICSE Class 9 Chemistry, Atomic structure. 30 marks, 60 minutes. Include short answers and application questions.",
+        "requestedBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "revision": 1,
+        "status": "needs-info",
+        "createdAt": "2026-10-04T07:39:00.000Z",
+        "updatedAt": "2026-10-04T07:59:00.000Z",
+        "nextRunAtIso": "2026-10-04T10:30:00.000Z",
+        "progress": {
+          "step": "Checking the existing question bank",
+          "reused": 8,
+          "generated": 0
+        }
+      }
+    },
+    {
+      "path": "paperMessages/visual-v1-chemistry-submitted",
+      "data": {
+        "conversationId": "visual-v1-chemistry",
+        "requestId": "visual-v1-chemistry-request",
+        "role": "admin",
+        "createdBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "text": "ICSE Class 9 Chemistry. Atomic structure, 30 marks.",
+        "createdAt": "2026-10-04T07:39:00.000Z"
+      }
+    },
+    {
+      "path": "paperMessages/visual-v1-chemistry-question",
+      "data": {
+        "conversationId": "visual-v1-chemistry",
+        "requestId": "visual-v1-chemistry-request",
+        "role": "agent",
+        "text": "Should the paper cover atomic structure only, or also chemical bonding?",
+        "createdAt": "2026-10-04T07:59:00.000Z"
+      }
+    },
+    {
+      "path": "paperConversations/visual-v1-geography",
+      "data": {
+        "title": "Class 7 Geography",
+        "ownerUid": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "status": "completed",
+        "activeRequestId": "visual-v1-geography-request",
+        "revision": 1,
+        "createdAt": "2026-10-04T07:18:00.000Z",
+        "updatedAt": "2026-10-04T07:58:00.000Z"
+      }
+    },
+    {
+      "path": "paperRequests/visual-v1-geography-request",
+      "data": {
+        "source": "admin-paper-chat",
+        "conversationId": "visual-v1-geography",
+        "brief": "ICSE Class 7 Geography, Water. 25 marks, 60 minutes. Include short answers and application questions.",
+        "requestedBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "revision": 1,
+        "status": "completed",
+        "createdAt": "2026-10-04T07:38:00.000Z",
+        "updatedAt": "2026-10-04T07:58:00.000Z",
+        "nextRunAtIso": "2026-10-04T10:30:00.000Z",
+        "progress": {
+          "step": "Checking the existing question bank",
+          "reused": 8,
+          "generated": 0
+        }
+      }
+    },
+    {
+      "path": "paperMessages/visual-v1-geography-submitted",
+      "data": {
+        "conversationId": "visual-v1-geography",
+        "requestId": "visual-v1-geography-request",
+        "role": "admin",
+        "createdBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "text": "ICSE Class 7 Geography. Water, 25 marks.",
+        "createdAt": "2026-10-04T07:38:00.000Z"
+      }
+    },
+    {
+      "path": "paperDrafts/visual-v1-geography-v1",
+      "data": {
+        "title": "Class 7 Geography",
+        "board": "ICSE",
+        "standard": "7",
+        "subjects": [
+          "Geography"
+        ],
+        "chapters": [
+          "Water"
+        ],
+        "marks": 25,
+        "actualMarks": 25,
+        "durationMinutes": 60,
+        "createdBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "status": "ready",
+        "conversationId": "visual-v1-geography",
+        "parentRequestId": "visual-v1-geography-request",
+        "requestRevision": 1,
+        "createdAt": "2026-10-04T07:48:00.000Z",
+        "updatedAt": "2026-10-04T07:48:00.000Z",
+        "paperHtml": "<!doctype html><html><head><style>@page{size:A4}body{font:16px/1.8 Georgia;padding:36px}h1{font-size:24px}header{border-bottom:1px solid #999;padding-bottom:12px}</style></head><body><header><h1>Class 7 Geography</h1><p>Saved classroom paper · Student copy</p></header><h2>Section A</h2><p>1. Explain the process in your own words. [2]</p><p>2. Give two examples and explain their importance. [4]</p></body></html>",
+        "answerHtml": "<!doctype html><html><head><style>@page{size:A4}body{font:16px/1.8 Georgia;padding:36px}h1{font-size:24px}header{border-bottom:1px solid #999;padding-bottom:12px}</style></head><body><header><h1>Class 7 Geography — Answer key</h1><p>Saved classroom paper · Teacher copy</p></header><h2>Section A</h2><p>1. Explain the process in your own words. [2]</p><p>Credit a correct explanation with a relevant example.</p></body></html>"
+      }
+    },
+    {
+      "path": "paperConversations/visual-v1-science",
+      "data": {
+        "title": "Class 10 Science",
+        "ownerUid": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "status": "queued",
+        "activeRequestId": "visual-v1-science-request",
+        "revision": 2,
+        "createdAt": "2026-10-04T07:17:00.000Z",
+        "updatedAt": "2026-10-04T07:57:00.000Z"
+      }
+    },
+    {
+      "path": "paperRequests/visual-v1-science-request",
+      "data": {
+        "source": "admin-paper-chat",
+        "conversationId": "visual-v1-science",
+        "brief": "CBSE Class 10 Science, Light. 40 marks, 60 minutes. Include short answers and application questions.",
+        "requestedBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "revision": 2,
+        "status": "queued",
+        "createdAt": "2026-10-04T07:37:00.000Z",
+        "updatedAt": "2026-10-04T07:57:00.000Z",
+        "nextRunAtIso": "2026-10-04T10:30:00.000Z",
+        "progress": {
+          "step": "Checking the existing question bank",
+          "reused": 8,
+          "generated": 0
+        }
+      }
+    },
+    {
+      "path": "paperMessages/visual-v1-science-submitted",
+      "data": {
+        "conversationId": "visual-v1-science",
+        "requestId": "visual-v1-science-request",
+        "role": "admin",
+        "createdBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "text": "CBSE Class 10 Science. Light, 40 marks.",
+        "createdAt": "2026-10-04T07:37:00.000Z"
+      }
+    },
+    {
+      "path": "paperDrafts/visual-v1-science-v1",
+      "data": {
+        "title": "Class 10 Science",
+        "board": "CBSE",
+        "standard": "10",
+        "subjects": [
+          "Science"
+        ],
+        "chapters": [
+          "Light"
+        ],
+        "marks": 40,
+        "actualMarks": 40,
+        "durationMinutes": 60,
+        "createdBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "status": "ready",
+        "conversationId": "visual-v1-science",
+        "parentRequestId": "visual-v1-science-request",
+        "requestRevision": 1,
+        "createdAt": "2026-10-04T07:47:00.000Z",
+        "updatedAt": "2026-10-04T07:47:00.000Z",
+        "paperHtml": "<!doctype html><html><head><style>@page{size:A4}body{font:16px/1.8 Georgia;padding:36px}h1{font-size:24px}header{border-bottom:1px solid #999;padding-bottom:12px}</style></head><body><header><h1>Class 10 Science</h1><p>Saved classroom paper · Student copy</p></header><h2>Section A</h2><p>1. Explain the process in your own words. [2]</p><p>2. Give two examples and explain their importance. [4]</p></body></html>",
+        "answerHtml": "<!doctype html><html><head><style>@page{size:A4}body{font:16px/1.8 Georgia;padding:36px}h1{font-size:24px}header{border-bottom:1px solid #999;padding-bottom:12px}</style></head><body><header><h1>Class 10 Science — Answer key</h1><p>Saved classroom paper · Teacher copy</p></header><h2>Section A</h2><p>1. Explain the process in your own words. [2]</p><p>Credit a correct explanation with a relevant example.</p></body></html>"
+      }
+    },
+    {
+      "path": "paperConversations/visual-v1-history",
+      "data": {
+        "title": "Class 8 History",
+        "ownerUid": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "status": "generating",
+        "activeRequestId": "visual-v1-history-request",
+        "revision": 1,
+        "createdAt": "2026-10-04T07:16:00.000Z",
+        "updatedAt": "2026-10-04T07:56:00.000Z"
+      }
+    },
+    {
+      "path": "paperRequests/visual-v1-history-request",
+      "data": {
+        "source": "admin-paper-chat",
+        "conversationId": "visual-v1-history",
+        "brief": "CBSE Class 8 History, Colonial India. 30 marks, 60 minutes. Include short answers and application questions.",
+        "requestedBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "revision": 1,
+        "status": "generating",
+        "createdAt": "2026-10-04T07:36:00.000Z",
+        "updatedAt": "2026-10-04T07:56:00.000Z",
+        "nextRunAtIso": "2026-10-04T10:30:00.000Z",
+        "progress": {
+          "step": "Checking the existing question bank",
+          "reused": 8,
+          "generated": 0
+        }
+      }
+    },
+    {
+      "path": "paperMessages/visual-v1-history-submitted",
+      "data": {
+        "conversationId": "visual-v1-history",
+        "requestId": "visual-v1-history-request",
+        "role": "admin",
+        "createdBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "text": "CBSE Class 8 History. Colonial India, 30 marks.",
+        "createdAt": "2026-10-04T07:36:00.000Z"
+      }
+    },
+    {
+      "path": "paperConversations/visual-v1-biology",
+      "data": {
+        "title": "Class 9 Biology",
+        "ownerUid": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "status": "error",
+        "activeRequestId": "visual-v1-biology-request",
+        "revision": 1,
+        "createdAt": "2026-10-04T07:15:00.000Z",
+        "updatedAt": "2026-10-04T07:55:00.000Z"
+      }
+    },
+    {
+      "path": "paperRequests/visual-v1-biology-request",
+      "data": {
+        "source": "admin-paper-chat",
+        "conversationId": "visual-v1-biology",
+        "brief": "ICSE Class 9 Biology, Cells. 40 marks, 60 minutes. Include short answers and application questions.",
+        "requestedBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "revision": 1,
+        "status": "error",
+        "createdAt": "2026-10-04T07:35:00.000Z",
+        "updatedAt": "2026-10-04T07:55:00.000Z",
+        "nextRunAtIso": "2026-10-04T10:30:00.000Z",
+        "error": "The requested question pattern totals 46 marks, but the requirement asks for 40. Send a corrected pattern to try again.",
+        "progress": {
+          "step": "Checking the existing question bank",
+          "reused": 8,
+          "generated": 0
+        }
+      }
+    },
+    {
+      "path": "paperMessages/visual-v1-biology-submitted",
+      "data": {
+        "conversationId": "visual-v1-biology",
+        "requestId": "visual-v1-biology-request",
+        "role": "admin",
+        "createdBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "text": "ICSE Class 9 Biology. Cells, 40 marks.",
+        "createdAt": "2026-10-04T07:35:00.000Z"
+      }
+    },
+    {
+      "path": "paperConversations/visual-v3-electromagnetic-a",
+      "data": {
+        "title": "Class 12 Physics — Electromagnetic induction, alternating current and electromagnetic waves",
+        "ownerUid": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "status": "queued",
+        "activeRequestId": "visual-v3-electromagnetic-a-request",
+        "revision": 1,
+        "createdAt": "2022-06-12T05:00:00.000Z",
+        "updatedAt": "2022-06-12T05:00:00.000Z"
+      }
+    },
+    {
+      "path": "paperRequests/visual-v3-electromagnetic-a-request",
+      "data": {
+        "source": "admin-paper-chat",
+        "conversationId": "visual-v3-electromagnetic-a",
+        "brief": "CBSE Class 12 Physics. Electromagnetic induction, alternating current and electromagnetic waves. Include graph interpretation, transformer diagrams and application questions. 70 marks, 180 minutes.",
+        "requestedBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "revision": 1,
+        "status": "queued",
+        "createdAt": "2022-06-12T05:00:00.000Z",
+        "updatedAt": "2022-06-12T05:00:00.000Z",
+        "nextRunAtIso": "2026-10-04T10:30:00.000Z"
+      }
+    },
+    {
+      "path": "paperMessages/visual-v3-electromagnetic-a-submitted",
+      "data": {
+        "conversationId": "visual-v3-electromagnetic-a",
+        "requestId": "visual-v3-electromagnetic-a-request",
+        "role": "admin",
+        "createdBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "text": "CBSE Class 12 Physics. Electromagnetic induction, alternating current and electromagnetic waves. 70 marks, 180 minutes.",
+        "createdAt": "2022-06-12T05:00:00.000Z"
+      }
+    },
+    {
+      "path": "paperConversations/visual-v3-electromagnetic-b",
+      "data": {
+        "title": "Class 12 Physics — Electromagnetic induction, alternating current and electromagnetic waves",
+        "ownerUid": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "status": "queued",
+        "activeRequestId": "visual-v3-electromagnetic-b-request",
+        "revision": 1,
+        "createdAt": "2024-06-12T05:00:00.000Z",
+        "updatedAt": "2024-06-12T05:00:00.000Z"
+      }
+    },
+    {
+      "path": "paperRequests/visual-v3-electromagnetic-b-request",
+      "data": {
+        "source": "admin-paper-chat",
+        "conversationId": "visual-v3-electromagnetic-b",
+        "brief": "CBSE Class 12 Physics. Electromagnetic induction, alternating current and electromagnetic waves. Include graph interpretation, transformer diagrams and application questions. 70 marks, 180 minutes.",
+        "requestedBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "revision": 1,
+        "status": "queued",
+        "createdAt": "2024-06-12T05:00:00.000Z",
+        "updatedAt": "2024-06-12T05:00:00.000Z",
+        "nextRunAtIso": "2026-10-04T10:30:00.000Z"
+      }
+    },
+    {
+      "path": "paperMessages/visual-v3-electromagnetic-b-submitted",
+      "data": {
+        "conversationId": "visual-v3-electromagnetic-b",
+        "requestId": "visual-v3-electromagnetic-b-request",
+        "role": "admin",
+        "createdBy": "3Z4Hg1GsDvHDQdFMaWnuKs4BF5qt",
+        "text": "CBSE Class 12 Physics. Electromagnetic induction, alternating current and electromagnetic waves. 70 marks, 180 minutes.",
+        "createdAt": "2024-06-12T05:00:00.000Z"
+      }
+    }
+  ]
+}

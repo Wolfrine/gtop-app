@@ -1,0 +1,4 @@
+Register integration passed: historical search, legacy links, creator attribution, active clarification, ready older versions, scan continuation, source preservation, resumable verified migration and deletion repair.
+
+PROJECT=demo-gtop-register-runtime5
+EXIT_CODE=0

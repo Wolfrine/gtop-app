@@ -1,0 +1,89 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> gtop-app@0.0.0 prebuild
+> node ./scripts/gen-syllabus-index.js
+
+
+> gtop-app@0.0.0 build
+> ng build --configuration production
+
+- Building...
+
+Initial chunk files   | Names                          |  Raw size | Estimated transfer size
+chunk-JHEP6ME2.js     | -                              | 792.81 kB |               146.80 kB
+main-236N7ROQ.js      | main                           | 761.81 kB |               158.13 kB
+chunk-F53E3FYG.js     | -                              | 329.30 kB |                53.48 kB
+styles-LFNQXU74.css   | styles                         | 274.77 kB |                38.35 kB
+chunk-TSJGQDRH.js     | -                              | 192.10 kB |                55.40 kB
+chunk-PFCL3NL6.js     | -                              | 137.10 kB |                36.00 kB
+chunk-PYGVKEUS.js     | -                              |  45.53 kB |                 8.84 kB
+polyfills-IVQMIKRD.js | polyfills                      |  33.71 kB |                11.02 kB
+chunk-2NW6LXYH.js     | -                              |  18.04 kB |                 5.17 kB
+chunk-UOM72NJ7.js     | -                              |  18.02 kB |                 5.64 kB
+chunk-FGKTDTXB.js     | -                              |   9.73 kB |                 3.07 kB
+chunk-VOK5BHLO.js     | -                              |   5.14 kB |                 1.79 kB
+chunk-3RE37YHL.js     | -                              |   4.87 kB |                 1.66 kB
+chunk-OTHRI33Q.js     | -                              |   4.10 kB |                 1.03 kB
+chunk-34CQNRD2.js     | -                              |   4.00 kB |                 1.50 kB
+
+                      | Initial total                  |   2.57 MB |               527.85 kB
+
+Lazy chunk files      | Names                          |  Raw size | Estimated transfer size
+chunk-QKVPX6VA.js     | browser                        |  62.22 kB |                16.49 kB
+chunk-QIPJ2RHT.js     | question-paper-generator-page  |  60.90 kB |                14.13 kB
+chunk-YTVIPYMP.js     | plant-lab-component            |  58.29 kB |                14.77 kB
+chunk-GQQHDVKV.js     | paper-chat-page                |  44.04 kB |                11.33 kB
+chunk-IQ63CVMV.js     | question-review-workbench-page |  33.72 kB |                 9.23 kB
+chunk-C2F3CCRH.js     | current-lab-component          |  28.22 kB |                 7.90 kB
+chunk-52QCS2UO.js     | action-plan-component          |  23.75 kB |                 6.00 kB
+chunk-OQJ2UYUY.js     | question-bank-workspace-page   |  22.97 kB |                 6.10 kB
+chunk-KA5XA4LY.js     | question-library-page          |  19.72 kB |                 5.30 kB
+chunk-DCOZNYW7.js     | -                              |  13.55 kB |                 4.13 kB
+chunk-COHUNA6V.js     | -                              |  13.52 kB |                 3.83 kB
+chunk-M6AYSGIH.js     | paper-chat-viewer-page         |  11.52 kB |                 3.77 kB
+chunk-4ME2FKU6.js     | plant-results-component        |  11.24 kB |                 3.50 kB
+chunk-BOHWYXAG.js     | lab-results-component          |  10.59 kB |                 3.33 kB
+chunk-UYC2UAE7.js     | question-papers-page           |   7.80 kB |                 2.36 kB
+...and 4 more lazy chunks files. Use "--verbose" to show all the files.
+
+Output location: /workspace/scratch/0a41fddf9e8a/gtop-question-journey/gtop-app/dist/gtop-app
+
+Application bundle generation complete. [28.397 seconds]
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/features/question-bank/pages/paper-chat.page.html:55:467:
+      55 │ ....standard}} · {{paper.subjects?.join(', ')}} · {{paper.marks}...
+         ╵                                 ~~~~
+
+  Error occurs in the template of component PaperChatPage.
+
+    src/app/features/question-bank/pages/paper-chat.page.ts:11:104:
+      11 │ ...ts:[FormsModule,RouterLink],templateUrl:'./paper-chat.page.html'})
+         ╵                                            ~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] bundle initial exceeded maximum budget. Budget 2.00 MB was not met by 583.03 kB with a total of 2.57 MB.
+
+
+▲ [WARNING] src/app/pages/quiz-summary/quiz-summary.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.95 kB with a total of 3.95 kB.
+
+
+▲ [WARNING] src/app/pages/action-plan/action-plan.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.90 kB with a total of 3.90 kB.
+
+
+▲ [WARNING] src/app/pages/admin-dashboard/user-list/user-list.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.11 kB with a total of 3.11 kB.
+
+
+▲ [WARNING] src/app/pages/quiz-page/quiz-page.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.72 kB with a total of 3.72 kB.
+
+
+▲ [WARNING] src/app/pages/mcq-management/mcq-management.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 591 bytes with a total of 2.58 kB.
+
+
+▲ [WARNING] src/app/pages/profile/profile.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 92 bytes with a total of 2.09 kB.
+
+
+▲ [WARNING] src/app/pages/reports-page/reports-page.component.scss exceeded maximum budget. Budget 2.00 kB was not met by 1.89 kB with a total of 3.89 kB.
+
+

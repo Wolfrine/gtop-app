@@ -1,0 +1,263 @@
+{
+  "round": 5,
+  "reviewer": "/root",
+  "role": "parent/orchestrator",
+  "criticReviewedFirst": true,
+  "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+  "sourceFingerprint": "d42c68a62b9893ac876a38b77d351953a6854b5fa8195cea2652373486fc4b52",
+  "productionBuildFingerprint": "676f8ba6aa8addb4ec9251f93171830742822a22bdc7b76d2cd63ce80d8719bc",
+  "fixtureSha256": "4e5fba2b588571eab66851b497c623497d8c803559d821c0bd18b40c6b520199",
+  "status": "visual-pass-release-pending",
+  "scores": {
+    "product_meaning": 8.2,
+    "action_clarity": 8.2,
+    "async_truth": 8.2,
+    "durable_retrieval": 8,
+    "output_continuity": 8.3,
+    "mobile_layout": 8,
+    "visual_craft": 8
+  },
+  "overall": 8.1,
+  "verdict": "pass",
+  "judgment": "The current register and task-first detail form a coherent, usable admin journey. Visual pass for the personally viewed actual production-bundle states; technical deployment acceptance remains separate.",
+  "visibleReasons": [
+    "Paper records have searchable stable identity, dates and four visible status views. Desktop rows and narrow stacked records retain the same purpose without a growing selector.",
+    "The current clarification question precedes its answer field and named Send reply action. Selecting an update exposes this task without the old popover covering it.",
+    "A saved version remains usable while the revision is queued; the original/current requirement and older activity remain discoverable on the same record.",
+    "New paper has one text entry with the necessary academic and paper inputs described. Failed saving retains that text; query failure, loading and creator-filtered emptiness have distinct messages and recoveries.",
+    "Search results visibly distinguish old same-titled records by dates and IDs. End-of-results and beginning-of-history states make retrieval limits clear. Scale claims rely separately on QA, not these visual observations.",
+    "Saved student paper and teacher key are distinct and carry recorded output identity/version into actual print output. Unknown legacy versions remain explicit.",
+    "320px views have readable current actions and visible Bank tools; color reinforces textual states without substituting for them.",
+    "Additional direct desktop/mobile inspections confirm current failures and empty search states offer appropriate recovery, saved viewer remains coherent across widths, and long historical records retain actionable controls and continuation/end context."
+  ],
+  "remainingGates": [
+    "Final independent technical QA binding, protected backend/index/backfill/hosting release and CI asset comparison.",
+    "Verify the real publishing request completes from preserved source questions."
+  ],
+  "genericRisks": [
+    {
+      "category": "containers",
+      "status": "justified",
+      "reason": "Panels distinguish actionable clarification, available saved outputs and active revisions."
+    },
+    {
+      "category": "typography",
+      "status": "resolved",
+      "reason": "Titles, state labels and touch controls remain readable in the inspected narrow states."
+    },
+    {
+      "category": "decoration",
+      "status": "justified",
+      "reason": "Restrained green and amber correspond to actual outcomes. No decorative charts or fabricated progress obscure work."
+    }
+  ],
+  "referenceComparison": "Prior personal reference review: Linear supports compact actionable updates; Intercom supports a stable record with conversation; Drive supports prominent scoped retrieval. Current supported search is less expressive than Drive and mobile global chrome consumes height; neither hides the immediate job. No score above 8.3 or exceptional craft claim.",
+  "baselineProvenance": "The parent inspected the retained rejected baseline on 2026-10-05 only after the original clean-slate designer and blind direction selection had finished. Those agents were not given the prior design or parent design ideas. This does not retroactively claim that they saw the baseline.",
+  "inspectionLimits": [
+    "Only the exact personallyViewed file subset below was visually inspected by this parent at this checkpoint; the independent critic inspected all 73 render files.",
+    "Static captures do not establish motion, timed comprehension or real human usability results.",
+    "Print evidence is simple one-page text fixtures, not proof of complex math, images or multipage pagination.",
+    "Images use the actual local production bundle with emulator fixture data, not a live deployment."
+  ],
+  "ciOnlyRebinding": "Parent independently compared both candidate source maps, verified exactly three CI-only changed files, read their current contents, rehashed all384 source files and confirmed all136 production build entries and fixture identity identical. This is no new visual iteration or score increase.",
+  "ownerVerdict": "not-reviewed",
+  "personallyViewed": [
+    {
+      "path": "design/paper-register/baseline/previous-chat-desktop.png",
+      "sha256": "d8c54b0b25599cbc670728a97fe1cfde3c3970e06475a48f99329d3f75016ae1"
+    },
+    {
+      "path": "design/paper-register/baseline/previous-chat-320.png",
+      "sha256": "f993c5d8f92fb28561913add5c8c3e5b803fdde1f31ee363a7149bcb3c294752"
+    },
+    {
+      "path": "design/paper-register/round-5/register-1440.png",
+      "sha256": "f84cc3076a092a897c5bd4ea2fe2e70fd05349c8f66a6538eff1d30c74536e6f"
+    },
+    {
+      "path": "design/paper-register/round-5/register-390.png",
+      "sha256": "bd272ab4837baf8bea269a10cf6b3d0d8e9aa7f027b9e40f0552e0a305d6ef79"
+    },
+    {
+      "path": "design/paper-register/round-5/new-390.png",
+      "sha256": "ac00890d953db7966a1c82c184059c630d3a50bb7a88ea4f0cb7c4b7fe55f336"
+    },
+    {
+      "path": "design/paper-register/round-5/clarification-390.png",
+      "sha256": "08fe4c8e23c25014fb342445798fb5f24900f20cef5f258ea98573a263e99bd6"
+    },
+    {
+      "path": "design/paper-register/round-5/revision-320.png",
+      "sha256": "883611cee57cf0a2a04fd6e546f61324242ff6950ce4e589ef95272c2e3314de"
+    },
+    {
+      "path": "design/paper-register/round-5/completed-1440.png",
+      "sha256": "e85f607a84da749c2a1f357f066d6c50931509cc82e7d1ec736c1b6589433670"
+    },
+    {
+      "path": "design/paper-register/round-5/search-results-1440.png",
+      "sha256": "4cff17db410fb1f760a7ede2ee49d86b9fbabbfb9c6442bfe23c6d771c449eff"
+    },
+    {
+      "path": "design/paper-register/round-5/results-end-320.png",
+      "sha256": "0039519dfb919024ef186f3c37c1ed9a5fcf24e376e627fcbc5a96d428d82fb2"
+    },
+    {
+      "path": "design/paper-register/round-5/history-beginning-390.png",
+      "sha256": "1dc9dc0ba48f23d516ab59d48a6289d151c62be6065536f0a4a26ebc07556bae"
+    },
+    {
+      "path": "design/paper-register/round-5/first-request-empty-view-320.png",
+      "sha256": "c45a153b8ec66f749a609a5b29e4c3e05c15018cbf66cd9a0c6d732fcb3ce939"
+    },
+    {
+      "path": "design/paper-register/round-5/saved-paper-320.png",
+      "sha256": "1c66fe47728e256484352f2afd57d4ac9ad7fa65108d592ee1055400d4c76b6e"
+    },
+    {
+      "path": "design/paper-register/round-5/saved-key-1440.png",
+      "sha256": "f5f2371c6854028e9b737f327564239e2d1dc13d95e41d4339a553562bb0adf2"
+    },
+    {
+      "path": "design/paper-register/round-5/saved-legacy-390.png",
+      "sha256": "1d150c46b7efa374b5d6278819404b2465347f2f215f5879811abae21b0738a7"
+    },
+    {
+      "path": "design/paper-register/round-5/pdf-paper-page-1.png",
+      "sha256": "9d1eebcc305d9138f6fffb868d692652de1878098ac338615f0ad8ba031fb338"
+    },
+    {
+      "path": "design/paper-register/round-5/pdf-key-page-1.png",
+      "sha256": "4713957c092e9b675e548820787fd705c32274cb9fd861e4abb53e5e814f2194"
+    },
+    {
+      "path": "design/paper-register/round-5/notification-return-390.png",
+      "sha256": "57da2381814ea47892bcdb067d3e110cd2dbbc42b19df5e27dddbbe140029d71"
+    },
+    {
+      "path": "design/paper-register/round-5/query-loading-320.png",
+      "sha256": "aa8a2cead95349f3dc7f048aa859b86c74f0124225b7360f59e57695e2714b25"
+    },
+    {
+      "path": "design/paper-register/round-5/query-error-320.png",
+      "sha256": "8cb63a70fe1b0bba916252e373c474661b579f649e30fa802ee798376b176c8d"
+    },
+    {
+      "path": "design/paper-register/round-5/send-error-390.png",
+      "sha256": "1e72d5d03b8b1eb1dcca3bf16ea4c0b19269ef1dfac14c8522eb9816e2716654"
+    },
+    {
+      "path": "design/paper-register/round-5/failure-320.png",
+      "sha256": "50dc20b5f041c3e13e3c9b8672e6a706d00c8fc3dfa4069adba9571e1864ea8e"
+    },
+    {
+      "path": "design/paper-register/round-5/new-1440.png",
+      "sha256": "5bf94b16f4cc8a3feb5369a7f3bee8840db75d28ee2c14bc08ea680bd0b1e111"
+    },
+    {
+      "path": "design/paper-register/round-5/clarification-1440.png",
+      "sha256": "b583a87afc5c8e0ec63997bd5c799c2727d301c89d91c7cfed01b34d84e0021e"
+    },
+    {
+      "path": "design/paper-register/round-5/clarification-320.png",
+      "sha256": "9920b4abd187ab9d839830ae8dbbea6d2265c660001b614c6998850ad1fa0b02"
+    },
+    {
+      "path": "design/paper-register/round-5/revision-1440.png",
+      "sha256": "7c9ec2417fe0b60ff23ad38ee9390cee48157d71527f84855437ddb927c44d31"
+    },
+    {
+      "path": "design/paper-register/round-5/revision-390.png",
+      "sha256": "a91df3ebce851394e003cefd1be33d0772ea3f9f72121a3cde33b3b4a254709c"
+    },
+    {
+      "path": "design/paper-register/round-5/completed-390.png",
+      "sha256": "d7395792a6f19a50153a7077b0341054240910b24eff26b30ce15441a83d5b53"
+    },
+    {
+      "path": "design/paper-register/round-5/failure-1440.png",
+      "sha256": "e45ec9bbfd98d1028070501736fb19f257a99428cf04d2056b0f4ce755c14a36"
+    },
+    {
+      "path": "design/paper-register/round-5/failure-390.png",
+      "sha256": "ad292ced7653e8faf5a2280384b3504f738959afeb8510b6571732a7369fb909"
+    },
+    {
+      "path": "design/paper-register/round-5/search-results-390.png",
+      "sha256": "74792a2fb02cf566371024cd37f1b82f14729cf79dd4678b70c304d7d4602443"
+    },
+    {
+      "path": "design/paper-register/round-5/no-results-1440.png",
+      "sha256": "e96bbff8b7873cc4f6f6c2931fc016778c2ffbd9aa6ba52bf89372d74297e084"
+    },
+    {
+      "path": "design/paper-register/round-5/no-results-390.png",
+      "sha256": "9354f5dc9a8d3bceea908624fdd942e53c7bb945a9bbd5a8266d627029ef95c5"
+    },
+    {
+      "path": "design/paper-register/round-5/query-loading-1440.png",
+      "sha256": "6e37db4de0a88a27706e08c0f5668308b55762832bbfebef18f3216f6adfc201"
+    },
+    {
+      "path": "design/paper-register/round-5/query-loading-390.png",
+      "sha256": "030dd80cc306df6efe5da1dbc7bcea311e061badbd0e95c209e810a00be39b7a"
+    },
+    {
+      "path": "design/paper-register/round-5/query-error-1440.png",
+      "sha256": "7c52586729175af02589556397fd84e7b9328dd687610d6cbb1a7f6eafbec74d"
+    },
+    {
+      "path": "design/paper-register/round-5/query-error-390.png",
+      "sha256": "4934f6a7e63721df081a787cd87557af49eee6e6ca08981671d439fc35a9e316"
+    },
+    {
+      "path": "design/paper-register/round-5/send-error-1440.png",
+      "sha256": "83bf3b00ea93deab4151da6b90801f74a3139fb34724fb758b7b363c8470c8dd"
+    },
+    {
+      "path": "design/paper-register/round-5/first-request-empty-view-1440.png",
+      "sha256": "4c5ee0664c22e6dc1ea4ff741ebc8ec2d71390486da1b5c1f948e392cac8c903"
+    },
+    {
+      "path": "design/paper-register/round-5/first-request-empty-view-390.png",
+      "sha256": "e20ae34951da753dd29afbc7ee9f474ca2f65e9814b0581165b7a2016f62b8a5"
+    },
+    {
+      "path": "design/paper-register/round-5/saved-paper-1440.png",
+      "sha256": "d4a67af4b99f4234ab79fbbc7865448b45d7f16163877380a328f0d1a40440f7"
+    },
+    {
+      "path": "design/paper-register/round-5/saved-paper-390.png",
+      "sha256": "98faacd0c18d7e8fdec87402ded81462f73450f0125b91ac25b4778aced135bb"
+    },
+    {
+      "path": "design/paper-register/round-5/saved-key-390.png",
+      "sha256": "5ea37e54f3e9b859dfa57a513a6a94bf82f4f0257a0edccc7d43f7954d29865a"
+    },
+    {
+      "path": "design/paper-register/round-5/register-320.png",
+      "sha256": "9c22ad3a24589cedefe9d3903ba8e70ad4f9f839c4a441b6c063d12d73d7af77"
+    },
+    {
+      "path": "design/paper-register/round-5/results-end-390.png",
+      "sha256": "b809de07776d69dd7bbc24f22f145d73ccfc5f2a13e2523417819deb61b1cc0a"
+    },
+    {
+      "path": "design/paper-register/round-5/multiple-pages-390.png",
+      "sha256": "8927b68d6b81f4df783914d1431d2a24f6afd2a639929e958476bf7c665217b2"
+    },
+    {
+      "path": "design/paper-register/round-5/long-record-390.png",
+      "sha256": "e47963d05530262ab280de1feb34a0f3b6344a4093b027987589d62c298cf347"
+    }
+  ],
+  "formalCoverageCompleted": true,
+  "previousCandidate": "6a68eadc9752d658399362e78c417ec11857351a124f812d0e6b67c1b90c013e",
+  "backendFingerprint": "f8deae6d27de19badda24a1739898c03a3b1d3f9a74637db2fda48d1f8dd79a0",
+  "finalSourceRebinding": {
+    "verifiedAt": "2026-10-05T09:02:32.221247+00:00",
+    "scope": "Exactly seven CI/runtime/deployment/test file changes, read by parent; every384 source hash,136 actual production build files,73 render hashes and unchanged fixture reverified. Original visual scores and45 personally viewed round5 captures unchanged. No new visual cycle or rerender.",
+    "evidence": "design/paper-register/round-5/final-source-delta.json",
+    "originalCheckpointSha256": "68700b5dc4c6fead1df550662cf6ceaa35a009be355f952950e0b43ef6e2d6fa"
+  }
+}

@@ -1,0 +1,428 @@
+{
+  "schema_version": 1,
+  "round": 5,
+  "reviewer": "/root/release_qa",
+  "reviewedAt": "2026-10-05T09:02:50.517485+00:00",
+  "verdict": "PASS",
+  "scope": "Independent technical QA continuation and bounded final-candidate rebind. Local release candidate validation only; cloud deployment and production repair still require separate verification.",
+  "originalCandidate": "832cbf8c0fa28659275f5d0439534e24fdadb7779fb9c7e33505c4f99639b106",
+  "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+  "sourceFingerprint": "d42c68a62b9893ac876a38b77d351953a6854b5fa8195cea2652373486fc4b52",
+  "productionBuildFingerprint": "676f8ba6aa8addb4ec9251f93171830742822a22bdc7b76d2cd63ce80d8719bc",
+  "backendFingerprint": "f8deae6d27de19badda24a1739898c03a3b1d3f9a74637db2fda48d1f8dd79a0",
+  "fixtureSha256": "4e5fba2b588571eab66851b497c623497d8c803559d821c0bd18b40c6b520199",
+  "candidateManifestSha256": "8fd12ae665eb61d2b29f9308f66fad3d8e879e66e0d42076df684d90d8508f35",
+  "renderManifestSha256": "fb017c7e0cb1c93fcddf8e824f7eda5485b529ea2a6822f3c54382e06d8de055",
+  "sourceDeltaManifestSha256": "a6c2c6f7dcadb28914e5c81ddccb006c3495cd82ad4d6f11a3ffc820a30caca9",
+  "originalVerdict": {
+    "path": "design/paper-register/round-5/qa/round5-verdict.json",
+    "sha256": "331c113b81282750873ed534696823e9e510d1a3856b1bdebab36ffc4afb9970",
+    "preserved": true
+  },
+  "execution": "This continuation reviewer directly reran seven targeted readiness/runtime tests and independently read current runtime, readiness, deployment workflow and deployment script. It rehashed every current source, production build and render file and compared the actual seven-file delta with the frozen record. Final backend and emulator integration results were executed by the implementation lane; their retained exact logs and test source were independently inspected. No application code, Git refs, remote state or production data were changed by this reviewer.",
+  "identityValidation": {
+    "sourceFiles": 384,
+    "productionBuildFiles": 136,
+    "renderFiles": 73,
+    "mismatches": 0,
+    "actualDeltaFiles": 7,
+    "productionBuildUnchanged": true,
+    "fixtureUnchanged": true,
+    "frontendSourceUnchanged": true,
+    "formalStatesSha256": "661a528eaccbc68cb5b91906763fa31586851060307e745c070e31ecf5861b47",
+    "renderResultsSha256": "0c87dbc6b219d2c37628b082b594b33cda36baaa0c7f4aa90b8e78237ff6719f"
+  },
+  "sourceDelta": [
+    {
+      "path": ".github/workflows/firebase-deploy.yml",
+      "before": "6d36939c546fc4381d25b3dcc1a8dd0d02df0ffc53314bf46c56d315c2500781",
+      "after": "98fbedd11aef9016289153b579cd7584738b7c294abd3fa1df2894d29fbf6957"
+    },
+    {
+      "path": "gtop-app/functions/deployment.test.mjs",
+      "before": "122920188d5781db18628ff3a32e6fbb3247d76c07976a6e864de1beca81cdb0",
+      "after": null
+    },
+    {
+      "path": "gtop-app/functions/hosting-readiness.test.mjs",
+      "before": null,
+      "after": "0d6fab4cf5a5fb4f45564ef76b8e77222ccf9972c717fc679d2b1b857af64d67"
+    },
+    {
+      "path": "gtop-app/functions/runtime.mjs",
+      "before": "0de67675d5671b0b23e0903dec76013544bdb512311c74fc89e7ff11721f83ff",
+      "after": "d95b64d7d8bf2c0ac2a351a62156eb054993d9785f0ea1861d11e239b7dc8f8a"
+    },
+    {
+      "path": "gtop-app/functions/runtime.test.mjs",
+      "before": null,
+      "after": "5a0f603fb1751807d247f87f72fe4590fdd3239bf758a8df701d9b7f26f8ad21"
+    },
+    {
+      "path": "gtop-app/scripts/check-paper-register-ready.mjs",
+      "before": null,
+      "after": "7e4c29221e72e6545d6442e7c3dc8d0abcde6ffb50bb54f285eb9d5cbe63afb2"
+    },
+    {
+      "path": "gtop-app/scripts/deploy-paper-functions.mjs",
+      "before": "334572972c95ef18b91b1ee3899d13743f32beb1b9ebcaad5b92aecf70f29598",
+      "after": "224d7305daf73616daea872dfbafe7d75c0d64b7c9af44f6cea5c7c9caec49b2"
+    }
+  ],
+  "affectedChecks": {
+    "directIndependentRun": {
+      "command": "node --test hosting-readiness.test.mjs runtime.test.mjs",
+      "passed": 7,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "finalBackendSuite": {
+      "passed": 17,
+      "failed": 0,
+      "exitCode": 0,
+      "source": "round5-backend-final.log",
+      "supersedes": "Original 12-test result included the rejected reserved-environment deployment proposal; final 17-test result uses supported runtime project discovery."
+    },
+    "gatewayIntegration": {
+      "verdict": "PASS",
+      "exitCode": 0,
+      "coverage": "Anonymous 401, learner 403, admin search, actual source triggers and bounded response."
+    },
+    "publicationIntegration": {
+      "verdict": "PASS",
+      "exitCode": 0,
+      "coverage": "Exact snapshot, separate answers, one delivery, invalid totals and superseded requests."
+    },
+    "registerIntegration": {
+      "verdict": "PASS",
+      "exitCode": 0,
+      "project": "demo-gtop-register-runtime5",
+      "coverage": "Historical search, explicit legacy links, creator attribution, active clarification, ready older versions, scan continuation, source preservation, resumable verified migration and deletion repair.",
+      "priorAttempt": "A reused emulator project failed the scan-boundary fixture assertion (0 versus 1 on the expected second page). Both failed and clean isolated-project logs are retained. The test uses global search candidates and a fresh tag but does not clear old global candidates; the bounded candidate scan means previous fixture documents can shift expected page placement. The unchanged test passed in a fresh project. No failing run is erased or relabeled."
+    }
+  },
+  "reviewFindings": [
+    "The Gen1 runtime exports retain synchronous module loading. Event invocation resolves the project through GoogleAuth only if absent, shares concurrent discovery, retries failed discovery without inventing a project, and then invokes the complete Firebase SDK wrapper. Descriptor copying preserves discovery metadata and .run.",
+    "Direct regression tests use the real installed Firebase SDK wrapper and synchronous require path; they cover configured project, absent project, concurrent calls and first-discovery failure. The deployed Node 22 runtime must still be checked by CI/cloud validation.",
+    "Development readiness uses existing short-lived delegation followed by one GET of derived paperRegisterState/v1. Missing, incomplete or mismatched state skips promotion; authentication/transport failures remain errors. No backfill or source-data write occurs in this check.",
+    "Main production promotion still depends on successful protected backend verification. Non-main hosting cannot proceed when readiness is false. Shared backend post-checks execute only after a successful hosting promotion.",
+    "Deployment no longer attempts the reserved GCLOUD_PROJECT configuration. The final runtime adapter replaces that rejected proposal; successful local tests do not establish that the live publishing fault has been repaired."
+  ],
+  "formalStateCoverage": {
+    "count": 40,
+    "coverageType": "Technical hash identity and retained render-result inspection, not personal visual judgment.",
+    "browserStates": 38,
+    "printPageImages": 2,
+    "browserCaptureRecordsChecked": 71,
+    "overflowRecords": 0,
+    "uncaughtRenderErrorRecords": 0,
+    "states": [
+      {
+        "id": "register-1440",
+        "path": "design/paper-register/round-5/register-1440.png",
+        "sha256": "f84cc3076a092a897c5bd4ea2fe2e70fd05349c8f66a6538eff1d30c74536e6f",
+        "viewport": "desktop"
+      },
+      {
+        "id": "register-390",
+        "path": "design/paper-register/round-5/register-390.png",
+        "sha256": "bd272ab4837baf8bea269a10cf6b3d0d8e9aa7f027b9e40f0552e0a305d6ef79",
+        "viewport": "mobile"
+      },
+      {
+        "id": "new-1440",
+        "path": "design/paper-register/round-5/new-1440.png",
+        "sha256": "5bf94b16f4cc8a3feb5369a7f3bee8840db75d28ee2c14bc08ea680bd0b1e111",
+        "viewport": "desktop"
+      },
+      {
+        "id": "new-390",
+        "path": "design/paper-register/round-5/new-390.png",
+        "sha256": "ac00890d953db7966a1c82c184059c630d3a50bb7a88ea4f0cb7c4b7fe55f336",
+        "viewport": "mobile"
+      },
+      {
+        "id": "clarification-1440",
+        "path": "design/paper-register/round-5/clarification-1440.png",
+        "sha256": "b583a87afc5c8e0ec63997bd5c799c2727d301c89d91c7cfed01b34d84e0021e",
+        "viewport": "desktop"
+      },
+      {
+        "id": "clarification-390",
+        "path": "design/paper-register/round-5/clarification-390.png",
+        "sha256": "08fe4c8e23c25014fb342445798fb5f24900f20cef5f258ea98573a263e99bd6",
+        "viewport": "mobile"
+      },
+      {
+        "id": "revision-1440",
+        "path": "design/paper-register/round-5/revision-1440.png",
+        "sha256": "7c9ec2417fe0b60ff23ad38ee9390cee48157d71527f84855437ddb927c44d31",
+        "viewport": "desktop"
+      },
+      {
+        "id": "revision-390",
+        "path": "design/paper-register/round-5/revision-390.png",
+        "sha256": "a91df3ebce851394e003cefd1be33d0772ea3f9f72121a3cde33b3b4a254709c",
+        "viewport": "mobile"
+      },
+      {
+        "id": "completed-1440",
+        "path": "design/paper-register/round-5/completed-1440.png",
+        "sha256": "e85f607a84da749c2a1f357f066d6c50931509cc82e7d1ec736c1b6589433670",
+        "viewport": "desktop"
+      },
+      {
+        "id": "completed-390",
+        "path": "design/paper-register/round-5/completed-390.png",
+        "sha256": "d7395792a6f19a50153a7077b0341054240910b24eff26b30ce15441a83d5b53",
+        "viewport": "mobile"
+      },
+      {
+        "id": "failure-1440",
+        "path": "design/paper-register/round-5/failure-1440.png",
+        "sha256": "e45ec9bbfd98d1028070501736fb19f257a99428cf04d2056b0f4ce755c14a36",
+        "viewport": "desktop"
+      },
+      {
+        "id": "failure-390",
+        "path": "design/paper-register/round-5/failure-390.png",
+        "sha256": "ad292ced7653e8faf5a2280384b3504f738959afeb8510b6571732a7369fb909",
+        "viewport": "mobile"
+      },
+      {
+        "id": "search-results-1440",
+        "path": "design/paper-register/round-5/search-results-1440.png",
+        "sha256": "4cff17db410fb1f760a7ede2ee49d86b9fbabbfb9c6442bfe23c6d771c449eff",
+        "viewport": "desktop"
+      },
+      {
+        "id": "search-results-390",
+        "path": "design/paper-register/round-5/search-results-390.png",
+        "sha256": "74792a2fb02cf566371024cd37f1b82f14729cf79dd4678b70c304d7d4602443",
+        "viewport": "mobile"
+      },
+      {
+        "id": "no-results-1440",
+        "path": "design/paper-register/round-5/no-results-1440.png",
+        "sha256": "e96bbff8b7873cc4f6f6c2931fc016778c2ffbd9aa6ba52bf89372d74297e084",
+        "viewport": "desktop"
+      },
+      {
+        "id": "no-results-390",
+        "path": "design/paper-register/round-5/no-results-390.png",
+        "sha256": "9354f5dc9a8d3bceea908624fdd942e53c7bb945a9bbd5a8266d627029ef95c5",
+        "viewport": "mobile"
+      },
+      {
+        "id": "query-loading-1440",
+        "path": "design/paper-register/round-5/query-loading-1440.png",
+        "sha256": "6e37db4de0a88a27706e08c0f5668308b55762832bbfebef18f3216f6adfc201",
+        "viewport": "desktop"
+      },
+      {
+        "id": "query-loading-390",
+        "path": "design/paper-register/round-5/query-loading-390.png",
+        "sha256": "030dd80cc306df6efe5da1dbc7bcea311e061badbd0e95c209e810a00be39b7a",
+        "viewport": "mobile"
+      },
+      {
+        "id": "query-error-1440",
+        "path": "design/paper-register/round-5/query-error-1440.png",
+        "sha256": "7c52586729175af02589556397fd84e7b9328dd687610d6cbb1a7f6eafbec74d",
+        "viewport": "desktop"
+      },
+      {
+        "id": "query-error-390",
+        "path": "design/paper-register/round-5/query-error-390.png",
+        "sha256": "4934f6a7e63721df081a787cd87557af49eee6e6ca08981671d439fc35a9e316",
+        "viewport": "mobile"
+      },
+      {
+        "id": "send-error-1440",
+        "path": "design/paper-register/round-5/send-error-1440.png",
+        "sha256": "83bf3b00ea93deab4151da6b90801f74a3139fb34724fb758b7b363c8470c8dd",
+        "viewport": "desktop"
+      },
+      {
+        "id": "send-error-390",
+        "path": "design/paper-register/round-5/send-error-390.png",
+        "sha256": "1e72d5d03b8b1eb1dcca3bf16ea4c0b19269ef1dfac14c8522eb9816e2716654",
+        "viewport": "mobile"
+      },
+      {
+        "id": "first-request-empty-view-1440",
+        "path": "design/paper-register/round-5/first-request-empty-view-1440.png",
+        "sha256": "4c5ee0664c22e6dc1ea4ff741ebc8ec2d71390486da1b5c1f948e392cac8c903",
+        "viewport": "desktop"
+      },
+      {
+        "id": "first-request-empty-view-390",
+        "path": "design/paper-register/round-5/first-request-empty-view-390.png",
+        "sha256": "e20ae34951da753dd29afbc7ee9f474ca2f65e9814b0581165b7a2016f62b8a5",
+        "viewport": "mobile"
+      },
+      {
+        "id": "saved-paper-1440",
+        "path": "design/paper-register/round-5/saved-paper-1440.png",
+        "sha256": "d4a67af4b99f4234ab79fbbc7865448b45d7f16163877380a328f0d1a40440f7",
+        "viewport": "desktop"
+      },
+      {
+        "id": "saved-paper-390",
+        "path": "design/paper-register/round-5/saved-paper-390.png",
+        "sha256": "98faacd0c18d7e8fdec87402ded81462f73450f0125b91ac25b4778aced135bb",
+        "viewport": "mobile"
+      },
+      {
+        "id": "saved-key-1440",
+        "path": "design/paper-register/round-5/saved-key-1440.png",
+        "sha256": "f5f2371c6854028e9b737f327564239e2d1dc13d95e41d4339a553562bb0adf2",
+        "viewport": "desktop"
+      },
+      {
+        "id": "saved-key-390",
+        "path": "design/paper-register/round-5/saved-key-390.png",
+        "sha256": "5ea37e54f3e9b859dfa57a513a6a94bf82f4f0257a0edccc7d43f7954d29865a",
+        "viewport": "mobile"
+      },
+      {
+        "id": "register-320",
+        "path": "design/paper-register/round-5/register-320.png",
+        "sha256": "9c22ad3a24589cedefe9d3903ba8e70ad4f9f839c4a441b6c063d12d73d7af77",
+        "viewport": "mobile"
+      },
+      {
+        "id": "clarification-320",
+        "path": "design/paper-register/round-5/clarification-320.png",
+        "sha256": "9920b4abd187ab9d839830ae8dbbea6d2265c660001b614c6998850ad1fa0b02",
+        "viewport": "mobile"
+      },
+      {
+        "id": "revision-320",
+        "path": "design/paper-register/round-5/revision-320.png",
+        "sha256": "883611cee57cf0a2a04fd6e546f61324242ff6950ce4e589ef95272c2e3314de",
+        "viewport": "mobile"
+      },
+      {
+        "id": "saved-paper-320",
+        "path": "design/paper-register/round-5/saved-paper-320.png",
+        "sha256": "1c66fe47728e256484352f2afd57d4ac9ad7fa65108d592ee1055400d4c76b6e",
+        "viewport": "mobile"
+      },
+      {
+        "id": "pdf-paper-page-1",
+        "path": "design/paper-register/round-5/pdf-paper-page-1.png",
+        "sha256": "9d1eebcc305d9138f6fffb868d692652de1878098ac338615f0ad8ba031fb338",
+        "viewport": "desktop"
+      },
+      {
+        "id": "pdf-key-page-1",
+        "path": "design/paper-register/round-5/pdf-key-page-1.png",
+        "sha256": "4713957c092e9b675e548820787fd705c32274cb9fd861e4abb53e5e814f2194",
+        "viewport": "desktop"
+      },
+      {
+        "id": "saved-legacy-390",
+        "path": "design/paper-register/round-5/saved-legacy-390.png",
+        "sha256": "1d150c46b7efa374b5d6278819404b2465347f2f215f5879811abae21b0738a7",
+        "viewport": "mobile"
+      },
+      {
+        "id": "notification-return-390",
+        "path": "design/paper-register/round-5/notification-return-390.png",
+        "sha256": "57da2381814ea47892bcdb067d3e110cd2dbbc42b19df5e27dddbbe140029d71",
+        "viewport": "mobile"
+      },
+      {
+        "id": "results-end-390",
+        "path": "design/paper-register/round-5/results-end-390.png",
+        "sha256": "b809de07776d69dd7bbc24f22f145d73ccfc5f2a13e2523417819deb61b1cc0a",
+        "viewport": "mobile"
+      },
+      {
+        "id": "history-beginning-390",
+        "path": "design/paper-register/round-5/history-beginning-390.png",
+        "sha256": "1dc9dc0ba48f23d516ab59d48a6289d151c62be6065536f0a4a26ebc07556bae",
+        "viewport": "mobile"
+      },
+      {
+        "id": "multiple-pages-390",
+        "path": "design/paper-register/round-5/multiple-pages-390.png",
+        "sha256": "8927b68d6b81f4df783914d1431d2a24f6afd2a639929e958476bf7c665217b2",
+        "viewport": "mobile"
+      },
+      {
+        "id": "long-record-390",
+        "path": "design/paper-register/round-5/long-record-390.png",
+        "sha256": "e47963d05530262ab280de1feb34a0f3b6344a4093b027987589d62c298cf347",
+        "viewport": "mobile"
+      }
+    ],
+    "printLimitation": "The two PDF page image hashes are bound to the previously reviewed render set; this continuation reviewer does not claim a new visual print inspection."
+  },
+  "carriedForward": {
+    "basis": "Identical frontend source, 136-file production bundle, fixture and 73 render bytes. No new visual cycle or browser rerun claimed.",
+    "checks": {
+      "production-round-5-1280": {
+        "passed": 9,
+        "total": 9,
+        "uncaught": 0,
+        "resultSha256": "67f862d336aafd836549745e1e5dc8688e4a8a843db1b06c15ce04b5d60c4f6b"
+      },
+      "production-round-5-390": {
+        "passed": 9,
+        "total": 9,
+        "uncaught": 0,
+        "resultSha256": "64354a4c8d5dcc02a55ff3dcb7eebba6682a79244cce2ab9cd88b685e30f1736"
+      },
+      "production-round-5-320": {
+        "passed": 9,
+        "total": 9,
+        "uncaught": 0,
+        "resultSha256": "2347a3a64c75871716d26053444bf9d022c4a7933ddbe74633d29e69d01ee313"
+      },
+      "production-viewer-auth-round-5-390": {
+        "passed": 2,
+        "total": 2,
+        "uncaught": 0,
+        "resultSha256": "1295a35702efa2c4d34dde515d9a354598a5ef7b399de788fa4c1f436bf26db5"
+      },
+      "viewer-auth-round-5-390": {
+        "passed": 4,
+        "total": 4,
+        "uncaught": 0,
+        "resultSha256": "1080794781a546fbe7ee109720efc3e619679cdf8cd7548e71dcfe0f4ec4eac4"
+      },
+      "continuity-round-5-390": {
+        "passed": 4,
+        "total": 4,
+        "uncaught": 0,
+        "resultSha256": "6d0f3b982a1c2faa675ec6104d7f989469b565b0223bd48805e20532281f974e"
+      },
+      "cache-context-round-5-390": {
+        "passed": 3,
+        "total": 3,
+        "uncaught": 0,
+        "resultSha256": "0009285198cc8a214abb788cc2bdd0caed389f9cc966a3501d90b8409924642e"
+      }
+    },
+    "releaseSuites": "Original module, rules, database, existing E2E, browser production auth, continuity, cache and timestamp results remain scoped as recorded in round5-verdict.json; the affected backend suite and integrations are replaced by final checks above.",
+    "scale": "Historical PASS on a41c781298fe4f40e87682c423d43b696c2c904d9c0ed271b04ebf1179eebd17 carried forward only for unchanged query/cursor/backfill mechanisms.10,023 families, 15,454 sources, 46,362 checks, 335 pages, 340 bounded queries. Not rerun or relabeled as a new-hash scale pass; see timestamp-scale-review.json and prior scale-verdict.json."
+  },
+  "knownMaterialFindings": [],
+  "limits": [
+    "This is a continuation reviewer, not the original QA or visual critic. It does not claim the original agents\u2019 personal screenshot coverage or newly executed full browser/scale suites.",
+    "Host Node 24 differs from configured Cloud Functions Node 22 and current application CI Node 20. Passing host tests are not deployed runtime proof.",
+    "Local Firebase CLI event transport uses the separately reviewed scratch Unix-socket-to-TCP shim; handler, SDK, Auth and Firestore paths remain real. The original tooling limitations remain applicable.",
+    "The prior frontend production bundle is unchanged. CI-generated version metadata and deployed bytes require explicit release verification.",
+    "Production publication repair, actual hosted release, owner acceptance and visual quality remain separate gates."
+  ],
+  "evidenceHashes": {
+    "round5-backend-final.log": "47cafdf45751f41bfea951e7bc51b104c6e0f4790fb42def8bbb055a5dc43637",
+    "round5-gateway-final.log": "0967fd2e7c243aa27549aed9c1d96b3932002d260d793768f75b185845373973",
+    "round5-publication-final.log": "d3497a89a4fd9f17239f22f7b5e826006c1b9f77f18c2ef4cdf41c3f78f0f822",
+    "round5-register-final.log": "f25ae73179174d62b5952f2a71491a0788aebe492bd51069fb626b764f21ddb8",
+    "round5-register-reused-project.log": "f3ac51626cc25f3ca8ab57e1487e751ae8782cba77da960054a64def1e5f6f66",
+    "release-qa-direct-tests.log": "4ce9e0d921204237234b12a05335b13eac8a24c8bcfb1be22f8a44fca185190f"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "round": 2,
+  "width": 390,
+  "startedAt": "2026-10-04T11:52:34.276Z",
+  "checks": [
+    {
+      "name": "late earlier-history response cannot mix one record into another",
+      "passed": false,
+      "error": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate"
+    },
+    {
+      "name": "late earlier-version response cannot replace another records saved outputs",
+      "passed": false,
+      "error": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate"
+    },
+    {
+      "name": "late send acknowledgment keeps the current record and its new typed draft",
+      "passed": false,
+      "error": "Error: expect(page).toHaveURL(expected) failed\n\nExpected pattern: /\\/chat\\/qa-journey-1791113551930-old-chat\\?/\nReceived string:  \"http://127.0.0.1:4300/admin/question-papers/chat/qa-journey-1791113551930-late-send-390-1791114767594?emulator=1&persistentCache=1&testEmail=qa-journey-1791113551930@gtop.test&testPassword=Independent-journey-2026\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 5000ms\n    14 × locator resolved to <html lang=\"en\">…</html>\n       - unexpected value \"http://127.0.0.1:4300/admin/question-papers/chat/qa-journey-1791113551930-late-send-390-1791114767594?emulator=1&persistentCache=1&testEmail=qa-journey-1791113551930@gtop.test&testPassword=Independent-journey-2026\"\n"
+    },
+    {
+      "name": "restored stale draft retains its original revision check when editor reopens",
+      "passed": true
+    }
+  ],
+  "uncaught": [],
+  "finishedAt": "2026-10-04T11:52:56.470Z"
+}

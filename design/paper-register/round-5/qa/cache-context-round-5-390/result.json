@@ -1,0 +1,28 @@
+{
+  "round": 5,
+  "width": 390,
+  "startedAt": "2026-10-05T06:18:03.339Z",
+  "checks": [
+    {
+      "name": "persistent Firestore cache supports offline revisit and unacknowledged draft reconnects once",
+      "passed": true
+    },
+    {
+      "name": "gateway permission denial evicts cached visible rows and ends loading truthfully",
+      "passed": true
+    },
+    {
+      "name": "sign-out,account switch and role loss do not retain another authorized session",
+      "passed": true
+    }
+  ],
+  "uncaught": [],
+  "indexedDbNames": [
+    "firebase-heartbeat-database",
+    "firebaseLocalStorageDb",
+    "firestore/[DEFAULT]/gtop-app/main"
+  ],
+  "offlineOperationId": "35524c31-5c33-4ea6-8778-b471d8d6e752",
+  "roleDeniedStatus": 403,
+  "finishedAt": "2026-10-05T06:18:07.921Z"
+}

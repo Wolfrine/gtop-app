@@ -1,0 +1,18 @@
+{
+  "round": 4,
+  "width": 390,
+  "startedAt": "2026-10-04T12:27:00.988Z",
+  "checks": [
+    {
+      "name": "complete history boundary and persisted admin attribution",
+      "passed": true,
+      "counts": {
+        "messages": 161,
+        "requests": 161,
+        "moreHistory": false
+      }
+    }
+  ],
+  "uncaught": [],
+  "finishedAt": "2026-10-04T12:27:02.992Z"
+}

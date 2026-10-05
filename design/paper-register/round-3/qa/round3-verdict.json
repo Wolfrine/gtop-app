@@ -1,0 +1,70 @@
+{
+  "round": 3,
+  "verdict": "BLOCKED",
+  "reviewer": "independent functional QA",
+  "sourceFingerprint": "c16c9523759050c60e2f370071ac7ded58edfa907304669c26a085c924a0d92b",
+  "backendSha256": "a41c781298fe4f40e87682c423d43b696c2c904d9c0ed271b04ebf1179eebd17",
+  "execution": "Independent frozen QA scripts executed unchanged by implementer in its shared service namespace; reviewer inspected raw logs, JSON, source and failure screenshots. Only the QA continuity pre-mount null guard was corrected; original script, log and evidence retained.",
+  "checks": {
+    "coreBrowser1280": {
+      "passed": 8,
+      "total": 8
+    },
+    "coreBrowser320": {
+      "passed": 8,
+      "total": 8
+    },
+    "preliminaryNavigation390": {
+      "passed": 4,
+      "total": 4
+    },
+    "preliminaryHistoryDraft390": {
+      "passed": 2,
+      "total": 2
+    },
+    "cacheOfflineIdentity390": {
+      "passed": 2,
+      "total": 3
+    },
+    "continuity390": {
+      "passed": 1,
+      "total": 4
+    }
+  },
+  "closedPriorBlockers": [
+    "Fast history paging retrieves all161 messages including original submission and more than100 saved requests.",
+    "Late history, versions and send responses no longer change a different active record."
+  ],
+  "findings": [
+    {
+      "priority": "P2",
+      "file": "gtop-app/src/app/features/question-bank/pages/paper-chat.page.ts:46",
+      "issue": "Gateway403 clears rows/cache but leaves loading=true because clearPrivileged increments generation and loadRegister finally skips reset; Loading papers persists and Search stays disabled.",
+      "evidence": "evidence/cache-round-3-390/result.json and failure-2.png"
+    },
+    {
+      "priority": "P2",
+      "file": "gtop-app/src/app/features/question-bank/pages/paper-chat.page.ts:28",
+      "issue": "Real detail and output links return to an empty search, All papers view and unchecked Created by me after an old result was reached through filtered cursor paging. Returning-user context continuity fails. Position assertions were not reached because query restoration already failed.",
+      "evidence": "evidence/continuity-round-3-390/result.json and failure-2.png/failure-3.png"
+    },
+    {
+      "priority": "P2",
+      "file": "gtop-app/src/app/features/question-bank/pages/paper-chat.page.scss:2",
+      "issue": "Mobile Bank tools link is display:none, with no alternative canonical-bank entry from the paper workspace; actual accessible link test fails at390. Stronger designer confirmed no alternate entry.",
+      "evidence": "evidence/continuity-round-3-390/result.json and failure-1.png"
+    }
+  ],
+  "positiveEvidence": [
+    "Offline SPA revisit uses actual Firestore IndexedDB cache; unsent text survives online reload and offline send/reconnect confirms exactly one request.",
+    "Sign-out clears register cache; second admin does not receive first-admin draft; live role downgrade clears rows/cache and real gateway returns403.",
+    "Actual gateway continuation scanned200,200,23 candidates; client retained one unique family through a zero-new-family page and reached the older second match.",
+    "No uncaught browser exceptions in corrected runs."
+  ],
+  "limitations": [
+    "Whole-app offline reload service-worker behavior was not tested; emulator disables the service worker.",
+    "Scale gate still running independently; no completeness claim yet.",
+    "No real-device opt-in push delivery tested."
+  ],
+  "timestamp": "2026-10-04T12:16:53.350367+00:00"
+}

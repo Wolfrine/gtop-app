@@ -1,0 +1,9 @@
+PASS old title beyond initial caps is discoverable in global register
+PASS historical submitted requirement is globally searchable
+PASS timestamp-less legacy completed paper stays ready and openable
+PASS old chat link reveals submitted requirements after reload
+PASS new natural-language request saves once and keeps full brief accessible
+PASS clarification preserves completed versions and separates student/key output
+PASS long activity retrieves original message beyond150 and request beyond100
+PASS unsent new requirement persists through online reload
+PASS actual production scripts disable Angular debug access and have recorded hashes

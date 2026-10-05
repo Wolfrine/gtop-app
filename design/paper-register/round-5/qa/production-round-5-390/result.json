@@ -1,0 +1,103 @@
+{
+  "round": 5,
+  "width": 390,
+  "startedAt": "2026-10-05T06:15:09.508Z",
+  "checks": [
+    {
+      "name": "old title beyond initial caps is discoverable in global register",
+      "passed": true
+    },
+    {
+      "name": "historical submitted requirement is globally searchable",
+      "passed": true
+    },
+    {
+      "name": "timestamp-less legacy completed paper stays ready and openable",
+      "passed": true
+    },
+    {
+      "name": "old chat link reveals submitted requirements after reload",
+      "passed": true
+    },
+    {
+      "name": "new natural-language request saves once and keeps full brief accessible",
+      "passed": true
+    },
+    {
+      "name": "clarification preserves completed versions and separates student/key output",
+      "passed": true
+    },
+    {
+      "name": "long activity retrieves original message beyond150 and request beyond100",
+      "passed": true
+    },
+    {
+      "name": "unsent new requirement persists through online reload",
+      "passed": true
+    },
+    {
+      "name": "actual production scripts disable Angular debug access and have recorded hashes",
+      "passed": true
+    }
+  ],
+  "uncaught": [],
+  "gateway": [
+    {
+      "status": 200,
+      "query": "?view=all&q=&mine=0&limit=30",
+      "scanned": 30,
+      "items": 30,
+      "nextCursor": true,
+      "indexReady": true
+    },
+    {
+      "status": 200,
+      "query": "?view=all&q=buried+paleontology&mine=0&limit=30",
+      "scanned": 2,
+      "items": 1,
+      "nextCursor": false,
+      "indexReady": true
+    },
+    {
+      "status": 200,
+      "query": "?view=all&q=REQUIRED-BRIEF-qa-journey-1791113551930&mine=0&limit=30",
+      "scanned": 1,
+      "items": 1,
+      "nextCursor": false,
+      "indexReady": true
+    },
+    {
+      "status": 200,
+      "query": "?view=ready&q=REQUIRED-BRIEF-qa-journey-1791113551930&mine=0&limit=30",
+      "scanned": 1,
+      "items": 1,
+      "nextCursor": false,
+      "indexReady": true
+    },
+    {
+      "status": 200,
+      "query": "?view=ready&q=DATELESS-ARCHIVE-TARGET&mine=0&limit=30",
+      "scanned": 1,
+      "items": 1,
+      "nextCursor": false,
+      "indexReady": true
+    }
+  ],
+  "createdConversation": "15c69a05-7322-4406-9991-70c5aa0d18c0",
+  "printInvoked": true,
+  "historyCounts": {
+    "messages": 161,
+    "requests": 161
+  },
+  "productionScripts": [
+    {
+      "path": "/polyfills-IVQMIKRD.js",
+      "sha256": "69dcea045643dd0de998a3cd0ccbbb46b46bff2651a87a56c73c28eb208e8f98"
+    },
+    {
+      "path": "/main-236N7ROQ.js",
+      "sha256": "ca914cfe88142829fd120fec640127ff039de5ddad4a08d777147bb623c0c1b1"
+    }
+  ],
+  "finishedAt": "2026-10-05T06:15:14.067Z"
+}

@@ -1,0 +1,94 @@
+{
+  "candidate": "7d2edf053d5a36d1b89e39cf4e06824b99c9f845ebed8b7aa9fb0ea7537c2013",
+  "sourceFingerprint": "d42c68a62b9893ac876a38b77d351953a6854b5fa8195cea2652373486fc4b52",
+  "productionBuildFingerprint": "676f8ba6aa8addb4ec9251f93171830742822a22bdc7b76d2cd63ce80d8719bc",
+  "fixtureSha256": "4e5fba2b588571eab66851b497c623497d8c803559d821c0bd18b40c6b520199",
+  "renderManifestSha256": "fb017c7e0cb1c93fcddf8e824f7eda5485b529ea2a6822f3c54382e06d8de055",
+  "applicationBuild": "Production build exit 0; only retained existing budget warnings. Exact served main hash confirmed by independent production browser checks.",
+  "checks": {
+    "module": {
+      "passed": 81,
+      "log": "qa/round5-module-tests.log"
+    },
+    "backend": {
+      "passed": 17,
+      "log": "qa/round5-backend-final.log",
+      "includes": "Real CJS loader, actual Gen1 SDK invocation, ADC concurrency/failure retry, and read-only CI readiness gate."
+    },
+    "firestoreRules": {
+      "passed": 32,
+      "log": "qa/round5-rules.log"
+    },
+    "databaseRules": {
+      "passed": 1,
+      "log": "qa/round5-database-rules-direct.log",
+      "initialFailure": "qa/round5-database-rules.log; unchanged test passed after removing local HTTP proxy used by Firebase Node websocket"
+    },
+    "learningRules": {
+      "passed": 5,
+      "log": "qa/round5-learning-rules.log"
+    },
+    "plantRules": {
+      "passed": 5,
+      "log": "qa/round5-plant-rules.log"
+    },
+    "normalBrowser": {
+      "passed": 24,
+      "viewports": [
+        "desktop-chromium",
+        "compact-phone-chromium"
+      ],
+      "log": "qa/round5-e2e.log"
+    },
+    "productionBrowser": {
+      "passed": 27,
+      "widths": [
+        1280,
+        390,
+        320
+      ]
+    },
+    "productionViewerAuth": {
+      "passed": 2,
+      "width": 390
+    },
+    "developmentViewerAuth": {
+      "passed": 4,
+      "width": 390,
+      "log": "qa/round5-viewer-auth-complete.log"
+    },
+    "continuity": {
+      "passed": 4,
+      "width": 390
+    },
+    "persistentCacheContext": {
+      "passed": 3,
+      "width": 390
+    },
+    "timestampProjection": {
+      "passed": 11,
+      "baselineFailed": 5
+    },
+    "integrations": [
+      "qa/round5-register-final.log",
+      "qa/round5-gateway-final.log",
+      "qa/round5-publication-final.log"
+    ],
+    "hostingReadiness": {
+      "passed": 4,
+      "log": "qa/round5-hosting-readiness.log"
+    },
+    "supersededRuntimeAttempt": {
+      "gatewayExit": 1,
+      "log": "qa/round5-gateway-supported.log",
+      "cause": "Top-level await caused Firebase emulator require loader ERR_REQUIRE_ASYNC_MODULE. Final implementation preserves synchronous module load and initializes before full SDK invocation; unchanged gateway test passes."
+    }
+  },
+  "limits": [
+    "Local test suite uses permitted loopback TCP transport for Firebase workers; see independent transport review.",
+    "Application source, production build, fixture and captures remain identical across final CI-only/backend-only source rebindings; separate reviews record exact deltas.",
+    "The earlier full historical scale and automatic CLI resume evidence retains its original identity; timestamp affected-order tests supplement a narrow mechanism carry-forward.",
+    "Full CI WebKit/device matrix, protected live backend/backfill, CI artifact byte comparison, real request recovery and hosted smoke checks remain release-owned gates.",
+    "No production source/index writes, commit, push or merge were performed by this implementation agent."
+  ]
+}

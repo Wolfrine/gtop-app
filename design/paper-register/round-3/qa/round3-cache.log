@@ -1,0 +1,6 @@
+PASS persistent Firestore cache supports offline revisit and unacknowledged draft reconnects once
+FAIL gateway permission denial evicts cached visible rows and ends loading truthfully: expect(received).toBe(expected) // Object.is equality
+
+Expected: false
+Received: true
+PASS sign-out,account switch and role loss do not retain another authorized session

@@ -1,10 +1,10 @@
 import type { SavedPaperDraft } from './question-paper.domain';
 
 export type ChatRequestStatus = 'queued'|'needs-info'|'generating'|'publishing'|'completed'|'error'|'cancelled';
-export interface PaperConversation { id:string; title:string; ownerUid:string; status:ChatRequestStatus; createdAt:unknown; updatedAt:unknown; activeRequestId?:string; }
-export interface PaperChatMessage { id:string; conversationId:string; role:'admin'|'agent'|'system'; text:string; createdAt:unknown; requestId?:string; paperId?:string; }
-export interface PaperChatRequest { id:string; conversationId:string; brief:string; status:ChatRequestStatus; progress?:{step:string;reused:number;generated:number}; paperId?:string; error?:string; createdAt:unknown; revision?:number; }
-export interface ChatSavedPaper extends Omit<SavedPaperDraft,'status'> { conversationId?:string; paperHtml?:string; answerHtml?:string; paperArtifactPath?:string; answerArtifactPath?:string; reusedQuestionCount?:number; generatedQuestionCount?:number; status:string; }
+export interface PaperConversation { id:string; title:string; ownerUid:string; status:ChatRequestStatus; createdAt:unknown; updatedAt:unknown; activeRequestId?:string; revision?:number; }
+export interface PaperChatMessage { id:string; conversationId:string; role:'admin'|'agent'|'system'; createdBy?:string; text:string; createdAt:unknown; requestId?:string; paperId?:string; }
+export interface PaperChatRequest { id:string; conversationId:string; brief:string; status:ChatRequestStatus; progress?:{step:string;reused:number;generated:number}; paperId?:string; error?:string; createdAt:unknown; revision?:number; nextRunAtIso?:string; requestedBy?:string; }
+export interface ChatSavedPaper extends Omit<SavedPaperDraft,'status'> { conversationId?:string; requestRevision?:number; paperHtml?:string; answerHtml?:string; paperArtifactPath?:string; answerArtifactPath?:string; reusedQuestionCount?:number; generatedQuestionCount?:number; status:string; }
 export interface PaperNotification { id:string; ownerUid:string; conversationId:string; paperId?:string; text:string; read:boolean; createdAt:unknown; }
 
 /** Exact IST slots. At a slot already in progress, the next slot is advertised. */

@@ -1,0 +1,226 @@
+INDEPENDENT QUESTION-PAPER SERVICE DESIGN
+Frozen first proposal · 4 October 2026
+
+RECOMMENDATION
+
+Use a single paper register. A paper gets a stable identity when requested and remains the same findable object through clarification, generation, printing and subsequent revisions. Natural language is the input method, not the information architecture. Put the current action or printable document before its conversation history.
+
+The everyday journey is: New paper → describe and attach → submit for a scheduled run → leave → receive an actionable update → answer a clarification or open the PDFs. A paper can become ready without any admin approval step. A later correction creates a new version and preserves every completed version.
+
+This proposal was independently derived from the neutral requirements. No existing product, repository, screenshots, prior conversation, memory or other designer proposal was inspected. Reference products below informed mechanisms, not a copied product layout. The visual studies are static concepts, with simulated records and controls. They are not production, usability-tested, owner-approved or independently accepted visual work.
+
+1. USER JOBS AND PRODUCT TRUTH
+
+Primary jobs:
+• Ask for a usable paper without translating teaching intent into a long form.
+• Know whether the service has received the request, needs an answer, is actually working, or has finished.
+• Leave the service and return from a notification without reconstructing context.
+• Get exactly the paper and separate answer key that correspond to one version.
+• Find an older paper by remembered academic content, date or colleague, then print or reuse it.
+• Handle several concurrent papers and cover for another admin without duplicate work.
+• Correct a request, cancel unnecessary work and recover a failed attempt without losing context.
+• Understand whether an urgent deadline is feasible under the actual schedule.
+
+Visible product truth: generation is scheduled at 08:00, 10:00, 12:00, 14:00, 16:00, 18:00 and 20:00 Asia/Kolkata. These are processing opportunities, not promised completion times. No screen suggests an immediate agent response or an instant urgent mode. Matching bank questions and generating missing ones are automatic internal work. There is no question-approval queue in this journey.
+
+Defaults are economical and explicit. A4 portrait, print-friendly layout, question numbering and a separate answer-key PDF need no setup. Do not silently assume a board, textbook edition, class, chapter coverage, language requirement or incompatible mark pattern. Missing duration can mean no duration printed. A clearly described grade, topic and question count is enough for a generic worksheet; do not force a board or marks for that request. Ask only for information that materially changes the requested educational content or prevents a valid result. If size is unspecified, ask for total marks or question count rather than inventing a paper length.
+
+2. THREE CANDIDATE STRUCTURES
+
+A — Conversation workspace
+Home is a conversation list; one chat corresponds to one paper. The main working surface is the original request, service events, clarification replies and resulting files. A persistent composer supports free-form amendments.
+Strengths: smallest conceptual step from “describe a paper”; natural follow-ups; chronological rationale stays available.
+Costs: unread messages and unfinished jobs compete; a latest message is a poor paper summary; PDFs and their versions become attachments to hunt for; thousands of similarly titled conversations need a second library; busy history moves the current action down the phone screen. A persistent composer can imply immediate service.
+Mobile: excellent single conversation, weaker multi-paper overview. Sidebar becomes a separate list route. Long histories require a pinned current-state summary to stay usable.
+
+B — Work queue / board
+Home groups paper cards into Needs action, Queued, Preparing and Ready; completed work has a separate durable view. Opening a task shows its question, ownership and activity.
+Strengths: operational visibility across admins; blockers and deadlines are easy to scan; ownership feels explicit; good for a concentrated daily dispatch task.
+Costs: the admin must learn processing categories; papers move between places; a ready version with another revision queued does not fit one column; wide boards collapse into multiple mobile views; long-term retrieval tends to grow a separate product. Dragging cards would misleadingly suggest that admins control machine states, so it must not be allowed.
+Mobile: one status group at a time with a visible status selector and a full-screen record. It must never require horizontal board dragging to find a paper.
+
+C — Durable paper register, selected
+Home is a searchable register of stable paper objects. Views such as Needs action, In progress and Ready are filters, not different storage destinations. A record opens a focused detail page where the current question, real status or PDFs lead. A compact activity history remains secondary.
+Strengths: one noun and one location throughout the lifecycle; academic facets support years of retrieval; mixed revision states can be expressed honestly; new admins can understand it as “our papers”; useful on a phone without preserving desktop columns. A direct Reply shortcut can accelerate clarification on desktop while the same paper has a stable deep link.
+Costs: needs careful attention prioritization so blocked requests do not disappear among old papers; the natural-language composer must be prominent enough to avoid looking like a data-entry system; row density must be tuned for phones.
+Selection: C wins against the combined requirements of asynchronous use, concurrent admins and thousands of durable records. Keep the ease of conversation inside the record without making the chronological transcript the primary surface.
+
+Comparison rules: all three studies use the same six paper families, names, owners, statuses, deadlines and marks conflict at simulated Monday 5 October 2026, 10:18 IST. The candidate differences are composition and interaction structure, not palette substitutions. Desktop: 1440 × 1040. Phone: 390 × 844. All full-page renders have no horizontal overflow. Their different document heights expose the cost of each structure. C's phone reply uses the separate focused detail screen; its long inline desktop reply is collapsed on the phone.
+
+3. INFORMATION OBJECTS
+
+Institute: access boundary and printable institute name; a request is never publicly accessible merely because someone has its URL.
+Member: authenticated admin identity. All admins in the institute can view submitted papers and help with them. Introduce no speculative department/approval roles.
+Draft: private to its author; saved text, images and need-by time. Cross-device server save after authentication, with clear Saved / Saving / Not saved indicators. Leaving a draft does not schedule a job.
+Paper: permanent institute-scoped ID such as P-1047; title, academic metadata, creator, current owner, created date, latest completed version, active request and archive flag. The ID distinguishes papers with identical academic titles.
+Request revision: immutable submitted requirement snapshot, original words, normalized requirements, explicit assumptions, attachment versions and need-by time. Edits before processing create auditable input revisions under the same paper, not new paper rows.
+Generation attempt: linked request revision; scheduled eligibility, actual start, current stage, heartbeat, outcome and retry/cancellation details. A retry does not create a new paper or masquerade as a new finished version.
+Clarification: exact question, reason, options if useful, required answer fields and status. It belongs to one request revision. Its replies retain authors and timestamps.
+Completed version: immutable requirements plus generated content, question-paper PDF, answer-key PDF, image references/snapshots, completion time and stable version number. Both PDFs carry the same paper ID and version. Files are a pair, never two unrelated “latest” downloads.
+Activity event: compact history of submissions, meaningful changes, answers, owner changes, attempts, completion and cancellation.
+Notification: pointer to an event and its paper, with recipient and read state. Marking it read is not completing the underlying task.
+
+Use one owner per paper. Default owner is the submitter; creator remains immutable. Any institute admin can Change owner to another active admin. Any admin can answer or revise, with their name recorded. Owner receives action-needed and ready notifications. A change of owner must not remove access or historical attribution. If an owner leaves, preserve all papers and route pending action to an active replacement using membership offboarding. There is no “unowned and invisible” state.
+
+4. LIFECYCLE AND SERVER RULES
+
+Draft → Queued → Preparing → Ready.
+Preparing may become Needs input; an accepted answer moves it to Queued for the next eligible run. Preparing may become Couldn't finish. Safe transient failures may auto-retry once at the next scheduled run, labelled Queued for retry; after that show a recoverable failure. Invalid requirements become Needs input, never a loop of retries.
+Queued or Needs input → Cancelled immediately after an atomic server update. Preparing → Cancelling → Cancelled when stopping is acknowledged. If completion wins the cancellation race, report that the paper became ready; do not hide or pretend to delete the completed files. Completed versions remain preserved.
+Ready → Revise paper creates a new active request under the same paper. Ready version N remains openable while revision N+1 runs, fails or is cancelled. “Version 1 ready · Revision 2 queued” is a valid combined presentation. Do not collapse it to either Ready or Queued alone.
+Archive is an organization flag, not a lifecycle state or deletion. Cancelled requests remain searchable. Archiving a record with active work needs a plain warning that the job continues; prefer offering Cancel request when the intended outcome is to stop work. Completed papers never auto-expire or disappear when notifications are cleared.
+
+Implementation invariants:
+• One active generation request per paper; many paper families may run concurrently.
+• Worker claim, revision check and terminal publication are atomic/idempotent. A duplicate submit, network retry, double click or scheduled agent replay cannot create duplicate papers or artifacts.
+• A running worker uses an immutable snapshot. Every reply/update checks the expected request revision.
+• Ready is published only after both PDFs exist, are readable, and automatic structural checks pass. Internal draft files are not shown as finished papers.
+• Automatic checks cover supplied total marks and pattern, numbering, requested coverage, question/key pairing, missing images, print overflow and image readability. If a specified constraint cannot be met, expose the precise blocker instead of silently substituting.
+• Artifacts preserve their own bytes. Reprinting never reruns generation or reads a mutable “latest bank question.”
+
+5. SCREEN HIERARCHY AND EXACT ACTIONS
+
+Global shell: institute name, Papers, Updates with an unread count, and account menu. A single primary New paper action. No separate main navigation for the question bank, approval, agent monitoring or analytics is needed for this journey.
+
+Papers /papers
+Default entry shows All papers, with an owner toggle Mine / Everyone, the user's last choice remembered. First use defaults to Mine. View chips: All papers, Needs action, In progress, Ready. All papers includes drafts belonging to the current admin, submitted work and cancellations. Archive is an explicit filter. Needs action includes unresolved clarification and terminal failure; it does not disappear because an update was read. In progress covers queued, preparing, retrying and cancelling. Ready means at least one completed version exists. Counts can overlap for a paper with an active revision and a completed version; show a short explanation on those filters and never imply the counts sum to All.
+Default ordering: action-needed records owned by the current admin first, then active work by nearest need-by time, then most recently updated completed work. Within a selected view, allow Updated recently, Needed by and Created newest. Show the active sort label. Do not invent opaque urgency scores.
+Rows show title/academic scope, paper ID, supplied marks and duration, status plus next step, need-by date and owner. Desktop can use aligned columns; phones use stacked rows. Each record has one primary shortcut appropriate to state: Reply, View status, Open paper or Try again. The title always opens details. Use the overflow menu for Change owner, Archive and Cancel request when applicable.
+An empty institute: “Create your first paper” with one example and New paper. Empty Mine: “No papers assigned to you” with View everyone's papers. A zero-result search: “No papers match these filters” with Clear filters; offer Search all papers if scope is restrictive. Never label a loading result as empty.
+
+New paper /papers/new
+Heading: New paper. Textarea label: “What should the paper include?” Helper: “Mention the class, subject, chapters, marks or question count, and any pattern you need.” Example: “CBSE Class 10 mathematics, quadratic equations and arithmetic progressions. 40 marks, 90 minutes. Include two application questions and an answer key.” Do not make a sample automatically submitted content.
+Actions: Attach images, Needed by (optional), Submit request. Less prominent Save draft is unnecessary if autosave is reliable; show the save state and a Close action. If autosave cannot reach the server, preserve local input and say “Not saved. Reconnect to save this draft.”
+An optional title lives under More details; derive a useful title when possible rather than require one. Until semantic parsing occurs, show “Untitled paper · P-1047” plus a request excerpt. Do not claim instant structured extraction if the scheduled agent is the only parser.
+Attachments: image preview, filename, upload progress and Remove / Retry upload. Each has an optional “How should this image be used?” field with “Include in paper” or “Reference only.” Capture this distinction to avoid accidentally printing a screenshot containing answers. Submit waits for attached uploads to complete, or the admin explicitly removes the failed attachment. Normal errors preserve all other input. Client file checks occur immediately; unreadable educational content can be clarified during processing.
+Below submit, always show the server-calculated next eligible run and “Papers run every two hours, 08:00–20:00 IST. This is a start window, not a completion time.” No multi-step wizard or compulsory review/approval page. Successful submission opens the paper detail with a permanent receipt ID; it does not leave the admin staring at a spinner.
+
+Paper detail /papers/P-1047
+Header: title, ID, current status, owner and need-by time. First content is the useful current thing:
+• Needs input: the clarification and reply controls.
+• Queued: next scheduled opportunity and Edit request / Cancel request.
+• Preparing: last reported stage and update time; no fake percent.
+• Ready: the question-paper preview with Open paper PDF, Print paper, and Download answer key. Separate answer key has its own Open answer key / Print answer key controls. A phone can open the PDF in the system viewer; a fallback Download paper must exist where direct printing is unavailable.
+• Couldn't finish: a human-readable cause plus Try again or Edit request, depending on what fixes it.
+• Cancelled: who cancelled and when, with Create similar paper if wanted again.
+Below: Request details (original words, extracted requirements, declared assumptions, images), Versions if there are multiple, then Activity. Original wording remains available so normalization errors can be checked. Request edits and free-form amendment text can refer to that context without restating everything.
+
+Completed paper actions: Revise paper; Create similar paper; Change owner; Archive. Revise paper keeps the same identity and accepts “What should change?” Create similar paper opens a new private draft with requirements and intended attachments copied, clears the previous need-by time, and displays “New paper based on P-1047, version 2.” It must not overwrite the source or schedule anything before submission.
+
+Updates
+In-app event list, each row with paper title, ID, event and timestamp; unread styling is restrained. Exact examples: “Your reply is needed: Class 10 Mathematics · P-1047”; “Paper ready: Class 7 Geography · P-1043, version 1”; “Couldn’t finish: Class 12 Accountancy · P-1042.” All deep links open the current paper state. A stale clarification notification should say “Already answered by Arun at 10:24” and show the latest status, not present an active old answer box.
+
+6. INITIAL USE, RETURNING, CLARIFICATION AND CHANGES
+
+Initial use requires authentication to the existing institute, not a setup tour. Explain the scheduled processing beside the first submit. After first submission, offer optional device notifications contextually; do not block the request on notification permission. In-app updates are always present. Provide an out-of-app channel (verified account email as the essential baseline); device push is an optional supplement. The notification confirmation must name the actual configured destination and never promise a channel that is not operating.
+
+Returning normally opens Papers with prior filters preserved. Returning via a notification opens the exact paper and current task. Back returns to the previous search, filters and scroll position. Across tabs or devices, show accepted server state and the latest active request. Show “Updated just now” only when a response was actually received.
+
+Clarification asks all currently known blockers together, with concise separate inputs. Where useful, offer two or three complete answers and “Write another answer.” For P-1047, ask “Should this paper total 40 or 44 marks?” explain the arithmetic and offer “Keep 40 marks — make Section C four 4-mark questions” or “Keep the question pattern — change the total to 44 marks.” Do not preselect an option, send on selection, or ask for information already supplied. Send answer records the chosen meaning and schedules the next opportunity. Keep unsent text on network failure.
+
+Queued and Needs input requests permit Edit request. It updates an auditable request revision and re-evaluates scheduling; it does not require an approval screen. If a worker claimed it while the admin was editing, preserve their changes and explain “Processing has already started. Send these changes as a new revision?” The concrete action is Submit revision.
+
+For Preparing, “Request changes” opens an amendment draft. Submitting it supersedes the pending generation request and queues the amended one; the worker must check the superseded flag before publishing. If the old result was already completed before the change committed, retain it as an earlier version. The UI says what happened: “Earlier version ready. Your revision is queued for the next run.” Never mutate a generation job's snapshot in place. Keep at most one unsuperseded active request; multiple admins' amendment drafts use expected-revision guards.
+
+For a completed version, Revise paper queues an independent new version. Specify the desired change in natural language, retain unchanged content when feasible and rerun the same output checks. The existing paper stays printable throughout. Do not require manual approval of individual bank/generated questions. Viewing or downloading a paper is optional use, not a gate.
+
+Concurrent replies: if Meera answers after Arun has already answered, reject the stale write, retain her text and show Arun's accepted reply. Offer Copy my answer or Use as a new change; never silently overwrite. Owner changes and cancellation also record the actor. Submitted edits are visible to other admins; no misleading “private conversation” presentation.
+
+7. TRUTHFUL TIME, URGENCY, CANCELLATION AND FAILURE
+
+The backend computes scheduled eligibility in Asia/Kolkata and stores timestamps in UTC. UI labels times IST and includes the full date on tomorrow/later events. Jobs submitted or replied to after a run's atomic claim boundary belong to the next run. Expose the actual assigned/eligible schedule, not a client-side countdown promise. If capacity is not guaranteed, label it “Next scheduled opportunity” rather than “Will start at.”
+
+Examples:
+• Submit 5 October 09:36 IST: “Queued · Next scheduled run today, 10:00 IST.”
+• Reply at 10:18: “Answer saved · Queued for the 12:00 IST run.”
+• Submit at 20:01: “Queued · Next scheduled run Tuesday 6 October, 08:00 IST.”
+• Work not claimed after its scheduled opportunity: “Delayed · The 12:00 run has not picked up this request. We’ll update you when processing starts.” Do not keep displaying a past countdown or claim Preparing.
+• Worker started: “Preparing · Checking questions · Started 12:03; updated 12:09 IST.” Use stages only when actually emitted. Avoid percent bars and predicted completion times without reliable data.
+• Stale worker heartbeat: “Status update delayed · Last confirmed activity 12:09 IST.” A backend watchdog should determine whether the attempt can be safely retried; the frontend must not silently invent a new job.
+
+Urgency is a need-by timestamp, not a magic instant-generation button. Show its date/time explicitly; leave it optional. If the requested deadline is earlier than the next opportunity, show before submission: “This paper cannot be ready by 11:00. The next scheduled run starts at 12:00 IST.” Actions: Change needed-by time or Submit anyway. If the deadline is after the next start but completion is unknown, say “Timing is not guaranteed,” not “On time.” Keep deadline risk visible on the record. A scheduler may prioritize earliest deadlines within a batch if implemented; this proposal does not claim that priority alters the seven daily start times. An instant urgent lane is a service-policy change, outside essential scope.
+
+Cancellation uses a small confirmation with the paper title: “Cancel this request?” and “Existing completed versions will stay available.” Confirm action Cancel request; dismissal Keep request. Do not ask for a reason. During stopping, show Cancelling and disable repeated cancellation. If cancellation wins, the worker cannot later publish or notify Ready for that attempt. If completion wins, preserve the result and report it honestly.
+
+Failure separates diagnosis from remedy. Invalid/missing information → Reply or Edit request. Temporary service problem → show the one scheduled automatic retry and its next run. Terminal technical failure → “We couldn’t create the PDFs. Your request and images are saved.” with Try again. Failed image download/upload → identify the file and Replace image. An unavailable bank alone should trigger generation of missing suitable material, as required, rather than a bank-empty dead end. Content the service cannot reliably make needs a specific explanation and a way to change the request. Every retry retains the same paper identity and original content.
+
+Notification delivery failure does not roll back a ready paper. Keep the in-app update and retry the channel separately. PDF download failure retries artifact access, not generation. Lost connectivity shows cached data with “Offline · Last updated …”; never show a successful mutation until acknowledged.
+
+8. RETRIEVAL, PRINTING AND PRESERVATION AT SCALE
+
+Search titles, IDs, original request terms, normalized subject, class, board and chapter text. Combine with facets: owner, subject, class, board, status, created/completed date range and Archived. Display active chips with Clear filters. Academic aliases may improve recall, but search should not require a perfect curriculum taxonomy. Unknown/unparsed metadata is searchable by raw request and has an Unknown filter bucket; never hide it.
+
+Search is institute-scoped and server-side; lists use indexed predicates, stable sorting and cursor pagination. Fetch a bounded initial set (proposed 30 records), then Load more when records remain. Preserve URL query state and cursor/scroll on back. The production screen hides Load more when the result is exhausted. Explain restricted scope on no results. Querying “quadratics” with Class 10 and Ready must find an old completed version even if a new revision of that paper is pending. Ready filter uses existence of a completed version. General title changes do not break IDs or history.
+
+Useful default title: “Class 10 Mathematics — Quadratics & arithmetic progressions.” Paper ID and creation/completion date distinguish repeats. Dates remain visible in detail; don't rely solely on relative times years later. Search does not require manually maintained folders or tags. Archive is reversible and searchable; “Include archived” expands retrieval without destructive cleanup.
+
+Every completed version preserves its two generated PDFs, specifications and required image assets. Files should use names such as P-1047_v2_Question_Paper.pdf and P-1047_v2_Answer_Key.pdf. The printable first page and key display the same ID/version in an unobtrusive footer. Student paper excludes answer material. The answer key is a separate file and explicit action, preventing accidental inclusion when printing the paper.
+
+Firebase can store uploaded/generated images behind institute-scoped access checks, but no product screen exposes storage jargon. Store immutable object identities and checksums, not only expiring URLs. PDFs embed their required image bytes, so old prints survive URL expiry, bank updates and revised images. Generate short-lived access URLs after authorization when needed. Preserve a completed artifact even if its original upload is subsequently replaced. Backups, retention and restore checks are operational requirements for “available over years”; cleanup must never garbage-collect images or PDFs referenced by a completed version.
+
+9. MOBILE AND VISUAL CONTRACT
+
+Phone task hierarchy: paper identity → real status / exact next action → answer or document action → supporting details. Use one column and full-screen detail, editor and filter sheet. Do not squeeze the desktop table, show four board columns, hide statuses behind hover or require a PDF preview to load before downloading. A phone may open a paper as a system PDF; the record remains the stable destination.
+
+At least 44 × 44 CSS-pixel primary touch targets, 16px text-entry fields, visible focus states, ordinary labels, native date/time controls with the explicit IST interpretation, and keyboard-safe bottom actions. Meaning must not depend on color alone. Status badges carry text; expiry and risk also have words. Textarea supports multiline content and paste. Browser back preserves drafts. Honor reduced motion; status transitions do not need animated progress theater. Display cached content while reloading, keep typed answers during refresh, and do not shift rows beneath an active click.
+
+Visual idea: an institute's useful paper register, with academic content and a quiet print-document character. Paper names and the current task dominate; status is restrained but readable. Green is reserved for primary actions/readiness, amber for input or deadline concern, red for failure. Avoid decorative metrics, prominent generated-question counters, robot avatars and a dashboard of empty cards.
+
+First-glance hypotheses (review prompts, not measured claims): at 100ms the paper/task or register should dominate; at 1s the admin should identify a status; at 5s the next action or print route should be clear.
+Declared critical dimensions: (1) Action hierarchy — on a 390 × 844 detail view, identify the requested answer and submit action without scrolling through prior messages; (2) asynchronous truth — every nonterminal view states an observed state or next opportunity, never fake progress; (3) academic retrieval — titles, scope and distinguishing identity remain legible with six realistic records and long names; (4) continuity — a ready older version and pending revision are visible together; (5) mobile parity — no action depends on hover/horizontal page scrolling or a desktop-only control.
+
+The accompanying renders are initial studies, not a final visual acceptance record. The prototype's chips and buttons are illustrative, not functioning form controls. Remaining visual work: independent critique, selected index/detail refinement, and rendering new-paper, ready, loading, offline, long-title, no-results and terminal-error states before production approval. Five-to-ten substantive implementation/critique cycles prescribed by Central have not been claimed or manufactured for this initial proposal.
+
+10. REALISTIC SAMPLE STATES
+
+P-1047 · Class 10 Mathematics · CBSE · 40 marks · 90 minutes · Owner Priya · Needed today 14:00. Needs input because requested sections total 44. Current action Reply. A reply at 10:18 queues processing for 12:00.
+P-1046 · Class 9 Science, Motion & force · CBSE · 30 marks · 60 minutes · Owner Arun · Needed today 11:00. Queued for 12:00; Deadline at risk. The UI must not show an on-time promise.
+P-1045 · Class 8 English, Reading comprehension & grammar · ICSE · 50 marks · 2 hours · Owner Meera. Preparing; actual stage Building PDFs; updated 10:16. No percent complete.
+P-1044 · Class 10 Science, Light · CBSE · 40 marks · 90 minutes · Owner Priya. Version 1 ready; revision 2, “replace the diagrams,” queued for 12:00. Open version 1 remains available.
+P-1043 · Class 7 Geography, Water · ICSE · 25 marks · 45 minutes · Owner Priya. Ready 08:24; paper PDF and answer key available, separately printable.
+P-1042 · Class 12 Accountancy, Company accounts · CBSE · 60 marks · 2 hours · Owner Arun. Couldn't finish: PDF creation failed after safe retry. Try again preserves request/images.
+
+11. OBJECTIVE ACCEPTANCE SCENARIOS
+
+1. First request: a signed-in admin submits the supplied maths paragraph and one uploaded image using the phone. Result: one paper ID and one scheduled request; no question approval screen; the saved request is visible after leaving and reopening.
+2. Schedule boundary: submissions at 07:59, 08:01, 19:59 and 20:01 IST receive respectively the 08:00, 10:00, 20:00 and next-day 08:00 opportunities, subject to the defined atomic claim boundary. Exactly-on-boundary races are resolved by the server's claim result, not browser clocks.
+3. Unknown semantics: before scheduled parsing, the UI shows received text and upload state, not a fabricated “understood” board/class summary. After parsing, missing material requirements lead to one concise clarification.
+4. Marks conflict: 12×1 + 6×2 + 4×5 versus 40 marks prevents Ready. Choosing “Keep 40 marks” records Section C as four 4-mark questions and queues a new attempt. User is never asked to approve generated questions.
+5. Clarification batching: two known missing fields are requested together. The admin can answer both and attach an image in one submission. Reload/network retry cannot duplicate the reply.
+6. Concurrent reply: two admins open the same unresolved clarification. After the first accepted answer, the second stale submit does not overwrite it; the second text survives with accepted-answer context.
+7. Concurrent edit/claim: while an admin edits a queued request, the worker claims it. Saving never mutates the worker's snapshot; the concrete proposed change survives as a revision path.
+8. Duplicate submission: repeated clicks, mobile reconnection and replayed request nonce produce one paper/request. A genuinely separate Create similar paper action produces a new ID.
+9. Urgent before next run: need-by 11:00 at 10:18 shows the 12:00 earliest opportunity and explicit impossibility before submit. Submit anyway remains available and the need-by risk persists in the list.
+10. Missed run: if the 12:00 opportunity passes unclaimed, the record shows Delayed and the past opportunity. It does not fake Preparing, reset a countdown or silently schedule a user promise.
+11. Ready transaction: if the paper PDF exists but answer-key upload fails, Ready is not published. Recovery reuses safe stored work. After both validate, exactly one readiness event points to that version.
+12. Revision continuity: with version 1 ready and version 2 queued, version 1 remains downloadable from list/detail and appears under Ready search. Version 2 failure/cancellation leaves version 1 unchanged.
+13. Cancellation race: if cancellation commits first, the worker cannot publish a new ready version or ready notification. If completion commits first, the UI reports the ready artifact and preserves it. Neither branch silently deletes a completed paper.
+14. Failure recovery: terminal PDF failure retains the full request, owner and attachments. Try again schedules the next eligible attempt under the same paper; there is no re-entry of the natural-language requirement.
+15. Reprint preservation: modify the bank question, replace the original image, expire a signed URL and deactivate the creator. An authorized colleague still retrieves the exact old PDFs by ID/version; checksums remain unchanged.
+16. Notification return: tapping an old input-needed update after another admin answered lands on current state and identifies the accepted reply. Mark as read does not remove unresolved tasks. Email/push failure does not hide a ready paper.
+17. Archive retrieval: archive a completed paper; it disappears from the default active view, appears with Include archived, and opens the same PDFs. Restore brings it back without regeneration.
+18. Scale: seed 10,000 papers across five years with repeated titles. Search + class + board + date range returns the known target without loading all rows; back from detail restores query and list position. Set a measurable product SLO before implementation; proposed target is first results within 2 seconds on the agreed reference network/dataset.
+19. Mobile layout: at 390 × 844 and 320px width, no page-level horizontal overflow; the current clarification can be read and submitted without traversing activity history. All actions work with keyboard/focus and screen-reader names in the implemented version.
+20. Printing: Print paper sends only the selected version's question paper. Print answer key is a separate action. Both contain matching ID/version, legible figures, correct pagination and no clipped question text at default A4 scale.
+
+12. ESSENTIAL VERSUS DEFERRED
+
+Essential: natural-language request and image handling; persistent draft and paper identity; real schedule/status; clarification with durable replies; one owner and shared admin access; current-state deep links and one reliable out-of-app notification channel; separate immutable PDFs and versions; revisions without approval; cancellation/race semantics; idempotent retries; academic search/facets and pagination; accessible phone flows; artifact preservation and backup/restore.
+
+Defer until demonstrated need: drag-and-drop kanban, departmental role matrices, followers/mentions/chat among admins, per-question manual editor or approval, complex templates and branding setup, custom folders/tag taxonomies, analytics dashboards, bank-provenance charts on home, question approval screens, AI mascots, token/cost meters, version diff viewers, batch upload, subscription/digest controls, native apps, broad integrations, offline generation, voice agent, instant rush processing and predicted completion times.
+
+Decision dependencies that are service facts rather than design preferences: verified notification channel availability; exact meaning of daily schedule on holidays; bounded expected processing capacity; supported image types/sizes and languages. Proposed default is every calendar day, IST, as the brief gives no weekday restriction. Implement server-known limits transparently, without adding setup burden or making unsupported promises. These dependencies do not block the chosen interaction structure.
+
+13. INDEPENDENT REFERENCES AND EVIDENCE
+
+Linear Inbox, https://linear.app/docs/inbox — viewed the official priority notification screenshot. Useful mechanism: an actionable notification collection is distinct from the underlying durable work record. Do not copy notification deletion/snoozing as paper lifecycle semantics. Local image: references/linear-inbox.png.
+
+Intercom Helpdesk, https://www.intercom.com/helpdesk — viewed official conversation/action screenshot and shared conversation-with-ticket screenshot. Useful mechanism: keep a conversational exchange associated with a structured record and visible ownership/state. Do not import customer-support routing, macros, copilot panes or chat's implication of an immediate reply. Local images: references/intercom-inbox.webp and references/intercom-shared-ticket.webp.
+
+Google Workspace, “Find files quicker with search chips in Google Drive,” 30 March 2023, https://workspaceupdates.googleblog.com/2023/03/find-files-quicker-with-search-chips-in-google-drive.html — viewed a frame of its official working interface animation. Useful mechanism: persistent search with visible facets supports remembered partial attributes. Do not import general file-type distinctions, image-heavy previews or a folder hierarchy for academic papers. Local original and viewed frame: references/google-drive-filters.gif and references/google-drive-filters.png.
+
+Central visual-design-director release 0.1.0; base revision ba1235fe7b220842778414f3f70fca38e7df4c53. Parent skill packaged SHA-256 750394b5b522a01ccb5d951725b7f2e05b48ad383d3f762fe9e6648f7fde1aa2; designer guide SHA-256 7ec7d397a040dfbcc29c2e1724dec5f2bcd8525f4f334c124e846a1d5ca074de. User's blind-design requirement overrides any existing-baseline inspection. No historical product evidence was loaded. No independent visual critic score or owner acceptance is claimed.
+
+Candidate HTML: candidates.html?direction=A, =B, =C. Selected focused detail: ?direction=detail. Renderer: render.js. Screenshots: renders/A-desktop.png, A-mobile.png, B-desktop.png, B-mobile.png, C-desktop.png, C-mobile.png, detail-desktop.png, detail-mobile.png. The technical rendering binary path supplied by the orchestrator was used only as infrastructure; no product material was accessed.
+
+Evidence status: four independent working-product visuals inspected across three sources; three materially different structures authored; desktop/mobile candidates rendered and personally viewed; no horizontal overflow in these eight renders. Static concepts need production implementation, independent critique and the additional states listed above before visual acceptance. Interaction rules in this text are the canonical handoff where static illustration controls omit behavior.

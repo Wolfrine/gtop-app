@@ -31,7 +31,7 @@ async function matching(wanted){
   return (list.indexes??[]).find(index=>index.name?.startsWith(parent)&&index.queryScope===wanted.queryScope&&signature(index.fields)===signature(wanted.fields));
 }
 for(const wanted of indexes){
-  assert(['paperMessages','paperRequests','paperNotifications'].includes(wanted.collectionGroup),'Only the reviewed chat indexes may be deployed.');
+  assert(['paperMessages','paperRequests','paperNotifications','paperDrafts','paperRegister','paperRegisterSearch'].includes(wanted.collectionGroup),'Only the reviewed chat indexes may be deployed.');
   let index=await matching(wanted);
   if(!index){
     await api(root+wanted.collectionGroup+'/indexes',await indexToken(),'POST',{queryScope:wanted.queryScope,fields:fullFields(wanted.fields)});
@@ -47,4 +47,4 @@ for(const wanted of indexes){
   assert.equal(index?.state,'READY','Required index must be ready: '+wanted.collectionGroup);
   console.log('Verified READY:',wanted.collectionGroup);
 }
-console.log('All three chat indexes are ready. Existing indexes and IAM bindings were preserved.');
+console.log('All reviewed paper indexes are ready. Existing indexes and IAM bindings were preserved.');

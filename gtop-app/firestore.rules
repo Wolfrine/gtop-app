@@ -132,6 +132,9 @@ service cloud.firestore {
         && (request.resource.data.role == 'system' || request.resource.data.createdBy == request.auth.uid);
     }
     match /paperQuestions/{id} { allow read: if isAdmin(); allow write: if false; }
+    match /paperRegister/{id} { allow read: if isAdmin(); allow write: if false; }
+    match /paperRegisterState/{id} { allow read: if isAdmin(); allow write: if false; }
+    match /paperRegisterSearch/{id} { allow read, write: if false; }
     match /paperArtifacts/{id}/documents/{name} { allow read: if isAdmin(); allow write: if false; }
     match /paperNotifications/{id} {
       allow read: if isAdmin() && resource.data.ownerUid == request.auth.uid;

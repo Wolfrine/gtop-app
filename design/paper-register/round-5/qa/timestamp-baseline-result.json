@@ -1,0 +1,61 @@
+{
+  "projectId": "demo-gtop-timestamp-baseline",
+  "localOnly": true,
+  "baseline": true,
+  "startedAt": "2026-10-05T06:11:35.358Z",
+  "backendSha256": "a41c781298fe4f40e87682c423d43b696c2c904d9c0ed271b04ebf1179eebd17",
+  "scriptSha256": "a2cd91371bf6a0b5b5181b6e22974f5e6619a215dd140c6deeed518d9b314607",
+  "checks": [
+    {
+      "name": "projection timestamp older",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 1514764800000\n- 1704067200000\n\n    at file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:34:202\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async check (file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:22:36)\n    at async file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:34:90"
+    },
+    {
+      "name": "projection timestamp middle",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp ts-newer",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp malformed",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp iso-only",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 1262304000000\n- 1672531200000\n\n    at file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:34:202\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async check (file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:22:36)\n    at async file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:34:90"
+    },
+    {
+      "name": "projection timestamp published",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 1483228800000\n- 1577836800000\n\n    at file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:34:202\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async check (file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:22:36)\n    at async file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:34:90"
+    },
+    {
+      "name": "projection timestamp fallback",
+      "passed": true
+    },
+    {
+      "name": "projection timestamp dateless",
+      "passed": true
+    },
+    {
+      "name": "searched and unsearched cursor order both use latest source timestamp",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'legacy-paper-timestamp-1791180695358-dateless',\n    'legacy-request-timestamp-1791180695358-ts-newer',\n-   'legacy-request-timestamp-1791180695358-older',\n-   'legacy-request-timestamp-1791180695358-iso-only',\n    'legacy-request-timestamp-1791180695358-middle',\n    'legacy-request-timestamp-1791180695358-malformed',\n+   'legacy-request-timestamp-1791180695358-older',\n    'legacy-paper-timestamp-1791180695358-published',\n+   'legacy-request-timestamp-1791180695358-iso-only',\n    'legacy-paper-timestamp-1791180695358-fallback'\n  ]\n\n    at file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:35:618\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async check (file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:22:36)\n    at async file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:35:2"
+    },
+    {
+      "name": "family summary reads current request and conversation ISO timestamps",
+      "passed": false,
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 1451606400000\n- 1798761600000\n\n    at file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:36:607\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async check (file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:22:36)\n    at async file:///workspace/scratch/0a41fddf9e8a/question-journey-qa/timestamp-order-qa.mjs:36:2"
+    },
+    {
+      "name": "projection and family refresh preserve every canonical source and update time",
+      "passed": true
+    }
+  ],
+  "finishedAt": "2026-10-05T06:11:36.439Z",
+  "verdict": "FAIL"
+}

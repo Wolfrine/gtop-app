@@ -1,0 +1,23 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> test
+> node --test *.test.mjs
+
+✔ reuse counts describe this run even when a source was generated earlier (1.663583ms)
+✔ incomplete totals, answers, sections and repeated questions cannot publish (0.397026ms)
+✔ required images are real Firebase assets with descriptions (0.498265ms)
+✔ reuse preserves content, answer, marks, type, difficulty and illustrations (0.431346ms)
+✔ legacy aliases and answer strings reuse without changing their meaning (0.176441ms)
+✔ student HTML omits answers and renders safe text, tables and maths (5.150975ms)
+✔ asset checksums hash the actual bytes and image type excludes active SVG (1.043679ms)
+✔ metadata search preserves complete IDs, Unicode words and historical requirement terms (6.41532ms)
+✔ legacy readiness requires a complete persisted paper and current ready papers remain ready (0.277649ms)
+✔ search limits and continuation binding are explicit (1.782608ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 292.053418

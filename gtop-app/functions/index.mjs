@@ -7,6 +7,7 @@ import {onDocumentWritten,onDocumentCreated} from 'firebase-functions/v2/firesto
 import {onRequest} from 'firebase-functions/v2/https';
 import webpush from 'web-push';
 import {hash,validatePaper,validateBankSnapshot,renderPaper,imageType} from './paper-engine.mjs';
+import {projectSource,refreshRegister,searchRegister} from './paper-register.mjs';
 
 initializeApp({storageBucket:'gtop-app.firebasestorage.app'});
 const db=getFirestore();const bucket=getStorage().bucket();
@@ -125,12 +126,24 @@ export const paperGateway=onRequest({region,cors:['https://gtop-app.web.app','ht
     const match=/^Bearer (.+)$/.exec(req.headers.authorization??'');if(!match){res.status(401).send('Sign in required');return;}
     const identity=await getAuth().verifyIdToken(match[1]);const profile=await db.doc('users/'+identity.uid).get();if(profile.data()?.role!=='admin'){res.status(403).send('Admin access required');return;}
     const path=req.path.replace(/\/$/,'');
+    if(req.method==='GET'&&path==='/register'){res.set('Cache-Control','private,no-store').json(await searchRegister(db,req.query,identity.uid));return;}
     if(req.method==='GET'&&path==='/config'){const keys=await pushKeys();res.json({publicKey:keys.publicKey});return;}
     if(req.method==='POST'&&path==='/subscribe'){const subscription=validSubscription(req.body);await db.doc('paperPushSubscriptions/'+identity.uid+'/devices/'+hash(subscription.endpoint)).set({...subscription,updatedAt:stamp()});res.json({saved:true});return;}
     const artifact=/^\/artifact\/([a-zA-Z0-9_-]{1,140})\/(paper|answers)$/.exec(path);
     if(req.method==='GET'&&artifact){const paper=await db.doc('paperDrafts/'+artifact[1]).get();if(paper.data()?.status!=='ready'){res.status(404).send('Paper unavailable');return;}const document=await db.doc('paperArtifacts/'+artifact[1]+'/documents/'+artifact[2]).get();if(!document.exists){res.status(404).send('Artifact unavailable');return;}res.set('Content-Type','text/html; charset=utf-8').set('Cache-Control','private,no-store').set('Content-Security-Policy',"default-src 'none'; img-src https://firebasestorage.googleapis.com https://storage.googleapis.com; style-src 'unsafe-inline'; font-src https://gtop-app.web.app").send(document.data().html);return;}
     res.status(404).send('Not found');
   }catch(error){console.error('Paper gateway request failed',error.message);res.status(400).json({error:'This request could not be completed.'});}
+});
+
+// Additive, replaceable projections; original requests, conversations and papers
+// remain authoritative. Every delivery re-reads the current source transactionally.
+const registerTrigger=(document,collection,param)=>onDocumentWritten({document,region,timeoutSeconds:120,memory:'256MiB',maxInstances:2,retry:true},event=>projectSource(db,collection,event.params[param]));
+export const registerConversation=registerTrigger('paperConversations/{id}','paperConversations','id');
+export const registerRequest=registerTrigger('paperRequests/{id}','paperRequests','id');
+export const registerPaper=registerTrigger('paperDrafts/{id}','paperDrafts','id');
+export const registerMessage=onDocumentWritten({document:'paperMessages/{id}',region,timeoutSeconds:120,memory:'256MiB',maxInstances:2,retry:true},async event=>{
+  const before=event.data?.before.data()?.conversationId,after=event.data?.after.data()?.conversationId;
+  for(const id of new Set([before,after].filter(Boolean)))await refreshRegister(db,id);
 });
 
 export const notifyPaperAdmin=onDocumentCreated({document:'paperNotifications/{notificationId}',region,timeoutSeconds:60,maxInstances:2,retry:true},async event=>{

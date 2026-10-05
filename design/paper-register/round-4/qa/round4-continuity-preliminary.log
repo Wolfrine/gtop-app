@@ -1,0 +1,16 @@
+PASS Bank tools has an accessible name and reaches the canonical bank
+PASS filtered historical register resumes query filter loaded pages and useful position after detail
+PASS filtered historical register resumes after saved output and deep link reload
+FAIL real gateway search continues through a page with zero new families: expect(locator).toHaveCount(expected) failed
+
+Locator:  locator('.pr-record')
+Expected: 1
+Received: 0
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveCount" locator('.pr-record') with timeout 5000ms
+  - waiting for locator('.pr-record')
+    14 × locator resolved to 0 elements
+       - unexpected value "0"
+

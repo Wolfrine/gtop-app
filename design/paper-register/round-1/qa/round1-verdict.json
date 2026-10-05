@@ -1,0 +1,36 @@
+{
+  "round": 1,
+  "verdict": "blocked",
+  "sourceFingerprint": "41c2024828b08d7f5f0d37c5118abf553784b843b4487478dddcd714b9c98e0c",
+  "backendAfterFreezeSha256": "a41c781298fe4f40e87682c423d43b696c2c904d9c0ed271b04ebf1179eebd17",
+  "execution": "Independent QA scripts authored and hashed by checker; implementer ran exact bytes in its isolated service shell; checker inspected raw logs, JSON and failure screenshot.",
+  "browser": {
+    "viewports": [
+      1280,
+      320
+    ],
+    "passingScenariosPerViewport": 6,
+    "uncaughtErrors": 0,
+    "harnessCorrections": "Original two locator failures preserved; corrected only heading level and legacy stem including marks; both bounded reruns passed."
+  },
+  "repository": {
+    "passed": 3,
+    "failed": 1,
+    "evidence": "repository-qa.log"
+  },
+  "blockers": [
+    {
+      "priority": "P1",
+      "file": "gtop-app/src/app/features/question-bank/core/paper-chat.repository.ts",
+      "line": 47,
+      "finding": "Two concurrent submissions using the same operation ID can return PERMISSION_DENIED on immutable paperMessages while one exact request is saved. This violates acknowledged idempotent replay and can show a misleading unsaved error.",
+      "proof": "Unchanged repository-qa.test.ts first case, actual local Firestore transaction/rules; other three repository cases pass."
+    }
+  ],
+  "notYetCovered": [
+    "large-scale migration/continuation",
+    "long history",
+    "offline and identity boundaries",
+    "complete final browser and print matrix"
+  ]
+}

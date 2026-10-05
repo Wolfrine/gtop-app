@@ -1,0 +1,14 @@
+{
+  "round": 4,
+  "width": 390,
+  "startedAt": "2026-10-04T12:43:24.203Z",
+  "checks": [
+    {
+      "name": "an authorized read resolving after role loss cannot restore the saved answer",
+      "passed": false,
+      "error": "Error: expect(locator).toHaveCount(expected) failed\n\nLocator:  locator('.pcv-sheet iframe')\nExpected: 0\nReceived: 1\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveCount\" locator('.pcv-sheet iframe') with timeout 5000ms\n  - waiting for locator('.pcv-sheet iframe')\n    14 × locator resolved to 1 element\n       - unexpected value \"1\"\n"
+    }
+  ],
+  "uncaught": [],
+  "finishedAt": "2026-10-04T12:43:30.535Z"
+}

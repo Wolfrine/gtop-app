@@ -1,0 +1,202 @@
+{
+  "round": 1,
+  "reviewer": "/root/independent_journey_critic",
+  "candidate_source_fingerprint": "41c2024828b08d7f5f0d37c5118abf553784b843b4487478dddcd714b9c98e0c",
+  "fixture_sha256": "8e6f9db282f736b021884bb9bb795c1060380dcd9979908842fd5c13c3a01a71",
+  "candidate_metadata_path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/candidate.json",
+  "candidate_metadata_sha256": "8651272a029b670bc2fb622df221a11655ba29326cd289a8c56f2f2615409659",
+  "render_runtime": "Actual Angular development app; emulator integration stated by implementation agent, not independently tested by critic",
+  "evidence": [
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/register-1440.png",
+      "sha256": "15fb9ff45de5305e9deb82d8a43c459dc3ca1bc37e4fb962426f6499700365c7",
+      "state": "register",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/register-320.png",
+      "sha256": "4c6689731fff85b8a2bb45ef6c92871045fa11d339e895ccbd41514a6aefc031",
+      "state": "register",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/new-1440.png",
+      "sha256": "947d0239094547e90b3c14905036bdaea301af2b08483765ba49a3dbfa9c10ba",
+      "state": "new",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/new-320.png",
+      "sha256": "fb74310cfdf2667fcd0cb68af917d0dca881e5e2ce36efa1354c06e749a73215",
+      "state": "new",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/clarification-1440.png",
+      "sha256": "79051a35f1f7e0e0b13a6267a1f15ac0568bd5386b24b4f090c3659cdf1d0456",
+      "state": "clarification",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/clarification-320.png",
+      "sha256": "d08314ca29d829c109631306d53e8195d95d6714d87eb288429cabce891a9593",
+      "state": "clarification",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/revision-1440.png",
+      "sha256": "edc93c73dc406e5b290ca23fdf17fb345058cafddcbf212b857644cc61a8d7af",
+      "state": "revision",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/revision-320.png",
+      "sha256": "be5ab3c39f6035a23606d78553efacf3db011addf4fbb24b3cba18acd4eaaa8d",
+      "state": "revision",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/failure-1440.png",
+      "sha256": "b7393cf107efd0f42a0c99fbd37dd72ab85a1afbd23ee1efc11fbd93286f5166",
+      "state": "failure",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/failure-320.png",
+      "sha256": "987d579cd7de804874d1821e575efebc6793f0bcd6f5a4cca42bbcd2ffdb8b90",
+      "state": "failure",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/completed-1440.png",
+      "sha256": "2317edb24ac3dc7eee3e01064a00d0822d6ef042c648e8db3a96407d66a7cc21",
+      "state": "completed",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-1/completed-320.png",
+      "sha256": "9e433011e22b00270aab29965ee9ef124e534472bf95cc013cc8828b32541177",
+      "state": "completed",
+      "viewport_width": 320,
+      "personally_viewed": true
+    }
+  ],
+  "scores": {
+    "product_meaning": 6.5,
+    "action_clarity": 6.5,
+    "async_truth": 6,
+    "durable_retrieval": 4.5,
+    "output_continuity": 7,
+    "mobile_layout": 4,
+    "visual_craft": 4.5
+  },
+  "overall": 5.6,
+  "verdict": "blocked",
+  "reviewed_before_parent_scores": true,
+  "findings": [
+    {
+      "dimension": "product_meaning",
+      "reason": "Natural language request and separate paper/key clear. New request lacks image attachment control required by brief."
+    },
+    {
+      "dimension": "action_clarity",
+      "reason": "Clarification/failure actions lead detail before history. Desktop register obscured by navigation; narrow shortcuts wrap badly."
+    },
+    {
+      "dimension": "async_truth",
+      "reason": "Honest fixed schedule and no completion promise; register/revision next opportunity 16:00 conflicts with page next 18:00 without delayed/missed label."
+    },
+    {
+      "dimension": "durable_retrieval",
+      "reason": "Search and status tabs present. All record IDs visibly truncated to identical visual-v; no date/class/subject facets; long-term and repeated-title retrieval unobserved."
+    },
+    {
+      "dimension": "output_continuity",
+      "reason": "Version 1 and Request 2 shown together; separate saved paper/key actions retained. Mobile ready action pushed below ~1040px by tall active request; needs immediately accessible ready shortcut."
+    },
+    {
+      "dimension": "mobile_layout",
+      "reason": "Needs attention, Ready, Search and schedule text break within words. 320px observed; declared 390px viewport not supplied this round."
+    },
+    {
+      "dimension": "visual_craft",
+      "reason": "Desktop nav physically covers register title, search and record beginnings. Icon font fallback shows truncated words. Useful quiet content palette is undermined by broken chrome and excessive footer space."
+    }
+  ],
+  "generic_risk_assessments": [
+    {
+      "decision": "Panel per meaningful current state",
+      "assessment": "justified",
+      "reason": "Clarification, failure and saved output are semantically distinct."
+    },
+    {
+      "decision": "Large serif display headings",
+      "assessment": "refine",
+      "reason": "Can support paper/document tone, but long question at 320px costs vertical space; retain readable body hierarchy."
+    },
+    {
+      "decision": "Persistent large global navigation and footer",
+      "assessment": "defective",
+      "reason": "Navigation occludes register; unrelated visual mass dominates low-content states and adds long mobile tail."
+    }
+  ],
+  "reference_gap": "Drive retrieval affordances remain stronger; Linear scan economy is lost to broken narrow status columns; Intercom stable context is only partially available behind collapsed history.",
+  "layer_actions": {
+    "type": "refine responsive sizing and prevent word fragmentation",
+    "color": "retain quiet semantic palette",
+    "spacing": "refine state panels and mobile footer cost",
+    "composition": "repair shell inset; compact revision summary with old-output shortcut",
+    "navigation": "repair icons and ensure register unobscured",
+    "imagery": "image attachment affordance absent; no decorative imagery needed"
+  },
+  "unobserved_states": [
+    "390px viewport",
+    "attachment upload",
+    "actual document print output",
+    "multi-year filtered/duplicate-title results",
+    "expanded long activity/history",
+    "empty/loading/offline/no-results",
+    "notification deep link",
+    "interaction motion"
+  ],
+  "qa_verdict": "Independent functional QA not performed by critic. Implementation reports no horizontal overflow/uncaught errors; these do not resolve visible failures.",
+  "scope_clarification_after_initial_review": {
+    "authority": "Parent instruction and refinement-v2 service-annotated handoff/capability map, personally read",
+    "interpretation": [
+      "Admin upload absent is a proposed-capability gap, not a requirement to add a fake Attach control or a layout blocker. Natural-language imagery requirements and supported references remain valid.",
+      "Academic/date facets only when real metadata/query semantics support them. Durable retrieval must be evidenced through actual supported search, identity and long-history behavior; no decorative filters required.",
+      "Structured clarification choices, archive, tracked deadlines, automated retry/watchdog are unverified proposed capabilities. Judge truthful supported actions rather than concept parity."
+    ],
+    "unchanged_material_blockers": [
+      "Desktop register occlusion",
+      "Broken icons and word fragmentation",
+      "Non-distinguishing visible IDs",
+      "Past time labelled next opportunity",
+      "Revision ready-output action buried on mobile"
+    ],
+    "score_status": "Original round scores retained as requested; scope correction explicitly narrows interpretation of product/retrieval gaps."
+  },
+  "scope_documents": [
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/independent-paper-design/refinement-v2/handoff-service-annotated.txt",
+      "sha256": "f21985cb572700f4d34b6fb02e77e5d0ee96729874c70528633605d35e14d5d5",
+      "personally_read": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/independent-paper-design/refinement-v2/capability-map.txt",
+      "sha256": "80ac6a8efdbd5781ceed11063da75e9ef3d5f3e637b0fa059d3a3c01f44b2f21",
+      "personally_read": true
+    }
+  ]
+}

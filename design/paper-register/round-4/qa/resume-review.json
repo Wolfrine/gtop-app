@@ -1,0 +1,32 @@
+{
+  "verdict": "PASS for inspected CLI resume path and local integration evidence",
+  "reviewedAt": "2026-10-04T12:45:19.142501+00:00",
+  "sourceHashes": {
+    "gtop-app/functions/backfill-register.mjs": "720dc96018aa3059ded61a6439385c38f871ad9579fe5a495d79bf7e5afc7514",
+    "gtop-app/functions/backfill-cli.integration.mjs": "c7fb986457a6feccb1ca86fb412250af7f17b25fcb580a874553262091e239ae",
+    ".github/workflows/firebase-v2-backend.yml": "5b66148d22e43ae3d7814da637f6142a939ca1edbfaedb85754e6b7b4b0f0931",
+    "docs/paper-register-release.md": "5942f3f265c8376f4c610ff874853e083c1f2099b2c005f5e9493ee72040e88e",
+    "gtop-app/functions/paper-register.mjs": "a41c781298fe4f40e87682c423d43b696c2c904d9c0ed271b04ebf1179eebd17"
+  },
+  "execution": "Integration authored/executed by implementer in shared local service namespace; independent reviewer inspected source and raw log. No live execution by reviewer.",
+  "evidence": "/workspace/scratch/0a41fddf9e8a/round4-backfill-cli.log",
+  "observed": {
+    "partialExit": 2,
+    "partialChecked": 2,
+    "resumedPasses": 7,
+    "finalChecked": 1143,
+    "ready": true
+  },
+  "review": [
+    "Each pass is capped at10,000 checks; pass count and between-pass elapsed time are bounded.",
+    "Non-ready/budget exit remains nonzero2; protected hosting depends on the backend job.",
+    "Checkpoint retained after interruption; restart is limited to first pass when explicitly requested.",
+    "Live writes remain delegated to the same runtime principal/datastore scope; refreshable existing ADC is only the impersonation source.",
+    "No source documents, new IAM grants or permanent credentials are written by the CLI."
+  ],
+  "limits": [
+    "Live protected workflow and credential refresh have not been executed by QA.",
+    "Integration compares original conversation documents; source inspection verifies projectSource only writes derived register/index documents.",
+    "The large scale run independently exercises the unchanged paper-register module and is still pending."
+  ]
+}

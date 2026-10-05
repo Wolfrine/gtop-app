@@ -1,0 +1,22 @@
+{
+  "round": 3,
+  "width": 390,
+  "startedAt": "2026-10-04T11:56:27.788Z",
+  "checks": [
+    {
+      "name": "long activity retrieves original message beyond150 and request beyond100",
+      "passed": true
+    },
+    {
+      "name": "unsent new requirement persists through online reload",
+      "passed": true
+    }
+  ],
+  "uncaught": [],
+  "gateway": [],
+  "historyCounts": {
+    "messages": 161,
+    "requests": 150
+  },
+  "finishedAt": "2026-10-04T11:56:30.386Z"
+}

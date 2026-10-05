@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "artifact_type": "independent design source package",
+  "source_root": "/workspace/scratch/0a41fddf9e8a/independent-paper-design",
+  "snapshot_date": "2026-10-04",
+  "status": "concept evidence only; no release or owner acceptance claim",
+  "hash_algorithm": "SHA-256",
+  "byte_identity": "source_sha256 equals packaged_sha256 for every copied artifact",
+  "requested_artifacts": 22,
+  "preexisting_artifacts_retained": 4,
+  "source_artifact_count": 26,
+  "source_artifact_bytes": 2638811,
+  "files": [
+    {
+      "path": "proposal.txt",
+      "source_path": "proposal.txt",
+      "bytes": 39449,
+      "source_sha256": "a1d794d452bbbe2b5ccb7608c92c51fe1927e009feec7d93aae828f1ed7ef3f9",
+      "packaged_sha256": "a1d794d452bbbe2b5ccb7608c92c51fe1927e009feec7d93aae828f1ed7ef3f9",
+      "scope": "requested"
+    },
+    {
+      "path": "clean-selection-review.md",
+      "source_path": "clean-selection-review.md",
+      "bytes": 6730,
+      "source_sha256": "4c39e66f656397ad42ecda9d557a0c49e51f024edb0862c0eae1a0b6becfce1b",
+      "packaged_sha256": "4c39e66f656397ad42ecda9d557a0c49e51f024edb0862c0eae1a0b6becfce1b",
+      "scope": "requested"
+    },
+    {
+      "path": "central-release.json",
+      "source_path": "central-release.json",
+      "bytes": 5020,
+      "source_sha256": "a205751c64acb911b5fee6f193aaa53278e13fedcee0b8780808667f9a8433c9",
+      "packaged_sha256": "a205751c64acb911b5fee6f193aaa53278e13fedcee0b8780808667f9a8433c9",
+      "scope": "requested"
+    },
+    {
+      "path": "renders/neutral-A-desktop.png",
+      "source_path": "renders/neutral-A-desktop.png",
+      "bytes": 169239,
+      "source_sha256": "98ecf70258c2a6a358b8cba65f689495da5277409f44e05daa416f8cfb5ecd1a",
+      "packaged_sha256": "98ecf70258c2a6a358b8cba65f689495da5277409f44e05daa416f8cfb5ecd1a",
+      "scope": "requested"
+    },
+    {
+      "path": "renders/neutral-A-mobile.png",
+      "source_path": "renders/neutral-A-mobile.png",
+      "bytes": 96732,
+      "source_sha256": "be219a580bd4bed84efe72fdcaa129747c8f4a32d1c606fb87df4b7f432759d1",
+      "packaged_sha256": "be219a580bd4bed84efe72fdcaa129747c8f4a32d1c606fb87df4b7f432759d1",
+      "scope": "requested"
+    },
+    {
+      "path": "renders/neutral-B-desktop.png",
+      "source_path": "renders/neutral-B-desktop.png",
+      "bytes": 175314,
+      "source_sha256": "9561a6ad83bc62ee7e0a10b6db6b39c1ff676d4085c1c01e581a284e841b1665",
+      "packaged_sha256": "9561a6ad83bc62ee7e0a10b6db6b39c1ff676d4085c1c01e581a284e841b1665",
+      "scope": "requested"
+    },
+    {
+      "path": "renders/neutral-B-mobile.png",
+      "source_path": "renders/neutral-B-mobile.png",
+      "bytes": 81825,
+      "source_sha256": "2b039d3842aef4cdaf921f3de4882ee3b8e00a773684417651e4efaf9c6b3b72",
+      "packaged_sha256": "2b039d3842aef4cdaf921f3de4882ee3b8e00a773684417651e4efaf9c6b3b72",
+      "scope": "requested"
+    },
+    {
+      "path": "renders/neutral-C-desktop.png",
+      "source_path": "renders/neutral-C-desktop.png",
+      "bytes": 180834,
+      "source_sha256": "b0cdba55da941e3d41c98da5f0fb16178d7ed3b5dad8086014c70d4f8738b3e5",
+      "packaged_sha256": "b0cdba55da941e3d41c98da5f0fb16178d7ed3b5dad8086014c70d4f8738b3e5",
+      "scope": "requested"
+    },
+    {
+      "path": "renders/neutral-C-mobile.png",
+      "source_path": "renders/neutral-C-mobile.png",
+      "bytes": 117563,
+      "source_sha256": "8437ba723ef6d4229948c77e16f9995542dd139da9e94c7d0ad1efe38bb726ba",
+      "packaged_sha256": "8437ba723ef6d4229948c77e16f9995542dd139da9e94c7d0ad1efe38bb726ba",
+      "scope": "requested"
+    },
+    {
+      "path": "references/linear-inbox.png",
+      "source_path": "references/linear-inbox.png",
+      "bytes": 255738,
+      "source_sha256": "2af0ef9c8493bef7b3b34fb285de31c259f9cca4bf0f6fa0f56319b6f4a955bf",
+      "packaged_sha256": "2af0ef9c8493bef7b3b34fb285de31c259f9cca4bf0f6fa0f56319b6f4a955bf",
+      "scope": "requested"
+    },
+    {
+      "path": "references/intercom-shared-ticket.webp",
+      "source_path": "references/intercom-shared-ticket.webp",
+      "bytes": 185570,
+      "source_sha256": "30980572dd79358302f1608b335d490c92c0d5eed012d900c2261de48d38c224",
+      "packaged_sha256": "30980572dd79358302f1608b335d490c92c0d5eed012d900c2261de48d38c224",
+      "scope": "requested"
+    },
+    {
+      "path": "references/google-drive-filters.png",
+      "source_path": "references/google-drive-filters.png",
+      "bytes": 198115,
+      "source_sha256": "cb92193c08b8981c94f47c0580b05b469899c2fed63baefd39e19e4b4fc4fd7f",
+      "packaged_sha256": "cb92193c08b8981c94f47c0580b05b469899c2fed63baefd39e19e4b4fc4fd7f",
+      "scope": "requested"
+    },
+    {
+      "path": "refinement-v2/handoff-service-annotated.txt",
+      "source_path": "refinement-v2/handoff-service-annotated.txt",
+      "bytes": 15579,
+      "source_sha256": "f21985cb572700f4d34b6fb02e77e5d0ee96729874c70528633605d35e14d5d5",
+      "packaged_sha256": "f21985cb572700f4d34b6fb02e77e5d0ee96729874c70528633605d35e14d5d5",
+      "scope": "requested"
+    },
+    {
+      "path": "refinement-v2/capability-map.txt",
+      "source_path": "refinement-v2/capability-map.txt",
+      "bytes": 5667,
+      "source_sha256": "80ac6a8efdbd5781ceed11063da75e9ef3d5f3e637b0fa059d3a3c01f44b2f21",
+      "packaged_sha256": "80ac6a8efdbd5781ceed11063da75e9ef3d5f3e637b0fa059d3a3c01f44b2f21",
+      "scope": "requested"
+    },
+    {
+      "path": "refinement-v2/renders/index-desktop.png",
+      "source_path": "refinement-v2/renders/index-desktop.png",
+      "bytes": 136719,
+      "source_sha256": "db7a5044475879bbf252d8ad09b18ffcbc10c4c9dbc845be6b849f5dc9457f74",
+      "packaged_sha256": "db7a5044475879bbf252d8ad09b18ffcbc10c4c9dbc845be6b849f5dc9457f74",
+      "scope": "requested"
+    },
+    {
+      "path": "refinement-v2/renders/index-mobile.png",
+      "source_path": "refinement-v2/renders/index-mobile.png",
+      "bytes": 114926,
+      "source_sha256": "ffa241b749cda039ba8098c45c3c0281f56cba8439c1de2d9581c0424c21637c",
+      "packaged_sha256": "ffa241b749cda039ba8098c45c3c0281f56cba8439c1de2d9581c0424c21637c",
+      "scope": "requested"
+    },
+    {
+      "path": "refinement-v2/renders/clarification-desktop.png",
+      "source_path": "refinement-v2/renders/clarification-desktop.png",
+      "bytes": 101639,
+      "source_sha256": "b57ca32f14e9bcae6e1a1f4c3e6da5d15eb008057415b216d6f18b70dbe497a9",
+      "packaged_sha256": "b57ca32f14e9bcae6e1a1f4c3e6da5d15eb008057415b216d6f18b70dbe497a9",
+      "scope": "requested"
+    },
+    {
+      "path": "refinement-v2/renders/clarification-mobile.png",
+      "source_path": "refinement-v2/renders/clarification-mobile.png",
+      "bytes": 84208,
+      "source_sha256": "95a02f8e3c91a66bb3f25dc5c2ef2c6a077d9bd49c8487f8197bce37c218b7c6",
+      "packaged_sha256": "95a02f8e3c91a66bb3f25dc5c2ef2c6a077d9bd49c8487f8197bce37c218b7c6",
+      "scope": "requested"
+    },
+    {
+      "path": "refinement-v2/renders/completed-desktop.png",
+      "source_path": "refinement-v2/renders/completed-desktop.png",
+      "bytes": 122928,
+      "source_sha256": "e738ce897b51a74c19c0af5c6a768991bfdbbb021738eb29d333fbc1f14689af",
+      "packaged_sha256": "e738ce897b51a74c19c0af5c6a768991bfdbbb021738eb29d333fbc1f14689af",
+      "scope": "requested"
+    },
+    {
+      "path": "refinement-v2/renders/completed-mobile.png",
+      "source_path": "refinement-v2/renders/completed-mobile.png",
+      "bytes": 83529,
+      "source_sha256": "1125ba7eb9832254009d3f1249b274963e435c95f47bd8af8222a442afcc4d34",
+      "packaged_sha256": "1125ba7eb9832254009d3f1249b274963e435c95f47bd8af8222a442afcc4d34",
+      "scope": "requested"
+    },
+    {
+      "path": "refinement-v2/renders/revision-desktop.png",
+      "source_path": "refinement-v2/renders/revision-desktop.png",
+      "bytes": 136816,
+      "source_sha256": "43da5addc2cb79507273c4a6e1900e658b3e3be3f861636229e21ed02d18f652",
+      "packaged_sha256": "43da5addc2cb79507273c4a6e1900e658b3e3be3f861636229e21ed02d18f652",
+      "scope": "requested"
+    },
+    {
+      "path": "refinement-v2/renders/revision-mobile.png",
+      "source_path": "refinement-v2/renders/revision-mobile.png",
+      "bytes": 93848,
+      "source_sha256": "648c9f3a42046371074713c10dc147f2105c68aa104c0f58f2330f2f10585be0",
+      "packaged_sha256": "648c9f3a42046371074713c10dc147f2105c68aa104c0f58f2330f2f10585be0",
+      "scope": "requested"
+    },
+    {
+      "path": "candidates.html",
+      "source_path": "candidates.html",
+      "bytes": 22490,
+      "source_sha256": "9225a835587ce80132682bffc041cf91ccdf049769a1db346e1f17c889688543",
+      "packaged_sha256": "9225a835587ce80132682bffc041cf91ccdf049769a1db346e1f17c889688543",
+      "scope": "preexisting concept artifact retained"
+    },
+    {
+      "path": "refinement-v2/refinement.html",
+      "source_path": "refinement-v2/refinement.html",
+      "bytes": 37686,
+      "source_sha256": "68610b0a6a386bac65e69b8a4dc34275b8dde1caab36482709abe727bbd01ed9",
+      "packaged_sha256": "68610b0a6a386bac65e69b8a4dc34275b8dde1caab36482709abe727bbd01ed9",
+      "scope": "preexisting concept artifact retained"
+    },
+    {
+      "path": "refinement-v2/renders/new-desktop.png",
+      "source_path": "refinement-v2/renders/new-desktop.png",
+      "bytes": 92561,
+      "source_sha256": "ced6d3f68d937d23f9d53c330744277ca41a4a321ca6cf9853c597a2fc17d245",
+      "packaged_sha256": "ced6d3f68d937d23f9d53c330744277ca41a4a321ca6cf9853c597a2fc17d245",
+      "scope": "preexisting concept artifact retained"
+    },
+    {
+      "path": "refinement-v2/renders/new-mobile.png",
+      "source_path": "refinement-v2/renders/new-mobile.png",
+      "bytes": 78086,
+      "source_sha256": "ae362c1966aa30e6d0338132218a5c2e643c8ed0459e3da19146f1c1dd3569f3",
+      "packaged_sha256": "ae362c1966aa30e6d0338132218a5c2e643c8ed0459e3da19146f1c1dd3569f3",
+      "scope": "preexisting concept artifact retained"
+    }
+  ],
+  "generated_metadata_not_source_copies": [
+    "README.md",
+    "SHA256-MANIFEST.json"
+  ],
+  "excluded": [
+    "independent-critic-evidence.json (mutable aggregate)",
+    "references/google-drive-filters.gif (large animation)",
+    "references/intercom-inbox.webp (not requested; existing sibling reference retained)"
+  ]
+}

@@ -1,0 +1,13 @@
+FAIL an authorized read resolving after role loss cannot restore the saved answer: expect(locator).toHaveCount(expected) failed
+
+Locator:  locator('.pcv-sheet iframe')
+Expected: 0
+Received: 1
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveCount" locator('.pcv-sheet iframe') with timeout 5000ms
+  - waiting for locator('.pcv-sheet iframe')
+    14 × locator resolved to 1 element
+       - unexpected value "1"
+

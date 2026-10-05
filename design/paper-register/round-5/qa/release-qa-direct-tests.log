@@ -1,0 +1,19 @@
+✔ ready schema permits hosting through existing short-lived delegation and one datastore GET only (4.383238ms)
+✔ absent, incomplete and mismatched schemas skip without writing source or derived data (1.986084ms)
+✔ authentication and transport failures stay errors rather than reporting index readiness (1.050257ms)
+✔ workflow gates development promotion when protected backend is skipped and preserves production verification (0.340665ms)
+✔ synchronous Firebase loading preserves metadata while concurrent real SDK events discover the project (485.690789ms)
+✔ Firebase and emulator project configuration is preserved without discovery (463.698794ms)
+✔ failed project discovery rejects events without fallback and permits a later retry (444.805411ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1501.403398
+
+Command: node --test hosting-readiness.test.mjs runtime.test.mjs
+Executor: /root/release_qa, independent continuation review
+Exit code: 0

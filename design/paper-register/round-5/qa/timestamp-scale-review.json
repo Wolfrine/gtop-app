@@ -1,0 +1,36 @@
+{
+  "verdict": "PASS",
+  "reviewedAt": "2026-10-05T06:12:57.832124+00:00",
+  "execution": "Reviewer-authored, hash-frozen script executed by implementation agent inside its retained local emulator shell. Independent reviewer inspected script, code diff, logs, result JSON and exact source hashes. No production writes.",
+  "backendSha256": "daa5f2047cf995a325ad8ad84e08211fd10ab4fdc0563cf4e29a6cc992c3acc1",
+  "scriptSha256": "a2cd91371bf6a0b5b5181b6e22974f5e6619a215dd140c6deeed518d9b314607",
+  "regression": {
+    "baselineBackendSha256": "a41c781298fe4f40e87682c423d43b696c2c904d9c0ed271b04ebf1179eebd17",
+    "baselinePassed": 6,
+    "baselineFailed": 5,
+    "candidatePassed": 11,
+    "candidateFailed": 0,
+    "sourcePreserved": true,
+    "searchedAndUnsearchedCursorOrder": "PASS"
+  },
+  "scaleEvidence": {
+    "status": "Historical PASS carried forward for unchanged mechanisms; not rerun on new hash",
+    "originalBackendSha256": "a41c781298fe4f40e87682c423d43b696c2c904d9c0ed271b04ebf1179eebd17",
+    "families": 10023,
+    "sourceDocuments": 15454,
+    "checks": 46362,
+    "cursorPages": 335,
+    "boundedQueries": 340,
+    "unchanged": "Search tokenization, source transactions, family relationships, query limits, cursor encoding/traversal and resumable backfill/reconciliation logic are byte-identical; the only backend changes are a timestamp helper and two derivations. New independent real-emulator regression covers changed timestamp selection and order.",
+    "limits": "This does not claim a fresh 10,023-family run on the candidate backend. Full prior evidence stays in scale-verdict.json."
+  },
+  "evidenceHashes": {
+    "timestamp-order-qa.mjs": "a2cd91371bf6a0b5b5181b6e22974f5e6619a215dd140c6deeed518d9b314607",
+    "timestamp-baseline-result.json": "d4ae2f4083ee39ffd0d4e127b96225196ab22801393c34cc21adf2029f71bba1",
+    "timestamp-final-result.json": "46e449236812edd5e350e055ee83ce885c72d7c0ccef812e03896664870c4cbc",
+    "round5-timestamp-baseline.log": "e1641d0fd19aa45642af3089e1938f72270601600eb86709f55957036ed42b73",
+    "round5-timestamp-final.log": "6d6b923e47efe4425202e18bec4eb0ca048b67a4d0925af66f347c5f742d3f8d",
+    "timestamp-backend-diff.patch": "97c1bb1422162c4d5105a45caa31af170e126a838297432650b5f42910a95264",
+    "scale-verdict.json": "3dbf5889be38e402a1a405e7c061401a7c0b867b178f1138d15db6b2cba9bf7a"
+  }
+}

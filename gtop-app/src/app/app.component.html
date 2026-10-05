@@ -1,7 +1,7 @@
 <!-- ✅ Header remains full-width & independent -->
 <app-header (toggleSidebar)="sidenav.toggle()" *ngIf="!isLandingPage"></app-header>
 
-<mat-drawer-container class="main-container">
+<mat-drawer-container class="main-container" autosize>
 
     <!-- Side Navigation -->
     <mat-drawer #sidenav [mode]="sidenavMode" [opened]="isDesktop" class="sidenav" *ngIf="!isLandingAndProfile">

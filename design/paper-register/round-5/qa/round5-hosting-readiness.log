@@ -1,0 +1,12 @@
+✔ ready schema permits hosting through existing short-lived delegation and one datastore GET only (3.984947ms)
+✔ absent, incomplete and mismatched schemas skip without writing source or derived data (1.399854ms)
+✔ authentication and transport failures stay errors rather than reporting index readiness (0.958443ms)
+✔ workflow gates development promotion when protected backend is skipped and preserves production verification (0.260464ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 94.768246

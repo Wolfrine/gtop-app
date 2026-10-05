@@ -1,0 +1,318 @@
+{
+  "round": 4,
+  "reviewer": "/root/independent_journey_critic",
+  "candidate_source_fingerprint": "126a7204268f091a293007a43cef73a38c9fb401d72a1a8bffc708b53bd76f8b",
+  "fixture_sha256": "7ae6d052a49d3e2380019e940bcc1bbfa5853760a08e1dace423139391d71961",
+  "candidate_metadata_path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/candidate.json",
+  "candidate_metadata_sha256": "9d1f005197b585101b908f3fbe614429d6912c187a9613d2cc3f31cf2ed67a90",
+  "reviewed_before_parent_scores": true,
+  "scores": {
+    "product_meaning": 8,
+    "action_clarity": 7.5,
+    "async_truth": 8,
+    "durable_retrieval": 8,
+    "output_continuity": 7.5,
+    "mobile_layout": 8,
+    "visual_craft": 7.5
+  },
+  "overall": 7.8,
+  "verdict": "blocked",
+  "evidence": [
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/register-390.png",
+      "sha256": "86ce0ef46a388ce3f1a87864c3a606b1321d49ea6fc5938c723c6e1934b44e8d",
+      "state": "register",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/register-1440.png",
+      "sha256": "a8d957a20e6f448d4885bb4589db5baf540f0b7076cc89f9bf51e1aab8a23d3a",
+      "state": "register",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/multiple-pages-390.png",
+      "sha256": "8927b68d6b81f4df783914d1431d2a24f6afd2a639929e958476bf7c665217b2",
+      "state": "multiple-pages",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/results-end-390.png",
+      "sha256": "b809de07776d69dd7bbc24f22f145d73ccfc5f2a13e2523417819deb61b1cc0a",
+      "state": "results-end",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/history-window-390.png",
+      "sha256": "f18b5f193c06d96f9c56f56ebf98067037b4de8c3baa212fbfe2708aa5cf7584",
+      "state": "history-window",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/history-beginning-390.png",
+      "sha256": "1dc9dc0ba48f23d516ab59d48a6289d151c62be6065536f0a4a26ebc07556bae",
+      "state": "history-beginning",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/first-request-empty-view-390.png",
+      "sha256": "64eae13867b5794e257252770c4cce024a3caa6683df6ed364351978888ed5c0",
+      "state": "first-request-empty-view",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/query-loading-390.png",
+      "sha256": "53dc45d255fba7c33a03e22dcd43404d1ae0925626e867f521b8bd7cf942203b",
+      "state": "query-loading",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/query-error-390.png",
+      "sha256": "588b83538ade28905307592a972bb0519e1d32fb74c4e86de69042a4d53dd5ee",
+      "state": "query-error",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/send-error-390.png",
+      "sha256": "208b949884a29d37f730fb106a806f45d8be30c57424d923f7d5f3ffd90a67cc",
+      "state": "send-error",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/saved-paper-390.png",
+      "sha256": "d3a611d5d10dac58d43b66c7367880c22549b941b62a4ea6c10942b5adb3fdc4",
+      "state": "saved-paper",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/saved-key-390.png",
+      "sha256": "0b5506d233cdfa8d09677690a01dbdc01e7df365168ed6f0320ffc55b64e4459",
+      "state": "saved-key",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/print-paper-1440.png",
+      "sha256": "68e3a86c446ee1f15b7065d659e6826c45223d4fc90444308088391cdb88fc95",
+      "state": "print-paper",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/print-key-1440.png",
+      "sha256": "24284ee65a9de3c557982567fd276541444ac3da750c31bebfd6222d3355db22",
+      "state": "print-key",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/notification-return-390.png",
+      "sha256": "5482b6d9660bfb32504fc82cc6bf6eddb96d542f481a593bbd107c9ddcaf038b",
+      "state": "notification-return",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/history-beginning-1440.png",
+      "sha256": "047274ffd8a42bd0c4ecb184fb8eb3ee66de7291593a625e0404c003a73d1272",
+      "state": "history-beginning",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/query-error-1440.png",
+      "sha256": "5763c2fe9fa306a1f099fad219deb7f65877f89e67db692efb73829c4f89aa12",
+      "state": "query-error",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/first-request-empty-view-1440.png",
+      "sha256": "5c5349a72f0229452f1544703482caf8428545858a2763d92b123fd8766dffb9",
+      "state": "first-request-empty-view",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/multiple-pages-1440.png",
+      "sha256": "00f39c676133c8b2b4eb6e535cd8106fa6ed08c6286355481115da0cb0948843",
+      "state": "multiple-pages",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/results-end-1440.png",
+      "sha256": "06115d8178cc19f425250ed546a2031acdde2955bfd6dd88cf8d44e38451ed71",
+      "state": "results-end",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/clarification-390.png",
+      "sha256": "61250c592fca74bc3f99f06c90ed2b896581acd6f605f40dcf4c4ca0a79d145f",
+      "state": "clarification",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/clarification-320.png",
+      "sha256": "b84adb1db299a476a5ed278aa768c36d8be14eac5ca852e899a0f58d3f86cb3a",
+      "state": "clarification",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/revision-390.png",
+      "sha256": "901ab05030b9b65e711ac92412d97f82fc8e52f54c56ad7cd9b3385d53aa477c",
+      "state": "revision",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/revision-320.png",
+      "sha256": "0dd2c2d42687abe75b24aa09662dbbadf7ab265efb2cc1f09b4c603bed4a51ed",
+      "state": "revision",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/completed-390.png",
+      "sha256": "d7395792a6f19a50153a7077b0341054240910b24eff26b30ce15441a83d5b53",
+      "state": "completed",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/failure-320.png",
+      "sha256": "50dc20b5f041c3e13e3c9b8672e6a706d00c8fc3dfa4069adba9571e1864ea8e",
+      "state": "failure",
+      "viewport_width": 320,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/new-390.png",
+      "sha256": "c12be292a97fbdb36dbdf909bc9de0540b6789d772dc2d0380ea307c225524cb",
+      "state": "new",
+      "viewport_width": 390,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/saved-paper-1440.png",
+      "sha256": "16b97b7ae9f7e1a0fb3eaafe94b6bead890dde5a8497021c5984b20424d8b79c",
+      "state": "saved-paper",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/saved-key-1440.png",
+      "sha256": "9f92f621f88c32b699487a3e57df2886b2d6f889c7a7022f4d87c582ab48b3b2",
+      "state": "saved-key",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/notification-return-1440.png",
+      "sha256": "2979d4fc800795bf8c4b7bdbf5322c3c9f94406abb1f87c8da5fce94a152d97d",
+      "state": "notification-return",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/history-window-1440.png",
+      "sha256": "efcf7e141bfeab84a29a5e0759da691af089fc85cd2a48b3580bb6d82b210118",
+      "state": "history-window",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    },
+    {
+      "path": "/workspace/scratch/0a41fddf9e8a/gtop-question-journey/design/paper-register/round-4/query-loading-1440.png",
+      "sha256": "6f3eb7d77de452e7f8aac37315e4b428f8945a74a68790276a4292501158a5ac",
+      "state": "query-loading",
+      "viewport_width": 1440,
+      "personally_viewed": true
+    }
+  ],
+  "coverage_note": "32 of48 current renders personally viewed. Current core and all newly requested edge categories inspected at sensible viewport subset; no claim of all48 inspection or PDF pagination verification.",
+  "visible_improvements": [
+    "Bank tools now discoverable on390/320",
+    "Real bounded continuation with59 records and exhausted65-result endpoint",
+    "History150entries/100requests continuation and161/161beginning context visible with actor/date labels",
+    "Actual first-account Created-by-me empty state, loading, query failure and retained-input send failure visible",
+    "Separate saved paper/key and print-media output surfaces visible"
+  ],
+  "findings": [
+    {
+      "dimension": "product_meaning",
+      "reason": "Supported natural-language input and separate saved outputs clear; explicit scoped first-use empty guidance needs refinement."
+    },
+    {
+      "dimension": "action_clarity",
+      "reason": "Current reply/ready actions remain strong. Notification-return popover obscures destination title/status on390; dismiss after selection. Empty Created-by-me tells Try different words with blank query, and generic Clear search/filters hides direct scope change."
+    },
+    {
+      "dimension": "async_truth",
+      "reason": "Loading, no-results, recoverable query failure and failed send distinguished. Input remains visible after send error. Opportunity remains clearly a start window."
+    },
+    {
+      "dimension": "durable_retrieval",
+      "reason": "Real continuation/end context and long-history beginning now visible; IDs, dates and stored actor fallback preserved. Whole-word8-term limitation stated honestly; no invented facets needed."
+    },
+    {
+      "dimension": "output_continuity",
+      "reason": "Record preserves Version1 while request2 active, but saved viewer and print lack visible paperID/version, losing selected-version identity at final output. Add truthful wrapper context without altering saved document body."
+    },
+    {
+      "dimension": "mobile_layout",
+      "reason": "Primary task layouts stable at390/320; bank route now discoverable. Notification overlay needs dismissal but core sizing remains readable."
+    },
+    {
+      "dimension": "visual_craft",
+      "reason": "Core coherent. Saved output viewer diverges into blue tab shell and redundant large heading; bounded shell alignment needed for seamless journey, printable document can remain distinct."
+    }
+  ],
+  "generic_risk_assessments": [
+    {
+      "decision": "Semantic record panels",
+      "assessment": "justified",
+      "reason": "Clarification/output/revision distinct."
+    },
+    {
+      "decision": "Viewer additional shell and tab navigation",
+      "assessment": "defective",
+      "reason": "Extra Saved paper hero and blue tab layer interrupts accepted working hierarchy and obscures stable identity."
+    },
+    {
+      "decision": "Textual loading/error/empty panels",
+      "assessment": "refine",
+      "reason": "Truthful simple states appropriate; empty copy must reflect actual scope rather than imply a typed query."
+    }
+  ],
+  "reference_gap": "Bounded retrieval now matches useful Drive search-result completion mechanism; Intercom-like notification-to-record return should reveal the actual object, not leave overlay masking it.",
+  "layer_actions": {
+    "type": "retain core; reduce redundant viewer heading hierarchy",
+    "color": "align viewer controls with accepted green shell",
+    "spacing": "retain core; simplify viewer header",
+    "composition": "dismiss notification overlay on destination; expose outputID/version",
+    "navigation": "retain phoneBanktools; use direct scoped empty action",
+    "imagery": "separate document surfaces correctly isolated; preserve immutable body"
+  },
+  "unobserved_states": [
+    "Production-bundle current renders",
+    "Post-fix output identity and notification destination",
+    "True globally empty admin-wide register (account-filtered empty observed instead)",
+    "PDF pagination and complex math/image print quality not independently checked by critic",
+    "Motion"
+  ],
+  "qa_verdict": "Separate QA reports three old-viewer authorization failures; blocks acceptance. Visual scores not increased by reported no-overflow checks. Print-media screenshots do not alone establish actual PDF pagination/content quality."
+}

@@ -1,0 +1,87 @@
+{
+  "round": 3,
+  "reviewer": "/root",
+  "role": "parent/orchestrator",
+  "criticReviewedFirst": true,
+  "sourceFingerprint": "c16c9523759050c60e2f370071ac7ded58edfa907304669c26a085c924a0d92b",
+  "fixtureSha256": "960fb9b8c1c66754613c22274448fcdd6a945cf5fda6f41cc95e8c15c8a8ad11",
+  "status": "unverified",
+  "personallyViewed": [
+    {
+      "path": "design/paper-register/round-3/register-1440.png",
+      "sha256": "d999feeeefb5c698191705e934a52d0f06318321789e27ce734484ca33e21583"
+    },
+    {
+      "path": "design/paper-register/round-3/register-390.png",
+      "sha256": "b4edb5e85eecf1ab2ad2e30145155b81a9a7772028bf244eb5897042dbc61571"
+    },
+    {
+      "path": "design/paper-register/round-3/clarification-390.png",
+      "sha256": "09df2be3d8f5b6c56c233f4ecccbf1d738b7e766918cc6bbab7b1b0faef6077b"
+    },
+    {
+      "path": "design/paper-register/round-3/revision-320.png",
+      "sha256": "32fb0eebe78428afd120245f88a5acaa783fa20e029cdfe0d86f29f6c2d7a3a4"
+    },
+    {
+      "path": "design/paper-register/round-3/search-results-1440.png",
+      "sha256": "03c19e6bbcfcb3e179ffc60afd86370ba31c7ee983bad2f8805b4ac47f09582a"
+    },
+    {
+      "path": "design/paper-register/round-3/expanded-390.png",
+      "sha256": "8ab73574a3efbd26be70c7da93e26b9eba3d147ac90848788c45777872d25fda"
+    },
+    {
+      "path": "design/paper-register/round-3/new-390.png",
+      "sha256": "a5f196bfcb61705f0d45cecf10d3e9a0409d654dff4d76e522752f7bbc69d4f4"
+    },
+    {
+      "path": "design/paper-register/round-3/failure-320.png",
+      "sha256": "c0a34162e834a185854b8c4857d62510d49088402d04274280c1e2666a465e81"
+    }
+  ],
+  "scores": {
+    "product_meaning": 8,
+    "action_clarity": 8,
+    "async_truth": 8,
+    "durable_retrieval": 7,
+    "output_continuity": 8.5,
+    "mobile_layout": 8,
+    "visual_craft": 8
+  },
+  "overall": 8,
+  "judgment": "Substantive visual improvement and credible selected direction. Continue to rounds4–5; no acceptance yet.",
+  "visibleReasons": [
+    "Desktop register now clears the navigation rail; icons and consistent sans typography are readable.",
+    "All four status views remain visible on the phone. Actual questions precede the named reply action.",
+    "The390px clarification keeps its question, input and Send reply before history.",
+    "At320px, version1 paper/key actions precede the active revision; version and request states remain distinct.",
+    "New request names the natural-language job, separate outputs and honest scheduled start opportunity.",
+    "Repeated historical titles have distinct IDs/dates, but visible page/end context and substantial older multi-admin history remain unproven."
+  ],
+  "remainingGates": [
+    "Visible bounded multi-page history/search and meaningful end/loading context; real stored actor attribution where available.",
+    "Empty, initial/reload loading, recoverable network/query/send errors with retained context, and actual separate paper/key surfaces.",
+    "Return-to-register context continuity; final scale/caching/permission and print QA.",
+    "QA reported gateway401/403 clears protected data but leaves loading=true; fix before release."
+  ],
+  "genericRisks": [
+    {
+      "category": "containers",
+      "status": "justified",
+      "reason": "Register rows and a distinct current-action panel support comparisons and immediate work."
+    },
+    {
+      "category": "typography",
+      "status": "resolved",
+      "reason": "Current inspected controls and headings no longer fragment; narrow failure heading stacks readably."
+    },
+    {
+      "category": "decoration",
+      "status": "justified",
+      "reason": "Restrained amber/green states reinforce reply-needed and usable-completed outcomes, backed by text."
+    }
+  ],
+  "referenceComparison": "Compact action hierarchy reflects Linear; stable record/conversation relationship reflects Intercom; prominent retrieval follows Drive. Baseline intentionally excluded under user's clean-slate instruction.",
+  "motion": "No new motion acceptance or timed human-perception claim."
+}

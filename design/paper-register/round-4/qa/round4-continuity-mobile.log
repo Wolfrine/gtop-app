@@ -1,0 +1,3 @@
+PASS Bank tools has an accessible name and reaches the canonical bank
+PASS filtered historical register resumes query filter loaded pages and useful position after detail
+PASS filtered historical register resumes after saved output and deep link reload

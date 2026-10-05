@@ -1,0 +1,4 @@
+PASS saved answer iframe clears when the current admin role is revoked
+PASS saved answer iframe clears on actual sign-out
+PASS saved answer cannot survive a cross-tab account switch to a non-admin
+PASS an authorized read resolving after role loss cannot restore the saved answer

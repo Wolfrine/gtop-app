@@ -230,3 +230,39 @@ Use it to answer:
 - Durable memory: founder replaces paper navigation/priority/review work with conversational requirements and notified delivery; reuse suitable existing questions before generating gaps; two-hour daytime service rhythm; no manual question approval for chat papers; future flagging remains open. Curriculum and learner-bank trust remain independent.
 - Acceptance: Home/Intent retain practice intelligence and content trust; Decisions explains the workload rationale and urgent real-use context; uncertainties and unverified workload/quality outcomes remain explicit. Prior education-research curation remains outside this scope.
 - Project Manager Handoff: implement and verify the authorized workflow under Action Plan PyvGBkV1TytX9MMzXH1i, release it, update the existing scheduler and test the urgent real requests when submitted. No fictitious production papers are requested as demonstration.
+
+### 2026-10-04 - Returning Admin Paper Journey
+
+- Raw note: `raw/2026-10-04-returning-admin-paper-journey.md`.
+- Status: processed.
+- Related sources reviewed: `raw/2026-09-29-admin-question-module.md` and `raw/2026-10-04-paper-chat-bank-first.md`; already processed, used for continuity without changing their original records. `raw/README.md` reviewed as process guidance.
+- Wiki pages updated: `wiki/Question Bank Quality.md`, `wiki/Problems.md`, `wiki/Decisions.md`.
+- Durable memory: mobile-first simplicity across the complete returning-admin lifecycle; retrieval after years and thousands of papers; stable identity across requirements, status, clarification and outputs; discoverable submission; retained completed outputs during revision; honest access, attribution, notification and output labels.
+- Evidence boundary: the raw source records a credible independent design direction and ongoing review, not final design acceptance, release or measured workload improvement. Engineering requirements and independent-agent choreography remain outside wiki prose.
+- Curation acceptance: existing Home and Intent retain the practice-intelligence direction; Decisions and Problems preserve the correction and its rationale; Question Bank Quality explains the service boundaries and unproven usability outcome without requiring raw notes. No new concept page or product-map change is needed.
+- Source scan: every existing dated raw note has a ledger record. The June education-research note remains needs-follow-up and outside this bounded curation scope; other previously processed sources were not re-curated.
+- Project Manager Handoff: preserve the cache requirement, complete returning-admin and realistic-volume evidence, independent visual and functional review, final acceptance and release facts in Action Plan `yqPTIZkZPfkCQn3507cc` and engineering records. The orchestrator owns delivery; no execution checklist is added to the wiki.
+
+### 2026-10-05 - Returning Admin Journey Evidence Addendum
+
+- Raw source revisited: the dated backend-delivery addendum in `raw/2026-10-04-returning-admin-paper-journey.md`; the original pre-release snapshot is preserved.
+- Status: processed evidence-boundary follow-up, not duplicate first curation.
+- Wiki pages changed in this follow-up: none. The three proposed journey updates retain the durable intent and explicitly unproven real-admin outcomes.
+- Evidence boundary: independent design and agent review remain distinct from founder acceptance. The orchestrator verified completion of the existing real paper with its original content and service-created delivery; interface hosting was still pending at the recorded observation.
+- Project Manager Handoff: retain final hosting verification and engineering evidence in Action Plan `yqPTIZkZPfkCQn3507cc`; assess reduced admin effort through actual usage and feedback. No execution details or release claims were added to wiki prose.
+
+### 2026-10-05 - Production Interface Availability Follow-Up
+
+- Raw source revisited: the later production-availability addendum in `raw/2026-10-04-returning-admin-paper-journey.md`; all earlier dated observations remain intact.
+- Status: processed evidence-boundary follow-up.
+- Wiki pages changed in this follow-up: none. Deployment does not establish founder acceptance or measured admin-workload improvement.
+- Evidence boundary: the orchestrator verified production hosting and live origin availability. The archive initial-search race remains under independent QA and implementation investigation despite the successful workflow.
+- Project Manager Handoff: resolve the archive investigation and complete release closeout in Action Plan `yqPTIZkZPfkCQn3507cc`; retain engineering checks and actual admin feedback outside the wiki. Memory publication remains with the orchestrator after resolution.
+
+### 2026-10-05 - Archive Search Diagnosis Resolution
+
+- Raw source revisited: the archive-diagnosis addendum in `raw/2026-10-04-returning-admin-paper-journey.md`; all earlier dated observations remain intact.
+- Status: processed evidence-boundary follow-up.
+- Wiki pages changed: none. Existing journey intent and real-admin outcome boundaries remain intact.
+- Evidence boundary: controlled reproduction resolved the diagnosis; the exact CI instance remains a timeline-based inference. Independent QA recommended the published fixture-only correction. Mandatory build and service checks had passed, while the browser first-attempt result was pending at this observation. Previously verified production delivery remains established.
+- Project Manager Handoff: retain subsequent CI, merge and release closeout in Action Plan `yqPTIZkZPfkCQn3507cc`; no repeated product-memory rewrite is needed solely as execution checks advance. Evaluate actual admin ease of use and workload reduction through usage and feedback.

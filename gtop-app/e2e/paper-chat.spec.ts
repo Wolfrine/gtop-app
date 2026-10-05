@@ -43,6 +43,13 @@ test('delivered paper, separate answers, notification and older archive remain a
     await setDoc(doc(db,'paperDrafts',paperId),{title,board:'ICSE',standard:'9',subjects:['Biology'],chapters:['Cells'],marks:2,actualMarks:2,durationMinutes:10,status:'ready',conversationId,paperHtml:html(),answerHtml:html(true),createdAt:now});
     await setDoc(doc(db,'paperMessages',tag+'-delivery'),{role:'agent',conversationId,text:'Your paper is ready. Reused 1 bank question and created 0 new questions.',paperId,createdAt:now});
     await setDoc(doc(db,'paperNotifications',tag+'-notification'),{ownerUid:uid,conversationId,paperId,text:title+' is ready.',read:false,createdAt:now});
+    // This fixture represents an already delivered, archived paper. Source writes
+    // complete before their asynchronous search projection, especially on a cold
+    // emulator. Wait for the real triggers; never seed the derived index directly.
+    await expect.poll(async()=>{
+      const [source,record]=await Promise.all([getDoc(doc(db,'paperRegisterSearch','p-'+paperId)),getDoc(doc(db,'paperRegister',conversationId))]);
+      return {familyId:source.data()?.familyId,searchable:source.data()?.tokens?.includes(tag),paperId:record.data()?.latestPaperId,ready:record.data()?.hasReady};
+    },{message:'Delivered fixture must be projected into the searchable paper register',timeout:45000,intervals:[100,250,500,1000]}).toEqual({familyId:conversationId,searchable:true,paperId,ready:true});
   });
   await open(page,'/admin/question-papers/chat/'+conversationId);await page.getByRole('button',{name:/Activity and earlier requests/}).click();await expect(page.getByText('Your paper is ready. Reused 1 bank question and created 0 new questions.',{exact:true})).toBeVisible();
   await page.getByRole('link',{name:'Open paper',exact:false}).first().click();

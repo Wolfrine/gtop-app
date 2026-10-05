@@ -20,6 +20,12 @@ Admins need confidence that MCQs are correct, syllabus-aligned, discoverable, an
 
 The question bank is large enough that quality cannot be treated as a one-time cleanup. The latest raw note preserves a scale tension: public copy references 50,000+ MCQs, while product discussion references roughly 1.2 lakh questions. GTOP needs that count and claim clarified outside the wiki, while the product memory preserves why scale must be verified.
 
+## Returning Admins Can Lose The Paper Journey
+
+A conversational request does not remove admin effort if requirements remain vague, submission leaves no discoverable status, or an old paper is buried in a growing dropdown. The founder rejected this incomplete journey and expects mobile-first simplicity that survives years and thousands of papers. A recent list with a few examples cannot establish durable retrieval.
+
+Admins need to recognise the same paper through requirements, scheduled waiting, preparation, clarification and delivery, then revise it without losing the last completed output. This continuity is part of [[Question Bank Quality]] because trusted content is useful only when an admin can find and use the right result. The correction establishes a product requirement; the effectiveness of the revised experience remains unproven by this source.
+
 ## Usage And Analytics Readiness
 
 Personalized analytics become more useful when students use GTOP consistently. Low or scattered usage limits advanced recommendations, even when the reporting concept is strong.
@@ -53,3 +59,4 @@ The Plant Reproduction review exposed a gap between having activities and making
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
 - `raw/2026-09-05-visual-review-release-approval.md`
 - `raw/2026-09-06-plant-lab-experience-review.md`
+- `raw/2026-10-04-returning-admin-paper-journey.md`

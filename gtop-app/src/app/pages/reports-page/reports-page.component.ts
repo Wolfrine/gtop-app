@@ -52,7 +52,8 @@ export class ReportsPageComponent implements OnInit {
         quick: 0,
         custom: 0,
         live: 0,
-        run: 0
+        run: 0,
+        retry: 0
     });
 
     lineChartOptions: ChartConfiguration<'line'>['options'] = {
@@ -158,7 +159,7 @@ export class ReportsPageComponent implements OnInit {
             this.lastUpdatedLabel = '';
             this.summaryCards = this.createDefaultSummaryCards();
             this.accuracyChartData = this.createLineChartData([]);
-            this.quizTypeChartData = this.createQuizTypeChartData({ quick: 0, custom: 0, live: 0, run: 0 });
+            this.quizTypeChartData = this.createQuizTypeChartData({ quick: 0, custom: 0, live: 0, run: 0, retry: 0 });
             this.sessions = [];
             return;
         }
@@ -274,7 +275,7 @@ export class ReportsPageComponent implements OnInit {
         this.accuracyChartData = this.createLineChartData(accuracyData, accuracyLabels);
 
         // ✅ Quiz Type Distribution
-        const quizTypeCounts: Record<'quick' | 'custom' | 'live' | 'run', number> = { quick: 0, custom: 0, live: 0, run: 0 };
+        const quizTypeCounts: Record<'quick' | 'custom' | 'live' | 'run' | 'retry', number> = { quick: 0, custom: 0, live: 0, run: 0, retry: 0 };
         sortedByDate.forEach(r => {
             const type = (r.quizType || '').toLowerCase();
             switch (type) {
@@ -282,6 +283,7 @@ export class ReportsPageComponent implements OnInit {
                 case 'custom':
                 case 'live':
                 case 'run':
+                case 'retry':
                     quizTypeCounts[type as keyof typeof quizTypeCounts]++;
                     break;
             }
@@ -375,14 +377,14 @@ export class ReportsPageComponent implements OnInit {
         };
     }
 
-    private createQuizTypeChartData(counts: Record<'quick' | 'custom' | 'live' | 'run', number>): ChartConfiguration<'pie'>['data'] {
+    private createQuizTypeChartData(counts: Record<'quick' | 'custom' | 'live' | 'run' | 'retry', number>): ChartConfiguration<'pie'>['data'] {
         return {
-            labels: ['Quick', 'Custom', 'Live', 'Run'],
+            labels: ['Quick', 'Custom', 'Live', 'Run', 'Retry'],
             datasets: [
                 {
-                    data: [counts.quick, counts.custom, counts.live, counts.run],
-                    backgroundColor: ['#2563eb', '#22c55e', '#f97316', '#9333ea'],
-                    hoverBackgroundColor: ['#1d4ed8', '#16a34a', '#ea580c', '#7e22ce'],
+                    data: [counts.quick, counts.custom, counts.live, counts.run, counts.retry],
+                    backgroundColor: ['#2563eb', '#22c55e', '#f97316', '#9333ea', '#0d9488'],
+                    hoverBackgroundColor: ['#1d4ed8', '#16a34a', '#ea580c', '#7e22ce', '#0f766e'],
                     borderWidth: 2,
                     borderColor: '#ffffff'
                 }

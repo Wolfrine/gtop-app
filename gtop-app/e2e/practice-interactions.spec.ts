@@ -224,7 +224,7 @@ test('mounted offline summary invalidates on profile change and retains original
     await context.setOffline(false);
     await expect(page.getByRole('alert')).toContainText('Your learning profile changed.');
     await expect(page.getByRole('button', { name: 'Try saving again' })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Retry Entire Quiz', exact: false })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Retry Entire Quiz', exact: false })).toHaveCount(0);
     expect(await resultCount()).toBe(beforeCount);
     expect(await page.evaluate(() => sessionStorage.getItem('gtop.practice-session.v1'))).toBe(retained);
   } finally {

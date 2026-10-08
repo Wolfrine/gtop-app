@@ -1,0 +1,110 @@
+name: GTOP design readiness capture
+
+on:
+  push:
+    branches: [audit/design-readiness-20261008]
+    paths: [.github/workflows/design-readiness-capture.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 00116b57042df34a49b99031dbea3c1bebe897a4
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: gtop-app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install existing application and emulator dependencies
+        working-directory: gtop-app
+        run: |
+          npm ci
+          npm ci --prefix functions
+          npx playwright install --with-deps chromium
+          mkdir -p readiness-proof
+      - name: Prepare isolated screen-state proof
+        working-directory: gtop-app
+        run: |
+          cat > playwright.readiness.config.ts <<'TS'
+          import {defineConfig} from '@playwright/test';
+          import base from './playwright.config';
+          export default defineConfig({
+            ...base,workers:1,retries:0,maxFailures:0,
+            outputDir:'readiness-proof/e2e',
+            reporter:[['list'],['json',{outputFile:'readiness-proof/tests.json'}]],
+            use:{...base.use,screenshot:'on',trace:'retain-on-failure'},
+            projects:[
+              {name:'desktop1440',use:{browserName:'chromium',viewport:{width:1440,height:1000}}},
+              {name:'mobile390',use:{browserName:'chromium',viewport:{width:390,height:844},isMobile:true,hasTouch:true}}
+            ]
+          });
+          TS
+          cat > e2e/readiness-states.spec.ts <<'TS'
+          import {test,expect} from '@playwright/test';
+          import {execFile} from 'node:child_process';
+          import {promisify} from 'node:util';
+          import {initializeApp,deleteApp} from 'firebase/app';
+          import {getAuth,connectAuthEmulator,createUserWithEmailAndPassword} from 'firebase/auth';
+          import {initializeTestEnvironment} from '@firebase/rules-unit-testing';
+          import {doc,setDoc,getDoc,Timestamp} from 'firebase/firestore';
+          test('readiness busy paper register has a bounded first page and older records',async({page},info)=>{
+            test.setTimeout(180000);
+            const tag='readiness-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+            const email=tag+'@gtop.test',password='IsolatedReadiness2026';
+            const app=initializeApp({apiKey:'demo',projectId:'gtop-app'},tag);
+            const auth=getAuth(app);connectAuthEmulator(auth,'http://127.0.0.1:9099',{disableWarnings:true});
+            const uid=(await createUserWithEmailAndPassword(auth,email,password)).user.uid;
+            const env=await initializeTestEnvironment({projectId:'gtop-app',firestore:{host:'127.0.0.1',port:8080}});
+            try{
+              await env.withSecurityRulesDisabled(async ctx=>{
+                const db=ctx.firestore();
+                await setDoc(doc(db,'users',uid),{uid,email,displayName:'Readiness Admin',role:'admin',board:'ICSE',standard:'9'});
+                for(let i=0;i<90;i++){
+                  const id=tag+'-'+i,requestId=id+'-r1',when=Timestamp.fromMillis(Date.now()-i*3600000);
+                  const status=['queued','needs-info','error'][i%3];
+                  await setDoc(doc(db,'paperConversations',id),{title:'Readiness '+String(i+1).padStart(3,'0')+' · ICSE Class 9 Biology · Cells, tissues and plant reproduction',ownerUid:uid,status,revision:1,activeRequestId:requestId,createdAt:when,updatedAt:when});
+                  await setDoc(doc(db,'paperRequests',requestId),{source:'admin-paper-chat',conversationId:id,brief:'ICSE Class 9 Biology, 40 marks, 90 minutes. Include application and diagram questions.',requestedBy:uid,revision:1,status,createdAt:when,updatedAt:when,nextRunAtIso:new Date(Date.now()+3600000).toISOString(),progress:{step:'Waiting for scheduled opportunity',reused:0,generated:0},...(status==='needs-info'?{clarificationText:'Should plant reproduction include vegetative propagation?'}:{}),...(status==='error'?{error:'Synthetic readiness state: generation interrupted.'}:{})});
+                }
+                await expect.poll(async()=>!!(await getDoc(doc(db,'paperRegister',tag+'-89'))).exists(),{timeout:45000}).toBe(true);
+              });
+              await promisify(execFile)('node',['backfill-register.mjs','--until-ready','--restart'],{cwd:process.cwd()+'/functions',env:{...process.env,FIRESTORE_EMULATOR_HOST:'127.0.0.1:8080',GCLOUD_PROJECT:'gtop-app'},timeout:120000});
+              await page.goto('/admin/question-papers?emulator=1&testEmail='+encodeURIComponent(email)+'&testPassword='+encodeURIComponent(password));
+              await expect(page.getByRole('heading',{name:'Papers',exact:true})).toBeVisible({timeout:30000});
+              await expect.poll(()=>page.locator('.pr-record').count(),{timeout:30000}).toBeGreaterThan(0);
+              await page.getByLabel('Created by me').check();
+              await expect.poll(()=>page.locator('.pr-record').count(),{timeout:30000}).toBe(30);
+              await expect(page.getByRole('button',{name:/^(Load older papers|Continue search)$/})).toBeVisible();
+              await page.evaluate(()=>document.fonts.ready);
+              await page.screenshot({path:info.outputPath('busy-register-90-records.png'),fullPage:true,animations:'disabled'});
+              await info.attach('fixture',{body:JSON.stringify({synthetic:true,sourceRecords:90,role:'admin',viewport:page.viewportSize(),sourceCommit:'00116b57042df34a49b99031dbea3c1bebe897a4'}),contentType:'application/json'});
+              await page.getByRole('button',{name:/^(Load older papers|Continue search)$/}).click();
+              await expect.poll(()=>page.locator('.pr-record').count(),{timeout:30000}).toBe(60);
+              await info.attach('pagination-result',{body:JSON.stringify({recordsBefore:30,recordsAfter:60,sourceRecords:90}),contentType:'application/json'});
+            }finally{await env.cleanup();await deleteApp(app);}
+          });
+          TS
+      - name: Verify corrected busy-state setup
+        working-directory: gtop-app
+        run: |
+          npx firebase-tools@15 emulators:exec --only auth,firestore,database,functions --project gtop-app "npx playwright test --config playwright.readiness.config.ts e2e/readiness-states.spec.ts"
+      - name: Preserve readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gtop-design-readiness-proof
+          path: gtop-app/readiness-proof
+          retention-days: 14
+          if-no-files-found: error
+
+

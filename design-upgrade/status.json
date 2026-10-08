@@ -1,0 +1,59 @@
+{
+  "updated": "2026-10-08",
+  "baselineCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+  "currentStage": "Step 2 ready to begin",
+  "stages": [
+    {
+      "step": 0,
+      "name": "Readiness",
+      "status": "technical paths verified"
+    },
+    {
+      "step": 1,
+      "name": "Evaluation criteria",
+      "status": "framework defined",
+      "rubricVersion": "1.0",
+      "referenceCalibration": "pending Step 3"
+    },
+    {
+      "step": 2,
+      "name": "Sitemap and complete baseline",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "Reference research",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "name": "Screen evaluation",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "name": "Mockups",
+      "status": "pending"
+    },
+    {
+      "step": 6,
+      "name": "Development",
+      "status": "blocked until user accepts proposed designs"
+    }
+  ],
+  "nextAction": "Verify current release; derive route/role/state inventory; capture and inspect every applicable screen on desktop and mobile. Preserve the existing readiness baseline.",
+  "fullAuditCoverage": null,
+  "gtopScreensRated": 0,
+  "mockupsAccepted": 0,
+  "readinessCaptureCount": 53,
+  "evidenceImportFileCount": 70,
+  "openTechnicalBlockers": [],
+  "retainedLimits": [
+    "Physical-device behavior unverified",
+    "Mockup fidelity and interaction validation occur at their stages",
+    "Reference set and scoring-anchor calibration pending",
+    "Readiness samples do not prove complete screen coverage"
+  ],
+  "productionChanged": false,
+  "entryPoint": "design-upgrade/README.md"
+}

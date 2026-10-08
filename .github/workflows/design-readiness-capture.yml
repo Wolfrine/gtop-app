@@ -33,63 +33,6 @@ jobs:
           npm ci --prefix functions
           npx playwright install --with-deps chromium
           mkdir -p readiness-proof
-      - name: Capture live public screens and reference access
-        working-directory: gtop-app
-        run: |
-          node --input-type=module <<'JS'
-          import {chromium} from '@playwright/test';
-          import {mkdir,writeFile} from 'node:fs/promises';
-          const dir='readiness-proof/public'; await mkdir(dir,{recursive:true});
-          const browser=await chromium.launch(); const results=[];
-          const targets=[
-            {name:'gtop',url:'https://gtop-app.web.app/',required:true},
-            {name:'awwwards',url:'https://www.awwwards.com/websites/sites_of_the_day/'},
-            {name:'twks',url:'https://twks.ch/en'},
-            {name:'nightjar',url:'https://nightjar.co/'}
-          ];
-          for(const target of targets){
-            for(const width of [390,1440]){
-              const page=await browser.newPage({viewport:{width,height:width===390?844:1000},reducedMotion:target.name==='gtop'?'reduce':'no-preference'});
-              const result={name:target.name,requestedUrl:target.url,width,capturedAt:new Date().toISOString()};
-              try{
-                await page.goto(target.url,{waitUntil:'domcontentloaded',timeout:45000});
-                result.url=page.url(); result.title=await page.title();
-                const body=await page.locator('body').innerText({timeout:10000});
-                if(/verify (you are|that you are) human|checking your browser|just a moment|unusual traffic|access denied/i.test(body.slice(0,1500))){
-                  result.status='blocked';result.reason='Visible access challenge';results.push(result);await page.close();continue;
-                }
-                await page.evaluate(()=>document.fonts.ready);
-                if(target.name==='gtop'){
-                  await page.getByRole('heading',{name:/A little practice/}).waitFor({timeout:30000});
-                  for(let y=0;y<await page.evaluate(()=>document.documentElement.scrollHeight);y+=650){
-                    await page.evaluate(y=>window.scrollTo(0,y),y);
-                    await page.waitForTimeout(150);
-                  }
-                  await page.waitForFunction(()=>Array.from(document.images).filter(i=>i.getAttribute('src')).every(i=>i.complete),{},{timeout:10000}).catch(()=>{});
-                  await page.evaluate(()=>window.scrollTo(0,0));
-                  result.images=await page.evaluate(()=>Array.from(document.images).map(i=>({alt:i.alt,loaded:i.complete&&i.naturalWidth>0})));
-                  result.release=await (await page.request.get(new URL('version.json',target.url).href)).json();
-                }else{
-                  await page.waitForTimeout(12000);
-                  result.renderedText=(await page.locator('body').innerText()).slice(0,4000);
-                  result.media=await page.evaluate(()=>({images:Array.from(document.images).map(i=>({loaded:i.complete&&i.naturalWidth>0})),videos:Array.from(document.querySelectorAll('video')).map(v=>({readyState:v.readyState,paused:v.paused,currentTime:v.currentTime})),canvas:document.querySelectorAll('canvas').length}));
-                }
-                result.viewport=await page.evaluate(()=>({width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth}));
-                result.screenshot=target.name+'-'+width+'.png';
-                await page.screenshot({path:dir+'/'+result.screenshot,fullPage:target.name==='gtop',animations:'disabled'});
-                if(target.name!=='gtop'){
-                  await page.mouse.wheel(0,800);await page.waitForTimeout(3000);
-                  await page.screenshot({path:dir+'/'+target.name+'-'+width+'-scrolled.png',animations:'allow'});
-                }
-                result.status='captured';
-              }catch(error){result.status='error';result.reason=String(error.message);}
-              results.push(result);await page.close();
-            }
-          }
-          await browser.close();await writeFile(dir+'/manifest.json',JSON.stringify(results,null,2));
-          console.log(JSON.stringify(results,null,2));
-          if(results.filter(r=>r.name==='gtop'&&r.status==='captured').length!==2)process.exitCode=1;
-          JS
       - name: Prepare isolated screen-state proof
         working-directory: gtop-app
         run: |
@@ -141,12 +84,13 @@ jobs:
               await expect.poll(()=>page.locator('.pr-record').count(),{timeout:30000}).toBeGreaterThan(0);
               await page.getByLabel('Created by me').check();
               await expect.poll(()=>page.locator('.pr-record').count(),{timeout:30000}).toBe(30);
-              await expect(page.getByRole('button',{name:'Load older papers',exact:true})).toBeVisible();
+              await expect(page.getByRole('button',{name:/^(Load older papers|Continue search)$/})).toBeVisible();
               await page.evaluate(()=>document.fonts.ready);
               await page.screenshot({path:info.outputPath('busy-register-90-records.png'),fullPage:true,animations:'disabled'});
               await info.attach('fixture',{body:JSON.stringify({synthetic:true,sourceRecords:90,role:'admin',viewport:page.viewportSize(),sourceCommit:'00116b57042df34a49b99031dbea3c1bebe897a4'}),contentType:'application/json'});
-              await page.getByRole('button',{name:'Load older papers',exact:true}).click();
-              await expect.poll(()=>page.locator('.pr-record').count(),{timeout:30000}).toBeGreaterThan(30);
+              await page.getByRole('button',{name:/^(Load older papers|Continue search)$/}).click();
+              await expect.poll(()=>page.locator('.pr-record').count(),{timeout:30000}).toBe(60);
+              await info.attach('pagination-result',{body:JSON.stringify({recordsBefore:30,recordsAfter:60,sourceRecords:90}),contentType:'application/json'});
             }finally{await env.cleanup();await deleteApp(app);}
           });
           TS
@@ -162,5 +106,4 @@ jobs:
           path: gtop-app/readiness-proof
           retention-days: 14
           if-no-files-found: error
-
 

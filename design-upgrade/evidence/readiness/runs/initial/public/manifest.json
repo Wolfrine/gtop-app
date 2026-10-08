@@ -1,0 +1,125 @@
+[
+  {
+    "name": "gtop",
+    "requestedUrl": "https://gtop-app.web.app/",
+    "width": 390,
+    "capturedAt": "2026-10-08T09:43:39.695Z",
+    "url": "https://gtop-app.web.app/",
+    "title": "GTOP | Growth Tutorials Objective Practice Platform",
+    "images": [
+      {
+        "alt": "An open book unfolds into a globe, a glass prism and sculptural shapes",
+        "loaded": true
+      },
+      {
+        "alt": "A glass prism casts a spectrum of light",
+        "loaded": true
+      },
+      {
+        "alt": "Terracotta and paper geometric sculptures in warm sunlight",
+        "loaded": true
+      },
+      {
+        "alt": "Sunlight reveals the veins and dew on a green leaf",
+        "loaded": true
+      }
+    ],
+    "release": {
+      "application": "gtop-app",
+      "commit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "branch": "main",
+      "builtAt": "2026-10-05T13:35:10.574Z"
+    },
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390
+    },
+    "screenshot": "gtop-390.png",
+    "status": "captured"
+  },
+  {
+    "name": "gtop",
+    "requestedUrl": "https://gtop-app.web.app/",
+    "width": 1440,
+    "capturedAt": "2026-10-08T09:43:42.482Z",
+    "url": "https://gtop-app.web.app/",
+    "title": "GTOP | Growth Tutorials Objective Practice Platform",
+    "images": [
+      {
+        "alt": "An open book unfolds into a globe, a glass prism and sculptural shapes",
+        "loaded": true
+      },
+      {
+        "alt": "A glass prism casts a spectrum of light",
+        "loaded": true
+      },
+      {
+        "alt": "Terracotta and paper geometric sculptures in warm sunlight",
+        "loaded": true
+      },
+      {
+        "alt": "Sunlight reveals the veins and dew on a green leaf",
+        "loaded": true
+      }
+    ],
+    "release": {
+      "application": "gtop-app",
+      "commit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "branch": "main",
+      "builtAt": "2026-10-05T13:35:10.574Z"
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440
+    },
+    "screenshot": "gtop-1440.png",
+    "status": "captured"
+  },
+  {
+    "name": "awwwards",
+    "requestedUrl": "https://www.awwwards.com/websites/sites_of_the_day/",
+    "width": 1440,
+    "capturedAt": "2026-10-08T09:43:45.189Z",
+    "url": "https://www.awwwards.com/websites/sites_of_the_day/",
+    "title": "Sites Of The Day - Awwwards",
+    "viewport": {
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440
+    },
+    "screenshot": "awwwards-1440.png",
+    "status": "captured"
+  },
+  {
+    "name": "twks",
+    "requestedUrl": "https://twks.ch/en",
+    "width": 1440,
+    "capturedAt": "2026-10-08T09:43:49.185Z",
+    "url": "https://twks.ch/en",
+    "title": "Creative communications agency in Geneva | twks",
+    "viewport": {
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1425
+    },
+    "screenshot": "twks-1440.png",
+    "status": "captured"
+  },
+  {
+    "name": "nightjar",
+    "requestedUrl": "https://nightjar.co/",
+    "width": 1440,
+    "capturedAt": "2026-10-08T09:43:52.326Z",
+    "url": "https://nightjar.co/",
+    "title": "Nightjar – Digital Product Studio",
+    "viewport": {
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440
+    },
+    "screenshot": "nightjar-1440.png",
+    "status": "captured"
+  }
+]

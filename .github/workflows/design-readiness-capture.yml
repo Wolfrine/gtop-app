@@ -48,8 +48,8 @@ jobs:
             {name:'nightjar',url:'https://nightjar.co/'}
           ];
           for(const target of targets){
-            for(const width of (target.name==='gtop'?[390,1440]:[1440])){
-              const page=await browser.newPage({viewport:{width,height:width===390?844:1000},reducedMotion:'reduce'});
+            for(const width of [390,1440]){
+              const page=await browser.newPage({viewport:{width,height:width===390?844:1000},reducedMotion:target.name==='gtop'?'reduce':'no-preference'});
               const result={name:target.name,requestedUrl:target.url,width,capturedAt:new Date().toISOString()};
               try{
                 await page.goto(target.url,{waitUntil:'domcontentloaded',timeout:45000});
@@ -70,11 +70,17 @@ jobs:
                   result.images=await page.evaluate(()=>Array.from(document.images).map(i=>({alt:i.alt,loaded:i.complete&&i.naturalWidth>0})));
                   result.release=await (await page.request.get(new URL('version.json',target.url).href)).json();
                 }else{
-                  await page.waitForTimeout(1500);
+                  await page.waitForTimeout(12000);
+                  result.renderedText=(await page.locator('body').innerText()).slice(0,4000);
+                  result.media=await page.evaluate(()=>({images:Array.from(document.images).map(i=>({loaded:i.complete&&i.naturalWidth>0})),videos:Array.from(document.querySelectorAll('video')).map(v=>({readyState:v.readyState,paused:v.paused,currentTime:v.currentTime})),canvas:document.querySelectorAll('canvas').length}));
                 }
                 result.viewport=await page.evaluate(()=>({width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth}));
                 result.screenshot=target.name+'-'+width+'.png';
                 await page.screenshot({path:dir+'/'+result.screenshot,fullPage:target.name==='gtop',animations:'disabled'});
+                if(target.name!=='gtop'){
+                  await page.mouse.wheel(0,800);await page.waitForTimeout(3000);
+                  await page.screenshot({path:dir+'/'+target.name+'-'+width+'-scrolled.png',animations:'allow'});
+                }
                 result.status='captured';
               }catch(error){result.status='error';result.reason=String(error.message);}
               results.push(result);await page.close();
@@ -91,7 +97,7 @@ jobs:
           import {defineConfig} from '@playwright/test';
           import base from './playwright.config';
           export default defineConfig({
-            ...base,workers:2,retries:1,maxFailures:0,
+            ...base,workers:1,retries:0,maxFailures:0,
             outputDir:'readiness-proof/e2e',
             reporter:[['list'],['json',{outputFile:'readiness-proof/tests.json'}]],
             use:{...base.use,screenshot:'on',trace:'retain-on-failure'},
@@ -103,12 +109,14 @@ jobs:
           TS
           cat > e2e/readiness-states.spec.ts <<'TS'
           import {test,expect} from '@playwright/test';
+          import {execFile} from 'node:child_process';
+          import {promisify} from 'node:util';
           import {initializeApp,deleteApp} from 'firebase/app';
           import {getAuth,connectAuthEmulator,createUserWithEmailAndPassword} from 'firebase/auth';
           import {initializeTestEnvironment} from '@firebase/rules-unit-testing';
           import {doc,setDoc,getDoc,Timestamp} from 'firebase/firestore';
           test('readiness busy paper register has a bounded first page and older records',async({page},info)=>{
-            test.setTimeout(90000);
+            test.setTimeout(180000);
             const tag='readiness-'+Date.now()+'-'+Math.random().toString(36).slice(2);
             const email=tag+'@gtop.test',password='IsolatedReadiness2026';
             const app=initializeApp({apiKey:'demo',projectId:'gtop-app'},tag);
@@ -127,6 +135,7 @@ jobs:
                 }
                 await expect.poll(async()=>!!(await getDoc(doc(db,'paperRegister',tag+'-89'))).exists(),{timeout:45000}).toBe(true);
               });
+              await promisify(execFile)('node',['backfill-register.mjs','--until-ready','--restart'],{cwd:process.cwd()+'/functions',env:{...process.env,FIRESTORE_EMULATOR_HOST:'127.0.0.1:8080',GCLOUD_PROJECT:'gtop-app'},timeout:120000});
               await page.goto('/admin/question-papers?emulator=1&testEmail='+encodeURIComponent(email)+'&testPassword='+encodeURIComponent(password));
               await expect(page.getByRole('heading',{name:'Papers',exact:true})).toBeVisible({timeout:30000});
               await expect.poll(()=>page.locator('.pr-record').count(),{timeout:30000}).toBeGreaterThan(0);
@@ -141,10 +150,10 @@ jobs:
             }finally{await env.cleanup();await deleteApp(app);}
           });
           TS
-      - name: Run selected existing journeys plus busy-state proof
+      - name: Verify corrected busy-state setup
         working-directory: gtop-app
         run: |
-          npx firebase-tools@15 emulators:exec --only auth,firestore,database,functions --project gtop-app "npx playwright test --config playwright.readiness.config.ts e2e/practice-reliability.spec.ts e2e/paper-chat.spec.ts e2e/readiness-states.spec.ts --grep 'learner quick quiz|admin retains|missing profile|delivered paper|chat saves|readiness busy'"
+          npx firebase-tools@15 emulators:exec --only auth,firestore,database,functions --project gtop-app "npx playwright test --config playwright.readiness.config.ts e2e/readiness-states.spec.ts"
       - name: Preserve readiness evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -153,3 +162,5 @@ jobs:
           path: gtop-app/readiness-proof
           retention-days: 14
           if-no-files-found: error
+
+

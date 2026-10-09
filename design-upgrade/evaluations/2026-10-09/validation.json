@@ -1,0 +1,16 @@
+{
+  "checkedOn": "2026-10-09",
+  "status": "passed",
+  "routeCards": 39,
+  "visualScoresChecked": 78,
+  "statePairsCovered": 171,
+  "originalScreenshotHashesChecked": 342,
+  "localMarkdownLinksResolved": 1071,
+  "journeyAssessments": 10,
+  "overallJourneyTotalsWithheld": 10,
+  "proofBoardsVisuallyInspected": 2,
+  "exclusionHonored": "R23",
+  "aliasExplicit": "R05 shares R07",
+  "applicationSubtreeExpected": "40ba0768d1ff822875d423d58880020914f607eb",
+  "limitations": "Artifact integrity/coverage checks; no new application tests or human usability study."
+}

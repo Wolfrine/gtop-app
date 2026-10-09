@@ -1,0 +1,3072 @@
+{
+  "rubricVersion": "1.1",
+  "date": "2026-10-09",
+  "scope": "39 included route entries; R23 excluded",
+  "scoresAre": "evaluator design judgments, not measured human preferences",
+  "dimensions": [
+    "composition",
+    "typography",
+    "spacing",
+    "color",
+    "identity",
+    "finish"
+  ],
+  "weights": [
+    0.25,
+    0.2,
+    0.15,
+    0.1,
+    0.2,
+    0.1
+  ],
+  "screens": [
+    {
+      "routeId": "R01",
+      "name": "Practice invitation",
+      "desktopDimensions": [
+        7,
+        7,
+        6,
+        7,
+        5,
+        6
+      ],
+      "mobileDimensions": [
+        6,
+        7,
+        6,
+        7,
+        5,
+        6
+      ],
+      "preserve": "Clear five-question scope, curriculum labels and honest explanation of solo practice.",
+      "observation": "The mobile preview spends most of the opening view on scope and explanatory copy. Invalid and mismatched links have distinct messages and a dashboard exit; this useful specificity should survive.",
+      "objective": "Make the invitation scope and eligible next action immediately recognizable, with secondary explanation subordinate.",
+      "benchmark": [
+        "brilliant",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J02"
+      ],
+      "limits": "",
+      "desktopVisual": 6.4,
+      "mobileVisual": 6.1,
+      "primaryState": "practice-preview",
+      "route": "/practice",
+      "roles": [
+        "public"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "practice-invalid",
+        "practice-mismatch",
+        "practice-preview"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:practice-preview-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/practice-preview/desktop.png",
+          "imageSha256": "592ad634bf95936236676b8006ee838c082eed47a28cb844f7f51d58174a304f",
+          "route": "/practice?board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5&emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:02.694Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:practice-preview-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/practice-preview/mobile.png",
+          "imageSha256": "7c08fdc77d8d024c0cdbf6cdc58a3764d8e32f2b2099cb9284075cfaddb30de3",
+          "route": "/practice?board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5&emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:34:59.002Z"
+        }
+      }
+    },
+    {
+      "routeId": "R02",
+      "name": "Invited quiz",
+      "desktopDimensions": [
+        7,
+        7,
+        6,
+        7,
+        5,
+        7
+      ],
+      "mobileDimensions": [
+        6,
+        6,
+        5,
+        7,
+        5,
+        7
+      ],
+      "preserve": "A focused question card and visibly selected answer; no decoration competes with the question.",
+      "observation": "The long Solutions question exposes the mobile cost of the motto, progress, curriculum metadata and repeated question numbering before the answer set. The final action falls beyond the opening view.",
+      "objective": "Compose around realistic long questions and answers; keep progress and the next action easy to locate.",
+      "benchmark": [
+        "trust",
+        "brilliant"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J02"
+      ],
+      "limits": "The successful invited completion uses an admin fixture permitted across curricula. Production sign-in and a matching-curriculum learner handoff were not exercised.",
+      "desktopVisual": 6.5,
+      "mobileVisual": 5.9,
+      "primaryState": "invited-quiz",
+      "route": "/quiz",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "invited-quiz",
+        "invited-quiz-in-progress--first-invitation-question-answered"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:invited-quiz-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/invited-quiz/desktop.png",
+          "imageSha256": "d916607c5482dc4d3400f9a3d22bdcd2962839a078be62ae8b8385bd11c78c8b",
+          "route": "/quiz?practice=invite&board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5&emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:07.394Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:invited-quiz-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/invited-quiz/mobile.png",
+          "imageSha256": "f217fa699bd020cd65e9c01b07f1fda63cf41d1d7d877a379b38c06ffef57613",
+          "route": "/quiz?practice=invite&board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5&emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:03.303Z"
+        }
+      }
+    },
+    {
+      "routeId": "R03",
+      "name": "Earlier paper requests",
+      "desktopDimensions": [
+        4,
+        5,
+        4,
+        6,
+        4,
+        4
+      ],
+      "mobileDimensions": [
+        4,
+        5,
+        4,
+        6,
+        4,
+        4
+      ],
+      "preserve": "Explicit incomplete-update notice and separate in-progress/saved groups.",
+      "observation": "In the captured legacy state, 16 repeated rows expose action buttons but almost no identifying text; one queued badge is visible. A user cannot distinguish the records from this view.",
+      "objective": "Establish whether this legacy route remains useful; if retained, make each record identifiable before its action.",
+      "benchmark": [
+        "primer"
+      ],
+      "priority": "Major",
+      "confidence": "medium",
+      "journeys": [],
+      "limits": "The fixture was seeded for the current paper model and the screen says results may be incomplete. This is a captured-state assessment, not proof that all real legacy records are blank. Verify representative legacy data before implementation.",
+      "desktopVisual": 4.4,
+      "mobileVisual": 4.4,
+      "primaryState": "paper-legacy",
+      "route": "/admin/question-papers/legacy",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "paper-legacy"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:paper-legacy-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/paper-legacy/desktop.png",
+          "imageSha256": "06c5764d5eb38957537a505e6c770b7e63a59d4e38b9c13b28ba25128e25d8ed",
+          "route": "/admin/question-papers/legacy?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:29:10.760Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:paper-legacy-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/paper-legacy/mobile.png",
+          "imageSha256": "83684b6e9797cd6b52f197f20d3f15a5e81b1751bd9d79c5d5a145ee7382153c",
+          "route": "/admin/question-papers/legacy?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:37:05.566Z"
+        }
+      }
+    },
+    {
+      "routeId": "R04",
+      "name": "Saved question paper / key",
+      "desktopDimensions": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "mobileDimensions": [
+        6,
+        7,
+        6,
+        7,
+        7,
+        6
+      ],
+      "preserve": "Restrained green document workspace, saved/unchanged status, separate student paper and teacher key.",
+      "observation": "Desktop gives the document a clear frame. Mobile repeats the long title and version/context metadata before the paper body, which starts low on the page. The missing-paper state has an explicit explanation and retry.",
+      "objective": "Keep document identity, version and print action clear while making the actual paper easier to inspect on a phone.",
+      "benchmark": [
+        "primer",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J03"
+      ],
+      "limits": "Answer-key switching was observed. Native print/save-PDF output was not validated.",
+      "desktopVisual": 7.0,
+      "mobileVisual": 6.5,
+      "primaryState": "paper-view",
+      "route": "/admin/question-papers/view/:paperId",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "paper-answer-key",
+        "paper-view",
+        "paper-view-missing"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:paper-view-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/paper-view/desktop.png",
+          "imageSha256": "ac51c4d6c25e103e13f6f418fca844daa118a51443d5f22ffde8f20576bf4afc",
+          "route": "/admin/question-papers/view/baseline-20261009-paper?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:31:26.391Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:paper-view-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/paper-view/mobile.png",
+          "imageSha256": "e79a77f44505f7c95f94f7ae31da15b5008df1d5b1674f29b4ae930b30f2040b",
+          "route": "/admin/question-papers/view/baseline-20261009-paper?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:39:21.321Z"
+        }
+      }
+    },
+    {
+      "routeId": "R05",
+      "name": "Papers — all alias",
+      "desktopDimensions": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "mobileDimensions": [
+        6,
+        7,
+        6,
+        7,
+        7,
+        7
+      ],
+      "preserve": "Same current paper register as R07; status labels and record-specific actions are useful.",
+      "observation": "This alias renders the same design as R07. It inherits that assessment and is not independent evidence of another design.",
+      "objective": "Apply the R07 objective consistently to this alias.",
+      "benchmark": [
+        "primer",
+        "twks"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J03"
+      ],
+      "limits": "",
+      "desktopVisual": 7.0,
+      "mobileVisual": 6.6,
+      "primaryState": "paper-register-all-alias",
+      "route": "/admin/question-papers/all",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "paper-register-all-alias"
+      ],
+      "aliasOf": "R07",
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37885730251:paper-register-all-alias-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/paper-register-all-alias/desktop.png",
+          "imageSha256": "d29835da4eb8cbd054b42e4463eac5625a35fd056b13d2f8e0c86f8d248c1a9f",
+          "route": "/admin/question-papers/all?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:54:13.286Z"
+        },
+        "mobile": {
+          "recordId": "37885730251:paper-register-all-alias-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/paper-register-all-alias/mobile.png",
+          "imageSha256": "b893f79a18b72bc363e39db9168fe48ac97d40b38b08f51a08539ffe73969fd9",
+          "route": "/admin/question-papers/all?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:58:09.346Z"
+        }
+      }
+    },
+    {
+      "routeId": "R06",
+      "name": "New paper request",
+      "desktopDimensions": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "mobileDimensions": [
+        6,
+        7,
+        6,
+        7,
+        7,
+        7
+      ],
+      "preserve": "A single brief field, example, honest scheduling language and clear explanation that the user can leave.",
+      "observation": "The desktop form is focused. On mobile, a large textarea plus schedule explanation separates the opening question from submission. This is a priority/rhythm issue, not a requirement to fit the entire form above the fold.",
+      "objective": "Keep the brief, submit consequence and waiting expectation in a compact, readable sequence.",
+      "benchmark": [
+        "linear",
+        "primer"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J03"
+      ],
+      "limits": "No request was submitted; on-device draft retention and actual asynchronous completion remain unobserved.",
+      "desktopVisual": 7.0,
+      "mobileVisual": 6.6,
+      "primaryState": "paper-new",
+      "route": "/admin/question-papers/new",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "paper-new"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37885730251:paper-new-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/paper-new/desktop.png",
+          "imageSha256": "48930c4ed439ce45c5940475c475dadd81c1b8772e5e5ea849be4831852d5be7",
+          "route": "/admin/question-papers/new?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:54:16.124Z"
+        },
+        "mobile": {
+          "recordId": "37885730251:paper-new-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/paper-new/mobile.png",
+          "imageSha256": "4bb80d780873efa4ccfb6ca406a506ddc565c7fc56fb5ec0a1edf0d7c9009e7c",
+          "route": "/admin/question-papers/new?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:58:12.106Z"
+        }
+      }
+    },
+    {
+      "routeId": "R07",
+      "name": "Paper register",
+      "desktopDimensions": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "mobileDimensions": [
+        6,
+        7,
+        6,
+        7,
+        7,
+        7
+      ],
+      "preserve": "Actionable status language, needs-action/ready filters, current ownership context, search and older-record loading.",
+      "observation": "Desktop rows are orderly; mobile records remain readable but the page header, schedule and 2×2 tabs precede the first record. Loading older records extends an already long list; status and next action could be compared faster.",
+      "objective": "Make urgent work and retrieval prominent, with a compact recurring record pattern and clear loaded-range context.",
+      "benchmark": [
+        "primer",
+        "twks"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J03"
+      ],
+      "limits": "",
+      "desktopVisual": 7.0,
+      "mobileVisual": 6.6,
+      "primaryState": "paper-register",
+      "route": "/admin/question-papers",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "paper-register",
+        "paper-register-in-progress",
+        "paper-register-needs-action",
+        "paper-register-no-results",
+        "paper-register-older",
+        "paper-register-ready",
+        "paper-updates"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37885730251:paper-register-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/paper-register/desktop.png",
+          "imageSha256": "0ee109156f34fa2db6c82372e0b6a7469871edcb99d6227dc930c7292620e106",
+          "route": "/admin/question-papers?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:54:09.841Z"
+        },
+        "mobile": {
+          "recordId": "37885730251:paper-register-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/paper-register/mobile.png",
+          "imageSha256": "b893f79a18b72bc363e39db9168fe48ac97d40b38b08f51a08539ffe73969fd9",
+          "route": "/admin/question-papers?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:58:06.510Z"
+        }
+      }
+    },
+    {
+      "routeId": "R08",
+      "name": "Paper record / conversation",
+      "desktopDimensions": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "mobileDimensions": [
+        6,
+        7,
+        6,
+        7,
+        7,
+        7
+      ],
+      "preserve": "Distinct queued, needs-reply, failed, cancelled and ready states; saved papers are explicitly unchanged by a new request.",
+      "observation": "Long titles and repeated readiness labels consume much of the mobile opening. The captured needs-info state asks for an answer while pointing elsewhere for the actual question; fixture completeness limits that finding.",
+      "objective": "Prioritize the current request, exact needed response and next action; keep prior activity available without duplicating the summary.",
+      "benchmark": [
+        "linear",
+        "primer"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J03"
+      ],
+      "limits": "Status variants are seeded. Revision editor/history were opened; actual reply, retry, cancellation, scheduling and eventual completion were not exercised.",
+      "desktopVisual": 7.0,
+      "mobileVisual": 6.6,
+      "primaryState": "paper-chat-history",
+      "route": "/admin/question-papers/chat/:conversationId",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "paper-chat-cancelled",
+        "paper-chat-error",
+        "paper-chat-history",
+        "paper-chat-needs-info",
+        "paper-chat-processing",
+        "paper-chat-queued",
+        "paper-chat-ready",
+        "paper-revision"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:paper-chat-history-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/paper-chat-history/desktop.png",
+          "imageSha256": "567d35dd30c62e56eaf60b914c09222c535185ec4ca3b35f006f73a65ad3cf03",
+          "route": "/admin/question-papers/chat/baseline-20261009-ready?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:34:33.254Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:paper-chat-history-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/paper-chat-history/mobile.png",
+          "imageSha256": "8cb9cb5f904b3ecd932e05ef1e974ad90d2f86424ab6006e08821774e859afb8",
+          "route": "/admin/question-papers/chat/baseline-20261009-ready?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:42:38.925Z"
+        }
+      }
+    },
+    {
+      "routeId": "R09",
+      "name": "Question library",
+      "desktopDimensions": [
+        6,
+        6,
+        6,
+        6,
+        5,
+        6
+      ],
+      "mobileDimensions": [
+        4,
+        6,
+        4,
+        6,
+        5,
+        4
+      ],
+      "preserve": "Curriculum scope, question-type totals, readable questions and expandable answer details.",
+      "observation": "The mobile view stacks multiple navigation tiers and curriculum controls before the first question. In archive confirmation, “selected” and “Cancel” split inside narrow controls. Empty search leaves a mostly blank list area with only a small zero count.",
+      "objective": "Keep the working question and selected scope central; give selection/confirmation enough width and make empty-search recovery explicit.",
+      "benchmark": [
+        "primer",
+        "twks"
+      ],
+      "priority": "Major",
+      "confidence": "high",
+      "journeys": [
+        "J05"
+      ],
+      "limits": "",
+      "desktopVisual": 5.8,
+      "mobileVisual": 4.8,
+      "primaryState": "question-library-populated",
+      "route": "/admin/question-library",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "question-library",
+        "question-library-add-written",
+        "question-library-archive-confirmation",
+        "question-library-archive-confirmation-open--archive-confirmation",
+        "question-library-edit-existing",
+        "question-library-empty-search",
+        "question-library-empty-search--empty-search-results",
+        "question-library-existing-question-editor--existing-question-edit",
+        "question-library-populated"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:question-library-populated-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/question-library-populated/desktop.png",
+          "imageSha256": "8ba982288a942b2f14ddf969362961b5686749abb37af301924e13573fc706da",
+          "route": "/admin/question-library?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:34:40.168Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:question-library-populated-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/question-library-populated/mobile.png",
+          "imageSha256": "47fb8712212f6c5745ff2a4dd2dcfc7912ca7cb718f74e550259a65ddce36f74",
+          "route": "/admin/question-library?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:42:45.928Z"
+        }
+      }
+    },
+    {
+      "routeId": "R10",
+      "name": "Question requests / coverage",
+      "desktopDimensions": [
+        6,
+        6,
+        6,
+        6,
+        5,
+        6
+      ],
+      "mobileDimensions": [
+        5,
+        6,
+        5,
+        6,
+        5,
+        6
+      ],
+      "preserve": "Useful separation of approved, paper-only, awaiting-review and target quantities; mobile list-to-detail navigation is intentional.",
+      "observation": "Layered navigation and several status/count boxes compete with the selected chapter and priority settings. The mobile selected-detail state is available after choosing a priority; it is not missing just because the opening view shows the list.",
+      "objective": "Clarify the relationship between chapter, shortage, pending drafts and the next useful admin action.",
+      "benchmark": [
+        "primer",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J05"
+      ],
+      "limits": "",
+      "desktopVisual": 5.8,
+      "mobileVisual": 5.4,
+      "primaryState": "question-requests",
+      "route": "/admin/question-bank",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "question-bank-priority-detail",
+        "question-bank-priority-filter-empty--no-matching-priorities",
+        "question-bank-priority-no-results",
+        "question-bank-selected-priority-detail--selected-priority-detail",
+        "question-requests"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:question-requests-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/question-requests/desktop.png",
+          "imageSha256": "b9fdca353e5b2675749bb757aed1804fa42f8fe3b690c3b21db2e9863971e0da",
+          "route": "/admin/question-bank?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:31:32.891Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:question-requests-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/question-requests/mobile.png",
+          "imageSha256": "64bc79b9eb75db913b3ecf89b5899d1796e674a9b82da91e74261f1314413fe8",
+          "route": "/admin/question-bank?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:39:27.858Z"
+        }
+      }
+    },
+    {
+      "routeId": "R11",
+      "name": "Manual paper generator",
+      "desktopDimensions": [
+        7,
+        7,
+        6,
+        7,
+        6,
+        7
+      ],
+      "mobileDimensions": [
+        6,
+        6,
+        5,
+        7,
+        6,
+        7
+      ],
+      "preserve": "Four explicit stages, preserved format context, coverage check before preview, separate answer key.",
+      "observation": "The stage sequence works in the captured minimal plan. Global paper navigation, back/saved links and stage navigation accumulate before the task on mobile; the three format choices wrap as two plus one.",
+      "objective": "Make the current stage dominant and the plan summary easy to revisit; keep coverage and preview consequences explicit.",
+      "benchmark": [
+        "linear",
+        "primer"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J04"
+      ],
+      "limits": "One-question local preview reached. Draft saving/resuming, shortages and complex multi-section recovery were not exercised.",
+      "desktopVisual": 6.7,
+      "mobileVisual": 6.1,
+      "primaryState": "paper-generator",
+      "route": "/admin/question-paper-generator",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "paper-generator",
+        "paper-generator-saved-papers",
+        "paper-generator-saved-papers--saved-draft-list",
+        "paper-generator-stages",
+        "paper-generator-stages--generated-draft-preview",
+        "paper-generator-stages--stage-1-format",
+        "paper-generator-stages--stage-2-syllabus-and-sections",
+        "paper-generator-stages--stage-3-coverage",
+        "paper-generator-stages--stage-4-draft-preview"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:paper-generator-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/paper-generator/desktop.png",
+          "imageSha256": "54d94469f9119b133215bf54c94aef43d1a4421a43cdfd947607b824e442151a",
+          "route": "/admin/question-paper-generator?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:31:35.031Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:paper-generator-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/paper-generator/mobile.png",
+          "imageSha256": "5c94ae56fd74c9c9d9d23912e704c279f73894aa6b52169ff4b22b067d17ffcd",
+          "route": "/admin/question-paper-generator?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:39:30.060Z"
+        }
+      }
+    },
+    {
+      "routeId": "R12",
+      "name": "Question review workbench",
+      "desktopDimensions": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "mobileDimensions": [
+        5,
+        6,
+        5,
+        6,
+        6,
+        6
+      ],
+      "preserve": "Loaded-vs-awaiting totals, explicit selected count, flagged questions excluded from approval, individual editor and reason-bearing rejection confirmation.",
+      "observation": "Desktop starts close to the drawer edge compared with neighboring pages. Mobile navigation and batch controls delay the list. Fifty loaded rows are lengthy, but pagination and a persistent bulk-action bar exist; this is not an absent-pagination finding.",
+      "objective": "Reduce navigation overhead and tighten row comparison while retaining visible eligibility, selection scope and review reasons.",
+      "benchmark": [
+        "primer",
+        "twks"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J05"
+      ],
+      "limits": "",
+      "desktopVisual": 6.0,
+      "mobileVisual": 5.6,
+      "primaryState": "question-review-workbench-states--populated-queue",
+      "route": "/admin/question-review",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "question-review",
+        "question-review-empty-queue",
+        "question-review-empty-queue--no-matching-questions",
+        "question-review-workbench-states",
+        "question-review-workbench-states--bulk-selection",
+        "question-review-workbench-states--expanded-question-details",
+        "question-review-workbench-states--populated-queue",
+        "question-review-workbench-states--reject-confirmation",
+        "review-individual-editor",
+        "review-individual-editor-open--individual-question-editor"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37885730251:question-review-workbench-states--populated-queue-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/question-review-workbench-states--populated-queue/desktop.png",
+          "imageSha256": "f4a9f44826cd7d9dc98cdfbdd7ccb4a2f94925f7cdef9c3f3b1a12ade38bc44a",
+          "route": "/admin/question-review?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:57:28.465Z"
+        },
+        "mobile": {
+          "recordId": "37885730251:question-review-workbench-states--populated-queue-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/question-review-workbench-states--populated-queue/mobile.png",
+          "imageSha256": "3ae3ac5efa7a090d29bc66278ff90b44e21111637dce2292f1d44151b7d7bfa8",
+          "route": "/admin/question-review?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T05:01:23.687Z"
+        }
+      }
+    },
+    {
+      "routeId": "R13",
+      "name": "Learning Lab catalog",
+      "desktopDimensions": [
+        7,
+        7,
+        6,
+        7,
+        6,
+        7
+      ],
+      "mobileDimensions": [
+        6,
+        7,
+        5,
+        7,
+        6,
+        7
+      ],
+      "preserve": "Clear lesson names, expected duration, learning outcomes and distinct subject context.",
+      "observation": "The large plant image and extended outcome list make mobile selection slow before the second lab appears. Plant photography and Current Lab’s formula panel have noticeably different illustration ambition.",
+      "objective": "Let learners compare and open labs quickly within a related visual family.",
+      "benchmark": [
+        "des",
+        "brilliant"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [],
+      "limits": "",
+      "desktopVisual": 6.7,
+      "mobileVisual": 6.3,
+      "primaryState": "learning-lab",
+      "route": "/learning-lab",
+      "roles": [
+        "authenticated"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "learning-lab"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:learning-lab-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/learning-lab/desktop.png",
+          "imageSha256": "2127a70a224c9fb256611856e1d28d22878ca77c262f002f8614f4b25ad8f4c1",
+          "route": "/learning-lab?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:32:36.598Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:learning-lab-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/learning-lab/mobile.png",
+          "imageSha256": "58f9829e3f32f455c68f7e8f0a7110650923cdca929169c98ead9a69f15f13ad",
+          "route": "/learning-lab?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:40:31.851Z"
+        }
+      }
+    },
+    {
+      "routeId": "R14",
+      "name": "Plant reproduction lab",
+      "desktopDimensions": [
+        8,
+        7,
+        8,
+        8,
+        8,
+        7
+      ],
+      "mobileDimensions": [
+        7,
+        7,
+        6,
+        8,
+        8,
+        6
+      ],
+      "preserve": "A coherent green field-notebook world; related diagrams; explicit next move, discoveries and meaningful per-mission observations.",
+      "observation": "All five missions retain the teaching identity. Mobile uses a sticky scene and bottom action; a fertilisation full-page capture shows the scene covering part of the instruction, so scroll-position validation is required before accepting that arrangement. Summary cards then precede graded explanations.",
+      "objective": "Preserve the guided discoveries while keeping instruction, manipulation and consequence readable together throughout the mobile journey.",
+      "benchmark": [
+        "trust",
+        "bicycle",
+        "des"
+      ],
+      "priority": "Moderate",
+      "confidence": "medium",
+      "journeys": [
+        "J06"
+      ],
+      "limits": "The apparent scene overlap is a sticky/full-page capture flag, not a proven always-present viewport defect. The completed walkthrough uses practice mode; saved-visit resume/recovery and motion timing were not observed.",
+      "desktopVisual": 7.7,
+      "mobileVisual": 7.1,
+      "primaryState": "plant-lab",
+      "route": "/learning-lab/plants",
+      "roles": [
+        "authenticated"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "plant-assessment--five-question-plant-reproduction-assessment",
+        "plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial",
+        "plant-discovery-summary--five-discoveries-before-the-knowledge-check",
+        "plant-feedback-sent--practice-feedback-completion-state",
+        "plant-graded-summary-feedback--graded-summary-with-explanations-and-feedback-form",
+        "plant-journey-map--five-stop-journey-map-open",
+        "plant-lab",
+        "plant-lab-journey",
+        "plant-mission-01-anatomy--flower-anatomy-exploration",
+        "plant-mission-01-anatomy-complete--both-flower-parts-inspected-discovery-saved",
+        "plant-mission-02-pollination--pollination-controls-before-a-trial",
+        "plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event",
+        "plant-mission-04-fruit--fruit-development-before-wind-dispersal",
+        "plant-mission-05-propagation--vegetative-propagation-controls"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:plant-lab-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/plant-lab/desktop.png",
+          "imageSha256": "5a80c65c3f91d949fcd3c20007e1e41be711a18d9963798b0bf351b58753920f",
+          "route": "/learning-lab/plants?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:32:38.859Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:plant-lab-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/plant-lab/mobile.png",
+          "imageSha256": "b9763f091e6be23c4236216e53f1b5f4b038ab463a47d2b249a0991b5f5e77a6",
+          "route": "/learning-lab/plants?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:40:34.061Z"
+        }
+      }
+    },
+    {
+      "routeId": "R15",
+      "name": "Plant results — admin",
+      "desktopDimensions": [
+        6,
+        6,
+        6,
+        7,
+        5,
+        6
+      ],
+      "mobileDimensions": [
+        4,
+        5,
+        4,
+        7,
+        5,
+        5
+      ],
+      "preserve": "Concept-level evidence, before/after interpretation limits and named feedback; explicit retained-attempt basis.",
+      "observation": "On mobile the title wraps into four lines beside Refresh, then tabs, explanatory copy and four metrics postpone concept diagnosis. Long feedback and attempt sections follow.",
+      "objective": "Lead with concepts needing attention and interpretable evidence; keep scope/retention caveats accessible without overwhelming the opening.",
+      "benchmark": [
+        "primer",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [],
+      "limits": "",
+      "desktopVisual": 5.9,
+      "mobileVisual": 4.8,
+      "primaryState": "plant-results-populated",
+      "route": "/learning-lab/plants/results",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "plant-lab-results-empty",
+        "plant-results",
+        "plant-results-populated"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37885730251:plant-results-populated-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/plant-results-populated/desktop.png",
+          "imageSha256": "87ac1147a41d4cb01a67bbe3b3820f07b7d8546ccdf310df43b7fbb4705e6912",
+          "route": "/learning-lab/plants/results?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:54:52.725Z"
+        },
+        "mobile": {
+          "recordId": "37885730251:plant-results-populated-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/plant-results-populated/mobile.png",
+          "imageSha256": "93558be65095ef8933e3bb6bd504307313056eea2f85e1d4c7e25eff19f9a63d",
+          "route": "/learning-lab/plants/results?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:58:47.519Z"
+        }
+      }
+    },
+    {
+      "routeId": "R16",
+      "name": "Current Lab",
+      "desktopDimensions": [
+        7,
+        7,
+        6,
+        7,
+        6,
+        7
+      ],
+      "mobileDimensions": [
+        6,
+        7,
+        5,
+        7,
+        6,
+        6
+      ],
+      "preserve": "Predict → experiment → check sequence; circuit and numerical readings respond to real slider/arrangement input.",
+      "observation": "The desktop experiment places controls beside the circuit. Mobile stacks progress, prediction, diagram, readings and controls; the learner must scroll to connect several parts. The full five-question check/feedback is especially long.",
+      "objective": "Strengthen proximity between the changed variable and its consequence, while preserving predictions and explanatory feedback.",
+      "benchmark": [
+        "bicycle",
+        "trust"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J07"
+      ],
+      "limits": "Keyboard slider changes were observed in Chromium. A touch-drag, physical phone, saved-attempt reload and motion/performance study were not conducted.",
+      "desktopVisual": 6.7,
+      "mobileVisual": 6.2,
+      "primaryState": "current-lab",
+      "route": "/learning-lab/current",
+      "roles": [
+        "authenticated"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "current-lab",
+        "current-lab-check--five-question-understanding-check-and-reflection",
+        "current-lab-graded-reflection--checked-answers-and-usefulness-feedback-form",
+        "current-lab-journey",
+        "current-lab-parallel-circuit--parallel-circuit-with-branch-current-and-voltage-values",
+        "current-lab-practice-complete--practice-completion-confirmation",
+        "current-lab-predict--fresh-baseline-predictions-and-lesson-steps",
+        "current-lab-resistance-result--resistance-change-and-current-reading",
+        "current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement",
+        "current-lab-single-circuit--single-resistor-circuit-controls",
+        "current-lab-voltage-result--voltage-changed-with-live-current-reading"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:current-lab-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/current-lab/desktop.png",
+          "imageSha256": "faa9532187c4e0246b7c4e96771928c52be2b887d73677d02bab245ab2f3ea89",
+          "route": "/learning-lab/current?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:32:43.216Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:current-lab-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/current-lab/mobile.png",
+          "imageSha256": "b6cd06b2f0bf6718a3729994506100fe3a9be8ce38f23682cdcfb9fb5a5533f2",
+          "route": "/learning-lab/current?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:40:38.403Z"
+        }
+      }
+    },
+    {
+      "routeId": "R17",
+      "name": "Current results — admin",
+      "desktopDimensions": [
+        6,
+        6,
+        6,
+        7,
+        5,
+        6
+      ],
+      "mobileDimensions": [
+        5,
+        6,
+        4,
+        7,
+        5,
+        5
+      ],
+      "preserve": "Concept diagnosis, honest distinction between attempts and learners, feedback and saved-attempt context.",
+      "observation": "Mobile gives high space priority to navigation, explanatory text and aggregate counts; useful concept comparisons begin later. The distinction between practice completion and retained results needs to stay visible.",
+      "objective": "Make weak concepts and their supporting evidence easy to scan before detailed feedback and attempt records.",
+      "benchmark": [
+        "primer",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [],
+      "limits": "",
+      "desktopVisual": 5.9,
+      "mobileVisual": 5.3,
+      "primaryState": "lab-results-populated",
+      "route": "/learning-lab/results",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "current-lab-results-empty",
+        "lab-results",
+        "lab-results-populated"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37885730251:lab-results-populated-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/lab-results-populated/desktop.png",
+          "imageSha256": "85ee42fa8246cf51c6b7be3d1d4d1ab3e3366d2e605a303ce3f8da0020f03504",
+          "route": "/learning-lab/results?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:54:49.726Z"
+        },
+        "mobile": {
+          "recordId": "37885730251:lab-results-populated-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/lab-results-populated/mobile.png",
+          "imageSha256": "0c3ac376f424e919873d09915f70115327d7380ce286a7af9bd51f8dd25f1240",
+          "route": "/learning-lab/results?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:58:44.787Z"
+        }
+      }
+    },
+    {
+      "routeId": "R18",
+      "name": "Public landing",
+      "desktopDimensions": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        7
+      ],
+      "mobileDimensions": [
+        7,
+        8,
+        7,
+        8,
+        8,
+        6
+      ],
+      "preserve": "Strong typographic landmark, related educational subject imagery, tonal section rhythm and two real entry demonstrations.",
+      "observation": "The page has more deliberate identity than the app shell. The g/star mark changes to three bars after entry. The mobile full-page archive inconsistently paints lower subject images despite loaded-image metadata; normal-scroll completeness is not established by these stills.",
+      "objective": "Preserve the distinctive learning invitation and demonstration; make the handoff to the signed-in product feel like one brand and verify the full mobile scroll sequence.",
+      "benchmark": [
+        "des",
+        "brilliant",
+        "twks"
+      ],
+      "priority": "Moderate",
+      "confidence": "medium",
+      "journeys": [
+        "J09"
+      ],
+      "limits": "Desktop 8-level composition/identity dimensions are supported by the hero and related section sequence, not a whole-site 8+ rating. Mobile lower imagery/reveal behavior and normal-motion timing remain unverified; no missing-asset production bug is asserted.",
+      "desktopVisual": 7.9,
+      "mobileVisual": 7.4,
+      "primaryState": "landing",
+      "route": "/",
+      "roles": [
+        "public"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "landing",
+        "landing-circuit-on",
+        "landing-sample-answer",
+        "not-found-redirect"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:landing-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/landing/desktop.png",
+          "imageSha256": "bd8701f02020433c30890bbb10f694b513eec78f1765a4cdfda3a45bfdfb510d",
+          "route": "/?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:26:59.905Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:landing-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/landing/mobile.png",
+          "imageSha256": "df061f5b02c60806b94d04cc40e9ebec6ce6fe80a3ce7c0c38fd79522e6bfcad",
+          "route": "/?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:34:56.758Z"
+        }
+      }
+    },
+    {
+      "routeId": "R19",
+      "name": "Profile setup",
+      "desktopDimensions": [
+        6,
+        6,
+        5,
+        6,
+        4,
+        6
+      ],
+      "mobileDimensions": [
+        5,
+        6,
+        5,
+        6,
+        4,
+        6
+      ],
+      "preserve": "Only two required curriculum fields and a clear account-switch option.",
+      "observation": "A separate identity card dominates a short form. The result is sparse on desktop and top-heavy on mobile, with little explanation of why curriculum selection matters.",
+      "objective": "Make board/class selection the focus and explain how it shapes practice, while retaining account reassurance.",
+      "benchmark": [
+        "brilliant",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [],
+      "limits": "",
+      "desktopVisual": 5.5,
+      "mobileVisual": 5.2,
+      "primaryState": "profile-setup",
+      "route": "/profile-setup",
+      "roles": [
+        "public"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "profile-setup"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:profile-setup-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/profile-setup/desktop.png",
+          "imageSha256": "d2a49dfe09cf9e98b00e4d654a4ffa0268ca53748c1927107f1747c70dae97f6",
+          "route": "/profile-setup?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:11.771Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:profile-setup-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/profile-setup/mobile.png",
+          "imageSha256": "7a8dac755f49181ac5c098b133b277681dd7cc97f1d16215cbe809f030b9e432",
+          "route": "/profile-setup?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:07.634Z"
+        }
+      }
+    },
+    {
+      "routeId": "R20",
+      "name": "Profile",
+      "desktopDimensions": [
+        5,
+        6,
+        5,
+        6,
+        4,
+        6
+      ],
+      "mobileDimensions": [
+        4,
+        6,
+        4,
+        6,
+        4,
+        6
+      ],
+      "preserve": "Account context, editable curriculum and visible save confirmation.",
+      "observation": "Eight equally styled metadata tiles receive more space than the two editable fields. On mobile the tiles form a long stack before the actual profile task; admin controls inherit that separation.",
+      "objective": "Separate editable learning context from secondary account/activity facts and keep save feedback near the fields.",
+      "benchmark": [
+        "primer",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J08"
+      ],
+      "limits": "",
+      "desktopVisual": 5.2,
+      "mobileVisual": 4.8,
+      "primaryState": "profile",
+      "route": "/profile",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "profile",
+        "profile-admin-controls",
+        "profile-save-feedback",
+        "profile-save-feedback--changed-curriculum-saved"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:profile-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/profile/desktop.png",
+          "imageSha256": "b8fb042e1a3a0f8b5417f8e76952a5e58096af012c7306e087bbdec044430e6a",
+          "route": "/profile?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:14.040Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:profile-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/profile/mobile.png",
+          "imageSha256": "bac6fa57dd2653cf77f1115c45b09914f85c0580db7aa1d2cd9fc6ebc9f48009",
+          "route": "/profile?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:09.772Z"
+        }
+      }
+    },
+    {
+      "routeId": "R21",
+      "name": "Learner dashboard",
+      "desktopDimensions": [
+        7,
+        7,
+        7,
+        7,
+        6,
+        7
+      ],
+      "mobileDimensions": [
+        6,
+        7,
+        6,
+        7,
+        6,
+        7
+      ],
+      "preserve": "Clear quick/custom practice hierarchy, recent work, progress and an explicit invited-practice return card.",
+      "observation": "The generic motivational hero is much taller on mobile than the useful return/progress context. The invitation-return variant already places a specific next step above the hero, which is a useful precedent.",
+      "objective": "Give returning learners a relevant next action and recent learning context, while keeping warmth and quick practice.",
+      "benchmark": [
+        "brilliant",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J01",
+        "J02"
+      ],
+      "limits": "",
+      "desktopVisual": 6.8,
+      "mobileVisual": 6.4,
+      "primaryState": "dashboard",
+      "route": "/dashboard",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "access-denied-admin",
+        "custom-quiz-admin",
+        "custom-quiz-learner",
+        "dashboard",
+        "dashboard-empty",
+        "invitation-dashboard-return-cue--dashboard-card-with-invitation-revisit-saved-for-tomorrow",
+        "invited-quiz-completion-and-return",
+        "navigation-learner",
+        "practice-link-copied--practice-invitation-link-copied-to-clipboard",
+        "practice-link-manual-fallback--clipboard-denied-readonly-link-available-for-manual-copying",
+        "practice-link-share-outcomes",
+        "profile-menu"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:dashboard-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/dashboard/desktop.png",
+          "imageSha256": "026cab6a97779dae635e5be98d36402ebb2d5638ee1ca1cf889bf6d96da07608",
+          "route": "/dashboard?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:16.203Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:dashboard-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/dashboard/mobile.png",
+          "imageSha256": "e5ebef420dbcaef7e5bf86a2419f11a29b072fe5afd10ef9267edd6be0175b1e",
+          "route": "/dashboard?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:11.933Z"
+        }
+      }
+    },
+    {
+      "routeId": "R22",
+      "name": "Admin console",
+      "desktopDimensions": [
+        5,
+        6,
+        5,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        4,
+        6,
+        4,
+        6,
+        4,
+        5
+      ],
+      "preserve": "Direct access to common tools and simple account/question totals.",
+      "observation": "Several unrelated blue/outline shortcut buttons compete as primary actions. Large count cards and an empty activity panel provide little prioritization of admin work, especially on mobile.",
+      "objective": "Organize around pending work and frequent tasks with one clear entry hierarchy.",
+      "benchmark": [
+        "primer",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [],
+      "limits": "",
+      "desktopVisual": 5.1,
+      "mobileVisual": 4.7,
+      "primaryState": "admin-console",
+      "route": "/admin",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "admin-console",
+        "navigation-admin"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:admin-console-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/admin-console/desktop.png",
+          "imageSha256": "5e59c90b6608038b1010733374377fa8758b39500a32c9d3782d9e0b6bc2147f",
+          "route": "/admin?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:20.577Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:admin-console-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/admin-console/mobile.png",
+          "imageSha256": "98484fc6a5895a75e3228a617c794eda74668e7923cafd266a2dbb31104434eb",
+          "route": "/admin?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:16.218Z"
+        }
+      }
+    },
+    {
+      "routeId": "R24",
+      "name": "Manage MCQs",
+      "desktopDimensions": [
+        6,
+        6,
+        6,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        5,
+        6,
+        5,
+        6,
+        4,
+        5
+      ],
+      "preserve": "Readable questions, expandable answer/explanation and local editing access.",
+      "observation": "The JSON editor changes the task from question maintenance into raw syntax editing. In a valid empty curriculum scope the message still says “Select filters to view MCQs”; the selected filters are collapsed, obscuring the distinction.",
+      "objective": "Keep scope visible and distinguish no selection from no matches; use question content and validation as the editing focus.",
+      "benchmark": [
+        "primer",
+        "twks"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J05"
+      ],
+      "limits": "",
+      "desktopVisual": 5.5,
+      "mobileVisual": 5.1,
+      "primaryState": "mcq-management-edit-state--populated-filtered-bank",
+      "route": "/admin/mcq-management",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "mcq-management",
+        "mcq-management-edit-state",
+        "mcq-management-edit-state--expanded-question",
+        "mcq-management-edit-state--populated-filtered-bank",
+        "mcq-management-edit-state--question-json-edit",
+        "mcq-management-filtered-empty",
+        "mcq-management-filtered-empty--empty-filtered-bank"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37885730251:mcq-management-edit-state--populated-filtered-bank-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/mcq-management-edit-state--populated-filtered-bank/desktop.png",
+          "imageSha256": "9faea195bdb1618ab09a8ab0ca7cfcf5cdb8cc0a6b508fd99372b286ae4ea3c7",
+          "route": "/admin/mcq-management?board=ICSE&standard=9&subject=Biology&chapter=Cells&emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:57:36.091Z"
+        },
+        "mobile": {
+          "recordId": "37885730251:mcq-management-edit-state--populated-filtered-bank-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/mcq-management-edit-state--populated-filtered-bank/mobile.png",
+          "imageSha256": "e0b89268b4b864831b92053022f3c41ec8c0c9e46533e2cb4a671c6d308e30cb",
+          "route": "/admin/mcq-management?board=ICSE&standard=9&subject=Biology&chapter=Cells&emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T05:01:30.858Z"
+        }
+      }
+    },
+    {
+      "routeId": "R25",
+      "name": "Add / import MCQs",
+      "desktopDimensions": [
+        5,
+        5,
+        5,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        4,
+        5,
+        4,
+        6,
+        4,
+        5
+      ],
+      "preserve": "Preview-before-save step and explicit invalid-JSON feedback.",
+      "observation": "A large prompt/template area precedes the actual import task. Mobile repeats this long sequence; the parsing error is a transient generic snackbar rather than a localized explanation of the offending input.",
+      "objective": "Make import, validation and question preview the main sequence; keep prompt assistance secondary.",
+      "benchmark": [
+        "linear",
+        "primer"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J05"
+      ],
+      "limits": "Valid parse and invalid input were exercised; saving imported questions was not.",
+      "desktopVisual": 4.9,
+      "mobileVisual": 4.5,
+      "primaryState": "add-mcq",
+      "route": "/admin/add-mcq",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "add-mcq",
+        "add-mcq-invalid-json",
+        "add-mcq-invalid-json-feedback--invalid-json-snackbar",
+        "add-mcq-parsed-preview",
+        "add-mcq-parsed-preview-visible--parsed-mcq-preview"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:add-mcq-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/add-mcq/desktop.png",
+          "imageSha256": "ca53f33d5e3c4c563dfc0ea15b1ca1ef082f410359f2e55fbf415fb21853f314",
+          "route": "/admin/add-mcq?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:27.163Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:add-mcq-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/add-mcq/mobile.png",
+          "imageSha256": "81c22c02b96cb63d88a3eb26ac5d8ee7d61392cc0d4380c4b9ef75c12254e19b",
+          "route": "/admin/add-mcq?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:22.656Z"
+        }
+      }
+    },
+    {
+      "routeId": "R26",
+      "name": "Manage syllabus",
+      "desktopDimensions": [
+        6,
+        6,
+        6,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        5,
+        6,
+        5,
+        6,
+        4,
+        5
+      ],
+      "preserve": "Simple board-to-class expansion and visible edit/count actions.",
+      "observation": "The collapsed view is almost entirely empty canvas. Two strong blue actions have similar prominence, and the board list gives little useful inventory context before expansion.",
+      "objective": "Give each curriculum level a concise, meaningful summary and clarify which maintenance task comes next.",
+      "benchmark": [
+        "primer"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [],
+      "limits": "",
+      "desktopVisual": 5.5,
+      "mobileVisual": 5.1,
+      "primaryState": "manage-syllabus",
+      "route": "/admin/manage-syllabus",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "manage-syllabus",
+        "syllabus-expanded"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:manage-syllabus-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/manage-syllabus/desktop.png",
+          "imageSha256": "d641f774b1d9db9622d166836f31bd50c63acf3157da539b1e8c9b33442ea8db",
+          "route": "/admin/manage-syllabus?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:29.307Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:manage-syllabus-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/manage-syllabus/mobile.png",
+          "imageSha256": "ee14457f5c5e9fd6d1c176cf92cb6c574e1d398ecb2ca9dffdffc5a6488a5d60",
+          "route": "/admin/manage-syllabus?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:24.849Z"
+        }
+      }
+    },
+    {
+      "routeId": "R27",
+      "name": "Syllabus review",
+      "desktopDimensions": [
+        5,
+        6,
+        4,
+        6,
+        5,
+        6
+      ],
+      "mobileDimensions": [
+        4,
+        6,
+        3,
+        6,
+        5,
+        5
+      ],
+      "preserve": "Explicit distinction between draft inventory and verified syllabus; source/completeness criteria and approval safeguards.",
+      "observation": "The unfiltered fixture lists 273 subjects, yielding a 24,107px desktop and 54,774px mobile page. The selected subject editor is appended after that inventory (56,736px mobile with an unsaved edit). Filters exist, but the default structure separates selection from editing substantially.",
+      "objective": "Keep the active subject and its evidence near the inventory context; make large-volume review practical without losing verification safeguards.",
+      "benchmark": [
+        "primer",
+        "twks"
+      ],
+      "priority": "Major",
+      "confidence": "high",
+      "journeys": [
+        "J05"
+      ],
+      "limits": "No claim is made about runtime speed or production subject counts. Preview and unsaved notes were exercised; approval and save outcomes were not.",
+      "desktopVisual": 5.3,
+      "mobileVisual": 4.8,
+      "primaryState": "syllabus-review",
+      "route": "/syllabus-preview",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "syllabus-review",
+        "syllabus-review-expanded-editor",
+        "syllabus-review-expanded-editor--inline-unsaved-edit",
+        "syllabus-review-expanded-editor--subject-inventory",
+        "syllabus-review-expanded-editor--subject-preview-open"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:syllabus-review-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/syllabus-review/desktop.png",
+          "imageSha256": "b52710054d9c456d0c9e182fa1fb7b88622d3f51aadf83f6c8a86d5dea118e30",
+          "route": "/syllabus-preview?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:54.691Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:syllabus-review-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/syllabus-review/mobile.png",
+          "imageSha256": "6325e83ca0eedd40d68f68bf64ec3a75b08b3eac6e391b0caa4fcc4ef7b0789a",
+          "route": "/syllabus-preview?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:49.837Z"
+        }
+      }
+    },
+    {
+      "routeId": "R28",
+      "name": "Logs",
+      "desktopDimensions": [
+        5,
+        5,
+        5,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        4,
+        4,
+        4,
+        6,
+        4,
+        4
+      ],
+      "preserve": "Chronological entries and differentiated error tone.",
+      "observation": "Long raw stack traces dominate the mobile list and wrap inside identifiers. The captured Google One Tap errors are emulator/network artifacts, not evidence of production sign-in failure.",
+      "objective": "Make event severity and summary scannable; reveal technical detail on demand and keep retrieval useful.",
+      "benchmark": [
+        "primer"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [],
+      "limits": "Clear Logs was not activated. Performance and large production log histories are untested.",
+      "desktopVisual": 4.9,
+      "mobileVisual": 4.2,
+      "primaryState": "logs",
+      "route": "/logs",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "logs"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:logs-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/logs/desktop.png",
+          "imageSha256": "028262399f695dc86d6b1c0c01ffbe57005c9dea114a008de9cd189ca6b74cde",
+          "route": "/logs?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:57.208Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:logs-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/logs/mobile.png",
+          "imageSha256": "b76e7fb9c02e40f03b331ae8326aaa3fbf91f60e28ecf5e535beee6b8f8893c5",
+          "route": "/logs?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:52.092Z"
+        }
+      }
+    },
+    {
+      "routeId": "R29",
+      "name": "Quiz — ordinary and active sessions",
+      "desktopDimensions": [
+        7,
+        7,
+        7,
+        7,
+        5,
+        7
+      ],
+      "mobileDimensions": [
+        7,
+        7,
+        6,
+        7,
+        5,
+        7
+      ],
+      "preserve": "Focused question/answer surface, selected state, progression and explicit empty-quiz message.",
+      "observation": "Repeated question numbering and the motto consume space without helping the answer task. Run/live variants add timer and submission context; these need a consistent place that does not displace long question content.",
+      "objective": "Build a stable reading-and-answering composition across ordinary, invited and timed practice.",
+      "benchmark": [
+        "trust",
+        "brilliant"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J01",
+        "J10"
+      ],
+      "limits": "",
+      "desktopVisual": 6.6,
+      "mobileVisual": 6.5,
+      "primaryState": "quiz",
+      "route": "/quiz",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "live-player-active",
+        "quiz",
+        "quiz-empty",
+        "quiz-run-active-question",
+        "quiz-run-active-question--active-collaborative-run-question-with-timer",
+        "quiz-run-answer-submitted--run-answer-submitted-and-option-locked",
+        "quiz-selected"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:quiz-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/quiz/desktop.png",
+          "imageSha256": "d6ada7d7ed678f8876296c0bab0ff5dc9c8acc109b87a6d7261eb7dd491f0a88",
+          "route": "/quiz?subjects=Biology&chapters=Cells&count=5&emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:31:39.596Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:quiz-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/quiz/mobile.png",
+          "imageSha256": "e6095f926ae096cb76b35de03253b9ed4ea6a5bf72967c7066b2fb88f3064018",
+          "route": "/quiz?subjects=Biology&chapters=Cells&count=5&emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:39:34.558Z"
+        }
+      }
+    },
+    {
+      "routeId": "R30",
+      "name": "Quiz summary / review",
+      "desktopDimensions": [
+        7,
+        7,
+        7,
+        7,
+        6,
+        7
+      ],
+      "mobileDimensions": [
+        5,
+        7,
+        5,
+        7,
+        6,
+        7
+      ],
+      "preserve": "Saved/unsaved status, answers retained on failed save, useful incorrect-only filtering and answer explanations.",
+      "observation": "The large mobile doughnut, title and three stacked actions dominate before answer review. The invitation-save offer appears after the answer list; the successful save/retry behavior should be retained independently of this visual reprioritization.",
+      "objective": "Make the reasoning to revisit and the next learning action prominent, keeping score and storage status clear but proportionate.",
+      "benchmark": [
+        "trust",
+        "brilliant"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J01",
+        "J02"
+      ],
+      "limits": "",
+      "desktopVisual": 6.8,
+      "mobileVisual": 6.0,
+      "primaryState": "quiz-summary-saved",
+      "route": "/quiz-summary",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "invited-quiz-saved-offer--saved-five-question-result-and-voluntary-return-offer",
+        "quiz-completed",
+        "quiz-offline-save-recovery",
+        "quiz-save-offline--failed-save-with-answers-retained",
+        "quiz-summary-all-answers--saved-result-with-all-five-questions-before-filtering",
+        "quiz-summary-empty",
+        "quiz-summary-expanded",
+        "quiz-summary-incorrect-filter",
+        "quiz-summary-incorrect-only--review-filtered-to-the-two-incorrect-answers",
+        "quiz-summary-saved",
+        "reports-expanded-attempt"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:quiz-summary-saved-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/quiz-summary-saved/desktop.png",
+          "imageSha256": "cce944559d109f45a1d293767d7684990dd9869c5aa4c27e21df74d64b8c8d45",
+          "route": "/quiz-summary?sessionId=baseline-20261009-result-0&userId=u8Spp65BdlSc1dYYeZEbrEtdIwQq&emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:32:06.084Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:quiz-summary-saved-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/quiz-summary-saved/mobile.png",
+          "imageSha256": "a3f1131e14987db324dee7577358b9523f6b99eac8f10f8691d36c30de463d1a",
+          "route": "/quiz-summary?sessionId=baseline-20261009-result-0&userId=u8Spp65BdlSc1dYYeZEbrEtdIwQq&emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:40:01.115Z"
+        }
+      }
+    },
+    {
+      "routeId": "R31",
+      "name": "Quiz Runs entry",
+      "desktopDimensions": [
+        6,
+        6,
+        5,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        4,
+        6,
+        4,
+        6,
+        4,
+        5
+      ],
+      "preserve": "Separate create and join tasks, curriculum selection and explanation of shared questions.",
+      "observation": "Desktop gives join a parallel column. Mobile stacks the entire creation form before join, making a short code-entry task unnecessarily remote for invited participants.",
+      "objective": "Let the user choose join or create immediately; compose each task at its actual complexity.",
+      "benchmark": [
+        "brilliant",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J10"
+      ],
+      "limits": "",
+      "desktopVisual": 5.4,
+      "mobileVisual": 4.7,
+      "primaryState": "quiz-run",
+      "route": "/quiz-run",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "quiz-run"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:quiz-run-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/quiz-run/desktop.png",
+          "imageSha256": "ed200d814908ce9c5b0dbcbaa797e00cb5fbc0cdca75a987b1d2760ddfac5a7b",
+          "route": "/quiz-run?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:32:34.358Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:quiz-run-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/quiz-run/mobile.png",
+          "imageSha256": "e557b529cde215276c16bf506852101972fc7f67f84fd47a5088fbecf23fe4a1",
+          "route": "/quiz-run?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:40:29.625Z"
+        }
+      }
+    },
+    {
+      "routeId": "R32",
+      "name": "Quiz Run lobby",
+      "desktopDimensions": [
+        6,
+        6,
+        6,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        5,
+        6,
+        5,
+        6,
+        4,
+        5
+      ],
+      "preserve": "Prominent join code, participant count and distinct host/guest next-step wording.",
+      "observation": "Participant icons are detached above names rather than aligned in a compact row. The missing-session fixture renders an ordinary waiting lobby with no code instead of an explicit missing-session explanation.",
+      "objective": "Make waiting, readiness and invalid sessions visibly distinct; align participant identity and role consistently.",
+      "benchmark": [
+        "linear",
+        "primer"
+      ],
+      "priority": "Major",
+      "confidence": "medium",
+      "journeys": [
+        "J10"
+      ],
+      "limits": "Missing-ID rendering is observed in the emulator. End-to-end joining, host start, reconnection and session expiry were not exercised.",
+      "desktopVisual": 5.5,
+      "mobileVisual": 5.1,
+      "primaryState": "run-lobby-guest",
+      "route": "/quiz-run/lobby/:sessionId",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "run-lobby-guest",
+        "run-lobby-host",
+        "run-missing"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:run-lobby-guest-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/run-lobby-guest/desktop.png",
+          "imageSha256": "326371625962f41d203038a9b57ea66dedf4bb19095e7fa5c8b0494d2a736f22",
+          "route": "/quiz-run/lobby/baseline-20261009-run-lobby?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:32:25.741Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:run-lobby-guest-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/run-lobby-guest/mobile.png",
+          "imageSha256": "b16ca9a8c2ac273a7899a26866dc3dad7ab1c77345c7e13bab2b8c67830d3859",
+          "route": "/quiz-run/lobby/baseline-20261009-run-lobby?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:40:20.904Z"
+        }
+      }
+    },
+    {
+      "routeId": "R33",
+      "name": "Live Quizzes entry",
+      "desktopDimensions": [
+        6,
+        6,
+        5,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        4,
+        6,
+        4,
+        6,
+        4,
+        5
+      ],
+      "preserve": "Learner-only view prioritizes joining; admin view exposes scheduling and upcoming sessions.",
+      "observation": "For admins, the lengthy host form stacks before join/upcoming on mobile. Greyed manual selection and other disabled controls dominate without enough nearby explanation of readiness.",
+      "objective": "Separate quick joining from host setup and make prerequisites and scheduling state easy to understand.",
+      "benchmark": [
+        "linear",
+        "brilliant"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J10"
+      ],
+      "limits": "",
+      "desktopVisual": 5.4,
+      "mobileVisual": 4.7,
+      "primaryState": "live-admin",
+      "route": "/live",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "live-admin",
+        "live-hub"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:live-admin-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/live-admin/desktop.png",
+          "imageSha256": "547bad2d7a50b81d3d036ea21f627b0054d4d52389a7f2d5325477897e4f406d",
+          "route": "/live?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:32:32.230Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:live-admin-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/live-admin/mobile.png",
+          "imageSha256": "3fe26225224887c4ef6e75df0ff127341fd5a080592f6dcbf1041ac57cc5fd4b",
+          "route": "/live?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:40:27.394Z"
+        }
+      }
+    },
+    {
+      "routeId": "R34",
+      "name": "Live Host",
+      "desktopDimensions": [
+        5,
+        5,
+        5,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        3,
+        3,
+        3,
+        5,
+        4,
+        3
+      ],
+      "preserve": "Session status, participants, per-question submissions and host controls are present.",
+      "observation": "In both mobile lobby and active captures, long question titles overlap adjacent expansion rows and submission chips. This is a concrete readability failure, independent of the seeded timer values.",
+      "objective": "Keep the active question, submission count and host action readable at mobile width; rows must grow with real text.",
+      "benchmark": [
+        "primer",
+        "linear"
+      ],
+      "priority": "Major",
+      "confidence": "high",
+      "journeys": [
+        "J10"
+      ],
+      "limits": "",
+      "desktopVisual": 4.9,
+      "mobileVisual": 3.4,
+      "primaryState": "live-host-active",
+      "route": "/live/host/:sessionId",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "live-host-active",
+        "live-host-lobby"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37885730251:live-host-active-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/live-host-active/desktop.png",
+          "imageSha256": "b4e1eed5745570ed05348aa6bf880179dd5428cae8d0db1ba7537baa30d63773",
+          "route": "/live/host/baseline-20261009-live-active?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:54:41.152Z"
+        },
+        "mobile": {
+          "recordId": "37885730251:live-host-active-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/live-host-active/mobile.png",
+          "imageSha256": "fb7b22b29ade3179629bcd1f187fe9d6123549f83708412643337d99152b6979",
+          "route": "/live/host/baseline-20261009-live-active?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:58:36.617Z"
+        }
+      }
+    },
+    {
+      "routeId": "R35",
+      "name": "Live player lobby",
+      "desktopDimensions": [
+        5,
+        5,
+        5,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        4,
+        5,
+        4,
+        6,
+        4,
+        5
+      ],
+      "preserve": "Explanation of automatic entry and visible participant list.",
+      "observation": "Opening/starting/countdown text runs together, while a large blank field separates the sparse information. The fixture’s long wait window was deliberately seeded; it is not a scheduling defect.",
+      "objective": "Provide a compact, calm waiting hierarchy with separated time labels, host identity and clear transition expectations.",
+      "benchmark": [
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J10"
+      ],
+      "limits": "",
+      "desktopVisual": 4.9,
+      "mobileVisual": 4.5,
+      "primaryState": "live-player-lobby",
+      "route": "/live/play/:sessionId",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "live-player-lobby"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37885730251:live-player-lobby-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/live-player-lobby/desktop.png",
+          "imageSha256": "f57bf00967422dc8a44de78c0ba58976e9692880ff45033d03c68973d5637682",
+          "route": "/live/play/baseline-20261009-live-lobby?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:54:43.931Z"
+        },
+        "mobile": {
+          "recordId": "37885730251:live-player-lobby-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/live-player-lobby/mobile.png",
+          "imageSha256": "899f153b70e233b9e6f3228b25af403a943691e9bddb4e0cddc16ec6cb4bd3ab",
+          "route": "/live/play/baseline-20261009-live-lobby?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:58:39.329Z"
+        }
+      }
+    },
+    {
+      "routeId": "R36",
+      "name": "Live leaderboard",
+      "desktopDimensions": [
+        5,
+        5,
+        5,
+        6,
+        4,
+        5
+      ],
+      "mobileDimensions": [
+        5,
+        5,
+        5,
+        6,
+        4,
+        5
+      ],
+      "preserve": "Simple ordered outcome list and score per participant.",
+      "observation": "The screen is visually sparse but the faint raw seconds, minimal session context and absence of a clear learning/return action make it feel unfinished. Zero scores and 18,000s are synthetic fixtures, not observed real contest outcomes.",
+      "objective": "Close the session with understandable result context and a useful next action, while keeping ranking subordinate to learning.",
+      "benchmark": [
+        "primer",
+        "trust"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J10"
+      ],
+      "limits": "",
+      "desktopVisual": 4.9,
+      "mobileVisual": 4.9,
+      "primaryState": "live-summary",
+      "route": "/live/summary/:sessionId",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "live-summary"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:live-summary-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/live-summary/desktop.png",
+          "imageSha256": "ae31e79c00baf477e0d3e39f3b403d09a1b02b41d5a39c9342f314d8442c1208",
+          "route": "/live/summary/baseline-20261009-live-ended?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:32:21.424Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:live-summary-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/live-summary/mobile.png",
+          "imageSha256": "b0605aade7cac96ab99dca5b66e6f49ad0a7ae68802e94bd1687e8e9558fa19d",
+          "route": "/live/summary/baseline-20261009-live-ended?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:40:16.521Z"
+        }
+      }
+    },
+    {
+      "routeId": "R37",
+      "name": "Progress / reports",
+      "desktopDimensions": [
+        5,
+        6,
+        5,
+        6,
+        4,
+        6
+      ],
+      "mobileDimensions": [
+        4,
+        6,
+        4,
+        6,
+        4,
+        6
+      ],
+      "preserve": "Saved attempt access, curriculum context, trend and retry actions.",
+      "observation": "Aggregate metric cards and quiz-type distribution precede the actual practice history. Each mobile attempt repeats several score representations and two large retry actions, creating a 5,838px captured page from a small history.",
+      "objective": "Help a learner identify what to revisit and find prior work quickly; reduce repeated information per attempt.",
+      "benchmark": [
+        "primer",
+        "brilliant"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [
+        "J01"
+      ],
+      "limits": "Opening a saved attempt was observed. Search/filtering at larger history volume and successful retry execution are not established.",
+      "desktopVisual": 5.2,
+      "mobileVisual": 4.8,
+      "primaryState": "reports",
+      "route": "/reports",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "reports",
+        "reports-empty"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:reports-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/reports/desktop.png",
+          "imageSha256": "71bac557e0298359743a40d4b23574da4f1f9702f501b42d9b1aea471929d673",
+          "route": "/reports?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:32:08.406Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:reports-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/reports/mobile.png",
+          "imageSha256": "34dfa97f22c2760c019d35841b34eafb4c1ff9d8724943b7509d7a02e86a4f24",
+          "route": "/reports?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:40:03.349Z"
+        }
+      }
+    },
+    {
+      "routeId": "R38",
+      "name": "Edit syllabus",
+      "desktopDimensions": [
+        4,
+        5,
+        4,
+        6,
+        4,
+        4
+      ],
+      "mobileDimensions": [
+        3,
+        4,
+        3,
+        6,
+        4,
+        3
+      ],
+      "preserve": "Curriculum filters and an in-place edit state.",
+      "observation": "The desktop header/row order is hard to associate; there is no visible page heading. Mobile stacks header labels separately from tall cards of unlabeled values, with the edit icon isolated above them.",
+      "objective": "Keep board, class, subject and chapter explicitly associated with each editable record and provide clear page/context navigation.",
+      "benchmark": [
+        "primer"
+      ],
+      "priority": "Major",
+      "confidence": "high",
+      "journeys": [
+        "J05"
+      ],
+      "limits": "",
+      "desktopVisual": 4.4,
+      "mobileVisual": 3.7,
+      "primaryState": "edit-syllabus",
+      "route": "/admin/manage-syllabus/edit",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "edit-syllabus",
+        "manage-syllabus-inline-edit",
+        "manage-syllabus-inline-edit--inline-row-edit",
+        "manage-syllabus-inline-edit--syllabus-rows"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37885730251:edit-syllabus-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/edit-syllabus/desktop.png",
+          "imageSha256": "f385cfff7a3fceda368b694ee92165c608e8950b5713f4416a576aeb065b55c8",
+          "route": "/admin/manage-syllabus/edit?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:54:05.942Z"
+        },
+        "mobile": {
+          "recordId": "37885730251:edit-syllabus-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37885730251/edit-syllabus/mobile.png",
+          "imageSha256": "e2427980ec11652218df6d925ff817c6513c97ab7d1f6476b1c84ad2238b627e",
+          "route": "/admin/manage-syllabus/edit?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37885730251/manifest.json",
+          "capturedAt": "2026-10-09T04:58:03.728Z"
+        }
+      }
+    },
+    {
+      "routeId": "R39",
+      "name": "User management",
+      "desktopDimensions": [
+        6,
+        6,
+        5,
+        6,
+        5,
+        5
+      ],
+      "mobileDimensions": [
+        5,
+        6,
+        5,
+        6,
+        5,
+        5
+      ],
+      "preserve": "Recognizable account summaries, online/last-seen labels and expandable details.",
+      "observation": "Eighteen profile cards are shown without a visible search control. Opening one desktop card stretches its grid row; mobile becomes a long roster. Some synthetic users display empty/broken-looking avatar circles; this is a fallback-state concern, not proof of broken production photos.",
+      "objective": "Support finding a person, comparing key account context and opening details without disrupting the roster.",
+      "benchmark": [
+        "primer",
+        "linear"
+      ],
+      "priority": "Moderate",
+      "confidence": "high",
+      "journeys": [],
+      "limits": "One card expansion observed; large-volume search, account changes and production avatar sources were not tested.",
+      "desktopVisual": 5.6,
+      "mobileVisual": 5.3,
+      "primaryState": "user-list",
+      "route": "/admin/user-list",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "user-expanded",
+        "user-list"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:user-list-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/user-list/desktop.png",
+          "imageSha256": "09ae5418bf8e48b9754ebc3b5b84f3be4996254dcc14359029e93fb7bc38508f",
+          "route": "/admin/user-list?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:27:59.586Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:user-list-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/user-list/mobile.png",
+          "imageSha256": "8355f422bef82fd962b0be335513a7cf19731f850b27385cdfe1a786918a77c7",
+          "route": "/admin/user-list?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:54.282Z"
+        }
+      }
+    },
+    {
+      "routeId": "R40",
+      "name": "Developer UI preview",
+      "desktopDimensions": [
+        6,
+        6,
+        6,
+        6,
+        5,
+        6
+      ],
+      "mobileDimensions": [
+        5,
+        6,
+        5,
+        6,
+        5,
+        6
+      ],
+      "preserve": "Clear disclosure that embedded app actions affect the signed-in account, with explicit viewport choices.",
+      "observation": "The mobile introduction and preview configuration dominate before the component examples. As an internal utility, it needs consistency and clear controls rather than showcase art direction.",
+      "objective": "Keep preview choice and action compact; ensure component examples later cover actual approved screen states.",
+      "benchmark": [
+        "primer"
+      ],
+      "priority": "Minor",
+      "confidence": "high",
+      "journeys": [],
+      "limits": "Internal/admin utility. Opening the responsive embedded app was not exercised in the evaluation evidence.",
+      "desktopVisual": 5.8,
+      "mobileVisual": 5.4,
+      "primaryState": "ui-preview",
+      "route": "/dev/ui",
+      "roles": [
+        "admin"
+      ],
+      "reviewStatus": "awaiting user review",
+      "stateKeys": [
+        "ui-preview"
+      ],
+      "aliasOf": null,
+      "primaryEvidence": {
+        "desktop": {
+          "recordId": "37883706813:ui-preview-desktop",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/ui-preview/desktop.png",
+          "imageSha256": "b15f3fbcc2f96fed17f96b4f8ab63cb95bcd91760819296ea3320f6b511fbbb0",
+          "route": "/dev/ui?emulator=1",
+          "viewport": {
+            "width": 1440,
+            "height": 1000,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:28:01.717Z"
+        },
+        "mobile": {
+          "recordId": "37883706813:ui-preview-mobile",
+          "imagePath": "screens/2026-10-09-baseline/37883706813/ui-preview/mobile.png",
+          "imageSha256": "4ca67bd1db5f712a2f4a0107dd297e77c0f28b2e4b0b85fa8cbc3a77a4b72b01",
+          "route": "/dev/ui?emulator=1",
+          "viewport": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1
+          },
+          "fullPage": true,
+          "sourceManifest": "design-upgrade/evidence/baseline/2026-10-09/37883706813/manifest.json",
+          "capturedAt": "2026-10-09T04:35:56.444Z"
+        }
+      }
+    }
+  ]
+}

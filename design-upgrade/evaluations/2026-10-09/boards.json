@@ -1,0 +1,88 @@
+[
+  {
+    "path": "boards/mobile-task-order.jpg",
+    "type": "derived screenshot comparison",
+    "sources": [
+      {
+        "stateKey": "profile",
+        "recordId": "37883706813:profile-mobile",
+        "source": "screens/2026-10-09-baseline/37883706813/profile/mobile.png",
+        "crop": [
+          0,
+          0,
+          390,
+          844
+        ],
+        "label": "Profile"
+      },
+      {
+        "stateKey": "quiz-summary-saved",
+        "recordId": "37883706813:quiz-summary-saved-mobile",
+        "source": "screens/2026-10-09-baseline/37883706813/quiz-summary-saved/mobile.png",
+        "crop": [
+          0,
+          0,
+          390,
+          844
+        ],
+        "label": "Quiz summary"
+      },
+      {
+        "stateKey": "quiz-run",
+        "recordId": "37883706813:quiz-run-mobile",
+        "source": "screens/2026-10-09-baseline/37883706813/quiz-run/mobile.png",
+        "crop": [
+          0,
+          0,
+          390,
+          844
+        ],
+        "label": "Quiz Runs"
+      }
+    ],
+    "sha256": "a649dbd59185c6bb84541d4b5ca389bcf87ffbe8d4de7d9e2c5834336ea33b78"
+  },
+  {
+    "path": "boards/mobile-readability.jpg",
+    "type": "derived screenshot comparison",
+    "sources": [
+      {
+        "stateKey": "live-host-active",
+        "recordId": "37885730251:live-host-active-mobile",
+        "source": "screens/2026-10-09-baseline/37885730251/live-host-active/mobile.png",
+        "crop": [
+          0,
+          300,
+          390,
+          1000
+        ],
+        "label": "Live Host"
+      },
+      {
+        "stateKey": "edit-syllabus",
+        "recordId": "37885730251:edit-syllabus-mobile",
+        "source": "screens/2026-10-09-baseline/37885730251/edit-syllabus/mobile.png",
+        "crop": [
+          0,
+          0,
+          390,
+          844
+        ],
+        "label": "Syllabus editor"
+      },
+      {
+        "stateKey": "question-library-archive-confirmation-open--archive-confirmation",
+        "recordId": "37885730251:question-library-archive-confirmation-open--archive-confirmation-mobile",
+        "source": "screens/2026-10-09-baseline/37885730251/question-library-archive-confirmation-open--archive-confirmation/mobile.png",
+        "crop": [
+          0,
+          1100,
+          390,
+          1944
+        ],
+        "label": "Archive confirmation"
+      }
+    ],
+    "sha256": "a8deb4f26b1a292d988e4e1d66a773cbdf9aab62cc4d9ff9c1576499a42ba42e"
+  }
+]

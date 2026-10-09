@@ -2,7 +2,7 @@
 
 This is the permanent entry point for the fresh GTOP design review started on **8 October 2026**. A collaborator with repository access can resume here without the chat.
 
-**Current checkpoint:** Step 2 complete for the agreed scope. The user excluded the unused Action Plan page on 9 October 2026. The archive retains all 40 route entries / 39 URL patterns; the design-upgrade scope now includes 39 route entries / 38 URL patterns. **Step 3 complete for review: [findings](references/report.md), [visual gallery](references/gallery.md), motion evidence and criteria calibration.** No screen has been rated and no redesign has been accepted.
+**Current checkpoint:** Step 4 complete for review: [39 screen scorecards and desktop/mobile ratings](evaluations/2026-10-09/README.md), [prioritized findings](evaluations/2026-10-09/findings.md), [bounded journey evidence](evaluations/2026-10-09/journeys.md) and a [Step 5 brief](evaluations/2026-10-09/step-5-brief.md). Step 3’s reference base was accepted as on track. Action Plan R23 remains excluded. Mockups and application development have not started.
 
 ## Start here
 
@@ -13,7 +13,8 @@ This is the permanent entry point for the fresh GTOP design review started on **
 5. [Plan and stage boundaries](plan.md)
 6. [Evaluation criteria v1.1](evaluations/criteria.md)
 7. [Reference findings and calibrated anchors](references/report.md)
-8. [Decisions and feedback](decisions.md)
+8. [Screen evaluation and next design brief](evaluations/2026-10-09/README.md)
+9. [Decisions and feedback](decisions.md)
 
 Capture provenance: [baseline catalog](screens/baseline-catalog.json) · [capture method](evidence/baseline/README.md) · [inspection record](evidence/baseline/inspection.json). The earlier [readiness archive](evidence/readiness/README.md) remains separate.
 
@@ -30,7 +31,7 @@ The user's direction for this initiative is a fresh approach: previous design di
 | Earlier readiness samples | `screens/2026-10-08-readiness/` and [readiness catalog](screens/catalog.json) |
 | Capture procedure and naming contract | [screens/README.md](screens/README.md) |
 | Benchmark candidates and accepted references | [references/README.md](references/README.md) |
-| Evaluation framework and future scorecards | [evaluations/criteria.md](evaluations/criteria.md), [evaluations/TEMPLATE.md](evaluations/TEMPLATE.md) |
+| Evaluation framework and screen scorecards | [criteria](evaluations/criteria.md), [current evaluation](evaluations/2026-10-09/README.md), [template](evaluations/TEMPLATE.md) |
 | Accepted decisions and unresolved design choices | [decisions.md](decisions.md) |
 | Raw manifests, fixtures and diagnostic evidence | `evidence/baseline/2026-10-09/` and `evidence/readiness/` |
 | Future proposed designs | `mockups/` (created when Step 5 begins) |

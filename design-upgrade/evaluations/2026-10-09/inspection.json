@@ -1,0 +1,2212 @@
+{
+  "reviewDate": "2026-10-09",
+  "routeCount": 39,
+  "includedUniqueStatePairs": 171,
+  "primaryPairsReviewed": 39,
+  "overviewSheetsReviewed": 22,
+  "depth": "All selected associated pairs at overview level; every primary route pair in a desktop/mobile top comparison; targeted native-size crops for material findings. Not a line-by-line content audit.",
+  "states": [
+    {
+      "stateKey": "access-denied-admin",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 1,
+      "records": {
+        "desktop": "37883706813:access-denied-admin-desktop",
+        "mobile": "37883706813:access-denied-admin-mobile"
+      }
+    },
+    {
+      "stateKey": "add-mcq",
+      "routes": [
+        "R25"
+      ],
+      "reviewedOverview": true,
+      "sheet": 1,
+      "records": {
+        "desktop": "37883706813:add-mcq-desktop",
+        "mobile": "37883706813:add-mcq-mobile"
+      }
+    },
+    {
+      "stateKey": "add-mcq-invalid-json",
+      "routes": [
+        "R25"
+      ],
+      "reviewedOverview": true,
+      "sheet": 1,
+      "records": {
+        "desktop": "37885730251:add-mcq-invalid-json-desktop",
+        "mobile": "37885730251:add-mcq-invalid-json-mobile"
+      }
+    },
+    {
+      "stateKey": "add-mcq-invalid-json-feedback--invalid-json-snackbar",
+      "routes": [
+        "R25"
+      ],
+      "reviewedOverview": true,
+      "sheet": 1,
+      "records": {
+        "desktop": "37885730251:add-mcq-invalid-json-feedback--invalid-json-snackbar-desktop",
+        "mobile": "37885730251:add-mcq-invalid-json-feedback--invalid-json-snackbar-mobile"
+      }
+    },
+    {
+      "stateKey": "add-mcq-parsed-preview",
+      "routes": [
+        "R25"
+      ],
+      "reviewedOverview": true,
+      "sheet": 1,
+      "records": {
+        "desktop": "37887727775:add-mcq-parsed-preview-desktop",
+        "mobile": "37887727775:add-mcq-parsed-preview-mobile"
+      }
+    },
+    {
+      "stateKey": "add-mcq-parsed-preview-visible--parsed-mcq-preview",
+      "routes": [
+        "R25"
+      ],
+      "reviewedOverview": true,
+      "sheet": 1,
+      "records": {
+        "desktop": "37887727775:add-mcq-parsed-preview-visible--parsed-mcq-preview-desktop",
+        "mobile": "37887727775:add-mcq-parsed-preview-visible--parsed-mcq-preview-mobile"
+      }
+    },
+    {
+      "stateKey": "admin-console",
+      "routes": [
+        "R22"
+      ],
+      "reviewedOverview": true,
+      "sheet": 1,
+      "records": {
+        "desktop": "37883706813:admin-console-desktop",
+        "mobile": "37883706813:admin-console-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 1,
+      "records": {
+        "desktop": "37883706813:current-lab-desktop",
+        "mobile": "37883706813:current-lab-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-check--five-question-understanding-check-and-reflection",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 2,
+      "records": {
+        "desktop": "37887727775:current-lab-check--five-question-understanding-check-and-reflection-desktop",
+        "mobile": "37887727775:current-lab-check--five-question-understanding-check-and-reflection-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-graded-reflection--checked-answers-and-usefulness-feedback-form",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 2,
+      "records": {
+        "desktop": "37887727775:current-lab-graded-reflection--checked-answers-and-usefulness-feedback-form-desktop",
+        "mobile": "37887727775:current-lab-graded-reflection--checked-answers-and-usefulness-feedback-form-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-journey",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 2,
+      "records": {
+        "desktop": "37887727775:current-lab-journey-desktop",
+        "mobile": "37887727775:current-lab-journey-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-parallel-circuit--parallel-circuit-with-branch-current-and-voltage-values",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 2,
+      "records": {
+        "desktop": "37887727775:current-lab-parallel-circuit--parallel-circuit-with-branch-current-and-voltage-values-desktop",
+        "mobile": "37887727775:current-lab-parallel-circuit--parallel-circuit-with-branch-current-and-voltage-values-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-practice-complete--practice-completion-confirmation",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 2,
+      "records": {
+        "desktop": "37887727775:current-lab-practice-complete--practice-completion-confirmation-desktop",
+        "mobile": "37887727775:current-lab-practice-complete--practice-completion-confirmation-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-predict--fresh-baseline-predictions-and-lesson-steps",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 2,
+      "records": {
+        "desktop": "37887727775:current-lab-predict--fresh-baseline-predictions-and-lesson-steps-desktop",
+        "mobile": "37887727775:current-lab-predict--fresh-baseline-predictions-and-lesson-steps-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-resistance-result--resistance-change-and-current-reading",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 2,
+      "records": {
+        "desktop": "37887727775:current-lab-resistance-result--resistance-change-and-current-reading-desktop",
+        "mobile": "37887727775:current-lab-resistance-result--resistance-change-and-current-reading-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-results-empty",
+      "routes": [
+        "R17"
+      ],
+      "reviewedOverview": true,
+      "sheet": 2,
+      "records": {
+        "desktop": "37883706813:current-lab-results-empty-desktop",
+        "mobile": "37883706813:current-lab-results-empty-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 3,
+      "records": {
+        "desktop": "37887727775:current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-desktop",
+        "mobile": "37887727775:current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-single-circuit--single-resistor-circuit-controls",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 3,
+      "records": {
+        "desktop": "37887727775:current-lab-single-circuit--single-resistor-circuit-controls-desktop",
+        "mobile": "37887727775:current-lab-single-circuit--single-resistor-circuit-controls-mobile"
+      }
+    },
+    {
+      "stateKey": "current-lab-voltage-result--voltage-changed-with-live-current-reading",
+      "routes": [
+        "R16"
+      ],
+      "reviewedOverview": true,
+      "sheet": 3,
+      "records": {
+        "desktop": "37887727775:current-lab-voltage-result--voltage-changed-with-live-current-reading-desktop",
+        "mobile": "37887727775:current-lab-voltage-result--voltage-changed-with-live-current-reading-mobile"
+      }
+    },
+    {
+      "stateKey": "custom-quiz-admin",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 3,
+      "records": {
+        "desktop": "37885730251:custom-quiz-admin-desktop",
+        "mobile": "37885730251:custom-quiz-admin-mobile"
+      }
+    },
+    {
+      "stateKey": "custom-quiz-learner",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 3,
+      "records": {
+        "desktop": "37885730251:custom-quiz-learner-desktop",
+        "mobile": "37885730251:custom-quiz-learner-mobile"
+      }
+    },
+    {
+      "stateKey": "dashboard",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 3,
+      "records": {
+        "desktop": "37883706813:dashboard-desktop",
+        "mobile": "37883706813:dashboard-mobile"
+      }
+    },
+    {
+      "stateKey": "dashboard-empty",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 3,
+      "records": {
+        "desktop": "37883706813:dashboard-empty-desktop",
+        "mobile": "37883706813:dashboard-empty-mobile"
+      }
+    },
+    {
+      "stateKey": "edit-syllabus",
+      "routes": [
+        "R38"
+      ],
+      "reviewedOverview": true,
+      "sheet": 3,
+      "records": {
+        "desktop": "37885730251:edit-syllabus-desktop",
+        "mobile": "37885730251:edit-syllabus-mobile"
+      }
+    },
+    {
+      "stateKey": "invitation-dashboard-return-cue--dashboard-card-with-invitation-revisit-saved-for-tomorrow",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 4,
+      "records": {
+        "desktop": "37885730251:invitation-dashboard-return-cue--dashboard-card-with-invitation-revisit-saved-for-tomorrow-desktop",
+        "mobile": "37885730251:invitation-dashboard-return-cue--dashboard-card-with-invitation-revisit-saved-for-tomorrow-mobile"
+      }
+    },
+    {
+      "stateKey": "invited-quiz",
+      "routes": [
+        "R02"
+      ],
+      "reviewedOverview": true,
+      "sheet": 4,
+      "records": {
+        "desktop": "37883706813:invited-quiz-desktop",
+        "mobile": "37883706813:invited-quiz-mobile"
+      }
+    },
+    {
+      "stateKey": "invited-quiz-completion-and-return",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 4,
+      "records": {
+        "desktop": "37885730251:invited-quiz-completion-and-return-desktop",
+        "mobile": "37885730251:invited-quiz-completion-and-return-mobile"
+      }
+    },
+    {
+      "stateKey": "invited-quiz-in-progress--first-invitation-question-answered",
+      "routes": [
+        "R02"
+      ],
+      "reviewedOverview": true,
+      "sheet": 4,
+      "records": {
+        "desktop": "37885730251:invited-quiz-in-progress--first-invitation-question-answered-desktop",
+        "mobile": "37885730251:invited-quiz-in-progress--first-invitation-question-answered-mobile"
+      }
+    },
+    {
+      "stateKey": "invited-quiz-saved-offer--saved-five-question-result-and-voluntary-return-offer",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 4,
+      "records": {
+        "desktop": "37885730251:invited-quiz-saved-offer--saved-five-question-result-and-voluntary-return-offer-desktop",
+        "mobile": "37885730251:invited-quiz-saved-offer--saved-five-question-result-and-voluntary-return-offer-mobile"
+      }
+    },
+    {
+      "stateKey": "lab-results",
+      "routes": [
+        "R17"
+      ],
+      "reviewedOverview": true,
+      "sheet": 4,
+      "records": {
+        "desktop": "37883706813:lab-results-desktop",
+        "mobile": "37883706813:lab-results-mobile"
+      }
+    },
+    {
+      "stateKey": "lab-results-populated",
+      "routes": [
+        "R17"
+      ],
+      "reviewedOverview": true,
+      "sheet": 4,
+      "records": {
+        "desktop": "37885730251:lab-results-populated-desktop",
+        "mobile": "37885730251:lab-results-populated-mobile"
+      }
+    },
+    {
+      "stateKey": "landing",
+      "routes": [
+        "R18"
+      ],
+      "reviewedOverview": true,
+      "sheet": 4,
+      "records": {
+        "desktop": "37883706813:landing-desktop",
+        "mobile": "37883706813:landing-mobile"
+      }
+    },
+    {
+      "stateKey": "landing-circuit-on",
+      "routes": [
+        "R18"
+      ],
+      "reviewedOverview": true,
+      "sheet": 5,
+      "records": {
+        "desktop": "37885730251:landing-circuit-on-desktop",
+        "mobile": "37885730251:landing-circuit-on-mobile"
+      }
+    },
+    {
+      "stateKey": "landing-sample-answer",
+      "routes": [
+        "R18"
+      ],
+      "reviewedOverview": true,
+      "sheet": 5,
+      "records": {
+        "desktop": "37885730251:landing-sample-answer-desktop",
+        "mobile": "37885730251:landing-sample-answer-mobile"
+      }
+    },
+    {
+      "stateKey": "learning-lab",
+      "routes": [
+        "R13"
+      ],
+      "reviewedOverview": true,
+      "sheet": 5,
+      "records": {
+        "desktop": "37883706813:learning-lab-desktop",
+        "mobile": "37883706813:learning-lab-mobile"
+      }
+    },
+    {
+      "stateKey": "live-admin",
+      "routes": [
+        "R33"
+      ],
+      "reviewedOverview": true,
+      "sheet": 5,
+      "records": {
+        "desktop": "37883706813:live-admin-desktop",
+        "mobile": "37883706813:live-admin-mobile"
+      }
+    },
+    {
+      "stateKey": "live-host-active",
+      "routes": [
+        "R34"
+      ],
+      "reviewedOverview": true,
+      "sheet": 5,
+      "records": {
+        "desktop": "37885730251:live-host-active-desktop",
+        "mobile": "37885730251:live-host-active-mobile"
+      }
+    },
+    {
+      "stateKey": "live-host-lobby",
+      "routes": [
+        "R34"
+      ],
+      "reviewedOverview": true,
+      "sheet": 5,
+      "records": {
+        "desktop": "37885730251:live-host-lobby-desktop",
+        "mobile": "37885730251:live-host-lobby-mobile"
+      }
+    },
+    {
+      "stateKey": "live-hub",
+      "routes": [
+        "R33"
+      ],
+      "reviewedOverview": true,
+      "sheet": 5,
+      "records": {
+        "desktop": "37883706813:live-hub-desktop",
+        "mobile": "37883706813:live-hub-mobile"
+      }
+    },
+    {
+      "stateKey": "live-player-active",
+      "routes": [
+        "R29"
+      ],
+      "reviewedOverview": true,
+      "sheet": 5,
+      "records": {
+        "desktop": "37885730251:live-player-active-desktop",
+        "mobile": "37885730251:live-player-active-mobile"
+      }
+    },
+    {
+      "stateKey": "live-player-lobby",
+      "routes": [
+        "R35"
+      ],
+      "reviewedOverview": true,
+      "sheet": 6,
+      "records": {
+        "desktop": "37885730251:live-player-lobby-desktop",
+        "mobile": "37885730251:live-player-lobby-mobile"
+      }
+    },
+    {
+      "stateKey": "live-summary",
+      "routes": [
+        "R36"
+      ],
+      "reviewedOverview": true,
+      "sheet": 6,
+      "records": {
+        "desktop": "37883706813:live-summary-desktop",
+        "mobile": "37883706813:live-summary-mobile"
+      }
+    },
+    {
+      "stateKey": "logs",
+      "routes": [
+        "R28"
+      ],
+      "reviewedOverview": true,
+      "sheet": 6,
+      "records": {
+        "desktop": "37883706813:logs-desktop",
+        "mobile": "37883706813:logs-mobile"
+      }
+    },
+    {
+      "stateKey": "manage-syllabus",
+      "routes": [
+        "R26"
+      ],
+      "reviewedOverview": true,
+      "sheet": 6,
+      "records": {
+        "desktop": "37883706813:manage-syllabus-desktop",
+        "mobile": "37883706813:manage-syllabus-mobile"
+      }
+    },
+    {
+      "stateKey": "manage-syllabus-inline-edit",
+      "routes": [
+        "R38"
+      ],
+      "reviewedOverview": true,
+      "sheet": 6,
+      "records": {
+        "desktop": "37883706813:manage-syllabus-inline-edit-desktop",
+        "mobile": "37883706813:manage-syllabus-inline-edit-mobile"
+      }
+    },
+    {
+      "stateKey": "manage-syllabus-inline-edit--inline-row-edit",
+      "routes": [
+        "R38"
+      ],
+      "reviewedOverview": true,
+      "sheet": 6,
+      "records": {
+        "desktop": "37883706813:manage-syllabus-inline-edit--inline-row-edit-desktop",
+        "mobile": "37883706813:manage-syllabus-inline-edit--inline-row-edit-mobile"
+      }
+    },
+    {
+      "stateKey": "manage-syllabus-inline-edit--syllabus-rows",
+      "routes": [
+        "R38"
+      ],
+      "reviewedOverview": true,
+      "sheet": 6,
+      "records": {
+        "desktop": "37883706813:manage-syllabus-inline-edit--syllabus-rows-desktop",
+        "mobile": "37883706813:manage-syllabus-inline-edit--syllabus-rows-mobile"
+      }
+    },
+    {
+      "stateKey": "mcq-management",
+      "routes": [
+        "R24"
+      ],
+      "reviewedOverview": true,
+      "sheet": 6,
+      "records": {
+        "desktop": "37883706813:mcq-management-desktop",
+        "mobile": "37883706813:mcq-management-mobile"
+      }
+    },
+    {
+      "stateKey": "mcq-management-edit-state",
+      "routes": [
+        "R24"
+      ],
+      "reviewedOverview": true,
+      "sheet": 7,
+      "records": {
+        "desktop": "37885730251:mcq-management-edit-state-desktop",
+        "mobile": "37885730251:mcq-management-edit-state-mobile"
+      }
+    },
+    {
+      "stateKey": "mcq-management-edit-state--expanded-question",
+      "routes": [
+        "R24"
+      ],
+      "reviewedOverview": true,
+      "sheet": 7,
+      "records": {
+        "desktop": "37885730251:mcq-management-edit-state--expanded-question-desktop",
+        "mobile": "37885730251:mcq-management-edit-state--expanded-question-mobile"
+      }
+    },
+    {
+      "stateKey": "mcq-management-edit-state--populated-filtered-bank",
+      "routes": [
+        "R24"
+      ],
+      "reviewedOverview": true,
+      "sheet": 7,
+      "records": {
+        "desktop": "37885730251:mcq-management-edit-state--populated-filtered-bank-desktop",
+        "mobile": "37885730251:mcq-management-edit-state--populated-filtered-bank-mobile"
+      }
+    },
+    {
+      "stateKey": "mcq-management-edit-state--question-json-edit",
+      "routes": [
+        "R24"
+      ],
+      "reviewedOverview": true,
+      "sheet": 7,
+      "records": {
+        "desktop": "37885730251:mcq-management-edit-state--question-json-edit-desktop",
+        "mobile": "37885730251:mcq-management-edit-state--question-json-edit-mobile"
+      }
+    },
+    {
+      "stateKey": "mcq-management-filtered-empty",
+      "routes": [
+        "R24"
+      ],
+      "reviewedOverview": true,
+      "sheet": 7,
+      "records": {
+        "desktop": "37887727775:mcq-management-filtered-empty-desktop",
+        "mobile": "37887727775:mcq-management-filtered-empty-mobile"
+      }
+    },
+    {
+      "stateKey": "mcq-management-filtered-empty--empty-filtered-bank",
+      "routes": [
+        "R24"
+      ],
+      "reviewedOverview": true,
+      "sheet": 7,
+      "records": {
+        "desktop": "37887727775:mcq-management-filtered-empty--empty-filtered-bank-desktop",
+        "mobile": "37887727775:mcq-management-filtered-empty--empty-filtered-bank-mobile"
+      }
+    },
+    {
+      "stateKey": "navigation-admin",
+      "routes": [
+        "R22"
+      ],
+      "reviewedOverview": true,
+      "sheet": 7,
+      "records": {
+        "desktop": "37885730251:navigation-admin-desktop",
+        "mobile": "37885730251:navigation-admin-mobile"
+      }
+    },
+    {
+      "stateKey": "navigation-learner",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 7,
+      "records": {
+        "desktop": "37885730251:navigation-learner-desktop",
+        "mobile": "37885730251:navigation-learner-mobile"
+      }
+    },
+    {
+      "stateKey": "not-found-redirect",
+      "routes": [
+        "R18"
+      ],
+      "reviewedOverview": true,
+      "sheet": 8,
+      "records": {
+        "desktop": "37883706813:not-found-redirect-desktop",
+        "mobile": "37883706813:not-found-redirect-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-answer-key",
+      "routes": [
+        "R04"
+      ],
+      "reviewedOverview": true,
+      "sheet": 8,
+      "records": {
+        "desktop": "37883706813:paper-answer-key-desktop",
+        "mobile": "37883706813:paper-answer-key-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-chat-cancelled",
+      "routes": [
+        "R08"
+      ],
+      "reviewedOverview": true,
+      "sheet": 8,
+      "records": {
+        "desktop": "37885730251:paper-chat-cancelled-desktop",
+        "mobile": "37885730251:paper-chat-cancelled-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-chat-error",
+      "routes": [
+        "R08"
+      ],
+      "reviewedOverview": true,
+      "sheet": 8,
+      "records": {
+        "desktop": "37885730251:paper-chat-error-desktop",
+        "mobile": "37885730251:paper-chat-error-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-chat-history",
+      "routes": [
+        "R08"
+      ],
+      "reviewedOverview": true,
+      "sheet": 8,
+      "records": {
+        "desktop": "37883706813:paper-chat-history-desktop",
+        "mobile": "37883706813:paper-chat-history-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-chat-needs-info",
+      "routes": [
+        "R08"
+      ],
+      "reviewedOverview": true,
+      "sheet": 8,
+      "records": {
+        "desktop": "37885730251:paper-chat-needs-info-desktop",
+        "mobile": "37885730251:paper-chat-needs-info-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-chat-processing",
+      "routes": [
+        "R08"
+      ],
+      "reviewedOverview": true,
+      "sheet": 8,
+      "records": {
+        "desktop": "37885730251:paper-chat-processing-desktop",
+        "mobile": "37885730251:paper-chat-processing-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-chat-queued",
+      "routes": [
+        "R08"
+      ],
+      "reviewedOverview": true,
+      "sheet": 8,
+      "records": {
+        "desktop": "37885730251:paper-chat-queued-desktop",
+        "mobile": "37885730251:paper-chat-queued-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-chat-ready",
+      "routes": [
+        "R08"
+      ],
+      "reviewedOverview": true,
+      "sheet": 9,
+      "records": {
+        "desktop": "37885730251:paper-chat-ready-desktop",
+        "mobile": "37885730251:paper-chat-ready-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-generator",
+      "routes": [
+        "R11"
+      ],
+      "reviewedOverview": true,
+      "sheet": 9,
+      "records": {
+        "desktop": "37883706813:paper-generator-desktop",
+        "mobile": "37883706813:paper-generator-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-generator-saved-papers",
+      "routes": [
+        "R11"
+      ],
+      "reviewedOverview": true,
+      "sheet": 9,
+      "records": {
+        "desktop": "37887727775:paper-generator-saved-papers-desktop",
+        "mobile": "37887727775:paper-generator-saved-papers-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-generator-saved-papers--saved-draft-list",
+      "routes": [
+        "R11"
+      ],
+      "reviewedOverview": true,
+      "sheet": 9,
+      "records": {
+        "desktop": "37887727775:paper-generator-saved-papers--saved-drafts-empty-desktop",
+        "mobile": "37887727775:paper-generator-saved-papers--saved-draft-list-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-generator-stages",
+      "routes": [
+        "R11"
+      ],
+      "reviewedOverview": true,
+      "sheet": 9,
+      "records": {
+        "desktop": "37886910772:paper-generator-stages-desktop",
+        "mobile": "37886910772:paper-generator-stages-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-generator-stages--generated-draft-preview",
+      "routes": [
+        "R11"
+      ],
+      "reviewedOverview": true,
+      "sheet": 9,
+      "records": {
+        "desktop": "37886910772:paper-generator-stages--generated-draft-preview-desktop",
+        "mobile": "37886910772:paper-generator-stages--generated-draft-preview-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-generator-stages--stage-1-format",
+      "routes": [
+        "R11"
+      ],
+      "reviewedOverview": true,
+      "sheet": 9,
+      "records": {
+        "desktop": "37886910772:paper-generator-stages--stage-1-format-desktop",
+        "mobile": "37886910772:paper-generator-stages--stage-1-format-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-generator-stages--stage-2-syllabus-and-sections",
+      "routes": [
+        "R11"
+      ],
+      "reviewedOverview": true,
+      "sheet": 9,
+      "records": {
+        "desktop": "37886910772:paper-generator-stages--stage-2-syllabus-and-sections-desktop",
+        "mobile": "37886910772:paper-generator-stages--stage-2-syllabus-and-sections-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-generator-stages--stage-3-coverage",
+      "routes": [
+        "R11"
+      ],
+      "reviewedOverview": true,
+      "sheet": 10,
+      "records": {
+        "desktop": "37886910772:paper-generator-stages--stage-3-coverage-desktop",
+        "mobile": "37886910772:paper-generator-stages--stage-3-coverage-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-generator-stages--stage-4-draft-preview",
+      "routes": [
+        "R11"
+      ],
+      "reviewedOverview": true,
+      "sheet": 10,
+      "records": {
+        "desktop": "37886910772:paper-generator-stages--stage-4-draft-preview-desktop",
+        "mobile": "37886910772:paper-generator-stages--stage-4-draft-preview-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-legacy",
+      "routes": [
+        "R03"
+      ],
+      "reviewedOverview": true,
+      "sheet": 10,
+      "records": {
+        "desktop": "37883706813:paper-legacy-desktop",
+        "mobile": "37883706813:paper-legacy-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-new",
+      "routes": [
+        "R06"
+      ],
+      "reviewedOverview": true,
+      "sheet": 10,
+      "records": {
+        "desktop": "37885730251:paper-new-desktop",
+        "mobile": "37885730251:paper-new-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-register",
+      "routes": [
+        "R07"
+      ],
+      "reviewedOverview": true,
+      "sheet": 10,
+      "records": {
+        "desktop": "37885730251:paper-register-desktop",
+        "mobile": "37885730251:paper-register-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-register-all-alias",
+      "routes": [
+        "R05"
+      ],
+      "reviewedOverview": true,
+      "sheet": 10,
+      "records": {
+        "desktop": "37885730251:paper-register-all-alias-desktop",
+        "mobile": "37885730251:paper-register-all-alias-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-register-in-progress",
+      "routes": [
+        "R07"
+      ],
+      "reviewedOverview": true,
+      "sheet": 10,
+      "records": {
+        "desktop": "37883706813:paper-register-in-progress-desktop",
+        "mobile": "37883706813:paper-register-in-progress-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-register-needs-action",
+      "routes": [
+        "R07"
+      ],
+      "reviewedOverview": true,
+      "sheet": 10,
+      "records": {
+        "desktop": "37883706813:paper-register-needs-action-desktop",
+        "mobile": "37883706813:paper-register-needs-action-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-register-no-results",
+      "routes": [
+        "R07"
+      ],
+      "reviewedOverview": true,
+      "sheet": 11,
+      "records": {
+        "desktop": "37883706813:paper-register-no-results-desktop",
+        "mobile": "37883706813:paper-register-no-results-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-register-older",
+      "routes": [
+        "R07"
+      ],
+      "reviewedOverview": true,
+      "sheet": 11,
+      "records": {
+        "desktop": "37883706813:paper-register-older-desktop",
+        "mobile": "37883706813:paper-register-older-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-register-ready",
+      "routes": [
+        "R07"
+      ],
+      "reviewedOverview": true,
+      "sheet": 11,
+      "records": {
+        "desktop": "37883706813:paper-register-ready-desktop",
+        "mobile": "37883706813:paper-register-ready-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-revision",
+      "routes": [
+        "R08"
+      ],
+      "reviewedOverview": true,
+      "sheet": 11,
+      "records": {
+        "desktop": "37883706813:paper-revision-desktop",
+        "mobile": "37883706813:paper-revision-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-updates",
+      "routes": [
+        "R07"
+      ],
+      "reviewedOverview": true,
+      "sheet": 11,
+      "records": {
+        "desktop": "37883706813:paper-updates-desktop",
+        "mobile": "37883706813:paper-updates-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-view",
+      "routes": [
+        "R04"
+      ],
+      "reviewedOverview": true,
+      "sheet": 11,
+      "records": {
+        "desktop": "37883706813:paper-view-desktop",
+        "mobile": "37883706813:paper-view-mobile"
+      }
+    },
+    {
+      "stateKey": "paper-view-missing",
+      "routes": [
+        "R04"
+      ],
+      "reviewedOverview": true,
+      "sheet": 11,
+      "records": {
+        "desktop": "37883706813:paper-view-missing-desktop",
+        "mobile": "37883706813:paper-view-missing-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-assessment--five-question-plant-reproduction-assessment",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 11,
+      "records": {
+        "desktop": "37887727775:plant-assessment--five-question-plant-reproduction-assessment-desktop",
+        "mobile": "37887727775:plant-assessment--five-question-plant-reproduction-assessment-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 12,
+      "records": {
+        "desktop": "37887727775:plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial-desktop",
+        "mobile": "37887727775:plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-discovery-summary--five-discoveries-before-the-knowledge-check",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 12,
+      "records": {
+        "desktop": "37887727775:plant-discovery-summary--five-discoveries-before-the-knowledge-check-desktop",
+        "mobile": "37887727775:plant-discovery-summary--five-discoveries-before-the-knowledge-check-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-feedback-sent--practice-feedback-completion-state",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 12,
+      "records": {
+        "desktop": "37887727775:plant-feedback-sent--practice-feedback-completion-state-desktop",
+        "mobile": "37887727775:plant-feedback-sent--practice-feedback-completion-state-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-graded-summary-feedback--graded-summary-with-explanations-and-feedback-form",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 12,
+      "records": {
+        "desktop": "37887727775:plant-graded-summary-feedback--graded-summary-with-explanations-and-feedback-form-desktop",
+        "mobile": "37887727775:plant-graded-summary-feedback--graded-summary-with-explanations-and-feedback-form-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-journey-map--five-stop-journey-map-open",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 12,
+      "records": {
+        "desktop": "37887727775:plant-journey-map--five-stop-journey-map-open-desktop",
+        "mobile": "37887727775:plant-journey-map--five-stop-journey-map-open-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-lab",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 12,
+      "records": {
+        "desktop": "37883706813:plant-lab-desktop",
+        "mobile": "37883706813:plant-lab-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-lab-journey",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 12,
+      "records": {
+        "desktop": "37887727775:plant-lab-journey-desktop",
+        "mobile": "37887727775:plant-lab-journey-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-lab-results-empty",
+      "routes": [
+        "R15"
+      ],
+      "reviewedOverview": true,
+      "sheet": 12,
+      "records": {
+        "desktop": "37883706813:plant-lab-results-empty-desktop",
+        "mobile": "37883706813:plant-lab-results-empty-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-mission-01-anatomy--flower-anatomy-exploration",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 13,
+      "records": {
+        "desktop": "37887727775:plant-mission-01-anatomy--flower-anatomy-exploration-desktop",
+        "mobile": "37887727775:plant-mission-01-anatomy--flower-anatomy-exploration-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-mission-01-anatomy-complete--both-flower-parts-inspected-discovery-saved",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 13,
+      "records": {
+        "desktop": "37887727775:plant-mission-01-anatomy-complete--both-flower-parts-inspected-discovery-saved-desktop",
+        "mobile": "37887727775:plant-mission-01-anatomy-complete--both-flower-parts-inspected-discovery-saved-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-mission-02-pollination--pollination-controls-before-a-trial",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 13,
+      "records": {
+        "desktop": "37887727775:plant-mission-02-pollination--pollination-controls-before-a-trial-desktop",
+        "mobile": "37887727775:plant-mission-02-pollination--pollination-controls-before-a-trial-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 13,
+      "records": {
+        "desktop": "37887727775:plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event-desktop",
+        "mobile": "37887727775:plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-mission-04-fruit--fruit-development-before-wind-dispersal",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 13,
+      "records": {
+        "desktop": "37887727775:plant-mission-04-fruit--fruit-development-before-wind-dispersal-desktop",
+        "mobile": "37887727775:plant-mission-04-fruit--fruit-development-before-wind-dispersal-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-mission-05-propagation--vegetative-propagation-controls",
+      "routes": [
+        "R14"
+      ],
+      "reviewedOverview": true,
+      "sheet": 13,
+      "records": {
+        "desktop": "37887727775:plant-mission-05-propagation--vegetative-propagation-controls-desktop",
+        "mobile": "37887727775:plant-mission-05-propagation--vegetative-propagation-controls-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-results",
+      "routes": [
+        "R15"
+      ],
+      "reviewedOverview": true,
+      "sheet": 13,
+      "records": {
+        "desktop": "37883706813:plant-results-desktop",
+        "mobile": "37883706813:plant-results-mobile"
+      }
+    },
+    {
+      "stateKey": "plant-results-populated",
+      "routes": [
+        "R15"
+      ],
+      "reviewedOverview": true,
+      "sheet": 13,
+      "records": {
+        "desktop": "37885730251:plant-results-populated-desktop",
+        "mobile": "37885730251:plant-results-populated-mobile"
+      }
+    },
+    {
+      "stateKey": "practice-invalid",
+      "routes": [
+        "R01"
+      ],
+      "reviewedOverview": true,
+      "sheet": 14,
+      "records": {
+        "desktop": "37883706813:practice-invalid-desktop",
+        "mobile": "37883706813:practice-invalid-mobile"
+      }
+    },
+    {
+      "stateKey": "practice-link-copied--practice-invitation-link-copied-to-clipboard",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 14,
+      "records": {
+        "desktop": "37885730251:practice-link-copied--practice-invitation-link-copied-to-clipboard-desktop",
+        "mobile": "37885730251:practice-link-copied--practice-invitation-link-copied-to-clipboard-mobile"
+      }
+    },
+    {
+      "stateKey": "practice-link-manual-fallback--clipboard-denied-readonly-link-available-for-manual-copying",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 14,
+      "records": {
+        "desktop": "37885730251:practice-link-manual-fallback--clipboard-denied-readonly-link-available-for-manual-copying-desktop",
+        "mobile": "37885730251:practice-link-manual-fallback--clipboard-denied-readonly-link-available-for-manual-copying-mobile"
+      }
+    },
+    {
+      "stateKey": "practice-link-share-outcomes",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 14,
+      "records": {
+        "desktop": "37885730251:practice-link-share-outcomes-desktop",
+        "mobile": "37885730251:practice-link-share-outcomes-mobile"
+      }
+    },
+    {
+      "stateKey": "practice-mismatch",
+      "routes": [
+        "R01"
+      ],
+      "reviewedOverview": true,
+      "sheet": 14,
+      "records": {
+        "desktop": "37883706813:practice-mismatch-desktop",
+        "mobile": "37883706813:practice-mismatch-mobile"
+      }
+    },
+    {
+      "stateKey": "practice-preview",
+      "routes": [
+        "R01"
+      ],
+      "reviewedOverview": true,
+      "sheet": 14,
+      "records": {
+        "desktop": "37883706813:practice-preview-desktop",
+        "mobile": "37883706813:practice-preview-mobile"
+      }
+    },
+    {
+      "stateKey": "profile",
+      "routes": [
+        "R20"
+      ],
+      "reviewedOverview": true,
+      "sheet": 14,
+      "records": {
+        "desktop": "37883706813:profile-desktop",
+        "mobile": "37883706813:profile-mobile"
+      }
+    },
+    {
+      "stateKey": "profile-admin-controls",
+      "routes": [
+        "R20"
+      ],
+      "reviewedOverview": true,
+      "sheet": 14,
+      "records": {
+        "desktop": "37885730251:profile-admin-controls-desktop",
+        "mobile": "37885730251:profile-admin-controls-mobile"
+      }
+    },
+    {
+      "stateKey": "profile-menu",
+      "routes": [
+        "R21"
+      ],
+      "reviewedOverview": true,
+      "sheet": 15,
+      "records": {
+        "desktop": "37883706813:profile-menu-desktop",
+        "mobile": "37883706813:profile-menu-mobile"
+      }
+    },
+    {
+      "stateKey": "profile-save-feedback",
+      "routes": [
+        "R20"
+      ],
+      "reviewedOverview": true,
+      "sheet": 15,
+      "records": {
+        "desktop": "37885730251:profile-save-feedback-desktop",
+        "mobile": "37885730251:profile-save-feedback-mobile"
+      }
+    },
+    {
+      "stateKey": "profile-save-feedback--changed-curriculum-saved",
+      "routes": [
+        "R20"
+      ],
+      "reviewedOverview": true,
+      "sheet": 15,
+      "records": {
+        "desktop": "37885730251:profile-save-feedback--changed-curriculum-saved-desktop",
+        "mobile": "37885730251:profile-save-feedback--changed-curriculum-saved-mobile"
+      }
+    },
+    {
+      "stateKey": "profile-setup",
+      "routes": [
+        "R19"
+      ],
+      "reviewedOverview": true,
+      "sheet": 15,
+      "records": {
+        "desktop": "37883706813:profile-setup-desktop",
+        "mobile": "37883706813:profile-setup-mobile"
+      }
+    },
+    {
+      "stateKey": "question-bank-priority-detail",
+      "routes": [
+        "R10"
+      ],
+      "reviewedOverview": true,
+      "sheet": 15,
+      "records": {
+        "desktop": "37885730251:question-bank-priority-detail-desktop",
+        "mobile": "37885730251:question-bank-priority-detail-mobile"
+      }
+    },
+    {
+      "stateKey": "question-bank-priority-filter-empty--no-matching-priorities",
+      "routes": [
+        "R10"
+      ],
+      "reviewedOverview": true,
+      "sheet": 15,
+      "records": {
+        "desktop": "37885730251:question-bank-priority-filter-empty--no-matching-priorities-desktop",
+        "mobile": "37885730251:question-bank-priority-filter-empty--no-matching-priorities-mobile"
+      }
+    },
+    {
+      "stateKey": "question-bank-priority-no-results",
+      "routes": [
+        "R10"
+      ],
+      "reviewedOverview": true,
+      "sheet": 15,
+      "records": {
+        "desktop": "37885730251:question-bank-priority-no-results-desktop",
+        "mobile": "37885730251:question-bank-priority-no-results-mobile"
+      }
+    },
+    {
+      "stateKey": "question-bank-selected-priority-detail--selected-priority-detail",
+      "routes": [
+        "R10"
+      ],
+      "reviewedOverview": true,
+      "sheet": 15,
+      "records": {
+        "desktop": "37885730251:question-bank-selected-priority-detail--selected-priority-detail-desktop",
+        "mobile": "37885730251:question-bank-selected-priority-detail--selected-priority-detail-mobile"
+      }
+    },
+    {
+      "stateKey": "question-library",
+      "routes": [
+        "R09"
+      ],
+      "reviewedOverview": true,
+      "sheet": 16,
+      "records": {
+        "desktop": "37883706813:question-library-desktop",
+        "mobile": "37883706813:question-library-mobile"
+      }
+    },
+    {
+      "stateKey": "question-library-add-written",
+      "routes": [
+        "R09"
+      ],
+      "reviewedOverview": true,
+      "sheet": 16,
+      "records": {
+        "desktop": "37883706813:question-library-add-written-desktop",
+        "mobile": "37883706813:question-library-add-written-mobile"
+      }
+    },
+    {
+      "stateKey": "question-library-archive-confirmation",
+      "routes": [
+        "R09"
+      ],
+      "reviewedOverview": true,
+      "sheet": 16,
+      "records": {
+        "desktop": "37885730251:question-library-archive-confirmation-desktop",
+        "mobile": "37885730251:question-library-archive-confirmation-mobile"
+      }
+    },
+    {
+      "stateKey": "question-library-archive-confirmation-open--archive-confirmation",
+      "routes": [
+        "R09"
+      ],
+      "reviewedOverview": true,
+      "sheet": 16,
+      "records": {
+        "desktop": "37885730251:question-library-archive-confirmation-open--archive-confirmation-desktop",
+        "mobile": "37885730251:question-library-archive-confirmation-open--archive-confirmation-mobile"
+      }
+    },
+    {
+      "stateKey": "question-library-edit-existing",
+      "routes": [
+        "R09"
+      ],
+      "reviewedOverview": true,
+      "sheet": 16,
+      "records": {
+        "desktop": "37885730251:question-library-edit-existing-desktop",
+        "mobile": "37885730251:question-library-edit-existing-mobile"
+      }
+    },
+    {
+      "stateKey": "question-library-empty-search",
+      "routes": [
+        "R09"
+      ],
+      "reviewedOverview": true,
+      "sheet": 16,
+      "records": {
+        "desktop": "37887727775:question-library-empty-search-desktop",
+        "mobile": "37887727775:question-library-empty-search-mobile"
+      }
+    },
+    {
+      "stateKey": "question-library-empty-search--empty-search-results",
+      "routes": [
+        "R09"
+      ],
+      "reviewedOverview": true,
+      "sheet": 16,
+      "records": {
+        "desktop": "37887727775:question-library-empty-search--empty-search-results-desktop",
+        "mobile": "37887727775:question-library-empty-search--empty-search-results-mobile"
+      }
+    },
+    {
+      "stateKey": "question-library-existing-question-editor--existing-question-edit",
+      "routes": [
+        "R09"
+      ],
+      "reviewedOverview": true,
+      "sheet": 16,
+      "records": {
+        "desktop": "37885730251:question-library-existing-question-editor--existing-question-edit-desktop",
+        "mobile": "37885730251:question-library-existing-question-editor--existing-question-edit-mobile"
+      }
+    },
+    {
+      "stateKey": "question-library-populated",
+      "routes": [
+        "R09"
+      ],
+      "reviewedOverview": true,
+      "sheet": 17,
+      "records": {
+        "desktop": "37883706813:question-library-populated-desktop",
+        "mobile": "37883706813:question-library-populated-mobile"
+      }
+    },
+    {
+      "stateKey": "question-requests",
+      "routes": [
+        "R10"
+      ],
+      "reviewedOverview": true,
+      "sheet": 17,
+      "records": {
+        "desktop": "37883706813:question-requests-desktop",
+        "mobile": "37883706813:question-requests-mobile"
+      }
+    },
+    {
+      "stateKey": "question-review",
+      "routes": [
+        "R12"
+      ],
+      "reviewedOverview": true,
+      "sheet": 17,
+      "records": {
+        "desktop": "37883706813:question-review-desktop",
+        "mobile": "37883706813:question-review-mobile"
+      }
+    },
+    {
+      "stateKey": "question-review-empty-queue",
+      "routes": [
+        "R12"
+      ],
+      "reviewedOverview": true,
+      "sheet": 17,
+      "records": {
+        "desktop": "37887727775:question-review-empty-queue-desktop",
+        "mobile": "37887727775:question-review-empty-queue-mobile"
+      }
+    },
+    {
+      "stateKey": "question-review-empty-queue--no-matching-questions",
+      "routes": [
+        "R12"
+      ],
+      "reviewedOverview": true,
+      "sheet": 17,
+      "records": {
+        "desktop": "37887727775:question-review-empty-queue--no-matching-questions-desktop",
+        "mobile": "37887727775:question-review-empty-queue--no-matching-questions-mobile"
+      }
+    },
+    {
+      "stateKey": "question-review-workbench-states",
+      "routes": [
+        "R12"
+      ],
+      "reviewedOverview": true,
+      "sheet": 17,
+      "records": {
+        "desktop": "37885730251:question-review-workbench-states-desktop",
+        "mobile": "37885730251:question-review-workbench-states-mobile"
+      }
+    },
+    {
+      "stateKey": "question-review-workbench-states--bulk-selection",
+      "routes": [
+        "R12"
+      ],
+      "reviewedOverview": true,
+      "sheet": 17,
+      "records": {
+        "desktop": "37885730251:question-review-workbench-states--bulk-selection-desktop",
+        "mobile": "37885730251:question-review-workbench-states--bulk-selection-mobile"
+      }
+    },
+    {
+      "stateKey": "question-review-workbench-states--expanded-question-details",
+      "routes": [
+        "R12"
+      ],
+      "reviewedOverview": true,
+      "sheet": 17,
+      "records": {
+        "desktop": "37885730251:question-review-workbench-states--expanded-question-details-desktop",
+        "mobile": "37885730251:question-review-workbench-states--expanded-question-details-mobile"
+      }
+    },
+    {
+      "stateKey": "question-review-workbench-states--populated-queue",
+      "routes": [
+        "R12"
+      ],
+      "reviewedOverview": true,
+      "sheet": 18,
+      "records": {
+        "desktop": "37885730251:question-review-workbench-states--populated-queue-desktop",
+        "mobile": "37885730251:question-review-workbench-states--populated-queue-mobile"
+      }
+    },
+    {
+      "stateKey": "question-review-workbench-states--reject-confirmation",
+      "routes": [
+        "R12"
+      ],
+      "reviewedOverview": true,
+      "sheet": 18,
+      "records": {
+        "desktop": "37885730251:question-review-workbench-states--reject-confirmation-desktop",
+        "mobile": "37885730251:question-review-workbench-states--reject-confirmation-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz",
+      "routes": [
+        "R29"
+      ],
+      "reviewedOverview": true,
+      "sheet": 18,
+      "records": {
+        "desktop": "37883706813:quiz-desktop",
+        "mobile": "37883706813:quiz-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-completed",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 18,
+      "records": {
+        "desktop": "37883706813:quiz-completed-desktop",
+        "mobile": "37883706813:quiz-completed-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-empty",
+      "routes": [
+        "R29"
+      ],
+      "reviewedOverview": true,
+      "sheet": 18,
+      "records": {
+        "desktop": "37883706813:quiz-empty-desktop",
+        "mobile": "37883706813:quiz-empty-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-offline-save-recovery",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 18,
+      "records": {
+        "desktop": "37885730251:quiz-offline-save-recovery-desktop",
+        "mobile": "37885730251:quiz-offline-save-recovery-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-run",
+      "routes": [
+        "R31"
+      ],
+      "reviewedOverview": true,
+      "sheet": 18,
+      "records": {
+        "desktop": "37883706813:quiz-run-desktop",
+        "mobile": "37883706813:quiz-run-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-run-active-question",
+      "routes": [
+        "R29"
+      ],
+      "reviewedOverview": true,
+      "sheet": 18,
+      "records": {
+        "desktop": "37886910772:quiz-run-active-question-desktop",
+        "mobile": "37886910772:quiz-run-active-question-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-run-active-question--active-collaborative-run-question-with-timer",
+      "routes": [
+        "R29"
+      ],
+      "reviewedOverview": true,
+      "sheet": 19,
+      "records": {
+        "desktop": "37886910772:quiz-run-active-question--active-collaborative-run-question-with-timer-desktop",
+        "mobile": "37885730251:quiz-run-active-question--active-collaborative-run-question-with-timer-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-run-answer-submitted--run-answer-submitted-and-option-locked",
+      "routes": [
+        "R29"
+      ],
+      "reviewedOverview": true,
+      "sheet": 19,
+      "records": {
+        "desktop": "37886910772:quiz-run-answer-submitted--run-answer-submitted-and-option-locked-desktop",
+        "mobile": "37886910772:quiz-run-answer-submitted--run-answer-submitted-and-option-locked-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-save-offline--failed-save-with-answers-retained",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 19,
+      "records": {
+        "desktop": "37885730251:quiz-save-offline--failed-save-with-answers-retained-desktop",
+        "mobile": "37885730251:quiz-save-offline--failed-save-with-answers-retained-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-selected",
+      "routes": [
+        "R29"
+      ],
+      "reviewedOverview": true,
+      "sheet": 19,
+      "records": {
+        "desktop": "37883706813:quiz-selected-desktop",
+        "mobile": "37883706813:quiz-selected-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-summary-all-answers--saved-result-with-all-five-questions-before-filtering",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 19,
+      "records": {
+        "desktop": "37885730251:quiz-summary-all-answers--saved-result-with-all-five-questions-before-filtering-desktop",
+        "mobile": "37885730251:quiz-summary-all-answers--saved-result-with-all-five-questions-before-filtering-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-summary-empty",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 19,
+      "records": {
+        "desktop": "37885730251:quiz-summary-empty-desktop",
+        "mobile": "37885730251:quiz-summary-empty-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-summary-expanded",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 19,
+      "records": {
+        "desktop": "37883706813:quiz-summary-expanded-desktop",
+        "mobile": "37883706813:quiz-summary-expanded-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-summary-incorrect-filter",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 19,
+      "records": {
+        "desktop": "37885730251:quiz-summary-incorrect-filter-desktop",
+        "mobile": "37885730251:quiz-summary-incorrect-filter-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-summary-incorrect-only--review-filtered-to-the-two-incorrect-answers",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 20,
+      "records": {
+        "desktop": "37885730251:quiz-summary-incorrect-only--review-filtered-to-the-two-incorrect-answers-desktop",
+        "mobile": "37885730251:quiz-summary-incorrect-only--review-filtered-to-the-two-incorrect-answers-mobile"
+      }
+    },
+    {
+      "stateKey": "quiz-summary-saved",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 20,
+      "records": {
+        "desktop": "37883706813:quiz-summary-saved-desktop",
+        "mobile": "37883706813:quiz-summary-saved-mobile"
+      }
+    },
+    {
+      "stateKey": "reports",
+      "routes": [
+        "R37"
+      ],
+      "reviewedOverview": true,
+      "sheet": 20,
+      "records": {
+        "desktop": "37883706813:reports-desktop",
+        "mobile": "37883706813:reports-mobile"
+      }
+    },
+    {
+      "stateKey": "reports-empty",
+      "routes": [
+        "R37"
+      ],
+      "reviewedOverview": true,
+      "sheet": 20,
+      "records": {
+        "desktop": "37883706813:reports-empty-desktop",
+        "mobile": "37883706813:reports-empty-mobile"
+      }
+    },
+    {
+      "stateKey": "reports-expanded-attempt",
+      "routes": [
+        "R30"
+      ],
+      "reviewedOverview": true,
+      "sheet": 20,
+      "records": {
+        "desktop": "37885730251:reports-expanded-attempt-desktop",
+        "mobile": "37885730251:reports-expanded-attempt-mobile"
+      }
+    },
+    {
+      "stateKey": "review-individual-editor",
+      "routes": [
+        "R12"
+      ],
+      "reviewedOverview": true,
+      "sheet": 20,
+      "records": {
+        "desktop": "37885730251:review-individual-editor-desktop",
+        "mobile": "37885730251:review-individual-editor-mobile"
+      }
+    },
+    {
+      "stateKey": "review-individual-editor-open--individual-question-editor",
+      "routes": [
+        "R12"
+      ],
+      "reviewedOverview": true,
+      "sheet": 20,
+      "records": {
+        "desktop": "37885730251:review-individual-editor-open--individual-question-editor-desktop",
+        "mobile": "37885730251:review-individual-editor-open--individual-question-editor-mobile"
+      }
+    },
+    {
+      "stateKey": "run-lobby-guest",
+      "routes": [
+        "R32"
+      ],
+      "reviewedOverview": true,
+      "sheet": 20,
+      "records": {
+        "desktop": "37883706813:run-lobby-guest-desktop",
+        "mobile": "37883706813:run-lobby-guest-mobile"
+      }
+    },
+    {
+      "stateKey": "run-lobby-host",
+      "routes": [
+        "R32"
+      ],
+      "reviewedOverview": true,
+      "sheet": 21,
+      "records": {
+        "desktop": "37883706813:run-lobby-host-desktop",
+        "mobile": "37883706813:run-lobby-host-mobile"
+      }
+    },
+    {
+      "stateKey": "run-missing",
+      "routes": [
+        "R32"
+      ],
+      "reviewedOverview": true,
+      "sheet": 21,
+      "records": {
+        "desktop": "37883706813:run-missing-desktop",
+        "mobile": "37883706813:run-missing-mobile"
+      }
+    },
+    {
+      "stateKey": "syllabus-expanded",
+      "routes": [
+        "R26"
+      ],
+      "reviewedOverview": true,
+      "sheet": 21,
+      "records": {
+        "desktop": "37883706813:syllabus-expanded-desktop",
+        "mobile": "37883706813:syllabus-expanded-mobile"
+      }
+    },
+    {
+      "stateKey": "syllabus-review",
+      "routes": [
+        "R27"
+      ],
+      "reviewedOverview": true,
+      "sheet": 21,
+      "records": {
+        "desktop": "37883706813:syllabus-review-desktop",
+        "mobile": "37883706813:syllabus-review-mobile"
+      }
+    },
+    {
+      "stateKey": "syllabus-review-expanded-editor",
+      "routes": [
+        "R27"
+      ],
+      "reviewedOverview": true,
+      "sheet": 21,
+      "records": {
+        "desktop": "37883706813:syllabus-review-expanded-editor-desktop",
+        "mobile": "37883706813:syllabus-review-expanded-editor-mobile"
+      }
+    },
+    {
+      "stateKey": "syllabus-review-expanded-editor--inline-unsaved-edit",
+      "routes": [
+        "R27"
+      ],
+      "reviewedOverview": true,
+      "sheet": 21,
+      "records": {
+        "desktop": "37883706813:syllabus-review-expanded-editor--inline-unsaved-edit-desktop",
+        "mobile": "37883706813:syllabus-review-expanded-editor--inline-unsaved-edit-mobile"
+      }
+    },
+    {
+      "stateKey": "syllabus-review-expanded-editor--subject-inventory",
+      "routes": [
+        "R27"
+      ],
+      "reviewedOverview": true,
+      "sheet": 21,
+      "records": {
+        "desktop": "37883706813:syllabus-review-expanded-editor--subject-inventory-desktop",
+        "mobile": "37883706813:syllabus-review-expanded-editor--subject-inventory-mobile"
+      }
+    },
+    {
+      "stateKey": "syllabus-review-expanded-editor--subject-preview-open",
+      "routes": [
+        "R27"
+      ],
+      "reviewedOverview": true,
+      "sheet": 21,
+      "records": {
+        "desktop": "37883706813:syllabus-review-expanded-editor--subject-preview-open-desktop",
+        "mobile": "37883706813:syllabus-review-expanded-editor--subject-preview-open-mobile"
+      }
+    },
+    {
+      "stateKey": "ui-preview",
+      "routes": [
+        "R40"
+      ],
+      "reviewedOverview": true,
+      "sheet": 22,
+      "records": {
+        "desktop": "37883706813:ui-preview-desktop",
+        "mobile": "37883706813:ui-preview-mobile"
+      }
+    },
+    {
+      "stateKey": "user-expanded",
+      "routes": [
+        "R39"
+      ],
+      "reviewedOverview": true,
+      "sheet": 22,
+      "records": {
+        "desktop": "37883706813:user-expanded-desktop",
+        "mobile": "37883706813:user-expanded-mobile"
+      }
+    },
+    {
+      "stateKey": "user-list",
+      "routes": [
+        "R39"
+      ],
+      "reviewedOverview": true,
+      "sheet": 22,
+      "records": {
+        "desktop": "37883706813:user-list-desktop",
+        "mobile": "37883706813:user-list-mobile"
+      }
+    }
+  ],
+  "detailRegions": [
+    {
+      "state": "landing",
+      "view": "mobile",
+      "recordId": "37883706813:landing-mobile",
+      "source": "screens/2026-10-09-baseline/37883706813/landing/mobile.png",
+      "box": [
+        0,
+        900,
+        390,
+        1900
+      ],
+      "reviewedAtNativeSize": true
+    },
+    {
+      "state": "landing",
+      "view": "mobile",
+      "recordId": "37883706813:landing-mobile",
+      "source": "screens/2026-10-09-baseline/37883706813/landing/mobile.png",
+      "box": [
+        0,
+        1500,
+        390,
+        2500
+      ],
+      "reviewedAtNativeSize": true
+    },
+    {
+      "state": "plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event",
+      "view": "mobile",
+      "recordId": "37887727775:plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event-mobile",
+      "source": "screens/2026-10-09-baseline/37887727775/plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event/mobile.png",
+      "box": [
+        0,
+        0,
+        390,
+        1000
+      ],
+      "reviewedAtNativeSize": true
+    },
+    {
+      "state": "current-lab-voltage-result--voltage-changed-with-live-current-reading",
+      "view": "mobile",
+      "recordId": "37887727775:current-lab-voltage-result--voltage-changed-with-live-current-reading-mobile",
+      "source": "screens/2026-10-09-baseline/37887727775/current-lab-voltage-result--voltage-changed-with-live-current-reading/mobile.png",
+      "box": [
+        0,
+        450,
+        390,
+        1450
+      ],
+      "reviewedAtNativeSize": true
+    },
+    {
+      "state": "reports",
+      "view": "mobile",
+      "recordId": "37883706813:reports-mobile",
+      "source": "screens/2026-10-09-baseline/37883706813/reports/mobile.png",
+      "box": [
+        0,
+        850,
+        390,
+        1850
+      ],
+      "reviewedAtNativeSize": true
+    },
+    {
+      "state": "reports",
+      "view": "mobile",
+      "recordId": "37883706813:reports-mobile",
+      "source": "screens/2026-10-09-baseline/37883706813/reports/mobile.png",
+      "box": [
+        0,
+        1600,
+        390,
+        2600
+      ],
+      "reviewedAtNativeSize": true
+    },
+    {
+      "state": "syllabus-review-expanded-editor--inline-unsaved-edit",
+      "view": "mobile",
+      "recordId": "37883706813:syllabus-review-expanded-editor--inline-unsaved-edit-mobile",
+      "source": "screens/2026-10-09-baseline/37883706813/syllabus-review-expanded-editor--inline-unsaved-edit/mobile.png",
+      "box": [
+        0,
+        55536,
+        390,
+        56736
+      ],
+      "reviewedAtNativeSize": true
+    },
+    {
+      "state": "syllabus-review-expanded-editor--inline-unsaved-edit",
+      "view": "desktop",
+      "recordId": "37883706813:syllabus-review-expanded-editor--inline-unsaved-edit-desktop",
+      "source": "screens/2026-10-09-baseline/37883706813/syllabus-review-expanded-editor--inline-unsaved-edit/desktop.png",
+      "box": [
+        0,
+        24562,
+        1440,
+        25562
+      ],
+      "reviewedAtNativeSize": true
+    },
+    {
+      "state": "question-library-archive-confirmation-open--archive-confirmation",
+      "view": "mobile",
+      "recordId": "37885730251:question-library-archive-confirmation-open--archive-confirmation-mobile",
+      "source": "screens/2026-10-09-baseline/37885730251/question-library-archive-confirmation-open--archive-confirmation/mobile.png",
+      "box": [
+        0,
+        1058,
+        390,
+        2008
+      ],
+      "reviewedAtNativeSize": true
+    },
+    {
+      "state": "question-review-workbench-states--bulk-selection",
+      "view": "mobile",
+      "recordId": "37885730251:question-review-workbench-states--bulk-selection-mobile",
+      "source": "screens/2026-10-09-baseline/37885730251/question-review-workbench-states--bulk-selection/mobile.png",
+      "box": [
+        0,
+        0,
+        390,
+        1000
+      ],
+      "reviewedAtNativeSize": true
+    },
+    {
+      "state": "question-review-workbench-states--bulk-selection",
+      "view": "mobile",
+      "recordId": "37885730251:question-review-workbench-states--bulk-selection-mobile",
+      "source": "screens/2026-10-09-baseline/37885730251/question-review-workbench-states--bulk-selection/mobile.png",
+      "box": [
+        0,
+        7991,
+        390,
+        8991
+      ],
+      "reviewedAtNativeSize": true
+    }
+  ],
+  "captureCautions": [
+    "Full-page images can paint lazy content or sticky positions differently from a settled scrolled viewport.",
+    "Lower landing art painting and Plant Lab sticky overlap are retained as validation flags, not confirmed production defects.",
+    "No animated quality inference is made from reduced-motion stills."
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "updated": "2026-10-09",
   "baselineCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
-  "currentStage": "Step 4 screen evaluation in progress",
+  "currentStage": "Step 4 complete for review; Step 5 awaits evaluation review",
   "stages": [
     {
       "step": 0,
@@ -31,12 +31,15 @@
     {
       "step": 4,
       "name": "Screen evaluation",
-      "status": "in progress: visual and recorded-journey evaluation"
+      "status": "complete for review: 39 desktop/mobile visual scorecards; bounded journey evidence",
+      "complete": true,
+      "reviewStatus": "awaiting user review",
+      "report": "design-upgrade/evaluations/2026-10-09/README.md"
     },
     {
       "step": 5,
       "name": "Mockups",
-      "status": "pending"
+      "status": "pending user review of evaluation and mockup brief"
     },
     {
       "step": 6,
@@ -44,14 +47,14 @@
       "status": "blocked until user accepts proposed designs"
     }
   ],
-  "nextAction": "Inspect every included route and its selected states; publish criteria v1.1 screen scorecards and prioritized improvement objectives.",
+  "nextAction": "Review the screen ratings and priorities; then begin Step 5 with Dashboard desktop/mobile direction, followed by Quiz Summary and Question Library.",
   "fullAuditCoverage": {
     "stage": 2,
     "status": "complete_for_agreed_scope",
     "includedRouteEntries": 39,
     "excludedRouteEntries": 1
   },
-  "gtopScreensRated": 0,
+  "gtopScreensRated": 39,
   "mockupsAccepted": 0,
   "readinessCaptureCount": 53,
   "evidenceImportFileCount": 70,
@@ -62,7 +65,8 @@
     "Native browser/OS surfaces and exhaustive transient frames are outside the capture contract",
     "Mockup fidelity and interaction validation occur at their agreed stages",
     "Reference evidence is a bounded visual/interaction study, not a student preference study or whole-site accessibility certification",
-    "Brilliant playback-control activation remains unresolved and is excluded as a positive interaction benchmark; Lando and Igloo are contextual/diagnostic only"
+    "Brilliant playback-control activation remains unresolved and is excluded as a positive interaction benchmark; Lando and Igloo are contextual/diagnostic only",
+    "GTOP visual baseline uses reduced-motion, animation-disabled stills; mobile landing imagery and Plant Lab sticky positioning require settled viewport validation before acceptance of those designs"
   ],
   "productionChanged": false,
   "entryPoint": "design-upgrade/README.md",
@@ -127,5 +131,21 @@
     "rubricVersion": "1.1",
     "humanPreferenceStudyConducted": false,
     "userDesignAcceptance": false
+  },
+  "screenEvaluation": {
+    "report": "design-upgrade/evaluations/2026-10-09/README.md",
+    "findings": "design-upgrade/evaluations/2026-10-09/findings.md",
+    "step5Brief": "design-upgrade/evaluations/2026-10-09/step-5-brief.md",
+    "routeEntriesRated": 39,
+    "visualScores": 78,
+    "associatedStatePairsReviewed": 171,
+    "reviewDepth": "All associated states at overview level; each primary route pair and targeted full-size details",
+    "boundedJourneyAssessments": 10,
+    "overallJourneyScoresAssigned": 0,
+    "reasonTotalsWithheld": "Every journey has at least one unobserved dimension; missing values remain null.",
+    "rubricVersion": "1.1",
+    "acceptedByUser": false,
+    "appSubtreeSha": "40ba0768d1ff822875d423d58880020914f607eb",
+    "applicationChanged": false
   }
 }

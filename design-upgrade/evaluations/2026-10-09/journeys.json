@@ -1,0 +1,306 @@
+{
+  "rubricVersion": "1.1",
+  "dimensions": [
+    "nextAction",
+    "stateFeedback",
+    "informationNavigation",
+    "repeatedUseGrowth",
+    "recoveryContinuity"
+  ],
+  "weights": [
+    0.25,
+    0.25,
+    0.2,
+    0.2,
+    0.1
+  ],
+  "journeys": [
+    {
+      "id": "J01",
+      "name": "Ordinary practice → saved review → progress, including interrupted save",
+      "dimensions": [
+        8,
+        8,
+        6,
+        null,
+        8
+      ],
+      "evidenceStates": [
+        "quiz-selected",
+        "quiz-completed",
+        "quiz-save-offline--failed-save-with-answers-retained",
+        "quiz-offline-save-recovery",
+        "quiz-summary-expanded",
+        "quiz-summary-incorrect-only--review-filtered-to-the-two-incorrect-answers",
+        "reports-expanded-attempt"
+      ],
+      "observedSteps": "Answer five questions → Submit → saved result. Separately, take a two-question quiz offline → failed-save state with answers retained → reconnect → Try saving again → saved confirmation. Open an answer explanation, filter a saved 3/5 result to two incorrect answers, and open an attempt from Reports.",
+      "scoreReason": "Next/submit actions and storage feedback are explicit. Recovery preserves the completed work and gives a specific retry. Mobile result/history composition delays the learning detail, reducing information-load score.",
+      "notObserved": "Successful Retry Incorrect execution, retrieval as history grows, multi-visit continuity and real learner comprehension were not observed. Repeated-use/growth and total withheld.",
+      "benchmark": [
+        "trust",
+        "brilliant"
+      ],
+      "total": null,
+      "scope": "Recorded isolated Chromium interactions on desktop and mobile; evaluator judgment; no real-user study."
+    },
+    {
+      "id": "J02",
+      "name": "Invitation and return cue / share fallback",
+      "dimensions": [
+        8,
+        8,
+        6,
+        null,
+        7
+      ],
+      "evidenceStates": [
+        "practice-preview",
+        "practice-mismatch",
+        "practice-invalid",
+        "invited-quiz-in-progress--first-invitation-question-answered",
+        "invited-quiz-saved-offer--saved-five-question-result-and-voluntary-return-offer",
+        "invitation-dashboard-return-cue--dashboard-card-with-invitation-revisit-saved-for-tomorrow",
+        "practice-link-copied--practice-invitation-link-copied-to-clipboard",
+        "practice-link-manual-fallback--clipboard-denied-readonly-link-available-for-manual-copying"
+      ],
+      "observedSteps": "Admin-capable fixture starts invitation → answers five → saved result → voluntarily keeps practice on dashboard → return cue appears. Separately, custom-quiz invitation copy succeeds, then a deliberately denied clipboard exposes a manual link. A learner with mismatched curriculum is redirected to the explanatory preview.",
+      "scoreReason": "The scope and completion state are specific, with a meaningful voluntary return cue. Clipboard failure has an observed fallback. The long mobile quiz/summary sequence weakens proximity to the next action.",
+      "notObserved": "Native Google sign-in, matched-curriculum learner handoff, actual sharing to another person, next-day return/expiry and reload continuity were not tested. Clipboard denial was synthetic.",
+      "benchmark": [
+        "brilliant",
+        "linear"
+      ],
+      "total": null,
+      "scope": "Recorded isolated Chromium interactions on desktop and mobile; evaluator judgment; no real-user study."
+    },
+    {
+      "id": "J03",
+      "name": "Paper retrieval and status inspection",
+      "dimensions": [
+        7,
+        7,
+        6,
+        6,
+        null
+      ],
+      "evidenceStates": [
+        "paper-register-needs-action",
+        "paper-register-in-progress",
+        "paper-register-ready",
+        "paper-register-no-results",
+        "paper-register-older",
+        "paper-updates",
+        "paper-chat-history",
+        "paper-revision",
+        "paper-answer-key"
+      ],
+      "observedSteps": "Activate three register status tabs; search a deliberately unmatched phrase; load older records and assert more than 30 rows; open Updates, saved record activity, revision editor and teacher answer-key view.",
+      "scoreReason": "The record/state vocabulary is specific and retrieval has observed filters plus older-record loading. The repeated mobile header and long appended rows slow comparison. These are bounded retrieval observations over 66 seeded conversations.",
+      "notObserved": "Create/reply/retry/cancel submissions, actual asynchronous processing, clear-search action, persistence after interruption and native printing were not observed. Seeded error states establish appearance only.",
+      "benchmark": [
+        "primer",
+        "twks",
+        "linear"
+      ],
+      "total": null,
+      "scope": "Recorded isolated Chromium interactions on desktop and mobile; evaluator judgment; no real-user study."
+    },
+    {
+      "id": "J04",
+      "name": "Manual generator to paper preview",
+      "dimensions": [
+        7,
+        7,
+        6,
+        null,
+        null
+      ],
+      "evidenceStates": [
+        "paper-generator-stages--stage-1-format",
+        "paper-generator-stages--stage-2-syllabus-and-sections",
+        "paper-generator-stages--stage-3-coverage",
+        "paper-generator-stages--generated-draft-preview",
+        "paper-generator-saved-papers--saved-draft-list"
+      ],
+      "observedSteps": "Select format → choose ICSE/class9/Biology/Cells and a one-question section → Check availability → Preview paper; separately open Saved papers and wait for the loaded draft list.",
+      "scoreReason": "Stages and coverage consequence are clear; repeated page navigation competes with current-step content on mobile.",
+      "notObserved": "Save/open/resume draft, insufficient coverage, complex plans, print output and failed-save recovery were not exercised.",
+      "benchmark": [
+        "linear",
+        "primer"
+      ],
+      "total": null,
+      "scope": "Recorded isolated Chromium interactions on desktop and mobile; evaluator judgment; no real-user study."
+    },
+    {
+      "id": "J05",
+      "name": "Admin question/curriculum inspection and local editing",
+      "dimensions": [
+        6,
+        7,
+        5,
+        5,
+        null
+      ],
+      "evidenceStates": [
+        "question-review-workbench-states--bulk-selection",
+        "question-review-workbench-states--reject-confirmation",
+        "review-individual-editor-open--individual-question-editor",
+        "question-review-empty-queue--no-matching-questions",
+        "question-library-existing-question-editor--existing-question-edit",
+        "question-library-archive-confirmation-open--archive-confirmation",
+        "question-library-empty-search--empty-search-results",
+        "add-mcq-invalid-json-feedback--invalid-json-snackbar",
+        "add-mcq-parsed-preview-visible--parsed-mcq-preview",
+        "manage-syllabus-inline-edit--inline-row-edit",
+        "syllabus-review-expanded-editor--inline-unsaved-edit"
+      ],
+      "observedSteps": "Expand question → select loaded review rows → open rejection confirmation without applying; open/close individual editor. Open/cancel library editing and archive confirmation; filter to no matches. Parse valid and invalid MCQ input. Open a syllabus subject and type an unsaved verification note; open an inline syllabus row editor.",
+      "scoreReason": "Selection counts and flagged-approval restrictions are explicit. Navigation overhead, raw JSON editing, narrow confirmation controls and the large subject inventory weaken clarity and repeated inspection.",
+      "notObserved": "No approval, rejection, archive, syllabus save or import save was executed. Query pagination beyond the first review batch, cross-session recovery and production volumes remain untested. The growth score reflects the observed 50-row review/273-subject fixture only.",
+      "benchmark": [
+        "primer",
+        "twks"
+      ],
+      "total": null,
+      "scope": "Recorded isolated Chromium interactions on desktop and mobile; evaluator judgment; no real-user study."
+    },
+    {
+      "id": "J06",
+      "name": "Plant Lab guided practice",
+      "dimensions": [
+        8,
+        8,
+        7,
+        null,
+        null
+      ],
+      "evidenceStates": [
+        "plant-mission-01-anatomy-complete--both-flower-parts-inspected-discovery-saved",
+        "plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial",
+        "plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event",
+        "plant-mission-04-fruit--fruit-development-before-wind-dispersal",
+        "plant-mission-05-propagation--vegetative-propagation-controls",
+        "plant-discovery-summary--five-discoveries-before-the-knowledge-check",
+        "plant-graded-summary-feedback--graded-summary-with-explanations-and-feedback-form",
+        "plant-feedback-sent--practice-feedback-completion-state"
+      ],
+      "observedSteps": "Use Explore without saving → inspect anther and ovary → choose compatible pollen → inspect map/notebook → follow fertilisation → fruit/dispersal trial → compare propagation → five-question check → grading → local practice feedback completion.",
+      "scoreReason": "Actions produce observations tied to the concept and a recorded discovery; the coherent stage supports guided attention. The mobile scene/controls need scroll-position validation and the summary could prioritize graded reasoning sooner.",
+      "notObserved": "Saving attempts, saved-visit resume, failed-write recovery, normal-motion quality and long-term learning were not observed. Practice feedback stayed local.",
+      "benchmark": [
+        "trust",
+        "bicycle",
+        "des"
+      ],
+      "total": null,
+      "scope": "Recorded isolated Chromium interactions on desktop and mobile; evaluator judgment; no real-user study."
+    },
+    {
+      "id": "J07",
+      "name": "Current Lab guided practice",
+      "dimensions": [
+        8,
+        8,
+        6,
+        null,
+        null
+      ],
+      "evidenceStates": [
+        "current-lab-single-circuit--single-resistor-circuit-controls",
+        "current-lab-voltage-result--voltage-changed-with-live-current-reading",
+        "current-lab-resistance-result--resistance-change-and-current-reading",
+        "current-lab-parallel-circuit--parallel-circuit-with-branch-current-and-voltage-values",
+        "current-lab-graded-reflection--checked-answers-and-usefulness-feedback-form",
+        "current-lab-practice-complete--practice-completion-confirmation"
+      ],
+      "observedSteps": "Make predictions → Try without saving → keyboard-adjust voltage and resistance, observing values and enabled Record observation → change series to parallel → record → five-question check → grading → Finish practice.",
+      "scoreReason": "The manipulation, values and unlocked observation are causally linked. Mobile spatial separation and the long check/review form increase information load.",
+      "notObserved": "Physical touch-drag, normal-motion timing, saved attempts/reload, recovery and retained learning were not observed.",
+      "benchmark": [
+        "bicycle",
+        "trust"
+      ],
+      "total": null,
+      "scope": "Recorded isolated Chromium interactions on desktop and mobile; evaluator judgment; no real-user study."
+    },
+    {
+      "id": "J08",
+      "name": "Profile curriculum save",
+      "dimensions": [
+        7,
+        7,
+        5,
+        null,
+        null
+      ],
+      "evidenceStates": [
+        "profile-save-feedback--changed-curriculum-saved",
+        "profile-save-feedback"
+      ],
+      "observedSteps": "Change Standard9 to10 → Save Changes → visible saved confirmation; restore Standard9 and save.",
+      "scoreReason": "Save feedback is local and explicit, but the mobile edit fields are below a long metadata stack.",
+      "notObserved": "Initial profile setup completion, failed save, reload verification and effects on later practice scope were not tested.",
+      "benchmark": [
+        "linear",
+        "primer"
+      ],
+      "total": null,
+      "scope": "Recorded isolated Chromium interactions on desktop and mobile; evaluator judgment; no real-user study."
+    },
+    {
+      "id": "J09",
+      "name": "Public entry demonstrations",
+      "dimensions": [
+        8,
+        8,
+        7,
+        null,
+        null
+      ],
+      "evidenceStates": [
+        "landing-sample-answer",
+        "landing-circuit-on"
+      ],
+      "observedSteps": "Choose a sample answer → answered state appears. Toggle circuit → lamp-on state and explicit “Circuit closed. Lamp on.” text appear.",
+      "scoreReason": "The page demonstrates learning rather than only promising it. Local visual/text feedback is clear; full mobile section painting is bounded by screenshot behavior.",
+      "notObserved": "Sign-in, normal-motion scroll/pause behavior, repeated use, recovery and actual conversion were not observed. The capture requests reduced motion and disables screenshot animations.",
+      "benchmark": [
+        "brilliant",
+        "trust",
+        "des"
+      ],
+      "total": null,
+      "scope": "Recorded isolated Chromium interactions on desktop and mobile; evaluator judgment; no real-user study."
+    },
+    {
+      "id": "J10",
+      "name": "Active run answer and live-state inspection",
+      "dimensions": [
+        7,
+        6,
+        5,
+        null,
+        null
+      ],
+      "evidenceStates": [
+        "quiz-run-active-question--active-collaborative-run-question-with-timer",
+        "quiz-run-answer-submitted--run-answer-submitted-and-option-locked",
+        "live-player-active",
+        "run-missing",
+        "live-host-active",
+        "live-host-lobby"
+      ],
+      "observedSteps": "Open seeded active run → submit first available answer → observe selected/locked state; a later mobile visit may already be locked because the account/session is shared. Opening an active live-player route redirects to its actual quiz surface. Host, lobby, missing and summary variants are rendered from fixtures.",
+      "scoreReason": "Answer selection has visible feedback, but the seeded host question list fails mobile wrapping and the missing run resembles waiting. The scores cover this narrow observed interaction, not live orchestration.",
+      "notObserved": "Create/join/start/end, synchronized multi-user transition, correct contest timing, reconnect, expiry and result calculation were not exercised. Long timer values are fixture choices.",
+      "benchmark": [
+        "linear",
+        "primer"
+      ],
+      "total": null,
+      "scope": "Recorded isolated Chromium interactions on desktop and mobile; evaluator judgment; no real-user study."
+    }
+  ]
+}

@@ -45,3 +45,11 @@ The [report](references/report.md), [gallery](references/gallery.md) and [intera
 ## D-010 · Begin screen evaluation · Authorized by user · 9 October 2026
 
 After reviewing Step 3 and its lessons, the user said “Very good. Let’s move to the next step now.” The reference base is accepted as on track for Step 4. Evaluate all included GTOP routes using criteria v1.1; preserve separate desktop/mobile craft judgments and bounded journey evidence. This authorizes evaluation, not mockups or application development. Publish to main under D-006.
+
+## D-011 · Step 4 evaluation · Completed for review, not yet accepted · 9 October 2026
+
+All 39 included route entries receive separate desktop/mobile visual scores under unchanged criteria v1.1. The reviewer inspected all 171 associated state pairs at overview level, each primary route pair and targeted native-size details. [The report](evaluations/2026-10-09/README.md) preserves six dimensions, exact screenshot references, what to retain, priorities and named benchmark properties. R05 explicitly shares R07’s alias assessment; R23 stays excluded.
+
+Ten recorded-journey assessments separate observed dimensions from unknowns. Every overall journey total remains withheld because some required evidence is missing. No real-user, motion-performance or accessibility-conformance result is claimed. Sticky/lazy-content ambiguities and legacy-fixture limits remain explicit follow-ups.
+
+The proposed next sequence is Dashboard direction, then Quiz Summary and Question Library, followed by the remaining route families. This is a prepared brief, not user acceptance or authorization to skip the mockup stage. Application source remains unchanged; research/evaluation artifacts are published to main under D-006.

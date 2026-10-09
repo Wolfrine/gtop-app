@@ -1,6 +1,6 @@
 # Evaluation criteria v1.1
 
-**Step 1 framework calibrated in Step 3 · 9 October 2026.** [Benchmark anchors and version notes](../references/calibration.md). Weights and score-band meanings are unchanged. No GTOP screen ratings have been assigned. These are project review criteria, not official Awwwards scores or measured user-research results.
+**Step 1 framework calibrated in Step 3 · 9 October 2026.** [Benchmark anchors and version notes](../references/calibration.md). Weights and score-band meanings are unchanged. At the time of calibration no GTOP screen ratings had been assigned. The subsequent [Step 4 ratings](2026-10-09/README.md) use these unchanged weights and anchors. These are project review criteria, not official Awwwards scores or measured user-research results.
 
 ## What a good GTOP screen should achieve
 

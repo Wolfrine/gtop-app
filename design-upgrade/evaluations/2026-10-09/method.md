@@ -16,3 +16,9 @@ Application subtree `40ba0768d1ff822875d423d58880020914f607eb` still matches the
 - Do not infer physical-device performance, human preference, keyboard/contrast conformance or production-data behavior. Label visual flags and fixture-specific behavior clearly.
 - Each material finding includes an observation, exact image/interaction evidence, consequence, priority, improvement objective and confidence. Improvement objectives precede layout prescriptions.
 - Stop after evaluation and the Step 5 brief. No mockups or application development are authorized by an evaluation score.
+
+## Completed review boundary
+
+All 39 included route pairs and 171 associated state pairs were inspected. The [inspection ledger](inspection.json) records overview coverage and targeted native-size crop coordinates; the [board register](boards.json) identifies every derived screenshot. All 78 visual totals are available. Ten bounded journey assessments use recorded executed actions; all overall totals are withheld because each flow has an unobserved dimension. No fresh capture run or application modification was required.
+
+Capture settings requested reduced motion and disabled animations during screenshots. This evaluation therefore does not rate GTOP’s normal-motion quality or smoothness. Mobile landing lower-image painting and Plant Lab sticky-scene overlap need settled viewport validation, not an assumed defect or an invented motion rating.

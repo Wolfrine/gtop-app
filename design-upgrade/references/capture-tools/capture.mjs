@@ -14,13 +14,13 @@ const sites=[
  ['trust','https://ncase.me/trust/'], ['primer','https://primer.style/product/components/data-table/'],
  ['brilliant','https://brilliant.org/']
 ];
-const browser=await chromium.launch({headless:true});
+const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});
 const results=[];
 async function capture([id,url],width){
  const viewport={width,height:width===390?844:1000};
  const dir=path.join(root,id,String(width));await fs.mkdir(dir,{recursive:true});
  const ctx=await browser.newContext({viewport,deviceScaleFactor:1,isMobile:width===390,hasTouch:width===390,reducedMotion:'no-preference',recordVideo:{dir,size:width===390?viewport:{width:960,height:667}}});
- const page=await ctx.newPage();const start=Date.now();
+ const page=await ctx.newPage();page.setDefaultTimeout(12000);const start=Date.now();
  const record={id,url,viewport,run,capturedAt:new Date().toISOString(),browserVersion:browser.version(),sourceCommit:process.env.GITHUB_SHA,mode:'normal',actions:[],files:[],errors:[]};
  const log=(action,extra={})=>record.actions.push({elapsedMs:Date.now()-start,action,...extra});
  page.on('pageerror',e=>{if(record.errors.length<8)record.errors.push(e.message.slice(0,400));});
@@ -52,8 +52,8 @@ async function capture([id,url],width){
  finally{
   log('end');const video=page.video();await ctx.close();
   if(video){const old=await video.path();const target=path.join(dir,'sequence.webm');await fs.rename(old,target);const b=await fs.readFile(target);record.files.push({path:path.relative(root,target),sha256:crypto.createHash('sha256').update(b).digest('hex'),bytes:b.length,kind:'video'});}
-  await fs.writeFile(path.join(dir,'record.json'),JSON.stringify(record,null,2)+'\n');results.push(record);console.log(JSON.stringify({id,width,failure:record.failure||record.block||null,files:record.files.length}));
+  await fs.writeFile(path.join(dir,'record.json'),JSON.stringify(record,null,2)+'\n');results.push(record);await fs.writeFile(path.join(root,'manifest.json'),JSON.stringify({run,records:results},null,2)+'\n');console.log(JSON.stringify({id,width,failure:record.failure||record.block||null,files:record.files.length}));
  }
 }
-try{for(let i=0;i<sites.length;i+=3){await Promise.all(sites.slice(i,i+3).map(async s=>{await capture(s,1440);await capture(s,390);}));}}
-finally{await browser.close();await fs.writeFile(path.join(root,'manifest.json'),JSON.stringify({run,capturedAt:new Date().toISOString(),sourceCommit:process.env.GITHUB_SHA,limitations:['Mobile Chromium emulation, not physical devices','Three independent sites captured concurrently; no performance benchmark','Recorded video is scaled on desktop; PNGs are native viewport resolution','Generic scroll study; control-specific interaction is a separate pass'],records:results},null,2)+'\n');}
+try{for(const s of sites.filter(s=>!process.env.REFERENCE_SITE||s[0]===process.env.REFERENCE_SITE)){await capture(s,1440);await capture(s,390);}}
+finally{await browser.close();await fs.writeFile(path.join(root,'manifest.json'),JSON.stringify({run,capturedAt:new Date().toISOString(),sourceCommit:process.env.GITHUB_SHA,limitations:['Mobile Chromium emulation, not physical devices','Sites captured on isolated CI runners; no performance benchmark','Recorded video is scaled on desktop; PNGs are native viewport resolution','Generic scroll study; control-specific interaction is a separate pass'],records:results},null,2)+'\n');}

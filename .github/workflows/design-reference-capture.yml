@@ -1,0 +1,47 @@
+name: GTOP design reference evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [design-upgrade/references/capture-tools/capture.mjs]
+permissions:
+  contents: write
+concurrency:
+  group: gtop-design-reference-evidence
+  cancel-in-progress: false
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install isolated public capture dependencies
+        run: |
+          mkdir -p /tmp/gtop-reference-capture
+          cd /tmp/gtop-reference-capture
+          npm init -y
+          npm install --save-exact playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Capture public references with motion preserved
+        run: |
+          cd /tmp/gtop-reference-capture
+          REFERENCE_OUTPUT="$GITHUB_WORKSPACE/design-upgrade/references/evidence/2026-10-09/run-$GITHUB_RUN_ID" node "$GITHUB_WORKSPACE/design-upgrade/references/capture-tools/capture.mjs"
+      - name: Upload complete capture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gtop-reference-evidence
+          path: design-upgrade/references/evidence/2026-10-09/run-*
+          retention-days: 30
+          if-no-files-found: error
+      - name: Preserve originals on main
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "design-upgrade/references/evidence/2026-10-09/run-$GITHUB_RUN_ID"
+          git commit -m "Preserve Step 3 reference captures from run $GITHUB_RUN_ID"
+          git pull --rebase origin main
+          git push origin HEAD:main

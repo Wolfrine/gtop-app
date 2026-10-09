@@ -1,7 +1,7 @@
 {
   "updated": "2026-10-09",
   "baselineCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
-  "currentStage": "Step 2 complete; Step 3 ready",
+  "currentStage": "Step 3 reference research in progress",
   "stages": [
     {
       "step": 0,
@@ -24,7 +24,7 @@
     {
       "step": 3,
       "name": "Reference research",
-      "status": "ready to begin"
+      "status": "in progress: source discovery and evidence collection"
     },
     {
       "step": 4,
@@ -42,7 +42,7 @@
       "status": "blocked until user accepts proposed designs"
     }
   ],
-  "nextAction": "Step 3: inspect premium reference sites, including expressive public sites and relevant learning/product/admin interfaces; record transferable qualities and calibrate the evaluation criteria. Action Plan is excluded because the user confirmed the page is not in use.",
+  "nextAction": "Inspect reference captures, select the final benchmark set, record transferable qualities and limitations, then calibrate evaluation anchors.",
   "fullAuditCoverage": {
     "stage": 2,
     "status": "complete_for_agreed_scope",

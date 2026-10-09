@@ -1,9 +1,9 @@
 # Reference research
 
-Step 3 has not begun. No comparison set has been accepted.
+**Step 3 in progress · 9 October 2026.**
 
-Readiness verified capture access to the Awwwards listing and twks. Those images are access evidence, not a finished benchmark study. The early twks loading-screen capture and incomplete Nightjar captures are excluded from comparison evidence.
+[Method and completion gate](method.md) · [Capture procedure](capture-tools/capture.mjs)
 
-For each future reference record, save: canonical URL, source/award attribution if verified, capture date, desktop/mobile evidence, the relevant task or design quality, observed interaction/motion, why it fits GTOP, and limits of that comparison. Preserve captures with their original source attribution.
+The user authorized this research after reviewing the approach to motion, aesthetic analysis and human preference. New evidence is being collected before selecting the final benchmark set. Readiness captures remain access evidence rather than completed comparison studies.
 
-The set should cover public art direction and appropriate product, learning and admin interactions. Record transferable principles instead of copying layouts indiscriminately. Gallery thumbnails alone do not establish the quality of a live experience.
+Research includes expressive sites, learning interactions, product presentation and dense interface components. No GTOP screen has been rated and no application code is changed. Action Plan remains excluded.

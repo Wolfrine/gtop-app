@@ -53,6 +53,8 @@ export async function captureAdminExtraStates(
     await page.getByRole('button', { name: 'Parse MCQs', exact: true }).click();
     await page.getByText('MCQs parsed successfully!', { exact: true }).waitFor({ state: 'visible' });
     await page.locator('.mcq-preview').waitFor({ state: 'visible' });
+    // Snackbar overlays are temporary feedback, not a modal page boundary.
+    await page.locator('mat-snack-bar-container').waitFor({ state: 'hidden', timeout: 15000 });
     await capture(page, 'add-mcq-parsed-preview-visible', role, 'parsed-mcq-preview');
   });
 

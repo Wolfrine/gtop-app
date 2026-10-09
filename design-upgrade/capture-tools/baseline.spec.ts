@@ -12,6 +12,7 @@ import {captureLabStates} from './lab-captures';
 import {captureAdminStates} from './admin-captures';
 import {captureAdminExtraStates} from './admin-extra-captures';
 import {captureLearnerExtraStates} from './learner-extra-captures';
+import {captureFinalAdminStates} from './final-admin-captures';
 import {warmPracticeSummary} from './practice-summary-fixture';
 import * as currentLesson from '../src/app/pages/learning-lab/lesson';
 import * as plantLesson from '../src/app/pages/learning-lab/plant-lesson';
@@ -109,6 +110,7 @@ test('complete GTOP baseline route and state capture',async({browser})=>{
    await captureLearnerExtraStates(scenario,browser,width,capture,accounts);
    await captureLabStates(scenario,browser,width,capture,accounts);
    await captureAdminStates(scenario,browser,width,capture,accounts);
+   await captureFinalAdminStates(scenario,browser,width,capture,accounts);
    await scenario(browser,width,'navigation-learner','learner','/dashboard',async p=>{await p.getByRole('button',{name:'Toggle navigation'}).click();});
    await scenario(browser,width,'navigation-admin','admin','/admin',async p=>{await p.getByRole('button',{name:'Toggle navigation'}).click();});
    await scenario(browser,width,'profile-menu','learner','/dashboard',async p=>{await p.getByRole('button',{name:'Open profile menu'}).click();});

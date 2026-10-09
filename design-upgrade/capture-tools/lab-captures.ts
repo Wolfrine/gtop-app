@@ -81,7 +81,9 @@ export async function captureLabStates(
     await page.waitForFunction(() => document.querySelectorAll('.pl-small-progress span.found').length === 2);
     // Once the queued practice writes settle, the completion copy replaces the
     // transient instruction. Wait on the next action rather than stale prose.
-    await page.locator('.pl-action-bar button.pl-primary').filter({ hasText: 'Carry some pollen' }).waitFor();
+    const carryPollen = page.locator('.pl-action-bar button.pl-primary').filter({ hasText: 'Carry some pollen' });
+    await carryPollen.waitFor({ state: 'visible' });
+    await captureState(capture, 'plant-mission-01-anatomy-complete', 'Both flower parts inspected; discovery saved')(page);
     await page.locator('.pl-action-bar button.pl-primary').click();
 
     // Mission 2: compatible pollen reaches a stigma. Capture the discoveries map
@@ -92,8 +94,17 @@ export async function captureLabStates(
     await page.locator('nav.pl-map').waitFor();
     await captureState(capture, 'plant-journey-map', 'Five-stop journey map open')(page);
     await page.locator('.pl-current-stop').click();
-    await page.getByRole('button', { name: 'Another plant of the same species' }).click();
-    await page.getByRole('button', { name: 'Try the stigma', exact: true }).click();
+    await page.getByRole('button', { name: 'Another plant of the same species', exact: true }).click();
+    await page.locator('.pl-source-grid button[aria-pressed="true"]').waitFor({ state: 'visible' });
+    const stigmaLanding = page.locator('.pl-landing-options button').filter({ hasText: 'Try the stigma' });
+    if (await stigmaLanding.isVisible()) {
+      await stigmaLanding.click();
+    } else {
+      // At narrow widths the explicit landing choices may be outside the
+      // responsive control surface; the sticky primary action delivers pollen
+      // to the same stigma target in this mission.
+      await page.locator('.pl-action-bar button.pl-primary').filter({ hasText: 'Send pollen to the stigma' }).click();
+    }
     await page.locator('.pl-action-bar button.pl-primary').filter({ hasText: 'Follow the pollen' }).waitFor();
     await page.locator('.pl-notebook-button').click();
     await page.locator('aside.pl-notebook').waitFor();
@@ -115,8 +126,11 @@ export async function captureLabStates(
     await page.locator('.pl-action-bar button.pl-primary').click();
     await page.locator('.pl-action-bar button.pl-primary').click();
     await page.locator('.pl-action-bar button.pl-primary').click();
-    await page.getByRole('button', { name: 'Breeze' }).click();
-    await page.getByRole('button', { name: /Release a fruit/ }).click();
+    const breeze = page.locator('.pl-wind-options button').filter({ hasText: 'Breeze' });
+    await breeze.click();
+    await page.locator('.pl-wind-options button[aria-pressed="true"]').filter({ hasText: 'Breeze' }).waitFor({ state: 'visible' });
+    await page.locator('.pl-action-bar button.pl-primary').filter({ hasText: /^Release a fruit/ }).click();
+    await page.getByText('1 of 3 wind conditions explored', { exact: true }).waitFor({ state: 'visible' });
     await page.locator('.pl-action-bar button.pl-primary').filter({ hasText: 'Try another way to grow' }).waitFor();
     await page.locator('.pl-action-bar button.pl-primary').click();
 
@@ -190,7 +204,7 @@ export async function captureLabStates(
     await clickFirstChoice(page.locator('.prediction-strip app-lab-choices'));
     await captureState(capture, 'current-lab-series-circuit', 'Two-resistor series circuit before changing arrangement')(page);
     await page.locator('.mode-selector label').filter({ hasText: 'Parallel' }).click();
-    await page.waitForFunction(() => document.querySelector<HTMLInputElement>('.mode-selector input[type="radio"][value="parallel"]')?.checked === true);
+    await page.locator('.mode-selector label.selected').filter({ hasText: 'Parallel' }).waitFor({ state: 'visible' });
     await waitForRecordEnabled(page, 'Selecting Parallel did not reach the third experiment target.');
     await captureState(capture, 'current-lab-parallel-circuit', 'Parallel circuit with branch current and voltage values')(page);
     await page.getByRole('button', { name: 'Record observation ✓', exact: true }).click();

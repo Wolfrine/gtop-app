@@ -1,9 +1,9 @@
 [
-  "action-plan",
-  "action-plan-edit-existing",
   "add-mcq-parsed-preview",
-  "paper-generator-stages",
-  "current-lab-journey",
   "plant-lab-journey",
-  "quiz-run-active-question"
+  "current-lab-journey",
+  "mcq-management-filtered-empty",
+  "question-library-empty-search",
+  "paper-generator-saved-papers",
+  "question-review-empty-queue"
 ]

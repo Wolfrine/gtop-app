@@ -1,0 +1,50 @@
+[
+  {
+    "runId": "37883706813",
+    "url": "https://github.com/Wolfrine/gtop-app/actions/runs/37883706813",
+    "captureToolCommit": "3d7199b6aca5ef9c92db673ca92a85a8d7f2c141",
+    "applicationSourceCheckpoint": "058729a6fc62d285d5f7abc6d603952466df54d9",
+    "emulatorOriginals": 211,
+    "livePublicOriginals": 2,
+    "scenarioFailures": 32,
+    "artifactId": 11596326630,
+    "transferArchiveSha256": "2eaa389f3ad7947b6c735bc6361b27cc46164bea4663582e642824884d4dd7aa",
+    "permanentEvidence": "2026-10-09/37883706813/manifest.json"
+  },
+  {
+    "runId": "37885730251",
+    "url": "https://github.com/Wolfrine/gtop-app/actions/runs/37885730251",
+    "captureToolCommit": "d4c7302055d74c305593deed08179055441e8cce",
+    "applicationSourceCheckpoint": "058729a6fc62d285d5f7abc6d603952466df54d9",
+    "emulatorOriginals": 158,
+    "livePublicOriginals": 2,
+    "scenarioFailures": 10,
+    "artifactId": 11596885939,
+    "transferArchiveSha256": "0f4c211c24c329770f6b3761e3a1509418bbe1bf4f1ffd8ef9d5ceb0c3b5990b",
+    "permanentEvidence": "2026-10-09/37885730251/manifest.json"
+  },
+  {
+    "runId": "37886910772",
+    "url": "https://github.com/Wolfrine/gtop-app/actions/runs/37886910772",
+    "captureToolCommit": "025d8b1aec1ca3a1171ca00412f1899094cb68e9",
+    "applicationSourceCheckpoint": "058729a6fc62d285d5f7abc6d603952466df54d9",
+    "emulatorOriginals": 48,
+    "livePublicOriginals": 2,
+    "scenarioFailures": 6,
+    "artifactId": 11597086828,
+    "transferArchiveSha256": "31e3afa4033def0a0c71f4ad7f3c2193bf56891d9e31bb2d61051b52af8c4b1d",
+    "permanentEvidence": "2026-10-09/37886910772/manifest.json"
+  },
+  {
+    "runId": "37887727775",
+    "url": "https://github.com/Wolfrine/gtop-app/actions/runs/37887727775",
+    "captureToolCommit": "614f833c5ae3b064afd4c4249b49f3d31afb215d",
+    "applicationSourceCheckpoint": "058729a6fc62d285d5f7abc6d603952466df54d9",
+    "emulatorOriginals": 66,
+    "livePublicOriginals": 2,
+    "scenarioFailures": 0,
+    "artifactId": 11596724311,
+    "transferArchiveSha256": "3df9b19136e6cd7e50e6a03d7fa270b07b319232bd9a6f82d9f0c5d64a399c27",
+    "permanentEvidence": "2026-10-09/37887727775/manifest.json"
+  }
+]

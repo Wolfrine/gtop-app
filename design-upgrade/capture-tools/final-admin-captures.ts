@@ -58,6 +58,8 @@ export async function captureFinalAdminStates(
     await page.getByRole('button', { name: 'Saved papers', exact: true }).click();
     const draftsHeading = page.locator('#drafts-heading');
     await draftsHeading.waitFor({ state: 'visible' });
+    // The empty placeholder is also present before the initial query resolves.
+    await page.locator('.qpg-status').waitFor({ state: 'hidden', timeout: 20000 });
     const draftRows = page.locator('.qpg-draft-row');
     const emptyDrafts = page.getByText('Saved papers will appear here for you and other admins.', { exact: true });
     const draftError = page.locator('section[aria-labelledby="drafts-heading"] .qpg-error[role="alert"]');

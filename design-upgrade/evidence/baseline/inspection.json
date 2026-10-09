@@ -1,0 +1,1982 @@
+{
+  "reviewedOn": "2026-10-09",
+  "method": "Root visually inspected contact-sheet overviews for all 483 isolated originals across four runs, plus full-size diagnostic, overlay and selected long-page segments. Live landing pairs are inspected at full size or verified byte-identical to an inspected original. Review validates rendering/state; it is not Step 4 design scoring.",
+  "records": {
+    "37883706813:landing-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:practice-preview-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:practice-mismatch-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:invited-quiz-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:practice-invalid-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:profile-setup-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:profile-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:dashboard-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:dashboard-empty-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:admin-console-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:action-plan-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Action-plan unavailable state rendered; populated list needs follow-up."
+    },
+    "37883706813:mcq-management-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:add-mcq-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:manage-syllabus-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-edit-syllabus--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:syllabus-review-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Long inventory: original preserved; preview/editor is near page end. Detailed mobile top/middle/bottom inspection confirms inline notes field rendered."
+    },
+    "37883706813:logs-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:user-list-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:ui-preview-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-paper-register--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-register-all-alias--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-new--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:paper-legacy-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-paper-chat-queued--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-chat-needs-info--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-chat-error--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-chat-processing--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-chat-cancelled--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-chat-ready--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:paper-view-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-view-missing-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-library-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-requests-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-generator-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-review-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:quiz-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:quiz-empty-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-quiz-summary-empty--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:quiz-summary-saved-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:reports-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:reports-empty-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-host-lobby-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-host-active-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-player-lobby-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-player-active-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Future fixture schedule left this image in lobby; recapture active state.",
+      "auditEligible": false
+    },
+    "37883706813:live-summary-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:run-lobby-host-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:run-lobby-guest-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:run-missing-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-hub-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-admin-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:quiz-run-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:learning-lab-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:plant-lab-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:plant-results-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:current-lab-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:lab-results-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:plant-mission-01-anatomy--flower-anatomy-exploration-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-plant-lab-journey--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:current-lab-predict--fresh-baseline-predictions-and-lesson-steps-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:current-lab-single-circuit--single-resistor-circuit-controls-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:current-lab-voltage-result--voltage-changed-with-live-current-reading-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Label overstates achieved state: slider remained 6 V. Superseded by targeted recapture.",
+      "auditEligible": false
+    },
+    "37883706813:diagnostic-current-lab-journey--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:current-lab-results-empty-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:plant-lab-results-empty-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-generator-stages--stage-1-format-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-paper-generator-stages--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:question-review-workbench-states--populated-queue-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-review-workbench-states--expanded-question-details-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-review-workbench-states--bulk-selection-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-review-workbench-states--reject-confirmation-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Full-page stitching extends beyond modal backdrop; prefer supplementary viewport capture."
+    },
+    "37883706813:question-review-workbench-states-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:mcq-management-edit-state--populated-filtered-bank-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:mcq-management-edit-state--expanded-question-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-mcq-management-edit-state--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:syllabus-review-expanded-editor--subject-inventory-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Long inventory: original preserved; preview/editor is near page end. Detailed mobile top/middle/bottom inspection confirms inline notes field rendered."
+    },
+    "37883706813:syllabus-review-expanded-editor--subject-preview-open-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Long inventory: original preserved; preview/editor is near page end. Detailed mobile top/middle/bottom inspection confirms inline notes field rendered."
+    },
+    "37883706813:syllabus-review-expanded-editor--inline-unsaved-edit-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Long inventory: original preserved; preview/editor is near page end. Detailed mobile top/middle/bottom inspection confirms inline notes field rendered."
+    },
+    "37883706813:syllabus-review-expanded-editor-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Long inventory: original preserved; preview/editor is near page end. Detailed mobile top/middle/bottom inspection confirms inline notes field rendered."
+    },
+    "37883706813:manage-syllabus-inline-edit--syllabus-rows-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:manage-syllabus-inline-edit--inline-row-edit-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:manage-syllabus-inline-edit-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:navigation-learner-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:navigation-admin-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:profile-menu-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:custom-quiz-learner-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Full-page stitching extends beyond modal backdrop; prefer supplementary viewport capture."
+    },
+    "37883706813:diagnostic-custom-quiz-admin--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture. Full-page stitching extends beyond modal backdrop; prefer supplementary viewport capture."
+    },
+    "37883706813:quiz-selected-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:quiz-completed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:quiz-summary-expanded-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-register-needs-action-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-register-in-progress-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-register-ready-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-register-older-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-register-no-results-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-updates-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-chat-history-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-revision-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-answer-key-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-library-populated-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-library-add-written-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:action-plan-editor-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Action-plan unavailable state rendered; populated list needs follow-up."
+    },
+    "37883706813:user-expanded-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:syllabus-expanded-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:access-denied-admin-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:not-found-redirect-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:landing-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:practice-preview-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:practice-mismatch-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:invited-quiz-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:practice-invalid-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:profile-setup-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:profile-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:dashboard-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:dashboard-empty-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:admin-console-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:action-plan-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Action-plan unavailable state rendered; populated list needs follow-up."
+    },
+    "37883706813:mcq-management-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:add-mcq-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:manage-syllabus-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-edit-syllabus--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:syllabus-review-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Long inventory: original preserved; preview/editor is near page end. Detailed mobile top/middle/bottom inspection confirms inline notes field rendered."
+    },
+    "37883706813:logs-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:user-list-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:ui-preview-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-paper-register--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-register-all-alias--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-new--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:paper-legacy-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-paper-chat-queued--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-chat-needs-info--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-chat-error--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-chat-processing--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-chat-cancelled--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:diagnostic-paper-chat-ready--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:paper-view-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-view-missing-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-library-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-requests-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-generator-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-review-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:quiz-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:quiz-empty-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-quiz-summary-empty--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:quiz-summary-saved-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:reports-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:reports-empty-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-host-lobby-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-host-active-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-player-lobby-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Fixture start time elapsed and this image shows question view; recapture lobby state.",
+      "auditEligible": false
+    },
+    "37883706813:live-player-active-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-summary-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:run-lobby-host-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:run-lobby-guest-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:run-missing-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-hub-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:live-admin-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:quiz-run-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:learning-lab-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:plant-lab-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:plant-results-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:current-lab-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:lab-results-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-plant-lab-journey--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:current-lab-predict--fresh-baseline-predictions-and-lesson-steps-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:current-lab-single-circuit--single-resistor-circuit-controls-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:current-lab-voltage-result--voltage-changed-with-live-current-reading-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Label overstates achieved state: slider remained 6 V. Superseded by targeted recapture.",
+      "auditEligible": false
+    },
+    "37883706813:diagnostic-current-lab-journey--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:current-lab-results-empty-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:plant-lab-results-empty-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-generator-stages--stage-1-format-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-paper-generator-stages--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:question-review-workbench-states--populated-queue-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-review-workbench-states--expanded-question-details-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-review-workbench-states--bulk-selection-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-review-workbench-states--reject-confirmation-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Full-page stitching extends beyond modal backdrop; prefer supplementary viewport capture."
+    },
+    "37883706813:question-review-workbench-states-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:mcq-management-edit-state--populated-filtered-bank-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:mcq-management-edit-state--expanded-question-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:diagnostic-mcq-management-edit-state--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture."
+    },
+    "37883706813:syllabus-review-expanded-editor--subject-inventory-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Long inventory: original preserved; preview/editor is near page end. Detailed mobile top/middle/bottom inspection confirms inline notes field rendered."
+    },
+    "37883706813:syllabus-review-expanded-editor--subject-preview-open-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Long inventory: original preserved; preview/editor is near page end. Detailed mobile top/middle/bottom inspection confirms inline notes field rendered."
+    },
+    "37883706813:syllabus-review-expanded-editor--inline-unsaved-edit-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Long inventory: original preserved; preview/editor is near page end. Detailed mobile top/middle/bottom inspection confirms inline notes field rendered."
+    },
+    "37883706813:syllabus-review-expanded-editor-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Long inventory: original preserved; preview/editor is near page end. Detailed mobile top/middle/bottom inspection confirms inline notes field rendered."
+    },
+    "37883706813:manage-syllabus-inline-edit--syllabus-rows-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:manage-syllabus-inline-edit--inline-row-edit-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:manage-syllabus-inline-edit-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:navigation-learner-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Full-page capture closed responsive drawer; recapture viewport state.",
+      "auditEligible": false
+    },
+    "37883706813:navigation-admin-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Full-page capture closed responsive drawer; recapture viewport state.",
+      "auditEligible": false
+    },
+    "37883706813:profile-menu-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:custom-quiz-learner-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Full-page stitching extends beyond modal backdrop; prefer supplementary viewport capture."
+    },
+    "37883706813:diagnostic-custom-quiz-admin--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic image retained; scenario did not complete. Prefer successful supplementary capture. Full-page stitching extends beyond modal backdrop; prefer supplementary viewport capture."
+    },
+    "37883706813:quiz-selected-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:quiz-completed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:quiz-summary-expanded-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-register-needs-action-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-register-in-progress-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-register-ready-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-register-older-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-register-no-results-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-updates-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-chat-history-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-revision-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:paper-answer-key-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-library-populated-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:question-library-add-written-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:action-plan-editor-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Action-plan unavailable state rendered; populated list needs follow-up."
+    },
+    "37883706813:user-expanded-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:syllabus-expanded-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:access-denied-admin-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37883706813:not-found-redirect-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:action-plan-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Application rendered its unavailable state and create form, not populated activities. Deeper existing-record editing remains unverified."
+    },
+    "37885730251:edit-syllabus-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-register-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-register-all-alias-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-new-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-queued-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-needs-info-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-error-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-processing-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-cancelled-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-ready-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-summary-empty-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:live-host-lobby-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:live-host-active-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:live-player-lobby-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:live-player-active-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:lab-results-populated-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:plant-results-populated-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:landing-sample-answer-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:landing-circuit-on-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:profile-admin-controls-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:profile-save-feedback--changed-curriculum-saved-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:profile-save-feedback-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:reports-expanded-attempt-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Selecting an attempt navigates to quiz summary; the captured URL records that transition."
+    },
+    "37885730251:quiz-save-offline--failed-save-with-answers-retained-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-offline-save-recovery-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:review-individual-editor-open--individual-question-editor-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:review-individual-editor-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:diagnostic-add-mcq-parsed-preview--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic frame retained; corresponding journey needs follow-up. Do not infer completion from the image."
+    },
+    "37885730251:add-mcq-invalid-json-feedback--invalid-json-snackbar-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:add-mcq-invalid-json-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:diagnostic-action-plan-edit-existing--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic frame retained; corresponding journey needs follow-up. Do not infer completion from the image."
+    },
+    "37885730251:question-bank-selected-priority-detail--selected-priority-detail-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-bank-priority-detail-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-bank-priority-filter-empty--no-matching-priorities-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-bank-priority-no-results-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-library-existing-question-editor--existing-question-edit-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-library-edit-existing-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-library-archive-confirmation-open--archive-confirmation-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-library-archive-confirmation-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:invited-quiz-in-progress--first-invitation-question-answered-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:invited-quiz-saved-offer--saved-five-question-result-and-voluntary-return-offer-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:invitation-dashboard-return-cue--dashboard-card-with-invitation-revisit-saved-for-tomorrow-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:invited-quiz-completion-and-return-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:practice-link-copied--practice-invitation-link-copied-to-clipboard-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:practice-link-manual-fallback--clipboard-denied-readonly-link-available-for-manual-copying-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:practice-link-share-outcomes-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-summary-all-answers--saved-result-with-all-five-questions-before-filtering-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-summary-incorrect-only--review-filtered-to-the-two-incorrect-answers-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-summary-incorrect-filter-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-run-active-question--active-collaborative-run-question-with-timer-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-run-answer-submitted--run-answer-submitted-and-option-locked-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-run-active-question-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:plant-mission-01-anatomy--flower-anatomy-exploration-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:diagnostic-plant-lab-journey--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic frame retained; corresponding journey needs follow-up. Do not infer completion from the image."
+    },
+    "37885730251:current-lab-predict--fresh-baseline-predictions-and-lesson-steps-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:current-lab-single-circuit--single-resistor-circuit-controls-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:current-lab-voltage-result--voltage-changed-with-live-current-reading-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:current-lab-resistance-result--resistance-change-and-current-reading-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:diagnostic-current-lab-journey--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic frame retained; corresponding journey needs follow-up. Do not infer completion from the image."
+    },
+    "37885730251:paper-generator-stages--stage-1-format-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-generator-stages--stage-2-syllabus-and-sections-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:diagnostic-paper-generator-stages--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic frame retained; corresponding journey needs follow-up. Do not infer completion from the image."
+    },
+    "37885730251:question-review-workbench-states--populated-queue-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-review-workbench-states--expanded-question-details-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-review-workbench-states--bulk-selection-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-review-workbench-states--reject-confirmation-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-review-workbench-states-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:mcq-management-edit-state--populated-filtered-bank-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:mcq-management-edit-state--expanded-question-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:mcq-management-edit-state--question-json-edit-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:mcq-management-edit-state-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:navigation-learner-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:navigation-admin-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:custom-quiz-learner-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:custom-quiz-admin-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:action-plan-editor-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Application rendered its unavailable state and create form, not populated activities. Deeper existing-record editing remains unverified."
+    },
+    "37885730251:action-plan-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Application rendered its unavailable state and create form, not populated activities. Deeper existing-record editing remains unverified."
+    },
+    "37885730251:edit-syllabus-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-register-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-register-all-alias-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-new-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-queued-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-needs-info-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-error-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-processing-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-cancelled-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-chat-ready-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-summary-empty-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:live-host-lobby-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:live-host-active-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:live-player-lobby-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:live-player-active-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:lab-results-populated-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:plant-results-populated-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:landing-sample-answer-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:landing-circuit-on-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:profile-admin-controls-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:profile-save-feedback--changed-curriculum-saved-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:profile-save-feedback-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:reports-expanded-attempt-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Selecting an attempt navigates to quiz summary; the captured URL records that transition."
+    },
+    "37885730251:quiz-save-offline--failed-save-with-answers-retained-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-offline-save-recovery-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:review-individual-editor-open--individual-question-editor-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:review-individual-editor-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:diagnostic-add-mcq-parsed-preview--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic frame retained; corresponding journey needs follow-up. Do not infer completion from the image."
+    },
+    "37885730251:add-mcq-invalid-json-feedback--invalid-json-snackbar-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:add-mcq-invalid-json-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:diagnostic-action-plan-edit-existing--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic frame retained; corresponding journey needs follow-up. Do not infer completion from the image."
+    },
+    "37885730251:question-bank-selected-priority-detail--selected-priority-detail-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-bank-priority-detail-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-bank-priority-filter-empty--no-matching-priorities-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-bank-priority-no-results-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-library-existing-question-editor--existing-question-edit-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-library-edit-existing-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-library-archive-confirmation-open--archive-confirmation-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-library-archive-confirmation-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:invited-quiz-in-progress--first-invitation-question-answered-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:invited-quiz-saved-offer--saved-five-question-result-and-voluntary-return-offer-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:invitation-dashboard-return-cue--dashboard-card-with-invitation-revisit-saved-for-tomorrow-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:invited-quiz-completion-and-return-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:practice-link-copied--practice-invitation-link-copied-to-clipboard-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:practice-link-manual-fallback--clipboard-denied-readonly-link-available-for-manual-copying-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:practice-link-share-outcomes-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-summary-all-answers--saved-result-with-all-five-questions-before-filtering-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-summary-incorrect-only--review-filtered-to-the-two-incorrect-answers-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-summary-incorrect-filter-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:quiz-run-active-question--active-collaborative-run-question-with-timer-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:diagnostic-quiz-run-active-question--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic frame retained; corresponding journey needs follow-up. Do not infer completion from the image."
+    },
+    "37885730251:plant-mission-01-anatomy--flower-anatomy-exploration-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:diagnostic-plant-lab-journey--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic frame retained; corresponding journey needs follow-up. Do not infer completion from the image."
+    },
+    "37885730251:current-lab-predict--fresh-baseline-predictions-and-lesson-steps-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:current-lab-single-circuit--single-resistor-circuit-controls-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:current-lab-voltage-result--voltage-changed-with-live-current-reading-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:current-lab-resistance-result--resistance-change-and-current-reading-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:diagnostic-current-lab-journey--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic frame retained; corresponding journey needs follow-up. Do not infer completion from the image."
+    },
+    "37885730251:paper-generator-stages--stage-1-format-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-generator-stages--stage-2-syllabus-and-sections-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-generator-stages--stage-3-coverage-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-generator-stages--stage-4-draft-preview-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-generator-stages--generated-draft-preview-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:paper-generator-stages-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-review-workbench-states--populated-queue-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-review-workbench-states--expanded-question-details-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-review-workbench-states--bulk-selection-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-review-workbench-states--reject-confirmation-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:question-review-workbench-states-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:mcq-management-edit-state--populated-filtered-bank-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:mcq-management-edit-state--expanded-question-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:mcq-management-edit-state--question-json-edit-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:mcq-management-edit-state-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": ""
+    },
+    "37885730251:navigation-learner-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Viewport capture confirms responsive drawer open; replaces first-run stitching artifact."
+    },
+    "37885730251:navigation-admin-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Viewport capture confirms responsive drawer open; replaces first-run stitching artifact."
+    },
+    "37885730251:custom-quiz-learner-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Dialog has independently scrolling content; this viewport shows the current scroll position. Share controls appear in separate share-state captures."
+    },
+    "37885730251:custom-quiz-admin-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Dialog has independently scrolling content; this viewport shows the current scroll position. Share controls appear in separate share-state captures."
+    },
+    "37885730251:action-plan-editor-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Application rendered its unavailable state and create form, not populated activities. Deeper existing-record editing remains unverified."
+    },
+    "37883706813:live-landing-1440": {
+      "visualStatus": "reviewed_full",
+      "notes": "Live landing inspected at full size in run 37885730251; earlier matching SHA-256 originals are byte-identical. Public production evidence."
+    },
+    "37883706813:live-landing-390": {
+      "visualStatus": "reviewed_full",
+      "notes": "Live landing inspected at full size in run 37885730251; earlier matching SHA-256 originals are byte-identical. Public production evidence."
+    },
+    "37885730251:live-landing-1440": {
+      "visualStatus": "reviewed_full",
+      "notes": "Live landing inspected at full size in run 37885730251; earlier matching SHA-256 originals are byte-identical. Public production evidence."
+    },
+    "37885730251:live-landing-390": {
+      "visualStatus": "reviewed_full",
+      "notes": "Live landing inspected at full size in run 37885730251; earlier matching SHA-256 originals are byte-identical. Public production evidence."
+    },
+    "37886910772:action-plan-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Only unavailable/error layout is evidenced. Console reports Firebase query-type mismatch. Authenticated direct rules read succeeds for all four seeded plans. Populated list/edit/timeline remains blocked."
+    },
+    "37886910772:add-mcq-parsed-preview-visible--parsed-mcq-preview-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Success snackbar caused viewport-only capture; lower MCQ preview is clipped. Retry after snackbar closes is required.",
+      "auditEligible": false
+    },
+    "37886910772:add-mcq-parsed-preview-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Success snackbar caused viewport-only capture; lower MCQ preview is clipped. Retry after snackbar closes is required.",
+      "auditEligible": false
+    },
+    "37886910772:diagnostic-action-plan-edit-existing--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Only unavailable/error layout is evidenced. Console reports Firebase query-type mismatch. Authenticated direct rules read succeeds for all four seeded plans. Populated list/edit/timeline remains blocked."
+    },
+    "37886910772:quiz-run-active-question--active-collaborative-run-question-with-timer-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:quiz-run-answer-submitted--run-answer-submitted-and-option-locked-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:quiz-run-active-question-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:plant-mission-01-anatomy--flower-anatomy-exploration-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:plant-mission-02-pollination--pollination-controls-before-a-trial-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:plant-journey-map--five-stop-journey-map-open-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:plant-mission-04-fruit--fruit-development-before-wind-dispersal-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:diagnostic-plant-lab-journey--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic retained; intended scenario did not finish. See manifest failure and review report."
+    },
+    "37886910772:current-lab-predict--fresh-baseline-predictions-and-lesson-steps-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:current-lab-single-circuit--single-resistor-circuit-controls-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:current-lab-voltage-result--voltage-changed-with-live-current-reading-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:current-lab-resistance-result--resistance-change-and-current-reading-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:diagnostic-current-lab-journey--capture-failed-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic retained; intended scenario did not finish. See manifest failure and review report."
+    },
+    "37886910772:paper-generator-stages--stage-1-format-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:paper-generator-stages--stage-2-syllabus-and-sections-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:paper-generator-stages--stage-3-coverage-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:paper-generator-stages--stage-4-draft-preview-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:paper-generator-stages--generated-draft-preview-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:paper-generator-stages-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:action-plan-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Only unavailable/error layout is evidenced. Console reports Firebase query-type mismatch. Authenticated direct rules read succeeds for all four seeded plans. Populated list/edit/timeline remains blocked."
+    },
+    "37886910772:add-mcq-parsed-preview-visible--parsed-mcq-preview-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Success snackbar caused viewport-only capture; lower MCQ preview is clipped. Retry after snackbar closes is required.",
+      "auditEligible": false
+    },
+    "37886910772:add-mcq-parsed-preview-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Success snackbar caused viewport-only capture; lower MCQ preview is clipped. Retry after snackbar closes is required.",
+      "auditEligible": false
+    },
+    "37886910772:diagnostic-action-plan-edit-existing--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Only unavailable/error layout is evidenced. Console reports Firebase query-type mismatch. Authenticated direct rules read succeeds for all four seeded plans. Populated list/edit/timeline remains blocked."
+    },
+    "37886910772:quiz-run-answer-submitted--run-answer-submitted-and-option-locked-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:quiz-run-active-question-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Mobile uses the same isolated learner after desktop answer submission; option is already selected/locked. Active question surface evidenced, not an unanswered-state pair."
+    },
+    "37886910772:plant-mission-01-anatomy--flower-anatomy-exploration-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:plant-mission-02-pollination--pollination-controls-before-a-trial-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:plant-journey-map--five-stop-journey-map-open-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:diagnostic-plant-lab-journey--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic retained; intended scenario did not finish. See manifest failure and review report."
+    },
+    "37886910772:current-lab-predict--fresh-baseline-predictions-and-lesson-steps-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:current-lab-single-circuit--single-resistor-circuit-controls-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:current-lab-voltage-result--voltage-changed-with-live-current-reading-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:current-lab-resistance-result--resistance-change-and-current-reading-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:diagnostic-current-lab-journey--capture-failed-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Diagnostic retained; intended scenario did not finish. See manifest failure and review report."
+    },
+    "37886910772:paper-generator-stages--stage-1-format-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:paper-generator-stages--stage-2-syllabus-and-sections-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:paper-generator-stages--stage-3-coverage-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:paper-generator-stages--stage-4-draft-preview-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:paper-generator-stages--generated-draft-preview-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:paper-generator-stages-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Detailed scoring is deferred to Step 4."
+    },
+    "37886910772:live-landing-1440": {
+      "visualStatus": "reviewed_full",
+      "notes": "SHA-256 is byte-identical to the inspected run 37885730251 live landing original at this viewport."
+    },
+    "37886910772:live-landing-390": {
+      "visualStatus": "reviewed_full",
+      "notes": "SHA-256 is byte-identical to the inspected run 37885730251 live landing original at this viewport."
+    },
+    "37887727775:add-mcq-parsed-preview-visible--parsed-mcq-preview-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Parsed preview and Save MCQs control are visible in full-page capture after snackbar closes; no import was saved."
+    },
+    "37887727775:add-mcq-parsed-preview-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Parsed preview and Save MCQs control are visible in full-page capture after snackbar closes; no import was saved."
+    },
+    "37887727775:plant-mission-01-anatomy--flower-anatomy-exploration-desktop": {
+      "visualStatus": "reviewed_full",
+      "notes": "Full-size review confirms learner navigation and rendered flower scene."
+    },
+    "37887727775:plant-mission-01-anatomy-complete--both-flower-parts-inspected-discovery-saved-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-mission-02-pollination--pollination-controls-before-a-trial-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-journey-map--five-stop-journey-map-open-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-mission-04-fruit--fruit-development-before-wind-dispersal-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-mission-05-propagation--vegetative-propagation-controls-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-discovery-summary--five-discoveries-before-the-knowledge-check-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-assessment--five-question-plant-reproduction-assessment-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-graded-summary-feedback--graded-summary-with-explanations-and-feedback-form-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-feedback-sent--practice-feedback-completion-state-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-lab-journey-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-predict--fresh-baseline-predictions-and-lesson-steps-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-single-circuit--single-resistor-circuit-controls-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-voltage-result--voltage-changed-with-live-current-reading-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-resistance-result--resistance-change-and-current-reading-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-parallel-circuit--parallel-circuit-with-branch-current-and-voltage-values-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-check--five-question-understanding-check-and-reflection-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-graded-reflection--checked-answers-and-usefulness-feedback-form-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-practice-complete--practice-completion-confirmation-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-journey-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:mcq-management-filtered-empty--empty-filtered-bank-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:mcq-management-filtered-empty-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:question-library-empty-search--empty-search-results-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:question-library-empty-search-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:paper-generator-saved-papers--saved-drafts-empty-desktop": {
+      "visualStatus": "reviewed_full",
+      "notes": "Raw state label raced initial loading. The original image and captured DOM both show one saved draft. Review corrects the selection label to populated saved-draft-list; raw filename/manifest/hash remain unchanged. The terminal desktop capture confirms the same state.",
+      "observedStateKey": "paper-generator-saved-papers--saved-draft-list",
+      "observedState": "saved-draft-list"
+    },
+    "37887727775:paper-generator-saved-papers-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:question-review-empty-queue--no-matching-questions-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:question-review-empty-queue-desktop": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:add-mcq-parsed-preview-visible--parsed-mcq-preview-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Parsed preview and Save MCQs control are visible in full-page capture after snackbar closes; no import was saved."
+    },
+    "37887727775:add-mcq-parsed-preview-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Parsed preview and Save MCQs control are visible in full-page capture after snackbar closes; no import was saved."
+    },
+    "37887727775:plant-mission-01-anatomy--flower-anatomy-exploration-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-mission-01-anatomy-complete--both-flower-parts-inspected-discovery-saved-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-mission-02-pollination--pollination-controls-before-a-trial-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-journey-map--five-stop-journey-map-open-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-mission-04-fruit--fruit-development-before-wind-dispersal-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-mission-05-propagation--vegetative-propagation-controls-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-discovery-summary--five-discoveries-before-the-knowledge-check-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-assessment--five-question-plant-reproduction-assessment-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-graded-summary-feedback--graded-summary-with-explanations-and-feedback-form-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-feedback-sent--practice-feedback-completion-state-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:plant-lab-journey-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-predict--fresh-baseline-predictions-and-lesson-steps-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-single-circuit--single-resistor-circuit-controls-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-voltage-result--voltage-changed-with-live-current-reading-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-resistance-result--resistance-change-and-current-reading-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-parallel-circuit--parallel-circuit-with-branch-current-and-voltage-values-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-check--five-question-understanding-check-and-reflection-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-graded-reflection--checked-answers-and-usefulness-feedback-form-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-practice-complete--practice-completion-confirmation-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:current-lab-journey-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:mcq-management-filtered-empty--empty-filtered-bank-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:mcq-management-filtered-empty-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:question-library-empty-search--empty-search-results-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:question-library-empty-search-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:paper-generator-saved-papers--saved-draft-list-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:paper-generator-saved-papers-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:question-review-empty-queue--no-matching-questions-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:question-review-empty-queue-mobile": {
+      "visualStatus": "reviewed_overview",
+      "notes": "Root inspected the contact-sheet overview; captured UI rendered. Both labs reached their practice completion state. Detailed scoring is deferred to Step 4."
+    },
+    "37887727775:live-landing-1440": {
+      "visualStatus": "reviewed_full",
+      "notes": "SHA-256 is byte-identical to the full-size inspected run 37885730251 live landing original at this viewport."
+    },
+    "37887727775:live-landing-390": {
+      "visualStatus": "reviewed_full",
+      "notes": "SHA-256 is byte-identical to the full-size inspected run 37885730251 live landing original at this viewport."
+    }
+  }
+}

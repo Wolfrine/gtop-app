@@ -1,10 +1,6 @@
 name: GTOP design baseline capture
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/design-baseline-capture.yml'
-      - 'design-upgrade/capture-tools/**'
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:

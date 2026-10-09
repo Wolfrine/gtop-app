@@ -23,3 +23,9 @@ Step 1 defines independent visual and journey scores, separate desktop/mobile ev
 ## D-006 · Publish this initiative to main as it progresses · Authorized by user · 9 October 2026
 
 The user instructed: “For this work we are doing here, deploy everything in main as we go.” Merge the foundation record and publish each completed stage to `main` without asking for a separate merge approval. This supersedes the earlier branch-only handling for this initiative. The authorization concerns delivery; D-001's stage order and the requirement for design acceptance before application development remain in force. PR #63 preserves the foundation review trail.
+
+## D-007 · Step 2 baseline and state gap · Evidence recorded; no exclusion accepted · 9 October 2026
+
+Inventoried 40 concrete route entries and 39 URL patterns. Captured and inspected the current interface at desktop and mobile sizes with separate live-public and synthetic-authenticated provenance. Original runs are append-only; inspected selections, diagnostics, supersession and route redirects are indexed in the baseline catalog.
+
+The Action Plan route renders an unavailable state. Its populated cards/expanded criteria/edit/filtered-empty state remains unverified because the unchanged isolated application reports a Firebase query-type mismatch even though a direct authenticated admin rules read succeeds. The [review report](evidence/baseline/review.md) gives the evidence and closure path. No exclusion is accepted on behalf of the user; Step 2's full-state completion gate remains open. Application code was not changed. Step 3, ratings, mockups and development have not started.

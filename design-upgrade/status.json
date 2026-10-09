@@ -1,7 +1,7 @@
 {
   "updated": "2026-10-09",
   "baselineCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
-  "currentStage": "Step 2 in progress",
+  "currentStage": "Step 2 baseline published; populated Action Plan state blocked",
   "stages": [
     {
       "step": 0,
@@ -18,7 +18,8 @@
     {
       "step": 2,
       "name": "Sitemap and complete baseline",
-      "status": "inventory recorded; desktop/mobile capture running"
+      "status": "all 40 route entries captured/reviewed; state closure blocked",
+      "complete": false
     },
     {
       "step": 3,
@@ -41,18 +42,38 @@
       "status": "blocked until user accepts proposed designs"
     }
   ],
-  "nextAction": "Inspect capture run 37883706813, resolve material gaps and publish the indexed screen gallery and coverage report.",
+  "nextAction": "Resolve the Action Plan loader compatibility failure and recapture its populated, expanded-criteria, edit-existing and filtered-empty states at both widths, or obtain an explicit exclusion. This is a narrow functional repair decision before proceeding to Step 3; no exclusion has been accepted.",
   "fullAuditCoverage": null,
   "gtopScreensRated": 0,
   "mockupsAccepted": 0,
   "readinessCaptureCount": 53,
   "evidenceImportFileCount": 70,
-  "openTechnicalBlockers": [],
+  "openTechnicalBlockers": [
+    {
+      "id": "S2-ACTION-PLAN",
+      "route": "/admin/action-plan",
+      "environment": "unchanged application in isolated Firebase emulators",
+      "observed": "Firebase query-type mismatch in browser; authenticated direct admin rules read succeeds",
+      "missingStates": [
+        "populated cards",
+        "expanded acceptance criteria",
+        "edit existing",
+        "no matching activities"
+      ],
+      "viewports": [
+        "desktop1440",
+        "mobile390"
+      ],
+      "acceptedExclusion": false,
+      "evidence": "design-upgrade/evidence/baseline/review.md"
+    }
+  ],
   "retainedLimits": [
-    "Physical-device behavior unverified",
-    "Mockup fidelity and interaction validation occur at their stages",
-    "Reference set and scoring-anchor calibration pending",
-    "Readiness samples do not prove complete screen coverage"
+    "Chromium desktop/mobile emulation is not physical-device or cross-browser validation",
+    "Authenticated captures use controlled synthetic data; live public landing is separate",
+    "Native browser/OS surfaces and exhaustive transient frames are outside the capture contract",
+    "Mockup fidelity and interaction validation occur at their agreed stages",
+    "Premium reference set and scoring-anchor calibration remain pending Step 3"
   ],
   "productionChanged": false,
   "entryPoint": "design-upgrade/README.md",
@@ -64,5 +85,25 @@
     "foundationMergeCommit": "c689a576d767bf0996c3dd078fdb7ef98038919e",
     "developmentGate": "Application development remains gated on the user's acceptance of proposed designs."
   },
-  "actionPlanId": "Dcyop0vBU0K9nAiFc3wh"
+  "actionPlanId": "Dcyop0vBU0K9nAiFc3wh",
+  "baselineEvidence": {
+    "routeEntries": 40,
+    "distinctUrlPatterns": 39,
+    "routeEntriesWithBothViewports": 40,
+    "routeCoveragePercent": 100,
+    "stateClosureComplete": false,
+    "emulatorOriginals": 483,
+    "livePublicOriginals": 8,
+    "totalPngOriginals": 491,
+    "captureRuns": 4,
+    "selectedStateViewportRecords": 346,
+    "pairedCaptureStateIds": 173,
+    "countNote": "Capture state IDs include intermediate and scenario-end snapshots; counts are not the number of unique product screens. Originals include retries and diagnostics.",
+    "auditIneligibleOriginals": 58,
+    "rawScenarioDiagnosticOriginals": 48,
+    "visualReview": "Every original reviewed at overview level; targeted full-size and long-page segment review.",
+    "integrity": "All 491 original PNGs verified against recorded checksums; dimensions and local evidence links verified.",
+    "gallery": "design-upgrade/sitemap/gallery.md",
+    "review": "design-upgrade/evidence/baseline/review.md"
+  }
 }

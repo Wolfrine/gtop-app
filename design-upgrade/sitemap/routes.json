@@ -33,23 +33,25 @@
         "practiceInviteGuard"
       ],
       "source": [
-        "src/app/pages/quiz-page/quiz-page.component.html",
-        "src/app/pages/quiz-page/quiz-page.component.ts",
-        "src/app/services/quiz.service.ts"
+        "gtop-app/src/app/app.routes.ts",
+        "gtop-app/src/app/pages/practice-invite/invited-quiz.component.ts",
+        "gtop-app/src/app/services/practice-invite.guard.ts"
       ],
-      "surface": "Standard/quick MCQ quiz",
+      "surface": "Invited five-question practice",
       "entryPoints": [
-        "dashboard Start Quick Quiz",
-        "dashboard Custom Quiz",
-        "quiz-run host activates run and routes /quiz?sessionId=\u2026&mode=run"
+        "practice invitation Start five questions",
+        "/quiz?practice=invite with invitation curriculum"
       ],
       "states": [
-        "scope selection/filter setup where applicable",
+        "invitation validation or curriculum mismatch",
         "question/options and answer selection",
-        "submit/confirmation",
-        "run-mode timed question"
+        "saving/error/retry",
+        "saved result and optional revisit reminder"
       ],
-      "entry": "admin side nav Quick Quiz"
+      "entry": "Practice invitation URL",
+      "canMatch": [
+        "invitedQuizMatch"
+      ]
     },
     {
       "id": "R03",

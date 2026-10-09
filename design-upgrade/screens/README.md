@@ -1,10 +1,12 @@
 # Screens and capture contract
 
-The current collection is readiness evidence, not the complete Step 2 inventory. Original PNG files are preserved under `2026-10-08-readiness/`, grouped by originating run. [catalog.json](catalog.json) provides provenance and diagnostic exclusions.
+The Step 2 collection is indexed in [baseline-catalog.json](baseline-catalog.json), with a [paired gallery](../sitemap/gallery.md) and [review report](../evidence/baseline/review.md). Original PNG files are preserved under `2026-10-09-baseline/<run-id>/`, grouped by stable screen/state IDs and viewport. Raw manifests, fixtures and test diagnostics live under `../evidence/baseline/2026-10-09/<run-id>/`.
+
+The separate readiness archive remains under `2026-10-08-readiness/`; [catalog.json](catalog.json) describes those earlier samples. Its 53 PNGs are not part of the Step 2 coverage count.
 
 ## New audit captures
 
-Use `screens/<baseline-id>/<screen-id>/<state>/<viewport>.png`, with stable IDs established during Step 2. A screen ID represents a view; route parameters and content records are captured as state metadata. Preserve originals. Put annotated copies in a separate path.
+Use `screens/<baseline-id>/<run-id>/<screen-state-id>/<viewport>.png`. A screen ID represents a view; route parameters and content records are captured as state metadata. Preserve originals. Put annotated copies in a separate path.
 
 For every capture record:
 
@@ -18,7 +20,7 @@ For every capture record:
 
 Use `null` plus a reason for information that has not been verified. Never infer role from appearance, treat image dimensions as viewport dimensions or mistake test IDs for route metadata.
 
-Step 2 must add the route/state coverage inventory. Required coverage includes normal, empty, loading, dense, error and completion states when applicable; dialogs and navigation/tab states are views too. Mark inapplicable states with reasons. The initial 53 readiness PNGs include duplicated end-state and failed-setup images; their count is not a measure of audit coverage.
+The route/state coverage inventory distinguishes normal, empty, dense, error and completion states, dialogs and navigation/tab states. Transient loading/motion and native browser/OS surfaces retain the [method's explicit limits](../evidence/baseline/README.md). Raw capture count includes retries and diagnostics; selected paired states are reported separately.
 
 ## Reproduction
 

@@ -1,0 +1,72 @@
+name: GTOP reference interaction evidence
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [design-upgrade/references/capture-tools/interactions.mjs]
+permissions:
+  contents: write
+concurrency:
+  group: gtop-reference-interactions
+  cancel-in-progress: true
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    strategy:
+      fail-fast: false
+      max-parallel: 9
+      matrix:
+        site: [des, bicycle, brilliant]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install isolated public capture dependencies
+        run: |
+          mkdir -p /tmp/gtop-reference-capture
+          cd /tmp/gtop-reference-capture
+          npm init -y
+          npm install --save-exact playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Capture public references with motion preserved
+        run: |
+          cd /tmp/gtop-reference-capture
+          REFERENCE_SITE="${{ matrix.site }}" REFERENCE_OUTPUT="$GITHUB_WORKSPACE/design-upgrade/references/evidence/2026-10-09/run-$GITHUB_RUN_ID/${{ matrix.site }}" timeout 240s node "$GITHUB_WORKSPACE/design-upgrade/references/capture-tools/interactions.mjs"
+      - name: Upload complete capture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gtop-interaction-${{ matrix.site }}
+          path: design-upgrade/references/evidence/2026-10-09/run-*
+          retention-days: 30
+          if-no-files-found: error
+  preserve:
+    if: always()
+    needs: capture
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gtop-interaction-*
+          path: design-upgrade/references/evidence/2026-10-09/run-${{ github.run_id }}
+      - name: Preserve earlier incomplete capture history
+        uses: actions/download-artifact@v4
+        with:
+          name: gtop-reference-evidence
+          run-id: 37893083557
+          github-token: ${{ github.token }}
+          path: design-upgrade/references/evidence/2026-10-09/first-pass-diagnostics
+      - name: Preserve originals on main
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "design-upgrade/references/evidence/2026-10-09/run-$GITHUB_RUN_ID" design-upgrade/references/evidence/2026-10-09/first-pass-diagnostics
+          git commit -m "Preserve Step 3 reference captures from run $GITHUB_RUN_ID"
+          git pull --rebase origin main
+          git push origin HEAD:main

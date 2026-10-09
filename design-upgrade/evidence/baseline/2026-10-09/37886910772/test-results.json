@@ -1,0 +1,334 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/20.20.2/x64/bin/node",
+      "/home/runner/work/gtop-app/gtop-app/gtop-app/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "playwright.baseline.config.ts",
+      "e2e/design-baseline.spec.ts"
+    ],
+    "configFile": "/home/runner/work/gtop-app/gtop-app/gtop-app/playwright.baseline.config.ts",
+    "rootDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/Wolfrine/gtop-app/commit/025d8b1aec1ca3a1171ca00412f1899094cb68e9",
+        "commitHash": "025d8b1aec1ca3a1171ca00412f1899094cb68e9",
+        "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37886910772"
+      },
+      "gitCommit": {
+        "shortHash": "025d8b1",
+        "hash": "025d8b1aec1ca3a1171ca00412f1899094cb68e9",
+        "subject": "Finish GTOP baseline lab journeys and verify remaining capture gaps",
+        "body": "Finish GTOP baseline lab journeys and verify remaining capture gaps",
+        "author": {
+          "name": "Wolfrine",
+          "email": "schttewary@gmail.com",
+          "time": 1791522321000
+        },
+        "committer": {
+          "name": "Wolfrine",
+          "email": "schttewary@gmail.com",
+          "time": 1791522321000
+        },
+        "branch": "main"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/gtop-app/gtop-app/design-upgrade/evidence/baseline/2026-10-09/37886910772/test-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Wolfrine/gtop-app/commit/025d8b1aec1ca3a1171ca00412f1899094cb68e9",
+            "commitHash": "025d8b1aec1ca3a1171ca00412f1899094cb68e9",
+            "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37886910772"
+          },
+          "gitCommit": {
+            "shortHash": "025d8b1",
+            "hash": "025d8b1aec1ca3a1171ca00412f1899094cb68e9",
+            "subject": "Finish GTOP baseline lab journeys and verify remaining capture gaps",
+            "body": "Finish GTOP baseline lab journeys and verify remaining capture gaps",
+            "author": {
+              "name": "Wolfrine",
+              "email": "schttewary@gmail.com",
+              "time": 1791522321000
+            },
+            "committer": {
+              "name": "Wolfrine",
+              "email": "schttewary@gmail.com",
+              "time": 1791522321000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "baseline",
+        "name": "baseline",
+        "testDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 2400000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../design-upgrade/evidence/baseline/2026-10-09/37886910772/test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm start -- --configuration development --host 127.0.0.1 --port 4300",
+      "url": "http://127.0.0.1:4300",
+      "reuseExistingServer": false,
+      "timeout": 180000
+    }
+  },
+  "suites": [
+    {
+      "title": "design-baseline.spec.ts",
+      "file": "design-baseline.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "complete GTOP baseline route and state capture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 2400000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "baseline",
+              "projectName": "baseline",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 185513,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "CAPTURE action-plan-desktop /admin/action-plan?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE add-mcq-parsed-preview-visible--parsed-mcq-preview-desktop /admin/add-mcq?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE add-mcq-parsed-preview-desktop /admin/add-mcq?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-action-plan-edit-existing--capture-failed-desktop /admin/action-plan?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP action-plan-edit-existing 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Edit activity', exact: true }).first() to be visible\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-run-active-question--active-collaborative-run-question-with-timer-desktop /quiz?mode=run&sessionId=baseline-20261009-run-active&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-run-answer-submitted--run-answer-submitted-and-option-locked-desktop /quiz?mode=run&sessionId=baseline-20261009-run-active&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-run-active-question-desktop /quiz?mode=run&sessionId=baseline-20261009-run-active&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-01-anatomy--flower-anatomy-exploration-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-02-pollination--pollination-controls-before-a-trial-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-journey-map--five-stop-journey-map-open-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-04-fruit--fruit-development-before-wind-dispersal-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-plant-lab-journey--capture-failed-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP plant-lab-journey 1440 locator.click: Error: strict mode violation: getByRole('button', { name: /Release a fruit/ }) resolved to 2 elements:\n    1) <button class=\"pl-trial-button ng-star-inserted\">Release a fruit ↗</button> aka getByRole('button', { name: 'Release a fruit \n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-predict--fresh-baseline-predictions-and-lesson-steps-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-single-circuit--single-resistor-circuit-controls-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-voltage-result--voltage-changed-with-live-current-reading-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-resistance-result--resistance-change-and-current-reading-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-current-lab-journey--capture-failed-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP current-lab-journey 1440 page.waitForFunction: Timeout 12000ms exceeded.\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--stage-1-format-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--stage-2-syllabus-and-sections-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--stage-3-coverage-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--stage-4-draft-preview-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--generated-draft-preview-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE action-plan-mobile /admin/action-plan?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE add-mcq-parsed-preview-visible--parsed-mcq-preview-mobile /admin/add-mcq?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE add-mcq-parsed-preview-mobile /admin/add-mcq?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-action-plan-edit-existing--capture-failed-mobile /admin/action-plan?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP action-plan-edit-existing 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Edit activity', exact: true }).first() to be visible\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-run-answer-submitted--run-answer-submitted-and-option-locked-mobile /quiz?mode=run&sessionId=baseline-20261009-run-active&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-run-active-question-mobile /quiz?mode=run&sessionId=baseline-20261009-run-active&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-01-anatomy--flower-anatomy-exploration-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-02-pollination--pollination-controls-before-a-trial-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-journey-map--five-stop-journey-map-open-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-plant-lab-journey--capture-failed-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP plant-lab-journey 390 locator.click: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Try the stigma', exact: true })\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-predict--fresh-baseline-predictions-and-lesson-steps-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-single-circuit--single-resistor-circuit-controls-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-voltage-result--voltage-changed-with-live-current-reading-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-resistance-result--resistance-change-and-current-reading-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-current-lab-journey--capture-failed-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP current-lab-journey 390 page.waitForFunction: Timeout 12000ms exceeded.\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--stage-1-format-mobile /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--stage-2-syllabus-and-sections-mobile /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--stage-3-coverage-mobile /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--stage-4-draft-preview-mobile /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--generated-draft-preview-mobile /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages-mobile /admin/question-paper-generator?emulator=1\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T05:09:04.438Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5adb0c2bdeb0edb899e5-d97b7aa8f52f3638c12e",
+          "file": "design-baseline.spec.ts",
+          "line": 89,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-09T05:08:28.586Z",
+    "duration": 221643.507,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

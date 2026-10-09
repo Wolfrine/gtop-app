@@ -1,0 +1,54 @@
+{
+  "synthetic": true,
+  "emulatorOnly": true,
+  "sourceCommit": "058729a6fc62d285d5f7abc6d603952466df54d9",
+  "roles": [
+    "learner",
+    "admin",
+    "missing",
+    "empty"
+  ],
+  "syllabus": [
+    [
+      "ICSE",
+      "9",
+      "Biology",
+      "Cells"
+    ],
+    [
+      "ICSE",
+      "9",
+      "Biology",
+      "Plant Reproduction"
+    ],
+    [
+      "ICSE",
+      "9",
+      "Physics",
+      "Motion"
+    ],
+    [
+      "ICSE",
+      "9",
+      "Chemistry",
+      "Matter"
+    ],
+    [
+      "CBSE",
+      "10",
+      "Physics",
+      "Electricity"
+    ],
+    [
+      "CBSE",
+      "12",
+      "Chemistry",
+      "Solutions"
+    ]
+  ],
+  "approvedQuestions": 30,
+  "draftQuestions": 54,
+  "paperConversations": 66,
+  "quizResults": 12,
+  "profileRecords": 18
+}

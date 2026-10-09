@@ -1,6 +1,6 @@
 # Screen review: <screen-id> / <state>
 
-Status: not evaluated · Rubric: 1.0 · Reviewer/date: unassigned
+Status: not evaluated · Rubric: 1.1 · Reviewer/date: unassigned
 
 ## Context and evidence
 

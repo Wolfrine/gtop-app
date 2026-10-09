@@ -1,0 +1,2650 @@
+{
+  "date": "2026-10-09",
+  "counts": {
+    "siteCandidatesScreened": 15,
+    "sitesCaptured": 9,
+    "coreReferences": 7,
+    "captureRecords": 38,
+    "pngOriginals": 253,
+    "videoOriginals": 38,
+    "liveJpegOriginals": 20,
+    "liveSelected": 8,
+    "derivedBoards": 24,
+    "unfinalizedPngOriginals": 6,
+    "unfinalizedVideoFiles": 1,
+    "allPngOriginals": 259,
+    "allVideoFiles": 39
+  },
+  "records": [
+    {
+      "site": "bicycle",
+      "run": "37894026455",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/01-entry.png",
+          "sha256": "6d314290b4d1833ac57f1a07ca548e7b1eaa3278917717cadfe829abbb243cec",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/02-settled.png",
+          "sha256": "1afcf857aeabb2735e771b0700da5dd798e280ba62ce4ce0de8082488a6e5a72",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/03-scroll.png",
+          "sha256": "f40fbde93b3b279ca19836469eefabd038bdf5750434004abed0d784cd5e3e50",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/04-scroll.png",
+          "sha256": "20e66821aa5bd0daf15086d66ca2611f72b6f7588393b022f506403dd723181d",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/05-scroll.png",
+          "sha256": "c52f82b39755c504760a2eda03fa8962f18cf47228b58ac0983ee447ec8b7940",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/06-fast-scroll.png",
+          "sha256": "63439e3ee2401c5641be5b072ac21219fedd8a7b47a4ffe59129ac84a8e491d0",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/07-reverse.png",
+          "sha256": "718ee87670cb0ab34c190ad9bd3a52e369d66ed217e95d728c2f221d0678f68f",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/08-return.png",
+          "sha256": "fe0a9fa473ca371e0685b7cabc18eca2a36ccb95097b175857f7187349f1b013",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/09-reduced-motion-entry.png",
+          "sha256": "4f8cedaa25c75588c90f4e995bac8b28d93dea0b446fdb570ecd483eec3dcab8",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/sequence.webm",
+          "sha256": "25aa0117a258f2150cfd79d03451bef6cce1326a48d0f88b79bf6ccdcf21ee9a",
+          "bytes": 4292478,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "bicycle",
+      "run": "37894026455",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/01-entry.png",
+          "sha256": "892395d76ac5f93704504634b44cf4a5a6de906b864ba20a42d44f01c4e69eee",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/02-settled.png",
+          "sha256": "7d37952eae32251c299cc321825aea918e541f5a82a0dd4c82cb129706571fcc",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/03-scroll.png",
+          "sha256": "3bea4efc9dac5b99845dcbe71d67d646ae18a3008a78d417e28de523587f8923",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/04-scroll.png",
+          "sha256": "28bb91bb6436d18e88a0394c940b3575e175f6f5fba29125b10b822d9972b06c",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/05-scroll.png",
+          "sha256": "15c91b85aada2a9eebcea771699ed69683a3f317a904a3a3a51763c6a7933096",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/06-fast-scroll.png",
+          "sha256": "6bb26fa46da456f15af8aa117246b690b8e56e0fb3a24075c2d0544a94e8d2ef",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/07-reverse.png",
+          "sha256": "4e0706b07bbeac6871c9f8c99f5abaa08125536df4cd7ad69ce325e250a94804",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/08-return.png",
+          "sha256": "785c318b9d93e04b7c816187e5b7d1f8b37fb02f0fa10a79432f8c1179610df1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/09-reduced-motion-entry.png",
+          "sha256": "777195c27d65aebedf84433761f2fdbefbb6b4a31b092559fed19ddb19d090a1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/sequence.webm",
+          "sha256": "03448b10148491d9a198e6a4072af81e03b128b142e2e53f6cfd8ea307115ce4",
+          "bytes": 4211762,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "brilliant",
+      "run": "37894026455",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/01-entry.png",
+          "sha256": "1afb514b882ff517b2c6796ef8539879ebafb6a586b8a034fadf090da14d2ed1",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/02-settled.png",
+          "sha256": "fd734fe848f47bfd2857a393d956c005853af993fe800f851a2de4f070aa76a8",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/03-scroll.png",
+          "sha256": "1c984305284d4f94f1722bca2801df05f3d1732b7333db13517f60342bc360fd",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/04-scroll.png",
+          "sha256": "c705f6267c0e7bf03f6bef0c4fae27ee87d4ad7af6bcc0b438973be190fc6f8d",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/05-scroll.png",
+          "sha256": "10dcd287f3924d3064a8bd673dab435dd2012cbd9ee3d035f74cd4f81c22d65b",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/06-fast-scroll.png",
+          "sha256": "1b95bc1f2fe67de7358d4df3dc25f241702f47904f0ebaadbc2bd29bf3b2850f",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/07-reverse.png",
+          "sha256": "bd99fc7732a4e1a1f85f0064c646cce9adeaf9a1f9581de5ec7fb490e10435fc",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/08-return.png",
+          "sha256": "8c9ff59af9e84123a12fd59518bb1074d46351cb0bb13f58906cc78a77cf8648",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/09-reduced-motion-entry.png",
+          "sha256": "beb85a2dccd0f039b93236a7a4c70b876a4f29754053a47e733f0b08c838b7f7",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/sequence.webm",
+          "sha256": "6453121bbd2a442e9050d878b3789176642bc80606ac3a4e59f6cd2f16b49ead",
+          "bytes": 2990519,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "brilliant",
+      "run": "37894026455",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/01-entry.png",
+          "sha256": "7bccb9d0422e55d844f46d517b4c0ea43d377cce1ad2e1ae01a5302417e46801",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/02-settled.png",
+          "sha256": "f169dbeb7e14a22e3f20077248f0f6a8534f6058459a1944d1cd78ed7d6de160",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/03-scroll.png",
+          "sha256": "ca9615fc8d2b14bf6217e29392f3d90b7a8e2f5eb91845b952e3ef09f5ad2f52",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/04-scroll.png",
+          "sha256": "e73d8152a3236fdaf998a48fefafb7b2a8e371265abba6c10f36f22e46897865",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/05-scroll.png",
+          "sha256": "94a0e819c48428da5db435a9725165a984c53c3fb28f47f4e7ec3e1337c3a0ea",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/06-fast-scroll.png",
+          "sha256": "e008f6e1d596dd510cac407876231fb7dd56c234207a982e4f6a2ff78304dcc0",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/07-reverse.png",
+          "sha256": "edfb16b6efac5ab40628df61b7ac1aebdbcee53d38c048051d779f64ea2ee7d9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/08-return.png",
+          "sha256": "8617fb5056e4f6ef4a7ac2b33a1238dcd468fd5872bb981f25aafbdefaff9d6d",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/09-reduced-motion-entry.png",
+          "sha256": "0c840432984276996e503375632d2c6d9e86440009b95c81899709b3eb32ea43",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/sequence.webm",
+          "sha256": "829ba94827731cf9ec3d8798fd24e856f7e3d91d89fb2ba76737938f7f5194fd",
+          "bytes": 2262830,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "des",
+      "run": "37894026455",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/01-entry.png",
+          "sha256": "5ecd57910df7863f3a95917c6c7a888aafb673af3be864b5c594b3b6285f876d",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/02-settled.png",
+          "sha256": "95978670370cf37b2e8bd56a54b680d4a6012ff3cd6de51eef0daf711b66b2c1",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/03-scroll.png",
+          "sha256": "0217901d095b160c9e7a38cedae1d9da5ea8fdfacfaf2f75f0ef35bc961be1bc",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/04-scroll.png",
+          "sha256": "4b1b83bc376e2682f4290cd45dcc812a93742dff1e834d9f7b4fddef3365dd5b",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/05-scroll.png",
+          "sha256": "c60277eccad6cefbc9f858aa8ac6eb879d065ea998434d3eae50e65ad9bdca6d",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/06-fast-scroll.png",
+          "sha256": "8eb553aeaf8e67b8cd1aa81467bf23aa9a58439e6b9688488f6ccf84957e56a0",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/07-reverse.png",
+          "sha256": "1ea848b100a71496342f1fde8ca4d36550fc1a7ba9d629789a840b979481561b",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/08-return.png",
+          "sha256": "1ea848b100a71496342f1fde8ca4d36550fc1a7ba9d629789a840b979481561b",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/09-reduced-motion-entry.png",
+          "sha256": "c29920528021464bb172326c4c36ea904b6a532b6bc8574d01b88183a3e9e4cb",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/sequence.webm",
+          "sha256": "0f2acdd071170f35abb01165bd3eb75647e3eb975240848e3470a0da8a5a923a",
+          "bytes": 3285832,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "des",
+      "run": "37894026455",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/01-entry.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/02-settled.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/03-scroll.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/04-scroll.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/05-scroll.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/06-fast-scroll.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/07-reverse.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/08-return.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/09-reduced-motion-entry.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/sequence.webm",
+          "sha256": "43ea8402e90df92d503ff84721d61a5bef0d5910fcb65181968463265925934b",
+          "bytes": 1324631,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "igloo",
+      "run": "37894026455",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/manifest.json",
+      "failure": "TimeoutError: page.screenshot: Timeout 15000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n",
+      "classification": "context / diagnostic",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/1440/diagnostic.png",
+          "sha256": "4dfe0da66ee6bbf99edcfc6eaa24db142b3eb270382fd7ad176afb9423787e3b",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/1440/sequence.webm",
+          "sha256": "e5fb1f2496f78168818ffea91c33ebd153542fd01a85c02d971dac413c3f4135",
+          "bytes": 343871,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "igloo",
+      "run": "37894026455",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/manifest.json",
+      "failure": null,
+      "classification": "context / diagnostic",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/01-entry.png",
+          "sha256": "720c901f4869290c871fa9e8c1fe35431c04e4559a8d6027cefdad13d77f3a1b",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/02-settled.png",
+          "sha256": "c5a6954fb1a9e58d5322fe0e682df7c66936fee1ff9c37bec9ffa92c2475b02b",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/03-scroll.png",
+          "sha256": "1dd743aa75d9f983abc00bb8886534abc54eadf9fea93f192cfb95aa30435baf",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/04-scroll.png",
+          "sha256": "fd8603306c5b0e683c19dfbba1f36187ab6f17ce718df9517e34be581589d9e6",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/05-scroll.png",
+          "sha256": "9a02d6b11b94a917a6cde050a4851fc9b746d7863ee35fc786607cc17e43f547",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/06-fast-scroll.png",
+          "sha256": "458287ad09be1bcda6b9f2770c37d23830f886526cd7b32361a81dfca3095bb3",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/07-reverse.png",
+          "sha256": "c71a8f81e91baa72a10d5967dfd2c2c8ddb777862003a28df83e0fe485ede1f4",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/08-return.png",
+          "sha256": "a8c33b935b80ec789e0b7a8a22e9671d7dd40a26fe8b44b6332335b9a3b7e107",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/09-reduced-motion-entry.png",
+          "sha256": "48884af2ea60ba0f84867cc6c05c4841b88b0a77a666295e02389bb08c2b765c",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-igloo/run-37894026455/igloo/igloo/390/sequence.webm",
+          "sha256": "49e148eecfefcaa5c7caf4cb3a30d81cb9790e8d17ef66007dad8ed164dc3bc9",
+          "bytes": 7739340,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "lando",
+      "run": "37894026455",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/manifest.json",
+      "failure": "TimeoutError: page.screenshot: Timeout 15000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n",
+      "classification": "context / diagnostic",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/1440/diagnostic.png",
+          "sha256": "7e4b2a3b6f0a59da23e163dd59b667bcdb563eaa607c7fbf9742a0bbdbb498f2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/1440/sequence.webm",
+          "sha256": "29d22945324e5814db05023be327fb00444e0fb7af0d28b639df7085728efad0",
+          "bytes": 647297,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "lando",
+      "run": "37894026455",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/manifest.json",
+      "failure": null,
+      "classification": "context / diagnostic",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/01-entry.png",
+          "sha256": "17bc685f1e2767c0cf51f4e944a6521f4fbc59082b9e15ea708e565e7a87bb1b",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/02-settled.png",
+          "sha256": "c4955ad08014909023b42d2d5e8fbe0d95f7b08bd8140e4e530a50412ffcefd3",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/03-scroll.png",
+          "sha256": "f07d00f894d35729c2ec754b0dd41929807dbc43ed0ff50a66862c86085c7bb7",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/04-scroll.png",
+          "sha256": "a5db1b97cf68418b9fddc42b3cd40e84c6121a1c24637f1c019cf0cede98d0e6",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/05-scroll.png",
+          "sha256": "123129e04de23b8a78fdc2bc7783e5df3df9554afa0b090e7d21910110de0041",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/06-fast-scroll.png",
+          "sha256": "5c8be843061c6380bb4dfb25f03449c06ef0ab972586f20385b6dc3048b333de",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/07-reverse.png",
+          "sha256": "e1dddadd8bc69863b1002235483842b8a9372404b89d0971d0736d79366e1852",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/08-return.png",
+          "sha256": "ce8f99e2fb2680e802bca2cf3ccd6254aad4e58947de88c34480589fa4a18f49",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/09-reduced-motion-entry.png",
+          "sha256": "90783af665df5140ad1e79da92625549e074fcc67b1f4cc5b96776ff336df280",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-lando/run-37894026455/lando/lando/390/sequence.webm",
+          "sha256": "26cd7a45f1543651bf843c94994a75d521fb61fb2a12187e2a0c72fc0b46c571",
+          "bytes": 4094907,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "linear",
+      "run": "37894026455",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/01-entry.png",
+          "sha256": "bba285cc3a572d262536cbb60442bbdfb215446d1129ebc836ebeb570d67f5a2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/02-settled.png",
+          "sha256": "bba285cc3a572d262536cbb60442bbdfb215446d1129ebc836ebeb570d67f5a2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/03-scroll.png",
+          "sha256": "0f4f6adac8e106ff425597cfa20d6e69dde3fe0676cc97174c438a15215f3b18",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/04-scroll.png",
+          "sha256": "b610dff788cf7ffce9680bd226348975cbbf6e6f656613dc84fdb7da12e66c09",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/05-scroll.png",
+          "sha256": "d497c6f5aff274bc04b5bbc714d489250a333e916453609d6d67c12837ea5598",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/06-fast-scroll.png",
+          "sha256": "918e1d7a407876a8fee05beae70b14d66d1be1fce5fee2ca44b7aed39d2cedcf",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/07-reverse.png",
+          "sha256": "77b4cb85413997a327b21a52252dfcd87fff9e83dc052b775f482ddad60989be",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/08-return.png",
+          "sha256": "bba285cc3a572d262536cbb60442bbdfb215446d1129ebc836ebeb570d67f5a2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/09-reduced-motion-entry.png",
+          "sha256": "bba285cc3a572d262536cbb60442bbdfb215446d1129ebc836ebeb570d67f5a2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/sequence.webm",
+          "sha256": "16c9d585f281e0cd1e723a46ac726828c2d8c0153be791d317065ab50fc91411",
+          "bytes": 2222322,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "linear",
+      "run": "37894026455",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/01-entry.png",
+          "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/02-settled.png",
+          "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/03-scroll.png",
+          "sha256": "3774978058e4407a99ae6bd4401dbdf9af3115351b749fd8cc5c88cbd71638cb",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/04-scroll.png",
+          "sha256": "d75262f36e7c94548b3b5965b5c19cb9d58cbf5586b533206719f9da233c8263",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/05-scroll.png",
+          "sha256": "b30db0a2b40510900881f2daa6b0ee88581f13f2cf7ad627954852914a98635a",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/06-fast-scroll.png",
+          "sha256": "26d95f8619e08e522f54485bb59c889979bee7021dd9cf75982a8cac8d063bc1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/07-reverse.png",
+          "sha256": "e39141d062761cc7c74e29f3d3537060a50c556fc2ca3da438f73541f9c6142d",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/08-return.png",
+          "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/09-reduced-motion-entry.png",
+          "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/sequence.webm",
+          "sha256": "da27e1e45076035ac0e0d3582ea61268014c59164e5828a3367142a653c1896b",
+          "bytes": 1678167,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "primer",
+      "run": "37894026455",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/01-entry.png",
+          "sha256": "6a589e61bb28edfe22d0042384ed1c44dab302d47d7b0331a4082d94cea270d2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/02-settled.png",
+          "sha256": "6a589e61bb28edfe22d0042384ed1c44dab302d47d7b0331a4082d94cea270d2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/03-scroll.png",
+          "sha256": "41779ff50a929d63a6fc8336b9dc588bbafd3c42405ea58571bfa8465a6d8447",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/04-scroll.png",
+          "sha256": "1ed3633363b7ab3fab921d0077b98725c930a8dc59449d8b869f7957f9927fb4",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/05-scroll.png",
+          "sha256": "e8673bfc62b893036d36895fa0de9580202a87dcf31e1d021b0faf1fca65310a",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/06-fast-scroll.png",
+          "sha256": "d3a9bf357fdae2f02dc616218ebe9903160f5f0f107aec2a338f8a8c375ae452",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/07-reverse.png",
+          "sha256": "70e250b53e4c861a8a7521cfbedda00fd824267656cf079b61fa91c7e47c2fd4",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/08-return.png",
+          "sha256": "451a04a920b71598cac4f2ce07cef60515fb17398f0a408b8a16e6fbcbcf30e4",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/09-reduced-motion-entry.png",
+          "sha256": "6a589e61bb28edfe22d0042384ed1c44dab302d47d7b0331a4082d94cea270d2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/sequence.webm",
+          "sha256": "7bc539a4319927a58beb9046c202429da03f5042a98cbaa9bc51b625d2c36664",
+          "bytes": 2246892,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "primer",
+      "run": "37894026455",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/01-entry.png",
+          "sha256": "4b9af47ed70de8c9ca33a7d72e73345717a8a277b580fe4a92eb1b12fa6baecd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/02-settled.png",
+          "sha256": "4b9af47ed70de8c9ca33a7d72e73345717a8a277b580fe4a92eb1b12fa6baecd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/03-scroll.png",
+          "sha256": "e9d6c999278508df8d299933cdd9de77a37fca4e4809d102bf44e91f04ac1843",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/04-scroll.png",
+          "sha256": "4d8a9304d7e1c91d527f819be5598d1bd0f6689880d8af65f070737501614bb9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/05-scroll.png",
+          "sha256": "231613c304db1e4fb5bbb49be5abdd52c0a7ae0308ae95dfd56a0c391e529b6f",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/06-fast-scroll.png",
+          "sha256": "959a46404cef672a85dd65420742fba5c0349b7f5e42bb356c0fdbff2fe45de0",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/07-reverse.png",
+          "sha256": "6239f288c54975b18070dcb36f66f8d9fe7bdc2e16dd4eed2c44ab542d41a571",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/08-return.png",
+          "sha256": "4b9af47ed70de8c9ca33a7d72e73345717a8a277b580fe4a92eb1b12fa6baecd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/09-reduced-motion-entry.png",
+          "sha256": "4b9af47ed70de8c9ca33a7d72e73345717a8a277b580fe4a92eb1b12fa6baecd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/sequence.webm",
+          "sha256": "6d111d77dc52cc91f34874c685bae6465241af3164ad191b353ed26a32b9db7c",
+          "bytes": 1931557,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "trust",
+      "run": "37894026455",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/01-entry.png",
+          "sha256": "4b982de638f69a91ea418e3df5a7c0506695e5b2e0e928386d1cd0f1745142de",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/02-settled.png",
+          "sha256": "18840d5b6d1084ff0df7d90d7f3217e9553afab56f324e9f286eb7a0b99e4461",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/03-scroll.png",
+          "sha256": "1338548f567eb17dcbd9eb6bc6f4b07fcfdfeddaa9f16d2a6d3463f9dce0dda1",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/04-scroll.png",
+          "sha256": "36f5b7542d6a272c18461006b7d4382e2413bad660c5900c27f0ba64390b1637",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/05-scroll.png",
+          "sha256": "96563b58bd8e37909f8c70f73f3ce05c29058e3b5b0af6a541cdef5bddd0295e",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/06-fast-scroll.png",
+          "sha256": "ed6f98bf7e04a2ce3f9fe71129a7e0e1f499852940ad2356db3fd6dd21fdf841",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/07-reverse.png",
+          "sha256": "4836a43035f0898f7971f221eda41a59a5b131c2b707f1cc0b510af318a49ad4",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/08-return.png",
+          "sha256": "b48362db14cefa58693debb7b2feb8d3c5337f09364ac673c3e80894f711e5f9",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/09-reduced-motion-entry.png",
+          "sha256": "74a004728e240d99b9fd82b3819ebf871251c821ecd430ce3921590f7928f311",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/sequence.webm",
+          "sha256": "b2e3aa9422754646a6e30f91b7225e0d3cf0d8159c5ee9c05d18a199d6017aad",
+          "bytes": 6006236,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "trust",
+      "run": "37894026455",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/01-entry.png",
+          "sha256": "efd10184a26dff1e4db9b528b624aa8fba33a3bed47fe1e7d494801338b207b2",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/02-settled.png",
+          "sha256": "696a45f287fd04a30f2c3c3ff86f3d56c680dd09ad6834c989d12ce1d3297e72",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/03-scroll.png",
+          "sha256": "3c0a5373e1e9f801d9cd483b2c2540e87d6ed7884211475d02f5551e0aa8ebe9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/04-scroll.png",
+          "sha256": "4122e2f089bdf8f640c075759d5bac1398878ad126d0622285ce733cbcd920fb",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/05-scroll.png",
+          "sha256": "1fb9800ac4ce3042e3dc8b8b7dbe7df23e3dd5efb40726fc019961f863ed2f4c",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/06-fast-scroll.png",
+          "sha256": "61b6cf58c4b672e51e34642479ff6e279832c90b50b9f7214f1600d45f6ecf02",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/07-reverse.png",
+          "sha256": "2eb1ea658255b9969ccaab00d7aca7c224c15c3693706e6603e6a13276b726f3",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/08-return.png",
+          "sha256": "b19da5bf7b89cd5bf4b6bdc49c15f5376bbfb40cf2f2d9c069b2aec1407b63b7",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/09-reduced-motion-entry.png",
+          "sha256": "c335440f12c927ca0279b92495d132d22e4ffc46137814769424dcb33a220ded",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/sequence.webm",
+          "sha256": "f88f483d2096f653a4a829a3ddc402b926f7cc1f048cfca973e98f82649c31c2",
+          "bytes": 4675290,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "twks",
+      "run": "37894026455",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/01-entry.png",
+          "sha256": "e882b8ba89fc03adcb09e48312f3c7653d374f86f1104d9baf0d6f71eeec8f57",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/02-settled.png",
+          "sha256": "e882b8ba89fc03adcb09e48312f3c7653d374f86f1104d9baf0d6f71eeec8f57",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/03-scroll.png",
+          "sha256": "8ae4fdf9bd290db4908e7e00f539727f2942a1b778defb36918ca95c59187ff3",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/04-scroll.png",
+          "sha256": "98453072334a2249fb0c482b0c129e064a7dfe552d7eb07b448a0b05de80001e",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/05-scroll.png",
+          "sha256": "bebf6e7d34087cf4fbd01c93aa81616fa930149b0d4ee62d4c563613d5679c16",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/06-fast-scroll.png",
+          "sha256": "90e22077e4e2a438a9ecb01790daa9ac1c6db856eed6a978c6356345dfefdd28",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/07-reverse.png",
+          "sha256": "a8d4f37bf73a97dd34a0ab445aa111137287f5fe430728d187927a3fa12bfcd4",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/08-return.png",
+          "sha256": "e882b8ba89fc03adcb09e48312f3c7653d374f86f1104d9baf0d6f71eeec8f57",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/09-reduced-motion-entry.png",
+          "sha256": "43cd17eef4f46f47f77e0915a4464b2ab0ea4544587a85b94ca797f6bb7fb39a",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/sequence.webm",
+          "sha256": "26e45c2473812df027989ba0c28136086bba5191b24de30ccf57de927ac5496a",
+          "bytes": 2460541,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "twks",
+      "run": "37894026455",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/manifest.json",
+      "failure": null,
+      "classification": "primary sequence",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/01-entry.png",
+          "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/02-settled.png",
+          "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/03-scroll.png",
+          "sha256": "f3e336625068d4ffc1aa610c2a43e6aa95fe2000c6be28557d3427dcff6e4cfa",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/04-scroll.png",
+          "sha256": "d784e22ed2bfd53385d22d37eead86cbc960b6bfb19098919b32b7d2e6a40ecd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/05-scroll.png",
+          "sha256": "9c7a9b5b938ed5f7d9b4ace70c5aa5f3bdc72cd08ef29245e2ba6449fdb1e471",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/06-fast-scroll.png",
+          "sha256": "3f69d05fee3d9cce23c59eb29c3067d96538cd563b513bfad8173d7bf37651c3",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/07-reverse.png",
+          "sha256": "bff839e7ae60b3d9856f8d7171cf2b23ac509314227839417e0e9ec975335dc3",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/08-return.png",
+          "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/09-reduced-motion-entry.png",
+          "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/sequence.webm",
+          "sha256": "1574b89fc5845d8fde409c3effb551e2517d92ea71c8ee94db83386efca41630",
+          "bytes": 1754331,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "bicycle",
+      "run": "37895197290",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37895197290/gtop-interaction-bicycle/run-37895197290/bicycle/bicycle/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37895197290/gtop-interaction-bicycle/run-37895197290/bicycle/manifest.json",
+      "failure": "Error: Slider not in viewport",
+      "classification": "interaction attempt",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-bicycle/run-37895197290/bicycle/bicycle/1440/diagnostic.png",
+          "sha256": "cbeb5d1d783f34485db3679221fdc36e7562b9685adbe91e5b197956b98929a0",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-bicycle/run-37895197290/bicycle/bicycle/1440/sequence.webm",
+          "sha256": "d91f6dfcdcbf0267efa91041f5be2b7f41fea47d47720e983072391066c63b90",
+          "bytes": 1197935,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "bicycle",
+      "run": "37895197290",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37895197290/gtop-interaction-bicycle/run-37895197290/bicycle/bicycle/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37895197290/gtop-interaction-bicycle/run-37895197290/bicycle/manifest.json",
+      "failure": null,
+      "classification": "interaction attempt",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-bicycle/run-37895197290/bicycle/bicycle/390/01-slider-neutral.png",
+          "sha256": "c2ad3bec4abc7c9f416bf4dcf2f8133cb5fb1073c42a4e9eab7e194d239dc785",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-bicycle/run-37895197290/bicycle/bicycle/390/02-slider-right.png",
+          "sha256": "25ce1734349dfe063479ca0470bb416ea82d9e978f854984b1b06fb2ef5145ca",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-bicycle/run-37895197290/bicycle/bicycle/390/03-slider-left.png",
+          "sha256": "2244288001b3bf5d27ab7ba57ba37908964ba7083ae47ed97a9b8245e1718ee9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-bicycle/run-37895197290/bicycle/bicycle/390/sequence.webm",
+          "sha256": "44e88062a1513892d53f680438e479d34a7cdbf8d25ec3ea747ed748d56000a6",
+          "bytes": 4176176,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "brilliant",
+      "run": "37895197290",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37895197290/gtop-interaction-brilliant/run-37895197290/brilliant/brilliant/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37895197290/gtop-interaction-brilliant/run-37895197290/brilliant/manifest.json",
+      "failure": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Pause', exact: true })\n    - locator resolved to <button type=\"button\" aria-label=\"Pause\" class=\"panda-ai_center panda-bg_transparent panda-bdr_full panda-bd-w_0 panda-cursor_pointer panda-d_flex panda-h_10 panda-jc_center panda-op_0 panda-ring_none panda-ov_visible panda-p_2 panda-pointer-events_none panda-pos_relative panda-trs_[background-color_0.2s_ease,_color_0.2s_ease,_opacity_0.2s_ease] panda-w_10 after:panda-content_\"\" after:panda-h_12 after:panda-left_[50%] after:panda-pos_absolute after:panda-top_[50%] after:panda-trf_[translate(-50%,_-50%\u2026>\u2026</button>\n  - attempting click action\n    2 \u00d7 waiting for element to be visible, enabled and stable\n      - element is visible, enab",
+      "classification": "interaction attempt",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-brilliant/run-37895197290/brilliant/brilliant/1440/01-clean-entry.png",
+          "sha256": "83fbd8065f145e858d6894dede86c3cd5214dcffa35afafc6cc91efaf5db2a75",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-brilliant/run-37895197290/brilliant/brilliant/1440/diagnostic.png",
+          "sha256": "b046647cb12e0b11f7c5bad835e28fd51858623701a5fbba418c813687b41765",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-brilliant/run-37895197290/brilliant/brilliant/1440/sequence.webm",
+          "sha256": "745c609ee3a38a42dc1bb0296ab447ecb2729eeb61abf59886fad3015825e5c8",
+          "bytes": 1818613,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "brilliant",
+      "run": "37895197290",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37895197290/gtop-interaction-brilliant/run-37895197290/brilliant/brilliant/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37895197290/gtop-interaction-brilliant/run-37895197290/brilliant/manifest.json",
+      "failure": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Pause', exact: true })\n    - locator resolved to <button type=\"button\" aria-label=\"Pause\" class=\"panda-ai_center panda-bg_transparent panda-bdr_full panda-bd-w_0 panda-cursor_pointer panda-d_flex panda-h_10 panda-jc_center panda-op_0 panda-ring_none panda-ov_visible panda-p_2 panda-pointer-events_none panda-pos_relative panda-trs_[background-color_0.2s_ease,_color_0.2s_ease,_opacity_0.2s_ease] panda-w_10 after:panda-content_\"\" after:panda-h_12 after:panda-left_[50%] after:panda-pos_absolute after:panda-top_[50%] after:panda-trf_[translate(-50%,_-50%\u2026>\u2026</button>\n  - attempting click action\n    2 \u00d7 waiting for element to be visible, enabled and stable\n      - element is visible, enab",
+      "classification": "interaction attempt",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-brilliant/run-37895197290/brilliant/brilliant/390/01-clean-entry.png",
+          "sha256": "056af68f8010d1235241e6dd7b148d7ec075810527774ce84c99b02f3dd81891",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-brilliant/run-37895197290/brilliant/brilliant/390/diagnostic.png",
+          "sha256": "e3dd483871e64640fb46dae5a61f777105d4f5080fe0625d05cc927649f09251",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-brilliant/run-37895197290/brilliant/brilliant/390/sequence.webm",
+          "sha256": "fe02544c82ece8858474fc221242697c280f9e7d5ae28e26bc131400b2eea834",
+          "bytes": 1516762,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "des",
+      "run": "37895197290",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/des/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/manifest.json",
+      "failure": null,
+      "classification": "interaction attempt",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/des/390/01-before-touch.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/des/390/02-touch-scroll.png",
+          "sha256": "2a23b8d0fa15766c39713571786c36c28d66596eb21221998c40809a9541755c",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/des/390/03-touch-scroll.png",
+          "sha256": "e684a25251f2386b168813f117e409162f4ec1e3c8ee0834fcfc146aa52e7740",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/des/390/04-touch-scroll.png",
+          "sha256": "841bae818aa759264634e9a24fe424fbdb92f53c588c37ea951b9607453d9866",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/des/390/sequence.webm",
+          "sha256": "09437459e11d2aacfba1c9f08866f77b16005eb5fe502840449ead4d26023637",
+          "bytes": 1673419,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "bicycle",
+      "run": "37895866895",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/manifest.json",
+      "failure": null,
+      "classification": "interaction attempt",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/1440/01-slider-neutral.png",
+          "sha256": "a81d2b96ee59b4852ff2d35621689bc0eef81614d34080f15c4f97dcfa7c0966",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/1440/02-slider-right.png",
+          "sha256": "fe6a7e5b30ec68fd61735643397123daca5e8dbefec0d0c2054ee760bdfbae60",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/1440/03-slider-left.png",
+          "sha256": "b770162c28510addfe2c10fd9a2c629655bfc701eac578b2760e435f2ea326ea",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/1440/sequence.webm",
+          "sha256": "3801e7415774a1d1cb79a088d7a95ff7d46eabf8637745b4d2af40d009c547c5",
+          "bytes": 4034118,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "bicycle",
+      "run": "37895866895",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/manifest.json",
+      "failure": null,
+      "classification": "interaction attempt",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/390/01-slider-neutral.png",
+          "sha256": "3d24a0713ced54ff076d01e14dd8e1555aac816ee29a5259b2640d268ac67ed8",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/390/02-slider-right.png",
+          "sha256": "82fc523a0459625430da8ad9c690eb5b2e68b3790ead4ef469d8f9900e32e417",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/390/03-slider-left.png",
+          "sha256": "e8891c111db471976efe5317bf4d16be171fe37cc13dc3c06e1d0ac6f2d09ce6",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/390/sequence.webm",
+          "sha256": "7582649ee2ba06885c1028b6b8ccf22c035491e4c7f46331ec608b890d705e3e",
+          "bytes": 4622815,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "brilliant",
+      "run": "37895866895",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/1440/record.json",
+      "manifest": "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/manifest.json",
+      "failure": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Pause', exact: true })\n    - locator resolved to <button type=\"button\" aria-label=\"Pause\" class=\"panda-ai_center panda-bg_transparent panda-bdr_full panda-bd-w_0 panda-cursor_pointer panda-d_flex panda-h_10 panda-jc_center panda-op_0 panda-ring_none panda-ov_visible panda-p_2 panda-pointer-events_none panda-pos_relative panda-trs_[background-color_0.2s_ease,_color_0.2s_ease,_opacity_0.2s_ease] panda-w_10 after:panda-content_\"\" after:panda-h_12 after:panda-left_[50%] after:panda-pos_absolute after:panda-top_[50%] after:panda-trf_[translate(-50%,_-50%\u2026>\u2026</button>\n  - attempting hover action\n    2 \u00d7 waiting for element to be visible and stable\n      - element is visible and stable\n   ",
+      "classification": "interaction attempt",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/1440/01-clean-entry.png",
+          "sha256": "c515f9755351552fb9afa54b1ab6e4759b6b1cd9cebeb940fe023d1497e76170",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/1440/diagnostic.png",
+          "sha256": "04317a87de410f0f5eb6112b7ce1994c99340b22318a0fe8518c6a047490756d",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/1440/sequence.webm",
+          "sha256": "7e5be7a753b750397e86920f0e219d32b8c94ca7e389ff66d37e104f23bae92e",
+          "bytes": 1601556,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "brilliant",
+      "run": "37895866895",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/390/record.json",
+      "manifest": "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/manifest.json",
+      "failure": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Pause', exact: true })\n    - locator resolved to <button type=\"button\" aria-label=\"Pause\" class=\"panda-ai_center panda-bg_transparent panda-bdr_full panda-bd-w_0 panda-cursor_pointer panda-d_flex panda-h_10 panda-jc_center panda-op_0 panda-ring_none panda-ov_visible panda-p_2 panda-pointer-events_none panda-pos_relative panda-trs_[background-color_0.2s_ease,_color_0.2s_ease,_opacity_0.2s_ease] panda-w_10 after:panda-content_\"\" after:panda-h_12 after:panda-left_[50%] after:panda-pos_absolute after:panda-top_[50%] after:panda-trf_[translate(-50%,_-50%\u2026>\u2026</button>\n  - attempting hover action\n    2 \u00d7 waiting for element to be visible and stable\n      - element is visible and stable\n   ",
+      "classification": "interaction attempt",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/390/01-clean-entry.png",
+          "sha256": "94bf595a6dfadba3d5fdb3468cb6e1b123898526fd6e360c3ebf088a32c37361",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/390/diagnostic.png",
+          "sha256": "d024fdb63363b3ac70c3f05050b1ee2597f24aef5eee246ab1c470ca1d0116f7",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/390/sequence.webm",
+          "sha256": "e6bbe17a6bcab0ebfe1d6980836bcaeee19b7f69d1a6b6f6e1dd6508d0404802",
+          "bytes": 1561792,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "bicycle",
+      "run": "37893083557",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": "TimeoutError: page.reload: Timeout 30000ms exceeded.\nCall log:\n  - waiting for navigation until \"domcontentloaded\"\n    - navigated to \"https://ciechanow.ski/bicycle/\"\n",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/01-entry.png",
+          "sha256": "f6a025e22c3d4d82bba51ea5b92e049a85a769a3c05240012ea0c7bdc717c1a1",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/02-settled.png",
+          "sha256": "e18d2f7e52b7d6d569eda5656a3286d4de071a246e2f3976faba45e2cc2c7397",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/03-scroll.png",
+          "sha256": "facc328cf10f595fab43d7eb109c0fd9e2f19d3e6695b564abb733ea2f81a761",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/04-scroll.png",
+          "sha256": "20e66821aa5bd0daf15086d66ca2611f72b6f7588393b022f506403dd723181d",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/05-scroll.png",
+          "sha256": "c52f82b39755c504760a2eda03fa8962f18cf47228b58ac0983ee447ec8b7940",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/06-fast-scroll.png",
+          "sha256": "48cc19aad2ba43fc0cd7ab0d054cbb4d4a834c31107ebb70de09048b75d50e8a",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/07-reverse.png",
+          "sha256": "718ee87670cb0ab34c190ad9bd3a52e369d66ed217e95d728c2f221d0678f68f",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/08-return.png",
+          "sha256": "3dc58078cdeb3267014297523534bde823c0acd981a1e6b475099e38158edb6c",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/sequence.webm",
+          "sha256": "4f16c0db55089145ef556559021a0f7082de4b7ffa30f9b0634aec27e00daac5",
+          "bytes": 10079785,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "bicycle",
+      "run": "37893083557",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": null,
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/01-entry.png",
+          "sha256": "e3deb74b749e1455a41027122683d4204d4891d1e233ee52a7df7681ac9b16c5",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/02-settled.png",
+          "sha256": "828680c5829c5d991b793c244a25b2079de219a62c3a41cf45f8585f4c66a782",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/03-scroll.png",
+          "sha256": "58f24a9be8d5290e4bc04cfb7d4b1cdbddf92902c48b444aa74ddeb0e04fec83",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/04-scroll.png",
+          "sha256": "28bb91bb6436d18e88a0394c940b3575e175f6f5fba29125b10b822d9972b06c",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/05-scroll.png",
+          "sha256": "15c91b85aada2a9eebcea771699ed69683a3f317a904a3a3a51763c6a7933096",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/06-fast-scroll.png",
+          "sha256": "6bb26fa46da456f15af8aa117246b690b8e56e0fb3a24075c2d0544a94e8d2ef",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/07-reverse.png",
+          "sha256": "4e0706b07bbeac6871c9f8c99f5abaa08125536df4cd7ad69ce325e250a94804",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/08-return.png",
+          "sha256": "34a81859825be233b51edb65c890680904fe37abc08d7f7c5d083af44bf758a5",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/09-reduced-motion-entry.png",
+          "sha256": "6b94ac659d7a2ca0c34358ecd95aa65f3cacaa2db9fa0a6e53bed1a56b4fb910",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/sequence.webm",
+          "sha256": "26c5ce7f3c78a8cc90a41b2729a5d079c8ee43be9ad9a0b5d4fb6a38b9d79eff",
+          "bytes": 5395044,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "des",
+      "run": "37893083557",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": null,
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/01-entry.png",
+          "sha256": "a5f3968187c9b91ea4d1675b195ded8616093ef4ea17ee315eebde2c3a33c433",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/02-settled.png",
+          "sha256": "0633df8d26d53e9d0e8b75cbb7e059afa00d101a6d4b81ebd09c7456dd5775e3",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/03-scroll.png",
+          "sha256": "ae3a352652642d10601ab55bc2e05d9573e5ef495c2c7354c73434e0713d0f16",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/04-scroll.png",
+          "sha256": "08caabf3c386ce78cfa620863d9561f208175eb78c6530eb146846c94d18c692",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/05-scroll.png",
+          "sha256": "96ff59b46e88d301f2136962a03121024c4c3bb94da9e9c7a95215c5be820eaa",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/06-fast-scroll.png",
+          "sha256": "adbdadc72dd313f021d84a9815f750ea4b52c0a4c1ba737ace729bc20eaa9e32",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/07-reverse.png",
+          "sha256": "9f5c4404de3ffe3762d8ed0232f103771b919215e1e07a31a9141d2d00865649",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/08-return.png",
+          "sha256": "d99337a758d6df56c8cbf9493377d6cfa4ae65dcae0515548ad5ec63faa36747",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/09-reduced-motion-entry.png",
+          "sha256": "b4acd1c37386291a51b15ce55d903bf3e7d5726c762908d9e59f8f53e9e52211",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/sequence.webm",
+          "sha256": "dadd5337ec64203c5fb289fc90aaae7bff397f135a5c98c61614c4d925594dd6",
+          "bytes": 5804322,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "des",
+      "run": "37893083557",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": null,
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/01-entry.png",
+          "sha256": "d3ba3b9a196cdfecbaf26e0a225c6c313978fe0abe6320d003cd74aaa0c06e53",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/02-settled.png",
+          "sha256": "4f24ccfb224a95d11fa10727fe0a85f2b58d3b86dbe354f59249e58e74c65067",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/03-scroll.png",
+          "sha256": "5204db1d53acc831b013c5b05ac2dc363fd79a2aac0f12d3cacb87104752101f",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/04-scroll.png",
+          "sha256": "810daf49c083aebc0eb54708bfb6d9823a8d29128e82c934d223df84c3f61cfb",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/05-scroll.png",
+          "sha256": "d9184c7d72cb0e4aa397320ac451b3783a2876da2c831ae791191a0b897204e9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/06-fast-scroll.png",
+          "sha256": "d9184c7d72cb0e4aa397320ac451b3783a2876da2c831ae791191a0b897204e9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/07-reverse.png",
+          "sha256": "d9184c7d72cb0e4aa397320ac451b3783a2876da2c831ae791191a0b897204e9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/08-return.png",
+          "sha256": "d9184c7d72cb0e4aa397320ac451b3783a2876da2c831ae791191a0b897204e9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/09-reduced-motion-entry.png",
+          "sha256": "ccd7bcfe2716e300e63d83f654764ae41729e684c63abc19b461a0c3783d21c5",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/sequence.webm",
+          "sha256": "bed82d44e26d60e0106f5cfc623aca85d5577944a7db31ed1057f118af123a58",
+          "bytes": 1399886,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "igloo",
+      "run": "37893083557",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/1440/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": "TimeoutError: page.screenshot: Timeout 15000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/1440/01-entry.png",
+          "sha256": "a8748320b40afa0f4cdbb13fe7422e041bc227db9445ed642670c5b67a4e3722",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/1440/02-settled.png",
+          "sha256": "9f9f338ed97c7a8d9156676ae4d42cc3f4282fbb0b4a17e1ebcbecf819f952b5",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/1440/03-scroll.png",
+          "sha256": "74956ddf9a08b23a10f582e54e6491aae9111e907c172a4f740e7decadfb6ae1",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/1440/diagnostic.png",
+          "sha256": "c2d865de2f072b745757859b642a2fa2e3f50a9960695957402968aa96798110",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/1440/sequence.webm",
+          "sha256": "2ba35c1e43fdcd17e206891c86f2203848894aa415c9ebfa7b5a8bd9a073b6df",
+          "bytes": 2676197,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "lando",
+      "run": "37893083557",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/1440/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": "TimeoutError: page.screenshot: Timeout 15000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n",
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/1440/diagnostic.png",
+          "sha256": "f31200480d3a4ffcc941f1a97c8ac969781df5ab27cad89ba7c9ccd6ec6d3c93",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/1440/sequence.webm",
+          "sha256": "e01039c21e5b3e9c3c05ec4d8c45f48643a03a4f99ffbd025254c33b066caa69",
+          "bytes": 410334,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "lando",
+      "run": "37893083557",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": null,
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/01-entry.png",
+          "sha256": "186b38d95ac0ee5117e7eb4b88269623c251b6f3585d8ce5eef76fe1f8ba96d2",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/02-settled.png",
+          "sha256": "d75dec53d7ac3a0985ba8946e82255cfeeb9c4bd9ad9f36f4b48a115903c5501",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/03-scroll.png",
+          "sha256": "2754a5708943a91e5f6645d81d995a9eece21aa28bad8e80d9d6646e85fd22ee",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/04-scroll.png",
+          "sha256": "54a30c934776bff5b50bd463a8ef3b0ab8c09248007d33e6cf1c0720edfbab63",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/05-scroll.png",
+          "sha256": "9cb1ed38187c7dc6b0b41a5ac894ddc95551c699f64f8048415e0a6ccbeb3d70",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/06-fast-scroll.png",
+          "sha256": "dfed2b8349b009802309ce5dd50882d8c410d351631bbd58931a6075444c3f0b",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/07-reverse.png",
+          "sha256": "3c420dd45d5296caeac3ba4cd47203c01d1f3a56709b39f28a6bad50ee9866d3",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/08-return.png",
+          "sha256": "234f74426987b9574c7ecb89cf9411ef9735617b6ffd2994b6fea1e3e4d09790",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/09-reduced-motion-entry.png",
+          "sha256": "cffd5ddb2f96d9359128a86145fc09f9a75b3c4716e2148e99bc0fb1585fe4f4",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/sequence.webm",
+          "sha256": "f84fd2c069126ff50e87077352906269884273a385e60114905ba11fe9d5e4f5",
+          "bytes": 4134361,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "linear",
+      "run": "37893083557",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": null,
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/01-entry.png",
+          "sha256": "e6bfa2bde0795109b6cd49e1f92d4f881a3ea3bc157b9189dcf6e421b42943d8",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/02-settled.png",
+          "sha256": "bba285cc3a572d262536cbb60442bbdfb215446d1129ebc836ebeb570d67f5a2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/03-scroll.png",
+          "sha256": "0f4f6adac8e106ff425597cfa20d6e69dde3fe0676cc97174c438a15215f3b18",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/04-scroll.png",
+          "sha256": "ac1ae9c622021455764ea02c4632da1cc396ceb4981b40d839f4ec939f8c6af9",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/05-scroll.png",
+          "sha256": "ac1ca96a37429bcdf7782a305dcaaefd06462b781e576971a999bd9f30d6a1f2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/06-fast-scroll.png",
+          "sha256": "3c2f7ea5a208e89dba928748ecb4f9e94e13a8c08625f99286cb5898fd3ade9a",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/07-reverse.png",
+          "sha256": "29696770eabf2d9ef5e84d6395d4e58ba11b78065c8a894c389bd479076a6cba",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/08-return.png",
+          "sha256": "bba285cc3a572d262536cbb60442bbdfb215446d1129ebc836ebeb570d67f5a2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/09-reduced-motion-entry.png",
+          "sha256": "bba285cc3a572d262536cbb60442bbdfb215446d1129ebc836ebeb570d67f5a2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/sequence.webm",
+          "sha256": "49ddf2c01d16f30f240026a84ea4c7c3846c3a045ebab6eaa0b67b1e6d61d111",
+          "bytes": 3987995,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "linear",
+      "run": "37893083557",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": null,
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/01-entry.png",
+          "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/02-settled.png",
+          "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/03-scroll.png",
+          "sha256": "3b13ad84e633882087e61f8c9de17d1554164827621f002362b7f168f5dbc7ea",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/04-scroll.png",
+          "sha256": "1e7cc04e7e8b394a436fafae4a77e1c311d313903f4b5b32e6f7dc52b9148237",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/05-scroll.png",
+          "sha256": "49286b7b1d3652f719fec3a93d78987e1b5dd986c280c68035fc05c010a3709a",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/06-fast-scroll.png",
+          "sha256": "26d95f8619e08e522f54485bb59c889979bee7021dd9cf75982a8cac8d063bc1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/07-reverse.png",
+          "sha256": "e39141d062761cc7c74e29f3d3537060a50c556fc2ca3da438f73541f9c6142d",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/08-return.png",
+          "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/09-reduced-motion-entry.png",
+          "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/sequence.webm",
+          "sha256": "2f118d1c2f900855217b8a4a35a5a7c6ad0ea66df47e55cd5734bc6f6771dffb",
+          "bytes": 2332761,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "twks",
+      "run": "37893083557",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": null,
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/01-entry.png",
+          "sha256": "16b96a49ddb30433d2f7ae7352fb3affe237266a69959696d2d5afd0b720240a",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/02-settled.png",
+          "sha256": "e882b8ba89fc03adcb09e48312f3c7653d374f86f1104d9baf0d6f71eeec8f57",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/03-scroll.png",
+          "sha256": "8ae4fdf9bd290db4908e7e00f539727f2942a1b778defb36918ca95c59187ff3",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/04-scroll.png",
+          "sha256": "98453072334a2249fb0c482b0c129e064a7dfe552d7eb07b448a0b05de80001e",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/05-scroll.png",
+          "sha256": "bebf6e7d34087cf4fbd01c93aa81616fa930149b0d4ee62d4c563613d5679c16",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/06-fast-scroll.png",
+          "sha256": "90e22077e4e2a438a9ecb01790daa9ac1c6db856eed6a978c6356345dfefdd28",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/07-reverse.png",
+          "sha256": "a8d4f37bf73a97dd34a0ab445aa111137287f5fe430728d187927a3fa12bfcd4",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/08-return.png",
+          "sha256": "e882b8ba89fc03adcb09e48312f3c7653d374f86f1104d9baf0d6f71eeec8f57",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/09-reduced-motion-entry.png",
+          "sha256": "e882b8ba89fc03adcb09e48312f3c7653d374f86f1104d9baf0d6f71eeec8f57",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/sequence.webm",
+          "sha256": "d211606ab902b26395da39d55f476f6ec3ede8f685abc9df28781cd140822b45",
+          "bytes": 4280542,
+          "kind": "video"
+        }
+      ]
+    },
+    {
+      "site": "twks",
+      "run": "37893083557",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/record.json",
+      "classification": "superseded diagnostic first pass",
+      "failure": null,
+      "files": [
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/01-entry.png",
+          "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/02-settled.png",
+          "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/03-scroll.png",
+          "sha256": "dac549f220103e798249577ada520bef7385317cf489fba17a8ccffcb6121ad9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/04-scroll.png",
+          "sha256": "d784e22ed2bfd53385d22d37eead86cbc960b6bfb19098919b32b7d2e6a40ecd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/05-scroll.png",
+          "sha256": "9c7a9b5b938ed5f7d9b4ace70c5aa5f3bdc72cd08ef29245e2ba6449fdb1e471",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/06-fast-scroll.png",
+          "sha256": "94ea4de3710acfb57410f661b397a90d556076b18f39f3f180f26acc8fa354c6",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/07-reverse.png",
+          "sha256": "bff839e7ae60b3d9856f8d7171cf2b23ac509314227839417e0e9ec975335dc3",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/08-return.png",
+          "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/09-reduced-motion-entry.png",
+          "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/sequence.webm",
+          "sha256": "17a2f4df2d584757e7be3ac85890393d510c315654af7582731d59d09f9aadc8",
+          "bytes": 2945565,
+          "kind": "video"
+        }
+      ]
+    }
+  ],
+  "liveObservations": "live-browser-observations.json",
+  "derived": [
+    {
+      "path": "boards/bicycle-1440-motion.jpg",
+      "sha256": "a93ec8c3b8b26b0c55049e03890b241f3335bf5304a3a0ce3dfff03d578113d7",
+      "width": 1440,
+      "height": 550,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/bicycle-390-motion.jpg",
+      "sha256": "eae67efffe91946dee38c1baa15f2d8f9b29de0a7e1956c5c3e6d7a816f7ee99",
+      "width": 880,
+      "height": 1020,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/bicycle-pair.jpg",
+      "sha256": "934699d8ba0b66faca75810d5da1b165c914b60e1c1d6360b480b03386fa84bd",
+      "width": 1200,
+      "height": 735,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/02-settled.png",
+        "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/03-scroll.png"
+      ]
+    },
+    {
+      "path": "boards/bicycle-slider.jpg",
+      "sha256": "f4502e6246ff4b6567d796291800404f84a928620de2fd198995fe768f80a09e",
+      "width": 705,
+      "height": 555,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/390/01-slider-neutral.png",
+        "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/390/02-slider-right.png",
+        "evidence/2026-10-09/run-37895866895/gtop-interaction-bicycle/bicycle/bicycle/390/03-slider-left.png"
+      ]
+    },
+    {
+      "path": "boards/brilliant-1440-motion.jpg",
+      "sha256": "68eab342777007b42d0564bd028872e731890af4d78f5da683c0ac6e31aa57e4",
+      "width": 1440,
+      "height": 550,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/1440/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/brilliant-390-motion.jpg",
+      "sha256": "37f7daf0cc737a8549d9728adc06363d93848fabf7acd26e7b7c2398a8c8d763",
+      "width": 880,
+      "height": 1020,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-brilliant/run-37894026455/brilliant/brilliant/390/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/brilliant-pair.jpg",
+      "sha256": "04c7915942d64a75db64d2b40ed430e90bb6a964c084c6b22cc24b331b19b88b",
+      "width": 1200,
+      "height": 735,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/1440/01-clean-entry.png",
+        "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/390/01-clean-entry.png"
+      ]
+    },
+    {
+      "path": "boards/des-1440-motion.jpg",
+      "sha256": "1c2211b67c283690360d6101888246db3321f737c3cb76e61043b864a64c72dd",
+      "width": 1440,
+      "height": 550,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/des-390-motion.jpg",
+      "sha256": "3f12d0cc923c3619fc1776236dbc26bbfd47cc35fc305c047c313a8e71cebdb4",
+      "width": 880,
+      "height": 1020,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/des-pair.jpg",
+      "sha256": "fe2de7231f23ee63141d7ad7b6c684bfa51e1a56608536d4b56f56131e1cd808",
+      "width": 1200,
+      "height": 735,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/02-settled.png",
+        "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/02-settled.png"
+      ]
+    },
+    {
+      "path": "boards/des-touch.jpg",
+      "sha256": "843ec8880b5132771b2f4a6b386b685fad88efebd14d23f5fc3f1aff6afaa3e8",
+      "width": 940,
+      "height": 555,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/des/390/01-before-touch.png",
+        "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/des/390/02-touch-scroll.png",
+        "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/des/390/03-touch-scroll.png",
+        "evidence/2026-10-09/run-37895197290/gtop-interaction-des/run-37895197290/des/des/390/04-touch-scroll.png"
+      ]
+    },
+    {
+      "path": "boards/linear-1440-motion.jpg",
+      "sha256": "c1002547672f883b53e3850b2291d0b8064636e41f733c8056c3adfa39ba11c6",
+      "width": 1440,
+      "height": 550,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/linear-390-motion.jpg",
+      "sha256": "42ed9228a0a471faa9f9bc538d1d80a4e54a913a326db99859308b5ea6c18b22",
+      "width": 880,
+      "height": 1020,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/linear-pair.jpg",
+      "sha256": "2afb82d65710053ef317259d9db493deaca0c2b4de8b5cadd45c4cbf79592b82",
+      "width": 1200,
+      "height": 735,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/02-settled.png",
+        "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/02-settled.png"
+      ]
+    },
+    {
+      "path": "boards/primer-1440-motion.jpg",
+      "sha256": "5de3c2885c12cab31a2fe4ac7ec60d996d76a3d48ceee429787ae890f7950bfe",
+      "width": 1440,
+      "height": 550,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/1440/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/primer-390-motion.jpg",
+      "sha256": "f351dabda6be79122a5f01b2ae862b72567a069c6949bef9709eb0127dc84024",
+      "width": 880,
+      "height": 1020,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/primer-pair.jpg",
+      "sha256": "9bce59dc3a27f56bbeef92fb15dde2691c7a50de7c10565212073fc414b6da49",
+      "width": 1200,
+      "height": 735,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/primer-live-05-descending.jpg",
+        "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/02-settled.png"
+      ]
+    },
+    {
+      "path": "boards/reference-overview.jpg",
+      "sha256": "def2ef9a4b0708d08e9ad1236715915465b059b0b9221ec26b18ff4b2b8ebb48",
+      "width": 1500,
+      "height": 620,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/02-settled.png",
+        "evidence/2026-10-09/trust-live-03-feedback.jpg",
+        "evidence/2026-10-09/primer-live-05-descending.jpg"
+      ]
+    },
+    {
+      "path": "boards/trust-1440-motion.jpg",
+      "sha256": "780c26bab6d029e53f1a49ea34340f161d1e4ec8540b9c7623edbde34d6cd303",
+      "width": 1440,
+      "height": 550,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/1440/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/trust-390-motion.jpg",
+      "sha256": "f8011ae2975834f33ae6a924a5a390245f43ed4f27e1e0b75a4c96c8911ee182",
+      "width": 880,
+      "height": 1020,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/trust-pair.jpg",
+      "sha256": "2f1cc475054973e28358cae49f0836ec8d5ed58c7a777527d50722fca9c1dcc0",
+      "width": 1200,
+      "height": 735,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/trust-live-03-feedback.jpg",
+        "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/02-settled.png"
+      ]
+    },
+    {
+      "path": "boards/twks-1440-motion.jpg",
+      "sha256": "9c29c87249529d1d830a1b0ac8697e88dba041da4cddfde6a41a27c89b1d8806",
+      "width": 1440,
+      "height": 550,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/twks-390-motion.jpg",
+      "sha256": "922598d79e2ac8bc5174f39d270b836c393bec44954c9eeed5a3709ce261ba6a",
+      "width": 880,
+      "height": 1020,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/sequence.webm"
+      ]
+    },
+    {
+      "path": "boards/twks-pair.jpg",
+      "sha256": "4e98847d66569483245686296990b5673067844c989b3d8736dacf887c61b7a4",
+      "width": 1200,
+      "height": 735,
+      "classification": "derived overview, not original",
+      "sources": [
+        "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/04-scroll.png",
+        "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/04-scroll.png"
+      ]
+    }
+  ],
+  "limitations": [
+    "Counts include superseded captures, retries and diagnostics; they are not successful benchmarks",
+    "Record failure does not make every screenshot invalid; visual review governs selection",
+    "Run 37895197290 archive excludes duplicate copies of run 37894026455 bundled by the upload glob",
+    "CUA captures are desktop browser window dimensions, not the standardized CI viewport",
+    "No real-student preference study, physical-device validation or FPS measurement"
+  ],
+  "rawHistoryPreservation": {
+    "firstPassRun": "37893083557",
+    "interactionRun": "37895197290",
+    "archivalRun": "37895676840",
+    "reason": "First run was cancelled after rendering stalls; a failed preservation step lacked same-repository Actions read permission. Archival job recovered existing artifacts without recapture."
+  },
+  "unfinalizedFiles": [
+    {
+      "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/390/01-entry.png",
+      "sha256": "99f9919430251f2366b489e7ce2a989dc581039a789c6a7649483f0816bc37b5",
+      "bytes": 4382,
+      "classification": "unfinished cancelled capture; diagnostic only",
+      "checksumBasis": "Computed on downloaded original; no completed capture manifest exists",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/390/02-settled.png",
+      "sha256": "b88c5fae5805531dab6bb8b3124c80030770681eb33a94f354935583ee343ad0",
+      "bytes": 4519,
+      "classification": "unfinished cancelled capture; diagnostic only",
+      "checksumBasis": "Computed on downloaded original; no completed capture manifest exists",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/390/03-scroll.png",
+      "sha256": "74d1598b95e1a7b094513dedda1d23986056e3f7466b7e51ca98c294dfe58838",
+      "bytes": 14000,
+      "classification": "unfinished cancelled capture; diagnostic only",
+      "checksumBasis": "Computed on downloaded original; no completed capture manifest exists",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/390/04-scroll.png",
+      "sha256": "26af1b0f0dcc3d2d97f3b04b5a3bddf598f49ba34ee2dedde1345abffa821b52",
+      "bytes": 67498,
+      "classification": "unfinished cancelled capture; diagnostic only",
+      "checksumBasis": "Computed on downloaded original; no completed capture manifest exists",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/390/05-scroll.png",
+      "sha256": "a8da59fe17ed8406306d2e187f603d4c6a823fa6c652c07d8e3acc3deb053c27",
+      "bytes": 226728,
+      "classification": "unfinished cancelled capture; diagnostic only",
+      "checksumBasis": "Computed on downloaded original; no completed capture manifest exists",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/390/06-fast-scroll.png",
+      "sha256": "75d861e5bbaddeafe13bf7a15b22a2dccdba7d6f626afbc76ddc8536908f2d2a",
+      "bytes": 271330,
+      "classification": "unfinished cancelled capture; diagnostic only",
+      "checksumBasis": "Computed on downloaded original; no completed capture manifest exists",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/390/759b16f9f2ccbfff38cf7fecf93cdf0c.webm",
+      "sha256": "0f433e7e95087683ebb7280d0ef7ce4787acd4a064ab8c23ff75ca978133680d",
+      "bytes": 2883584,
+      "classification": "unfinished cancelled capture; diagnostic only",
+      "checksumBasis": "Computed on downloaded original; no completed capture manifest exists"
+    }
+  ],
+  "selections": {
+    "des": [
+      "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/1440/02-settled.png",
+      "evidence/2026-10-09/run-37894026455/gtop-reference-des/run-37894026455/des/des/390/02-settled.png"
+    ],
+    "twks": [
+      "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/1440/04-scroll.png",
+      "evidence/2026-10-09/run-37894026455/gtop-reference-twks/run-37894026455/twks/twks/390/04-scroll.png"
+    ],
+    "linear": [
+      "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/1440/02-settled.png",
+      "evidence/2026-10-09/run-37894026455/gtop-reference-linear/run-37894026455/linear/linear/390/02-settled.png"
+    ],
+    "bicycle": [
+      "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/1440/02-settled.png",
+      "evidence/2026-10-09/run-37894026455/gtop-reference-bicycle/run-37894026455/bicycle/bicycle/390/03-scroll.png"
+    ],
+    "trust": [
+      "evidence/2026-10-09/trust-live-03-feedback.jpg",
+      "evidence/2026-10-09/run-37894026455/gtop-reference-trust/run-37894026455/trust/trust/390/02-settled.png"
+    ],
+    "primer": [
+      "evidence/2026-10-09/primer-live-05-descending.jpg",
+      "evidence/2026-10-09/run-37894026455/gtop-reference-primer/run-37894026455/primer/primer/390/02-settled.png"
+    ],
+    "brilliant": [
+      "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/1440/01-clean-entry.png",
+      "evidence/2026-10-09/run-37895866895/gtop-interaction-brilliant/brilliant/brilliant/390/01-clean-entry.png"
+    ]
+  }
+}

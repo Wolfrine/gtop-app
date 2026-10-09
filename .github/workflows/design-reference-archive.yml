@@ -1,9 +1,6 @@
 name: Preserve GTOP reference capture history
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: [.github/workflows/design-reference-archive.yml]
 permissions:
   contents: write
   actions: read

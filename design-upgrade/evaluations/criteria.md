@@ -1,6 +1,6 @@
-# Evaluation criteria v1.0
+# Evaluation criteria v1.1
 
-**Step 1 output · 8 October 2026 · Defined, awaiting benchmark calibration in Step 3.** No GTOP screen ratings have been assigned. These are project review criteria, not official Awwwards scores or measured user-research results.
+**Step 1 framework calibrated in Step 3 · 9 October 2026.** [Benchmark anchors and version notes](../references/calibration.md). Weights and score-band meanings are unchanged. No GTOP screen ratings have been assigned. These are project review criteria, not official Awwwards scores or measured user-research results.
 
 ## What a good GTOP screen should achieve
 
@@ -54,7 +54,7 @@ Use the same calculation rule. Screenshots alone cannot earn a journey score. An
 | 9 | Exceptional | Distinctive, highly resolved work that stands beside the strongest suitable references, with few meaningful weaknesses |
 | 10 | Rare exemplar | An unusually complete result for the agreed purpose; requires explicit justification and user agreement, never a claim of universal perfection |
 
-These anchors are provisional until Step 3 supplies visible examples. An 8+ claim needs named benchmark evidence and state coverage. Smooth operation, a successful build, expensive animation or the presence of a design system does not itself establish premium visual quality.
+These anchors are calibrated by the named properties in [Step 3](../references/calibration.md). An 8+ claim needs named benchmark evidence and state coverage. Smooth operation, a successful build, expensive animation or the presence of a design system does not itself establish premium visual quality.
 
 ## How each review is performed
 
@@ -89,4 +89,4 @@ Confidence is **high** when the relevant views, states and live behavior support
 
 ## Versioning
 
-Record `rubricVersion: 1.0` on every future scorecard. Step 3 will append benchmark anchors and, if necessary, publish v1.1 before scoring starts. Do not quietly move the scoring threshold to make a design pass. Preserve older versions and explain any rescoring.
+Record `rubricVersion: 1.1` on every future scorecard. Step 3 added evidence-backed property anchors; weights and score-band meanings remain unchanged. [Version 1.0](criteria-v1.0.md) is preserved. Do not quietly move the scoring threshold to make a design pass. Preserve older versions and explain any rescoring.

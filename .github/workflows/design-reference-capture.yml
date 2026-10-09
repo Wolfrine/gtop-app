@@ -1,9 +1,6 @@
 name: GTOP design reference evidence
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: [design-upgrade/references/capture-tools/capture.mjs]
 permissions:
   contents: write
 concurrency:
@@ -39,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gtop-reference-${{ matrix.site }}
-          path: design-upgrade/references/evidence/2026-10-09/run-*
+          path: design-upgrade/references/evidence/2026-10-09/run-${{ github.run_id }}
           retention-days: 30
           if-no-files-found: error
   preserve:

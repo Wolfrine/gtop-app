@@ -1,0 +1,282 @@
+{
+  "des": {
+    "title": "Design Education Series",
+    "url": "https://des.obys.agency/",
+    "kind": "Expressive education storefront",
+    "mood": "Sculptural, editorial, deliberately spacious",
+    "desktop": "02-settled.png",
+    "mobile": "02-settled.png",
+    "first": "A very large black DES mark dominates a pale field. Navigation and course metadata sit at a much smaller scale; the contrast makes the identity unmistakable, but the immediate learning action is less prominent.",
+    "profile": [
+      [
+        "Composition",
+        "A strong vertical division, oversized letterforms, thin horizontal rules and large empty intervals establish a deliberate grid."
+      ],
+      [
+        "Typography",
+        "The identity is an active compositional object. Small metadata stays systematic while titles become the major landmarks."
+      ],
+      [
+        "Colour and material",
+        "Near-monochrome architecture unifies stone, fabric and sculptural course artwork. Colour is reserved for individual objects rather than repeated interface chrome."
+      ],
+      [
+        "Rhythm and density",
+        "The page alternates broad quiet space with large course imagery. This is a browsing rhythm, not the density of a daily practice workspace."
+      ],
+      [
+        "Motion",
+        "The recorded entrance and scroll reveal change the spatial composition. Course imagery is staged as a sequence; exact easing and performance are not established."
+      ],
+      [
+        "Identity",
+        "The same geometry, material treatment and type relationships recur across the inspected homepage. Creator intent connects the identity to organizing fragmented knowledge."
+      ]
+    ],
+    "strengths": "Distinctive typography, consistent art direction and related course imagery make the page recognizable without a large collection of decorative components.",
+    "limits": "The generic mobile wheel sequence did not move the page; its initial mobile frames only establish the entry composition. The touch-specific follow-up reached the introduction and course card; see the interaction register. Desktop Home/scrollTo did not reliably return the custom-scrolling page to its initial state. Neither observation is proof that ordinary user scrolling is broken. Small metadata and expansive gaps require a different treatment in time-sensitive GTOP tasks.",
+    "transfer": "Use the principle of a recognizable typographic hierarchy and subject-specific visual language for the public entry and lab introductions. Preserve compact, direct controls inside practice. Do not adopt the identity, assets, long staging or extreme empty space.",
+    "controls": "Desktop slow/fast/reverse scroll observed in the recording; mobile touch follow-up in the interaction register. Private courses and checkout were not entered.",
+    "source": "Creator context: [Obys case study](https://tympanus.net/codrops/2024/08/21/case-study-design-education-series/). The designers describe fragmented knowledge becoming an organized identity. That is stated intent, not measured learner response. Award provenance is in the shortlist."
+  },
+  "twks": {
+    "title": "twks",
+    "url": "https://twks.ch/en",
+    "kind": "Agency and project discovery",
+    "mood": "Editorial, image-led, confident",
+    "desktop": "04-scroll.png",
+    "mobile": "04-scroll.png",
+    "first": "The live hero gives imagery the entire field and lays a quiet navigation line across it. Below it, emphatic text and an asymmetric case grid carry the identity with very little interface ornament.",
+    "profile": [
+      [
+        "Composition",
+        "A large indented introduction contrasts with narrow descriptive columns; case imagery alternates size and placement."
+      ],
+      [
+        "Typography",
+        "A small range of sans-serif treatments creates hierarchy through scale, line breaks and placement, with fine metadata kept secondary."
+      ],
+      [
+        "Colour and material",
+        "The shell stays black and white while each project supplies its own colour and photographic or graphic language."
+      ],
+      [
+        "Rhythm and density",
+        "Large intervals give projects individual presence. The projects listing has a stable three-column desktop grid."
+      ],
+      [
+        "Motion",
+        "Hero media changes over time in live inspection. The project filter visibly replaces the displayed set and exposes an active filter with Reset."
+      ],
+      [
+        "Identity",
+        "Consistent editorial rules contain very diverse project images; coherence comes from the frame around the work."
+      ]
+    ],
+    "strengths": "Strong content hierarchy and a restrained shell let distinctive subject imagery do the expressive work. Filter state is visible and reversible.",
+    "limits": "The CI normal-motion hero was often black and some case media did not load. Those regions are not aesthetic benchmarks; the loaded live hero and inspected project grid provide separate evidence. Small grey controls and large gaps are not a complete model for dense admin use. No exact contrast or performance audit was conducted.",
+    "transfer": "Consider a quiet shared shell around expressive lab/topic imagery. In question banks and reports, make selected filters explicit and provide an obvious reset. Do not carry the sparse agency pacing into everyday admin lists.",
+    "controls": "Opened Projects, then Services, then Digital. The resulting list showed a Digital chip, an active-filter count and Reset. The selected before/after captures are in the gallery.",
+    "source": "Primary source is the live site and its public Projects interface. Awwwards attribution is separately bounded in the discovery shortlist."
+  },
+  "linear": {
+    "title": "Linear",
+    "url": "https://linear.app/",
+    "kind": "Public product presentation",
+    "mood": "Quiet, precise, technical",
+    "desktop": "02-settled.png",
+    "mobile": "02-settled.png",
+    "first": "A concise white headline sits above a layered product illustration on an almost-black field. Most interface detail is subdued, allowing a small number of titles and status colours to carry emphasis.",
+    "profile": [
+      [
+        "Composition",
+        "Hero message precedes a large product frame; later sections repeat a heading, explanation and product illustration relationship."
+      ],
+      [
+        "Typography",
+        "Strong headlines and compact neutral supporting text create controlled tiers rather than many competing type styles."
+      ],
+      [
+        "Colour and material",
+        "Near-black surface steps, fine outlines, muted labels and isolated status accents create depth with little saturation."
+      ],
+      [
+        "Rhythm and density",
+        "The public page alternates explanatory space with dense product imagery. The product illustration is not evidence of a tested application workflow."
+      ],
+      [
+        "Motion",
+        "The Product menu expands into categorized navigation; Escape closes it. Recorded page sections appear through normal scrolling."
+      ],
+      [
+        "Identity",
+        "Typography, tonal surfaces, corner treatment and restrained product compositions maintain a consistent technical character."
+      ]
+    ],
+    "strengths": "Layered hierarchy, selective emphasis and stable component treatment make complex material feel organized. The menu groups related destinations with descriptions.",
+    "limits": "Only the public site was inspected. Private app filtering, editing, empty states and recovery were not tested. On mobile the illustrated desktop product interface is cropped and very small; it must not be treated as an acceptable mobile admin layout. Muted details need contrast measurement before being adopted.",
+    "transfer": "Apply deliberate surface hierarchy and consistent semantic status accents to GTOP dashboards and admin work. Compare actual GTOP task density with a live component reference such as Primer, not with Linear marketing imagery alone. The dark palette itself is not a requirement.",
+    "controls": "Opened Product, inspected the grouped overlay, then closed it with Escape. This verifies a bounded navigation behavior, not the underlying product.",
+    "source": "Primary source is the current public Linear homepage. Its present teams-and-agents positioning is observed content, not an assumed description of earlier versions."
+  },
+  "bicycle": {
+    "title": "Bicycle \u2014 Bartosz Ciechanowski",
+    "url": "https://ciechanow.ski/bicycle/",
+    "kind": "Interactive explanatory article",
+    "mood": "Patient, curious, tangible",
+    "desktop": "02-settled.png",
+    "mobile": "03-scroll.png",
+    "first": "A readable article column leads into a large, simplified bicycle simulation. Colour in prose matches the diagram and its controls, so the visual treatment also carries meaning.",
+    "profile": [
+      [
+        "Composition",
+        "Explanatory paragraphs sit close to the simulation they explain. Later examples isolate a box and a force before returning to more complex mechanics."
+      ],
+      [
+        "Typography",
+        "A steady reading measure and modest heading scale keep prose and diagrams in the same teaching rhythm."
+      ],
+      [
+        "Colour and material",
+        "A yellow rider/slider and coloured force terms create visual associations. Neutral ground and simplified objects reduce background competition."
+      ],
+      [
+        "Rhythm and density",
+        "Explanation alternates with experimentation. One mechanism is introduced at a time."
+      ],
+      [
+        "Motion",
+        "The rider changes pose over time; a slider and camera-drag instruction are visible. Direct slider manipulation is recorded in the supplemental pass."
+      ],
+      [
+        "Identity",
+        "The article format stays quiet; recognizable explanatory drawings and consistent semantic colour form its character."
+      ]
+    ],
+    "strengths": "The key reference is correspondence: explanation, control, object and outcome belong to the same concept. Mobile retains a readable column and a wide control beneath the illustration.",
+    "limits": "The cloud browser could not initialize this WebGL scene; isolated Chromium rendered it successfully. This is an environment limitation, not proof of a site defect. Software-rendered recordings are not performance measurements. This 2023 article is a teaching-mechanism reference, not a current-fashion claim. No learning benefit was measured.",
+    "transfer": "For plant and electrical/current labs, align the control with the visible mechanism and explain the resulting change nearby. Preserve causal meaning when motion is reduced. Avoid making 3D a requirement when a clearer 2D representation suffices.",
+    "controls": "Final slider capture run 37895866895 verifies visible right/left knob movement and rider-orientation changes in desktop and emulated mobile. The first manipulation attempt did not change the knob and remains diagnostic.",
+    "source": "Primary source is the article and its visible publication date, 28 March 2023. Do not infer student outcomes from the author\u2019s explanatory presentation."
+  },
+  "trust": {
+    "title": "The Evolution of Trust",
+    "url": "https://ncase.me/trust/",
+    "kind": "Guided explanatory game",
+    "mood": "Playful, approachable, consequential",
+    "desktop": "02-settled.png",
+    "mobile": "02-settled.png",
+    "first": "Hand-drawn characters and lettering establish a coherent playful world. In the actual game, a short prompt, two choices and the consequence diagram share a stable central stage.",
+    "profile": [
+      [
+        "Composition",
+        "The opening has a single Play action. The inspected lesson concentrates the diagram between an explanation and two large answer choices."
+      ],
+      [
+        "Typography",
+        "Handwritten text matches the illustrations. Emphasis appears through weight and placement rather than many competing card styles."
+      ],
+      [
+        "Colour and material",
+        "Mostly black-and-white drawing makes red/blue player markers and yellow outcome highlights stand out."
+      ],
+      [
+        "Rhythm and density",
+        "The learner acts before the next explanation appears. The same scene is reused as the explanation becomes more specific."
+      ],
+      [
+        "Motion",
+        "A choice changes the explanatory text and highlights numerical outcomes in the diagram. This is evidence of a state transition with meaning, not merely decorative movement."
+      ],
+      [
+        "Identity",
+        "Characters, buttons, cursor emphasis, type and drawing strokes share the same visual language."
+      ]
+    ],
+    "strengths": "The feedback explains why a choice has a consequence and updates the illustration in place. The learner does not have to mentally connect a distant notification with the changed state.",
+    "limits": "The inspected portion covers entry and the first choice, not the full approximately 30-minute game. The mobile entry scales the stage down substantially, leaving small footer controls; this is a poor responsive pattern to copy. Handwriting is a stylistic reference, not a readability prescription for long GTOP questions.",
+    "transfer": "For practice feedback, connect the selected response, correct reasoning and outcome in one stable area. For labs, let a prediction or manipulation reveal its consequence. Keep explicit text labels and accessible controls; the hand-drawn skin is optional.",
+    "controls": "Play \u2192 introductory explanation \u2192 play-a-game action \u2192 Cooperate. The resulting explanation stated the -1/+3 consequence and highlighted it alongside the 0/0 alternative. Before/after screenshots were visually verified.",
+    "source": "Primary source is the live game, which credits Nicky Case and July 2017. It is retained for teaching interaction, not recency or an award claim."
+  },
+  "primer": {
+    "title": "GitHub Primer DataTable",
+    "url": "https://primer.style/product/components/data-table/",
+    "kind": "Public interactive component reference",
+    "mood": "Orderly, legible, utilitarian",
+    "desktop": "06-fast-scroll.png",
+    "mobile": "02-settled.png",
+    "first": "A quiet table uses alignment, row spacing and restrained rules to make many values comparable. The sort control changes both its arrow and the row order.",
+    "profile": [
+      [
+        "Composition",
+        "The documentation shell separates navigation, examples and in-page contents. Within the table, repeated column alignment does most of the organizing work."
+      ],
+      [
+        "Typography",
+        "Row names carry more emphasis than supplementary values. Labels remain compact without competing with the page title."
+      ],
+      [
+        "Colour and material",
+        "White and light neutral surfaces, thin borders and restrained links provide separation without a colourful card around every value."
+      ],
+      [
+        "Rhythm and density",
+        "Consistent rows support scanning. The public documentation shows several density and alignment examples; that is not proof of a whole application\u2019s consistency."
+      ],
+      [
+        "Motion",
+        "Repository sorting causes local order and arrow changes; feedback is proportional to the action."
+      ],
+      [
+        "Identity",
+        "Precision and consistency supply character. Decorative illustration is unnecessary for this job."
+      ]
+    ],
+    "strengths": "Sorting has visible, localized feedback. Consistent alignment and row structure make comparison easier to inspect than freely arranged cards.",
+    "limits": "This is a component demo, not a tested end-to-end admin system. Mobile tables overflow horizontally; the documentation does not establish a complete GTOP small-screen workflow. No broad accessibility or keyboard-conformance claim is made from this limited inspection.",
+    "transfer": "Use this as an anchor for question-bank, paper, user and log tables: clear column priority, predictable spacing, explicit sorting and status. Decide which columns/actions remain essential on mobile during the GTOP evaluation; do not simply shrink desktop rows.",
+    "controls": "In the sort example, clicked Repository for ascending order, then again for descending order. The settled screenshots show both the arrow and corresponding row sequence changing.",
+    "source": "Primary source is the live Primer DataTable documentation and its public examples. No Awwwards status is asserted."
+  },
+  "brilliant": {
+    "title": "Brilliant",
+    "url": "https://brilliant.org/",
+    "kind": "Public learning proposition",
+    "mood": "Warm, encouraging, clear",
+    "desktop": "02-settled.png",
+    "mobile": "02-settled.png",
+    "first": "A warm background, emphatic serif headline, green action and friendly illustrated teaching demo make the educational proposition feel approachable. The mobile layout changes the order and emphasis of hero material.",
+    "profile": [
+      [
+        "Composition",
+        "Desktop pairs the learning proposition with a demonstration; mobile places the visual prominently above supporting content."
+      ],
+      [
+        "Typography",
+        "Serif display text adds character while sans-serif controls and explanations remain direct."
+      ],
+      [
+        "Colour and material",
+        "Warm neutrals, green emphasis, pastel teaching panels and soft corners create a controlled friendly vocabulary."
+      ],
+      [
+        "Rhythm and density",
+        "Alternating explanation and demonstration sections keep the public page easy to browse; this is not evidence about paid lesson pacing."
+      ],
+      [
+        "Motion",
+        "The hero contains an animated demonstration with a Pause label exposed in the DOM; activation remained unverified. A cursor inside that demonstration is part of the media, not evidence of the reviewer manipulating the lesson."
+      ],
+      [
+        "Identity",
+        "Avatar, illustrations, surface colours and typography repeat a coherent educational tone."
+      ]
+    ],
+    "strengths": "Coherent warm typography, illustration and composition make the educational proposition understandable. Playback control is not a verified strength.",
+    "limits": "The initial mobile cookie banner obscured part of the page, so clean-entry and pause/resume states were requested in a supplemental pass. Only public content was inspected; no account, paid lesson, learning effectiveness or student preference is inferred. The current homepage emphasizes Koji; older screenshots should not be substituted for this observed version. Playback control was exposed in the DOM but could not be activated in the attempted path; it is excluded as a positive interaction benchmark.",
+    "transfer": "For public entry and learner introductions, pair a direct promise with relevant educational imagery and a clear primary action. For demonstrations, expose pause/resume and keep the essential explanation available independently of playback.",
+    "controls": "Banner dismissal and clean homepage verified. Pause activation and hover attempts timed out; no pause/resume or subject-tab result is claimed.",
+    "source": "Primary source is the current Brilliant homepage. Marketing statements and app-review totals are not evidence about GTOP learners."
+  }
+}

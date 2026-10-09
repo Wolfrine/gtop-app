@@ -1,7 +1,7 @@
 {
   "updated": "2026-10-09",
   "baselineCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
-  "currentStage": "Step 3 reference research in progress",
+  "currentStage": "Step 3 reference study complete for review",
   "stages": [
     {
       "step": 0,
@@ -12,8 +12,8 @@
       "step": 1,
       "name": "Evaluation criteria",
       "status": "framework defined",
-      "rubricVersion": "1.0",
-      "referenceCalibration": "pending Step 3"
+      "rubricVersion": "1.1",
+      "referenceCalibration": "completed; named property anchors, weights and score-band meanings unchanged"
     },
     {
       "step": 2,
@@ -24,7 +24,9 @@
     {
       "step": 3,
       "name": "Reference research",
-      "status": "in progress: source discovery and evidence collection"
+      "status": "complete for review",
+      "complete": true,
+      "reviewStatus": "awaiting user direction on reference base"
     },
     {
       "step": 4,
@@ -42,7 +44,7 @@
       "status": "blocked until user accepts proposed designs"
     }
   ],
-  "nextAction": "Inspect reference captures, select the final benchmark set, record transferable qualities and limitations, then calibrate evaluation anchors.",
+  "nextAction": "Review Step 3 findings and reference gallery; once on track, begin Step 4 desktop/mobile screen evaluations with criteria v1.1. No GTOP scores, mockups or application changes yet.",
   "fullAuditCoverage": {
     "stage": 2,
     "status": "complete_for_agreed_scope",
@@ -59,7 +61,8 @@
     "Authenticated captures use controlled synthetic data; live public landing is separate",
     "Native browser/OS surfaces and exhaustive transient frames are outside the capture contract",
     "Mockup fidelity and interaction validation occur at their agreed stages",
-    "Premium reference set and scoring-anchor calibration remain pending Step 3"
+    "Reference evidence is a bounded visual/interaction study, not a student preference study or whole-site accessibility certification",
+    "Brilliant playback-control activation remains unresolved and is excluded as a positive interaction benchmark; Lando and Igloo are contextual/diagnostic only"
   ],
   "productionChanged": false,
   "entryPoint": "design-upgrade/README.md",
@@ -108,5 +111,21 @@
       "repairRequired": false,
       "decision": "D-008"
     }
-  ]
+  ],
+  "referenceStudy": {
+    "status": "complete_for_review",
+    "report": "design-upgrade/references/report.md",
+    "gallery": "design-upgrade/references/gallery.md",
+    "evidenceRegister": "design-upgrade/references/evidence-register.json",
+    "candidatesScreened": 15,
+    "sitesCaptured": 9,
+    "coreReferences": 7,
+    "pngOriginalsIncludingDiagnostics": 259,
+    "liveJpegOriginals": 20,
+    "videoFilesIncludingOnePartial": 39,
+    "derivedBoards": 24,
+    "rubricVersion": "1.1",
+    "humanPreferenceStudyConducted": false,
+    "userDesignAcceptance": false
+  }
 }

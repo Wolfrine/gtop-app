@@ -1,0 +1,123 @@
+[
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/1440/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "bicycle",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "failure": "TimeoutError: page.reload: Timeout 30000ms exceeded.\nCall log:\n  - waiting for navigation until \"domcontentloaded\"\n    - navigated to \"https://ciechanow.ski/bicycle/\"\n",
+    "fileCount": 9
+  },
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/bicycle/390/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "bicycle",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "failure": null,
+    "fileCount": 10
+  },
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/1440/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "des",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "failure": null,
+    "fileCount": 10
+  },
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/des/390/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "des",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "failure": null,
+    "fileCount": 10
+  },
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/igloo/1440/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "igloo",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "failure": "TimeoutError: page.screenshot: Timeout 15000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n",
+    "fileCount": 5
+  },
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/1440/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "lando",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "failure": "TimeoutError: page.screenshot: Timeout 15000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n",
+    "fileCount": 2
+  },
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/lando/390/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "lando",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "failure": null,
+    "fileCount": 10
+  },
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/1440/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "linear",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "failure": null,
+    "fileCount": 10
+  },
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/linear/390/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "linear",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "failure": null,
+    "fileCount": 10
+  },
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/1440/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "twks",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "failure": null,
+    "fileCount": 10
+  },
+  {
+    "record": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557/twks/390/record.json",
+    "root": "evidence/2026-10-09/first-pass-diagnostics/run-37893083557",
+    "id": "twks",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "failure": null,
+    "fileCount": 10
+  }
+]

@@ -35,3 +35,9 @@ The Action Plan route renders an unavailable state. Its populated cards/expanded
 The user instructed: “Action plan page is not in use so can ignore it.” Exclude `/admin/action-plan` (R23) and its states from this design-upgrade initiative unless the user restores it. This resolves the stage blocker in D-007 by an accepted scope exclusion, not by a functional repair. Preserve the screenshots and diagnostic history. Application source remains unchanged.
 
 Step 2 is complete for the agreed scope: 39 included route entries covering 38 distinct URL patterns. The historical inventory still records all 40 route entries / 39 patterns and 491 original screenshots. Next is Step 3, premium reference research and calibration; screen ratings, mockups and development remain pending their agreed gates.
+
+## D-009 · Step 3 reference study · Completed for review · 9 October 2026
+
+The user authorized Step 3 after discussing motion, aesthetic characterization and human appeal. Screened fifteen candidates, captured nine and retained seven core references spanning expressive identity, public education, explanatory learning and dense component behavior. Lando/Igloo remain contextual/diagnostic because desktop evidence was incomplete. Failed attempts and superseded captures remain in git.
+
+The [report](references/report.md), [gallery](references/gallery.md) and [interaction register](references/interactions.md) distinguish observations, interpretation and unknowns. Brilliant playback control remains unverified and is excluded as a positive interaction example. Criteria v1.1 adds named property anchors; all weights and score-band meanings stay unchanged, and v1.0 is preserved. No GTOP screen is scored. This is completion of research for review, not user acceptance of a design. Step 4 follows confirmation that the reference base is on track; development remains gated by accepted mockups.

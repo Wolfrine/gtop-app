@@ -25,3 +25,7 @@
 Awwwards search indexing identified Lando Norris and DES as Site of the Day references, but direct entry fetches timed out in this session. Do not reproduce unverified numeric jury scores. CSSDA's own DES page verifies Website of the Day, 5 July 2024, and a final judge score of 8.42; this is that competition's score, not the GTOP rubric. Awwwards' own announcement identifies Igloo as its 2024 Site of the Year and Developer Site of the Year. Its official company feed identifies twks as a Site of the Day; relative feed dates are not used to establish an exact award date.
 
 Expert awards, creator claims and student evidence are different sources. DES's course-rating claim and Brilliant's app-review totals are publisher statements; neither measures GTOP students' aesthetic preferences. No preference survey or student testing has been conducted for this stage.
+
+## Final disposition
+
+Seven retained core references: DES, twks, Linear, Bicycle, Trust, Primer and Brilliant. Lando and Igloo are preserved as partial contextual/diagnostic evidence. The six reserves were source-screened only. The [report](report.md) and [interaction register](interactions.md) define exactly which qualities and behaviors are supported.

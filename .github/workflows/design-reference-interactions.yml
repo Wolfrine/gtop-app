@@ -1,9 +1,6 @@
 name: GTOP reference interaction evidence
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: [design-upgrade/references/capture-tools/interactions.mjs]
 permissions:
   contents: write
 concurrency:

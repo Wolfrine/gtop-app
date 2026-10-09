@@ -2,7 +2,7 @@
 
 This is the permanent entry point for the fresh GTOP design review started on **8 October 2026**. A collaborator with repository access can resume here without the chat.
 
-**Current checkpoint:** Step 2 complete for the agreed scope. The user excluded the unused Action Plan page on 9 October 2026. The archive retains all 40 route entries / 39 URL patterns; the design-upgrade scope now includes 39 route entries / 38 URL patterns. **Next: Step 3 — premium reference research and criteria calibration.** No screen has been rated and no redesign has been accepted.
+**Current checkpoint:** Step 2 complete for the agreed scope. The user excluded the unused Action Plan page on 9 October 2026. The archive retains all 40 route entries / 39 URL patterns; the design-upgrade scope now includes 39 route entries / 38 URL patterns. **Step 3 in progress: [reference research](references/README.md), motion evidence and criteria calibration.** No screen has been rated and no redesign has been accepted.
 
 ## Start here
 

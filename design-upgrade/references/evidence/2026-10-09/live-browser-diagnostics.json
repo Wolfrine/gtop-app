@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-09",
+  "browser": "cloud Chrome",
+  "note": "Lando, DES, Bicycle and Trust lacked essential rendered visual content. Primer page rendered, but anchor click did not visibly reach the sorting example. These captures cannot prove motion or successful interaction. The independent capture workflow determines reference eligibility.",
+  "files": [
+    {
+      "path": "bicycle-live-01.jpg",
+      "sha256": "645b55603f81e27e3d69d1e69fbf429a3161157b95dcb758b2f60bb1b1932cb3",
+      "dimensions": [
+        1348,
+        926
+      ],
+      "purpose": "Live-browser diagnostic; not accepted benchmark imagery"
+    },
+    {
+      "path": "des-01-entry.jpg",
+      "sha256": "c794b14561e0c791e978f33ac0efa8e2ede92c5d40b514efa3ba263d18d6e785",
+      "dimensions": [
+        1363,
+        936
+      ],
+      "purpose": "Live-browser diagnostic; not accepted benchmark imagery"
+    },
+    {
+      "path": "des-02-scroll.jpg",
+      "sha256": "12ada344c524e3c40f2c33ad7b6cd9f750b5c6d6abe475876e36b83179546287",
+      "dimensions": [
+        1363,
+        936
+      ],
+      "purpose": "Live-browser diagnostic; not accepted benchmark imagery"
+    },
+    {
+      "path": "lando-01-entry.jpg",
+      "sha256": "49599095bbc18e973d5c58f23bc8a39bc1d3ed6ace1b702e0955798859a57ab8",
+      "dimensions": [
+        1363,
+        936
+      ],
+      "purpose": "Live-browser diagnostic; not accepted benchmark imagery"
+    },
+    {
+      "path": "lando-02-reload.jpg",
+      "sha256": "290563575b4cb5c0bf3ccccce29c6a20611b5513540f2ac966184743061bc77b",
+      "dimensions": [
+        1363,
+        936
+      ],
+      "purpose": "Live-browser diagnostic; not accepted benchmark imagery"
+    },
+    {
+      "path": "lando-03-scroll.jpg",
+      "sha256": "e218812c8e3e175c35561e8ad52bdf845103493c59e5b9b3cd2ed2c871136571",
+      "dimensions": [
+        1363,
+        936
+      ],
+      "purpose": "Live-browser diagnostic; not accepted benchmark imagery"
+    },
+    {
+      "path": "primer-live-01.jpg",
+      "sha256": "acb9000dd0b8ec377d1b71b9a5011709f0bc31d16c658a11d462d09065fe3a2d",
+      "dimensions": [
+        1348,
+        926
+      ],
+      "purpose": "Live-browser diagnostic; not accepted benchmark imagery"
+    },
+    {
+      "path": "primer-live-02-sort.jpg",
+      "sha256": "bde7dc398f96f20d0f02644f1719aadf291edf05b1230279412f85ae112d01e0",
+      "dimensions": [
+        1348,
+        926
+      ],
+      "purpose": "Live-browser diagnostic; not accepted benchmark imagery"
+    },
+    {
+      "path": "trust-live-01.jpg",
+      "sha256": "806c679ca6dc440d07249f385820d424ede202de6d02c3682b539f3d88277062",
+      "dimensions": [
+        1363,
+        936
+      ],
+      "purpose": "Live-browser diagnostic; not accepted benchmark imagery"
+    }
+  ]
+}

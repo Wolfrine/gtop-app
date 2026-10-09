@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T05:24:46.024731+00:00",
+  "generatedAt": "2026-10-09T05:49:24.930780+00:00",
   "purpose": "Baseline evidence references. Review scope and exceptions are recorded separately; this is not design approval or an exhaustive interaction test.",
   "status": "reviewed_with_notes",
   "inspectionFile": "design-upgrade/evidence/baseline/inspection.json",
@@ -8,6 +8,14 @@
   "routeCounts": {
     "routeEntries": 40,
     "distinctPaths": 39
+  },
+  "designUpgradeScope": {
+    "includedRouteEntries": 39,
+    "includedDistinctPathCount": 38,
+    "excludedRouteIds": [
+      "R23"
+    ],
+    "decisionDate": "2026-10-09"
   },
   "manifestSources": [
     {

@@ -1,4 +1,4 @@
-# Step 2 review and open coverage boundary
+# Step 2 review and accepted scope
 
 Reviewed 9 October 2026. This records evidence quality and coverage, not premium-design ratings. The [paired gallery](../../sitemap/gallery.md) is the screen-by-screen entry point; [coverage.json](../../sitemap/coverage.json) and [baseline-catalog.json](../../screens/baseline-catalog.json) provide the machine-readable index.
 
@@ -6,7 +6,7 @@ Reviewed 9 October 2026. This records evidence quality and coverage, not premium
 
 Every one of the **40 concrete route entries / 39 distinct URL patterns** has an inspected desktop and mobile capture of an actual rendered screen. This includes the public entry, practice and live quiz journeys, learner profile/dashboard/reports, both learning labs and their results, and the full admin route set. Shared components and route aliases remain individually listed. Dialogs, editors, responsive navigation, populated/empty results, paper statuses and completion states are additional evidence states.
 
-This is route coverage, not a declaration that every possible state is complete. The Action Plan route currently shows its real unavailable state in the isolated run. Its populated state is an open blocker below. Step 2's all-state completion gate remains open until that gap is resolved or the user accepts an explicit exclusion.
+**Step 2 is complete for the agreed scope.** On 9 October 2026 the user confirmed that the Action Plan page is not in use and may be ignored. Excluding R23 leaves 39 route entries / 38 distinct URL patterns in the design-upgrade scope. The full historical route inventory and original evidence remain intact. This exclusion closes the only recorded state blocker; it does not claim that the loader was repaired.
 
 ## Collection totals
 
@@ -30,9 +30,11 @@ State IDs include intermediate and scenario-end captures; they are not 173 diffe
 | [37886910772](https://github.com/Wolfrine/gtop-app/actions/runs/37886910772) | 48 | 2 | 6 | Paper preview completed; Action Plan failure isolated |
 | [37887727775](https://github.com/Wolfrine/gtop-app/actions/runs/37887727775) | 66 | 2 | 0 | Remaining selected lab and admin journeys completed |
 
-The last run selected only seven outstanding capture scenarios. Its zero failures do not erase the separately recorded Action Plan blocker.
+The last run selected only seven outstanding capture scenarios. Its zero failures do not erase the Action Plan diagnostic history; the user's later exclusion resolves the stage boundary.
 
-## Open blocker: populated Action Plan
+## Accepted exclusion: unused Action Plan
+
+User decision, 9 October 2026: “Action plan page is not in use so can ignore it.” The evidence below is retained as history. No repair, additional capture, evaluation or mockup is required for this page in the current scope.
 
 Both viewports show **Action plan unavailable**. The create-activity form is captured, but existing activity cards, expanded acceptance criteria, edit-existing and filtered-empty state cannot be reached through the unchanged application in this environment.
 
@@ -42,9 +44,9 @@ In run [37886910772](https://github.com/Wolfrine/gtop-app/actions/runs/378869107
 Unable to load GTOP action plans FirebaseError: Expected type '_Query', but it was: a custom _CollectionReference object
 ```
 
-The [raw manifest](2026-10-09/37886910772/manifest.json) preserves the console error and failure at the edit-existing control. Re-authentication and reloading did not resolve it. The UI's generic permission text does not establish a rules denial: the direct rules read succeeded. The observed query-object compatibility error needs a focused loader/dependency investigation. Its cause and production impact are not yet established.
+The [raw manifest](2026-10-09/37886910772/manifest.json) preserves the console error and failure at the edit-existing control. Re-authentication and reloading did not resolve it. The UI's generic permission text does not establish a rules denial: the direct rules read succeeded. The observed query-object compatibility error remains uninvestigated beyond these checks because the page is now excluded. Its cause and production impact are not yet established.
 
-To close the gap: confirm the loader behavior on the target release, resolve the incompatibility through a separately scoped functional repair if needed, then capture populated cards, expanded acceptance criteria, edit-existing and the no-matching-activities state on both widths. Preserve these originals and identify the new application revision if a repair changes source. The user's plan places development after accepted designs, so this audit did not change application code or waive that boundary. No exclusion has been accepted on the user's behalf.
+If the user later restores this page to scope, investigate its loader and capture the populated cards, expanded criteria, edit-existing and no-matching-activities states on both widths. Preserve these originals and identify any changed source revision. This follow-up is not required for the current initiative.
 
 ## Capture corrections and review notes
 
@@ -73,4 +75,4 @@ No captured image reported a broken image or horizontal document overflow in its
 
 The two viewports are Chromium at 1440 × 1000 and 390 × 844. Physical devices, other browsers, external Google/native print/install surfaces, exhaustive transient loading frames and every data permutation are outside this capture contract; see the [method](README.md). Authenticated data is synthetic. The live public landing was also captured independently, with the deployment's version record.
 
-After the Step 2 state gap is resolved or explicitly accepted, Step 3 gathers the premium reference set. Screen ratings, mockup direction and design acceptance remain pending.
+Step 3 is now ready to gather the premium reference set. Screen ratings, mockup direction and design acceptance remain pending.

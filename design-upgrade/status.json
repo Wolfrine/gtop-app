@@ -1,7 +1,7 @@
 {
   "updated": "2026-10-09",
   "baselineCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
-  "currentStage": "Step 2 baseline published; populated Action Plan state blocked",
+  "currentStage": "Step 2 complete; Step 3 ready",
   "stages": [
     {
       "step": 0,
@@ -18,13 +18,13 @@
     {
       "step": 2,
       "name": "Sitemap and complete baseline",
-      "status": "all 40 route entries captured/reviewed; state closure blocked",
-      "complete": false
+      "status": "complete with user-approved Action Plan exclusion",
+      "complete": true
     },
     {
       "step": 3,
       "name": "Reference research",
-      "status": "pending"
+      "status": "ready to begin"
     },
     {
       "step": 4,
@@ -42,32 +42,18 @@
       "status": "blocked until user accepts proposed designs"
     }
   ],
-  "nextAction": "Resolve the Action Plan loader compatibility failure and recapture its populated, expanded-criteria, edit-existing and filtered-empty states at both widths, or obtain an explicit exclusion. This is a narrow functional repair decision before proceeding to Step 3; no exclusion has been accepted.",
-  "fullAuditCoverage": null,
+  "nextAction": "Step 3: inspect premium reference sites, including expressive public sites and relevant learning/product/admin interfaces; record transferable qualities and calibrate the evaluation criteria. Action Plan is excluded because the user confirmed the page is not in use.",
+  "fullAuditCoverage": {
+    "stage": 2,
+    "status": "complete_for_agreed_scope",
+    "includedRouteEntries": 39,
+    "excludedRouteEntries": 1
+  },
   "gtopScreensRated": 0,
   "mockupsAccepted": 0,
   "readinessCaptureCount": 53,
   "evidenceImportFileCount": 70,
-  "openTechnicalBlockers": [
-    {
-      "id": "S2-ACTION-PLAN",
-      "route": "/admin/action-plan",
-      "environment": "unchanged application in isolated Firebase emulators",
-      "observed": "Firebase query-type mismatch in browser; authenticated direct admin rules read succeeds",
-      "missingStates": [
-        "populated cards",
-        "expanded acceptance criteria",
-        "edit existing",
-        "no matching activities"
-      ],
-      "viewports": [
-        "desktop1440",
-        "mobile390"
-      ],
-      "acceptedExclusion": false,
-      "evidence": "design-upgrade/evidence/baseline/review.md"
-    }
-  ],
+  "openTechnicalBlockers": [],
   "retainedLimits": [
     "Chromium desktop/mobile emulation is not physical-device or cross-browser validation",
     "Authenticated captures use controlled synthetic data; live public landing is separate",
@@ -91,7 +77,7 @@
     "distinctUrlPatterns": 39,
     "routeEntriesWithBothViewports": 40,
     "routeCoveragePercent": 100,
-    "stateClosureComplete": false,
+    "stateClosureComplete": true,
     "emulatorOriginals": 483,
     "livePublicOriginals": 8,
     "totalPngOriginals": 491,
@@ -104,6 +90,23 @@
     "visualReview": "Every original reviewed at overview level; targeted full-size and long-page segment review.",
     "integrity": "All 491 original PNGs verified against recorded checksums; dimensions and local evidence links verified.",
     "gallery": "design-upgrade/sitemap/gallery.md",
-    "review": "design-upgrade/evidence/baseline/review.md"
-  }
+    "review": "design-upgrade/evidence/baseline/review.md",
+    "closureBasis": "Agreed Step 2 scope; unused Action Plan excluded by user on 9 October 2026.",
+    "includedRouteEntries": 39,
+    "includedDistinctUrlPatterns": 38
+  },
+  "acceptedExclusions": [
+    {
+      "id": "S2-ACTION-PLAN",
+      "route": "/admin/action-plan",
+      "routeId": "R23",
+      "acceptedBy": "user",
+      "acceptedOn": "2026-10-09",
+      "reason": "Action plan page is not in use so can ignore it.",
+      "scope": "Exclude this page and its states from the design-upgrade evaluation, mockups and development scope unless the user restores it.",
+      "evidenceRetained": true,
+      "repairRequired": false,
+      "decision": "D-008"
+    }
+  ]
 }

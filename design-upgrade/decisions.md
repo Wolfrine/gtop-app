@@ -29,3 +29,9 @@ The user instructed: “For this work we are doing here, deploy everything in ma
 Inventoried 40 concrete route entries and 39 URL patterns. Captured and inspected the current interface at desktop and mobile sizes with separate live-public and synthetic-authenticated provenance. Original runs are append-only; inspected selections, diagnostics, supersession and route redirects are indexed in the baseline catalog.
 
 The Action Plan route renders an unavailable state. Its populated cards/expanded criteria/edit/filtered-empty state remains unverified because the unchanged isolated application reports a Firebase query-type mismatch even though a direct authenticated admin rules read succeeds. The [review report](evidence/baseline/review.md) gives the evidence and closure path. No exclusion is accepted on behalf of the user; Step 2's full-state completion gate remains open. Application code was not changed. Step 3, ratings, mockups and development have not started.
+
+## D-008 · Exclude unused Action Plan; close Step 2 · Accepted by user · 9 October 2026
+
+The user instructed: “Action plan page is not in use so can ignore it.” Exclude `/admin/action-plan` (R23) and its states from this design-upgrade initiative unless the user restores it. This resolves the stage blocker in D-007 by an accepted scope exclusion, not by a functional repair. Preserve the screenshots and diagnostic history. Application source remains unchanged.
+
+Step 2 is complete for the agreed scope: 39 included route entries covering 38 distinct URL patterns. The historical inventory still records all 40 route entries / 39 patterns and 491 original screenshots. Next is Step 3, premium reference research and calibration; screen ratings, mockups and development remain pending their agreed gates.

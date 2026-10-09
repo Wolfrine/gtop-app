@@ -301,7 +301,7 @@
         "src/app/pages/learning-lab/lesson.ts",
         "src/app/pages/learning-lab/attempt.ts"
       ],
-      "surface": "Current Lab \u2014 Electricity interactive lab",
+      "surface": "Current Lab — Electricity interactive lab",
       "entryPoints": [
         "Learning Lab lesson card"
       ],
@@ -473,7 +473,11 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
-      "entry": "side nav"
+      "entry": "side nav",
+      "reviewScope": "excluded_by_user",
+      "exclusionReason": "Page is not in use; user instructed to ignore it.",
+      "exclusionAcceptedOn": "2026-10-09",
+      "exclusionDecision": "D-008"
     },
     {
       "id": "R24",
@@ -571,7 +575,7 @@
       "entryPoints": [
         "dashboard Start Quick Quiz",
         "dashboard Custom Quiz",
-        "quiz-run host activates run and routes /quiz?sessionId=\u2026&mode=run"
+        "quiz-run host activates run and routes /quiz?sessionId=…&mode=run"
       ],
       "states": [
         "scope selection/filter setup where applicable",
@@ -606,7 +610,7 @@
         "score/result summary",
         "answer/explanation review",
         "save/retry or return links",
-        "direct URL without in-memory completed attempt renders \u201cNo completed attempt is available in this tab\u201d empty state"
+        "direct URL without in-memory completed attempt renders “No completed attempt is available in this tab” empty state"
       ]
     },
     {
@@ -851,5 +855,13 @@
       "entry": "side nav UI Preview"
     }
   ],
-  "scope": "Current gtop-app/ application, excluding gtop-v2/ and non-routed standalone test previews."
+  "scope": "Current gtop-app/ application, excluding gtop-v2/ and non-routed standalone test previews.",
+  "designUpgradeScope": {
+    "includedRouteEntries": 39,
+    "includedDistinctPathCount": 38,
+    "excludedRouteIds": [
+      "R23"
+    ],
+    "decisionDate": "2026-10-09"
+  }
 }

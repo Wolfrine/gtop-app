@@ -293,6 +293,8 @@ Variant: default · Coverage: `screens_reviewed_with_notes`
 
 Variant: default · Coverage: `screens_reviewed_with_notes`
 
+> Excluded from this design upgrade by the user on 2026-10-09: Page is not in use; user instructed to ignore it. Existing captures below are retained as history.
+
 | State | Desktop | Mobile | Review status |
 |---|---|---|---|
 | `action-plan` | [open screenshot](../screens/2026-10-09-baseline/37886910772/action-plan/desktop.png) (`reviewed_overview`) | [open screenshot](../screens/2026-10-09-baseline/37886910772/action-plan/mobile.png) (`reviewed_overview`) | desktop: reviewed_overview; mobile: reviewed_overview |

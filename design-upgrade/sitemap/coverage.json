@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-09T05:24:46.024523+00:00",
+  "generatedAt": "2026-10-09T05:49:24.930555+00:00",
   "source": {
     "routesFile": "design-upgrade/sitemap/routes.json",
     "routeEntryCount": 40,
@@ -9,6 +9,14 @@
   "inspectionFile": "design-upgrade/evidence/baseline/inspection.json",
   "routeRowCount": 40,
   "distinctSourcePaths": 39,
+  "designUpgradeScope": {
+    "includedRouteEntries": 39,
+    "includedDistinctPathCount": 38,
+    "excludedRouteIds": [
+      "R23"
+    ],
+    "decisionDate": "2026-10-09"
+  },
   "routes": [
     {
       "id": "R01",
@@ -21,6 +29,9 @@
       ],
       "guards": [],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -130,6 +141,9 @@
         "gtop-app/src/app/pages/practice-invite/invited-quiz.component.ts",
         "gtop-app/src/app/services/practice-invite.guard.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -215,6 +229,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -257,6 +274,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -337,6 +357,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -379,6 +402,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -421,6 +447,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -577,6 +606,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -752,6 +784,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -946,6 +981,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -1064,6 +1102,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -1258,6 +1299,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -1496,6 +1540,9 @@
         "src/app/pages/learning-lab/learning-lab.component.ts",
         "src/app/pages/learning-lab/learning-lab.service.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -1542,6 +1589,9 @@
         "src/app/pages/learning-lab/plant-lesson.ts",
         "src/app/pages/learning-lab/plant-attempt.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -1834,6 +1884,9 @@
         "src/app/pages/learning-lab/plant-results.component.ts",
         "src/app/pages/learning-lab/learning-lab.service.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -1918,6 +1971,9 @@
         "src/app/pages/learning-lab/lesson.ts",
         "src/app/pages/learning-lab/attempt.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -2152,6 +2208,9 @@
         "src/app/pages/learning-lab/lab-results.component.html",
         "src/app/pages/learning-lab/lab-results.component.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -2232,6 +2291,9 @@
         "src/app/pages/landing-page/landing-page.component.html",
         "src/app/pages/landing-page/landing-page.component.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -2331,6 +2393,9 @@
         "src/app/pages/profile-setup/profile-setup.component.html",
         "src/app/pages/profile-setup/profile-setup.component.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -2377,6 +2442,9 @@
         "src/app/pages/profile/profile.component.html",
         "src/app/pages/profile/profile.component.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -2481,6 +2549,9 @@
         "src/app/pages/user-dashboard/user-dashboard.component.ts",
         "src/app/components/manual-quiz-modal/manual-quiz-modal.component.html"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -2732,6 +2803,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -2793,6 +2867,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "excluded_by_user",
+      "exclusionReason": "Page is not in use; user instructed to ignore it.",
+      "exclusionAcceptedOn": "2026-10-09",
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -2854,6 +2931,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -3010,6 +3090,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -3128,6 +3211,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -3189,6 +3275,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -3307,6 +3396,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -3354,6 +3446,9 @@
         "src/app/pages/quiz-page/quiz-page.component.ts",
         "src/app/services/quiz.service.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -3559,6 +3654,9 @@
         "src/app/pages/quiz-summary/quiz-summary.component.html",
         "src/app/pages/quiz-summary/quiz-summary.component.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -3795,6 +3893,9 @@
         "src/app/pages/quiz-run/quiz-run-landing/quiz-run-landing.component.html",
         "src/app/pages/quiz-run/quiz-run-landing/quiz-run-landing.component.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -3842,6 +3943,9 @@
         "src/app/pages/quiz-run/quiz-run-lobby/quiz-run-lobby.component.ts",
         "src/app/services/live-quiz.service.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -3926,6 +4030,9 @@
         "src/app/pages/live/live-landing/live-landing.component.html",
         "src/app/pages/live/live-landing/live-landing.component.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -3992,6 +4099,9 @@
         "src/app/pages/live/live-host/live-host.component.ts",
         "src/app/services/live-quiz.service.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -4058,6 +4168,9 @@
         "src/app/pages/live/live-player/live-player.component.ts",
         "Important: live-player.component.html at this ref only renders waiting-room layout, despite component TS computing active question/timer values."
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -4127,6 +4240,9 @@
         "src/app/pages/live/live-summary/live-summary.component.html",
         "src/app/pages/live/live-summary/live-summary.component.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -4173,6 +4289,9 @@
         "src/app/pages/reports-page/reports-page.component.html",
         "src/app/pages/reports-page/reports-page.component.ts"
       ],
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -4257,6 +4376,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -4356,6 +4478,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {
@@ -4417,6 +4542,9 @@
         "RoleGuard"
       ],
       "source": "gtop-app/src/app/app.routes.ts",
+      "reviewScope": "included",
+      "exclusionReason": null,
+      "exclusionAcceptedOn": null,
       "coverageStatus": "screens_reviewed_with_notes",
       "evidenceStates": [
         {

@@ -30,7 +30,7 @@ Open the [desktop/mobile gallery](gallery.md), [coverage data](coverage.json) an
 | R20 | `/profile` | user, admin | Learner profile (also allowed admin) |
 | R21 | `/dashboard` | user, admin | Learner home (also allowed admin) |
 | R22 | `/admin` | admin | AdminDashboard |
-| R23 | `/admin/action-plan` | admin | ActionPlan |
+| R23 | `/admin/action-plan` | admin | ActionPlan — excluded by user; page not in use |
 | R24 | `/admin/mcq-management` | admin | McqManagement |
 | R25 | `/admin/add-mcq` | admin | AddMcq |
 | R26 | `/admin/manage-syllabus` | admin | ManageSyllabus |
@@ -66,3 +66,7 @@ Both 1440 × 1000 desktop and 390 × 844 mobile Chromium viewports are required 
 State coverage groups meaningful layouts and decisions. Dropdown values, random question permutations and every combination of record data are not separate screens. Transient OS/browser UI (Google account chooser, print dialog, installation permission prompts) is outside the application screenshot baseline. This is a visual inventory, not a cross-browser/physical-device certification.
 
 See [coverage.json](coverage.json) and the [baseline gallery](gallery.md) for verified evidence; the [review report](../evidence/baseline/review.md) records state-level gaps and capture corrections.
+
+## Accepted scope exclusion
+
+On 9 October 2026 the user excluded the unused Action Plan page (`R23`, `/admin/action-plan`). It remains in this historical sitemap and capture archive but is outside subsequent evaluation, mockups and development for this initiative. Step 2 is complete for the 39 included route entries / 38 distinct URL patterns. See [decision D-008](../decisions.md).

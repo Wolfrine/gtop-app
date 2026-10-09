@@ -2,13 +2,13 @@
 
 This is the permanent entry point for the fresh GTOP design review started on **8 October 2026**. A collaborator with repository access can resume here without the chat.
 
-**Current checkpoint:** Step 2 route baseline collected and visually inspected at desktop and mobile sizes. All 40 route entries / 39 URL patterns are represented. The populated Action Plan state remains blocked by a loader error in the isolated application; [review the exact gap](evidence/baseline/review.md). Step 2 is not declared fully closed, and no exclusion has been accepted for the user. No screen has been rated and no redesign has been accepted.
+**Current checkpoint:** Step 2 complete for the agreed scope. The user excluded the unused Action Plan page on 9 October 2026. The archive retains all 40 route entries / 39 URL patterns; the design-upgrade scope now includes 39 route entries / 38 URL patterns. **Next: Step 3 — premium reference research and criteria calibration.** No screen has been rated and no redesign has been accepted.
 
 ## Start here
 
 1. [Sitemap — all routes and roles](sitemap/README.md)
 2. [Desktop/mobile screenshot gallery](sitemap/gallery.md)
-3. [Coverage review and open blocker](evidence/baseline/review.md)
+3. [Coverage review and accepted exclusion](evidence/baseline/review.md)
 4. [Current status and exact next action](status.json)
 5. [Plan and stage boundaries](plan.md)
 6. [Evaluation criteria v1.0](evaluations/criteria.md)
@@ -40,7 +40,7 @@ Chat previews and downloadable exports are convenient views of this record. GitH
 
 The application baseline is `00116b57042df34a49b99031dbea3c1bebe897a4`, matching live `version.json` during the 9 October captures. The current application is under `gtop-app/`; the presence of `gtop-v2/` does not make it the baseline.
 
-The Step 2 collection contains live public landing captures and isolated Firebase-emulator learner/admin states at 390 × 844 and 1440 × 1000. The authenticated screens render controlled synthetic data through the unchanged application. Route coverage is distinct from all-state closure; the populated Action Plan state remains open. These screenshots are not physical-device tests, a user study, production-data evidence or a finished reference comparison.
+The Step 2 collection contains live public landing captures and isolated Firebase-emulator learner/admin states at 390 × 844 and 1440 × 1000. The authenticated screens render controlled synthetic data through the unchanged application. Step 2 is closed with the user's explicit exclusion of the unused Action Plan page; its existing evidence is retained as history. These screenshots are not physical-device tests, a user study, production-data evidence or a finished reference comparison.
 
 ## Delivery authorization
 

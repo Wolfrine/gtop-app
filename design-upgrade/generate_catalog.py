@@ -322,6 +322,9 @@ def main() -> None:
             "roles": route.get("roles", []),
             "guards": route.get("guards", []),
             "source": route.get("source"),
+            "reviewScope": route.get("reviewScope", "included"),
+            "exclusionReason": route.get("exclusionReason"),
+            "exclusionAcceptedOn": route.get("exclusionAcceptedOn"),
             "coverageStatus": status,
             "evidenceStates": states,
             "entrypointMismatches": entrypoint_mismatches,
@@ -341,6 +344,7 @@ def main() -> None:
         "inspectionFile": inspection_source,
         "routeRowCount": len(coverage_rows),
         "distinctSourcePaths": len({route.get("path") for route in source_routes}),
+        "designUpgradeScope": route_doc.get("designUpgradeScope"),
         "routes": coverage_rows,
         "livePublicEvidence": [{"id": x["id"], "url": x["url"], "viewportClass": x["viewportClass"], "imagePath": x["imagePath"], "runId": x["runId"], "visualStatus": x["visualStatus"]} for x in live_public],
         "diagnosticExclusions": excluded,
@@ -356,6 +360,7 @@ def main() -> None:
         "inspectionFile": inspection_source,
         "sourceCommit": route_doc.get("sourceCommit"),
         "routeCounts": {"routeEntries": route_doc.get("routeEntryCount"), "distinctPaths": route_doc.get("distinctPathCount")},
+        "designUpgradeScope": route_doc.get("designUpgradeScope"),
         "manifestSources": manifest_sources,
         "recordCount": len(all_records),
         "eligibleRecordCount": sum(1 for record in all_records if record.get("auditEligible", True)),
@@ -381,6 +386,8 @@ def main() -> None:
     ]
     for route_row in coverage_rows:
         gallery_lines += [f"## {route_row['id']} · `{route_row['capturePath']}`", "", f"Variant: {route_row['variant']} · Coverage: `{route_row['coverageStatus']}`", ""]
+        if route_row["reviewScope"] == "excluded_by_user":
+            gallery_lines += [f"> Excluded from this design upgrade by the user on {route_row['exclusionAcceptedOn']}: {route_row['exclusionReason']} Existing captures below are retained as history.", ""]
         if route_row.get("routeMatchSemantics"):
             gallery_lines += [f"> Route selection: {route_row['routeMatchSemantics']}", ""]
         if route_row["evidenceStates"]:

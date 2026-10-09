@@ -1,0 +1,48 @@
+name: Preserve GTOP reference capture history
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/design-reference-archive.yml]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 37895197290
+          github-token: ${{ github.token }}
+          pattern: gtop-interaction-*
+          path: /tmp/reference-interactions
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 37893083557
+          github-token: ${{ github.token }}
+          name: gtop-reference-evidence
+          path: design-upgrade/references/evidence/2026-10-09/first-pass-diagnostics
+      - name: Copy only new capture originals
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          destination=Path('design-upgrade/references/evidence/2026-10-09/run-37895197290')
+          for artifact in Path('/tmp/reference-interactions').iterdir():
+              source=artifact/'run-37895197290'
+              if not source.is_dir(): raise RuntimeError(f'Missing capture: {source}')
+              shutil.copytree(source,destination/artifact.name/'run-37895197290',dirs_exist_ok=True)
+          PY
+      - name: Preserve originals on main
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add design-upgrade/references/evidence/2026-10-09/first-pass-diagnostics design-upgrade/references/evidence/2026-10-09/run-37895197290
+          git commit -m 'Preserve reference interaction evidence and initial capture diagnostics'
+          git pull --rebase origin main
+          git push origin HEAD:main

@@ -1,0 +1,275 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/20.20.2/x64/bin/node",
+      "/home/runner/work/gtop-app/gtop-app/gtop-app/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "playwright.readiness.config.ts",
+      "e2e/readiness-states.spec.ts"
+    ],
+    "configFile": "/home/runner/work/gtop-app/gtop-app/gtop-app/playwright.readiness.config.ts",
+    "rootDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/Wolfrine/gtop-app/commit/d77405c71d33b723acb5c4dce946642f253b60ed",
+        "commitHash": "d77405c71d33b723acb5c4dce946642f253b60ed",
+        "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37760643776"
+      },
+      "gitCommit": {
+        "shortHash": "00116b5",
+        "hash": "00116b57042df34a49b99031dbea3c1bebe897a4",
+        "subject": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation",
+        "body": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation\n\nPilot reviewed solo practice invitations and voluntary dashboard return",
+        "author": {
+          "name": "Wolfrine",
+          "email": "schttewary@gmail.com",
+          "time": 1791207106000
+        },
+        "committer": {
+          "name": "GitHub",
+          "email": "noreply@github.com",
+          "time": 1791207106000
+        },
+        "branch": "HEAD"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Wolfrine/gtop-app/commit/d77405c71d33b723acb5c4dce946642f253b60ed",
+            "commitHash": "d77405c71d33b723acb5c4dce946642f253b60ed",
+            "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37760643776"
+          },
+          "gitCommit": {
+            "shortHash": "00116b5",
+            "hash": "00116b57042df34a49b99031dbea3c1bebe897a4",
+            "subject": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation",
+            "body": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation\n\nPilot reviewed solo practice invitations and voluntary dashboard return",
+            "author": {
+              "name": "Wolfrine",
+              "email": "schttewary@gmail.com",
+              "time": 1791207106000
+            },
+            "committer": {
+              "name": "GitHub",
+              "email": "noreply@github.com",
+              "time": 1791207106000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "desktop1440",
+        "name": "desktop1440",
+        "testDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Wolfrine/gtop-app/commit/d77405c71d33b723acb5c4dce946642f253b60ed",
+            "commitHash": "d77405c71d33b723acb5c4dce946642f253b60ed",
+            "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37760643776"
+          },
+          "gitCommit": {
+            "shortHash": "00116b5",
+            "hash": "00116b57042df34a49b99031dbea3c1bebe897a4",
+            "subject": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation",
+            "body": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation\n\nPilot reviewed solo practice invitations and voluntary dashboard return",
+            "author": {
+              "name": "Wolfrine",
+              "email": "schttewary@gmail.com",
+              "time": 1791207106000
+            },
+            "committer": {
+              "name": "GitHub",
+              "email": "noreply@github.com",
+              "time": 1791207106000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "mobile390",
+        "name": "mobile390",
+        "testDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "readiness-proof/tests.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm start -- --configuration development --host 127.0.0.1 --port 4300",
+      "url": "http://127.0.0.1:4300",
+      "reuseExistingServer": false,
+      "timeout": 180000
+    }
+  },
+  "suites": [
+    {
+      "title": "readiness-states.spec.ts",
+      "file": "readiness-states.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "readiness busy paper register has a bounded first page and older records",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop1440",
+              "projectName": "desktop1440",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 33341,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-08T10:04:27.246Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "fixture",
+                      "contentType": "application/json",
+                      "body": "eyJzeW50aGV0aWMiOnRydWUsInNvdXJjZVJlY29yZHMiOjkwLCJyb2xlIjoiYWRtaW4iLCJ2aWV3cG9ydCI6eyJ3aWR0aCI6MTQ0MCwiaGVpZ2h0IjoxMDAwfSwic291cmNlQ29tbWl0IjoiMDAxMTZiNTcwNDJkZjM0YTQ5Yjk5MDMxZGJlYTNjMWJlYmU4OTdhNCJ9"
+                    },
+                    {
+                      "name": "pagination-result",
+                      "contentType": "application/json",
+                      "body": "eyJyZWNvcmRzQmVmb3JlIjozMCwicmVjb3Jkc0FmdGVyIjo2MCwic291cmNlUmVjb3JkcyI6OTB9"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-desktop1440/test-finished-1.png"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cc97549f1755ae92916a-4f0f4dde3d91bee466df",
+          "file": "readiness-states.spec.ts",
+          "line": 8,
+          "column": 5
+        },
+        {
+          "title": "readiness busy paper register has a bounded first page and older records",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile390",
+              "projectName": "mobile390",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 43883,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-08T10:05:01.818Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "fixture",
+                      "contentType": "application/json",
+                      "body": "eyJzeW50aGV0aWMiOnRydWUsInNvdXJjZVJlY29yZHMiOjkwLCJyb2xlIjoiYWRtaW4iLCJ2aWV3cG9ydCI6eyJ3aWR0aCI6MzkwLCJoZWlnaHQiOjg0NH0sInNvdXJjZUNvbW1pdCI6IjAwMTE2YjU3MDQyZGYzNGE0OWI5OTAzMWRiZWEzYzFiZWJlODk3YTQifQ=="
+                    },
+                    {
+                      "name": "pagination-result",
+                      "contentType": "application/json",
+                      "body": "eyJyZWNvcmRzQmVmb3JlIjozMCwicmVjb3Jkc0FmdGVyIjo2MCwic291cmNlUmVjb3JkcyI6OTB9"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-mobile390/test-finished-1.png"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cc97549f1755ae92916a-c72786ac5da4d42f1668",
+          "file": "readiness-states.spec.ts",
+          "line": 8,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-08T10:03:52.073Z",
+    "duration": 113962.629,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

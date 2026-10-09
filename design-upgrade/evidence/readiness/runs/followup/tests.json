@@ -1,0 +1,323 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/20.20.2/x64/bin/node",
+      "/home/runner/work/gtop-app/gtop-app/gtop-app/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "playwright.readiness.config.ts",
+      "e2e/readiness-states.spec.ts"
+    ],
+    "configFile": "/home/runner/work/gtop-app/gtop-app/gtop-app/playwright.readiness.config.ts",
+    "rootDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/Wolfrine/gtop-app/commit/12c0f60a3258deaf7305ecfafb157a08367f1a4a",
+        "commitHash": "12c0f60a3258deaf7305ecfafb157a08367f1a4a",
+        "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37759629039"
+      },
+      "gitCommit": {
+        "shortHash": "00116b5",
+        "hash": "00116b57042df34a49b99031dbea3c1bebe897a4",
+        "subject": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation",
+        "body": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation\n\nPilot reviewed solo practice invitations and voluntary dashboard return",
+        "author": {
+          "name": "Wolfrine",
+          "email": "schttewary@gmail.com",
+          "time": 1791207106000
+        },
+        "committer": {
+          "name": "GitHub",
+          "email": "noreply@github.com",
+          "time": 1791207106000
+        },
+        "branch": "HEAD"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Wolfrine/gtop-app/commit/12c0f60a3258deaf7305ecfafb157a08367f1a4a",
+            "commitHash": "12c0f60a3258deaf7305ecfafb157a08367f1a4a",
+            "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37759629039"
+          },
+          "gitCommit": {
+            "shortHash": "00116b5",
+            "hash": "00116b57042df34a49b99031dbea3c1bebe897a4",
+            "subject": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation",
+            "body": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation\n\nPilot reviewed solo practice invitations and voluntary dashboard return",
+            "author": {
+              "name": "Wolfrine",
+              "email": "schttewary@gmail.com",
+              "time": 1791207106000
+            },
+            "committer": {
+              "name": "GitHub",
+              "email": "noreply@github.com",
+              "time": 1791207106000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "desktop1440",
+        "name": "desktop1440",
+        "testDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Wolfrine/gtop-app/commit/12c0f60a3258deaf7305ecfafb157a08367f1a4a",
+            "commitHash": "12c0f60a3258deaf7305ecfafb157a08367f1a4a",
+            "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37759629039"
+          },
+          "gitCommit": {
+            "shortHash": "00116b5",
+            "hash": "00116b57042df34a49b99031dbea3c1bebe897a4",
+            "subject": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation",
+            "body": "Merge pull request #58 from Wolfrine/codex/growth-practice-invitation\n\nPilot reviewed solo practice invitations and voluntary dashboard return",
+            "author": {
+              "name": "Wolfrine",
+              "email": "schttewary@gmail.com",
+              "time": 1791207106000
+            },
+            "committer": {
+              "name": "GitHub",
+              "email": "noreply@github.com",
+              "time": 1791207106000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "mobile390",
+        "name": "mobile390",
+        "testDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "readiness-proof/tests.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm start -- --configuration development --host 127.0.0.1 --port 4300",
+      "url": "http://127.0.0.1:4300",
+      "reuseExistingServer": false,
+      "timeout": 180000
+    }
+  },
+  "suites": [
+    {
+      "title": "readiness-states.spec.ts",
+      "file": "readiness-states.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "readiness busy paper register has a bounded first page and older records",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop1440",
+              "projectName": "desktop1440",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 37980,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Load older papers', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Load older papers', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Load older papers', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Load older papers', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Load older papers', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Load older papers', exact: true })\u001b[22m\n\n    at /home/runner/work/gtop-app/gtop-app/gtop-app/e2e/readiness-states.spec.ts:34:82",
+                    "location": {
+                      "file": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e/readiness-states.spec.ts",
+                      "column": 82,
+                      "line": 34
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByLabel(\u001b[32m'Created by me'\u001b[39m)\u001b[33m.\u001b[39mcheck()\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(()\u001b[33m=>\u001b[39mpage\u001b[33m.\u001b[39mlocator(\u001b[32m'.pr-record'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m,\u001b[39m{timeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m})\u001b[33m.\u001b[39mtoBe(\u001b[35m30\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 34 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Load older papers'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 35 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(()\u001b[33m=>\u001b[39mdocument\u001b[33m.\u001b[39mfonts\u001b[33m.\u001b[39mready)\u001b[33m;\u001b[39m\n \u001b[90m 36 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({path\u001b[33m:\u001b[39minfo\u001b[33m.\u001b[39moutputPath(\u001b[32m'busy-register-90-records.png'\u001b[39m)\u001b[33m,\u001b[39mfullPage\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39manimations\u001b[33m:\u001b[39m\u001b[32m'disabled'\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 37 |\u001b[39m     \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'fixture'\u001b[39m\u001b[33m,\u001b[39m{body\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify({synthetic\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39msourceRecords\u001b[33m:\u001b[39m\u001b[35m90\u001b[39m\u001b[33m,\u001b[39mrole\u001b[33m:\u001b[39m\u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39mviewport\u001b[33m:\u001b[39mpage\u001b[33m.\u001b[39mviewportSize()\u001b[33m,\u001b[39msourceCommit\u001b[33m:\u001b[39m\u001b[32m'00116b57042df34a49b99031dbea3c1bebe897a4'\u001b[39m})\u001b[33m,\u001b[39mcontentType\u001b[33m:\u001b[39m\u001b[32m'application/json'\u001b[39m})\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e/readiness-states.spec.ts",
+                        "column": 82,
+                        "line": 34
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Load older papers', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Load older papers', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Load older papers', exact: true })\u001b[22m\n\n\n  32 |     await page.getByLabel('Created by me').check();\n  33 |     await expect.poll(()=>page.locator('.pr-record').count(),{timeout:30000}).toBe(30);\n> 34 |     await expect(page.getByRole('button',{name:'Load older papers',exact:true})).toBeVisible();\n     |                                                                                  ^\n  35 |     await page.evaluate(()=>document.fonts.ready);\n  36 |     await page.screenshot({path:info.outputPath('busy-register-90-records.png'),fullPage:true,animations:'disabled'});\n  37 |     await info.attach('fixture',{body:JSON.stringify({synthetic:true,sourceRecords:90,role:'admin',viewport:page.viewportSize(),sourceCommit:'00116b57042df34a49b99031dbea3c1bebe897a4'}),contentType:'application/json'});\n    at /home/runner/work/gtop-app/gtop-app/gtop-app/e2e/readiness-states.spec.ts:34:82"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-08T09:57:46.038Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-desktop1440/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-desktop1440/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-desktop1440/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e/readiness-states.spec.ts",
+                    "column": 82,
+                    "line": 34
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "cc97549f1755ae92916a-4f0f4dde3d91bee466df",
+          "file": "readiness-states.spec.ts",
+          "line": 8,
+          "column": 5
+        },
+        {
+          "title": "readiness busy paper register has a bounded first page and older records",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile390",
+              "projectName": "mobile390",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 49340,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Load older papers', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Load older papers', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Load older papers', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Load older papers', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Load older papers', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Load older papers', exact: true })\u001b[22m\n\n    at /home/runner/work/gtop-app/gtop-app/gtop-app/e2e/readiness-states.spec.ts:34:82",
+                    "location": {
+                      "file": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e/readiness-states.spec.ts",
+                      "column": 82,
+                      "line": 34
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 32 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByLabel(\u001b[32m'Created by me'\u001b[39m)\u001b[33m.\u001b[39mcheck()\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m     \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(()\u001b[33m=>\u001b[39mpage\u001b[33m.\u001b[39mlocator(\u001b[32m'.pr-record'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m,\u001b[39m{timeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m})\u001b[33m.\u001b[39mtoBe(\u001b[35m30\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 34 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Load older papers'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 35 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(()\u001b[33m=>\u001b[39mdocument\u001b[33m.\u001b[39mfonts\u001b[33m.\u001b[39mready)\u001b[33m;\u001b[39m\n \u001b[90m 36 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({path\u001b[33m:\u001b[39minfo\u001b[33m.\u001b[39moutputPath(\u001b[32m'busy-register-90-records.png'\u001b[39m)\u001b[33m,\u001b[39mfullPage\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39manimations\u001b[33m:\u001b[39m\u001b[32m'disabled'\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 37 |\u001b[39m     \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'fixture'\u001b[39m\u001b[33m,\u001b[39m{body\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify({synthetic\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39msourceRecords\u001b[33m:\u001b[39m\u001b[35m90\u001b[39m\u001b[33m,\u001b[39mrole\u001b[33m:\u001b[39m\u001b[32m'admin'\u001b[39m\u001b[33m,\u001b[39mviewport\u001b[33m:\u001b[39mpage\u001b[33m.\u001b[39mviewportSize()\u001b[33m,\u001b[39msourceCommit\u001b[33m:\u001b[39m\u001b[32m'00116b57042df34a49b99031dbea3c1bebe897a4'\u001b[39m})\u001b[33m,\u001b[39mcontentType\u001b[33m:\u001b[39m\u001b[32m'application/json'\u001b[39m})\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e/readiness-states.spec.ts",
+                        "column": 82,
+                        "line": 34
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Load older papers', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Load older papers', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Load older papers', exact: true })\u001b[22m\n\n\n  32 |     await page.getByLabel('Created by me').check();\n  33 |     await expect.poll(()=>page.locator('.pr-record').count(),{timeout:30000}).toBe(30);\n> 34 |     await expect(page.getByRole('button',{name:'Load older papers',exact:true})).toBeVisible();\n     |                                                                                  ^\n  35 |     await page.evaluate(()=>document.fonts.ready);\n  36 |     await page.screenshot({path:info.outputPath('busy-register-90-records.png'),fullPage:true,animations:'disabled'});\n  37 |     await info.attach('fixture',{body:JSON.stringify({synthetic:true,sourceRecords:90,role:'admin',viewport:page.viewportSize(),sourceCommit:'00116b57042df34a49b99031dbea3c1bebe897a4'}),contentType:'application/json'});\n    at /home/runner/work/gtop-app/gtop-app/gtop-app/e2e/readiness-states.spec.ts:34:82"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-08T09:58:25.156Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-mobile390/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-mobile390/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/runner/work/gtop-app/gtop-app/gtop-app/readiness-proof/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-mobile390/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e/readiness-states.spec.ts",
+                    "column": 82,
+                    "line": 34
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "cc97549f1755ae92916a-c72786ac5da4d42f1668",
+          "file": "readiness-states.spec.ts",
+          "line": 8,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-08T09:57:08.786Z",
+    "duration": 126203.563,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

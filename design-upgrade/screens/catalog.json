@@ -1,0 +1,1543 @@
+{
+  "schemaVersion": 1,
+  "scope": "readiness samples only; full screen inventory pending",
+  "captures": [
+    {
+      "captureId": "READINESS-001",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/paper-chat-chat-saves-a-re-70fce-s-cancellation-after-reload-desktop1440/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "15f8b6c8a0077974aaf48ed811dc1ccc39fb0f7fc4c4a196e70f8d8076eba455",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-002",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/paper-chat-chat-saves-a-re-70fce-s-cancellation-after-reload-desktop1440/chat-cancelled.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "chat-cancelled",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1458
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "856de1a11f60a3227b0f3da1929003994d1778e642a77eec52986eb9fa7274c0",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-003",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/paper-chat-chat-saves-a-re-70fce-s-cancellation-after-reload-mobile390/chat-cancelled.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "chat-cancelled",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 1649
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "4bc5aa18a13d85bf9df58b0302734e4eed6c2d76107b29d34be7649750ff6fc0",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-004",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/paper-chat-chat-saves-a-re-70fce-s-cancellation-after-reload-mobile390/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "01bbafda4beae7dd30ed46e68769b80314426d36b87a688c0e0e055f606c8db4",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-005",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/paper-chat-delivered-paper-d7b1e-r-archive-remain-accessible-desktop1440/paper-answer-key.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "paper-answer-key",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1444
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "bc8f62a5c3537513b65aa22f5549ddc772aea1188997e3419e29c990cb863e3b",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-006",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/paper-chat-delivered-paper-d7b1e-r-archive-remain-accessible-desktop1440/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "100b17e6720e83eaa4596ed09fc17dc62ae88db2bfd5cbe143d5343ba6a1da50",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-007",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/paper-chat-delivered-paper-d7b1e-r-archive-remain-accessible-mobile390/paper-answer-key.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "paper-answer-key",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 1617
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "349fc7791b8fb2bbcb01812d1f4db7720b555591342791a899c9ac1c963d8af5",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-008",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/paper-chat-delivered-paper-d7b1e-r-archive-remain-accessible-mobile390/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "57064e538b921e0c85f3f74decaf8c51f5340de53252120a2940bcdfdc9574e8",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-009",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-admin-f8da0--of-another-board-and-class-desktop1440/admin-selected.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "admin-selected",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1145
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "92177f9be109c1631deb86a04ff096ed2fb2a46079776e24f5fc1419ae71541b",
+      "visualInspection": "reviewed",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-010",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-admin-f8da0--of-another-board-and-class-desktop1440/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "0cd6a76917d0a684884b0e362e53aa93223e22ba53a4c131c03bd745522e056f",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-011",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-admin-f8da0--of-another-board-and-class-mobile390/admin-selected.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "admin-selected",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 1026
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "d8919f6ecf4e43b00cb567d3596a1cc76a554123939f8063f6be3f9a0c090903",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-012",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-admin-f8da0--of-another-board-and-class-mobile390/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": null,
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "814b12628f579539b5aefb6e002f6a9cddef270ce40bec592eef51ffce9d6e9c",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-013",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-learn-5ff0b--restores-answers-on-reload-desktop1440/learner-restored.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "learner",
+      "route": null,
+      "state": "learner-restored",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1145
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "4365e968e9d31b96b6beeaeea0ff85371b83482741283418674ff3ace5437f42",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-014",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-learn-5ff0b--restores-answers-on-reload-desktop1440/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "learner",
+      "route": null,
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "a33b0dbd8ce63267e9885d4de281c30d08fc4b8b5541d6b2b1ee150eab455ba3",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-015",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-learn-5ff0b--restores-answers-on-reload-mobile390/learner-restored.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "learner",
+      "route": null,
+      "state": "learner-restored",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 1026
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "385cb6832a4151c8ff8b80ccc136f049f7a6e5bac6bdd5b9af12ff600c22577e",
+      "visualInspection": "reviewed",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-016",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-learn-5ff0b--restores-answers-on-reload-mobile390/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "learner",
+      "route": null,
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "b2b21dbf31d4cba780753eca64e7f8ef8d8560a0cb655b94dc45dc848f72f280",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-017",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-missi-fb64a-explicit-recoverable-states-desktop1440/empty-curriculum.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": null,
+      "route": null,
+      "state": "empty-curriculum",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1145
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "2795c2c67fd87047fb8abbf3001dc8a151ba5bdc528a85dbfec1de42498163ab",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-018",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-missi-fb64a-explicit-recoverable-states-desktop1440/missing-profile.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": null,
+      "route": null,
+      "state": "missing-profile",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1177
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "be549b9ae349333e73bbc0385e8fca9659d59d8f3223190a4ba2ba5caaa7c8fb",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-019",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-missi-fb64a-explicit-recoverable-states-desktop1440/profile-removed-during-quiz.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": null,
+      "route": null,
+      "state": "profile-removed-during-quiz",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1145
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "9af034b293770fbcf81c3e2d06844c6533fe516858b47d00250f3da4c3394390",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-020",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-missi-fb64a-explicit-recoverable-states-desktop1440/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": null,
+      "route": null,
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "b1ba698a22dc665625fbcc611f9f748a00143d2e16cd5d1d60ebc4533e220713",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-021",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-missi-fb64a-explicit-recoverable-states-mobile390/empty-curriculum.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": null,
+      "route": null,
+      "state": "empty-curriculum",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 992
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "a016cf268c13d0882f00bcdead694d76cea0896012afc6971d9ce7f7a3b1635b",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-022",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-missi-fb64a-explicit-recoverable-states-mobile390/missing-profile.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": null,
+      "route": null,
+      "state": "missing-profile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 1016
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "9c3fa96b2e3342471b8c2fe2d3e857aca4382bb9978dec5d4840ac0bbc16da44",
+      "visualInspection": "reviewed",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-023",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-missi-fb64a-explicit-recoverable-states-mobile390/profile-removed-during-quiz.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": null,
+      "route": null,
+      "state": "profile-removed-during-quiz",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 992
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "9fbb62ac4153f653b80829ec67cdf19bd7c0c83ca7da88a8d2872a22ce1149d2",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-024",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/practice-reliability-missi-fb64a-explicit-recoverable-states-mobile390/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": null,
+      "route": null,
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "56265dd22beef6872ebd238722c27c6b4503d6ceee7a97d83f11445751d5b3e4",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-025",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-desktop1440/test-failed-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": "/admin/question-papers",
+      "state": "test-failed-1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "8e97e0ba3775e23690ed05480939877d48fd2437c1a8fde8bb4ec03695c21788",
+      "visualInspection": "not individually verified",
+      "disposition": "setup-diagnostic-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-026",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-desktop1440-retry1/test-failed-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": "/admin/question-papers",
+      "state": "test-failed-1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "9bd356ff96dddcdf6c101261d54be49c5ff9bdb048eb4e49deb397493b6087b7",
+      "visualInspection": "not individually verified",
+      "disposition": "setup-diagnostic-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-027",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-mobile390/test-failed-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": "/admin/question-papers",
+      "state": "test-failed-1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "a89de4828bff8f9b44ac5bfd10c56e0691d8ca5ad172b95983c73c319b39fed2",
+      "visualInspection": "not individually verified",
+      "disposition": "setup-diagnostic-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-028",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-mobile390-retry1/test-failed-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": "/admin/question-papers",
+      "state": "test-failed-1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "712ff620f233c451706290b382938792ee16221a2d0f1b04533a44cc2433469f",
+      "visualInspection": "not individually verified",
+      "disposition": "setup-diagnostic-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-029",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/public/awwwards-1440.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://www.awwwards.com/websites/sites_of_the_day/",
+      "state": "awwwards-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:43:45.189Z",
+      "captureDate": "2026-10-08",
+      "sha256": "6dcc89861f9231f164b638ec3c82badef98deccffc2fd5cd401630572a32e6a7",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-030",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/public/gtop-1440.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://gtop-app.web.app/",
+      "state": "gtop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 5456
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:43:42.482Z",
+      "captureDate": "2026-10-08",
+      "sha256": "bd8701f02020433c30890bbb10f694b513eec78f1765a4cdfda3a45bfdfb510d",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-031",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/public/gtop-390.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://gtop-app.web.app/",
+      "state": "gtop-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 6287
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:43:39.695Z",
+      "captureDate": "2026-10-08",
+      "sha256": "2155e8245cfac293e94d4df5b06246112697aa8d3d4ee520a75740d5e2f842e0",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-032",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/public/nightjar-1440.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://nightjar.co/",
+      "state": "nightjar-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:43:52.326Z",
+      "captureDate": "2026-10-08",
+      "sha256": "cca54a3c33261eeb14cbde194184ac2f1dc035003a45b17686ad6bb31203209a",
+      "visualInspection": "not individually verified",
+      "disposition": "incomplete-reference-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-033",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/initial/public/twks-1440.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37758424604,
+      "artifactId": 11541412421,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://twks.ch/en",
+      "state": "twks-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:43:49.185Z",
+      "captureDate": "2026-10-08",
+      "sha256": "e910449709f34f3d4e5b421c0b9c5f7660245a79e0a4d2e0f844040dc3490005",
+      "visualInspection": "not individually verified",
+      "disposition": "setup-diagnostic-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-034",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-desktop1440/test-failed-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": "/admin/question-papers",
+      "state": "test-failed-1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "7be29c959b67fc250d977e89920a691df6e1960b0bdab1d23dc9a31f5acf2e43",
+      "visualInspection": "not individually verified",
+      "disposition": "setup-diagnostic-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-035",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-mobile390/test-failed-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": "/admin/question-papers",
+      "state": "test-failed-1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "9a4745e9b4c255df9821c31b759c5a9519a4da103609b68f9bfd96f5815cebdf",
+      "visualInspection": "not individually verified",
+      "disposition": "setup-diagnostic-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-036",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/awwwards-1440-scrolled.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": null,
+      "state": "awwwards-1440-scrolled",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "546bdc55ff146bc1ca6460501a50789613a7c24d355664263a66ed95f770bad9",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-037",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/awwwards-1440.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://www.awwwards.com/websites/sites_of_the_day/",
+      "state": "awwwards-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:55:15.830Z",
+      "captureDate": "2026-10-08",
+      "sha256": "0bc7eea90932c7a697682a21386233b46660aa8f197c350f4b8b6d0e2fb736ed",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-038",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/awwwards-390-scrolled.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": null,
+      "state": "awwwards-390-scrolled",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "b17d9d341e67196a8bcb379fa1439c64a73698169491c6aef529c3f0303f0edd",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-039",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/awwwards-390.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://www.awwwards.com/websites/sites_of_the_day/",
+      "state": "awwwards-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:54:58.262Z",
+      "captureDate": "2026-10-08",
+      "sha256": "885274ac0b716f5d9ff1b60702f12fbf43e2873c3601478cc1961f3c933518c1",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-040",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/gtop-1440.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://gtop-app.web.app/",
+      "state": "gtop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 5456
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:54:55.137Z",
+      "captureDate": "2026-10-08",
+      "sha256": "bd8701f02020433c30890bbb10f694b513eec78f1765a4cdfda3a45bfdfb510d",
+      "visualInspection": "reviewed",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-041",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/gtop-390.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://gtop-app.web.app/",
+      "state": "gtop-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 6287
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:54:52.046Z",
+      "captureDate": "2026-10-08",
+      "sha256": "2155e8245cfac293e94d4df5b06246112697aa8d3d4ee520a75740d5e2f842e0",
+      "visualInspection": "reviewed",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-042",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/nightjar-1440-scrolled.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": null,
+      "state": "nightjar-1440-scrolled",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "b710a997d2e209c95a59d56166aabdc426583a2d2e3fd1c9691a4a02212eb120",
+      "visualInspection": "not individually verified",
+      "disposition": "incomplete-reference-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-043",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/nightjar-1440.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://nightjar.co/",
+      "state": "nightjar-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:56:24.698Z",
+      "captureDate": "2026-10-08",
+      "sha256": "eab710ef168db954e6c4c84589c83f275e91f1003a3b09823989ccf56736ba26",
+      "visualInspection": "not individually verified",
+      "disposition": "incomplete-reference-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-044",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/nightjar-390-scrolled.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": null,
+      "state": "nightjar-390-scrolled",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "b545e186b32609529340b01e5d4f7816fb3cdfb613507192239d05b57d9a8fd0",
+      "visualInspection": "not individually verified",
+      "disposition": "incomplete-reference-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-045",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/nightjar-390.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://nightjar.co/",
+      "state": "nightjar-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:56:06.926Z",
+      "captureDate": "2026-10-08",
+      "sha256": "14f298c011d0fdd214c8518a76cad2f6a89ea5953132766d1eaa58425794e5d0",
+      "visualInspection": "not individually verified",
+      "disposition": "incomplete-reference-excluded",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-046",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/twks-1440-scrolled.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": null,
+      "state": "twks-1440-scrolled",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "0290a914fbeeb58446c948b3f9d2bce7edb3f1c7fd1aa91e2add56234fbcc42c",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-047",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/twks-1440.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://twks.ch/en",
+      "state": "twks-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:55:50.166Z",
+      "captureDate": "2026-10-08",
+      "sha256": "a9ba3a7f8621964bb38442fbffc1841bb843ddc29b35a5835af37c7377e478ae",
+      "visualInspection": "reviewed",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-048",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/twks-390-scrolled.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": null,
+      "state": "twks-390-scrolled",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "53ad3497720925d92f35355edb6f383b9a62891800c72e200cb3b01843a88770",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-049",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/followup/public/twks-390.png",
+      "phase": "readiness",
+      "applicationCommit": null,
+      "sourceRunId": 37759629039,
+      "artifactId": 11542585145,
+      "environment": "live-public",
+      "role": "visitor",
+      "route": "https://twks.ch/en",
+      "state": "twks-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": "2026-10-08T09:55:33.397Z",
+      "captureDate": "2026-10-08",
+      "sha256": "a9c4825c29333ce81ebd42e59245136e64a799211fcc52cee49865c60277fa5a",
+      "visualInspection": "reviewed",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-050",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/final/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-desktop1440/busy-register-90-records.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37760643776,
+      "artifactId": 11541998323,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": "/admin/question-papers",
+      "state": "busy-register-90-records",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 4281
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "8814a1d1530b20b0f47075652f337fc4a403f080f384d8ad4602d41935878072",
+      "visualInspection": "reviewed",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-051",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/final/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-desktop1440/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37760643776,
+      "artifactId": 11541998323,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": "/admin/question-papers",
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "cf2b8555e95411a15f3024efffae2fcc7c0da421e580ffb7eef01dcecf6e206a",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-052",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/final/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-mobile390/busy-register-90-records.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37760643776,
+      "artifactId": 11541998323,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": "/admin/question-papers",
+      "state": "busy-register-90-records",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 6847
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "0d515448df5ff947f8c11c95efc182cbb7903d0f1e776f7c052e855785292e3d",
+      "visualInspection": "reviewed",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    },
+    {
+      "captureId": "READINESS-053",
+      "screenId": null,
+      "path": "screens/2026-10-08-readiness/final/e2e/readiness-states-readiness-e77e7-irst-page-and-older-records-mobile390/test-finished-1.png",
+      "phase": "readiness",
+      "applicationCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "sourceRunId": 37760643776,
+      "artifactId": 11541998323,
+      "environment": "isolated-firebase-emulators",
+      "role": "admin",
+      "route": "/admin/question-papers",
+      "state": "test-finished-1",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "imageDimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "browser": "chromium",
+      "capturedAt": null,
+      "captureDate": "2026-10-08",
+      "sha256": "8bbb8ddfc215a29ca9916423a0359c1813c2af87dda27fe04b08d57734aab406",
+      "visualInspection": "not individually verified",
+      "disposition": "readiness-sample-not-audit-coverage",
+      "auditEligible": false,
+      "metadataCaveat": "Screen ID and exact application route/state are to be verified against the Step 2 inventory. Image height is not viewport height. Missing timestamp is intentionally unknown."
+    }
+  ]
+}

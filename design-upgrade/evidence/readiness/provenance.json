@@ -1,0 +1,50 @@
+{
+  "purpose": "Step 0 technical readiness proof; evaluation and complete sitemap remain pending",
+  "baselineCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+  "repository": "Wolfrine/gtop-app",
+  "liveSite": "https://gtop-app.web.app/",
+  "auditBranch": "audit/design-readiness-20261008",
+  "applicationSourceChanged": false,
+  "productionDeploymentTriggered": false,
+  "initialRun": {
+    "id": 37758424604,
+    "url": "https://github.com/Wolfrine/gtop-app/actions/runs/37758424604",
+    "expected": 10,
+    "unexpected": 2,
+    "causeOfNewFixtureFailure": "New fixture omitted emulator register backfill; indexReady was false. Corrected in follow-up."
+  },
+  "followupRun": {
+    "id": 37759629039,
+    "url": "https://github.com/Wolfrine/gtop-app/actions/runs/37759629039",
+    "purpose": "Execute existing register backfill only against the local emulator and recheck busy-state pagination. Allow reference-page loading animations to complete.",
+    "result": "Both fixtures reached a ready, 30-row register with a Continue search button. Assertions incorrectly expected Load older papers; test setup assertion corrected in final run."
+  },
+  "viewports": [
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000
+    }
+  ],
+  "evidenceBoundary": "Live public captures use production. Authenticated journey captures use synthetic local Firebase emulator accounts and data. They demonstrate a capture method, not full product coverage or real-device verification.",
+  "referenceInspection": {
+    "awwwards": "Live listing rendered; useful source-access proof, not a curated reference set.",
+    "twks": "Desktop project image and navigation rendered after allowing load/intro timing; mobile also captured. Motion requires separate observation during reference research.",
+    "nightjar": "Text/navigation rendered but scrolling capture did not expose further content; excluded from accepted comparison evidence pending further inspection or replacement."
+  },
+  "latestWorkflowCommit": "d77405c71d33b723acb5c4dce946642f253b60ed",
+  "finalRun": {
+    "id": 37760643776,
+    "url": "https://github.com/Wolfrine/gtop-app/actions/runs/37760643776",
+    "purpose": "Verify the existing continuation button increases visible rows from 30 to 60 in each viewport.",
+    "result": "Passed on desktop1440 and mobile390: 30 initial rows; 60 after continuation; 90 synthetic source records per user."
+  },
+  "verifiedExistingChecks": 10,
+  "verifiedBusyChecks": 2,
+  "readinessStatus": "Technical paths verified; inherent limitations retained with stage-specific validation"
+}

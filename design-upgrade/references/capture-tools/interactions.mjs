@@ -29,7 +29,7 @@ for(const width of id==='des'?[390]:[1440,390]){
   }
   if(id==='brilliant'){
    const close=page.getByRole('button',{name:'Close',exact:true});if(await close.count()===1&&await close.isVisible()){await close.click();log('dismiss-cookie-banner');}
-   await shot('01-clean-entry');const pause=page.getByRole('button',{name:'Pause',exact:true});await pause.click();log('pause-hero-demo');await page.waitForTimeout(1200);await shot('02-paused');await page.waitForTimeout(2000);await shot('03-still-paused');
+   await page.waitForTimeout(1200);await shot('01-clean-entry');const pause=page.getByRole('button',{name:'Pause',exact:true});await pause.hover();await page.waitForTimeout(400);await pause.click();log('pause-hero-demo');await page.waitForTimeout(1200);await shot('02-paused');await page.waitForTimeout(2000);await shot('03-still-paused');
    const play=page.getByRole('button',{name:'Play',exact:true});r.playButtons=await play.count();
    // First visible viewport Play control is the hero control just changed from Pause.
    const p=await play.all();for(const b of p){const box=await b.boundingBox();if(box&&box.y>=0&&box.y<viewport.height){await b.click();log('resume-hero-demo');break;}}
@@ -37,20 +37,15 @@ for(const width of id==='des'?[390]:[1440,390]){
    const tabs=page.getByRole('tab');r.tabs=await tabs.allTextContents();const cs=tabs.filter({hasText:'Computer Science'});if(await cs.count()===1){await cs.click();log('select-computer-science-tab');await page.waitForTimeout(1600);await shot('05-computer-science');await snapshot('afterTabText');}
   }
   if(id==='bicycle'){
-   // Inspect rendered custom controls before selecting a target. No application internals.
-   r.sliderDOM=await page.locator('[class*="slider"]').evaluateAll(es=>es.slice(0,15).map(e=>({class:e.className,html:e.outerHTML.slice(0,1000)})));
-   const knobs=page.locator('[class*="slider"]').filter({visible:true});r.sliderCount=await knobs.count();
-   const candidates=await page.locator('[class*="slider"]').evaluateAll(es=>es.map(e=>({cls:e.className,rect:e.getBoundingClientRect().toJSON()})).filter(e=>e.rect.width>100&&e.rect.height>0&&e.rect.y<2000));
-   r.sliderCandidates=candidates;const candidate=candidates.find(e=>e.rect.width<850&&e.rect.height<100);
-   if(!candidate)throw new Error('No grounded slider track found');
-   const loc=page.locator('[class]').filter({visible:true});
-   // Use actual DOM bounds of the first article slider track, then native pointer drag.
-   await page.mouse.wheel(0,Math.max(0,candidate.rect.y-viewport.height*.6));await page.waitForTimeout(1000);
-   const current=await page.locator('[class*="slider"]').evaluateAll(es=>es.map(e=>({cls:e.className,rect:e.getBoundingClientRect().toJSON()})).filter(e=>e.rect.width>100&&e.rect.height>0&&e.rect.y>0&&e.rect.y<innerHeight));
-   const t=current.find(e=>e.cls===candidate.cls&&e.rect.height<100);if(!t)throw new Error('Slider not in viewport');
-   await shot('01-slider-neutral');const x=t.rect.x,y=t.rect.y+t.rect.height/2,w=t.rect.width;
-   await page.mouse.move(x+w*.5,y);await page.mouse.down();await page.mouse.move(x+w*.88,y,{steps:18});await page.mouse.up();log('drag-slider-right',{bounds:t.rect});await page.waitForTimeout(1800);await shot('02-slider-right');
-   await page.mouse.move(x+w*.88,y);await page.mouse.down();await page.mouse.move(x+w*.15,y,{steps:18});await page.mouse.up();log('drag-slider-left');await page.waitForTimeout(1800);await shot('03-slider-left');
+   // Selectors grounded in the previous preserved DOM and visible rider control.
+   const knob=page.locator('#hero_sl0 .slider_knob');await knob.scrollIntoViewIfNeeded();await page.waitForTimeout(1500);
+   const track=page.locator('#hero_sl0 .slider_container');const t=await track.boundingBox();const k=await knob.boundingBox();if(!t||!k)throw new Error('Visible slider bounds unavailable');
+   await shot('01-slider-neutral');
+   const drag=async fraction=>{const current=await knob.boundingBox();await page.mouse.move(current.x+current.width/2,current.y+current.height/2);await page.mouse.down();await page.mouse.move(t.x+t.width*fraction,current.y+current.height/2,{steps:18});await page.mouse.up();};
+   r.before=await knob.evaluate(e=>e.parentElement.getAttribute('style'));
+   await drag(.88);log('drag-slider-right');await page.waitForTimeout(1800);r.afterRight=await knob.evaluate(e=>e.parentElement.getAttribute('style'));await shot('02-slider-right');
+   await drag(.15);log('drag-slider-left');await page.waitForTimeout(1800);r.afterLeft=await knob.evaluate(e=>e.parentElement.getAttribute('style'));await shot('03-slider-left');
+
   }
  }catch(e){r.failure=String(e).slice(0,800);try{await shot('diagnostic');}catch{}}
  finally{log('end');const v=page.video();await ctx.close();const p=path.join(dir,'sequence.webm');await fs.rename(await v.path(),p);const b=await fs.readFile(p);r.files.push({path:path.relative(root,p),sha256:crypto.createHash('sha256').update(b).digest('hex'),bytes:b.length,kind:'video'});await fs.writeFile(path.join(dir,'record.json'),JSON.stringify(r,null,2));records.push(r);await fs.writeFile(path.join(root,'manifest.json'),JSON.stringify({run,records},null,2));console.log(id,width,r.failure||'done');}

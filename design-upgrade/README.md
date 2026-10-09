@@ -37,6 +37,12 @@ The application baseline is `00116b57042df34a49b99031dbea3c1bebe897a4`, matching
 
 The readiness collection contains live public pages and isolated Firebase-emulator learner/admin states at 390 × 844 and 1440 × 1000. It demonstrates working capture methods. It is **not** a complete sitemap, physical-device test, user study or finished reference comparison. Unknown route/state details remain explicit in the catalog until Step 2 verifies them.
 
+## Delivery authorization
+
+On **9 October 2026**, the user instructed: “For this work we are doing here, deploy everything in main as we go.” Publish each completed stage of this initiative to `main`; a separate merge approval is not required. This project-specific authorization overrides the earlier branch-only handling for this work. The foundation was merged in [PR #63](https://github.com/Wolfrine/gtop-app/pull/63).
+
+Publishing research, captures, evaluations and mockups to `main` does not waive the agreed sequence: application development starts only after the user accepts the proposed designs. Document-only changes are repository publication; report a live application deployment only when deployment has actually run and been verified.
+
 ## Resume protocol
 
 - Read `status.json`, this page, the relevant criterion and the latest decisions.

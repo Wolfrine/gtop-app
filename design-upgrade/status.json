@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-08",
+  "updated": "2026-10-09",
   "baselineCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
   "currentStage": "Step 2 ready to begin",
   "stages": [
@@ -55,5 +55,13 @@
     "Readiness samples do not prove complete screen coverage"
   ],
   "productionChanged": false,
-  "entryPoint": "design-upgrade/README.md"
+  "entryPoint": "design-upgrade/README.md",
+  "delivery": {
+    "branch": "main",
+    "authorizationDate": "2026-10-09",
+    "authorization": "User instructed all work in this design-upgrade initiative to be published to main as it progresses.",
+    "foundationPullRequest": 63,
+    "foundationMergeCommit": "c689a576d767bf0996c3dd078fdb7ef98038919e",
+    "developmentGate": "Application development remains gated on the user's acceptance of proposed designs."
+  }
 }

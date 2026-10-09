@@ -19,3 +19,7 @@ The shared HTML opened as code and the PDF also failed to load in the user's cha
 ## D-005 · Evaluation framework · Prepared, awaiting calibration/review · 8 October 2026
 
 Step 1 defines independent visual and journey scores, separate desktop/mobile evidence, explicit confidence/unknowns and benchmark anchors. This is a methodology output, not acceptance of a design or a rating of current GTOP screens. Benchmark calibration occurs in Step 3 before Step 4 scoring.
+
+## D-006 · Publish this initiative to main as it progresses · Authorized by user · 9 October 2026
+
+The user instructed: “For this work we are doing here, deploy everything in main as we go.” Merge the foundation record and publish each completed stage to `main` without asking for a separate merge approval. This supersedes the earlier branch-only handling for this initiative. The authorization concerns delivery; D-001's stage order and the requirement for design acceptance before application development remain in force. PR #63 preserves the foundation review trail.

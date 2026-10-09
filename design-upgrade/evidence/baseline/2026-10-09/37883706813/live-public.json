@@ -1,0 +1,52 @@
+[
+  {
+    "id": "live-landing-1440",
+    "url": "https://gtop-app.web.app/",
+    "environment": "live-public",
+    "synthetic": false,
+    "release": {
+      "application": "gtop-app",
+      "commit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "branch": "main",
+      "builtAt": "2026-10-05T13:35:10.574Z"
+    },
+    "capturedAt": "2026-10-09T04:26:03.156Z",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "image": {
+      "path": "screens/2026-10-09-baseline/37883706813/live-landing/desktop.png",
+      "sha256": "bd8701f02020433c30890bbb10f694b513eec78f1765a4cdfda3a45bfdfb510d",
+      "bytes": 2221901,
+      "width": 1440,
+      "height": 5456
+    },
+    "inspection": "pending"
+  },
+  {
+    "id": "live-landing-390",
+    "url": "https://gtop-app.web.app/",
+    "environment": "live-public",
+    "synthetic": false,
+    "release": {
+      "application": "gtop-app",
+      "commit": "00116b57042df34a49b99031dbea3c1bebe897a4",
+      "branch": "main",
+      "builtAt": "2026-10-05T13:35:10.574Z"
+    },
+    "capturedAt": "2026-10-09T04:26:05.284Z",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "image": {
+      "path": "screens/2026-10-09-baseline/37883706813/live-landing/mobile.png",
+      "sha256": "2155e8245cfac293e94d4df5b06246112697aa8d3d4ee520a75740d5e2f842e0",
+      "bytes": 871519,
+      "width": 390,
+      "height": 6287
+    },
+    "inspection": "pending"
+  }
+]

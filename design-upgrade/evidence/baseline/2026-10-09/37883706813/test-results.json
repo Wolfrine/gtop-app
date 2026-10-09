@@ -1,0 +1,901 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/20.20.2/x64/bin/node",
+      "/home/runner/work/gtop-app/gtop-app/gtop-app/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "playwright.baseline.config.ts",
+      "e2e/design-baseline.spec.ts"
+    ],
+    "configFile": "/home/runner/work/gtop-app/gtop-app/gtop-app/playwright.baseline.config.ts",
+    "rootDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/Wolfrine/gtop-app/commit/3d7199b6aca5ef9c92db673ca92a85a8d7f2c141",
+        "commitHash": "3d7199b6aca5ef9c92db673ca92a85a8d7f2c141",
+        "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37883706813"
+      },
+      "gitCommit": {
+        "shortHash": "3d7199b",
+        "hash": "3d7199b6aca5ef9c92db673ca92a85a8d7f2c141",
+        "subject": "Inventory GTOP screens and add isolated Step 2 capture runner",
+        "body": "Inventory GTOP screens and add isolated Step 2 capture runner",
+        "author": {
+          "name": "Wolfrine",
+          "email": "schttewary@gmail.com",
+          "time": 1791519842000
+        },
+        "committer": {
+          "name": "Wolfrine",
+          "email": "schttewary@gmail.com",
+          "time": 1791519842000
+        },
+        "branch": "main"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/gtop-app/gtop-app/design-upgrade/evidence/baseline/2026-10-09/37883706813/test-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Wolfrine/gtop-app/commit/3d7199b6aca5ef9c92db673ca92a85a8d7f2c141",
+            "commitHash": "3d7199b6aca5ef9c92db673ca92a85a8d7f2c141",
+            "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37883706813"
+          },
+          "gitCommit": {
+            "shortHash": "3d7199b",
+            "hash": "3d7199b6aca5ef9c92db673ca92a85a8d7f2c141",
+            "subject": "Inventory GTOP screens and add isolated Step 2 capture runner",
+            "body": "Inventory GTOP screens and add isolated Step 2 capture runner",
+            "author": {
+              "name": "Wolfrine",
+              "email": "schttewary@gmail.com",
+              "time": 1791519842000
+            },
+            "committer": {
+              "name": "Wolfrine",
+              "email": "schttewary@gmail.com",
+              "time": 1791519842000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "baseline",
+        "name": "baseline",
+        "testDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 2400000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../design-upgrade/evidence/baseline/2026-10-09/37883706813/test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm start -- --configuration development --host 127.0.0.1 --port 4300",
+      "url": "http://127.0.0.1:4300",
+      "reuseExistingServer": false,
+      "timeout": 180000
+    }
+  },
+  "suites": [
+    {
+      "title": "design-baseline.spec.ts",
+      "file": "design-baseline.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "complete GTOP baseline route and state capture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 2400000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "baseline",
+              "projectName": "baseline",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 973471,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "CAPTURE landing-desktop /?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE practice-preview-desktop /practice?board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE practice-mismatch-desktop /practice?board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5\n"
+                    },
+                    {
+                      "text": "CAPTURE invited-quiz-desktop /quiz?practice=invite&board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE practice-invalid-desktop /practice?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE profile-setup-desktop /profile-setup?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE profile-desktop /profile?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE dashboard-desktop /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE dashboard-empty-desktop /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE admin-console-desktop /admin?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE action-plan-desktop /admin/action-plan?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE mcq-management-desktop /admin/mcq-management?board=ICSE&standard=9&subject=Biology&chapter=Cells&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE add-mcq-desktop /admin/add-mcq?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE manage-syllabus-desktop /admin/manage-syllabus?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-edit-syllabus--capture-failed-desktop /admin/manage-syllabus/edit?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP edit-syllabus 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-review-desktop /syllabus-preview?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE logs-desktop /logs?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE user-list-desktop /admin/user-list?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE ui-preview-desktop /dev/ui?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-register--capture-failed-desktop /admin/question-papers?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-register 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-register-all-alias--capture-failed-desktop /admin/question-papers/all?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-register-all-alias 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-new--capture-failed-desktop /admin/question-papers/new?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-new 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-legacy-desktop /admin/question-papers/legacy?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-queued--capture-failed-desktop /admin/question-papers/chat/baseline-20261009-conversation-0?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-queued 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-needs-info--capture-failed-desktop /admin/question-papers/chat/baseline-20261009-conversation-1?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-needs-info 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-error--capture-failed-desktop /admin/question-papers/chat/baseline-20261009-conversation-2?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-error 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-processing--capture-failed-desktop /admin/question-papers/chat/baseline-20261009-conversation-3?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-processing 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-cancelled--capture-failed-desktop /admin/question-papers/chat/baseline-20261009-conversation-4?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-cancelled 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-ready--capture-failed-desktop /admin/question-papers/chat/baseline-20261009-ready?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-ready 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-view-desktop /admin/question-papers/view/baseline-20261009-paper?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-view-missing-desktop /admin/question-papers/view/unavailable-paper?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-library-desktop /admin/question-library?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-requests-desktop /admin/question-bank?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-desktop /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-desktop /quiz?subjects=Biology&chapters=Cells&count=5&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-empty-desktop /quiz?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-quiz-summary-empty--capture-failed-desktop /quiz-summary?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP quiz-summary-empty 1440 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-summary-saved-desktop /quiz-summary?sessionId=baseline-20261009-result-0&userId=u8Spp65BdlSc1dYYeZEbrEtdIwQq&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE reports-desktop /reports?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE reports-empty-desktop /reports?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-host-lobby-desktop /live/host/baseline-20261009-live-lobby?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-host-active-desktop /live/host/baseline-20261009-live-active?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-player-lobby-desktop /live/play/baseline-20261009-live-lobby?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-player-active-desktop /live/play/baseline-20261009-live-active?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-summary-desktop /live/summary/baseline-20261009-live-ended?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE run-lobby-host-desktop /quiz-run/lobby/baseline-20261009-run-lobby?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE run-lobby-guest-desktop /quiz-run/lobby/baseline-20261009-run-lobby?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE run-missing-desktop /quiz-run/lobby/not-present?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-hub-desktop /live?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-admin-desktop /live?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-run-desktop /quiz-run?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE learning-lab-desktop /learning-lab?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-lab-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-results-desktop /learning-lab/plants/results?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE lab-results-desktop /learning-lab/results?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-01-anatomy--flower-anatomy-exploration-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-plant-lab-journey--capture-failed-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP plant-lab-journey 1440 locator.click: Error: strict mode violation: getByRole('button', { name: 'Anther' }) resolved to 3 elements:\n    1) <button aria-label=\"Inspect Anther\" class=\"pl-hotspot ng-star-inserted\">…</button> aka getByRole('button', { name: 'Inspect Anther' })\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-predict--fresh-baseline-predictions-and-lesson-steps-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-single-circuit--single-resistor-circuit-controls-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-voltage-result--voltage-changed-with-live-current-reading-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-current-lab-journey--capture-failed-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP current-lab-journey 1440 locator.click: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Record observation ✓', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button ng-star-inserted\"> Record observation \n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-results-empty-desktop /learning-lab/results?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-lab-results-empty-desktop /learning-lab/plants/results?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--stage-1-format-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-generator-stages--capture-failed-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-generator-stages 1440 locator.fill: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.qpg-rule-row input[type=number]').first()\u001b[22m\n\u001b[2m    - locator resolved to <input min=\"1\" max=\"400\" type=\"number\" ng-reflect-min=\"1\" ng-reflect-max=\"400\" ng-reflect-mod\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-workbench-states--populated-queue-desktop /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-workbench-states--expanded-question-details-desktop /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-workbench-states--bulk-selection-desktop /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-workbench-states--reject-confirmation-desktop /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-workbench-states-desktop /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE mcq-management-edit-state--populated-filtered-bank-desktop /admin/mcq-management?board=ICSE&standard=9&subject=Biology&chapter=Cells&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE mcq-management-edit-state--expanded-question-desktop /admin/mcq-management?board=ICSE&standard=9&subject=Biology&chapter=Cells&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-mcq-management-edit-state--capture-failed-desktop /admin/mcq-management?board=ICSE&standard=9&subject=Biology&chapter=Cells&emulator=1\n"
+                    },
+                    {
+                      "text": "GAP mcq-management-edit-state 1440 locator.click: Error: strict mode violation: locator('.mcq-list mat-expansion-panel').first().getByRole('button', { name: 'Edit question' }) resolved to 2 elements:\n    1) <mat-expansion-panel-header tabindex=\"0\" role=\"button\" aria-expanded=\"true\" ar\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-review-expanded-editor--subject-inventory-desktop /syllabus-preview?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-review-expanded-editor--subject-preview-open-desktop /syllabus-preview?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-review-expanded-editor--inline-unsaved-edit-desktop /syllabus-preview?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-review-expanded-editor-desktop /syllabus-preview?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE manage-syllabus-inline-edit--syllabus-rows-desktop /admin/manage-syllabus/edit?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE manage-syllabus-inline-edit--inline-row-edit-desktop /admin/manage-syllabus/edit?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE manage-syllabus-inline-edit-desktop /admin/manage-syllabus/edit?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE navigation-learner-desktop /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE navigation-admin-desktop /admin?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE profile-menu-desktop /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE custom-quiz-learner-desktop /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-custom-quiz-admin--capture-failed-desktop /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP custom-quiz-admin 1440 locator.click: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('combobox', { name: 'Board', exact: true })\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-selected-desktop /quiz?subjects=Biology&chapters=Cells&count=5&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-completed-desktop /quiz-summary\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-summary-expanded-desktop /quiz-summary?sessionId=baseline-20261009-result-0&userId=u8Spp65BdlSc1dYYeZEbrEtdIwQq&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-register-needs-action-desktop /admin/question-papers?emulator=1&paperView=needs-action\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-register-in-progress-desktop /admin/question-papers?emulator=1&paperView=in-progress\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-register-ready-desktop /admin/question-papers?emulator=1&paperView=ready\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-register-older-desktop /admin/question-papers?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-register-no-results-desktop /admin/question-papers?emulator=1&paperQ=unmatched-term-zzzz\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-updates-desktop /admin/question-papers?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-chat-history-desktop /admin/question-papers/chat/baseline-20261009-ready?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-revision-desktop /admin/question-papers/chat/baseline-20261009-conversation-0?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-answer-key-desktop /admin/question-papers/view/baseline-20261009-paper?emulator=1&answers=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-library-populated-desktop /admin/question-library?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-library-add-written-desktop /admin/question-library?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE action-plan-editor-desktop /admin/action-plan?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE user-expanded-desktop /admin/user-list?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-expanded-desktop /admin/manage-syllabus?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE access-denied-admin-desktop /dashboard\n"
+                    },
+                    {
+                      "text": "CAPTURE not-found-redirect-desktop /?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE landing-mobile /?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE practice-preview-mobile /practice?board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE practice-mismatch-mobile /practice?board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5\n"
+                    },
+                    {
+                      "text": "CAPTURE invited-quiz-mobile /quiz?practice=invite&board=CBSE&standard=12&subjects=Chemistry&chapters=Solutions&count=5&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE practice-invalid-mobile /practice?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE profile-setup-mobile /profile-setup?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE profile-mobile /profile?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE dashboard-mobile /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE dashboard-empty-mobile /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE admin-console-mobile /admin?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE action-plan-mobile /admin/action-plan?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE mcq-management-mobile /admin/mcq-management?board=ICSE&standard=9&subject=Biology&chapter=Cells&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE add-mcq-mobile /admin/add-mcq?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE manage-syllabus-mobile /admin/manage-syllabus?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-edit-syllabus--capture-failed-mobile /admin/manage-syllabus/edit?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP edit-syllabus 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-review-mobile /syllabus-preview?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE logs-mobile /logs?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE user-list-mobile /admin/user-list?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE ui-preview-mobile /dev/ui?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-register--capture-failed-mobile /admin/question-papers?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-register 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-register-all-alias--capture-failed-mobile /admin/question-papers/all?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-register-all-alias 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-new--capture-failed-mobile /admin/question-papers/new?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-new 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-legacy-mobile /admin/question-papers/legacy?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-queued--capture-failed-mobile /admin/question-papers/chat/baseline-20261009-conversation-0?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-queued 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-needs-info--capture-failed-mobile /admin/question-papers/chat/baseline-20261009-conversation-1?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-needs-info 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-error--capture-failed-mobile /admin/question-papers/chat/baseline-20261009-conversation-2?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-error 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-processing--capture-failed-mobile /admin/question-papers/chat/baseline-20261009-conversation-3?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-processing 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-cancelled--capture-failed-mobile /admin/question-papers/chat/baseline-20261009-conversation-4?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-cancelled 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-chat-ready--capture-failed-mobile /admin/question-papers/chat/baseline-20261009-ready?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-chat-ready 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\u001b[2m    44 × locator resolved to hidden <h2>Your updates</h2>\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-view-mobile /admin/question-papers/view/baseline-20261009-paper?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-view-missing-mobile /admin/question-papers/view/unavailable-paper?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-library-mobile /admin/question-library?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-requests-mobile /admin/question-bank?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-mobile /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-mobile /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-mobile /quiz?subjects=Biology&chapters=Cells&count=5&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-empty-mobile /quiz?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-quiz-summary-empty--capture-failed-mobile /quiz-summary?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP quiz-summary-empty 390 locator.waitFor: Timeout 20000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('h1,h2').first() to be visible\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-summary-saved-mobile /quiz-summary?sessionId=baseline-20261009-result-0&userId=u8Spp65BdlSc1dYYeZEbrEtdIwQq&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE reports-mobile /reports?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE reports-empty-mobile /reports?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-host-lobby-mobile /live/host/baseline-20261009-live-lobby?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-host-active-mobile /live/host/baseline-20261009-live-active?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-player-lobby-mobile /quiz?live=1&sessionId=baseline-20261009-live-lobby\n"
+                    },
+                    {
+                      "text": "CAPTURE live-player-active-mobile /quiz?live=1&sessionId=baseline-20261009-live-active\n"
+                    },
+                    {
+                      "text": "CAPTURE live-summary-mobile /live/summary/baseline-20261009-live-ended?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE run-lobby-host-mobile /quiz-run/lobby/baseline-20261009-run-lobby?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE run-lobby-guest-mobile /quiz-run/lobby/baseline-20261009-run-lobby?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE run-missing-mobile /quiz-run/lobby/not-present?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-hub-mobile /live?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE live-admin-mobile /live?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-run-mobile /quiz-run?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE learning-lab-mobile /learning-lab?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-lab-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-results-mobile /learning-lab/plants/results?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE lab-results-mobile /learning-lab/results?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-plant-lab-journey--capture-failed-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP plant-lab-journey 390 locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.pl-save-state').filter({ hasText: 'Practice mode' }) to be visible\u001b[22m\n\u001b[2m    27 × locator resolved to hidden <span role=\"status\" class=\"pl-save-state\">Practice mode\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-predict--fresh-baseline-predictions-and-lesson-steps-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-single-circuit--single-resistor-circuit-controls-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-voltage-result--voltage-changed-with-live-current-reading-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-current-lab-journey--capture-failed-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP current-lab-journey 390 locator.click: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Record observation ✓', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button ng-star-inserted\"> Record observation \n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-results-empty-mobile /learning-lab/results?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-lab-results-empty-mobile /learning-lab/plants/results?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-stages--stage-1-format-mobile /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-paper-generator-stages--capture-failed-mobile /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP paper-generator-stages 390 locator.fill: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.qpg-rule-row input[type=number]').first()\u001b[22m\n\u001b[2m    - locator resolved to <input min=\"1\" max=\"400\" type=\"number\" ng-reflect-min=\"1\" ng-reflect-max=\"400\" ng-reflect-mod\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-workbench-states--populated-queue-mobile /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-workbench-states--expanded-question-details-mobile /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-workbench-states--bulk-selection-mobile /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-workbench-states--reject-confirmation-mobile /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-workbench-states-mobile /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE mcq-management-edit-state--populated-filtered-bank-mobile /admin/mcq-management?board=ICSE&standard=9&subject=Biology&chapter=Cells&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE mcq-management-edit-state--expanded-question-mobile /admin/mcq-management?board=ICSE&standard=9&subject=Biology&chapter=Cells&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-mcq-management-edit-state--capture-failed-mobile /admin/mcq-management?board=ICSE&standard=9&subject=Biology&chapter=Cells&emulator=1\n"
+                    },
+                    {
+                      "text": "GAP mcq-management-edit-state 390 locator.click: Error: strict mode violation: locator('.mcq-list mat-expansion-panel').first().getByRole('button', { name: 'Edit question' }) resolved to 2 elements:\n    1) <mat-expansion-panel-header tabindex=\"0\" role=\"button\" aria-expanded=\"true\" ar\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-review-expanded-editor--subject-inventory-mobile /syllabus-preview?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-review-expanded-editor--subject-preview-open-mobile /syllabus-preview?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-review-expanded-editor--inline-unsaved-edit-mobile /syllabus-preview?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-review-expanded-editor-mobile /syllabus-preview?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE manage-syllabus-inline-edit--syllabus-rows-mobile /admin/manage-syllabus/edit?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE manage-syllabus-inline-edit--inline-row-edit-mobile /admin/manage-syllabus/edit?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE manage-syllabus-inline-edit-mobile /admin/manage-syllabus/edit?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE navigation-learner-mobile /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE navigation-admin-mobile /admin?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE profile-menu-mobile /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE custom-quiz-learner-mobile /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE diagnostic-custom-quiz-admin--capture-failed-mobile /dashboard?emulator=1\n"
+                    },
+                    {
+                      "text": "GAP custom-quiz-admin 390 locator.click: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('combobox', { name: 'Board', exact: true })\u001b[22m\n\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-selected-mobile /quiz?subjects=Biology&chapters=Cells&count=5&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-completed-mobile /quiz-summary\n"
+                    },
+                    {
+                      "text": "CAPTURE quiz-summary-expanded-mobile /quiz-summary?sessionId=baseline-20261009-result-0&userId=u8Spp65BdlSc1dYYeZEbrEtdIwQq&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-register-needs-action-mobile /admin/question-papers?emulator=1&paperView=needs-action\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-register-in-progress-mobile /admin/question-papers?emulator=1&paperView=in-progress\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-register-ready-mobile /admin/question-papers?emulator=1&paperView=ready\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-register-older-mobile /admin/question-papers?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-register-no-results-mobile /admin/question-papers?emulator=1&paperQ=unmatched-term-zzzz\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-updates-mobile /admin/question-papers?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-chat-history-mobile /admin/question-papers/chat/baseline-20261009-ready?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-revision-mobile /admin/question-papers/chat/baseline-20261009-conversation-0?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-answer-key-mobile /admin/question-papers/view/baseline-20261009-paper?emulator=1&answers=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-library-populated-mobile /admin/question-library?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-library-add-written-mobile /admin/question-library?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE action-plan-editor-mobile /admin/action-plan?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE user-expanded-mobile /admin/user-list?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE syllabus-expanded-mobile /admin/manage-syllabus?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE access-denied-admin-mobile /dashboard\n"
+                    },
+                    {
+                      "text": "CAPTURE not-found-redirect-mobile /?emulator=1\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T04:26:46.524Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5adb0c2bdeb0edb899e5-d97b7aa8f52f3638c12e",
+          "file": "design-baseline.spec.ts",
+          "line": 79,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-09T04:26:25.570Z",
+    "duration": 994649.374,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

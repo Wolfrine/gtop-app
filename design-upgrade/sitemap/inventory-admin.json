@@ -1,0 +1,496 @@
+{
+  "repo": {
+    "name": "Wolfrine/gtop-app",
+    "commit": "058729a6fc62d285d5f7abc6d603952466df54d9",
+    "scope": "Angular gtop-app/ only; excludes gtop-v2"
+  },
+  "guards": {
+    "admin": "AuthGuard requires signed-in user with board and standard; otherwise / or /profile-setup?returnUrl=… . RoleGuard requires roles:['admin']; failures redirect /dashboard.",
+    "shared": "Shared routes accept roles user/admin via both guards."
+  },
+  "navigation": [
+    {
+      "label": "Dashboard",
+      "path": "/dashboard",
+      "scope": "shared",
+      "selector": "app-side-nav a[mat-list-item][href=\"/dashboard\"]"
+    },
+    {
+      "label": "Quick Quiz",
+      "path": "/quiz",
+      "scope": "shared",
+      "selector": "app-side-nav a[mat-list-item][href=\"/quiz\"]"
+    },
+    {
+      "label": "Learning Lab",
+      "path": "/learning-lab",
+      "scope": "shared",
+      "selector": "app-side-nav a[mat-list-item][href=\"/learning-lab\"]"
+    },
+    {
+      "label": "Quiz Runs",
+      "path": "/quiz-run",
+      "scope": "shared",
+      "selector": "app-side-nav a[mat-list-item][href=\"/quiz-run\"]"
+    },
+    {
+      "label": "Live Quizzes",
+      "path": "/live",
+      "scope": "shared",
+      "selector": "app-side-nav a[mat-list-item][href=\"/live\"]"
+    },
+    {
+      "label": "Progress",
+      "path": "/reports",
+      "scope": "shared",
+      "selector": "app-side-nav a[mat-list-item][href=\"/reports\"]"
+    },
+    {
+      "label": "Action Plan",
+      "path": "/admin/action-plan",
+      "scope": "admin",
+      "selector": "app-side-nav a[mat-list-item][href=\"/admin/action-plan\"]"
+    },
+    {
+      "label": "Questions & papers",
+      "path": "/admin/question-papers",
+      "scope": "admin",
+      "selector": "app-side-nav a[mat-list-item][href=\"/admin/question-papers\"]"
+    },
+    {
+      "label": "Manage Syllabus",
+      "path": "/admin/manage-syllabus",
+      "scope": "admin",
+      "selector": "app-side-nav a[mat-list-item][href=\"/admin/manage-syllabus\"]"
+    },
+    {
+      "label": "Add MCQs",
+      "path": "/admin/add-mcq",
+      "scope": "admin",
+      "selector": "app-side-nav a[mat-list-item][href=\"/admin/add-mcq\"]"
+    },
+    {
+      "label": "Syllabus review",
+      "path": "/syllabus-preview",
+      "scope": "admin",
+      "selector": "app-side-nav a[mat-list-item][href=\"/syllabus-preview\"]"
+    },
+    {
+      "label": "User Management",
+      "path": "/admin/user-list",
+      "scope": "admin",
+      "selector": "app-side-nav a[mat-list-item][href=\"/admin/user-list\"]"
+    },
+    {
+      "label": "Admin Console",
+      "path": "/admin",
+      "scope": "admin",
+      "selector": "app-side-nav a[mat-list-item][href=\"/admin\"]"
+    },
+    {
+      "label": "UI Preview",
+      "path": "/dev/ui",
+      "scope": "admin",
+      "selector": "app-side-nav a[mat-list-item][href=\"/dev/ui\"]"
+    },
+    {
+      "label": "Logs",
+      "path": "/logs",
+      "scope": "admin",
+      "selector": "app-side-nav a[mat-list-item][href=\"/logs\"]"
+    }
+  ],
+  "routes": [
+    {
+      "key": "admin",
+      "path": "/admin",
+      "component": "AdminDashboardComponent",
+      "guard": "admin",
+      "entry": "side nav; admin console quick actions"
+    },
+    {
+      "key": "action-plan",
+      "path": "/admin/action-plan",
+      "component": "ActionPlanComponent",
+      "guard": "admin",
+      "entry": "side nav"
+    },
+    {
+      "key": "mcq-management",
+      "path": "/admin/mcq-management?board=CBSE&standard=8th&subject=Science&chapter=Friction",
+      "component": "McqManagementComponent",
+      "guard": "admin",
+      "entry": "syllabus chapter visibility action; direct route"
+    },
+    {
+      "key": "add-mcq",
+      "path": "/admin/add-mcq",
+      "component": "AddMcqComponent",
+      "guard": "admin",
+      "entry": "side nav; admin console"
+    },
+    {
+      "key": "manage-syllabus",
+      "path": "/admin/manage-syllabus",
+      "component": "ManageSyllabusComponent",
+      "guard": "admin",
+      "entry": "side nav"
+    },
+    {
+      "key": "edit-syllabus",
+      "path": "/admin/manage-syllabus/edit",
+      "component": "EditSyllabusComponent",
+      "guard": "admin",
+      "entry": "Manage Syllabus > Edit Syllabus"
+    },
+    {
+      "key": "user-list",
+      "path": "/admin/user-list",
+      "component": "UserListComponent",
+      "guard": "admin",
+      "entry": "side nav"
+    },
+    {
+      "key": "question-papers",
+      "path": "/admin/question-papers",
+      "component": "PaperChatPage register mode",
+      "guard": "admin",
+      "entry": "side nav; admin console"
+    },
+    {
+      "key": "question-papers-all",
+      "path": "/admin/question-papers/all",
+      "component": "PaperChatPage register mode",
+      "guard": "admin",
+      "entry": "viewer back link; direct route; same view"
+    },
+    {
+      "key": "question-papers-new",
+      "path": "/admin/question-papers/new",
+      "component": "PaperChatPage new mode",
+      "guard": "admin",
+      "entry": "register + New paper"
+    },
+    {
+      "key": "question-papers-chat",
+      "path": "/admin/question-papers/chat/:conversationId",
+      "component": "PaperChatPage detail mode",
+      "guard": "admin",
+      "entry": "register row/notification"
+    },
+    {
+      "key": "question-papers-view",
+      "path": "/admin/question-papers/view/:paperId",
+      "component": "PaperChatViewerPage",
+      "guard": "admin",
+      "entry": "ready-paper link"
+    },
+    {
+      "key": "question-papers-legacy",
+      "path": "/admin/question-papers/legacy",
+      "component": "QuestionPapersPage (legacy)",
+      "guard": "admin",
+      "entry": "direct URL only; routed but legacy/unlinked"
+    },
+    {
+      "key": "question-library",
+      "path": "/admin/question-library",
+      "component": "QuestionLibraryPage",
+      "guard": "admin",
+      "entry": "admin console; Paper workspace Bank tools"
+    },
+    {
+      "key": "question-bank",
+      "path": "/admin/question-bank",
+      "component": "QuestionBankWorkspacePage",
+      "guard": "admin",
+      "entry": "question module links; no side nav direct link"
+    },
+    {
+      "key": "paper-generator",
+      "path": "/admin/question-paper-generator",
+      "component": "QuestionPaperGeneratorPage",
+      "guard": "admin",
+      "entry": "paper workflow/module link; no side nav direct link"
+    },
+    {
+      "key": "question-review",
+      "path": "/admin/question-review",
+      "component": "QuestionReviewWorkbenchPage",
+      "guard": "admin",
+      "entry": "admin console; paper workflow"
+    },
+    {
+      "key": "syllabus-preview",
+      "path": "/syllabus-preview",
+      "component": "SyllabusPreviewComponent",
+      "guard": "admin",
+      "entry": "side nav"
+    },
+    {
+      "key": "logs",
+      "path": "/logs",
+      "component": "LogsComponent",
+      "guard": "admin",
+      "entry": "side nav"
+    },
+    {
+      "key": "ui-preview",
+      "path": "/dev/ui",
+      "component": "UiKitchenComponent",
+      "guard": "admin",
+      "entry": "side nav UI Preview"
+    },
+    {
+      "key": "dashboard",
+      "path": "/dashboard",
+      "component": "UserDashboardComponent",
+      "guard": "shared",
+      "entry": "admin side nav Dashboard"
+    },
+    {
+      "key": "quiz",
+      "path": "/quiz",
+      "component": "QuizPageComponent; invited-quiz canMatch precedes this route",
+      "guard": "shared",
+      "entry": "admin side nav Quick Quiz"
+    },
+    {
+      "key": "learning-lab",
+      "path": "/learning-lab",
+      "component": "LearningLabComponent",
+      "guard": "labGuard",
+      "entry": "admin side nav"
+    },
+    {
+      "key": "quiz-run",
+      "path": "/quiz-run",
+      "component": "QuizRunLandingComponent",
+      "guard": "shared",
+      "entry": "admin side nav"
+    },
+    {
+      "key": "live",
+      "path": "/live",
+      "component": "LiveLandingComponent",
+      "guard": "shared",
+      "entry": "admin side nav; admin console"
+    },
+    {
+      "key": "reports",
+      "path": "/reports",
+      "component": "ReportsPageComponent",
+      "guard": "shared",
+      "entry": "admin side nav Progress; user-list View Progress"
+    }
+  ],
+  "routeNotes": [
+    "No explicit admin aliases/redirects; unknown paths hit wildcard redirect '/'.",
+    "/admin/question-papers base, /all, /new and /chat/:conversationId are separate route patterns mapped to PaperChatPage; /legacy remains a legacy requests screen; /view/:paperId is the distinct saved-paper viewer.",
+    "Legacy /admin/question-papers/legacy is directly routable but no current admin-nav/workspace link found.",
+    "The first /quiz route is the invited-practice canMatch route; normal /quiz falls through to the later shared QuizPage route.",
+    "Admin sidebar Dashboard targets /dashboard, not /admin.",
+    "/admin/mcq-management and /admin/manage-syllabus/edit are reachable through Manage Syllabus chapter/edit controls, but not direct side nav."
+  ],
+  "states": {
+    "admin": "overview cards and quick links; recent activity placeholder",
+    "action-plan": "loading; load error; populated board; no-match empty; search/status filter; create/edit editor; long list",
+    "mcq-management": "loading; filtered populated/empty; expanded question row; edit state",
+    "add-mcq": "blank paste; locally parsed preview; invalid JSON feedback",
+    "manage-syllabus": "collapsed/expanded Board > Standard > Subject > Chapter accordion; long list",
+    "edit-syllabus": "all/filtered rows; inline edit",
+    "user-list": "empty/populated online/offline cards; expanded card; long list",
+    "question-papers": "loading; empty/populated register; All/Needs action/In progress/Ready tabs; search; Created by me; pagination/long list; offline/cache/index/error; updates panel",
+    "question-papers-new": "request composer/validation",
+    "question-papers-chat": "conversation load/messages; reply composer; history/versions; clarification/error",
+    "question-papers-view": "loading/error; ready paper/incomplete draft; Question paper/Answer key tabs; document/image load",
+    "question-library": "scope chooser/loading/empty/results; type/search filter; pagination; editor/archive confirmation",
+    "question-bank": "loading/empty/populated priority list; status/search; selected request detail; load more",
+    "paper-generator": "format; syllabus; coverage rules; preview; saved drafts; guided mobile steps",
+    "question-review": "loading/empty/queue; batch selection; type/search; question editor; selected action bar; approve/reject confirmation",
+    "syllabus-preview": "syllabus tree/drilldown",
+    "logs": "empty/populated in-memory log list",
+    "ui-preview": "component preview",
+    "shared screens": "admin-visible shared dashboard/quiz/lab/quiz-run/live/report routes; route-specific states in component templates"
+  },
+  "selectors": {
+    "global": {
+      "nav": "app-side-nav mat-nav-list[aria-label='Primary'] a[mat-list-item]",
+      "hamburger": "app-header button[aria-label='Toggle navigation']"
+    },
+    "admin": "h1:has-text('Admin Console')",
+    "action-plan": {
+      "heading": "h1:has-text('GTOP Action Plan')",
+      "create": "button:has-text('Add activity')",
+      "closeEditor": "button[aria-label='Close action plan editor']",
+      "search": "input[matinput][value]",
+      "status": "mat-select"
+    },
+    "add-mcq": {
+      "heading": "h1:has-text('Add MCQs')",
+      "paste": "textarea[aria-label='MCQ JSON']",
+      "parse": "button:has-text('Parse MCQs')"
+    },
+    "manage-syllabus": {
+      "heading": "h1:has-text('Manage Syllabus')",
+      "accordion": "mat-expansion-panel-header"
+    },
+    "edit-syllabus": {
+      "filters": "mat-form-field mat-label (Board|Standard|Subject)",
+      "rowEdit": ".syllabus-row:not(.header) button mat-icon"
+    },
+    "user-list": {
+      "heading": "h1:has-text('User Management')",
+      "card": ".user-card__summary",
+      "expanded": ".user-card__details"
+    },
+    "question-papers": {
+      "heading": "h1:has-text('Papers')",
+      "tabs": "nav[aria-label='Paper views'] button",
+      "search": "#paper-search",
+      "createdByMe": "input[name='mine']",
+      "updates": "summary:has-text('Updates')",
+      "row": ".pr-record"
+    },
+    "question-papers-chat": {
+      "composer": "textarea (template ref #composer)",
+      "history": "details",
+      "back": "a.pr-back"
+    },
+    "question-papers-view": {
+      "heading": "h1",
+      "paperTab": "button:has-text('Question paper')",
+      "answerTab": "button:has-text('Answer key')"
+    },
+    "question-bank": {
+      "heading": "h1:has-text('Question requests')",
+      "scope": "#qb-scope",
+      "suggestion": ".qb-suggestions button",
+      "priority": ".qb-priority",
+      "status": "select[aria-label='Priority status']",
+      "search": "input[aria-label='Filter priorities']"
+    },
+    "question-library": {
+      "editor": "question-library template editorOpen/editor form; inspect visible button labels"
+    },
+    "paper-generator": {
+      "heading": "h1:has-text('Create a question paper')",
+      "format": ".qpg-format-option",
+      "steps": ".qpg-journey button"
+    },
+    "question-review": {
+      "heading": "h1:has-text('Review questions')",
+      "batch": ".qr-batches button",
+      "search": "input[aria-label='Search loaded questions']",
+      "type": "select[aria-label='Question type']",
+      "reject": "button:has-text('Reject selected')"
+    },
+    "logs": {
+      "heading": "h1:has-text('Logs')"
+    },
+    "syllabus-preview": {
+      "accordion": "mat-expansion-panel-header"
+    }
+  },
+  "fixtures": {
+    "firestore": [
+      {
+        "name": "users",
+        "fields": "displayName,email,photoURL,role,board,standard,createdAt|createdOn,subscriptionStatus"
+      },
+      {
+        "name": "syllabus",
+        "fields": "board,standard,subject,chapter,mcqCount"
+      },
+      {
+        "name": "questions",
+        "fields": "board,standard,subject,chapter,title,question,options[],correctIndex,solutions[],createdAt,createdBy"
+      },
+      {
+        "name": "deletedQuestions",
+        "fields": "question document fields plus delete/restore metadata (exact archival payload is service-dependent)"
+      },
+      {
+        "name": "actionPlans",
+        "fields": "title,description,area,owner,status(planned|in-progress|blocked|review|done),priority(critical|high|medium|low),dueDate,acceptanceCriteria,latestUpdate,sourceReference,archived,createdAt,updatedAt,createdBy{uid,name,email},updatedBy{uid,name,email}"
+      },
+      {
+        "name": "questionBankPriorityItems",
+        "fields": "board,standard,subject|primarySubject,chapter,sourceSyllabusId,questionTypes[]|questionType,priority,status,source,parentRequestId,requiredCount,availableCount,gapCount,progress{pendingDraftCount,stagedCount,lastRunId},lastBlocker|blocker,agentRunId,updatedAtIso|createdAtIso"
+      },
+      {
+        "name": "devQuestions",
+        "fields": "question/title,board,standard,subject,chapter,options[],correctIndex,solutions[]|answer,questionType|type,difficulty,reviewStatus,paperOnly,marks,assets,sourceSyllabusId,sourcePriorityId,agentRunId,reviewNotes,updatedAt"
+      },
+      {
+        "name": "paperTemplates",
+        "fields": "title|name,status,section/format definitions,marks,duration"
+      },
+      {
+        "name": "paperDrafts",
+        "fields": "title,board,standard,subjects[],marks,durationMinutes,sections[],status,createdAt,requestRevision,coverage"
+      },
+      {
+        "name": "paperRequests",
+        "fields": "conversationId,brief,status,progress,paperId,error,createdAt,requestedBy,revision,nextRunAtIso"
+      },
+      {
+        "name": "paperConversations",
+        "fields": "title,ownerUid,status,createdAt,updatedAt,activeRequestId,revision"
+      },
+      {
+        "name": "paperMessages",
+        "fields": "conversationId,role(admin|agent|system),createdBy,text,createdAt,requestId,paperId"
+      },
+      {
+        "name": "paperNotifications",
+        "fields": "ownerUid,conversationId,paperId,text,read,createdAt"
+      },
+      {
+        "name": "paperRegister",
+        "fields": "kind,title,ownerUid,createdAt,updatedAt,status,activeRequestId,requestRevision,brief,progress,error,nextRunAtIso,hasReady,latestPaperId/latestPaperTitle/latestPaperRevision,board,className,subjects[],chapters[],needsAction,inProgress"
+      },
+      {
+        "name": "paperRegisterState/v1",
+        "fields": "ready:boolean"
+      }
+    ],
+    "realtimeDatabase": [
+      {
+        "name": "activeUsers/{uid}",
+        "fields": "userId,displayName,email,lastActive,isOnline"
+      }
+    ],
+    "local": [
+      {
+        "name": "logs",
+        "fields": "timestamp,level(log|error|warn|info),message; in-memory console intercept"
+      }
+    ],
+    "seedGuidance": "Admin test user must have role=admin plus board and standard. Seed 2 users with online/offline presence, ≥3 syllabus scopes, questions, plans across statuses, priorities across statuses, pending + approved-paper-only devQuestions, and paper register rows spanning needs-info/generating/completed/error with one ready saved paper and conversation/messages/notification plus one incomplete draft. >30 register rows and >50 priorities exercise pagination."
+  },
+  "sources": [
+    "src/app/app.routes.ts",
+    "src/app/components/side-nav/side-nav.component.ts",
+    "src/app/components/side-nav/side-nav.component.html",
+    "src/app/components/header/header.component.html",
+    "src/app/services/auth.guard.ts",
+    "src/app/services/role.guard.ts",
+    "src/app/pages/admin-dashboard/admin-dashboard.component.ts",
+    "src/app/pages/admin-dashboard/admin-dashboard.component.html",
+    "src/app/pages/admin-dashboard/user-list/user-list.component.ts",
+    "src/app/pages/admin-dashboard/user-list/user-list.component.html",
+    "src/app/services/action-plan.service.ts",
+    "src/app/services/active-users.service.ts",
+    "src/app/services/mcq.service.ts",
+    "src/app/services/syllabus.service.ts",
+    "src/app/features/question-bank/core/models.ts",
+    "src/app/features/question-bank/core/paper-chat.models.ts",
+    "src/app/features/question-bank/core/paper-chat.repository.ts",
+    "src/app/features/question-bank/core/paper-register.repository.ts",
+    "src/app/features/question-bank/core/question-library.repository.ts",
+    "src/app/features/question-bank/core/question-operations.repository.ts",
+    "src/app/features/question-bank/core/question-review.repository.ts",
+    "src/app/features/question-bank/core/question-paper.repository.ts"
+  ]
+}

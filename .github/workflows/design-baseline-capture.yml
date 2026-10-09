@@ -1,0 +1,71 @@
+name: GTOP design baseline capture
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/design-baseline-capture.yml'
+      - 'design-upgrade/capture-tools/**'
+permissions:
+  contents: write
+concurrency:
+  group: gtop-design-baseline
+  cancel-in-progress: false
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: gtop-app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Prepare isolated capture dependencies
+        working-directory: gtop-app
+        run: |
+          npm ci
+          npm ci --prefix functions
+          npx playwright install --with-deps chromium
+          cp ../design-upgrade/capture-tools/capture.config.ts playwright.baseline.config.ts
+          cp ../design-upgrade/capture-tools/baseline.spec.ts e2e/design-baseline.spec.ts
+          cp ../design-upgrade/capture-tools/live-session-fixtures.ts e2e/live-session-fixtures.ts
+          cp ../design-upgrade/capture-tools/lab-captures.ts e2e/lab-captures.ts
+          cp ../design-upgrade/capture-tools/admin-captures.ts e2e/admin-captures.ts
+      - name: Verify source and capture current live public entry
+        working-directory: gtop-app
+        run: |
+          test -z "$(git diff 058729a6fc62d285d5f7abc6d603952466df54d9 HEAD -- src package.json package-lock.json firebase.json firestore.rules database.rules.json functions)"
+          node ../design-upgrade/capture-tools/public-capture.mjs
+      - name: Capture the unchanged application with controlled data
+        working-directory: gtop-app
+        env:
+          GTOP_CAPTURE_SOURCE: 058729a6fc62d285d5f7abc6d603952466df54d9
+        run: npx firebase-tools@15 emulators:exec --only auth,firestore,database,functions --project gtop-app "npx playwright test --config playwright.baseline.config.ts e2e/design-baseline.spec.ts"
+      - name: Preserve original capture artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gtop-design-baseline-20261009
+          path: |
+            design-upgrade/screens/2026-10-09-baseline
+            design-upgrade/evidence/baseline/2026-10-09
+          retention-days: 14
+          if-no-files-found: error
+      - name: Publish capture evidence to main
+        if: always()
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add design-upgrade/screens/2026-10-09-baseline design-upgrade/evidence/baseline/2026-10-09
+          if git diff --cached --quiet; then exit 0; fi
+          git diff --cached --name-only | python -c 'import sys; paths=sys.stdin.read().splitlines(); assert all(p.startswith(("design-upgrade/screens/2026-10-09-baseline/", "design-upgrade/evidence/baseline/2026-10-09/")) for p in paths); print("Evidence paths:",len(paths))'
+          git commit -m 'Preserve GTOP Step 2 original desktop and mobile captures'
+          git pull --rebase origin main
+          git push origin HEAD:main

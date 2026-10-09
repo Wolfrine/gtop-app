@@ -1,0 +1,131 @@
+{
+  "provenance": "Read-only copies of the five question IDs explicitly pinned by reviewed-practices.ts; creator identifiers omitted. Used only in the isolated emulator.",
+  "fetchedOn": "2026-10-09",
+  "questions": [
+    {
+      "id": "0f0zI3fXrir2ZnQyI5Z2",
+      "sourcePath": "questions/0f0zI3fXrir2ZnQyI5Z2",
+      "sourceUpdateTime": "2026-07-21T09:57:47.831Z",
+      "data": {
+        "board": "CBSE",
+        "standard": "12",
+        "subject": "Chemistry",
+        "chapter": "Solutions",
+        "question": "(Error-analysis Numerical) While calculating mole fraction, a student ignores the moles of the solvent and considers only the moles of the solute. The calculated mole fraction will be:",
+        "options": [
+          "Greater than the correct value",
+          "Smaller than the correct value",
+          "Equal to the correct value",
+          "Zero"
+        ],
+        "correctIndex": 0,
+        "solutions": [
+          "Option A is correct because the denominator should include the total moles of solute and solvent.",
+          "Option B is incorrect because ignoring the solvent decreases the denominator and increases the calculated value.",
+          "Option C is incorrect because the calculation is incomplete.",
+          "Option D is incorrect because the mole fraction of a present solute cannot be zero."
+        ]
+      }
+    },
+    {
+      "id": "1qef7oUmRR9PctqAXnZ0",
+      "sourcePath": "questions/1qef7oUmRR9PctqAXnZ0",
+      "sourceUpdateTime": "2026-07-21T10:00:53.980Z",
+      "data": {
+        "board": "CBSE",
+        "standard": "12",
+        "subject": "Chemistry",
+        "chapter": "Solutions",
+        "question": "(HOTS) Which of the following changes will increase the concentration of dissolved CO₂ in a soft drink?",
+        "options": [
+          "Increasing pressure and decreasing temperature",
+          "Decreasing pressure and increasing temperature",
+          "Increasing temperature only",
+          "Shaking the bottle after opening"
+        ],
+        "correctIndex": 0,
+        "solutions": [
+          "Option A is correct because high pressure and low temperature both increase the solubility of gases in liquids.",
+          "Option B is incorrect because both changes decrease gas solubility.",
+          "Option C is incorrect because increasing temperature decreases gas solubility.",
+          "Option D is incorrect because shaking an opened bottle accelerates the escape of CO₂."
+        ]
+      }
+    },
+    {
+      "id": "21mBJNpFl2gRFWovQlnX",
+      "sourcePath": "questions/21mBJNpFl2gRFWovQlnX",
+      "sourceUpdateTime": "2026-07-21T10:25:15.368Z",
+      "data": {
+        "board": "CBSE",
+        "standard": "12",
+        "subject": "Chemistry",
+        "chapter": "Solutions",
+        "question": "(Multi-step Numerical) A 0.20 molal aqueous solution of glucose is prepared. Calculate the boiling point of the solution. (Kb = 0.52 K kg mol⁻¹, boiling point of water = 100°C)",
+        "options": [
+          "100.104°C",
+          "100.520°C",
+          "100.208°C",
+          "100.020°C"
+        ],
+        "correctIndex": 0,
+        "solutions": [
+          "Option A is correct because ΔTb = 0.52 × 0.20 = 0.104°C, so boiling point = 100.104°C.",
+          "Option B is incorrect because it corresponds to a 1 molal solution.",
+          "Option C is incorrect because the calculation is incorrect.",
+          "Option D is incorrect because the boiling point elevation has been underestimated."
+        ]
+      }
+    },
+    {
+      "id": "4LmHaBe3xxegW5wrW1i6",
+      "sourcePath": "questions/4LmHaBe3xxegW5wrW1i6",
+      "sourceUpdateTime": "2026-07-21T10:37:46.194Z",
+      "data": {
+        "board": "CBSE",
+        "standard": "12",
+        "subject": "Chemistry",
+        "chapter": "Solutions",
+        "question": "(Multi-concept Numerical) Calculate the osmotic pressure of a 0.20 M glucose solution at 300 K. (R = 0.0821 L atm mol⁻¹ K⁻¹)",
+        "options": [
+          "4.93 atm",
+          "2.46 atm",
+          "0.49 atm",
+          "9.86 atm"
+        ],
+        "correctIndex": 0,
+        "solutions": [
+          "Option A is correct because π = CRT = 0.20 × 0.0821 × 300 = 4.93 atm.",
+          "Option B is incorrect because only half the concentration has effectively been considered.",
+          "Option C is incorrect because the calculation is incorrect.",
+          "Option D is incorrect because the value is doubled."
+        ]
+      }
+    },
+    {
+      "id": "0EkMDD6A894FPaCqTsfE",
+      "sourcePath": "questions/0EkMDD6A894FPaCqTsfE",
+      "sourceUpdateTime": "2026-07-21T09:58:47.322Z",
+      "data": {
+        "board": "CBSE",
+        "standard": "12",
+        "subject": "Chemistry",
+        "chapter": "Solutions",
+        "question": "(HOTS) A solution of acetic acid in benzene shows an experimental molar mass nearly twice the expected value. This is because acetic acid molecules undergo:",
+        "options": [
+          "Association",
+          "Complete dissociation",
+          "Hydrolysis",
+          "Ionization"
+        ],
+        "correctIndex": 0,
+        "solutions": [
+          "Option A is correct because acetic acid forms dimers in benzene through hydrogen bonding, increasing the apparent molar mass.",
+          "Option B is incorrect because dissociation decreases the apparent molar mass.",
+          "Option C is incorrect because hydrolysis does not occur in benzene.",
+          "Option D is incorrect because ionization in benzene is negligible."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,528 @@
+{
+  "repository": "Wolfrine/gtop-app",
+  "ref": "058729a6fc62d285d5f7abc6d603952466df54d9",
+  "scope": "Current Angular application under gtop-app/. Public and learner-facing routed surface only; admin-only areas are called out where they change learner entry/guard behavior. gtop-v2 and design work excluded.",
+  "sourcesSavedUnder": "step2/source/gtop-app/ (repository-relative paths preserved at pinned commit)",
+  "routeFile": "step2/source/src/app/app.routes.ts",
+  "routingNotes": [
+    "Two ordered routes share /quiz. First entry uses canMatch=invitedQuizMatch and loads InvitedQuizComponent only when query parameter practice=invite; otherwise the later /quiz QuizPageComponent route handles it.",
+    "Wildcard ** redirects to /.",
+    "Learning Lab routes use labGuard: signed-in Firebase Auth is required; no app role check for lesson pages. /learning-lab/results and /learning-lab/plants/results set adminOnly and redirect non-admins or failed profile reads to /learning-lab.",
+    "Most learner routes use AuthGuard and RoleGuard with data.roles=['user','admin']; this includes /dashboard, /profile, quiz/live/run/reports routes. Direct unauthenticated redirects are implemented by guards; exact redirect destination should be confirmed with the emulator's AuthGuard fixture.",
+    "/profile-setup and /practice are deliberately public. No route alias was found beyond practice=invite selecting the first /quiz route and wildcard-to-home.",
+    "Legacy standalone files such as practice-return.component.ts, practice-share.component.ts and practice-summary.component.ts are not independent route paths. The invited quiz directly loads InvitedQuizComponent; those helper components are composed from invitation flow elsewhere. Only routed surfaces are capture targets."
+  ],
+  "routes": [
+    {
+      "path": "/",
+      "surface": "Public landing",
+      "component": "LandingPageComponent",
+      "guard": "none",
+      "entryPoints": [
+        "direct URL",
+        "GTOP logo/home link",
+        "Explore Learning Lab CTA in lower landing page calls sign-in flow; user can then navigate directly or follow any configured post-auth destination"
+      ],
+      "states": [
+        "hero",
+        "subject exploration",
+        "sample-question interaction",
+        "play-together CTA"
+      ],
+      "source": [
+        "src/app/pages/landing-page/landing-page.component.html",
+        "src/app/pages/landing-page/landing-page.component.ts"
+      ]
+    },
+    {
+      "path": "/practice?board={board}&standard={standard}&subjects={subject}&chapters={chapter}&count=5",
+      "surface": "Public invitation preview",
+      "component": "PracticeInviteComponent",
+      "guard": "none",
+      "entryPoints": [
+        "shared invitation URL",
+        "manual/custom quiz link-copy dialog"
+      ],
+      "states": [
+        "valid scope, signed out (Sign in to practise)",
+        "valid scope, signed-in matching profile (Start five questions)",
+        "profile mismatch",
+        "invalid/missing/ambiguous scope",
+        "unavailable=1 error"
+      ],
+      "captureFixture": "e2e canonical scope CBSE / 12 / Chemistry / Solutions / 5 is present in reviewed-practices.ts; app.config.ts turns INVITED_SOLO_READY on and supplies presentation adapters. Public preview works without account. Logged-in quiz start requires matching user profile (admins are accepted) and emulator questions whose content/hash matches all five manifest entries.",
+      "source": [
+        "src/app/pages/practice-invite/practice-invite.component.html",
+        "src/app/pages/practice-invite/practice-invite.component.ts",
+        "src/app/services/practice-invite.domain.ts",
+        "e2e/practice-invite.spec.ts"
+      ]
+    },
+    {
+      "path": "/quiz?practice=invite&board={board}&standard={standard}&subjects={subject}&chapters={chapter}&count=5",
+      "surface": "Invitation quiz",
+      "component": "InvitedQuizComponent",
+      "guard": "canMatch practice=invite, then AuthGuard + RoleGuard (user/admin) + practiceInviteGuard",
+      "entryPoints": [
+        "Start five questions from /practice",
+        "direct sanitized invitation URL"
+      ],
+      "states": [
+        "in-progress MCQ",
+        "summary/save pending or retry",
+        "saved result with invitation return offer"
+      ],
+      "queryCaveat": "Rejects conflicting live/run parameters (sessionId, mode, etc.) to /practice with unavailable state; /quiz without practice=invite resolves to ordinary QuizPageComponent.",
+      "source": [
+        "src/app/app.routes.ts",
+        "src/app/services/practice-invite.guard.ts",
+        "src/app/pages/practice-invite/invited-quiz.component.ts",
+        "src/app/pages/quiz-page/quiz-page.component.ts",
+        "src/app/pages/quiz-summary/quiz-summary.component.html"
+      ]
+    },
+    {
+      "path": "/profile-setup",
+      "surface": "Public profile setup",
+      "component": "ProfileSetupComponent",
+      "guard": "none",
+      "entryPoints": [
+        "sign-up/sign-in flow after auth",
+        "direct URL",
+        "post-auth profile-completion flow destination; see landing signup handling"
+      ],
+      "states": [
+        "profile fields and validation",
+        "save/progress feedback"
+      ],
+      "source": [
+        "src/app/pages/profile-setup/profile-setup.component.html",
+        "src/app/pages/profile-setup/profile-setup.component.ts"
+      ]
+    },
+    {
+      "path": "/dashboard",
+      "surface": "Learner home (also allowed admin)",
+      "component": "UserDashboardComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin",
+      "entryPoints": [
+        "post-auth flow",
+        "header nav/menu",
+        "back links from profile/practice"
+      ],
+      "states": [
+        "empty/recent activity and progress panels",
+        "quick quiz",
+        "Custom Quiz dialog",
+        "return-practice cue on dashboard",
+        "realtime Quiz Runs and Live Quizzes entry cards"
+      ],
+      "source": [
+        "src/app/pages/user-dashboard/user-dashboard.component.html",
+        "src/app/pages/user-dashboard/user-dashboard.component.ts",
+        "src/app/components/manual-quiz-modal/manual-quiz-modal.component.html"
+      ]
+    },
+    {
+      "path": "/profile",
+      "surface": "Learner profile (also allowed admin)",
+      "component": "ProfileComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin",
+      "entryPoints": [
+        "header account menu"
+      ],
+      "states": [
+        "profile summary/edit form"
+      ],
+      "source": [
+        "src/app/pages/profile/profile.component.html",
+        "src/app/pages/profile/profile.component.ts"
+      ]
+    },
+    {
+      "path": "/quiz",
+      "surface": "Standard/quick MCQ quiz",
+      "component": "QuizPageComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin; selected unless practice=invite",
+      "entryPoints": [
+        "dashboard Start Quick Quiz",
+        "dashboard Custom Quiz",
+        "quiz-run host activates run and routes /quiz?sessionId=…&mode=run"
+      ],
+      "states": [
+        "scope selection/filter setup where applicable",
+        "question/options and answer selection",
+        "submit/confirmation",
+        "run-mode timed question"
+      ],
+      "source": [
+        "src/app/pages/quiz-page/quiz-page.component.html",
+        "src/app/pages/quiz-page/quiz-page.component.ts",
+        "src/app/services/quiz.service.ts"
+      ]
+    },
+    {
+      "path": "/quiz-summary",
+      "surface": "Quiz result",
+      "component": "QuizSummaryComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin",
+      "entryPoints": [
+        "quiz completion"
+      ],
+      "states": [
+        "score/result summary",
+        "answer/explanation review",
+        "save/retry or return links",
+        "direct URL without in-memory completed attempt renders “No completed attempt is available in this tab” empty state"
+      ],
+      "source": [
+        "src/app/pages/quiz-summary/quiz-summary.component.html",
+        "src/app/pages/quiz-summary/quiz-summary.component.ts"
+      ]
+    },
+    {
+      "path": "/reports",
+      "surface": "Learner reports",
+      "component": "ReportsPageComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin",
+      "entryPoints": [
+        "dashboard View All Attempts / reports CTA"
+      ],
+      "states": [
+        "attempt history and accuracy visualizations",
+        "empty/no-attempt state",
+        "loading/error"
+      ],
+      "source": [
+        "src/app/pages/reports-page/reports-page.component.html",
+        "src/app/pages/reports-page/reports-page.component.ts"
+      ]
+    },
+    {
+      "path": "/quiz-run",
+      "surface": "Collaborative Quiz Runs",
+      "component": "QuizRunLandingComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin",
+      "entryPoints": [
+        "dashboard realtime card / guide"
+      ],
+      "states": [
+        "create filters + Randomize Questions",
+        "questions-ready/create enabled",
+        "join code form",
+        "join error"
+      ],
+      "source": [
+        "src/app/pages/quiz-run/quiz-run-landing/quiz-run-landing.component.html",
+        "src/app/pages/quiz-run/quiz-run-landing/quiz-run-landing.component.ts"
+      ]
+    },
+    {
+      "path": "/quiz-run/lobby/:sessionId",
+      "surface": "Quiz Run lobby",
+      "component": "QuizRunLobbyComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin",
+      "entryPoints": [
+        "create/share lobby",
+        "join code while status=lobby"
+      ],
+      "states": [
+        "host lobby with code/participants and enabled Start when host has >=1 participant",
+        "guest waiting lobby",
+        "no session / ended / starting"
+      ],
+      "source": [
+        "src/app/pages/quiz-run/quiz-run-lobby/quiz-run-lobby.component.html",
+        "src/app/pages/quiz-run/quiz-run-lobby/quiz-run-lobby.component.ts",
+        "src/app/services/live-quiz.service.ts"
+      ]
+    },
+    {
+      "path": "/live",
+      "surface": "Live Quiz entry",
+      "component": "LiveLandingComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin",
+      "entryPoints": [
+        "dashboard live card/guide"
+      ],
+      "states": [
+        "learner join code + upcoming list/empty",
+        "admin host configuration, generated question preview, schedule",
+        "join error"
+      ],
+      "source": [
+        "src/app/pages/live/live-landing/live-landing.component.html",
+        "src/app/pages/live/live-landing/live-landing.component.ts"
+      ]
+    },
+    {
+      "path": "/live/host/:sessionId",
+      "surface": "Host console",
+      "component": "LiveHostComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin (no route-level host-only check)",
+      "entryPoints": [
+        "admin Create & Go to Host"
+      ],
+      "states": [
+        "scheduled lobby/countdown",
+        "active question with participant/submission counts and expand/collapse panels",
+        "ended session"
+      ],
+      "source": [
+        "src/app/pages/live/live-host/live-host.component.html",
+        "src/app/pages/live/live-host/live-host.component.ts",
+        "src/app/services/live-quiz.service.ts"
+      ]
+    },
+    {
+      "path": "/live/play/:sessionId",
+      "surface": "Participant lobby/player",
+      "component": "LivePlayerComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin",
+      "entryPoints": [
+        "join code or upcoming session",
+        "participant route; run-mode sessions redirect to /quiz-run/lobby/:sessionId"
+      ],
+      "states": [
+        "scheduled waiting room/countdown and participant roster"
+      ],
+      "source": [
+        "src/app/pages/live/live-player/live-player.component.html",
+        "src/app/pages/live/live-player/live-player.component.ts",
+        "Important: live-player.component.html at this ref only renders waiting-room layout, despite component TS computing active question/timer values."
+      ]
+    },
+    {
+      "path": "/live/summary/:sessionId",
+      "surface": "Live results",
+      "component": "LiveSummaryComponent",
+      "guard": "AuthGuard + RoleGuard; roles user/admin",
+      "entryPoints": [
+        "live completion"
+      ],
+      "states": [
+        "loading",
+        "ranked leaderboard",
+        "no results yet"
+      ],
+      "source": [
+        "src/app/pages/live/live-summary/live-summary.component.html",
+        "src/app/pages/live/live-summary/live-summary.component.ts"
+      ]
+    },
+    {
+      "path": "/learning-lab",
+      "surface": "Learning Lab index",
+      "component": "LearningLabComponent",
+      "guard": "labGuard: signed-in Auth user; results tab shown only if stored user role admin",
+      "entryPoints": [
+        "dashboard/footer link if present or direct",
+        "public landing Explore Learning Lab CTA after authentication"
+      ],
+      "states": [
+        "two lesson cards: Plant Reproduction and Current Lab",
+        "admin-only Results & Feedback tab appears"
+      ],
+      "source": [
+        "src/app/pages/learning-lab/learning-lab.component.ts",
+        "src/app/pages/learning-lab/learning-lab.service.ts"
+      ]
+    },
+    {
+      "path": "/learning-lab/plants",
+      "surface": "Plant Reproduction interactive lab",
+      "component": "PlantLabComponent",
+      "guard": "labGuard signed-in Auth user",
+      "entryPoints": [
+        "Learning Lab lesson card"
+      ],
+      "states": [
+        "five mission exploration (flower anatomy; pollination; fertilisation; fruit/seed travel; vegetative propagation)",
+        "journey map dropdown",
+        "My discoveries notebook panel",
+        "assessment (five questions)",
+        "summary with explanations and feedback",
+        "saved/recovered attempt or practice mode"
+      ],
+      "source": [
+        "src/app/pages/learning-lab/plant-lab.component.html",
+        "src/app/pages/learning-lab/plant-lab.component.ts",
+        "src/app/pages/learning-lab/plant-lesson.ts",
+        "src/app/pages/learning-lab/plant-attempt.ts"
+      ]
+    },
+    {
+      "path": "/learning-lab/plants/results",
+      "surface": "Plant Reproduction admin results",
+      "component": "PlantResultsComponent",
+      "guard": "labGuard + adminOnly profile role; fallback /learning-lab",
+      "entryPoints": [
+        "Learning Lab admin tab / result tab"
+      ],
+      "states": [
+        "aggregate/table data",
+        "empty/loading/error"
+      ],
+      "source": [
+        "src/app/pages/learning-lab/plant-results.component.html",
+        "src/app/pages/learning-lab/plant-results.component.ts",
+        "src/app/pages/learning-lab/learning-lab.service.ts"
+      ]
+    },
+    {
+      "path": "/learning-lab/current",
+      "surface": "Current Lab — Electricity interactive lab",
+      "component": "CurrentLabComponent",
+      "guard": "labGuard signed-in Auth user",
+      "entryPoints": [
+        "Learning Lab lesson card"
+      ],
+      "states": [
+        "Predict tab (baseline questions)",
+        "Experiment tab (3 circuit experiments, controls)",
+        "Check & reflect tab (5 quiz questions, confidence/feedback)",
+        "saved attempts/resume",
+        "practice mode"
+      ],
+      "source": [
+        "src/app/pages/learning-lab/current-lab.component.html",
+        "src/app/pages/learning-lab/current-lab.component.ts",
+        "src/app/pages/learning-lab/lesson.ts",
+        "src/app/pages/learning-lab/attempt.ts"
+      ]
+    },
+    {
+      "path": "/learning-lab/results",
+      "surface": "Current Lab admin results",
+      "component": "LabResultsComponent",
+      "guard": "labGuard + adminOnly profile role; fallback /learning-lab",
+      "entryPoints": [
+        "Learning Lab admin tab"
+      ],
+      "states": [
+        "aggregate/table data",
+        "empty/loading/error"
+      ],
+      "source": [
+        "src/app/pages/learning-lab/lab-results.component.html",
+        "src/app/pages/learning-lab/lab-results.component.ts"
+      ]
+    }
+  ],
+  "excludedAdminRouteGroups": [
+    "/admin",
+    "/admin/*",
+    "/admin/question-papers/*",
+    "/admin/question-library",
+    "/admin/question-bank",
+    "/admin/question-paper-generator",
+    "/admin/question-review",
+    "/admin/action-plan",
+    "/admin/mcq-management",
+    "/admin/add-mcq",
+    "/admin/manage-syllabus",
+    "/admin/manage-syllabus/edit",
+    "/admin/user-list",
+    "/syllabus-preview",
+    "/logs",
+    "/dev/ui"
+  ],
+  "unreachableSourceNotes": [
+    "pages/practice-invite/practice-share.component.ts, practice-return.component.ts and practice-summary.component.ts are helper components, not direct route targets.",
+    "scripts/fixtures/learning-lab-preview.ts and plant-lab-preview.ts register test-only substitute routes/providers (including fallback-to-LearningLab); production app route configuration is app.routes.ts. Do not use the preview fixture URL map to infer production route reachability.",
+    "CurrentLab practice mode is reached in-page with 'Try without saving'; PlantLab practice mode via 'Explore without saving' in saved-progress details or 'Continue without saving' on save error. Neither is activated by a route/query flag."
+  ],
+  "captureSelectors": [
+    {
+      "surface": "practice invite",
+      "selectors": [
+        "main.practice-invite",
+        "h1#practice-title",
+        "dl.scope",
+        "button[name='Sign in to practise']",
+        "[role='alert']"
+      ]
+    },
+    {
+      "surface": "dashboard",
+      "selectors": [
+        ".dashboard-container",
+        "section.cta-group.solo",
+        "button[name=\"Quick Quiz\"]",
+        "button[name=\"Custom Quiz\"]",
+        "aside.progress-panel",
+        "section.cta-group.realtime"
+      ]
+    },
+    {
+      "surface": "manual quiz dialog",
+      "selectors": [
+        "[role='dialog']",
+        "[role='dialog'] input[aria-label='Number of Questions']",
+        "[role='dialog'] button[name='Copy practice link']"
+      ]
+    },
+    {
+      "surface": "learning lab",
+      "selectors": [
+        "main.learning-lab",
+        "nav.module-tabs[aria-label='Learning Lab']",
+        "article.lesson-card"
+      ]
+    },
+    {
+      "surface": "current lab",
+      "selectors": [
+        "main.learning-lab",
+        "nav.step-tabs[aria-label='Lesson steps']",
+        "button[name='Try without saving']",
+        "[role='status'].save-status"
+      ]
+    },
+    {
+      "surface": "plant lab",
+      "selectors": [
+        "main.plant-lab",
+        "nav.pl-trail",
+        "button.pl-notebook-button",
+        "nav.pl-map",
+        "section.pl-console",
+        "button.pl-primary"
+      ]
+    },
+    {
+      "surface": "quiz run lobby",
+      "selectors": [
+        ".lobby-container",
+        "mat-card.lobby-header .code",
+        "mat-card.participants",
+        "button[name='Start Quiz Run']"
+      ]
+    },
+    {
+      "surface": "live surfaces",
+      "selectors": [
+        ".live-landing",
+        "mat-card:has(h2:text('Join a Live Quiz'))",
+        "mat-card:has(h2:text('Live Lobby'))",
+        "mat-card:has(h2:text('Live Leaderboard'))"
+      ]
+    }
+  ],
+  "dataAndUnknowns": [
+    "The canonical invitation is declared in app/services/reviewed-practices.ts (CBSE Class 12, Chemistry / Solutions; five immutable IDs and SHA-256 content hashes). app.config.ts sets INVITED_SOLO_READY=true and supplies question-presentation adapters. Anonymous public preview needs only this manifest; the signed-in question route additionally needs users/{uid} matching board and standard (unless role=admin) and five emulator questions whose stored fields exactly match the manifest content hashes.",
+    "Live session pages are Firestore-backed at LiveSessions/{sessionId}; participant docs at LiveSessions/{sessionId}/participants/{uid}; answers at LiveSessions/{sessionId}/answers/{index}/items/{uid}. Session questionIds must reference seeded questions so fetchQuestionsForSession can render question text/options. For live mode, include hostId, hostName, joinCode, mode='live', scope, questionIds, scheduledStartAt (Firestore Timestamp), bufferSeconds, perQuestionSeconds, effectiveStartAt, autoAdvance, status ('lobby'|'active'|'ended'), overrideIndex/overrideAt, anchorIndex/anchorAt, startedAt, resultLinked. Participant records need uid, displayName, ready. For collaborative quiz run use mode='run', status='lobby', maxParticipants; hostId must equal fixture user's UID to show Start Quiz Run; include at least one participant so canStart is true.",
+    "Host console route has no role/host route guard; hostId affects controls indirectly through creation flow/service, so use admin host identity and fixture-created session for a coherent view. /live/play/:sessionId redirects run mode to the run lobby.",
+    "Live countdown exact state depends on scheduledStartAt/anchorAt relative to browser clock. Use future start + positive buffer for scheduled lobby; active state requires status active and anchor pair. session pages can redirect automatically as status updates.",
+    "Current app contains no explicit URL query feature flags for the labs. Admin feedback routes are data.adminOnly guarded by user document role, while lesson pages accept any authenticated identity; profile setup is not checked by labGuard but lab persistence requires a corresponding users/{uid} document.",
+    "There are e2e tests for invitation flow but no production route e2e for Live or Quiz Run in fetched E2E inventory; exact live session screenshot fixtures are therefore inferred from LiveQuizService and page component reads. Verify against emulator rules/seed harness before capture."
+  ],
+  "e2eFixtures": [
+    "e2e/practice-invite.spec.ts",
+    "e2e/practice-invitation.integration.spec.ts",
+    "e2e/practice-interactions.spec.ts",
+    "e2e/practice-reliability.spec.ts",
+    "scripts/fixtures/learning-lab-preview.ts",
+    "scripts/fixtures/plant-lab-preview.ts"
+  ]
+}

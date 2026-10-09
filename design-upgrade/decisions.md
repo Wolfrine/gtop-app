@@ -41,3 +41,7 @@ Step 2 is complete for the agreed scope: 39 included route entries covering 38 d
 The user authorized Step 3 after discussing motion, aesthetic characterization and human appeal. Screened fifteen candidates, captured nine and retained seven core references spanning expressive identity, public education, explanatory learning and dense component behavior. Lando/Igloo remain contextual/diagnostic because desktop evidence was incomplete. Failed attempts and superseded captures remain in git.
 
 The [report](references/report.md), [gallery](references/gallery.md) and [interaction register](references/interactions.md) distinguish observations, interpretation and unknowns. Brilliant playback control remains unverified and is excluded as a positive interaction example. Criteria v1.1 adds named property anchors; all weights and score-band meanings stay unchanged, and v1.0 is preserved. No GTOP screen is scored. This is completion of research for review, not user acceptance of a design. Step 4 follows confirmation that the reference base is on track; development remains gated by accepted mockups.
+
+## D-010 · Begin screen evaluation · Authorized by user · 9 October 2026
+
+After reviewing Step 3 and its lessons, the user said “Very good. Let’s move to the next step now.” The reference base is accepted as on track for Step 4. Evaluate all included GTOP routes using criteria v1.1; preserve separate desktop/mobile craft judgments and bounded journey evidence. This authorizes evaluation, not mockups or application development. Publish to main under D-006.

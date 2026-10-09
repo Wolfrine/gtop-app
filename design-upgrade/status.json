@@ -1,7 +1,7 @@
 {
   "updated": "2026-10-09",
   "baselineCommit": "00116b57042df34a49b99031dbea3c1bebe897a4",
-  "currentStage": "Step 3 reference study complete for review",
+  "currentStage": "Step 4 screen evaluation in progress",
   "stages": [
     {
       "step": 0,
@@ -26,12 +26,12 @@
       "name": "Reference research",
       "status": "complete for review",
       "complete": true,
-      "reviewStatus": "awaiting user direction on reference base"
+      "reviewStatus": "user accepted reference base as on track, 9 October 2026"
     },
     {
       "step": 4,
       "name": "Screen evaluation",
-      "status": "pending"
+      "status": "in progress: visual and recorded-journey evaluation"
     },
     {
       "step": 5,
@@ -44,7 +44,7 @@
       "status": "blocked until user accepts proposed designs"
     }
   ],
-  "nextAction": "Review Step 3 findings and reference gallery; once on track, begin Step 4 desktop/mobile screen evaluations with criteria v1.1. No GTOP scores, mockups or application changes yet.",
+  "nextAction": "Inspect every included route and its selected states; publish criteria v1.1 screen scorecards and prioritized improvement objectives.",
   "fullAuditCoverage": {
     "stage": 2,
     "status": "complete_for_agreed_scope",

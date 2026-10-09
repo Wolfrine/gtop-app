@@ -1,0 +1,57 @@
+{
+  "id": "brilliant",
+  "url": "https://brilliant.org/",
+  "run": "37895866895",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "capturedAt": "2026-10-09T06:54:02.718Z",
+  "sourceCommit": "b3fa5db90600fbd300a4d20654d7c51ca862c8aa",
+  "actions": [
+    {
+      "elapsedMs": 8420,
+      "action": "dismiss-cookie-banner"
+    },
+    {
+      "elapsedMs": 9684,
+      "action": "screenshot",
+      "name": "01-clean-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 19764,
+      "action": "screenshot",
+      "name": "diagnostic",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 19764,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "brilliant/390/01-clean-entry.png",
+      "sha256": "94bf595a6dfadba3d5fdb3468cb6e1b123898526fd6e360c3ebf088a32c37361",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "brilliant/390/diagnostic.png",
+      "sha256": "d024fdb63363b3ac70c3f05050b1ee2597f24aef5eee246ab1c470ca1d0116f7",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "brilliant/390/sequence.webm",
+      "sha256": "e6bbe17a6bcab0ebfe1d6980836bcaeee19b7f69d1a6b6f6e1dd6508d0404802",
+      "bytes": 1561792,
+      "kind": "video"
+    }
+  ],
+  "errors": [],
+  "finalUrl": "https://brilliant.org/",
+  "initialText": "Sign in\nYour personal tutor for\nmath and coding\n\nA world-class tutor for every home. Built by top learning experts from MIT and Harvard.\n\nI’m a learner\nI’m a parent or teacher\nFully accredited\n\nby ACS WASC\n\n100,000+\n\n5-star app store reviews\n\n10 million+\n\nlearners around the world\n\nMeet Koji,\nyour personal\ntutor\nMath\nCoding\nA visual, interactive tutor, not a cheating machine\n\nUnlike other AI chatbots and homework help tools, Koji never just gives you the answer. He ensures you actually understand math.\n\nYou learn with Koji on a shared interactive canvas. He asks guiding questions, sketches on your screen, gives hints, and provides visual help.\n\nLike the best human tutors, he gets to the heart of where you’re getting stuck, and works with you until you can solve hard problems yourself.\n\nAdapts to exactly where you are\n\nKoji tracks what you’ve mastered and what you’ve missed, then builds your learning plan around the gaps.\n\nHe gets you caught up on any shaky fundamentals, and personalizes your practice and review sessions to optimize your learning.\n\nHe accelerates your learning plan when you’re ready, and slows down when you need it.\n\nReal-time progress tracking & analysis\n\nVisual dashboards make it easy to see what clicked, what’s still difficult, and what to do next.\n\nParents and learners also receive regular notifications with an overview of completed lessons, performance on mastery assessments, learning strengths, and areas that need more practice.\n\nEffective and trusted\nLesson interventions\n\nKoji provides instant, one-on-one help whenever you’re stuck, just like an expert sitting right next to you.\n\nGet guidance, alternative explanations, or hints, using voice or chat.\n\nMastery assessments\n\nKoji makes sure you understand every concept with regular assessments. If you come up short, he creates targeted practice to get you back on track.\n\nkidSAFE CERTIFIED\n\nBrilliant is independently certified to meet strict U.S. standards for kids’ online privacy and safety.\n\nBrilliant is a member in the kidSAFE Seal Program. To learn more, click on the seal or go to www.kidsafe.com.\n\nFrom grade 5 to college and beyond\nMath\nCS\nScience\nData\nMath:\nCovered topics\nFractions\nProportional Reasoning\nCoordinate Transformations\nQuadratics\nFunctions\nTrigonometric Functions\nDerivatives\n28 additional topics\nComputer Science:\nCovered topics\nThinking in Code\nProgramming with Variables\nThinking in Python\nProgramming with Functions\nAlgorithmic Thinking\nComputer Science Fundamentals\nIntroduction to Neural Networks\n7 additional topics\nScience:\nCovered topics\nScientific Thinking\nCircuits\nDigital Circuits\nQuantum Computing\nData Analysis:\nCovered topics\nExploring Data Visually\nProbability in Data\nClustering & Classification\nRegression\nPredicting with Probability\nAlways on your schedule\n\nSay goodbye to the chore of finding a tutor, driving to sessions, and fitting another thing into your schedule. Koji is there Sunday night before the test, Saturday morning for fun, and the quiet 20 minutes before dinner.\n\nGet a year of tutoring for the price of a few in-person sessions.\n\nBuilt by top learning experts\n\nOur curriculum is crafted by award-winning teachers, subject-matter experts, and learning designers from top institutions.\n\nTrusted by thousands of schools\n\nEvery student gets an interactive, personalized learning program – one that sees what they’re doing, gives custom feedback, and assesses for mastery. It fits into your classroom, or as homework.\n\nFree for individual classrooms. District pricing available on request.\n\nSee how schools use Brilliant →\n\nStudents, parents, and teachers love us\n\nShe’ll get stuck on a problem and then yell, ‘Never mind, Mom, I got it!’ How great is that?\n\nArianne\n\nParent of\n10 year old\n\nI didn’t get the slope unit in class, but it finally clicked after talking to Koji for a few minutes!\n\nEliza\n\n7th grader\n\nIt’s been a win-win. My son’s grades are up and he doesn’t complain about studying with Brilliant.\n\nHana\n\nParent of\n16 year old\n\nI learned most of trigonometry in 12 days, I just got into a flow. I’m one of the best in my class now.\n\nTyler\n\n10th grader\n\nThey enthusiastically use it outside of class. I had 8th graders say, ‘This makes me want to do more math!’\n\nAaron\n\nAlgebra teacher\n\nShe’ll get stuck on a problem and then yell, ‘Never mind, Mom, I got it!’ How great is that?\n\nArianne\n\nParent of\n10 year old\n\nI didn’t get the slope unit in class, but it finally clicked after talking to Koji for a few minutes!\n\nEliza\n\n7th grader\n\nIt’s been a win-win. My son’s grades are up and he doesn’t complain about studying with Brilliant.\n\nHana\n\nParent of\n16 year old\n\nI learned most of trigonometry in 12 days, I just got into a flow. I’m one of the best in my class now.\n\nTyler\n\n10th grader\n\nThey enthusiastically use it outside of class. I had 8th graders say, ‘This makes me want to do more math!’\n\nAaron\n\nAlgebra teacher\n\nShe’ll get stuck on a problem and then yell, ‘Never mind, Mom, I got it!’ How great is that?\n\nArianne\n\nParent of\n10 year old\n\nI didn’t get the slope unit in class, but it finally clicked after talking to Koji for a few minutes!\n\nEliza\n\n7th grader\n\nIt’s been a win-win. My son’s grades are up and he doesn’t complain about studying with Brilliant.\n\nHana\n\nParent of\n16 year old\n\nI learned most of trigonometry in 12 days, I just got into a flow. I’m one of the best in my class now.\n\nTyler\n\n10th grader\n\nThey enthusiastically use it outside of class. I had 8th graders say, ‘This makes me want to do more math!’\n\nAaron\n\nAlgebra teacher\n\nShowing testimonial 2 of 5\nThe best tutor you’ll ever have\nis already here\nGet started\n\nProduct\n\nCourses\nPricing\nGift Brilliant\nResources\nHelp\n\nSolutions\n\nEducators\nHomeschools\nK–5 Math Practice (beta)\n\nCompany\n\nAbout Us\nCareers\n\nBehind the Scenes\n\nA Tutor in Every Home\nCoding Skills That Matter in the Age of AI\nAI at Brilliant\n\nBrilliant is a member in the kidSAFE Seal Program. To learn more, click on the seal or go to www.kidsafe.com.\n\nTerms of service\nDo not sell my personal information\nCalifornia privacy policy\nPrivacy policy\n\n© 2026 Brilliant Worldwide, Inc., Brilliant and the Brilliant Logo are trademarks of Brilliant Worldwide, Inc.\n\nWe use cookies to keep the site running, understand how learners use Brilliant, improve lessons and features, and support advertising from us and our partners. You can manage your privacy choices at any time.\nGot It",
+  "failure": "TimeoutError: locator.hover: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Pause', exact: true })\n    - locator resolved to <button type=\"button\" aria-label=\"Pause\" class=\"panda-ai_center panda-bg_transparent panda-bdr_full panda-bd-w_0 panda-cursor_pointer panda-d_flex panda-h_10 panda-jc_center panda-op_0 panda-ring_none panda-ov_visible panda-p_2 panda-pointer-events_none panda-pos_relative panda-trs_[background-color_0.2s_ease,_color_0.2s_ease,_opacity_0.2s_ease] panda-w_10 after:panda-content_\"\" after:panda-h_12 after:panda-left_[50%] after:panda-pos_absolute after:panda-top_[50%] after:panda-trf_[translate(-50%,_-50%…>…</button>\n  - attempting hover action\n    2 × waiting for element to be visible and stable\n      - element is visible and stable\n   "
+}

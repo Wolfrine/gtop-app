@@ -38,6 +38,8 @@ jobs:
           cp ../design-upgrade/capture-tools/live-session-fixtures.ts e2e/live-session-fixtures.ts
           cp ../design-upgrade/capture-tools/lab-captures.ts e2e/lab-captures.ts
           cp ../design-upgrade/capture-tools/admin-captures.ts e2e/admin-captures.ts
+          cp ../design-upgrade/capture-tools/admin-extra-captures.ts e2e/admin-extra-captures.ts
+          cp ../design-upgrade/capture-tools/learner-extra-captures.ts e2e/learner-extra-captures.ts
       - name: Verify source and capture current live public entry
         working-directory: gtop-app
         run: |

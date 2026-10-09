@@ -52,38 +52,49 @@ export async function captureAdminStates(
       await standard.selectOption(options.includes('9') ? '9' : options.find(Boolean) ?? '');
     }
     await page.waitForTimeout(250);
-    const subjectChoices = page.locator('.qpg-chip').filter({ hasText: 'Biology' }).locator('input[type=checkbox]');
-    const subjectFallback = page.locator('.qpg-chip input[type=checkbox]');
+    const subjectSelector = page.locator('.qpg-selector').first();
+    const subjectChoices = subjectSelector.locator('.qpg-chip').filter({ hasText: 'Biology' }).locator('input[type=checkbox]');
+    const subjectFallback = subjectSelector.locator('.qpg-chip input[type=checkbox]');
     const subjectChoice = await subjectChoices.count() ? subjectChoices.first() : subjectFallback.first();
-    if (await subjectChoice.count() && !(await subjectChoice.isChecked())) await subjectChoice.check();
+    await subjectChoice.waitFor({ state: 'visible' });
+    if (!(await subjectChoice.isChecked())) await subjectChoice.check();
     await page.waitForTimeout(200);
-    const chapterChoices = page.locator('.qpg-chip').filter({ hasText: 'Cells' }).locator('input[type=checkbox]');
-    const chapterFallback = page.locator('.qpg-chip input[type=checkbox]');
+    const chapterChoices = page.locator('.qpg-chapters .qpg-chip').filter({ hasText: 'Cells' }).locator('input[type=checkbox]');
+    const chapterFallback = page.locator('.qpg-chapters .qpg-chip input[type=checkbox]');
     const chapterChoice = await chapterChoices.count() ? chapterChoices.first() : chapterFallback.first();
-    if (await chapterChoice.count() && !(await chapterChoice.isChecked())) await chapterChoice.check();
+    await chapterChoice.waitFor({ state: 'visible' });
+    if (!(await chapterChoice.isChecked())) await chapterChoice.check();
 
     // A minimal local plan makes a preview possible from the five approved
-    // question fixtures without saving the setup or creating a request.
-    const firstCount = page.locator('.qpg-rule-row input[type=number]').first();
-    if (await firstCount.count()) await firstCount.fill('1');
+    // question fixtures without saving the setup or creating a request. The
+    // section rows live in collapsed native details until their summary opens.
+    const sectionPlan = page.locator('details.qpg-plan');
+    const sectionPlanSummary = sectionPlan.locator(':scope > summary');
+    await sectionPlanSummary.waitFor({ state: 'visible' });
+    if (!(await sectionPlan.evaluate((node: HTMLDetailsElement) => node.open))) await sectionPlanSummary.click();
+    const firstCount = sectionPlan.locator('.qpg-rule-row input[type=number]').first();
+    await firstCount.waitFor({ state: 'visible' });
+    await firstCount.fill('1');
     await capture(page, 'paper-generator-stages', role, 'stage-2-syllabus-and-sections');
 
-    const availability = page.getByRole('button', { name: 'Check availability' }).last();
-    if (await availability.count()) {
-      await availability.click();
-      await page.locator('.qpg-stat-grid').waitFor({ state: 'visible', timeout: 20000 }).catch(() => undefined);
-      await page.getByRole('heading', { name: 'Check the question bank' }).waitFor({ state: 'visible' });
-      await capture(page, 'paper-generator-stages', role, 'stage-3-coverage');
-    }
+    const availability = width === 390
+      ? page.locator('.qpg-mobile-bar').getByRole('button', { name: 'Check availability', exact: true })
+      : page.locator('.qpg-desktop-check');
+    await availability.waitFor({ state: 'visible' });
+    await availability.click();
+    await page.locator('.qpg-stat-grid').waitFor({ state: 'visible', timeout: 20000 });
+    await page.getByRole('heading', { name: 'Check the question bank', exact: true }).waitFor({ state: 'visible' });
+    await capture(page, 'paper-generator-stages', role, 'stage-3-coverage');
 
-    const preview = page.getByRole('button', { name: /^(Preview paper|Preview available questions)$/ }).last();
-    if (await preview.count() && await preview.isEnabled()) {
-      await preview.click();
-      await page.locator('.qpg-paper').waitFor({ state: 'visible', timeout: 20000 }).catch(() => undefined);
-      await page.getByRole('heading', { name: 'Preview your paper' }).waitFor({ state: 'visible' });
-      await capture(page, 'paper-generator-stages', role, 'stage-4-draft-preview');
-      await capture(page, 'paper-generator-stages', role, 'generated-draft-preview');
-    }
+    const preview = width === 390
+      ? page.locator('.qpg-mobile-bar').getByRole('button', { name: /^(Preview paper|Preview available questions)$/ })
+      : page.locator('section[aria-labelledby="coverage-heading"]').getByRole('button', { name: /^(Preview paper|Preview available questions)$/ });
+    await preview.waitFor({ state: 'visible' });
+    await preview.click();
+    await page.locator('.qpg-paper').waitFor({ state: 'visible', timeout: 20000 });
+    await page.getByRole('heading', { name: 'Preview your paper', exact: true }).waitFor({ state: 'visible' });
+    await capture(page, 'paper-generator-stages', role, 'stage-4-draft-preview');
+    await capture(page, 'paper-generator-stages', role, 'generated-draft-preview');
   });
 
   await scenario(browser, width, 'question-review-workbench-states', role, '/admin/question-review', async page => {
@@ -117,7 +128,7 @@ export async function captureAdminStates(
     await firstQuestion.locator('.mcq-details').waitFor({ state: 'visible' });
     await capture(page, 'mcq-management-edit-state', role, 'expanded-question');
 
-    await firstQuestion.getByRole('button', { name: 'Edit question' }).click();
+    await firstQuestion.locator('button[aria-label="Edit question"]').click();
     const updatedJson = firstQuestion.getByLabel('Updated question JSON');
     await updatedJson.waitFor({ state: 'visible' });
     await updatedJson.fill(JSON.stringify({

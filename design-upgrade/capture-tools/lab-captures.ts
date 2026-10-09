@@ -16,10 +16,36 @@ const clickFirstChoice = async (root: Locator) =>
 const waitForPlantPractice = async (page: Page) => {
   await page.locator('footer.pl-footnote details summary').click();
   await page.getByRole('button', { name: 'Explore without saving', exact: true }).click();
-  await page.locator('.pl-save-state').filter({ hasText: 'Practice mode' }).waitFor();
+  // The status remains in the DOM on mobile, where its desktop-only nav slot
+  // is hidden by CSS. Attachment confirms the practice transition at both widths.
+  await page.locator('.pl-save-state').filter({ hasText: 'Practice mode' }).waitFor({ state: 'attached' });
 };
 const captureState = (capture: Capture, key: string, state: string) =>
   async (page: Page) => capture(page, key, role, state);
+const setRangeValue = async (page: Page, name: string, id: string, target: number, unit: string) => {
+  const slider = page.getByRole('slider', { name });
+  await slider.waitFor({ state: 'visible' });
+  let value = Number(await slider.inputValue());
+  await slider.focus();
+  while (value !== target) {
+    const previous = value;
+    await slider.press(target > value ? 'ArrowRight' : 'ArrowLeft');
+    value = Number(await slider.inputValue());
+    if (value === previous + (target > previous ? 1 : -1)) continue;
+    throw new Error(`${name} slider did not move one step toward ${target}; current value is ${value}.`);
+  }
+  // Leave the native control so Angular's change/blur bindings are settled
+  // before checking that the visible target unlocked the observation action.
+  await page.keyboard.press('Tab');
+  if (Number(await slider.inputValue()) !== target) {
+    throw new Error(`${name} did not retain target value ${target} after blur.`);
+  }
+  await page.locator(`label[for="${id}"] strong`).filter({ hasText: new RegExp(`^${target} ${unit}$`) }).waitFor({ state: 'visible' });
+  const record = page.getByRole('button', { name: 'Record observation ✓', exact: true });
+  if (!(await record.isEnabled())) {
+    throw new Error(`${name} reached ${target}, but the experiment target did not enable Record observation.`);
+  }
+};
 
 /**
  * Capture the public learner-facing lab routes through real browser controls.
@@ -46,8 +72,8 @@ export async function captureLabStates(
 
     // Mission 1: open the flower, inspect its pollen maker and ovule holder.
     await page.locator('.pl-action-bar button.pl-primary').click();
-    await page.getByRole('button', { name: 'Anther' }).click();
-    await page.getByRole('button', { name: 'Ovary' }).click();
+    await page.getByRole('button', { name: 'Inspect Anther', exact: true }).click();
+    await page.getByRole('button', { name: 'Inspect Ovary', exact: true }).click();
     await page.getByText('You have found both parts.').waitFor();
     await page.locator('.pl-action-bar button.pl-primary').filter({ hasText: 'Carry some pollen' }).waitFor();
     await page.locator('.pl-action-bar button.pl-primary').click();
@@ -138,7 +164,7 @@ export async function captureLabStates(
 
     // Experiment 1 — increase voltage to 12 V while keeping 6 Ω resistance.
     await clickFirstChoice(page.locator('.prediction-strip app-lab-choices'));
-    await page.getByRole('slider', { name: 'Battery voltage in volts' }).press('End');
+    await setRangeValue(page, 'Battery voltage in volts', 'voltage-control', 12, 'V');
     await captureState(capture, 'current-lab-voltage-result', 'Voltage changed with live current reading')(page);
     await page.getByRole('button', { name: 'Record observation ✓', exact: true }).click();
     await page.locator('.observation-panel.completed').waitFor();
@@ -147,7 +173,7 @@ export async function captureLabStates(
     // Experiment 2 — double resistance at fixed voltage.
     await page.locator('.experiment-top h2').filter({ hasText: 'Make the path harder' }).waitFor();
     await clickFirstChoice(page.locator('.prediction-strip app-lab-choices'));
-    await page.getByRole('slider', { name: 'Resistance R1 in ohms' }).press('End');
+    await setRangeValue(page, 'Resistance R1 in ohms', 'r1-control', 12, 'Ω');
     await captureState(capture, 'current-lab-resistance-result', 'Resistance change and current reading')(page);
     await page.getByRole('button', { name: 'Record observation ✓', exact: true }).click();
     await page.locator('.observation-panel.completed').waitFor();
@@ -157,7 +183,11 @@ export async function captureLabStates(
     await page.locator('.experiment-top h2').filter({ hasText: 'Give current another path' }).waitFor();
     await clickFirstChoice(page.locator('.prediction-strip app-lab-choices'));
     await captureState(capture, 'current-lab-series-circuit', 'Two-resistor series circuit before changing arrangement')(page);
-    await page.locator('.mode-selector label').filter({ hasText: /^Parallel$/ }).click();
+    await page.locator('.mode-selector label').nth(2).click();
+    const recordParallel = page.getByRole('button', { name: 'Record observation ✓', exact: true });
+    if (!(await recordParallel.isEnabled())) {
+      throw new Error('Selecting Parallel did not reach the third experiment target.');
+    }
     await captureState(capture, 'current-lab-parallel-circuit', 'Parallel circuit with branch current and voltage values')(page);
     await page.getByRole('button', { name: 'Record observation ✓', exact: true }).click();
     await page.locator('.observation-panel.completed').waitFor();
@@ -180,9 +210,4 @@ export async function captureLabStates(
     await captureState(capture, 'current-lab-practice-complete', 'Practice completion confirmation')(page);
   });
 
-  // Results routes are admin-only and data-backed. Capture their real empty
-  // state for this fixture set; populated states need seeded learningLab and
-  // plantLab histories, which the baseline user fixtures do not contain.
-  await scenario(browser, width, 'current-lab-results-empty', 'admin', '/learning-lab/results');
-  await scenario(browser, width, 'plant-lab-results-empty', 'admin', '/learning-lab/plants/results');
 }

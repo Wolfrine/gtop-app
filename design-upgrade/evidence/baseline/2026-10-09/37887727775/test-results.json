@@ -1,0 +1,370 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/20.20.2/x64/bin/node",
+      "/home/runner/work/gtop-app/gtop-app/gtop-app/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "playwright.baseline.config.ts",
+      "e2e/design-baseline.spec.ts"
+    ],
+    "configFile": "/home/runner/work/gtop-app/gtop-app/gtop-app/playwright.baseline.config.ts",
+    "rootDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/Wolfrine/gtop-app/commit/614f833c5ae3b064afd4c4249b49f3d31afb215d",
+        "commitHash": "614f833c5ae3b064afd4c4249b49f3d31afb215d",
+        "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37887727775"
+      },
+      "gitCommit": {
+        "shortHash": "614f833",
+        "hash": "614f833c5ae3b064afd4c4249b49f3d31afb215d",
+        "subject": "Capture remaining lab completion and empty admin baseline states",
+        "body": "Capture remaining lab completion and empty admin baseline states",
+        "author": {
+          "name": "Wolfrine",
+          "email": "schttewary@gmail.com",
+          "time": 1791522933000
+        },
+        "committer": {
+          "name": "Wolfrine",
+          "email": "schttewary@gmail.com",
+          "time": 1791522933000
+        },
+        "branch": "main"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/gtop-app/gtop-app/design-upgrade/evidence/baseline/2026-10-09/37887727775/test-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Wolfrine/gtop-app/commit/614f833c5ae3b064afd4c4249b49f3d31afb215d",
+            "commitHash": "614f833c5ae3b064afd4c4249b49f3d31afb215d",
+            "buildHref": "https://github.com/Wolfrine/gtop-app/actions/runs/37887727775"
+          },
+          "gitCommit": {
+            "shortHash": "614f833",
+            "hash": "614f833c5ae3b064afd4c4249b49f3d31afb215d",
+            "subject": "Capture remaining lab completion and empty admin baseline states",
+            "body": "Capture remaining lab completion and empty admin baseline states",
+            "author": {
+              "name": "Wolfrine",
+              "email": "schttewary@gmail.com",
+              "time": 1791522933000
+            },
+            "committer": {
+              "name": "Wolfrine",
+              "email": "schttewary@gmail.com",
+              "time": 1791522933000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "baseline",
+        "name": "baseline",
+        "testDir": "/home/runner/work/gtop-app/gtop-app/gtop-app/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 2400000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../design-upgrade/evidence/baseline/2026-10-09/37887727775/test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm start -- --configuration development --host 127.0.0.1 --port 4300",
+      "url": "http://127.0.0.1:4300",
+      "reuseExistingServer": false,
+      "timeout": 180000
+    }
+  },
+  "suites": [
+    {
+      "title": "design-baseline.spec.ts",
+      "file": "design-baseline.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "complete GTOP baseline route and state capture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 2400000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "baseline",
+              "projectName": "baseline",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 129751,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "CAPTURE add-mcq-parsed-preview-visible--parsed-mcq-preview-desktop /admin/add-mcq?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE add-mcq-parsed-preview-desktop /admin/add-mcq?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-01-anatomy--flower-anatomy-exploration-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-01-anatomy-complete--both-flower-parts-inspected-discovery-saved-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-02-pollination--pollination-controls-before-a-trial-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-journey-map--five-stop-journey-map-open-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-04-fruit--fruit-development-before-wind-dispersal-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-05-propagation--vegetative-propagation-controls-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-discovery-summary--five-discoveries-before-the-knowledge-check-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-assessment--five-question-plant-reproduction-assessment-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-graded-summary-feedback--graded-summary-with-explanations-and-feedback-form-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-feedback-sent--practice-feedback-completion-state-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-lab-journey-desktop /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-predict--fresh-baseline-predictions-and-lesson-steps-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-single-circuit--single-resistor-circuit-controls-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-voltage-result--voltage-changed-with-live-current-reading-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-resistance-result--resistance-change-and-current-reading-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-parallel-circuit--parallel-circuit-with-branch-current-and-voltage-values-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-check--five-question-understanding-check-and-reflection-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-graded-reflection--checked-answers-and-usefulness-feedback-form-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-practice-complete--practice-completion-confirmation-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-journey-desktop /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE mcq-management-filtered-empty--empty-filtered-bank-desktop /admin/mcq-management?board=CBSE&standard=8th&subject=Science&chapter=Friction&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE mcq-management-filtered-empty-desktop /admin/mcq-management?board=CBSE&standard=8th&subject=Science&chapter=Friction&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-library-empty-search--empty-search-results-desktop /admin/question-library?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-library-empty-search-desktop /admin/question-library?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-saved-papers--saved-drafts-empty-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-saved-papers-desktop /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-empty-queue--no-matching-questions-desktop /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-empty-queue-desktop /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE add-mcq-parsed-preview-visible--parsed-mcq-preview-mobile /admin/add-mcq?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE add-mcq-parsed-preview-mobile /admin/add-mcq?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-01-anatomy--flower-anatomy-exploration-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-01-anatomy-complete--both-flower-parts-inspected-discovery-saved-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-02-pollination--pollination-controls-before-a-trial-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-journey-map--five-stop-journey-map-open-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-discoveries-notebook--notebook-open-with-a-compatible-pollination-trial-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-03-fertilisation--fertilisation-sequence-at-its-first-event-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-04-fruit--fruit-development-before-wind-dispersal-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-mission-05-propagation--vegetative-propagation-controls-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-discovery-summary--five-discoveries-before-the-knowledge-check-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-assessment--five-question-plant-reproduction-assessment-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-graded-summary-feedback--graded-summary-with-explanations-and-feedback-form-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-feedback-sent--practice-feedback-completion-state-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE plant-lab-journey-mobile /learning-lab/plants?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-predict--fresh-baseline-predictions-and-lesson-steps-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-single-circuit--single-resistor-circuit-controls-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-voltage-result--voltage-changed-with-live-current-reading-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-resistance-result--resistance-change-and-current-reading-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-series-circuit--two-resistor-series-circuit-before-changing-arrangement-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-parallel-circuit--parallel-circuit-with-branch-current-and-voltage-values-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-check--five-question-understanding-check-and-reflection-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-graded-reflection--checked-answers-and-usefulness-feedback-form-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-practice-complete--practice-completion-confirmation-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE current-lab-journey-mobile /learning-lab/current?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE mcq-management-filtered-empty--empty-filtered-bank-mobile /admin/mcq-management?board=CBSE&standard=8th&subject=Science&chapter=Friction&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE mcq-management-filtered-empty-mobile /admin/mcq-management?board=CBSE&standard=8th&subject=Science&chapter=Friction&emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-library-empty-search--empty-search-results-mobile /admin/question-library?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-library-empty-search-mobile /admin/question-library?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-saved-papers--saved-draft-list-mobile /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE paper-generator-saved-papers-mobile /admin/question-paper-generator?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-empty-queue--no-matching-questions-mobile /admin/question-review?emulator=1\n"
+                    },
+                    {
+                      "text": "CAPTURE question-review-empty-queue-mobile /admin/question-review?emulator=1\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T05:19:15.611Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5adb0c2bdeb0edb899e5-d97b7aa8f52f3638c12e",
+          "file": "design-baseline.spec.ts",
+          "line": 90,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-09T05:18:39.769Z",
+    "duration": 165900.62099999998,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

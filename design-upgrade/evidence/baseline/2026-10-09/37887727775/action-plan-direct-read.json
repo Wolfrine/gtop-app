@@ -1,0 +1,11 @@
+{
+  "environment": "isolated-emulator",
+  "authenticatedRole": "admin",
+  "count": 4,
+  "ids": [
+    "baseline-20261009-plan-0",
+    "baseline-20261009-plan-1",
+    "baseline-20261009-plan-2",
+    "baseline-20261009-plan-3"
+  ]
+}

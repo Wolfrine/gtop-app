@@ -1,0 +1,817 @@
+{
+  "id": "linear",
+  "url": "https://linear.app/",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "run": "37893083557",
+  "capturedAt": "2026-10-09T06:25:30.386Z",
+  "browserVersion": "141.0.7390.37",
+  "sourceCommit": "ac76a1c067255015522c9385b8e25289395a126e",
+  "mode": "normal",
+  "actions": [
+    {
+      "elapsedMs": 636,
+      "action": "navigation",
+      "status": 200
+    },
+    {
+      "elapsedMs": 12031,
+      "action": "screenshot",
+      "name": "01-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 16906,
+      "action": "screenshot",
+      "name": "02-settled",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 16906,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 26177,
+      "action": "screenshot",
+      "name": "03-scroll",
+      "scrollY": 800
+    },
+    {
+      "elapsedMs": 26177,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 33525,
+      "action": "screenshot",
+      "name": "04-scroll",
+      "scrollY": 1600
+    },
+    {
+      "elapsedMs": 33525,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 56049,
+      "action": "screenshot",
+      "name": "05-scroll",
+      "scrollY": 2400
+    },
+    {
+      "elapsedMs": 56049,
+      "action": "fast-scroll",
+      "deltaY": 3000
+    },
+    {
+      "elapsedMs": 67468,
+      "action": "screenshot",
+      "name": "06-fast-scroll",
+      "scrollY": 5400
+    },
+    {
+      "elapsedMs": 67468,
+      "action": "reverse-scroll",
+      "deltaY": -1500
+    },
+    {
+      "elapsedMs": 79492,
+      "action": "screenshot",
+      "name": "07-reverse",
+      "scrollY": 3900
+    },
+    {
+      "elapsedMs": 79492,
+      "action": "return-top"
+    },
+    {
+      "elapsedMs": 90167,
+      "action": "screenshot",
+      "name": "08-return",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 90251,
+      "action": "reduced-motion-enabled"
+    },
+    {
+      "elapsedMs": 105332,
+      "action": "screenshot",
+      "name": "09-reduced-motion-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 105343,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "linear/1440/01-entry.png",
+      "sha256": "e6bfa2bde0795109b6cd49e1f92d4f881a3ea3bc157b9189dcf6e421b42943d8",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "linear/1440/02-settled.png",
+      "sha256": "bba285cc3a572d262536cbb60442bbdfb215446d1129ebc836ebeb570d67f5a2",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "linear/1440/03-scroll.png",
+      "sha256": "0f4f6adac8e106ff425597cfa20d6e69dde3fe0676cc97174c438a15215f3b18",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "linear/1440/04-scroll.png",
+      "sha256": "ac1ae9c622021455764ea02c4632da1cc396ceb4981b40d839f4ec939f8c6af9",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "linear/1440/05-scroll.png",
+      "sha256": "ac1ca96a37429bcdf7782a305dcaaefd06462b781e576971a999bd9f30d6a1f2",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "linear/1440/06-fast-scroll.png",
+      "sha256": "3c2f7ea5a208e89dba928748ecb4f9e94e13a8c08625f99286cb5898fd3ade9a",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "linear/1440/07-reverse.png",
+      "sha256": "29696770eabf2d9ef5e84d6395d4e58ba11b78065c8a894c389bd479076a6cba",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "linear/1440/08-return.png",
+      "sha256": "bba285cc3a572d262536cbb60442bbdfb215446d1129ebc836ebeb570d67f5a2",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "linear/1440/09-reduced-motion-entry.png",
+      "sha256": "bba285cc3a572d262536cbb60442bbdfb215446d1129ebc836ebeb570d67f5a2",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "linear/1440/sequence.webm",
+      "sha256": "49ddf2c01d16f30f240026a84ea4c7c3846c3a045ebab6eaa0b67b1e6d61d111",
+      "bytes": 3987995,
+      "kind": "video"
+    }
+  ],
+  "errors": [
+    "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+  ],
+  "finalUrl": "https://linear.app/",
+  "title": "Linear – The system for product development",
+  "visibleTextExcerpt": "Skip to content →\nProduct\nResources\nCustomers\nPricing\nNow\nContact\nLog in\nSign up\nThe product development\nsystem for teams and agents\nThe product development system for teams and agents\n\nPurpose-built for planning and building products. Designed for the AI era.\n\nNew\nLoops →\nLinear\nPulse\nInbox\nMy issues\nReviews\nWorkspace\nInitiatives\nProjects\nMore\nFavorites\nFaster app launch\nAgent tasks\nAgent Insights\nUI Refresh\nDRV-8852\nFaster app launch\n1 / 84\nFaster app launch\n\nRender UI before vehicle_state sync when minimum required state is present, instead of blocking on full refresh during iOS startup.\n\nActivity\nLinear created the issue via Slack on behalf of Karri\n·\n2min ago\nTriage Intelligence added the labels Performance and iOS\n·\n2min ago\nkarri\n·\n4 min ago\nRight now we show a spinner forever, which makes it look like the car disappeared...\njori\n·\njust now\n@Linear can you take a stab at this?\nLinear\nconnected by Jori\n·\n2 min ago\nChanged 2 files\nDraft PR awaiting your review\n·\n2 min ago\nLinear moved from Todo to In Progress\n·\njust now\nLinear\nOpus 5\n\nFix the dimmed ride rows that never reset and open a PR\n\nDRV-364\nadded to context\nWorked for 10 sec\n\nPushed and opened a draft PR. Removed dimmedIds — isItemDimmed now checks waitingStatusById directly.\n\nChanged\n2 files\n+22\n−10\nDraft\nReset dimmed ride rows\nmaster\n←\nride/drv-364-reset-dimmed-rows\nPreview\n\nReply…\n\nSkills\nReviews\nRevert\nProperties\nIn Progress\nMedium\nKarri\nLinear\nCycle 144\nLabels\nPerformance\niOS\nReleases\nLinear App\n1.6881...\n⋅\nJun 25\n\nPOWERING THE COMPANIES BUILDING THE FUTURE\n\nA new species of product tool. Purpose-built for",
+  "controls": [
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Skip to content →",
+      "href": "#skip-nav",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Navigate to home",
+      "href": "/homepage",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Product",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Resources",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Customers",
+      "href": "/customers",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Pricing",
+      "href": "/pricing",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Now",
+      "href": "/now",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Contact",
+      "href": "/contact",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Log in",
+      "href": "/login",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Sign up",
+      "href": "/signup",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "NewLoops →",
+      "href": "https://linear.app/now/introducing-loops",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Linear",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Search workspace",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "New issue",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Pulse",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Inbox",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "My issues",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Reviews",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Workspace",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Initiatives",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Projects",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "More",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Favorites",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Faster app launch",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Agent tasks",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Agent Insights",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "UI Refresh",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Remove from favorites",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Issue options",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Previous issue",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Next issue",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Copy issue URL",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Copy issue ID",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Copy git branch name",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Delegate to an agent",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "More delegation options",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Performance",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "iOS",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "/customers",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Learn more→",
+      "href": "/intake",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Add issue",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Open menu",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Add issue",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Open menu",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Add issue",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Open menu",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Add issue",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Open menu",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Attach file",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Hide formatting",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Emoji",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Mention someone",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Record video clip",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Record audio clip",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Run shortcut",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Send message",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Schedule for later",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Linear Agent +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Customer Requests +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Triage +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Linear Asks +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Learn more→",
+      "href": "/plan",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Projects +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Documents +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Pulse +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Initiatives +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Visual planning +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Insights +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Learn more→",
+      "href": "/ai",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Linear Agent +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Coding sessions +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Triage +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Linear MCP +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Learn more→",
+      "href": "/build",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "ENG-2498Replace isFullySynced with a sync status#54910iOSOct 9",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "ENG-2380Show a stale data banner while syncing#55167ReliabilityOct 9",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "ENG-2039Pass sync status to the dashboard#55209BugReliabilityOct 8",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "role": "combobox",
+      "name": "Linear",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "INPUT",
+      "role": null,
+      "name": "",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Issues +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Git automations +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Guided reviews +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Cycles +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Diffs +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Releases +",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Stacked pull requestsStacked pull requests are now displayed in Linear Diffs. Move through",
+      "href": "/changelog/2026-10-08-stacked-pull-requests",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "New controls for Linear coding agentCoding sessions are the shortest path from issue to di",
+      "href": "/changelog/2026-09-24-new-controls-for-linear-coding-agent",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Loops for product managementLoops are recurring agent workflows for teams. They now respon",
+      "href": "/changelog/2026-09-14-loops-for-product-management",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Priority inboxAn active workspace can create a significant amount of notifications each da",
+      "href": "/changelog/2026-09-03-priority-inbox",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "View all→",
+      "href": "/changelog",
+      "type": null
+    }
+  ],
+  "document": {
+    "width": 1440,
+    "height": 9960,
+    "viewportWidth": 1440
+  },
+  "reducedMotionMedia": true
+}

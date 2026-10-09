@@ -1,0 +1,118 @@
+{
+  "run": "37895197290",
+  "records": [
+    {
+      "id": "des",
+      "url": "https://des.obys.agency/",
+      "run": "37895197290",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "capturedAt": "2026-10-09T06:46:11.319Z",
+      "sourceCommit": "8c70f3a809445ffb568164afeab11b1abc242ef2",
+      "actions": [
+        {
+          "elapsedMs": 9035,
+          "action": "screenshot",
+          "name": "01-before-touch",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 9044,
+          "action": "touch-swipe",
+          "from": [
+            195,
+            720
+          ],
+          "to": [
+            195,
+            200
+          ]
+        },
+        {
+          "elapsedMs": 11404,
+          "action": "screenshot",
+          "name": "02-touch-scroll",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 11404,
+          "action": "touch-swipe",
+          "from": [
+            195,
+            720
+          ],
+          "to": [
+            195,
+            200
+          ]
+        },
+        {
+          "elapsedMs": 13918,
+          "action": "screenshot",
+          "name": "03-touch-scroll",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 13918,
+          "action": "touch-swipe",
+          "from": [
+            195,
+            720
+          ],
+          "to": [
+            195,
+            200
+          ]
+        },
+        {
+          "elapsedMs": 16225,
+          "action": "screenshot",
+          "name": "04-touch-scroll",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 16233,
+          "action": "end"
+        }
+      ],
+      "files": [
+        {
+          "path": "des/390/01-before-touch.png",
+          "sha256": "d3ea4a6d7fb05ac1e11ac85cb84f5876b8637bcb21378bdbc047058a7c4f7c48",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "des/390/02-touch-scroll.png",
+          "sha256": "2a23b8d0fa15766c39713571786c36c28d66596eb21221998c40809a9541755c",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "des/390/03-touch-scroll.png",
+          "sha256": "e684a25251f2386b168813f117e409162f4ec1e3c8ee0834fcfc146aa52e7740",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "des/390/04-touch-scroll.png",
+          "sha256": "841bae818aa759264634e9a24fe424fbdb92f53c588c37ea951b9607453d9866",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "des/390/sequence.webm",
+          "sha256": "09437459e11d2aacfba1c9f08866f77b16005eb5fe502840449ead4d26023637",
+          "bytes": 1673419,
+          "kind": "video"
+        }
+      ],
+      "errors": [],
+      "finalUrl": "https://des.obys.agency/",
+      "initialText": "Practice\nSeasons\nTypography Principles(New)\nColors Combinations(New)\nGrids(New)\nAbout\n\nSocial Media:\n\nInstagram\nYoutube\nХ (Twitter)\nTikTok\n©Design Education Series® 2026\nLog In\n100%\nDesign Education Series® by Obys®\nOriginal Series by Obys® about the main design principles\nWatch Trailer\nClose\n\n(About Series)\n Design Education Series is a new format of an original mini-series on the main principles of design, where we share all insights gained during our experience at Obys Agency. Creative Web Design Practice, Typography Principles, Colors Combinations, Grids are the titles of the first three seasons and the web design practice.\n\n        Over the past 5 years, Obys has released 3 educational projects (websites) that have become quite popular within the design community. These websites have been visited over 1 million times.\n\nHere is the new, light, and entertaining format of the series that we are excited to present to you. With short episodes full of valuable information without fluff, these will teach you the main principles of design and enhance your skills in working with typography, grids, colors, and composition.\n\nMore About Us\n\nProjects:\n\nTypography Principles (2019)\nColors Combinations (2020)\nGrids (2021)\nUnique\nCreative Web Design Practice\n\nfrom $569\n\n2026 / 18+ / Practice / Edition 2\n\nNew\nTypography Principles\n$170\n\n2024 / 6+ / 01 Season / 03h 03m\n\nNew\nColors Combinations\n$170\n/ New\n\n2025 / 6+ / 02 Season / 02h 47m\n\nNew\nGrids\n$170\n/ New\n\n2025 / 6+ / 03 Season / 04h 25m\n\n(About Filmmakers)\n Obys has won more than 80 international awards, received 24 SOTD, and has educated and inspired over 2800 students through workshops, masterclasses, and courses over more than a decade of collaboration with brands, startups, companies, and individuals.\n\n(Studio of The Year by Awwwards)\n\n(Sudents rated the courses 4.7/5)\n\n        Obys is a creative design and dev agency that makes memorable websites and branding, that took the world stage by storm.\n\nOver the 5 years of existence, the agency: became Studio of the Year by Awwwards, Studio of the Year by CSSDA x3; won more than 80 international awards including Site of the Month, and more than 24 Sites of the Day, Red Dot Best of The Best, The Webby Awards, FWA, European Design Awards, Communication Arts Interaction, etc.\n\nDuring this time, Obys managed to work with CNN International, Porsche, Miro, Samsung, Hilton, Singapore Airlines, and MAKHNO Studio, etc. \n\nIn addition, Obys boasts extensive experience in developing educational projects, offline courses, and online masterclasses.\n\nBut besides this, more than 2800 people took Obys courses and masterclasses. On average participants rate the courses at 4.7/5.\n\nMenu:\n\nHome\nPractice\nSeasons\n(03)\nTypography Principles (New)\nColors Combinations (New)\nGrids (New)\nAbout\n\nSocial Media:\n\nInstagram\nYoutube\nХ (Twitter)\nTikTok\nPrivacy Policy\n&\nLegal Terms\n\n©Design Education Series® 2026\n\nDesigned by Obys",
+      "afterTouchText": "Practice\nSeasons\nTypography Principles(New)\nColors Combinations(New)\nGrids(New)\nAbout\n\nSocial Media:\n\nInstagram\nYoutube\nХ (Twitter)\nTikTok\n©Design Education Series® 2026\nLog In\n100%\nDesign Education Series® by Obys®\nOriginal Series by Obys® about the main design principles\nWatch Trailer\nClose\n\n(About Series)\n Design Education Series is a new format of an original mini-series on the main principles of design, where we share all insights gained during our experience at Obys Agency. Creative Web Design Practice, Typography Principles, Colors Combinations, Grids are the titles of the first three seasons and the web design practice.\n\n        Over the past 5 years, Obys has released 3 educational projects (websites) that have become quite popular within the design community. These websites have been visited over 1 million times.\n\nHere is the new, light, and entertaining format of the series that we are excited to present to you. With short episodes full of valuable information without fluff, these will teach you the main principles of design and enhance your skills in working with typography, grids, colors, and composition.\n\nMore About Us\n\nProjects:\n\nTypography Principles (2019)\nColors Combinations (2020)\nGrids (2021)\nUnique\nCreative Web Design Practice\n\nfrom $569\n\n2026 / 18+ / Practice / Edition 2\n\nNew\nTypography Principles\n$170\n\n2024 / 6+ / 01 Season / 03h 03m\n\nNew\nColors Combinations\n$170\n/ New\n\n2025 / 6+ / 02 Season / 02h 47m\n\nNew\nGrids\n$170\n/ New\n\n2025 / 6+ / 03 Season / 04h 25m\n\n(About Filmmakers)\n Obys has won more than 80 international awards, received 24 SOTD, and has educated and inspired over 2800 students through workshops, masterclasses, and courses over more than a decade of collaboration with brands, startups, companies, and individuals.\n\n(Studio of The Year by Awwwards)\n\n(Sudents rated the courses 4.7/5)\n\n        Obys is a creative design and dev agency that makes memorable websites and branding, that took the world stage by storm.\n\nOver the 5 years of existence, the agency: became Studio of the Year by Awwwards, Studio of the Year by CSSDA x3; won more than 80 international awards including Site of the Month, and more than 24 Sites of the Day, Red Dot Best of The Best, The Webby Awards, FWA, European Design Awards, Communication Arts Interaction, etc.\n\nDuring this time, Obys managed to work with CNN International, Porsche, Miro, Samsung, Hilton, Singapore Airlines, and MAKHNO Studio, etc. \n\nIn addition, Obys boasts extensive experience in developing educational projects, offline courses, and online masterclasses.\n\nBut besides this, more than 2800 people took Obys courses and masterclasses. On average participants rate the courses at 4.7/5.\n\nMenu:\n\nHome\nPractice\nSeasons\n(03)\nTypography Principles (New)\nColors Combinations (New)\nGrids (New)\nAbout\n\nSocial Media:\n\nInstagram\nYoutube\nХ (Twitter)\nTikTok\nPrivacy Policy\n&\nLegal Terms\n\n©Design Education Series® 2026\n\nDesigned by Obys"
+    }
+  ]
+}

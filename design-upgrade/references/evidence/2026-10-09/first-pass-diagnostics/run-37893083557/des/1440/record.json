@@ -1,0 +1,430 @@
+{
+  "id": "des",
+  "url": "https://des.obys.agency/",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "run": "37893083557",
+  "capturedAt": "2026-10-09T06:21:58.989Z",
+  "browserVersion": "141.0.7390.37",
+  "sourceCommit": "ac76a1c067255015522c9385b8e25289395a126e",
+  "mode": "normal",
+  "actions": [
+    {
+      "elapsedMs": 2081,
+      "action": "navigation",
+      "status": 200
+    },
+    {
+      "elapsedMs": 10556,
+      "action": "screenshot",
+      "name": "01-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 15117,
+      "action": "screenshot",
+      "name": "02-settled",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 15117,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 44758,
+      "action": "screenshot",
+      "name": "03-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 44758,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 51344,
+      "action": "screenshot",
+      "name": "04-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 51344,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 61462,
+      "action": "screenshot",
+      "name": "05-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 61462,
+      "action": "fast-scroll",
+      "deltaY": 3000
+    },
+    {
+      "elapsedMs": 67199,
+      "action": "screenshot",
+      "name": "06-fast-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 67199,
+      "action": "reverse-scroll",
+      "deltaY": -1500
+    },
+    {
+      "elapsedMs": 70532,
+      "action": "screenshot",
+      "name": "07-reverse",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 70532,
+      "action": "return-top"
+    },
+    {
+      "elapsedMs": 72793,
+      "action": "screenshot",
+      "name": "08-return",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 72804,
+      "action": "reduced-motion-enabled"
+    },
+    {
+      "elapsedMs": 79478,
+      "action": "screenshot",
+      "name": "09-reduced-motion-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 79485,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "des/1440/01-entry.png",
+      "sha256": "a5f3968187c9b91ea4d1675b195ded8616093ef4ea17ee315eebde2c3a33c433",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "des/1440/02-settled.png",
+      "sha256": "0633df8d26d53e9d0e8b75cbb7e059afa00d101a6d4b81ebd09c7456dd5775e3",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "des/1440/03-scroll.png",
+      "sha256": "ae3a352652642d10601ab55bc2e05d9573e5ef495c2c7354c73434e0713d0f16",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "des/1440/04-scroll.png",
+      "sha256": "08caabf3c386ce78cfa620863d9561f208175eb78c6530eb146846c94d18c692",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "des/1440/05-scroll.png",
+      "sha256": "96ff59b46e88d301f2136962a03121024c4c3bb94da9e9c7a95215c5be820eaa",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "des/1440/06-fast-scroll.png",
+      "sha256": "adbdadc72dd313f021d84a9815f750ea4b52c0a4c1ba737ace729bc20eaa9e32",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "des/1440/07-reverse.png",
+      "sha256": "9f5c4404de3ffe3762d8ed0232f103771b919215e1e07a31a9141d2d00865649",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "des/1440/08-return.png",
+      "sha256": "d99337a758d6df56c8cbf9493377d6cfa4ae65dcae0515548ad5ec63faa36747",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "des/1440/09-reduced-motion-entry.png",
+      "sha256": "b4acd1c37386291a51b15ce55d903bf3e7d5726c762908d9e59f8f53e9e52211",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "des/1440/sequence.webm",
+      "sha256": "dadd5337ec64203c5fb289fc90aaae7bff397f135a5c98c61614c4d925594dd6",
+      "bytes": 5804322,
+      "kind": "video"
+    }
+  ],
+  "errors": [],
+  "finalUrl": "https://des.obys.agency/",
+  "title": "DES® | Design Education Series® by Obys®",
+  "visibleTextExcerpt": "Practice\nSeasons\nTypography Principles\n2026 /6+ / 01 Season / 03h 03m\nNew\nColors Combinations\n2026 /6+ / 02 Season / 02h 47m\nNew\nGrids\n2026 /6+ / 03 Season / 04h 25m\nNew\nAbout\nLog In\n100%\nDesign Education Series® by Obys®\n(Scroll)\nAbout DES:\n\nPractice:\n\nCreative Web Design Practice\n\nSeasons:\n\n01Season (Typography Principles)\n02Season (Colors Combinations)\n03Season (Grids)\n\nDiscover, Study, Have Fun: \nAll-in-One Learning!\n\n©2026\n\nOriginal Series by Obys® about the main design principles\n(02:19)\nWatch Trailer\n\n(About Series)\n Design Education Series is a new format of an\noriginal mini-series on the main principles of design, where we\nshare all insights gained during our experience at Obys Agency.\nCreative Web Design Practice, Typography Principles,\nColors Combinations, Grids are the titles of the first three\nseasons and the web design practice.\n\n        Over the past 5 years, Obys has released 3 educational projects (websites) that have become quite popular within the design community. These websites have been visited over 1 million times.\n\nHere is the new, light, and entertaining format of the series that we are excited to present to you. With short episodes full of valuable information without fluff, these will teach you the main principles of design and enhance your skills in working with typography, grids, colors, and composition.\n\nMore About Us\n\nProjects:\n\nTypography Principles (2019)\nColors Combinations (2020)\nGrids (2021)\nUnique\nCreative Web Design Practice\n\nfrom $569\n\n2026 / 18+ / Practice / Edition 2\n\nNew\nTypography Principles\n$170\n\n2024 / 6+ / 01 Season / 03h 03m\n\nN",
+  "controls": [
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Practice",
+      "href": "/creative-web-design-practice/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Typography Principles(New)2026 /6+ / 01 Season / 03h 03mNew",
+      "href": "/typography-principles/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Colors Combinations(New)2026 /6+ / 02 Season / 02h 47mNew",
+      "href": "/colors-combinations/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Grids(New)2026 /6+ / 03 Season / 04h 25mNew",
+      "href": "/grids/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "About",
+      "href": "/about/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Log In",
+      "href": "https://sso.teachable.com/secure/2040109/identity/login/password",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Creative Web Design Practice",
+      "href": "/creative-web-design-practice/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "01Season (Typography Principles)",
+      "href": "/typography-principles/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "02Season (Colors Combinations)",
+      "href": "/colors-combinations/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "03Season (Grids)",
+      "href": "/grids/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Typography Principles",
+      "href": "/typography-principles/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Colors Combinations",
+      "href": "/colors-combinations/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Grids",
+      "href": "/grids/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "More About Us",
+      "href": "/about/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Typography Principles (2019)",
+      "href": "https://typographyprinciples.obys.agency/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Colors Combinations (2020)",
+      "href": "https://colors.combinations.obys.agency/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Grids (2021)",
+      "href": "https://grids.obys.agency/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "UniqueCreative Web Design Practicefrom $5692026 / 18+ / Practice / Edition 2",
+      "href": "/creative-web-design-practice/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "New\n    \n      \n    \n  Typography Principles$1702024 / 6+ / 01 Season / 03h 03m",
+      "href": "/typography-principles/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "New\n    \n  \n  Colors Combinations$170/ New2025 / 6+ / 02 Season / 02h 47m",
+      "href": "/colors-combinations/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "New\n    \n  \n\n  Grids$170/ New2025 / 6+ / 03 Season / 04h 25m",
+      "href": "/grids/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Home",
+      "href": "/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Practice",
+      "href": "/creative-web-design-practice/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Typography Principles (New)",
+      "href": "/typography-principles/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Colors Combinations (New)",
+      "href": "/colors-combinations/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Grids (New)",
+      "href": "/grids/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "About",
+      "href": "/about/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Instagram",
+      "href": "https://www.instagram.com/design_education_series/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Youtube",
+      "href": "https://www.youtube.com/@obysagency",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Х (Twitter)",
+      "href": "https://twitter.com/des_by_obys",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "TikTok",
+      "href": "https://www.tiktok.com/@obys_agency",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Privacy Policy",
+      "href": "/privacy-policy/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Legal Terms",
+      "href": "/legal-terms/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Obys",
+      "href": "https://obys.agency",
+      "type": null
+    }
+  ],
+  "document": {
+    "width": 1440,
+    "height": 1000,
+    "viewportWidth": 1440
+  },
+  "reducedMotionMedia": true
+}

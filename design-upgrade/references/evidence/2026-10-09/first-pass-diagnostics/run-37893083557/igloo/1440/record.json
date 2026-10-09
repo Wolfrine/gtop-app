@@ -1,0 +1,96 @@
+{
+  "id": "igloo",
+  "url": "https://www.igloo.inc/",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "run": "37893083557",
+  "capturedAt": "2026-10-09T06:25:30.387Z",
+  "browserVersion": "141.0.7390.37",
+  "sourceCommit": "ac76a1c067255015522c9385b8e25289395a126e",
+  "mode": "normal",
+  "actions": [
+    {
+      "elapsedMs": 933,
+      "action": "navigation",
+      "status": 200
+    },
+    {
+      "elapsedMs": 13721,
+      "action": "screenshot",
+      "name": "01-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 24815,
+      "action": "screenshot",
+      "name": "02-settled",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 24815,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 167069,
+      "action": "screenshot",
+      "name": "03-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 167069,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 289507,
+      "action": "screenshot",
+      "name": "diagnostic",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 289507,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "igloo/1440/01-entry.png",
+      "sha256": "a8748320b40afa0f4cdbb13fe7422e041bc227db9445ed642670c5b67a4e3722",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "igloo/1440/02-settled.png",
+      "sha256": "9f9f338ed97c7a8d9156676ae4d42cc3f4282fbb0b4a17e1ebcbecf819f952b5",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "igloo/1440/03-scroll.png",
+      "sha256": "74956ddf9a08b23a10f582e54e6491aae9111e907c172a4f740e7decadfb6ae1",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "igloo/1440/diagnostic.png",
+      "sha256": "c2d865de2f072b745757859b642a2fa2e3f50a9960695957402968aa96798110",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "igloo/1440/sequence.webm",
+      "sha256": "2ba35c1e43fdcd17e206891c86f2203848894aa415c9ebfa7b5a8bd9a073b6df",
+      "bytes": 2676197,
+      "kind": "video"
+    }
+  ],
+  "errors": [],
+  "finalUrl": "https://www.igloo.inc/",
+  "title": "Igloo Inc.",
+  "visibleTextExcerpt": "",
+  "controls": [],
+  "failure": "TimeoutError: page.screenshot: Timeout 15000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n"
+}

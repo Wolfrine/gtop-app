@@ -77,19 +77,22 @@ export async function captureAdminStates(
     await firstCount.fill('1');
     await capture(page, 'paper-generator-stages', role, 'stage-2-syllabus-and-sections');
 
-    const availability = width === 390
-      ? page.locator('.qpg-mobile-bar').getByRole('button', { name: 'Check availability', exact: true })
-      : page.locator('.qpg-desktop-check');
-    await availability.waitFor({ state: 'visible' });
+    // The generator switches controls using container queries, so viewport
+    // width alone does not identify the visible action at desktop widths.
+    const availabilityCandidates = [
+      page.locator('.qpg-desktop-check'),
+      page.locator('.qpg-mobile-bar').getByRole('button', { name: 'Check availability', exact: true }),
+    ];
+    const availability = await firstVisible(availabilityCandidates);
     await availability.click();
     await page.locator('.qpg-stat-grid').waitFor({ state: 'visible', timeout: 20000 });
     await page.getByRole('heading', { name: 'Check the question bank', exact: true }).waitFor({ state: 'visible' });
     await capture(page, 'paper-generator-stages', role, 'stage-3-coverage');
 
-    const preview = width === 390
-      ? page.locator('.qpg-mobile-bar').getByRole('button', { name: /^(Preview paper|Preview available questions)$/ })
-      : page.locator('section[aria-labelledby="coverage-heading"]').getByRole('button', { name: /^(Preview paper|Preview available questions)$/ });
-    await preview.waitFor({ state: 'visible' });
+    const preview = await firstVisible([
+      page.locator('section[aria-labelledby="coverage-heading"]').getByRole('button', { name: /^(Preview paper|Preview available questions)$/ }),
+      page.locator('.qpg-mobile-bar').getByRole('button', { name: /^(Preview paper|Preview available questions)$/ }),
+    ]);
     await preview.click();
     await page.locator('.qpg-paper').waitFor({ state: 'visible', timeout: 20000 });
     await page.getByRole('heading', { name: 'Preview your paper', exact: true }).waitFor({ state: 'visible' });
@@ -180,4 +183,11 @@ export async function captureAdminStates(
     }
     // Do not click the check/save control.
   });
+}
+
+async function firstVisible<T extends { isVisible: () => Promise<boolean>; isEnabled: () => Promise<boolean> }>(candidates: T[]): Promise<T> {
+  for (const candidate of candidates) {
+    if (await candidate.isVisible() && await candidate.isEnabled()) return candidate;
+  }
+  throw new Error('Expected an enabled paper-generator action, but all source-confirmed controls are hidden or disabled.');
 }

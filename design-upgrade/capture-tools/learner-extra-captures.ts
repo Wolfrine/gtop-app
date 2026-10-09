@@ -140,11 +140,18 @@ export async function captureLearnerExtraStates(
       await page.locator('.quiz-header h1').waitFor({ state: 'visible', timeout: 30000 });
       await page.locator('.question-card').waitFor({ state: 'visible', timeout: 30000 });
       await page.locator('.option-card').first().waitFor({ state: 'visible', timeout: 30000 });
-      await captureState(capture, 'quiz-run-active-question', 'learner', 'Active collaborative run question with timer')(page);
-      const firstOption = page.locator('.option-card').first();
-      if (!(await firstOption.isDisabled())) {
-        await firstOption.click();
-        if (await firstOption.getAttribute('aria-pressed') === 'true') {
+      const selectedOption = page.locator('.option-card[aria-pressed="true"]');
+      if (await selectedOption.count()) {
+        // The desktop pass may already have submitted this shared learner's
+        // answer. Capture that same submitted state for mobile without trying
+        // to click the frozen option again.
+        await captureState(capture, 'quiz-run-answer-submitted', 'learner', 'Run answer submitted and option locked')(page);
+      } else {
+        await captureState(capture, 'quiz-run-active-question', 'learner', 'Active collaborative run question with timer')(page);
+        const firstOption = page.locator('.option-card').first();
+        if (!(await firstOption.isDisabled())) {
+          await firstOption.click();
+          await page.waitForFunction(() => document.querySelector('.option-card[aria-pressed="true"]') !== null);
           await captureState(capture, 'quiz-run-answer-submitted', 'learner', 'Run answer submitted and option locked')(page);
         }
       }

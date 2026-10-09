@@ -41,10 +41,13 @@ const setRangeValue = async (page: Page, name: string, id: string, target: numbe
     throw new Error(`${name} did not retain target value ${target} after blur.`);
   }
   await page.locator(`label[for="${id}"] strong`).filter({ hasText: new RegExp(`^${target} ${unit}$`) }).waitFor({ state: 'visible' });
-  const record = page.getByRole('button', { name: 'Record observation ✓', exact: true });
-  if (!(await record.isEnabled())) {
-    throw new Error(`${name} reached ${target}, but the experiment target did not enable Record observation.`);
-  }
+  await waitForRecordEnabled(page, `${name} reached ${target}, but the experiment target did not enable Record observation.`);
+};
+const waitForRecordEnabled = async (page: Page, errorMessage: string) => {
+  await page.waitForFunction(() => {
+    const button = document.querySelector<HTMLButtonElement>('.observation-panel button.primary-button');
+    return !!button && !button.disabled;
+  }, null, { timeout: 12000 }).catch(() => { throw new Error(errorMessage); });
 };
 
 /**
@@ -73,8 +76,11 @@ export async function captureLabStates(
     // Mission 1: open the flower, inspect its pollen maker and ovule holder.
     await page.locator('.pl-action-bar button.pl-primary').click();
     await page.getByRole('button', { name: 'Inspect Anther', exact: true }).click();
+    await page.waitForFunction(() => document.querySelectorAll('.pl-small-progress span.found').length >= 1);
     await page.getByRole('button', { name: 'Inspect Ovary', exact: true }).click();
-    await page.getByText('You have found both parts.').waitFor();
+    await page.waitForFunction(() => document.querySelectorAll('.pl-small-progress span.found').length === 2);
+    // Once the queued practice writes settle, the completion copy replaces the
+    // transient instruction. Wait on the next action rather than stale prose.
     await page.locator('.pl-action-bar button.pl-primary').filter({ hasText: 'Carry some pollen' }).waitFor();
     await page.locator('.pl-action-bar button.pl-primary').click();
 
@@ -183,11 +189,9 @@ export async function captureLabStates(
     await page.locator('.experiment-top h2').filter({ hasText: 'Give current another path' }).waitFor();
     await clickFirstChoice(page.locator('.prediction-strip app-lab-choices'));
     await captureState(capture, 'current-lab-series-circuit', 'Two-resistor series circuit before changing arrangement')(page);
-    await page.locator('.mode-selector label').nth(2).click();
-    const recordParallel = page.getByRole('button', { name: 'Record observation ✓', exact: true });
-    if (!(await recordParallel.isEnabled())) {
-      throw new Error('Selecting Parallel did not reach the third experiment target.');
-    }
+    await page.locator('.mode-selector label').filter({ hasText: 'Parallel' }).click();
+    await page.waitForFunction(() => document.querySelector<HTMLInputElement>('.mode-selector input[type="radio"][value="parallel"]')?.checked === true);
+    await waitForRecordEnabled(page, 'Selecting Parallel did not reach the third experiment target.');
     await captureState(capture, 'current-lab-parallel-circuit', 'Parallel circuit with branch current and voltage values')(page);
     await page.getByRole('button', { name: 'Record observation ✓', exact: true }).click();
     await page.locator('.observation-panel.completed').waitFor();

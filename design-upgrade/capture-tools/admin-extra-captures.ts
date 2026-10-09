@@ -40,6 +40,10 @@ export async function captureAdminExtraStates(
   await scenario(browser, width, 'add-mcq-parsed-preview', role, '/admin/add-mcq', async page => {
     await page.getByRole('heading', { name: 'Add MCQs' }).waitFor({ state: 'visible' });
     await page.getByLabel('MCQ JSON', { exact: true }).fill(JSON.stringify([{
+      board: 'ICSE',
+      standard: '9',
+      subject: 'Biology',
+      chapter: 'Cells',
       title: 'Cell fixture question',
       question: 'Which structure controls what enters and leaves a cell?',
       options: ['Cell membrane', 'Cell wall', 'Nucleus', 'Vacuole'],

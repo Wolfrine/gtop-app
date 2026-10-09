@@ -1,0 +1,853 @@
+{
+  "sourceCommit": "058729a6fc62d285d5f7abc6d603952466df54d9",
+  "routeEntryCount": 40,
+  "distinctPathCount": 39,
+  "wildcard": {
+    "path": "**",
+    "redirectTo": "/"
+  },
+  "routes": [
+    {
+      "id": "R01",
+      "path": "/practice",
+      "variant": "default",
+      "component": "PracticeInviteComponent",
+      "roles": [
+        "public"
+      ],
+      "guards": [],
+      "source": "gtop-app/src/app/app.routes.ts"
+    },
+    {
+      "id": "R02",
+      "path": "/quiz",
+      "variant": "invited practice",
+      "component": "InvitedQuizComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard",
+        "practiceInviteGuard"
+      ],
+      "source": [
+        "src/app/pages/quiz-page/quiz-page.component.html",
+        "src/app/pages/quiz-page/quiz-page.component.ts",
+        "src/app/services/quiz.service.ts"
+      ],
+      "surface": "Standard/quick MCQ quiz",
+      "entryPoints": [
+        "dashboard Start Quick Quiz",
+        "dashboard Custom Quiz",
+        "quiz-run host activates run and routes /quiz?sessionId=\u2026&mode=run"
+      ],
+      "states": [
+        "scope selection/filter setup where applicable",
+        "question/options and answer selection",
+        "submit/confirmation",
+        "run-mode timed question"
+      ],
+      "entry": "admin side nav Quick Quiz"
+    },
+    {
+      "id": "R03",
+      "path": "/admin/question-papers/legacy",
+      "variant": "default",
+      "component": "QuestionPapersPage",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "direct URL only; routed but legacy/unlinked"
+    },
+    {
+      "id": "R04",
+      "path": "/admin/question-papers/view/:paperId",
+      "variant": "default",
+      "component": "PaperChatViewerPage",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "ready-paper link"
+    },
+    {
+      "id": "R05",
+      "path": "/admin/question-papers/all",
+      "variant": "default",
+      "component": "PaperChatPage",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "viewer back link; direct route; same view"
+    },
+    {
+      "id": "R06",
+      "path": "/admin/question-papers/new",
+      "variant": "default",
+      "component": "PaperChatPage",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "register + New paper"
+    },
+    {
+      "id": "R07",
+      "path": "/admin/question-papers",
+      "variant": "default",
+      "component": "PaperChatPage",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "side nav; admin console"
+    },
+    {
+      "id": "R08",
+      "path": "/admin/question-papers/chat/:conversationId",
+      "variant": "default",
+      "component": "PaperChatPage",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "register row/notification"
+    },
+    {
+      "id": "R09",
+      "path": "/admin/question-library",
+      "variant": "default",
+      "component": "QuestionLibraryPage",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "admin console; Paper workspace Bank tools"
+    },
+    {
+      "id": "R10",
+      "path": "/admin/question-bank",
+      "variant": "default",
+      "component": "QuestionBankWorkspacePage",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "question module links; no side nav direct link"
+    },
+    {
+      "id": "R11",
+      "path": "/admin/question-paper-generator",
+      "variant": "default",
+      "component": "QuestionPaperGeneratorPage",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "paper workflow/module link; no side nav direct link"
+    },
+    {
+      "id": "R12",
+      "path": "/admin/question-review",
+      "variant": "default",
+      "component": "QuestionReviewWorkbenchPage",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "admin console; paper workflow"
+    },
+    {
+      "id": "R13",
+      "path": "/learning-lab",
+      "variant": "default",
+      "component": "LearningLabComponent",
+      "roles": [
+        "authenticated"
+      ],
+      "guards": [
+        "labGuard"
+      ],
+      "source": [
+        "src/app/pages/learning-lab/learning-lab.component.ts",
+        "src/app/pages/learning-lab/learning-lab.service.ts"
+      ],
+      "surface": "Learning Lab index",
+      "entryPoints": [
+        "dashboard/footer link if present or direct",
+        "public landing Explore Learning Lab CTA after authentication"
+      ],
+      "states": [
+        "two lesson cards: Plant Reproduction and Current Lab",
+        "admin-only Results & Feedback tab appears"
+      ],
+      "entry": "admin side nav"
+    },
+    {
+      "id": "R14",
+      "path": "/learning-lab/plants",
+      "variant": "default",
+      "component": "PlantLabComponent",
+      "roles": [
+        "authenticated"
+      ],
+      "guards": [
+        "labGuard"
+      ],
+      "source": [
+        "src/app/pages/learning-lab/plant-lab.component.html",
+        "src/app/pages/learning-lab/plant-lab.component.ts",
+        "src/app/pages/learning-lab/plant-lesson.ts",
+        "src/app/pages/learning-lab/plant-attempt.ts"
+      ],
+      "surface": "Plant Reproduction interactive lab",
+      "entryPoints": [
+        "Learning Lab lesson card"
+      ],
+      "states": [
+        "five mission exploration (flower anatomy; pollination; fertilisation; fruit/seed travel; vegetative propagation)",
+        "journey map dropdown",
+        "My discoveries notebook panel",
+        "assessment (five questions)",
+        "summary with explanations and feedback",
+        "saved/recovered attempt or practice mode"
+      ]
+    },
+    {
+      "id": "R15",
+      "path": "/learning-lab/plants/results",
+      "variant": "default",
+      "component": "PlantResultsComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "labGuard"
+      ],
+      "source": [
+        "src/app/pages/learning-lab/plant-results.component.html",
+        "src/app/pages/learning-lab/plant-results.component.ts",
+        "src/app/pages/learning-lab/learning-lab.service.ts"
+      ],
+      "surface": "Plant Reproduction admin results",
+      "entryPoints": [
+        "Learning Lab admin tab / result tab"
+      ],
+      "states": [
+        "aggregate/table data",
+        "empty/loading/error"
+      ]
+    },
+    {
+      "id": "R16",
+      "path": "/learning-lab/current",
+      "variant": "default",
+      "component": "CurrentLabComponent",
+      "roles": [
+        "authenticated"
+      ],
+      "guards": [
+        "labGuard"
+      ],
+      "source": [
+        "src/app/pages/learning-lab/current-lab.component.html",
+        "src/app/pages/learning-lab/current-lab.component.ts",
+        "src/app/pages/learning-lab/lesson.ts",
+        "src/app/pages/learning-lab/attempt.ts"
+      ],
+      "surface": "Current Lab \u2014 Electricity interactive lab",
+      "entryPoints": [
+        "Learning Lab lesson card"
+      ],
+      "states": [
+        "Predict tab (baseline questions)",
+        "Experiment tab (3 circuit experiments, controls)",
+        "Check & reflect tab (5 quiz questions, confidence/feedback)",
+        "saved attempts/resume",
+        "practice mode"
+      ]
+    },
+    {
+      "id": "R17",
+      "path": "/learning-lab/results",
+      "variant": "default",
+      "component": "LabResultsComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "labGuard"
+      ],
+      "source": [
+        "src/app/pages/learning-lab/lab-results.component.html",
+        "src/app/pages/learning-lab/lab-results.component.ts"
+      ],
+      "surface": "Current Lab admin results",
+      "entryPoints": [
+        "Learning Lab admin tab"
+      ],
+      "states": [
+        "aggregate/table data",
+        "empty/loading/error"
+      ]
+    },
+    {
+      "id": "R18",
+      "path": "/",
+      "variant": "default",
+      "component": "LandingPageComponent",
+      "roles": [
+        "public"
+      ],
+      "guards": [],
+      "source": [
+        "src/app/pages/landing-page/landing-page.component.html",
+        "src/app/pages/landing-page/landing-page.component.ts"
+      ],
+      "surface": "Public landing",
+      "entryPoints": [
+        "direct URL",
+        "GTOP logo/home link",
+        "Explore Learning Lab CTA in lower landing page calls sign-in flow; user can then navigate directly or follow any configured post-auth destination"
+      ],
+      "states": [
+        "hero",
+        "subject exploration",
+        "sample-question interaction",
+        "play-together CTA"
+      ]
+    },
+    {
+      "id": "R19",
+      "path": "/profile-setup",
+      "variant": "default",
+      "component": "ProfileSetupComponent",
+      "roles": [
+        "public"
+      ],
+      "guards": [],
+      "source": [
+        "src/app/pages/profile-setup/profile-setup.component.html",
+        "src/app/pages/profile-setup/profile-setup.component.ts"
+      ],
+      "surface": "Public profile setup",
+      "entryPoints": [
+        "sign-up/sign-in flow after auth",
+        "direct URL",
+        "post-auth profile-completion flow destination; see landing signup handling"
+      ],
+      "states": [
+        "profile fields and validation",
+        "save/progress feedback"
+      ]
+    },
+    {
+      "id": "R20",
+      "path": "/profile",
+      "variant": "default",
+      "component": "ProfileComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/profile/profile.component.html",
+        "src/app/pages/profile/profile.component.ts"
+      ],
+      "surface": "Learner profile (also allowed admin)",
+      "entryPoints": [
+        "header account menu"
+      ],
+      "states": [
+        "profile summary/edit form"
+      ]
+    },
+    {
+      "id": "R21",
+      "path": "/dashboard",
+      "variant": "default",
+      "component": "UserDashboardComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/user-dashboard/user-dashboard.component.html",
+        "src/app/pages/user-dashboard/user-dashboard.component.ts",
+        "src/app/components/manual-quiz-modal/manual-quiz-modal.component.html"
+      ],
+      "surface": "Learner home (also allowed admin)",
+      "entryPoints": [
+        "post-auth flow",
+        "header nav/menu",
+        "back links from profile/practice"
+      ],
+      "states": [
+        "empty/recent activity and progress panels",
+        "quick quiz",
+        "Custom Quiz dialog",
+        "return-practice cue on dashboard",
+        "realtime Quiz Runs and Live Quizzes entry cards"
+      ],
+      "entry": "admin side nav Dashboard"
+    },
+    {
+      "id": "R22",
+      "path": "/admin",
+      "variant": "default",
+      "component": "AdminDashboardComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "side nav; admin console quick actions"
+    },
+    {
+      "id": "R23",
+      "path": "/admin/action-plan",
+      "variant": "default",
+      "component": "ActionPlanComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "side nav"
+    },
+    {
+      "id": "R24",
+      "path": "/admin/mcq-management",
+      "variant": "default",
+      "component": "McqManagementComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts"
+    },
+    {
+      "id": "R25",
+      "path": "/admin/add-mcq",
+      "variant": "default",
+      "component": "AddMcqComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "side nav; admin console"
+    },
+    {
+      "id": "R26",
+      "path": "/admin/manage-syllabus",
+      "variant": "default",
+      "component": "ManageSyllabusComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "side nav"
+    },
+    {
+      "id": "R27",
+      "path": "/syllabus-preview",
+      "variant": "default",
+      "component": "SyllabusPreviewComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "side nav"
+    },
+    {
+      "id": "R28",
+      "path": "/logs",
+      "variant": "default",
+      "component": "LogsComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "side nav"
+    },
+    {
+      "id": "R29",
+      "path": "/quiz",
+      "variant": "ordinary practice",
+      "component": "QuizPageComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/quiz-page/quiz-page.component.html",
+        "src/app/pages/quiz-page/quiz-page.component.ts",
+        "src/app/services/quiz.service.ts"
+      ],
+      "surface": "Standard/quick MCQ quiz",
+      "entryPoints": [
+        "dashboard Start Quick Quiz",
+        "dashboard Custom Quiz",
+        "quiz-run host activates run and routes /quiz?sessionId=\u2026&mode=run"
+      ],
+      "states": [
+        "scope selection/filter setup where applicable",
+        "question/options and answer selection",
+        "submit/confirmation",
+        "run-mode timed question"
+      ],
+      "entry": "admin side nav Quick Quiz"
+    },
+    {
+      "id": "R30",
+      "path": "/quiz-summary",
+      "variant": "default",
+      "component": "PracticeSummaryComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/quiz-summary/quiz-summary.component.html",
+        "src/app/pages/quiz-summary/quiz-summary.component.ts"
+      ],
+      "surface": "Quiz result",
+      "entryPoints": [
+        "quiz completion"
+      ],
+      "states": [
+        "score/result summary",
+        "answer/explanation review",
+        "save/retry or return links",
+        "direct URL without in-memory completed attempt renders \u201cNo completed attempt is available in this tab\u201d empty state"
+      ]
+    },
+    {
+      "id": "R31",
+      "path": "/quiz-run",
+      "variant": "default",
+      "component": "QuizRunLandingComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/quiz-run/quiz-run-landing/quiz-run-landing.component.html",
+        "src/app/pages/quiz-run/quiz-run-landing/quiz-run-landing.component.ts"
+      ],
+      "surface": "Collaborative Quiz Runs",
+      "entryPoints": [
+        "dashboard realtime card / guide"
+      ],
+      "states": [
+        "create filters + Randomize Questions",
+        "questions-ready/create enabled",
+        "join code form",
+        "join error"
+      ],
+      "entry": "admin side nav"
+    },
+    {
+      "id": "R32",
+      "path": "/quiz-run/lobby/:sessionId",
+      "variant": "default",
+      "component": "QuizRunLobbyComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/quiz-run/quiz-run-lobby/quiz-run-lobby.component.html",
+        "src/app/pages/quiz-run/quiz-run-lobby/quiz-run-lobby.component.ts",
+        "src/app/services/live-quiz.service.ts"
+      ],
+      "surface": "Quiz Run lobby",
+      "entryPoints": [
+        "create/share lobby",
+        "join code while status=lobby"
+      ],
+      "states": [
+        "host lobby with code/participants and enabled Start when host has >=1 participant",
+        "guest waiting lobby",
+        "no session / ended / starting"
+      ]
+    },
+    {
+      "id": "R33",
+      "path": "/live",
+      "variant": "default",
+      "component": "LiveLandingComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/live/live-landing/live-landing.component.html",
+        "src/app/pages/live/live-landing/live-landing.component.ts"
+      ],
+      "surface": "Live Quiz entry",
+      "entryPoints": [
+        "dashboard live card/guide"
+      ],
+      "states": [
+        "learner join code + upcoming list/empty",
+        "admin host configuration, generated question preview, schedule",
+        "join error"
+      ],
+      "entry": "admin side nav; admin console"
+    },
+    {
+      "id": "R34",
+      "path": "/live/host/:sessionId",
+      "variant": "default",
+      "component": "LiveHostComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/live/live-host/live-host.component.html",
+        "src/app/pages/live/live-host/live-host.component.ts",
+        "src/app/services/live-quiz.service.ts"
+      ],
+      "surface": "Host console",
+      "entryPoints": [
+        "admin Create & Go to Host"
+      ],
+      "states": [
+        "scheduled lobby/countdown",
+        "active question with participant/submission counts and expand/collapse panels",
+        "ended session"
+      ]
+    },
+    {
+      "id": "R35",
+      "path": "/live/play/:sessionId",
+      "variant": "default",
+      "component": "LivePlayerComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/live/live-player/live-player.component.html",
+        "src/app/pages/live/live-player/live-player.component.ts",
+        "Important: live-player.component.html at this ref only renders waiting-room layout, despite component TS computing active question/timer values."
+      ],
+      "surface": "Participant lobby/player",
+      "entryPoints": [
+        "join code or upcoming session",
+        "participant route; run-mode sessions redirect to /quiz-run/lobby/:sessionId"
+      ],
+      "states": [
+        "scheduled waiting room/countdown and participant roster"
+      ]
+    },
+    {
+      "id": "R36",
+      "path": "/live/summary/:sessionId",
+      "variant": "default",
+      "component": "LiveSummaryComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/live/live-summary/live-summary.component.html",
+        "src/app/pages/live/live-summary/live-summary.component.ts"
+      ],
+      "surface": "Live results",
+      "entryPoints": [
+        "live completion"
+      ],
+      "states": [
+        "loading",
+        "ranked leaderboard",
+        "no results yet"
+      ]
+    },
+    {
+      "id": "R37",
+      "path": "/reports",
+      "variant": "default",
+      "component": "ReportsPageComponent",
+      "roles": [
+        "user",
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": [
+        "src/app/pages/reports-page/reports-page.component.html",
+        "src/app/pages/reports-page/reports-page.component.ts"
+      ],
+      "surface": "Learner reports",
+      "entryPoints": [
+        "dashboard View All Attempts / reports CTA"
+      ],
+      "states": [
+        "attempt history and accuracy visualizations",
+        "empty/no-attempt state",
+        "loading/error"
+      ],
+      "entry": "admin side nav Progress; user-list View Progress"
+    },
+    {
+      "id": "R38",
+      "path": "/admin/manage-syllabus/edit",
+      "variant": "default",
+      "component": "EditSyllabusComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "Manage Syllabus > Edit Syllabus"
+    },
+    {
+      "id": "R39",
+      "path": "/admin/user-list",
+      "variant": "default",
+      "component": "UserListComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "side nav"
+    },
+    {
+      "id": "R40",
+      "path": "/dev/ui",
+      "variant": "default",
+      "component": "UiKitchenComponent",
+      "roles": [
+        "admin"
+      ],
+      "guards": [
+        "AuthGuard",
+        "RoleGuard"
+      ],
+      "source": "gtop-app/src/app/app.routes.ts",
+      "entry": "side nav UI Preview"
+    }
+  ],
+  "scope": "Current gtop-app/ application, excluding gtop-v2/ and non-routed standalone test previews."
+}

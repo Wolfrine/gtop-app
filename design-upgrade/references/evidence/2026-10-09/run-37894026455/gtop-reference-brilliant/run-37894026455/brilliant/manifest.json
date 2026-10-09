@@ -1,0 +1,1321 @@
+{
+  "run": "37894026455",
+  "capturedAt": "2026-10-09T06:35:02.961Z",
+  "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+  "limitations": [
+    "Mobile Chromium emulation, not physical devices",
+    "Sites captured on isolated CI runners; no performance benchmark",
+    "Recorded video is scaled on desktop; PNGs are native viewport resolution",
+    "Generic scroll study; control-specific interaction is a separate pass"
+  ],
+  "records": [
+    {
+      "id": "brilliant",
+      "url": "https://brilliant.org/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "run": "37894026455",
+      "capturedAt": "2026-10-09T06:33:56.292Z",
+      "browserVersion": "141.0.7390.37",
+      "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+      "mode": "normal",
+      "actions": [
+        {
+          "elapsedMs": 1180,
+          "action": "navigation",
+          "status": 200
+        },
+        {
+          "elapsedMs": 9327,
+          "action": "screenshot",
+          "name": "01-entry",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 13579,
+          "action": "screenshot",
+          "name": "02-settled",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 13579,
+          "action": "slow-scroll-start",
+          "deltaY": 800
+        },
+        {
+          "elapsedMs": 17378,
+          "action": "screenshot",
+          "name": "03-scroll",
+          "scrollY": 800
+        },
+        {
+          "elapsedMs": 17378,
+          "action": "slow-scroll-start",
+          "deltaY": 800
+        },
+        {
+          "elapsedMs": 20208,
+          "action": "screenshot",
+          "name": "04-scroll",
+          "scrollY": 1600
+        },
+        {
+          "elapsedMs": 20208,
+          "action": "slow-scroll-start",
+          "deltaY": 800
+        },
+        {
+          "elapsedMs": 22470,
+          "action": "screenshot",
+          "name": "05-scroll",
+          "scrollY": 2400
+        },
+        {
+          "elapsedMs": 22470,
+          "action": "fast-scroll",
+          "deltaY": 3000
+        },
+        {
+          "elapsedMs": 24510,
+          "action": "screenshot",
+          "name": "06-fast-scroll",
+          "scrollY": 5400
+        },
+        {
+          "elapsedMs": 24510,
+          "action": "reverse-scroll",
+          "deltaY": -1500
+        },
+        {
+          "elapsedMs": 26302,
+          "action": "screenshot",
+          "name": "07-reverse",
+          "scrollY": 3900
+        },
+        {
+          "elapsedMs": 26302,
+          "action": "return-top"
+        },
+        {
+          "elapsedMs": 28318,
+          "action": "screenshot",
+          "name": "08-return",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 28338,
+          "action": "reduced-motion-enabled"
+        },
+        {
+          "elapsedMs": 34142,
+          "action": "screenshot",
+          "name": "09-reduced-motion-entry",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 34144,
+          "action": "end"
+        }
+      ],
+      "files": [
+        {
+          "path": "brilliant/1440/01-entry.png",
+          "sha256": "1afb514b882ff517b2c6796ef8539879ebafb6a586b8a034fadf090da14d2ed1",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "brilliant/1440/02-settled.png",
+          "sha256": "fd734fe848f47bfd2857a393d956c005853af993fe800f851a2de4f070aa76a8",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "brilliant/1440/03-scroll.png",
+          "sha256": "1c984305284d4f94f1722bca2801df05f3d1732b7333db13517f60342bc360fd",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "brilliant/1440/04-scroll.png",
+          "sha256": "c705f6267c0e7bf03f6bef0c4fae27ee87d4ad7af6bcc0b438973be190fc6f8d",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "brilliant/1440/05-scroll.png",
+          "sha256": "10dcd287f3924d3064a8bd673dab435dd2012cbd9ee3d035f74cd4f81c22d65b",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "brilliant/1440/06-fast-scroll.png",
+          "sha256": "1b95bc1f2fe67de7358d4df3dc25f241702f47904f0ebaadbc2bd29bf3b2850f",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "brilliant/1440/07-reverse.png",
+          "sha256": "bd99fc7732a4e1a1f85f0064c646cce9adeaf9a1f9581de5ec7fb490e10435fc",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "brilliant/1440/08-return.png",
+          "sha256": "8c9ff59af9e84123a12fd59518bb1074d46351cb0bb13f58906cc78a77cf8648",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "brilliant/1440/09-reduced-motion-entry.png",
+          "sha256": "beb85a2dccd0f039b93236a7a4c70b876a4f29754053a47e733f0b08c838b7f7",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "brilliant/1440/sequence.webm",
+          "sha256": "6453121bbd2a442e9050d878b3789176642bc80606ac3a4e59f6cd2f16b49ead",
+          "bytes": 2990519,
+          "kind": "video"
+        }
+      ],
+      "errors": [],
+      "finalUrl": "https://brilliant.org/",
+      "title": "Brilliant | Your Personal Tutor for Math and Coding",
+      "visibleTextExcerpt": "Sign in\nYour personal tutor for math\nand coding\n\nA world-class tutor for every home. Built by top learning experts from MIT and Harvard.\n\nI’m a learner\nI’m a parent or teacher\nFully accredited\n\nby ACS WASC\n\n100,000+\n\n5-star app store reviews\n\n10 million+\n\nlearners around the world\n\nMeet Koji, your personal tutor\nMath\nCoding\nA visual, interactive tutor, not a cheating machine\n\nUnlike other AI chatbots and homework help tools, Koji never just gives you the answer. He ensures you actually understand math.\n\nYou learn with Koji on a shared interactive canvas. He asks guiding questions, sketches on your screen, gives hints, and provides visual help.\n\nLike the best human tutors, he gets to the heart of where you’re getting stuck, and works with you until you can solve hard problems yourself.\n\nAdapts to exactly where you are\n\nKoji tracks what you’ve mastered and what you’ve missed, then builds your learning plan around the gaps.\n\nHe gets you caught up on any shaky fundamentals, and personalizes your practice and review sessions to optimize your learning.\n\nHe accelerates your learning plan when you’re ready, and slows down when you need it.\n\nReal-time progress tracking & analysis\n\nVisual dashboards make it easy to see what clicked, what’s still difficult, and what to do next.\n\nParents and learners also receive regular notifications with an overview of completed lessons, performance on mastery assessments, learning strengths, and areas that need more practice.\n\nEffective and trusted\nLesson interventions\n\nKoji provides instant, one-on-one help whenever you’re stuck, just like an exper",
+      "controls": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brilliant home",
+          "href": "/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Sign in",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Pause",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "I’m a learner",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "I’m a parent or teacher",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "INPUT",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "radio"
+        },
+        {
+          "tag": "INPUT",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "radio"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "kidSAFE COPPA Certified seal",
+          "href": "https://kidsafe.com/member/brilliant",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "www.kidsafe.com",
+          "href": "https://www.kidsafe.com/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": "tab",
+          "name": "MathMath",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": "tab",
+          "name": "Computer ScienceCS",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": "tab",
+          "name": "ScienceScience",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": "tab",
+          "name": "Data AnalysisData",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "28 additional topics",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "7 additional topics",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "See how schools use Brilliant →",
+          "href": "/educators/?from=brilliant",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 1",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 2",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 3",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 4",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 5",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 1",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 2",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 3",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 4",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 5",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 1",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 2",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 3",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 4",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 5",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Get started",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "",
+          "href": "https://play.google.com/store/apps/details?id=org.brilliant.android&listing=try-brilliant-app",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "",
+          "href": "https://apps.apple.com/app/apple-store/id913335252?pt=105095803&ct=nux_qr_code&mt=8",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "",
+          "href": "/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Courses",
+          "href": "/courses/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Pricing",
+          "href": "/subscribe/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Gift Brilliant",
+          "href": "/gift-premium/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Resources",
+          "href": "/resources/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Help",
+          "href": "/help/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Educators",
+          "href": "/educators/?from=brilliant",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Homeschools",
+          "href": "/start/homeschool/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "K–5 Math Practice (beta)",
+          "href": "/practice/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "About Us",
+          "href": "/about/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Careers",
+          "href": "/careers/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "A Tutor in Every Home",
+          "href": "https://blog.brilliant.org/a-world-class-tutor-in-every-home/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Coding Skills That Matter in the Age of AI",
+          "href": "/coding-skills/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "AI at Brilliant",
+          "href": "https://blog.brilliant.org/hand-crafted-machine-made/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brilliant on Facebook",
+          "href": "https://www.facebook.com/brilliantorg",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brilliant on Instagram",
+          "href": "https://www.instagram.com/brilliantorg",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brilliant on Twitter",
+          "href": "https://twitter.com/brilliantorg",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brilliant on LinkedIn",
+          "href": "https://www.linkedin.com/company/brilliant-org/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "kidSAFE COPPA Certified seal",
+          "href": "https://kidsafe.com/member/brilliant",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "www.kidsafe.com",
+          "href": "https://www.kidsafe.com/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Terms of service",
+          "href": "/terms-of-use/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Do not sell my personal information",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "California privacy policy",
+          "href": "/ccpa-policy/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Privacy policy",
+          "href": "/privacy/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Got It",
+          "href": null,
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Close",
+          "href": null,
+          "type": null
+        }
+      ],
+      "document": {
+        "width": 1440,
+        "height": 8431,
+        "viewportWidth": 1440
+      },
+      "reducedMotionMedia": true
+    },
+    {
+      "id": "brilliant",
+      "url": "https://brilliant.org/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "run": "37894026455",
+      "capturedAt": "2026-10-09T06:34:30.567Z",
+      "browserVersion": "141.0.7390.37",
+      "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+      "mode": "normal",
+      "actions": [
+        {
+          "elapsedMs": 1174,
+          "action": "navigation",
+          "status": 200
+        },
+        {
+          "elapsedMs": 9269,
+          "action": "screenshot",
+          "name": "01-entry",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 13400,
+          "action": "screenshot",
+          "name": "02-settled",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 13400,
+          "action": "slow-scroll-start",
+          "deltaY": 675.2
+        },
+        {
+          "elapsedMs": 15449,
+          "action": "screenshot",
+          "name": "03-scroll",
+          "scrollY": 675
+        },
+        {
+          "elapsedMs": 15449,
+          "action": "slow-scroll-start",
+          "deltaY": 675.2
+        },
+        {
+          "elapsedMs": 18458,
+          "action": "screenshot",
+          "name": "04-scroll",
+          "scrollY": 1350
+        },
+        {
+          "elapsedMs": 18458,
+          "action": "slow-scroll-start",
+          "deltaY": 675.2
+        },
+        {
+          "elapsedMs": 20837,
+          "action": "screenshot",
+          "name": "05-scroll",
+          "scrollY": 2026
+        },
+        {
+          "elapsedMs": 20837,
+          "action": "fast-scroll",
+          "deltaY": 2532
+        },
+        {
+          "elapsedMs": 22687,
+          "action": "screenshot",
+          "name": "06-fast-scroll",
+          "scrollY": 4558
+        },
+        {
+          "elapsedMs": 22687,
+          "action": "reverse-scroll",
+          "deltaY": -1266
+        },
+        {
+          "elapsedMs": 24358,
+          "action": "screenshot",
+          "name": "07-reverse",
+          "scrollY": 3292
+        },
+        {
+          "elapsedMs": 24358,
+          "action": "return-top"
+        },
+        {
+          "elapsedMs": 26373,
+          "action": "screenshot",
+          "name": "08-return",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 26385,
+          "action": "reduced-motion-enabled"
+        },
+        {
+          "elapsedMs": 32297,
+          "action": "screenshot",
+          "name": "09-reduced-motion-entry",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 32299,
+          "action": "end"
+        }
+      ],
+      "files": [
+        {
+          "path": "brilliant/390/01-entry.png",
+          "sha256": "7bccb9d0422e55d844f46d517b4c0ea43d377cce1ad2e1ae01a5302417e46801",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "brilliant/390/02-settled.png",
+          "sha256": "f169dbeb7e14a22e3f20077248f0f6a8534f6058459a1944d1cd78ed7d6de160",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "brilliant/390/03-scroll.png",
+          "sha256": "ca9615fc8d2b14bf6217e29392f3d90b7a8e2f5eb91845b952e3ef09f5ad2f52",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "brilliant/390/04-scroll.png",
+          "sha256": "e73d8152a3236fdaf998a48fefafb7b2a8e371265abba6c10f36f22e46897865",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "brilliant/390/05-scroll.png",
+          "sha256": "94a0e819c48428da5db435a9725165a984c53c3fb28f47f4e7ec3e1337c3a0ea",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "brilliant/390/06-fast-scroll.png",
+          "sha256": "e008f6e1d596dd510cac407876231fb7dd56c234207a982e4f6a2ff78304dcc0",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "brilliant/390/07-reverse.png",
+          "sha256": "edfb16b6efac5ab40628df61b7ac1aebdbcee53d38c048051d779f64ea2ee7d9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "brilliant/390/08-return.png",
+          "sha256": "8617fb5056e4f6ef4a7ac2b33a1238dcd468fd5872bb981f25aafbdefaff9d6d",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "brilliant/390/09-reduced-motion-entry.png",
+          "sha256": "0c840432984276996e503375632d2c6d9e86440009b95c81899709b3eb32ea43",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "brilliant/390/sequence.webm",
+          "sha256": "829ba94827731cf9ec3d8798fd24e856f7e3d91d89fb2ba76737938f7f5194fd",
+          "bytes": 2262830,
+          "kind": "video"
+        }
+      ],
+      "errors": [],
+      "finalUrl": "https://brilliant.org/",
+      "title": "Brilliant | Your Personal Tutor for Math and Coding",
+      "visibleTextExcerpt": "Sign in\nYour personal tutor for\nmath and coding\n\nA world-class tutor for every home. Built by top learning experts from MIT and Harvard.\n\nI’m a learner\nI’m a parent or teacher\nFully accredited\n\nby ACS WASC\n\n100,000+\n\n5-star app store reviews\n\n10 million+\n\nlearners around the world\n\nMeet Koji,\nyour personal\ntutor\nMath\nCoding\nA visual, interactive tutor, not a cheating machine\n\nUnlike other AI chatbots and homework help tools, Koji never just gives you the answer. He ensures you actually understand math.\n\nYou learn with Koji on a shared interactive canvas. He asks guiding questions, sketches on your screen, gives hints, and provides visual help.\n\nLike the best human tutors, he gets to the heart of where you’re getting stuck, and works with you until you can solve hard problems yourself.\n\nAdapts to exactly where you are\n\nKoji tracks what you’ve mastered and what you’ve missed, then builds your learning plan around the gaps.\n\nHe gets you caught up on any shaky fundamentals, and personalizes your practice and review sessions to optimize your learning.\n\nHe accelerates your learning plan when you’re ready, and slows down when you need it.\n\nReal-time progress tracking & analysis\n\nVisual dashboards make it easy to see what clicked, what’s still difficult, and what to do next.\n\nParents and learners also receive regular notifications with an overview of completed lessons, performance on mastery assessments, learning strengths, and areas that need more practice.\n\nEffective and trusted\nLesson interventions\n\nKoji provides instant, one-on-one help whenever you’re stuck, just like an exper",
+      "controls": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brilliant home",
+          "href": "/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Sign in",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Pause",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "I’m a learner",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "I’m a parent or teacher",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "INPUT",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "radio"
+        },
+        {
+          "tag": "INPUT",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "radio"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "kidSAFE COPPA Certified seal",
+          "href": "https://kidsafe.com/member/brilliant",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "www.kidsafe.com",
+          "href": "https://www.kidsafe.com/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": "tab",
+          "name": "MathMath",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": "tab",
+          "name": "Computer ScienceCS",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": "tab",
+          "name": "ScienceScience",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": "tab",
+          "name": "Data AnalysisData",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "28 additional topics",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "7 additional topics",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Play",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "See how schools use Brilliant →",
+          "href": "/educators/?from=brilliant",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 1",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 2",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 3",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 4",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 5",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 1",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 2",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 3",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 4",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 5",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 1",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 2",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 3",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 4",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Go to slide 5",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Get started",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "",
+          "href": "https://play.google.com/store/apps/details?id=org.brilliant.android&listing=try-brilliant-app",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "",
+          "href": "https://apps.apple.com/app/apple-store/id913335252?pt=105095803&ct=nux_qr_code&mt=8",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "",
+          "href": "/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Courses",
+          "href": "/courses/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Pricing",
+          "href": "/subscribe/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Gift Brilliant",
+          "href": "/gift-premium/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Resources",
+          "href": "/resources/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Help",
+          "href": "/help/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Educators",
+          "href": "/educators/?from=brilliant",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Homeschools",
+          "href": "/start/homeschool/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "K–5 Math Practice (beta)",
+          "href": "/practice/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "About Us",
+          "href": "/about/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Careers",
+          "href": "/careers/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "A Tutor in Every Home",
+          "href": "https://blog.brilliant.org/a-world-class-tutor-in-every-home/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Coding Skills That Matter in the Age of AI",
+          "href": "/coding-skills/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "AI at Brilliant",
+          "href": "https://blog.brilliant.org/hand-crafted-machine-made/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brilliant on Facebook",
+          "href": "https://www.facebook.com/brilliantorg",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brilliant on Instagram",
+          "href": "https://www.instagram.com/brilliantorg",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brilliant on Twitter",
+          "href": "https://twitter.com/brilliantorg",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brilliant on LinkedIn",
+          "href": "https://www.linkedin.com/company/brilliant-org/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "kidSAFE COPPA Certified seal",
+          "href": "https://kidsafe.com/member/brilliant",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "www.kidsafe.com",
+          "href": "https://www.kidsafe.com/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Terms of service",
+          "href": "/terms-of-use/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Do not sell my personal information",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "California privacy policy",
+          "href": "/ccpa-policy/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Privacy policy",
+          "href": "/privacy/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Got It",
+          "href": null,
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Close",
+          "href": null,
+          "type": null
+        }
+      ],
+      "document": {
+        "width": 390,
+        "height": 10399,
+        "viewportWidth": 390
+      },
+      "reducedMotionMedia": true
+    }
+  ]
+}

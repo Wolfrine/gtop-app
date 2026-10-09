@@ -1,0 +1,815 @@
+{
+  "id": "bicycle",
+  "url": "https://ciechanow.ski/bicycle/",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "run": "37894026455",
+  "capturedAt": "2026-10-09T06:33:35.390Z",
+  "browserVersion": "141.0.7390.37",
+  "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+  "mode": "normal",
+  "actions": [
+    {
+      "elapsedMs": 1468,
+      "action": "navigation",
+      "status": 200
+    },
+    {
+      "elapsedMs": 20826,
+      "action": "screenshot",
+      "name": "01-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 32872,
+      "action": "screenshot",
+      "name": "02-settled",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 32872,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 49457,
+      "action": "screenshot",
+      "name": "03-scroll",
+      "scrollY": 800
+    },
+    {
+      "elapsedMs": 49457,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 54837,
+      "action": "screenshot",
+      "name": "04-scroll",
+      "scrollY": 1600
+    },
+    {
+      "elapsedMs": 54837,
+      "action": "slow-scroll-start",
+      "deltaY": 800
+    },
+    {
+      "elapsedMs": 57183,
+      "action": "screenshot",
+      "name": "05-scroll",
+      "scrollY": 2400
+    },
+    {
+      "elapsedMs": 57183,
+      "action": "fast-scroll",
+      "deltaY": 3000
+    },
+    {
+      "elapsedMs": 59113,
+      "action": "screenshot",
+      "name": "06-fast-scroll",
+      "scrollY": 5400
+    },
+    {
+      "elapsedMs": 59113,
+      "action": "reverse-scroll",
+      "deltaY": -1500
+    },
+    {
+      "elapsedMs": 60812,
+      "action": "screenshot",
+      "name": "07-reverse",
+      "scrollY": 3900
+    },
+    {
+      "elapsedMs": 60812,
+      "action": "return-top"
+    },
+    {
+      "elapsedMs": 66969,
+      "action": "screenshot",
+      "name": "08-return",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 68230,
+      "action": "reduced-motion-enabled"
+    },
+    {
+      "elapsedMs": 79731,
+      "action": "screenshot",
+      "name": "09-reduced-motion-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 80342,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "bicycle/1440/01-entry.png",
+      "sha256": "6d314290b4d1833ac57f1a07ca548e7b1eaa3278917717cadfe829abbb243cec",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "bicycle/1440/02-settled.png",
+      "sha256": "1afcf857aeabb2735e771b0700da5dd798e280ba62ce4ce0de8082488a6e5a72",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "bicycle/1440/03-scroll.png",
+      "sha256": "f40fbde93b3b279ca19836469eefabd038bdf5750434004abed0d784cd5e3e50",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "bicycle/1440/04-scroll.png",
+      "sha256": "20e66821aa5bd0daf15086d66ca2611f72b6f7588393b022f506403dd723181d",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "bicycle/1440/05-scroll.png",
+      "sha256": "c52f82b39755c504760a2eda03fa8962f18cf47228b58ac0983ee447ec8b7940",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "bicycle/1440/06-fast-scroll.png",
+      "sha256": "63439e3ee2401c5641be5b072ac21219fedd8a7b47a4ffe59129ac84a8e491d0",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "bicycle/1440/07-reverse.png",
+      "sha256": "718ee87670cb0ab34c190ad9bd3a52e369d66ed217e95d728c2f221d0678f68f",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "bicycle/1440/08-return.png",
+      "sha256": "fe0a9fa473ca371e0685b7cabc18eca2a36ccb95097b175857f7187349f1b013",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "bicycle/1440/09-reduced-motion-entry.png",
+      "sha256": "4f8cedaa25c75588c90f4e995bac8b28d93dea0b446fdb570ecd483eec3dcab8",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "bicycle/1440/sequence.webm",
+      "sha256": "25aa0117a258f2150cfd79d03451bef6cce1326a48d0f88b79bf6ccdcf21ee9a",
+      "bytes": 4292478,
+      "kind": "video"
+    }
+  ],
+  "errors": [],
+  "finalUrl": "https://ciechanow.ski/bicycle/",
+  "title": "Bicycle – Bartosz Ciechanowski",
+  "visibleTextExcerpt": "Bartosz Ciechanowski\nBlog Archives\nPatreon\n \nX / Twitter\n \nInstagram\n \ne-mail\n \nRSS\nMarch 28, 2023\nBicycle\n\nThere is something delightful about riding a bicycle. Once mastered, the simple action of pedaling to move forward and turning the handlebars to steer makes bike riding an effortless activity. In the demonstration below, you can guide the rider with the slider, and you can also drag the view around to change the camera angle:\n\nCompared to internal combustion engines or mechanical watches, bicycles are fairly simple machines – most of their parts operate in plain sight. What’s not directly visible are all the forces that make it possible to ride and control a bicycle without compromising the structural integrity of its components.\n\nIn this article, I’ll focus on the delicate interplay between many of the forces that act on a bicycle and its parts when riding. We’ll witness how forces applied through tires make a bicycle accelerate, brake, and turn, and we’ll also investigate how the wheels and the frame handle those different forces without breaking.\n\nBefore we understand these more complicated interactions, we’ll play with much simpler objects. The basic scenarios we’re about to explore will help us develop an intuition about the behavior of a real bicycle.\n\nForces\n\nLet’s introduce the unassuming protagonist of this section – a plain wooden box. In the demonstration below, you can use the slider to apply a force to this box. The little speedometer in the bottom part tracks the velocity of the crate. You can restart the simulation using the  button:\n\nLoading...\n\nThe re",
+  "controls": [
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Bartosz Ciechanowski",
+      "href": "/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Blog",
+      "href": "/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Archives",
+      "href": "/archives",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Patreon",
+      "href": "https://www.patreon.com/ciechanowski",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "X / Twitter",
+      "href": "https://twitter.com/bciechanowski",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Instagram",
+      "href": "https://www.instagram.com/bartoszciechanowski/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "e-mail",
+      "href": "mailto:bartosz@ciechanow.ski",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "RSS",
+      "href": "https://ciechanow.ski/atom.xml",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Bicycle",
+      "href": "https://ciechanow.ski/bicycle/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "internal combustion engines",
+      "href": "https://ciechanow.ski/internal-combustion-engine/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "mechanical watches",
+      "href": "https://ciechanow.ski/mechanical-watch/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#forces",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Newton’s laws of motion",
+      "href": "https://en.wikipedia.org/wiki/Newton%27s_laws_of_motion",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#moments",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "center of mass",
+      "href": "https://en.wikipedia.org/wiki/Center_of_mass",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "torque",
+      "href": "https://en.wikipedia.org/wiki/Torque",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#up-and-down",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#forwards-and-backwards",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "gearing ratio",
+      "href": "https://ciechanow.ski/gears/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "switch",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "toroidal",
+      "href": "https://en.wikipedia.org/wiki/Toroid",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "contact patch",
+      "href": "https://en.wikipedia.org/wiki/Contact_patch",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "some positions",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "others",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "right",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "proportions",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "slip ratio",
+      "href": "https://en.wikipedia.org/wiki/Slip_ratio",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "free-rolling speed",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "rotates faster",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "rotates slower",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "starting",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "minimize drag",
+      "href": "https://www.sciencedirect.com/science/article/pii/S0167610518305762",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "center of pressure",
+      "href": "https://en.wikipedia.org/wiki/Center_of_pressure_(fluid_mechanics)",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "more energetic",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#left-and-right",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "slip angle",
+      "href": "https://en.wikipedia.org/wiki/Slip_angle",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "small amount of travel",
+      "href": "https://en.wikipedia.org/wiki/Relaxation_length",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "camber thrust",
+      "href": "https://en.wikipedia.org/wiki/Camber_thrust",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "from behind",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "from above",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "special bicycles show",
+      "href": "https://www.youtube.com/watch?v=9cNmUNHSBac&vl=en",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "remain stable without a rider",
+      "href": "https://www.youtube.com/watch?v=j0ilP8kb8dM",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#stability",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "more complicated",
+      "href": "https://www.youtube.com/watch?v=ty9QSiVC2g0&t=55s",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "gyroscopic effect",
+      "href": "https://en.wikipedia.org/wiki/Gyroscope",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "additional wheel",
+      "href": "http://www3.eng.cam.ac.uk/~hemh1/gyrobike2.jpg",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "trail",
+      "href": "https://en.wikipedia.org/wiki/Bicycle_and_motorcycle_geometry#Trail",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "very unique bicycles",
+      "href": "https://www.youtube.com/watch?v=YdtE3aIUhbU",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#wheels",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "early precursors",
+      "href": "https://en.wikipedia.org/wiki/Dandy_horse",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "stress",
+      "href": "https://en.wikipedia.org/wiki/Stress_(mechanics)",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "properties of the material",
+      "href": "https://en.wikipedia.org/wiki/Young%27s_modulus",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "thicker rod",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "thinner rod",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "pressure",
+      "href": "https://ciechanow.ski/naval-architecture/#pressure",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "yield",
+      "href": "https://en.wikipedia.org/wiki/Yield_(engineering)",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "hub is wide",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "hub is narrow",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "narrow hub",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "wide hub",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "further apart",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "rim stresses",
+      "href": "https://www.comsol.com/blogs/why-do-road-and-mountain-bikes-have-different-spoke-patterns/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "mechanical fatigue",
+      "href": "https://en.wikipedia.org/wiki/Fatigue_(material)",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "disc brakes",
+      "href": "https://en.wikipedia.org/wiki/Bicycle_brake#Disc_brakes",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "shell-like structure",
+      "href": "https://en.wikipedia.org/wiki/Bicycle_wheel#/media/File:Carbon_composite_MTB_wheel.JPG",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#simple-frame",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#bending",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "wide and flat",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "narrow and tall",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "geometrical properties",
+      "href": "https://en.wikipedia.org/wiki/Second_moment_of_area",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "mechanical properties",
+      "href": "https://en.wikipedia.org/wiki/Young%27s_modulus",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "equivalent stress",
+      "href": "https://en.wikipedia.org/wiki/Von_Mises_yield_criterion",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#stresses-in-the-frame",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "fully loaded seat",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "get rid of the bright spots",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "large enough",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "barely angled",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "fairly skewed",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "sheared",
+      "href": "https://en.wikipedia.org/wiki/Shear_stress",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "vertical loads",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "pedaling loads",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "“classic” configuration",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "weight on the seat",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "when pedaling",
+      "href": "#",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://ciechanow.ski/bicycle/#further-reading-and-watching",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "discoveries",
+      "href": "http://bicycle.tudelft.nl/stablebicycle/StableBicyclev34Revised.pdf",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Andy Ruina’s lecture",
+      "href": "https://www.youtube.com/watch?v=XmDTTVvmm5M",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "canonical paper",
+      "href": "http://ruina.tam.cornell.edu/research/topics/bicycle_mechanics/*FinalBicyclePaperv45wAppendix.pdf",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "group of bicycle researchers",
+      "href": "http://bicycle.tudelft.nl/schwab/Bicycle/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "closer look into some mistakes",
+      "href": "http://bicycle.tudelft.nl/stablebicycle/StableHistoryv32Arend.pdf",
+      "type": null
+    }
+  ],
+  "document": {
+    "width": 1440,
+    "height": 107046,
+    "viewportWidth": 1440
+  },
+  "reducedMotionMedia": true
+}

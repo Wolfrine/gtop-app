@@ -1,0 +1,46 @@
+{
+  "id": "lando",
+  "url": "https://landonorris.com/",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "run": "37894026455",
+  "capturedAt": "2026-10-09T06:33:40.737Z",
+  "browserVersion": "141.0.7390.37",
+  "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+  "mode": "normal",
+  "actions": [
+    {
+      "elapsedMs": 508,
+      "action": "navigation",
+      "status": 200
+    },
+    {
+      "elapsedMs": 46433,
+      "action": "screenshot",
+      "name": "diagnostic",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 46433,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "lando/1440/diagnostic.png",
+      "sha256": "7e4b2a3b6f0a59da23e163dd59b667bcdb563eaa607c7fbf9742a0bbdbb498f2",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "lando/1440/sequence.webm",
+      "sha256": "29d22945324e5814db05023be327fb00444e0fb7af0d28b639df7085728efad0",
+      "bytes": 647297,
+      "kind": "video"
+    }
+  ],
+  "errors": [],
+  "failure": "TimeoutError: page.screenshot: Timeout 15000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n"
+}

@@ -1,0 +1,803 @@
+{
+  "id": "linear",
+  "url": "https://linear.app/",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "run": "37894026455",
+  "capturedAt": "2026-10-09T06:34:23.606Z",
+  "browserVersion": "141.0.7390.37",
+  "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+  "mode": "normal",
+  "actions": [
+    {
+      "elapsedMs": 515,
+      "action": "navigation",
+      "status": 200
+    },
+    {
+      "elapsedMs": 8570,
+      "action": "screenshot",
+      "name": "01-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 12705,
+      "action": "screenshot",
+      "name": "02-settled",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 12705,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 14803,
+      "action": "screenshot",
+      "name": "03-scroll",
+      "scrollY": 675
+    },
+    {
+      "elapsedMs": 14803,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 16870,
+      "action": "screenshot",
+      "name": "04-scroll",
+      "scrollY": 1350
+    },
+    {
+      "elapsedMs": 16870,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 18935,
+      "action": "screenshot",
+      "name": "05-scroll",
+      "scrollY": 2026
+    },
+    {
+      "elapsedMs": 18935,
+      "action": "fast-scroll",
+      "deltaY": 2532
+    },
+    {
+      "elapsedMs": 20783,
+      "action": "screenshot",
+      "name": "06-fast-scroll",
+      "scrollY": 4558
+    },
+    {
+      "elapsedMs": 20783,
+      "action": "reverse-scroll",
+      "deltaY": -1266
+    },
+    {
+      "elapsedMs": 22436,
+      "action": "screenshot",
+      "name": "07-reverse",
+      "scrollY": 3292
+    },
+    {
+      "elapsedMs": 22436,
+      "action": "return-top"
+    },
+    {
+      "elapsedMs": 24318,
+      "action": "screenshot",
+      "name": "08-return",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 24324,
+      "action": "reduced-motion-enabled"
+    },
+    {
+      "elapsedMs": 29805,
+      "action": "screenshot",
+      "name": "09-reduced-motion-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 29810,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "linear/390/01-entry.png",
+      "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "linear/390/02-settled.png",
+      "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "linear/390/03-scroll.png",
+      "sha256": "3774978058e4407a99ae6bd4401dbdf9af3115351b749fd8cc5c88cbd71638cb",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "linear/390/04-scroll.png",
+      "sha256": "d75262f36e7c94548b3b5965b5c19cb9d58cbf5586b533206719f9da233c8263",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "linear/390/05-scroll.png",
+      "sha256": "b30db0a2b40510900881f2daa6b0ee88581f13f2cf7ad627954852914a98635a",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "linear/390/06-fast-scroll.png",
+      "sha256": "26d95f8619e08e522f54485bb59c889979bee7021dd9cf75982a8cac8d063bc1",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "linear/390/07-reverse.png",
+      "sha256": "e39141d062761cc7c74e29f3d3537060a50c556fc2ca3da438f73541f9c6142d",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "linear/390/08-return.png",
+      "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "linear/390/09-reduced-motion-entry.png",
+      "sha256": "50eb601549e7ed2d31c9c027466e86ee0f22691a88e5b7c62e33c103e49dd5d1",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "linear/390/sequence.webm",
+      "sha256": "da27e1e45076035ac0e0d3582ea61268014c59164e5828a3367142a653c1896b",
+      "bytes": 1678167,
+      "kind": "video"
+    }
+  ],
+  "errors": [
+    "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+  ],
+  "finalUrl": "https://linear.app/",
+  "title": "Linear – The system for product development",
+  "visibleTextExcerpt": "Skip to content →\nLog in\nSign up\nThe product development system for teams and agents\nThe product development system for teams and agents\n\nPurpose-built for planning and building products. Designed for the AI era.\n\nNew\nLoops →\nLinear\nPulse\nInbox\nMy issues\nReviews\nWorkspace\nInitiatives\nProjects\nMore\nFavorites\nFaster app launch\nAgent tasks\nAgent Insights\nUI Refresh\nDRV-8852\nFaster app launch\n1 / 84\nFaster app launch\n\nRender UI before vehicle_state sync when minimum required state is present, instead of blocking on full refresh during iOS startup.\n\nActivity\nLinear created the issue via Slack on behalf of Karri\n·\n2min ago\nTriage Intelligence added the labels Performance and iOS\n·\n2min ago\nkarri\n·\n4 min ago\nRight now we show a spinner forever, which makes it look like the car disappeared...\njori\n·\njust now\n@Linear can you take a stab at this?\nLinear\nconnected by Jori\n·\n2 min ago\nChanged 2 files\nDraft PR awaiting your review\n·\n2 min ago\nLinear moved from Todo to In Progress\n·\njust now\nLinear\nOpus 5\n\nFix the dimmed ride rows that never reset and open a PR\n\nDRV-364\nadded to context\nWorked for 10 sec\n\nPushed and opened a draft PR. Removed dimmedIds — isItemDimmed now checks waitingStatusById directly.\n\nChanged\n2 files\n+22\n−10\nDraft\nReset dimmed ride rows\nmaster\n←\nride/drv-364-reset-dimmed-rows\nPreview\n\nReply…\n\nSkills\nReviews\nRevert\nProperties\nIn Progress\nMedium\nKarri\nLinear\nCycle 144\nLabels\nPerformance\niOS\nReleases\nLinear App\n1.6881...\n⋅\nJun 25\n\nPOWERING THE COMPANIES BUILDING THE FUTURE\n\nA new species of product tool. Purpose-built for modern teams with AI workflows at its core, Lin",
+  "controls": [
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Skip to content →",
+      "href": "#skip-nav",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Navigate to home",
+      "href": "/homepage",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Log in",
+      "href": "/login",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Sign up",
+      "href": "/signup",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "NewLoops →",
+      "href": "https://linear.app/now/introducing-loops",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Linear",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Search workspace",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "New issue",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Pulse",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Inbox",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "My issues",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Reviews",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Workspace",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Initiatives",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Projects",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "More",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Favorites",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Faster app launch",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Agent tasks",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Agent Insights",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "UI Refresh",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Remove from favorites",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Issue options",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Previous issue",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Next issue",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Copy issue URL",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Copy issue ID",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Copy git branch name",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Delegate to an agent",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "More delegation options",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Performance",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "iOS",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "/customers",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Learn more→",
+      "href": "/intake",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Attach file",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Hide formatting",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Emoji",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Mention someone",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Record video clip",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Record audio clip",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Send message",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Schedule for later",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Learn more→",
+      "href": "/plan",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Learn more→",
+      "href": "/ai",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Learn more→",
+      "href": "/build",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "You’ll probably build a better product, just because of the craft that using Linear infuse",
+      "href": "/customers/openai",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Our speed is intense and Linear helps us be action biased.Nik KoblovRamp",
+      "href": "/customers/ramp",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Linear is excellent, just excellent. It has the right opinions for fast moving teams.Kaz N",
+      "href": "/customers/opendoor",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": "button",
+      "name": "Get started",
+      "href": "/signup",
+      "type": "button"
+    },
+    {
+      "tag": "A",
+      "role": "button",
+      "name": "Contact sales",
+      "href": "/contact/sales",
+      "type": "button"
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Intake",
+      "href": "/intake",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Plan",
+      "href": "/plan",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "AI",
+      "href": "/ai",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Build",
+      "href": "/build",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Pricing",
+      "href": "/pricing",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Security",
+      "href": "/security",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Asks",
+      "href": "/asks",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Agents",
+      "href": "/agents",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Coding Sessions",
+      "href": "/coding-sessions",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Customer Requests",
+      "href": "/customer-requests",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Insights",
+      "href": "/insights",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Mobile",
+      "href": "/mobile",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Integrations",
+      "href": "/integrations",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Changelog",
+      "href": "/changelog",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "About",
+      "href": "/about",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Customers",
+      "href": "/customers",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Careers",
+      "href": "/careers",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Now",
+      "href": "/now",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Method",
+      "href": "/method",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Quality",
+      "href": "/quality",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Brand",
+      "href": "/brand",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Switch",
+      "href": "/switch",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Download",
+      "href": "/download",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "DocumentationDocs",
+      "href": "/docs",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Developers",
+      "href": "/developers",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Status",
+      "href": "https://linearstatus.com",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Enterprise",
+      "href": "/enterprise",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Startups",
+      "href": "/startups",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Contact us",
+      "href": "/contact",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Community",
+      "href": "https://linear.app/join-slack",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "X (Twitter)",
+      "href": "https://x.com/linear",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "GitHub",
+      "href": "https://github.com/linear",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "YouTube",
+      "href": "https://www.youtube.com/@linear",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Privacy",
+      "href": "/privacy",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Terms",
+      "href": "/terms",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "DPA",
+      "href": "/dpa",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "AUP",
+      "href": "/legal/aup",
+      "type": null
+    }
+  ],
+  "document": {
+    "width": 390,
+    "height": 5876,
+    "viewportWidth": 390
+  },
+  "reducedMotionMedia": true
+}

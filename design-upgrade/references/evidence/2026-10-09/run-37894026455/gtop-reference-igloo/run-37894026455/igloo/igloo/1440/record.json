@@ -1,0 +1,46 @@
+{
+  "id": "igloo",
+  "url": "https://www.igloo.inc/",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "run": "37894026455",
+  "capturedAt": "2026-10-09T06:33:44.600Z",
+  "browserVersion": "141.0.7390.37",
+  "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+  "mode": "normal",
+  "actions": [
+    {
+      "elapsedMs": 247,
+      "action": "navigation",
+      "status": 200
+    },
+    {
+      "elapsedMs": 48603,
+      "action": "screenshot",
+      "name": "diagnostic",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 48603,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "igloo/1440/diagnostic.png",
+      "sha256": "4dfe0da66ee6bbf99edcfc6eaa24db142b3eb270382fd7ad176afb9423787e3b",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "igloo/1440/sequence.webm",
+      "sha256": "e5fb1f2496f78168818ffea91c33ebd153542fd01a85c02d971dac413c3f4135",
+      "bytes": 343871,
+      "kind": "video"
+    }
+  ],
+  "errors": [],
+  "failure": "TimeoutError: page.screenshot: Timeout 15000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n"
+}

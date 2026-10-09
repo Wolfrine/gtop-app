@@ -1,0 +1,1643 @@
+{
+  "run": "37894026455",
+  "capturedAt": "2026-10-09T06:34:43.944Z",
+  "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+  "limitations": [
+    "Mobile Chromium emulation, not physical devices",
+    "Sites captured on isolated CI runners; no performance benchmark",
+    "Recorded video is scaled on desktop; PNGs are native viewport resolution",
+    "Generic scroll study; control-specific interaction is a separate pass"
+  ],
+  "records": [
+    {
+      "id": "primer",
+      "url": "https://primer.style/product/components/data-table/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "run": "37894026455",
+      "capturedAt": "2026-10-09T06:33:40.656Z",
+      "browserVersion": "141.0.7390.37",
+      "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+      "mode": "normal",
+      "actions": [
+        {
+          "elapsedMs": 1166,
+          "action": "navigation",
+          "status": 200
+        },
+        {
+          "elapsedMs": 9333,
+          "action": "screenshot",
+          "name": "01-entry",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 13629,
+          "action": "screenshot",
+          "name": "02-settled",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 13629,
+          "action": "slow-scroll-start",
+          "deltaY": 800
+        },
+        {
+          "elapsedMs": 15792,
+          "action": "screenshot",
+          "name": "03-scroll",
+          "scrollY": 800
+        },
+        {
+          "elapsedMs": 15792,
+          "action": "slow-scroll-start",
+          "deltaY": 800
+        },
+        {
+          "elapsedMs": 18003,
+          "action": "screenshot",
+          "name": "04-scroll",
+          "scrollY": 1600
+        },
+        {
+          "elapsedMs": 18003,
+          "action": "slow-scroll-start",
+          "deltaY": 800
+        },
+        {
+          "elapsedMs": 20302,
+          "action": "screenshot",
+          "name": "05-scroll",
+          "scrollY": 2400
+        },
+        {
+          "elapsedMs": 20302,
+          "action": "fast-scroll",
+          "deltaY": 3000
+        },
+        {
+          "elapsedMs": 22315,
+          "action": "screenshot",
+          "name": "06-fast-scroll",
+          "scrollY": 5400
+        },
+        {
+          "elapsedMs": 22315,
+          "action": "reverse-scroll",
+          "deltaY": -1500
+        },
+        {
+          "elapsedMs": 24107,
+          "action": "screenshot",
+          "name": "07-reverse",
+          "scrollY": 3900
+        },
+        {
+          "elapsedMs": 24107,
+          "action": "return-top"
+        },
+        {
+          "elapsedMs": 26014,
+          "action": "screenshot",
+          "name": "08-return",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 26038,
+          "action": "reduced-motion-enabled"
+        },
+        {
+          "elapsedMs": 32032,
+          "action": "screenshot",
+          "name": "09-reduced-motion-entry",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 32033,
+          "action": "end"
+        }
+      ],
+      "files": [
+        {
+          "path": "primer/1440/01-entry.png",
+          "sha256": "6a589e61bb28edfe22d0042384ed1c44dab302d47d7b0331a4082d94cea270d2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "primer/1440/02-settled.png",
+          "sha256": "6a589e61bb28edfe22d0042384ed1c44dab302d47d7b0331a4082d94cea270d2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "primer/1440/03-scroll.png",
+          "sha256": "41779ff50a929d63a6fc8336b9dc588bbafd3c42405ea58571bfa8465a6d8447",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "primer/1440/04-scroll.png",
+          "sha256": "1ed3633363b7ab3fab921d0077b98725c930a8dc59449d8b869f7957f9927fb4",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "primer/1440/05-scroll.png",
+          "sha256": "e8673bfc62b893036d36895fa0de9580202a87dcf31e1d021b0faf1fca65310a",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "primer/1440/06-fast-scroll.png",
+          "sha256": "d3a9bf357fdae2f02dc616218ebe9903160f5f0f107aec2a338f8a8c375ae452",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "primer/1440/07-reverse.png",
+          "sha256": "70e250b53e4c861a8a7521cfbedda00fd824267656cf079b61fa91c7e47c2fd4",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "primer/1440/08-return.png",
+          "sha256": "451a04a920b71598cac4f2ce07cef60515fb17398f0a408b8a16e6fbcbcf30e4",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "primer/1440/09-reduced-motion-entry.png",
+          "sha256": "6a589e61bb28edfe22d0042384ed1c44dab302d47d7b0331a4082d94cea270d2",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "path": "primer/1440/sequence.webm",
+          "sha256": "7bc539a4319927a58beb9046c202429da03f5042a98cbaa9bc51b625d2c36664",
+          "bytes": 2246892,
+          "kind": "video"
+        }
+      ],
+      "errors": [],
+      "finalUrl": "https://primer.style/product/components/data-table/",
+      "title": "DataTable | Primer",
+      "visibleTextExcerpt": "Skip to main content\nSkip to filter input\nPrimer\nProduct UI\nBrand UI\nOcticons\nAccessibility\nBrand Toolkit\nGive feedback\nProduct UI\nSearch Product UI\nProduct UI navigation\nGetting Started\nComponent status\nFigma libraries\nFoundations\nRails\nReact\nPrimitives\nColor\nSize\nTypography\nToken Names\nMigrating to CSS Variables\nUI Patterns\nData visualization\nDegraded experiences\nEmpty states\nFeature onboarding\nForms\nLoading\nNavigation\nNotification messaging\nProgressive disclosure\nSaving\nScenario Patterns\nCopy\nCreate\nCustomize\nDelegate\nDelete\nEdit\nFilter\nSearch\nView\nComponents\nActionBar\nActionList\nActionMenu\nAnchoredOverlay\nAutocomplete\nAvatar\nAvatarStack\nBanner\nBlankslate\nBranchName\nBreadcrumbs\nButton\nButtonGroup\nCard\nCheckbox\nCheckboxGroup\nCircleBadge\nConfirmationDialog\nCounterLabel\nDataTable\nDetails\nDialog\nFormControl\nHeading\nIconButton\nInlineMessage\nKeybindingHint\nLabel\nLabelGroup\nLink\nNavList\nOverlay\nPageHeader\nPageLayout\nPagination\nPopover\nProgressBar\nRadio\nRadioGroup\nRelativeTime\nSegmentedControl\nSelect\nSelectPanel\nSkeletonAvatar\nSkeletonBox\nSkeletonText\nSpinner\nSplitPageLayout\nStack\nStateLabel\nText\nTextInput\nTextInputWithTokens\nTextarea\nTimeline\nToggleSwitch\nToken\nTooltip\nTreeView\nTruncate\nUnderlineNav\nUnderlinePanels\nInternal Components\nActionListItems\nBannerStack\nChartCard\nCommandPalette\nControlGroup\nCopilotAnimation\nCopyToClipboard\nDatePicker\nDragAndDrop\nEmojiAutocomplete\nFilter\nFilterCore\nGitHubAvatar\nInlineAutocomplete\nLifecycleLabels\nListFilterButton\nListItemActionMenu\nListView\nMarkdownEditor\nMarkdownEditorViewSwitch\nNestedListView\nQuickSearch\nSimpleListView\nSimpleSelect\nUiC",
+      "controls": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Skip to main content",
+          "href": "#skip-nav",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Skip to filter input",
+          "href": "#search-input",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Primer",
+          "href": "/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Product UI",
+          "href": "/product/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brand UI",
+          "href": "https://primer.style/brand",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Octicons",
+          "href": "/octicons/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Accessibility",
+          "href": "/accessibility/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Brand Toolkit",
+          "href": "https://brand.github.com/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Give feedback",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "INPUT",
+          "role": "combobox",
+          "name": "",
+          "href": null,
+          "type": "search"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Getting Started",
+          "href": "/product/getting-started/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Component status",
+          "href": "/product/getting-started/component-status/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Figma libraries",
+          "href": "/product/getting-started/figma/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Foundations",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Rails",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "React",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Primitives",
+          "href": "/product/primitives/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Color",
+          "href": "/product/primitives/color/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Size",
+          "href": "/product/primitives/size/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Typography",
+          "href": "/product/primitives/typography/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Token Names",
+          "href": "/product/primitives/token-names/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Migrating to CSS Variables",
+          "href": "/product/primitives/migrating/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "UI Patterns",
+          "href": "/product/ui-patterns/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Data visualization",
+          "href": "/product/ui-patterns/data-visualization/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Degraded experiences",
+          "href": "/product/ui-patterns/degraded-experiences/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Empty states",
+          "href": "/product/ui-patterns/empty-states/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Feature onboarding",
+          "href": "/product/ui-patterns/feature-onboarding/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Forms",
+          "href": "/product/ui-patterns/forms/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Loading",
+          "href": "/product/ui-patterns/loading/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Navigation",
+          "href": "/product/ui-patterns/navigation/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Notification messaging",
+          "href": "/product/ui-patterns/notification-messaging/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Progressive disclosure",
+          "href": "/product/ui-patterns/progressive-disclosure/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Saving",
+          "href": "/product/ui-patterns/saving/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Scenario Patterns",
+          "href": "/product/scenario-patterns/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Copy",
+          "href": "/product/scenario-patterns/copy/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Create",
+          "href": "/product/scenario-patterns/create/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Customize",
+          "href": "/product/scenario-patterns/customize/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Delegate",
+          "href": "/product/scenario-patterns/delegate/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Delete",
+          "href": "/product/scenario-patterns/delete/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Edit",
+          "href": "/product/scenario-patterns/edit/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Filter",
+          "href": "/product/scenario-patterns/filter/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Search",
+          "href": "/product/scenario-patterns/search/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "View",
+          "href": "/product/scenario-patterns/view/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Components",
+          "href": "/product/components/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "ActionBar",
+          "href": "/product/components/action-bar/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "ActionList",
+          "href": "/product/components/action-list/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "ActionMenu",
+          "href": "/product/components/action-menu/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "AnchoredOverlay",
+          "href": "/product/components/anchored-overlay/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Autocomplete",
+          "href": "/product/components/autocomplete/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Avatar",
+          "href": "/product/components/avatar/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "AvatarStack",
+          "href": "/product/components/avatar-stack/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Banner",
+          "href": "/product/components/banner/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Blankslate",
+          "href": "/product/components/blankslate/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "BranchName",
+          "href": "/product/components/branch-name/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Breadcrumbs",
+          "href": "/product/components/breadcrumbs/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Button",
+          "href": "/product/components/button/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "ButtonGroup",
+          "href": "/product/components/button-group/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Card",
+          "href": "/product/components/card/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Checkbox",
+          "href": "/product/components/checkbox/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "CheckboxGroup",
+          "href": "/product/components/checkbox-group/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "CircleBadge",
+          "href": "/product/components/circle-badge/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "ConfirmationDialog",
+          "href": "/product/components/confirmation-dialog/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "CounterLabel",
+          "href": "/product/components/counter-label/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "DataTable",
+          "href": "/product/components/data-table/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Details",
+          "href": "/product/components/details/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Dialog",
+          "href": "/product/components/dialog/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "FormControl",
+          "href": "/product/components/form-control/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Heading",
+          "href": "/product/components/heading/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "IconButton",
+          "href": "/product/components/icon-button/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "InlineMessage",
+          "href": "/product/components/inline-message/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "KeybindingHint",
+          "href": "/product/components/keybinding-hint/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Label",
+          "href": "/product/components/label/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "LabelGroup",
+          "href": "/product/components/label-group/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Link",
+          "href": "/product/components/link/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "NavList",
+          "href": "/product/components/nav-list/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Overlay",
+          "href": "/product/components/overlay/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "PageHeader",
+          "href": "/product/components/page-header/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "PageLayout",
+          "href": "/product/components/page-layout/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Pagination",
+          "href": "/product/components/pagination/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Popover",
+          "href": "/product/components/popover/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "ProgressBar",
+          "href": "/product/components/progress-bar/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Radio",
+          "href": "/product/components/radio/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "RadioGroup",
+          "href": "/product/components/radio-group/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "RelativeTime",
+          "href": "/product/components/relative-time/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "SegmentedControl",
+          "href": "/product/components/segmented-control/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Select",
+          "href": "/product/components/select/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "SelectPanel",
+          "href": "/product/components/select-panel/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "SkeletonAvatar",
+          "href": "/product/components/skeleton-avatar/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "SkeletonBox",
+          "href": "/product/components/skeleton-box/",
+          "type": null
+        }
+      ],
+      "document": {
+        "width": 1440,
+        "height": 23567,
+        "viewportWidth": 1440
+      },
+      "reducedMotionMedia": true
+    },
+    {
+      "id": "primer",
+      "url": "https://primer.style/product/components/data-table/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "run": "37894026455",
+      "capturedAt": "2026-10-09T06:34:12.798Z",
+      "browserVersion": "141.0.7390.37",
+      "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+      "mode": "normal",
+      "actions": [
+        {
+          "elapsedMs": 785,
+          "action": "navigation",
+          "status": 200
+        },
+        {
+          "elapsedMs": 8873,
+          "action": "screenshot",
+          "name": "01-entry",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 13196,
+          "action": "screenshot",
+          "name": "02-settled",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 13196,
+          "action": "slow-scroll-start",
+          "deltaY": 675.2
+        },
+        {
+          "elapsedMs": 15293,
+          "action": "screenshot",
+          "name": "03-scroll",
+          "scrollY": 675
+        },
+        {
+          "elapsedMs": 15293,
+          "action": "slow-scroll-start",
+          "deltaY": 675.2
+        },
+        {
+          "elapsedMs": 17439,
+          "action": "screenshot",
+          "name": "04-scroll",
+          "scrollY": 1350
+        },
+        {
+          "elapsedMs": 17439,
+          "action": "slow-scroll-start",
+          "deltaY": 675.2
+        },
+        {
+          "elapsedMs": 19570,
+          "action": "screenshot",
+          "name": "05-scroll",
+          "scrollY": 2026
+        },
+        {
+          "elapsedMs": 19570,
+          "action": "fast-scroll",
+          "deltaY": 2532
+        },
+        {
+          "elapsedMs": 21499,
+          "action": "screenshot",
+          "name": "06-fast-scroll",
+          "scrollY": 4558
+        },
+        {
+          "elapsedMs": 21499,
+          "action": "reverse-scroll",
+          "deltaY": -1266
+        },
+        {
+          "elapsedMs": 23208,
+          "action": "screenshot",
+          "name": "07-reverse",
+          "scrollY": 3292
+        },
+        {
+          "elapsedMs": 23208,
+          "action": "return-top"
+        },
+        {
+          "elapsedMs": 25079,
+          "action": "screenshot",
+          "name": "08-return",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 25096,
+          "action": "reduced-motion-enabled"
+        },
+        {
+          "elapsedMs": 30783,
+          "action": "screenshot",
+          "name": "09-reduced-motion-entry",
+          "scrollY": 0
+        },
+        {
+          "elapsedMs": 30785,
+          "action": "end"
+        }
+      ],
+      "files": [
+        {
+          "path": "primer/390/01-entry.png",
+          "sha256": "4b9af47ed70de8c9ca33a7d72e73345717a8a277b580fe4a92eb1b12fa6baecd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "primer/390/02-settled.png",
+          "sha256": "4b9af47ed70de8c9ca33a7d72e73345717a8a277b580fe4a92eb1b12fa6baecd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "primer/390/03-scroll.png",
+          "sha256": "e9d6c999278508df8d299933cdd9de77a37fca4e4809d102bf44e91f04ac1843",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "primer/390/04-scroll.png",
+          "sha256": "4d8a9304d7e1c91d527f819be5598d1bd0f6689880d8af65f070737501614bb9",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "primer/390/05-scroll.png",
+          "sha256": "231613c304db1e4fb5bbb49be5abdd52c0a7ae0308ae95dfd56a0c391e529b6f",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "primer/390/06-fast-scroll.png",
+          "sha256": "959a46404cef672a85dd65420742fba5c0349b7f5e42bb356c0fdbff2fe45de0",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "primer/390/07-reverse.png",
+          "sha256": "6239f288c54975b18070dcb36f66f8d9fe7bdc2e16dd4eed2c44ab542d41a571",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "primer/390/08-return.png",
+          "sha256": "4b9af47ed70de8c9ca33a7d72e73345717a8a277b580fe4a92eb1b12fa6baecd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "primer/390/09-reduced-motion-entry.png",
+          "sha256": "4b9af47ed70de8c9ca33a7d72e73345717a8a277b580fe4a92eb1b12fa6baecd",
+          "width": 390,
+          "height": 844
+        },
+        {
+          "path": "primer/390/sequence.webm",
+          "sha256": "6d111d77dc52cc91f34874c685bae6465241af3164ad191b353ed26a32b9db7c",
+          "bytes": 1931557,
+          "kind": "video"
+        }
+      ],
+      "errors": [],
+      "finalUrl": "https://primer.style/product/components/data-table/",
+      "title": "DataTable | Primer",
+      "visibleTextExcerpt": "Skip to main content\nPrimer\nProduct UIComponentsDataTable\nDataTable\n\nDataTable is a 2-dimensional data structure where each row is an item, and each column is a data point about the item.\n\nPage navigation navigation\nOverview\nGuidelines\nAccessibility\nReact\nExperimental\nStorybook\n|\nSource\n|\nUsage\nFigma\nView in Figma\nReact examples \nDefault \nRepositories\nRepository\nType\nUpdated\nDependabot\nCode scanning\ncodeql-dca-worker\nInternal\nAlerts\nReport secrets\naegir\nPublic\nAlerts\nReport secrets\nstrapi\nPublic\ncodeql-ci-nightlies\nPublic\nAlerts\ndependabot-updates\nPublic\ntsx-create-react-app\nPublic\nbootstrap\nPublic\nAlerts\ndocker-templates\nPublic\nAlerts\nCopy\nReset\nOpen in StackBlitz\ncode editor\nimport React from 'react'\nimport {RelativeTime} from '@primer/react'\nimport {Table, DataTable} from '@primer/react/experimental'\n\n\nexport default function Default() {\n  return (\n    <Table.Container>\n      <Table.Title as=\"h2\" id=\"repositories-default\">\n        Repositories\n      </Table.Title>\n      <DataTable\n        aria-labelledby=\"repositories-default\"\n        data={data}\n        columns={[\n          {\n            header: 'Repository',\n            field: 'name',\n            rowHeader: true,\n          },\n          {\n            header: 'Type',\n            field: 'type',\n          },\n          {\n            header: 'Updated',\n            field: 'updatedAt',\n            renderCell: row => {\n              return <RelativeTime date={new Date(row.updatedAt)} />\n            },\n          },\n          {\n            header: 'Dependabot',\n            field: 'securityFeatures.dependabot',\n          },\n      ",
+      "controls": [
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Skip to main content",
+          "href": "#skip-nav",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Primer",
+          "href": "/",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Product UI",
+          "href": "/product/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Components",
+          "href": "/product/components/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "DataTable",
+          "href": "/product/components/data-table/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Overview",
+          "href": "/product/components/data-table/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Guidelines",
+          "href": "/product/components/data-table/guidelines/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Accessibility",
+          "href": "/product/components/data-table/accessibility/",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Storybook",
+          "href": "https://primer.style/react/storybook/?path=/story/experimental-components-datatable--default",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Source",
+          "href": "https://github.com/primer/react/tree/main/packages/react/src/DataTable",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Usage",
+          "href": "https://primer-query.githubapp.com/?query=name%3A%22DataTable%22+package%3A%22%40primer%2Freact%22",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "View in Figma",
+          "href": "https://www.figma.com/file/GCvY3Qv8czRgZgvl1dG6lp/?node-id=28591%3A24975",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "React examples",
+          "href": "#react-examples",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Default",
+          "href": "#default",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Copy",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Reset",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Open in StackBlitz",
+          "href": null,
+          "type": "submit"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Show full code",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "With custom column widths",
+          "href": "#with-custom-column-widths",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Column sizing guidelines",
+          "href": "/product/components/data-table/guidelines/#column-widths",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Copy",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Reset",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Open in StackBlitz",
+          "href": null,
+          "type": "submit"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Show full code",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Columns text alignment",
+          "href": "#columns-text-alignment",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Copy",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Reset",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Open in StackBlitz",
+          "href": null,
+          "type": "submit"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Show full code",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Table cell density",
+          "href": "#table-cell-density",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Copy",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Reset",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Open in StackBlitz",
+          "href": null,
+          "type": "submit"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Show full code",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Sort rows by column data",
+          "href": "#sort-rows-by-column-data",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Repository",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Updated",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Copy",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Reset",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Open in StackBlitz",
+          "href": null,
+          "type": "submit"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Show full code",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "With title and subtitle",
+          "href": "#with-title-and-subtitle",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Table header guidelines",
+          "href": "/product/components/data-table/guidelines/#table-header",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Copy",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Reset",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Open in StackBlitz",
+          "href": null,
+          "type": "submit"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Show full code",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "With table action",
+          "href": "#with-table-action",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Table header guidelines",
+          "href": "/product/components/data-table/guidelines/#table-header",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Action",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Copy",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Reset",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Open in StackBlitz",
+          "href": null,
+          "type": "submit"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Show full code",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "With single row action",
+          "href": "#with-single-row-action",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Copy",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Reset",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Open in StackBlitz",
+          "href": null,
+          "type": "submit"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Show full code",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "With multiple row actions",
+          "href": "#with-multiple-row-actions",
+          "type": null
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Copy",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Reset",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Open in StackBlitz",
+          "href": null,
+          "type": "submit"
+        },
+        {
+          "tag": "BUTTON",
+          "role": null,
+          "name": "Show full code",
+          "href": null,
+          "type": "button"
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "With paginated rows",
+          "href": "#with-paginated-rows",
+          "type": null
+        },
+        {
+          "tag": "A",
+          "role": null,
+          "name": "Guidelines on when to paginate rows",
+          "href": "/product/components/data-table/guidelines/#use-pagination-to-accommodate-tables-with-a-large-dataset",
+          "type": null
+        }
+      ],
+      "document": {
+        "width": 390,
+        "height": 26493,
+        "viewportWidth": 390
+      },
+      "reducedMotionMedia": true
+    }
+  ]
+}

@@ -1,0 +1,479 @@
+{
+  "id": "trust",
+  "url": "https://ncase.me/trust/",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "run": "37894026455",
+  "capturedAt": "2026-10-09T06:34:30.072Z",
+  "browserVersion": "141.0.7390.37",
+  "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+  "mode": "normal",
+  "actions": [
+    {
+      "elapsedMs": 163,
+      "action": "navigation",
+      "status": 200
+    },
+    {
+      "elapsedMs": 8859,
+      "action": "screenshot",
+      "name": "01-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 14001,
+      "action": "screenshot",
+      "name": "02-settled",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 14001,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 17877,
+      "action": "screenshot",
+      "name": "03-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 17877,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 21627,
+      "action": "screenshot",
+      "name": "04-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 21627,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 25372,
+      "action": "screenshot",
+      "name": "05-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 25372,
+      "action": "fast-scroll",
+      "deltaY": 2532
+    },
+    {
+      "elapsedMs": 27936,
+      "action": "screenshot",
+      "name": "06-fast-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 27936,
+      "action": "reverse-scroll",
+      "deltaY": -1266
+    },
+    {
+      "elapsedMs": 30282,
+      "action": "screenshot",
+      "name": "07-reverse",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 30282,
+      "action": "return-top"
+    },
+    {
+      "elapsedMs": 32931,
+      "action": "screenshot",
+      "name": "08-return",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 33094,
+      "action": "reduced-motion-enabled"
+    },
+    {
+      "elapsedMs": 39003,
+      "action": "screenshot",
+      "name": "09-reduced-motion-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 39089,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "trust/390/01-entry.png",
+      "sha256": "efd10184a26dff1e4db9b528b624aa8fba33a3bed47fe1e7d494801338b207b2",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "trust/390/02-settled.png",
+      "sha256": "696a45f287fd04a30f2c3c3ff86f3d56c680dd09ad6834c989d12ce1d3297e72",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "trust/390/03-scroll.png",
+      "sha256": "3c0a5373e1e9f801d9cd483b2c2540e87d6ed7884211475d02f5551e0aa8ebe9",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "trust/390/04-scroll.png",
+      "sha256": "4122e2f089bdf8f640c075759d5bac1398878ad126d0622285ce733cbcd920fb",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "trust/390/05-scroll.png",
+      "sha256": "1fb9800ac4ce3042e3dc8b8b7dbe7df23e3dd5efb40726fc019961f863ed2f4c",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "trust/390/06-fast-scroll.png",
+      "sha256": "61b6cf58c4b672e51e34642479ff6e279832c90b50b9f7214f1600d45f6ecf02",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "trust/390/07-reverse.png",
+      "sha256": "2eb1ea658255b9969ccaab00d7aca7c224c15c3693706e6603e6a13276b726f3",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "trust/390/08-return.png",
+      "sha256": "b19da5bf7b89cd5bf4b6bdc49c15f5376bbfb40cf2f2d9c069b2aec1407b63b7",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "trust/390/09-reduced-motion-entry.png",
+      "sha256": "c335440f12c927ca0279b92495d132d22e4ffc46137814769424dcb33a220ded",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "trust/390/sequence.webm",
+      "sha256": "f88f483d2096f653a4a829a3ddc402b926f7cc1f048cfca973e98f82649c31c2",
+      "bytes": 4675290,
+      "kind": "video"
+    }
+  ],
+  "errors": [],
+  "finalUrl": "https://ncase.me/trust/",
+  "title": "The Evolution of Trust",
+  "visibleTextExcerpt": "THE\nEVOLUTION\nOF TRUST\nplaying time: 30 min • by nicky case, july 2017\nPLAY →\nON\nfan-translations: (add one!)  Español de España  Español Latino  Français  Bahasa Indonesia  Deutsch  Italiano  Svenska  Nederlands  dansk  Esperanto  Русский  Português do Brasil  Türkçe  Polski  Magyar  Filipino  Slovenski jezik  hrvatski  eesti  Česky  latviešu valoda  suomi  Català  Română  Shqip  Հայերեն  македонски јазик  ελληνικά  Українська  български език  Tiếng Việt  한국어  日本語  中文（简体）  中文（臺灣）   ไทย   فارسی  العربية",
+  "controls": [
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fncase.me%2Ftrust%2F&t=People%20no%20longer%20trust%20each%20other.%20Why%3F%20And%20how%20can%20we%20fix%20it%3F%20An%20interactive%20guide%20to%20the%20game%20theory%20of%20trust%3A",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "https://twitter.com/intent/tweet?source=http%3A%2F%2Fncase.me%2Ftrust%2F&text=People%20no%20longer%20trust%20each%20other.%20Why%3F%20And%20how%20can%20we%20fix%20it%3F%20An%20interactive%20guide%20to%20the%20game%20theory%20of%20trust%3A%20http%3A%2F%2Fncase.me%2Ftrust%2F",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "",
+      "href": "mailto:?subject=The Evolution of Trust&body=People%20no%20longer%20trust%20each%20other.%20Why%3F%20And%20how%20can%20we%20fix%20it%3F%20An%20interactive%20guide%20to%20the%20game%20theory%20of%20trust%3A http%3A%2F%2Fncase.me%2Ftrust%2F",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "(add one!)",
+      "href": "https://github.com/ncase/trust#how-to-translate-this-thang",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Español de España",
+      "href": "https://ccamara.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Español Latino",
+      "href": "https://maeriens.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Français",
+      "href": "https://ayowel.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Bahasa Indonesia",
+      "href": "https://chairulakmal.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Deutsch",
+      "href": "https://jkoelling.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Italiano",
+      "href": "https://lvdt.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Svenska",
+      "href": "http://trust.alicedarner.se/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Nederlands",
+      "href": "https://rayraz.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "dansk",
+      "href": "https://mok0.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Esperanto",
+      "href": "https://januscahill.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Русский",
+      "href": "https://notdotteam.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Português do Brasil",
+      "href": "https://brunolemos.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Türkçe",
+      "href": "https://osaatcioglu.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Polski",
+      "href": "https://sin.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Magyar",
+      "href": "http://ncase.me/trust-hu/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Filipino",
+      "href": "https://tiwalaph.github.io/TiwalaPH/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Slovenski jezik",
+      "href": "https://matejko124.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "hrvatski",
+      "href": "http://www.varljiv.org/evolucija-povjerenja/index.html",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "eesti",
+      "href": "http://ncase.me/trust-et/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Česky",
+      "href": "https://nextghost.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "latviešu valoda",
+      "href": "https://reversedfate.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "suomi",
+      "href": "https://1luap.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Català",
+      "href": "https://fbricart.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Română",
+      "href": "https://enfactorial.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Shqip",
+      "href": "https://kreshnik.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Հայերեն",
+      "href": "https://kamee.gitlab.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "македонски јазик",
+      "href": "https://stosto2.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "ελληνικά",
+      "href": "https://lightspot21.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Українська",
+      "href": "https://yaroslav-f.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "български език",
+      "href": "http://ncase.me/trust-bg/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Tiếng Việt",
+      "href": "https://nghiatt90.github.io/trust-vn/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "한국어",
+      "href": "https://osori.github.io/trust-ko/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "日本語",
+      "href": "https://htlife.github.io/trust_jp/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "中文（简体）",
+      "href": "https://sekai.co/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "中文（臺灣）",
+      "href": "https://audreyt.github.io/trust-zh-TW/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "ไทย",
+      "href": "http://myhtmlcopy.epizy.com/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "فارسی",
+      "href": "https://hamed.github.io/trust/",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "العربية",
+      "href": "https://ihoudjedje.github.io/trust/",
+      "type": null
+    }
+  ],
+  "document": {
+    "width": 980,
+    "height": 2120,
+    "viewportWidth": 980
+  },
+  "reducedMotionMedia": true
+}

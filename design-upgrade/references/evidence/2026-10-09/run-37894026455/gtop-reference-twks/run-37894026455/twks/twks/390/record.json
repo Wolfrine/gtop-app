@@ -1,0 +1,472 @@
+{
+  "id": "twks",
+  "url": "https://twks.ch/en",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "run": "37894026455",
+  "capturedAt": "2026-10-09T06:34:17.260Z",
+  "browserVersion": "141.0.7390.37",
+  "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+  "mode": "normal",
+  "actions": [
+    {
+      "elapsedMs": 1782,
+      "action": "navigation",
+      "status": 200
+    },
+    {
+      "elapsedMs": 9831,
+      "action": "screenshot",
+      "name": "01-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 13919,
+      "action": "screenshot",
+      "name": "02-settled",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 13919,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 16251,
+      "action": "screenshot",
+      "name": "03-scroll",
+      "scrollY": 672
+    },
+    {
+      "elapsedMs": 16252,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 18585,
+      "action": "screenshot",
+      "name": "04-scroll",
+      "scrollY": 1344
+    },
+    {
+      "elapsedMs": 18585,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 20789,
+      "action": "screenshot",
+      "name": "05-scroll",
+      "scrollY": 2016
+    },
+    {
+      "elapsedMs": 20789,
+      "action": "fast-scroll",
+      "deltaY": 2532
+    },
+    {
+      "elapsedMs": 22687,
+      "action": "screenshot",
+      "name": "06-fast-scroll",
+      "scrollY": 4548
+    },
+    {
+      "elapsedMs": 22687,
+      "action": "reverse-scroll",
+      "deltaY": -1266
+    },
+    {
+      "elapsedMs": 24365,
+      "action": "screenshot",
+      "name": "07-reverse",
+      "scrollY": 3282
+    },
+    {
+      "elapsedMs": 24365,
+      "action": "return-top"
+    },
+    {
+      "elapsedMs": 26209,
+      "action": "screenshot",
+      "name": "08-return",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 26213,
+      "action": "reduced-motion-enabled"
+    },
+    {
+      "elapsedMs": 32720,
+      "action": "screenshot",
+      "name": "09-reduced-motion-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 32725,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "twks/390/01-entry.png",
+      "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "twks/390/02-settled.png",
+      "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "twks/390/03-scroll.png",
+      "sha256": "f3e336625068d4ffc1aa610c2a43e6aa95fe2000c6be28557d3427dcff6e4cfa",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "twks/390/04-scroll.png",
+      "sha256": "d784e22ed2bfd53385d22d37eead86cbc960b6bfb19098919b32b7d2e6a40ecd",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "twks/390/05-scroll.png",
+      "sha256": "9c7a9b5b938ed5f7d9b4ace70c5aa5f3bdc72cd08ef29245e2ba6449fdb1e471",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "twks/390/06-fast-scroll.png",
+      "sha256": "3f69d05fee3d9cce23c59eb29c3067d96538cd563b513bfad8173d7bf37651c3",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "twks/390/07-reverse.png",
+      "sha256": "bff839e7ae60b3d9856f8d7171cf2b23ac509314227839417e0e9ec975335dc3",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "twks/390/08-return.png",
+      "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "twks/390/09-reduced-motion-entry.png",
+      "sha256": "31dca8e788fde82bf0414f8284ff51a9fb937f03d79260e1d99d3870cb9a2651",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "twks/390/sequence.webm",
+      "sha256": "1574b89fc5845d8fde409c3effb551e2517d92ea71c8ee94db83386efca41630",
+      "bytes": 1754331,
+      "kind": "video"
+    }
+  ],
+  "errors": [],
+  "finalUrl": "https://twks.ch/en",
+  "title": "Creative communications agency in Geneva | twks",
+  "visibleTextExcerpt": "twks\ncontact\nswiss creative agency\nCreative communications agency in Geneva\n\nIndependent creative  agency based in Geneva since 2011. We partner with local and international brands and institutions to build their brand, digital presence and campaigns.\n\nWhat we do\n\nWhen every brand follows the same codes, they all end up looking alike. The strongest ones are built from what is fundamentally true to them, not from what is expected of them. We work with clients who share that ambition. Together, we build brands capable of embedding themselves in culture and lasting beyond trends. Brands you feel, not just see.\n\nAgency\n→\n→\nCareer\n→\n→\nCase studies\nEPFL\nMaking space for mental health\nMeyrin culture\nA New Cultural Dimension\nEtat de Vaud\nTurning an instruction manual into a survival instinct.\nAcadémie de Sertissage\nThe Space Between Gestures\nAll projects\n→\n→\nLatest publications\nBranding Food & Beverage, The secret sauce\nSwiss graphic design: a 70-year-old style that has never felt more relevant\n\"With\" or \"without AI\" doesn't mean anything anymore\nDon't worry, my mate's mate is a graphic designer.\nAll articles\n→\n→\n\nContact us\n\n Tell us about your project\n+41 (0) 22 732 10 46\nhello@twks.ch\n\nSocial media\n\nInstagram\nLinkedIn\n\nAddress\n\nRue de Berne 63\n1201 Genève, Suisse\n✉ Subscribe to the newsletter\nEnglish\nFrançais\n\n© 2026",
+  "controls": [
+    {
+      "tag": "A",
+      "role": null,
+      "name": "twks",
+      "href": "/en",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "Contact",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Projects",
+      "href": "/en/projects",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Agency",
+      "href": "/en/agency",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Branding",
+      "href": "https://twks.ch/en/services/branding",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Campaign",
+      "href": "https://twks.ch/en/services/campaign",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Digital",
+      "href": "https://twks.ch/en/services/digital",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Insights",
+      "href": "/en/insights",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Français",
+      "href": "https://twks.ch",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "INPUT",
+      "role": null,
+      "name": "",
+      "href": null,
+      "type": "text"
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "twks Vol.4 - Golden Hour Frequencies",
+      "href": "https://open.spotify.com/playlist/0c7xOCdUfktwcVDmd2R07F?si=5314d9a63a0d46a2",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "twks Vol.4 - Golden Hour Frequencies",
+      "href": "https://open.spotify.com/playlist/0c7xOCdUfktwcVDmd2R07F?si=5314d9a63a0d46a2",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": " Tell us about your project",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "+41 (0) 22 732 10 46",
+      "href": "tel:+41227321046",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "hello@twks.ch",
+      "href": "mailto:hello@twks.ch",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Instagram",
+      "href": "https://www.instagram.com/twks.ch",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "LinkedIn",
+      "href": "https://ch.linkedin.com/company/twks",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Rue de Berne 63\n                        1201 Genève, Suisse",
+      "href": "https://maps.app.goo.gl/FgPWsqi1BQj4L1kw6",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Agency\n                \n                    →\n                    →",
+      "href": "/en/agency",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Career\n                \n                    →\n                    →",
+      "href": "/en/agency#carriere",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "EPFL\n        \n        \n        Making space for mental health",
+      "href": "https://twks.ch/en/projects/epfl-health-days",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Meyrin culture\n        \n        \n        A New Cultural Dimension",
+      "href": "https://twks.ch/en/projects/meyrin-culture",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Etat de Vaud\n        \n        \n        Turning an instruction manual into a survival insti",
+      "href": "https://twks.ch/en/projects/etat-de-vaud-infopop",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Académie de Sertissage\n        \n        \n        The Space Between Gestures",
+      "href": "https://twks.ch/en/projects/academie-de-sertissage",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "All projects\n        \n            →\n            →",
+      "href": "/en/projects",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Branding Food & Beverage, The secret sauce",
+      "href": "https://twks.ch/en/insights/branding-food-beverage-the-secret-sauce",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Swiss graphic design: a 70-year-old style that has never felt more relevant",
+      "href": "https://twks.ch/en/insights/le-graphisme-suisse-un-style-vieux-de-70-ans-qui-na-jamais-ete-aussi-moderne",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "\"With\" or \"without AI\" doesn't mean anything anymore",
+      "href": "https://twks.ch/en/insights/with-or-without-ai-doesnt-mean-anything-anymore",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Don't worry, my mate's mate is a graphic designer.",
+      "href": "https://twks.ch/en/insights/tinquiete-le-pote-de-mon-pote-est-graphiste",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "All articles\n        \n            →\n            →",
+      "href": "/en/insights",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": " Tell us about your project",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "+41 (0) 22 732 10 46",
+      "href": "tel:+41227321046",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "hello@twks.ch",
+      "href": "mailto:hello@twks.ch",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Instagram",
+      "href": "https://www.instagram.com/twks.ch",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "LinkedIn",
+      "href": "https://ch.linkedin.com/company/twks",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Rue de Berne 63\n                    1201 Genève, Suisse",
+      "href": "https://maps.app.goo.gl/FgPWsqi1BQj4L1kw6",
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "name": "✉ Subscribe to the newsletter",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "role": null,
+      "name": "Français",
+      "href": "https://twks.ch",
+      "type": null
+    }
+  ],
+  "document": {
+    "width": 390,
+    "height": 7300,
+    "viewportWidth": 390
+  },
+  "reducedMotionMedia": true
+}

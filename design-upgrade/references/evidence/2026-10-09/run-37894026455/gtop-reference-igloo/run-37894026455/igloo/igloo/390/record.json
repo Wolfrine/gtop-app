@@ -1,0 +1,184 @@
+{
+  "id": "igloo",
+  "url": "https://www.igloo.inc/",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "run": "37894026455",
+  "capturedAt": "2026-10-09T06:34:35.998Z",
+  "browserVersion": "141.0.7390.37",
+  "sourceCommit": "0889cf0a2bbd0e981b3c4482f5f548b26477fd95",
+  "mode": "normal",
+  "actions": [
+    {
+      "elapsedMs": 144,
+      "action": "navigation",
+      "status": 200
+    },
+    {
+      "elapsedMs": 14937,
+      "action": "screenshot",
+      "name": "01-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 26745,
+      "action": "screenshot",
+      "name": "02-settled",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 26745,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 46754,
+      "action": "screenshot",
+      "name": "03-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 46754,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 69412,
+      "action": "screenshot",
+      "name": "04-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 69412,
+      "action": "slow-scroll-start",
+      "deltaY": 675.2
+    },
+    {
+      "elapsedMs": 91857,
+      "action": "screenshot",
+      "name": "05-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 91857,
+      "action": "fast-scroll",
+      "deltaY": 2532
+    },
+    {
+      "elapsedMs": 99791,
+      "action": "screenshot",
+      "name": "06-fast-scroll",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 99791,
+      "action": "reverse-scroll",
+      "deltaY": -1266
+    },
+    {
+      "elapsedMs": 107580,
+      "action": "screenshot",
+      "name": "07-reverse",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 107580,
+      "action": "return-top"
+    },
+    {
+      "elapsedMs": 115603,
+      "action": "screenshot",
+      "name": "08-return",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 116948,
+      "action": "reduced-motion-enabled"
+    },
+    {
+      "elapsedMs": 131081,
+      "action": "screenshot",
+      "name": "09-reduced-motion-entry",
+      "scrollY": 0
+    },
+    {
+      "elapsedMs": 131900,
+      "action": "end"
+    }
+  ],
+  "files": [
+    {
+      "path": "igloo/390/01-entry.png",
+      "sha256": "720c901f4869290c871fa9e8c1fe35431c04e4559a8d6027cefdad13d77f3a1b",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "igloo/390/02-settled.png",
+      "sha256": "c5a6954fb1a9e58d5322fe0e682df7c66936fee1ff9c37bec9ffa92c2475b02b",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "igloo/390/03-scroll.png",
+      "sha256": "1dd743aa75d9f983abc00bb8886534abc54eadf9fea93f192cfb95aa30435baf",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "igloo/390/04-scroll.png",
+      "sha256": "fd8603306c5b0e683c19dfbba1f36187ab6f17ce718df9517e34be581589d9e6",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "igloo/390/05-scroll.png",
+      "sha256": "9a02d6b11b94a917a6cde050a4851fc9b746d7863ee35fc786607cc17e43f547",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "igloo/390/06-fast-scroll.png",
+      "sha256": "458287ad09be1bcda6b9f2770c37d23830f886526cd7b32361a81dfca3095bb3",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "igloo/390/07-reverse.png",
+      "sha256": "c71a8f81e91baa72a10d5967dfd2c2c8ddb777862003a28df83e0fe485ede1f4",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "igloo/390/08-return.png",
+      "sha256": "a8c33b935b80ec789e0b7a8a22e9671d7dd40a26fe8b44b6332335b9a3b7e107",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "igloo/390/09-reduced-motion-entry.png",
+      "sha256": "48884af2ea60ba0f84867cc6c05c4841b88b0a77a666295e02389bb08c2b765c",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "igloo/390/sequence.webm",
+      "sha256": "49e148eecfefcaa5c7caf4cb3a30d81cb9790e8d17ef66007dad8ed164dc3bc9",
+      "bytes": 7739340,
+      "kind": "video"
+    }
+  ],
+  "errors": [],
+  "finalUrl": "https://www.igloo.inc/",
+  "title": "Igloo Inc.",
+  "visibleTextExcerpt": "",
+  "controls": [],
+  "document": {
+    "width": 390,
+    "height": 844,
+    "viewportWidth": 390
+  },
+  "reducedMotionMedia": true
+}

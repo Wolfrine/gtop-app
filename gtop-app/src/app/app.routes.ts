@@ -136,9 +136,9 @@ export const routes: Routes = [
         component: LandingPageComponent,
         data: {
             seo: {
-                title: 'GTOP | Growth Tutorials Objective Practice Platform',
-                description: 'Join GTOP (Growth Tutorials Objective Practice) to attempt curated MCQ quizzes, join live sessions, and monitor your competitive exam readiness.',
-                keywords: 'GTOP, Growth Tutorials, objective practice, competitive exams, quizzes, live quiz, analytics',
+                title: 'GTOP | School Chapter Practice for Classes 5-12',
+                description: 'Practise school chapters with GTOP for Classes 5-12, CBSE and ICSE. Choose your board and class, take MCQ quizzes and review your answers.',
+                keywords: 'GTOP, Growth Tutorials, school chapter practice, Classes 5-12, CBSE, ICSE, MCQ quizzes',
                 robots: 'index, follow'
             }
         }

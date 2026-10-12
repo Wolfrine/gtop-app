@@ -10,9 +10,7 @@ import { AuthGuard } from './services/auth.guard';
 import { RoleGuard } from './services/role.guard';
 import { ManageSyllabusComponent } from './pages/manage-syllabus/manage-syllabus.component'; // ✅ Import Manage Syllabus Component
 import { QuizPageComponent } from './pages/quiz-page/quiz-page.component';
-import { QuizSummaryComponent } from './pages/quiz-summary/quiz-summary.component';
 import { EditSyllabusComponent } from './pages/manage-syllabus/edit-syllabus/edit-syllabus.component';
-import { ReportsPageComponent } from './pages/reports-page/reports-page.component';
 import { UserListComponent } from './pages/admin-dashboard/user-list/user-list.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SyllabusPreviewComponent } from './pages/syllabus-preview/syllabus-preview.component';
@@ -378,7 +376,7 @@ export const routes: Routes = [
     },
     {
         path: 'reports',
-        component: ReportsPageComponent,
+        loadComponent: () => import('./pages/reports-page/reports-page.component').then(m => m.ReportsPageComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: {
             roles: ['user', 'admin'],

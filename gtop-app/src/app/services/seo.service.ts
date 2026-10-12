@@ -18,9 +18,9 @@ export interface SeoConfig {
 @Injectable({ providedIn: 'root' })
 export class SeoService {
     private readonly defaultConfig: Required<Omit<SeoConfig, 'url'>> & { url?: string } = {
-        title: 'GTOP - Growth Tutorials Objective Practice',
-        description: 'GTOP (Growth Tutorials Objective Practice) helps students sharpen competitive exam skills with curated quizzes, live sessions, and smart performance analytics.',
-        keywords: 'GTOP, Growth Tutorials, objective practice, competitive exams, quizzes, test preparation, live quiz, analytics',
+        title: 'GTOP | School Chapter Practice for Classes 5-12',
+        description: 'Practise school chapters with GTOP for Classes 5-12, CBSE and ICSE. Choose your board and class, take MCQ quizzes and review your answers.',
+        keywords: 'GTOP, Growth Tutorials, school chapter practice, Classes 5-12, CBSE, ICSE, MCQ quizzes',
         image: `${PUBLIC_ORIGIN}${DEFAULT_IMAGE_PATH}`,
         robots: 'index, follow',
         type: 'website'

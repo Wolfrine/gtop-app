@@ -10,9 +10,7 @@ import { AuthGuard } from './services/auth.guard';
 import { RoleGuard } from './services/role.guard';
 import { ManageSyllabusComponent } from './pages/manage-syllabus/manage-syllabus.component'; // ✅ Import Manage Syllabus Component
 import { QuizPageComponent } from './pages/quiz-page/quiz-page.component';
-import { QuizSummaryComponent } from './pages/quiz-summary/quiz-summary.component';
 import { EditSyllabusComponent } from './pages/manage-syllabus/edit-syllabus/edit-syllabus.component';
-import { ReportsPageComponent } from './pages/reports-page/reports-page.component';
 import { UserListComponent } from './pages/admin-dashboard/user-list/user-list.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SyllabusPreviewComponent } from './pages/syllabus-preview/syllabus-preview.component';
@@ -136,9 +134,9 @@ export const routes: Routes = [
         component: LandingPageComponent,
         data: {
             seo: {
-                title: 'GTOP | Growth Tutorials Objective Practice Platform',
-                description: 'Join GTOP (Growth Tutorials Objective Practice) to attempt curated MCQ quizzes, join live sessions, and monitor your competitive exam readiness.',
-                keywords: 'GTOP, Growth Tutorials, objective practice, competitive exams, quizzes, live quiz, analytics',
+                title: 'GTOP | School Chapter Practice for Classes 5-12',
+                description: 'Practise school chapters with GTOP for Classes 5-12, CBSE and ICSE. Choose your board and class, take MCQ quizzes and review your answers.',
+                keywords: 'GTOP, Growth Tutorials, school chapter practice, Classes 5-12, CBSE, ICSE, MCQ quizzes',
                 robots: 'index, follow'
             }
         }
@@ -378,7 +376,7 @@ export const routes: Routes = [
     },
     {
         path: 'reports',
-        component: ReportsPageComponent,
+        loadComponent: () => import('./pages/reports-page/reports-page.component').then(m => m.ReportsPageComponent),
         canActivate: [AuthGuard, RoleGuard],
         data: {
             roles: ['user', 'admin'],

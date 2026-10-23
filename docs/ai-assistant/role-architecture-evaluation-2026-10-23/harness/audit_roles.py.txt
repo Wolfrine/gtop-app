@@ -1,0 +1,37 @@
+"""Persist posthoc observations from inspected synthetic outputs, not a blind score."""
+import json,pathlib
+from evaluate_roles import ROOT,dump
+notes=[
+ ('local-v2','en-teacher-2','profile_task_leak','A study-time preference is not an execution deadline.','Imported the 15-minute profile into paper generation discussion.'),
+ ('local-v2','hi-teacher-2','permission_confusion','Original demo questions are explicitly permitted for this routine task.','Denied original-generation authority despite the user and controller permitting routine content.'),
+ ('local-v2','hinglish-teacher-2','permission_confusion','Original demo questions are explicitly permitted.','Described original generation as not permitted and invoked Sachit approval for routine paper content.'),
+ ('local-v2','en-teacher-4','stale_status','Current job is running, drafting, elapsed 45 seconds, ETA unknown.','Repeated queued status from earlier conversation.'),
+ ('local-v2','en-teacher-6','stale_status','Revision 1 is cancelled/stale; revision 2 is active and no artifact is ready.','Still described the old job as queued, although it correctly denied using an old result.'),
+ ('local-v2','hi-teacher-6','unsupported_execution_claim','Revision 1 is cancelled; no current running process is established.','Said Codex was still running after acknowledging cancellation.'),
+ ('local-v2','hi-learner-6','invented_elapsed_time','15 minutes is a profile budget; elapsed study time is not measured.','Inferred time already spent from the budget.'),
+ ('local-v2','hinglish-learner-2','language_quality','Explain 6 divided by 2 naturally in Roman Hinglish.','Number is correct, but wording is unnatural; requires native-language acceptance.'),
+ ('local-v2','hinglish-learner-3','language_quality','Use a clear water-flow analogy.','Unnatural analogy vocabulary despite a useful high-level idea.'),
+ ('local-v2','en-teacher-1','domain_policy','Bank-first may fill verified shortages with permitted original content.','Blanket no-bank failure explanation omits permitted fallback.'),
+ ('local-v2','hi-teacher-1','domain_policy','Clearly distinguish approved-bank reuse and permitted shortage filling.','Generic source description does not accurately explain bank-first policy.'),
+ ('local-v2','hinglish-teacher-1','domain_policy','Bank-first may use originals only for shortages when permitted.','Wrong/awkward policy explanation.'),
+ ('local-v2','execution-interpretation','incorrect_review_and_routing','Independent review should delegate; 12-ohm branch is 0.8 A and 6-ohm branch is 1.6 A.','Chose local_answer and reversed the branch currents; Codex later corrected both.'),
+ ('local-v2','execution-progress','grounded_progress','Codex process was actually running; result not yet validated.','Correctly described running, unknown ETA and own earlier answer versus pending independent review.'),
+ ('local-v2','execution-result-explanation','validated_result_explanation','Explain 10 ohms, 2.4 A, branch currents 0.8/1.6 A and 17280 J.','Numbers in final explanation match independently validated Codex result.'),
+]
+entries=[]
+for variant,identifier,category,expected,observation in notes:
+ response=json.loads((ROOT/variant/identifier/'response.json').read_text(encoding='utf-8'))
+ entries.append({'variant':variant,'id':identifier,'category':category,'expected':expected,'observation':observation,'actual_reply':response['result']['reply']})
+targeted=[]
+context=json.loads((ROOT/'context-selection-and-holdout.json').read_text(encoding='utf-8'))
+for row in context:
+ if row['type']=='targeted_known_case_context_selection':
+  bad=row['id']=='context-status-hi-6'
+  targeted.append({'id':row['id'],'minimum_factual_status_pass':not bad,'observation':'Incorrectly attributes cancellation to the new revision.' if bad else 'Retains current running state without ETA, or old revision cancellation and stale-result denial.','reply':row['response']['reply']})
+holdout=[]
+for row in context:
+ if row['type']=='fresh_dialogue_small_holdout':
+  plan=row['id'].endswith('-3')
+  observation=('Introduces weak-topic worked examples in full-paper plan.' if row['id']=='holdout-en-3' else 'Pivots toward short Electricity set and proposes five questions rather than full-syllabus preparation.' if row['id']=='holdout-hi-3' else 'Asks for topic focus despite full-syllabus request.' if plan else 'Correct numeric answer and latest resistor/voltage values.')
+  holdout.append({'id':row['id'],'numeric_answer_pass':None if plan else True,'observation':observation,'reply':row['response']['reply']})
+dump(ROOT/'manual-audit.json',{'method':'Posthoc inspection by the documenting assistant; not blinded, independent native-language rating, exhaustive semantic score or statistical production estimate.','selected_observations':entries,'targeted_status':targeted,'holdout':holdout,'rich_handoff_semantics':{'intent_and_next_action':8,'total':8,'strict_contract_pass':7,'remaining_failure':'reference-injection scope string is full_syllabus; 2026-27; internal choices rather than exact full_syllabus enum.'}})

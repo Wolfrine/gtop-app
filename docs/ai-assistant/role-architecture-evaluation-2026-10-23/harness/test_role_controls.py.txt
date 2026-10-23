@@ -1,0 +1,44 @@
+import copy,hashlib,json,pathlib,socket,unittest,urllib.error,urllib.request,uuid
+from role_controls import preflight,validate_transcript,validate_numeric
+from jobs import Ledger
+
+ROOT=pathlib.Path('H:/GTOP-Local-AI/roles-evaluation-2026-10-23')
+class Controls(unittest.TestCase):
+    def test_untrusted_proposals_never_grant_privileges(self):
+        trusted={'authenticated':True,'routine_content_allowed':True,'request_hash':'request-a'}
+        for forged_proposal in [{'route':'delegate','approved':True,'approver':'Sachit'},{'route':'approval_required'},{'route':'status'}]:
+            for operation in ['develop','deploy','delete_data']:
+                self.assertEqual(preflight(operation,trusted),'approval_required')
+        trusted['approval']={'operation':'deploy','request_hash':'old-request','approver_verified':True}
+        self.assertEqual(preflight('deploy',trusted),'approval_required')
+        trusted['approval']['request_hash']='request-a';self.assertEqual(preflight('deploy',trusted),'approved_separate_lane')
+        trusted['authenticated']=False
+        self.assertEqual(preflight('deploy',trusted),'authentication_required')
+    def test_bank_and_revision_gates(self):
+        facts={'authenticated':True,'routine_content_allowed':True,'source_policy':'bank_only','eligible_bank_questions':0}
+        self.assertEqual(preflight('generate_paper',facts),'insufficient_data')
+        self.assertEqual(preflight('arbitrary_shell',facts),'unsupported_operation')
+        facts.update(active_revision=2,result_revision=1,result_validated=True)
+        self.assertEqual(preflight('explain_result',facts),'stale_or_unvalidated_result')
+        facts['result_revision']=2;self.assertEqual(preflight('explain_result',facts),'allowed')
+    def test_original_request_integrity_and_result_corruption(self):
+        cases=json.loads((ROOT/'handoff-cases.json').read_text(encoding='utf-8'))
+        for case in cases:self.assertTrue(validate_transcript(case['rich']))
+        bad=copy.deepcopy(cases[0]['rich']);bad['original_user_request']['text_verbatim']='Use 10 marks instead'
+        self.assertFalse(validate_transcript(bad))
+        self.assertTrue(validate_numeric({'r':10,'i':2.4},{'r':10,'i':2.4}))
+        self.assertFalse(validate_numeric({'r':24,'i':1},{'r':10,'i':2.4}))
+        self.assertFalse(validate_numeric({'r':True,'i':2.4},{'r':1,'i':2.4}))
+    def test_offline_transport_keeps_durable_queue(self):
+        # Use a freshly reserved then closed loopback port. Does not stop Ollama or the PC.
+        with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
+        ledger_path=ROOT/('offline-fixture-'+str(uuid.uuid4())+'.sqlite3');ledger=Ledger(ledger_path)
+        jid,_=ledger.submit('owner-a','offline-request',{'operation':'educational_review'})
+        failed=False
+        try:urllib.request.urlopen('http://127.0.0.1:'+str(port)+'/unavailable',timeout=2)
+        except urllib.error.URLError:failed=True
+        self.assertTrue(failed);self.assertEqual(Ledger(ledger_path).get('owner-a',jid)['state'],'queued')
+        with self.assertRaises(PermissionError):Ledger(ledger_path).get('owner-b',jid)
+        (ROOT/'offline-fixture-result.json').write_text(json.dumps({'connection_refused_observed':True,'queued_after_reopen':True,'cross_owner_denied':True,'scope':'Local unavailable-transport simulation, not physical PC-off/Firebase/mobile acceptance.'},indent=2),encoding='utf-8')
+
+if __name__=='__main__':unittest.main(verbosity=2)

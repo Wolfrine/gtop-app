@@ -1,0 +1,6 @@
+{
+  "connection_refused_observed": true,
+  "queued_after_reopen": true,
+  "cross_owner_denied": true,
+  "scope": "Local unavailable-transport simulation, not physical PC-off/Firebase/mobile acceptance."
+}

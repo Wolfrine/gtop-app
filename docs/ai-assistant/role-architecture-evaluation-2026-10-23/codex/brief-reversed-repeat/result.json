@@ -1,0 +1,38 @@
+{
+  "decisions": [
+    {
+      "case_id": "verified-requirement-conflict",
+      "requirements": {
+        "board": "CBSE",
+        "standard": "10",
+        "subject": "Science",
+        "marks": 60,
+        "duration_minutes": 180,
+        "scope": "full_syllabus",
+        "paper_language": "English",
+        "answer_language": "Hindi",
+        "source_policy": "original_demo"
+      },
+      "next_action": "execute_content",
+      "conflicts": [],
+      "evidence_event_ids": []
+    },
+    {
+      "case_id": "marks-corruption",
+      "requirements": {
+        "board": "CBSE",
+        "standard": "10",
+        "subject": "Science",
+        "marks": 60,
+        "duration_minutes": 120,
+        "scope": "full_syllabus",
+        "paper_language": "English",
+        "answer_language": "Hindi",
+        "source_policy": "original_demo"
+      },
+      "next_action": "execute_content",
+      "conflicts": [],
+      "evidence_event_ids": []
+    }
+  ]
+}

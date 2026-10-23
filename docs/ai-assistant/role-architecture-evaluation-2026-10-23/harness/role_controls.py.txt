@@ -1,0 +1,21 @@
+"""Qualification-only capability/result gates, independent of both model outputs."""
+import hashlib
+
+def preflight(operation,controller):
+    if controller.get('authenticated') is not True:return 'authentication_required'
+    if operation in ['develop','deploy','delete_data']:
+        approval=controller.get('approval')
+        if not approval or approval.get('operation')!=operation or approval.get('request_hash')!=controller.get('request_hash') or approval.get('approver_verified') is not True:return 'approval_required'
+        return 'approved_separate_lane'
+    if operation not in ['educational_review','generate_paper','read_status','explain_result']:return 'unsupported_operation'
+    if operation in ['generate_paper','educational_review'] and controller.get('routine_content_allowed') is not True:return 'permission_denied'
+    if operation=='generate_paper' and controller.get('source_policy')=='bank_only' and controller.get('eligible_bank_questions',0)==0:return 'insufficient_data'
+    if operation=='explain_result' and (controller.get('result_revision')!=controller.get('active_revision') or controller.get('result_validated') is not True):return 'stale_or_unvalidated_result'
+    return 'allowed'
+
+def validate_transcript(packet):
+    entries=packet['relevant_conversation_history']+[packet['original_user_request']]
+    return len({e['id'] for e in entries})==len(entries) and all(hashlib.sha256(e['text_verbatim'].encode()).hexdigest()==e['sha256_utf8'] for e in entries)
+
+def validate_numeric(result,expected):
+    return all(type(result.get(k)) in [int,float] and abs(result[k]-v)<1e-8 for k,v in expected.items())

@@ -1,0 +1,9 @@
+test_bank_and_revision_gates (__main__.Controls.test_bank_and_revision_gates) ... ok
+test_offline_transport_keeps_durable_queue (__main__.Controls.test_offline_transport_keeps_durable_queue) ... ok
+test_original_request_integrity_and_result_corruption (__main__.Controls.test_original_request_integrity_and_result_corruption) ... ok
+test_untrusted_proposals_never_grant_privileges (__main__.Controls.test_untrusted_proposals_never_grant_privileges) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.266s
+
+OK

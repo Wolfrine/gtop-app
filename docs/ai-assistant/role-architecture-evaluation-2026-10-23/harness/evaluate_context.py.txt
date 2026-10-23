@@ -1,0 +1,37 @@
+"""Targeted context repair plus a small fresh local-only dialogue holdout.
+
+Status cases reuse known failing inputs, so they are a development check, not holdout.
+The nine new dialogue turns were authored after v2 was fixed; no prompt retuning.
+"""
+import copy,json,pathlib,sys
+sys.path.insert(0,str(pathlib.Path(__file__).parent))
+import evaluate_roles as e
+e.VARIANT='v2'
+
+records=[]
+for lang in ['en','hi','hinglish']:
+    for turn in [4,6]:
+        facts=e.facts_for(lang,'teacher',turn)
+        # Select current job facts and task context; stale assistant status text
+        # and the unrelated learner-style time preference are not relevant here.
+        selected={k:copy.deepcopy(facts[k]) for k in ['assistant_language','permissions','available_data','job']}
+        selected['context_selection']={'task':'80-mark full-syllabus CBSE 10 Science paper','active_revision':2 if turn==6 else 1,'source_policy':'bank_only' if turn==6 else 'original_demo','older_assistant_status_is_not_authoritative':True}
+        query=e.TEXTS[lang]['teacher'][turn-1]
+        identifier=f'context-status-{lang}-{turn}'
+        response=e.local(identifier,[{'role':'user','content':query}],selected)
+        records.append({'id':identifier,'comparison_id':f'{lang}-teacher-{turn}','type':'targeted_known_case_context_selection','expected_job':facts['job'],'response':response['result'],'timing':response['timing'],'cloud_calls':0})
+
+heldout={
+ 'en':['A resistor has 12 V across it and current 1.5 A. What is its resistance? Explain in one short worked step.','Now replace it with a 12-ohm resistor while keeping that same voltage. What is the new current? Use the latest resistor value.','Later I may want an 80-mark full-syllabus Science paper, with Hindi solutions and English questions. For now, only discuss how we would prepare it. Do not start a job or generate the paper.'],
+ 'hi':['एक प्रतिरोधक पर 12 V विभवांतर है और धारा 1.5 A है। उसका प्रतिरोध कितना है? हल का एक छोटा चरण बताइए।','अब उसकी जगह 12 ओम का प्रतिरोधक लगाइए और वही विभवांतर रखिए। नई धारा कितनी होगी? नवीनतम प्रतिरोध का मान लीजिए।','बाद में मुझे पूरे विज्ञान पाठ्यक्रम का 80 अंक का पेपर चाहिए हो सकता है, प्रश्न अंग्रेज़ी में और हल हिंदी में। अभी केवल तैयारी की योजना पर बात कीजिए। कोई काम शुरू या पेपर तैयार मत कीजिए।'],
+ 'hinglish':['Ek resistor par 12 V hai aur current 1.5 A hai. Resistance kitna hai? Ek short worked step batao.','Ab resistor ko 12 ohm se replace karo aur wahi voltage rakho. Naya current kitna hoga? Latest resistor value use karo.','Baad mein full-syllabus Science ka 80-mark paper chahiye ho sakta hai, English questions aur Hindi solutions. Abhi sirf preparation plan discuss karo. Koi job start ya paper generate mat karo.']}
+for lang,queries in heldout.items():
+    history=[]
+    for i,query in enumerate(queries,1):
+        facts=e.facts_for(lang,'learner',i);history.append({'role':'user','content':query})
+        identifier=f'holdout-{lang}-{i}'
+        response=e.local(identifier,copy.deepcopy(history),facts)
+        records.append({'id':identifier,'type':'fresh_dialogue_small_holdout','expected_route':'local_answer','expected_numeric_answer':8 if i==1 else 1 if i==2 else None,'response':response['result'],'timing':response['timing'],'cloud_calls':0})
+        history.append({'role':'assistant','content':response['result']['reply']})
+e.dump(e.ROOT/'context-selection-and-holdout.json',records)
+print(json.dumps({'targeted_status_turns':6,'fresh_holdout_turns':9,'holdout_routes_correct':sum(r['response']['route']==r['expected_route'] for r in records if r['type']=='fresh_dialogue_small_holdout'),'cloud_calls':0}),flush=True)

@@ -1,0 +1,52 @@
+"""Export already-captured synthetic evidence; does not perform inference."""
+import hashlib,json,math,pathlib,statistics
+
+LOCAL=pathlib.Path('H:/GTOP-Local-AI')
+SOURCE=LOCAL/'roles-evaluation-2026-10-23'
+DEST=LOCAL/'gtop-documentation/docs/ai-assistant/role-architecture-evaluation-2026-10-23'
+DEST.mkdir(parents=True,exist_ok=True)
+def digest(data):return hashlib.sha256(data).hexdigest()
+def canonical(value):return json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode('utf-8')
+def read(path):return json.loads(path.read_text(encoding='utf-8-sig'))
+def write(name,value):
+ p=DEST/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+files=[]
+def copy(source,target):
+ p=DEST/target;p.parent.mkdir(parents=True,exist_ok=True);data=source.read_bytes();p.write_bytes(data)
+ files.append({'path':target,'bytes':len(data),'sha256':digest(data),'source_relative_to_local_root':source.relative_to(LOCAL).as_posix(),'classification':'verbatim saved file'})
+for name in ['local-evaluation.json','local-evaluation-v2.json','context-selection-and-holdout.json','handoff-cases.json','handoff-results.json','execution-handoff.json','execution-validation.json','controller-tests.txt','offline-fixture-result.json','manual-audit.json']:
+ copy(SOURCE/name,name)
+for name in ['evaluate_roles.py','evaluate_context.py','role_controls.py','test_role_controls.py','codex_runner.py','jobs.py','dialogue.py','export_role_evidence.py','audit_roles.py']:
+ copy(LOCAL/'scripts'/name,'harness/'+name+'.txt')
+for p in sorted((SOURCE/'codex').glob('*/*')):
+ if p.is_file():copy(p,'codex/'+p.parent.name+'/'+p.name)
+
+records=[]
+for variant in ['local','local-v2']:
+ for folder in sorted((SOURCE/variant).iterdir()):
+  if not folder.is_dir():continue
+  record={'id':folder.name,'variant':variant,'captured_files':[]}
+  for kind in ['request','response','failure']:
+   p=folder/(kind+'.json')
+   if p.exists():
+    value=read(p);record[kind]=value
+    record['captured_files'].append({'field':kind,'source_relative_to_local_root':p.relative_to(LOCAL).as_posix(),'source_sha256':digest(p.read_bytes()),'canonical_json_sha256':digest(canonical(value))})
+  assert 'request' in record and (('response' in record)^('failure' in record))
+  records.append(record)
+p=DEST/'captured-local-turns.jsonl';p.write_text(''.join(json.dumps(v,ensure_ascii=False)+'\n' for v in records),encoding='utf-8',newline='\n')
+files.append({'path':p.name,'bytes':p.stat().st_size,'sha256':digest(p.read_bytes()),'classification':'faithful JSON-value aggregation of captured requests and responses; original-file byte hashes in each record'})
+def latency(rows):
+ warm=[x['timing'] for x in rows if 'timing' in x and x['timing']['load_s']<1]
+ values=sorted(t['wall_s'] for t in warm)
+ return {'warm_load_threshold_seconds':1,'warm_n':len(values),'wall_p50_seconds':round(statistics.median(values),5),'wall_p95_nearest_rank_seconds':values[math.ceil(.95*len(values))-1],'first_streamed_content_p50_seconds':round(statistics.median(t['first_content_s'] for t in warm),5),'decode_tokens_s_p50':statistics.median(t['decode_tokens_s'] for t in warm)}
+baseline=read(SOURCE/'local-evaluation.json');v2=read(SOURCE/'local-evaluation-v2.json');context=read(SOURCE/'context-selection-and-holdout.json');handoffs=read(SOURCE/'handoff-results.json')
+summary={'experiment_date':'2026-10-23','local_model':'qwen3.5:4b-q4_K_M','local_context_tokens':8192,'captured_local_attempts':len(records),'local_valid_responses':sum('response' in r for r in records),'local_failed_attempts':sum('failure' in r for r in records),'baseline':{'turns':len(baseline),'route_pass':sum(r['checks']['route'] for r in baseline),'valid_responses':sum(r.get('result') is not None for r in baseline),'latency':latency(baseline)},'v2':{'turns':len(v2),'route_pass':sum(r['checks']['route'] for r in v2),'language_script_sanity_pass':sum(r['checks']['language_sanity'] for r in v2),'latency':latency(v2),'limitation':'Same cases used to tune v2; route and script checks are not semantic correctness or fluency.'},'cold_observed':[{'id':r['id'],'timing':r['timing']} for r in baseline if r.get('timing',{}).get('load_s',0)>=1],'targeted_context_selection_turns':sum(r['type']=='targeted_known_case_context_selection' for r in context),'fresh_dialogue_holdout_turns':sum(r['type']=='fresh_dialogue_small_holdout' for r in context),'holdout_route_pass':sum(r['response']['route']==r.get('expected_route') for r in context if r['type']=='fresh_dialogue_small_holdout'),'handoff_batches':[],'codex_runs':[],'subscription_snapshot':{'weekly_used_percent':12,'snapshot_utc':'2026-10-23T16:56Z approximate','scope':'Account-wide shared usage; not attributable to these five calls. No API keys or credit purchases.'}}
+for batch in sorted({r['batch'] for r in handoffs}):
+ rows=[r for r in handoffs if r['batch']==batch]
+ summary['handoff_batches'].append({'batch':batch,'strict_pass':sum(r['passed'] for r in rows),'case_decisions':len(rows),'wall_seconds':rows[0]['batch_wall_s']})
+for p in sorted((SOURCE/'codex').glob('*/execution.json')):
+ summary['codex_runs'].append({'id':p.parent.name,**read(p)})
+write('metrics.json',summary)
+p=DEST/'metrics.json';files.append({'path':p.name,'bytes':p.stat().st_size,'sha256':digest(p.read_bytes()),'classification':'derived aggregates; verifier recomputes'})
+write('evidence-manifest.json',{'date':'2026-10-23','local_root':'H:/GTOP-Local-AI','scope':'Role refinement: synthetic live local inference, content-only ChatGPT-authenticated Codex calls, offline controller tests. No app or production-data changes.','capture':'HTTP message/option objects saved before each local call, not network packet traces. Codex explicit stdin captured; implicit CLI system context not captured.','harness':'Final observed snapshots; tiny controller authentication guard strengthened after original execution and tests rerun. Not a per-invocation version history.','excluded':'SQLite fixture databases, weights, generated media, auth credentials and other users data.','files':files})
+print(json.dumps({'captured_local_attempts':len(records),'valid_responses':sum('response' in r for r in records),'codex_runs':len(summary['codex_runs']),'archived_files':len(files)}))

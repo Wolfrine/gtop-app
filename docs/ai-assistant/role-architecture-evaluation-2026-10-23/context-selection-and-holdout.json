@@ -1,0 +1,441 @@
+[
+  {
+    "id": "context-status-en-4",
+    "comparison_id": "en-teacher-4",
+    "type": "targeted_known_case_context_selection",
+    "expected_job": {
+      "id": "synthetic-job",
+      "state": "running",
+      "phase": "Codex generating draft",
+      "revision": 1,
+      "elapsed_s": 45,
+      "progress_percent": null,
+      "eta_s": null,
+      "artifact_ready": false
+    },
+    "response": {
+      "reply": "The paper is still being drafted by Codex. We don't know the exact time or percentage yet since it's running.",
+      "route": "status",
+      "interpretation": "User is asking for specific execution metrics of a running job.",
+      "proposed_actions": [
+        "Wait for CONTROLLER_FACTS to update progress data before answering again."
+      ]
+    },
+    "timing": {
+      "wall_s": 2.1528,
+      "first_content_s": 0.7526,
+      "load_s": 0.0041,
+      "prompt_tokens": 797,
+      "output_tokens": 84,
+      "decode_tokens_s": 60.01,
+      "started_utc": "2026-10-23T16:50:32.703402+00:00",
+      "completed_utc": "2026-10-23T16:50:34.867371+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "context-status-en-6",
+    "comparison_id": "en-teacher-6",
+    "type": "targeted_known_case_context_selection",
+    "expected_job": {
+      "id": "synthetic-job",
+      "state": "cancelled",
+      "revision": 1,
+      "active_revision": 2,
+      "reason": "newer bank-only request",
+      "earlier_artifact_stale": true,
+      "artifact_ready": false
+    },
+    "response": {
+      "reply": "The earlier version (Revision 1) is cancelled and stale because a newer bank-only request overwrote it. You cannot use that old paper; the active Revision 2 is not ready yet as no eligible bank data exists to fulfill the full-syllabus requirement.",
+      "route": "status",
+      "interpretation": "User wants to know current job status and if the previous output is usable, but facts confirm it's cancelled/stale with zero available data.",
+      "proposed_actions": [
+        "Explain that Revision 1 is invalid due to cancellation and lack of bank data.",
+        "Clarify that a new request is needed since no eligible questions exist for the full-syllabus task."
+      ]
+    },
+    "timing": {
+      "wall_s": 2.731,
+      "first_content_s": 0.2296,
+      "load_s": 0.0041,
+      "prompt_tokens": 795,
+      "output_tokens": 154,
+      "decode_tokens_s": 61.57,
+      "started_utc": "2026-10-23T16:50:34.878641+00:00",
+      "completed_utc": "2026-10-23T16:50:37.624056+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "context-status-hi-4",
+    "comparison_id": "hi-teacher-4",
+    "type": "targeted_known_case_context_selection",
+    "expected_job": {
+      "id": "synthetic-job",
+      "state": "running",
+      "phase": "Codex generating draft",
+      "revision": 1,
+      "elapsed_s": 45,
+      "progress_percent": null,
+      "eta_s": null,
+      "artifact_ready": false
+    },
+    "response": {
+      "reply": "वर्तमान में कोई सटीक प्रगति या समय की जानकारी उपलब्ध नहीं है। कोडex अभी ड्राफ्ट बना रहा है, लेकिन यह पूरा हो गया है या कब तैयार होगा, इसका कोई अनुमान नहीं लगाया जा सकता।",
+      "route": "status",
+      "interpretation": "उपयोगकर्ता एक चल रहे कार्य की स्थिति पूछ रहा है, लेकिन डेटा में प्रगति और ETA का कोई मान नहीं है।",
+      "proposed_actions": [
+        "प्रगति और समय के बारे में सटीक जानकारी उपलब्ध नहीं है।",
+        "कार्य को पूरा होने तक पता चलने में देरी हो सकती है।"
+      ]
+    },
+    "timing": {
+      "wall_s": 3.0356,
+      "first_content_s": 0.2397,
+      "load_s": 0.0041,
+      "prompt_tokens": 800,
+      "output_tokens": 170,
+      "decode_tokens_s": 60.81,
+      "started_utc": "2026-10-23T16:50:37.625676+00:00",
+      "completed_utc": "2026-10-23T16:50:40.661058+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "context-status-hi-6",
+    "comparison_id": "hi-teacher-6",
+    "type": "targeted_known_case_context_selection",
+    "expected_job": {
+      "id": "synthetic-job",
+      "state": "cancelled",
+      "revision": 1,
+      "active_revision": 2,
+      "reason": "newer bank-only request",
+      "earlier_artifact_stale": true,
+      "artifact_ready": false
+    },
+    "response": {
+      "reply": "नहीं, पहले का संस्करण अब काम नहीं करता। नया संस्करण रद्द हो गया था क्योंकि उसमें बैंक डेटा की आवश्यकता थी, और चूंकि कोई वैध बैंक प्रश्न उपलब्ध नहीं है, इसलिए यह रद्द कर दिया गया।",
+      "route": "status",
+      "interpretation": "उपयोगकर्ता ने पहले संस्करण के बारे में पूछा, जो अब अमान्य है क्योंकि नया संस्करण रद्द हो गया था।",
+      "proposed_actions": [
+        "बैंक डेटा की उपलब्धता की पुष्टि करना और इसके अभाव को स्पष्ट करना",
+        "उपयोगकर्ता से सीधे प्रश्न पूछना यदि वे स्वयं के लिए सामग्री चाहते हैं"
+      ]
+    },
+    "timing": {
+      "wall_s": 3.4174,
+      "first_content_s": 0.242,
+      "load_s": 0.0041,
+      "prompt_tokens": 806,
+      "output_tokens": 192,
+      "decode_tokens_s": 60.47,
+      "started_utc": "2026-10-23T16:50:40.663115+00:00",
+      "completed_utc": "2026-10-23T16:50:44.080340+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "context-status-hinglish-4",
+    "comparison_id": "hinglish-teacher-4",
+    "type": "targeted_known_case_context_selection",
+    "expected_job": {
+      "id": "synthetic-job",
+      "state": "running",
+      "phase": "Codex generating draft",
+      "revision": 1,
+      "elapsed_s": 45,
+      "progress_percent": null,
+      "eta_s": null,
+      "artifact_ready": false
+    },
+    "response": {
+      "reply": "Abhi sirf draft ban raha hai, koi exact time ya percentage nahi bata sakta. Job chal rahi hai lekin complete hone ka time abhi clear nahi hai.",
+      "route": "status",
+      "interpretation": "User job ki progress aur ETA puch raha hai, lekin data mein ye details available nahi hain.",
+      "proposed_actions": [
+        "Check actual execution status from CONTROLLER_FACTS",
+        "Explain current running state without inventing numbers"
+      ]
+    },
+    "timing": {
+      "wall_s": 2.1256,
+      "first_content_s": 0.2362,
+      "load_s": 0.0052,
+      "prompt_tokens": 804,
+      "output_tokens": 116,
+      "decode_tokens_s": 61.41,
+      "started_utc": "2026-10-23T16:50:44.082414+00:00",
+      "completed_utc": "2026-10-23T16:50:46.208151+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "context-status-hinglish-6",
+    "comparison_id": "hinglish-teacher-6",
+    "type": "targeted_known_case_context_selection",
+    "expected_job": {
+      "id": "synthetic-job",
+      "state": "cancelled",
+      "revision": 1,
+      "active_revision": 2,
+      "reason": "newer bank-only request",
+      "earlier_artifact_stale": true,
+      "artifact_ready": false
+    },
+    "response": {
+      "reply": "Mere paas abhi active kaam nahi chal raha, aur purani revision (1) cancel ho chuki hai kyunki nayi request bank-policy ke hisaab se thi. Naye data ki wajah se pehle version use karne ki ijazat nahi hai; usse trust nahi hai.",
+      "route": "status",
+      "interpretation": "User status aur purane output ka use karne ki permission pooch raha hai, lekin controller facts confirm karte hain ki active revision 2 hai aur revision 1 stale hai.",
+      "proposed_actions": [
+        "Verify latest job state with CONTROLLER_FACTS before suggesting any action.",
+        "Explain that the previous version is invalid due to policy changes and no new data is available."
+      ]
+    },
+    "timing": {
+      "wall_s": 3.0252,
+      "first_content_s": 0.2289,
+      "load_s": 0.0042,
+      "prompt_tokens": 808,
+      "output_tokens": 172,
+      "decode_tokens_s": 61.51,
+      "started_utc": "2026-10-23T16:50:46.218857+00:00",
+      "completed_utc": "2026-10-23T16:50:49.251129+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "holdout-en-1",
+    "type": "fresh_dialogue_small_holdout",
+    "expected_route": "local_answer",
+    "expected_numeric_answer": 8,
+    "response": {
+      "reply": "Using Ohm's Law (V = IR), Resistance R equals Voltage divided by Current. So, R = 12 V / 1.5 A, which gives you 8 ohms.",
+      "route": "local_answer",
+      "interpretation": "User needs a quick calculation and explanation for a basic physics problem.",
+      "proposed_actions": [
+        "Provide the calculation steps clearly",
+        "Offer further help if they need more examples"
+      ]
+    },
+    "timing": {
+      "wall_s": 1.8972,
+      "first_content_s": 0.2223,
+      "load_s": 0.0036,
+      "prompt_tokens": 789,
+      "output_tokens": 104,
+      "decode_tokens_s": 62.11,
+      "started_utc": "2026-10-23T16:50:49.253193+00:00",
+      "completed_utc": "2026-10-23T16:50:51.150118+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "holdout-en-2",
+    "type": "fresh_dialogue_small_holdout",
+    "expected_route": "local_answer",
+    "expected_numeric_answer": 1,
+    "response": {
+      "reply": "With 12 V and a new 12 Ω resistor, the current is I = V/R = 12/12 = 1 A.",
+      "route": "local_answer",
+      "interpretation": "User requested a simple calculation using updated parameters from the previous turn.",
+      "proposed_actions": [
+        "Confirm calculation result"
+      ]
+    },
+    "timing": {
+      "wall_s": 1.5385,
+      "first_content_s": 0.1776,
+      "load_s": 0.0041,
+      "prompt_tokens": 870,
+      "output_tokens": 84,
+      "decode_tokens_s": 61.74,
+      "started_utc": "2026-10-23T16:50:51.152186+00:00",
+      "completed_utc": "2026-10-23T16:50:52.690918+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "holdout-en-3",
+    "type": "fresh_dialogue_small_holdout",
+    "expected_route": "local_answer",
+    "expected_numeric_answer": null,
+    "response": {
+      "reply": "Great idea! To prepare that 80-mark CBSE Class 10 Science paper (with Hindi solutions), we'd first map the syllabus to mark distribution, then draft questions per chapter, and finally create worked examples for your weak topic (Electricity). Since you prefer worked examples, I can guide you on structuring those now. Would you like to start by defining the mark allocation for each chapter?",
+      "route": "local_answer",
+      "interpretation": "User wants planning discussion only; no job generation yet.",
+      "proposed_actions": [
+        "Define chapter-wise mark distribution",
+        "Outline worked example structure for Electricity"
+      ]
+    },
+    "timing": {
+      "wall_s": 2.5246,
+      "first_content_s": 0.1939,
+      "load_s": 0.0045,
+      "prompt_tokens": 957,
+      "output_tokens": 142,
+      "decode_tokens_s": 60.93,
+      "started_utc": "2026-10-23T16:50:52.691422+00:00",
+      "completed_utc": "2026-10-23T16:50:55.217621+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "holdout-hi-1",
+    "type": "fresh_dialogue_small_holdout",
+    "expected_route": "local_answer",
+    "expected_numeric_answer": 8,
+    "response": {
+      "reply": "ओम के नियम (V = I × R) का उपयोग करें। यहाँ V = 12 V और I = 1.5 A है। तो, R = V / I = 12 / 1.5 = 8 ओम।",
+      "route": "local_answer",
+      "interpretation": "यूजर ने एक सरल विद्युत गणना की मांग की है जो मेरे द्वारा सीधे हल की जा सकती है।",
+      "proposed_actions": [
+        "प्रतिरोध का मान 8 ओम बताते हैं।",
+        "अगर कोई और प्रश्न हो तो पूछें।"
+      ]
+    },
+    "timing": {
+      "wall_s": 2.7607,
+      "first_content_s": 0.2408,
+      "load_s": 0.0036,
+      "prompt_tokens": 809,
+      "output_tokens": 155,
+      "decode_tokens_s": 61.52,
+      "started_utc": "2026-10-23T16:50:55.219236+00:00",
+      "completed_utc": "2026-10-23T16:50:57.980109+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "holdout-hi-2",
+    "type": "fresh_dialogue_small_holdout",
+    "expected_route": "local_answer",
+    "expected_numeric_answer": 1,
+    "response": {
+      "reply": "अब R = 12 Ω है और V = 12 V बनाए रखा है। ओम के नियम (I = V/R) से नई धारा I = 12 / 12 = 1 एम्पीयर होगी।",
+      "route": "local_answer",
+      "interpretation": "यूजर ने प्रतिरोधक का मान बदला है और नई धारा की गणना करवाना चाहता है, जो सीधा ओम के नियम से हल हो जाती है।",
+      "proposed_actions": [
+        "गणना सत्यापित करना (12/12=1A)",
+        "अगला प्रश्न पूछना या विषय पर आगे बढ़ना"
+      ]
+    },
+    "timing": {
+      "wall_s": 3.322,
+      "first_content_s": 0.1815,
+      "load_s": 0.0041,
+      "prompt_tokens": 930,
+      "output_tokens": 183,
+      "decode_tokens_s": 58.28,
+      "started_utc": "2026-10-23T16:50:57.981649+00:00",
+      "completed_utc": "2026-10-23T16:51:01.303636+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "holdout-hi-3",
+    "type": "fresh_dialogue_small_holdout",
+    "expected_route": "local_answer",
+    "expected_numeric_answer": null,
+    "response": {
+      "reply": "ठीक है, हम पहले से ही 12V और 12Ω के उदाहरणों को हल कर चुके हैं। अब आपका विज्ञान का 80 अंकों का पेपर तैयार करने की योजना पर बात करते हैं। चूंकि आपके पास अभी 15 मिनट समय है, हम शुरुआत में 'विद्युत' (Electricity) के लिए एक छोटा सा प्रैक्टिस सेट बना सकते हैं और फिर बाकी विषयों को आगे बढ़ा सकते हैं। क्या आप चाहते हैं कि मैं पहले ही विद्युत के 5 प्रश्न तैयार करूँ?",
+      "route": "local_answer",
+      "interpretation": "उपयोगकर्ता ने पेपर बनाने की योजना पर बात करने का निर्णय लिया है, लेकिन स्पष्ट रूप से कहा है कि अभी कोई काम शुरू नहीं करना है।",
+      "proposed_actions": [
+        "विद्युत विषय के लिए प्रैक्टिस प्रश्न तैयार करने की योजना बनाएं",
+        "उपयोगकर्ता की पुष्टि करें कि क्या वे पहले से ही प्रश्नों की रचना शुरू करना चाहते हैं"
+      ]
+    },
+    "timing": {
+      "wall_s": 4.7913,
+      "first_content_s": 0.1951,
+      "load_s": 0.0042,
+      "prompt_tokens": 1072,
+      "output_tokens": 277,
+      "decode_tokens_s": 60.27,
+      "started_utc": "2026-10-23T16:51:01.305691+00:00",
+      "completed_utc": "2026-10-23T16:51:06.097313+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "holdout-hinglish-1",
+    "type": "fresh_dialogue_small_holdout",
+    "expected_route": "local_answer",
+    "expected_numeric_answer": 8,
+    "response": {
+      "reply": "Ohh, aasan hai! Ohm ke law (V = I × R) use karo. Yahan Voltage (V) 12 V aur Current (I) 1.5 A hai. Toh formula mein value daalo: 12 = 1.5 × R. Ab sirf R nikalna hai, isliye dono taraf ko 1.5 se baato: R = 12 ÷ 1.5. Iska answer 8 ohm (Ω) hai. Aapko lagta hai sahi laga?",
+      "route": "local_answer",
+      "interpretation": "User ne ek simple physics calculation ki request ki hai jo profile ke hisaab se unke weak topic Electricity mein fit aati hai.",
+      "proposed_actions": [
+        "Confirm user's understanding of the result (8 Ω)",
+        "Offer a similar practice problem if they are ready"
+      ]
+    },
+    "timing": {
+      "wall_s": 3.995,
+      "first_content_s": 0.5298,
+      "load_s": 0.0042,
+      "prompt_tokens": 796,
+      "output_tokens": 209,
+      "decode_tokens_s": 60.47,
+      "started_utc": "2026-10-23T16:51:06.098875+00:00",
+      "completed_utc": "2026-10-23T16:51:10.093739+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "holdout-hinglish-2",
+    "type": "fresh_dialogue_small_holdout",
+    "expected_route": "local_answer",
+    "expected_numeric_answer": 1,
+    "response": {
+      "reply": "Chalo, ab R = 12 Ω hai aur V = 12 V. Ohm ke law (I = V/R) use karte hain: I = 12 ÷ 12. Iska answer 1 Ampere hoga. Simple calculation complete ho gayi!",
+      "route": "local_answer",
+      "interpretation": "User ne resistor value change ki hai aur naya current calculate karwana chahta hai, jo ek simple application of Ohm's law hai.",
+      "proposed_actions": [
+        "Confirm calculation result with user",
+        "Offer next practice problem on resistance"
+      ]
+    },
+    "timing": {
+      "wall_s": 2.5207,
+      "first_content_s": 0.2243,
+      "load_s": 0.0047,
+      "prompt_tokens": 958,
+      "output_tokens": 140,
+      "decode_tokens_s": 61.14,
+      "started_utc": "2026-10-23T16:51:10.125523+00:00",
+      "completed_utc": "2026-10-23T16:51:12.654681+00:00"
+    },
+    "cloud_calls": 0
+  },
+  {
+    "id": "holdout-hinglish-3",
+    "type": "fresh_dialogue_small_holdout",
+    "expected_route": "local_answer",
+    "expected_numeric_answer": null,
+    "response": {
+      "reply": "Samajh gaya! Pehle syllabus ke hisaab se ek solid preparation plan banate hain, phir baad mein full paper aur solutions ki baat karenge. Aap batao, Science (Class 10) mein kis topic par sabse zyada focus karna chahiye? Electricity, Chemistry ya Physics?",
+      "route": "local_answer",
+      "interpretation": "User wants a study plan discussion first, no job execution yet.",
+      "proposed_actions": [
+        "Discuss Science syllabus priorities",
+        "Ask user for preferred weak topics"
+      ]
+    },
+    "timing": {
+      "wall_s": 2.3241,
+      "first_content_s": 0.1921,
+      "load_s": 0.0041,
+      "prompt_tokens": 1080,
+      "output_tokens": 124,
+      "decode_tokens_s": 58.17,
+      "started_utc": "2026-10-23T16:51:12.697252+00:00",
+      "completed_utc": "2026-10-23T16:51:15.024220+00:00"
+    },
+    "cloud_calls": 0
+  }
+]

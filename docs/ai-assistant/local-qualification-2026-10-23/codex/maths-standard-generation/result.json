@@ -1,0 +1,1430 @@
+{
+  "title": "Original demonstration paper - CBSE Class 10 Mathematics Standard with worked marking scheme",
+  "board": "CBSE",
+  "standard": "10",
+  "subject": "Mathematics Standard",
+  "academic_year": "2026-27",
+  "marks": 80,
+  "duration_minutes": 180,
+  "language": "English",
+  "instructions": [
+    "All 38 questions are compulsory. This paper assesses the full summative syllabus supplied in the brief.",
+    "Section A contains 18 MCQs and two assertion-reason questions of 1 mark each. Sections B, C, D and E contain respectively 5 questions of 2 marks, 6 questions of 3 marks, 4 questions of 5 marks and 3 case studies of 4 marks.",
+    "Internal choices are provided in Questions 21, 22, 28, 31, 34 and 35, and in the 2-mark subpart of every case study. Attempt only one option in each internal choice.",
+    "Show working for written answers. Draw suitable figures where useful. Calculators are not permitted.",
+    "Use pi = 22/7 unless a question asks for an exact answer in terms of pi. Figures are not necessarily drawn to scale.",
+    "For Questions 19 and 20, select the option that correctly describes the assertion and reason.",
+    "All questions, contexts and solutions are original demonstration content. No question-bank data was supplied or used. The supplied curriculum and sample extracts inform syllabus coverage and structure; broad curricular goals and formative extensions are not separately assessed.",
+    "The source URLs identify the official references supplied in the brief; they were not accessed during generation."
+  ],
+  "sources": [
+    "https://cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Maths_SecP1X_2026-27.pdf",
+    "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf",
+    "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-MS.pdf"
+  ],
+  "sections": [
+    {
+      "title": "Section A - Objective questions (20 x 1 = 20 marks)",
+      "questions": [
+        {
+          "number": 1,
+          "unit": "Number Systems",
+          "chapter": "Real Numbers",
+          "type": "mcq",
+          "marks": 1,
+          "text": "Two positive integers have HCF 12 and LCM 180. If one integer is 36, what is the other integer?",
+          "options": [
+            "48",
+            "60",
+            "72",
+            "90"
+          ],
+          "correct_option_index": 1,
+          "answer": "60. The product of the integers is HCF x LCM, so the other integer is (12 x 180)/36 = 60.",
+          "marking_steps": [
+            {
+              "text": "Select 60 using (12 x 180)/36.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 2,
+          "unit": "Algebra",
+          "chapter": "Polynomials",
+          "type": "mcq",
+          "marks": 1,
+          "text": "The zeroes of a quadratic polynomial are -2 and 5. Which monic polynomial has these zeroes?",
+          "options": [
+            "x^2 + 3x - 10",
+            "x^2 - 7x + 10",
+            "x^2 - 3x - 10",
+            "x^2 + 7x + 10"
+          ],
+          "correct_option_index": 2,
+          "answer": "x^2 - 3x - 10, since (x + 2)(x - 5) = x^2 - 3x - 10.",
+          "marking_steps": [
+            {
+              "text": "Select x^2 - 3x - 10 by expanding (x + 2)(x - 5).",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 3,
+          "unit": "Algebra",
+          "chapter": "Pair of Linear Equations in Two Variables",
+          "type": "mcq",
+          "marks": 1,
+          "text": "For which value of k does the pair 2x + 3y = 7 and 4x + ky = 15 have no solution?",
+          "options": [
+            "3",
+            "4",
+            "6",
+            "8"
+          ],
+          "correct_option_index": 2,
+          "answer": "k = 6. Then the ratios of the x and y coefficients are both 1/2, while the ratio of the constants is 7/15, so the lines are parallel and distinct.",
+          "marking_steps": [
+            {
+              "text": "Select 6 using 2/4 = 3/k, with 7/15 different from 1/2.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 4,
+          "unit": "Algebra",
+          "chapter": "Quadratic Equations",
+          "type": "mcq",
+          "marks": 1,
+          "text": "The equation x^2 - 8x + k = 0 has equal real roots. What is k?",
+          "options": [
+            "8",
+            "16",
+            "32",
+            "64"
+          ],
+          "correct_option_index": 1,
+          "answer": "16. Equal roots require discriminant 64 - 4k = 0, giving k = 16.",
+          "marking_steps": [
+            {
+              "text": "Select 16 by setting 64 - 4k = 0.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 5,
+          "unit": "Algebra",
+          "chapter": "Arithmetic Progressions",
+          "type": "mcq",
+          "marks": 1,
+          "text": "A staircase display uses 9 tiles in its first row and 4 more tiles in each successive row. How many tiles are in the eighth row?",
+          "options": [
+            "33",
+            "37",
+            "41",
+            "45"
+          ],
+          "correct_option_index": 1,
+          "answer": "37 tiles. The eighth term is 9 + (8 - 1) x 4 = 37.",
+          "marking_steps": [
+            {
+              "text": "Select 37 using a_8 = 9 + 7 x 4.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 6,
+          "unit": "Coordinate Geometry",
+          "chapter": "Coordinate Geometry",
+          "type": "mcq",
+          "marks": 1,
+          "text": "What is the distance between P(-2, 3) and Q(4, -5)?",
+          "options": [
+            "8 units",
+            "10 units",
+            "12 units",
+            "14 units"
+          ],
+          "correct_option_index": 1,
+          "answer": "10 units. PQ = sqrt((4 + 2)^2 + (-5 - 3)^2) = sqrt(36 + 64) = 10.",
+          "marking_steps": [
+            {
+              "text": "Select 10 units using the distance formula.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 7,
+          "unit": "Coordinate Geometry",
+          "chapter": "Coordinate Geometry",
+          "type": "mcq",
+          "marks": 1,
+          "text": "Point P divides the segment joining A(1, 2) and B(10, 8) internally in the ratio AP:PB = 1:2. What are the coordinates of P?",
+          "options": [
+            "(7, 6)",
+            "(4, 4)",
+            "(3, 2)",
+            "(5, 5)"
+          ],
+          "correct_option_index": 1,
+          "answer": "(4, 4). P = ((1 x 10 + 2 x 1)/3, (1 x 8 + 2 x 2)/3) = (4, 4).",
+          "marking_steps": [
+            {
+              "text": "Select (4, 4) by applying the internal section formula.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 8,
+          "unit": "Coordinate Geometry",
+          "chapter": "Coordinate Geometry",
+          "type": "mcq",
+          "marks": 1,
+          "text": "The point M(3, -1) is the midpoint of A(-2, 5) and B. What are the coordinates of B?",
+          "options": [
+            "(1, 4)",
+            "(4, -6)",
+            "(8, -7)",
+            "(6, -2)"
+          ],
+          "correct_option_index": 2,
+          "answer": "(8, -7). If B = (x, y), then (-2 + x)/2 = 3 and (5 + y)/2 = -1, giving x = 8 and y = -7.",
+          "marking_steps": [
+            {
+              "text": "Select (8, -7) using the midpoint formula.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 9,
+          "unit": "Geometry",
+          "chapter": "Triangles",
+          "type": "mcq",
+          "marks": 1,
+          "text": "The side lengths of two triangles are 6 cm, 8 cm, 10 cm and 9 cm, 12 cm, 15 cm respectively. Which criterion directly establishes their similarity from this information?",
+          "options": [
+            "AA similarity",
+            "SAS similarity",
+            "SSS similarity",
+            "Equal perimeters"
+          ],
+          "correct_option_index": 2,
+          "answer": "SSS similarity. The corresponding side ratios are 6/9 = 8/12 = 10/15 = 2/3.",
+          "marking_steps": [
+            {
+              "text": "Select SSS similarity because all three corresponding side ratios are equal.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 10,
+          "unit": "Geometry",
+          "chapter": "Circles",
+          "type": "mcq",
+          "marks": 1,
+          "text": "PA and PB are tangents from an external point P to a circle with centre O. If angle APB = 74 degrees, what is the smaller angle AOB?",
+          "options": [
+            "74 degrees",
+            "90 degrees",
+            "106 degrees",
+            "148 degrees"
+          ],
+          "correct_option_index": 2,
+          "answer": "106 degrees. Angles OAP and OBP are each 90 degrees, so angle AOB = 360 - 90 - 90 - 74 = 106 degrees.",
+          "marking_steps": [
+            {
+              "text": "Select 106 degrees using the angle sum of quadrilateral OAPB.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 11,
+          "unit": "Geometry",
+          "chapter": "Triangles",
+          "type": "mcq",
+          "marks": 1,
+          "text": "In triangle ABC, D lies on AB and E lies on AC, with DE parallel to BC. If AD = 3 cm, DB = 5 cm and AE = 4.5 cm, what is EC?",
+          "options": [
+            "6 cm",
+            "7.5 cm",
+            "9 cm",
+            "12 cm"
+          ],
+          "correct_option_index": 1,
+          "answer": "7.5 cm. By the Basic Proportionality Theorem, 3/5 = 4.5/EC, so EC = 7.5 cm.",
+          "marking_steps": [
+            {
+              "text": "Select 7.5 cm using AD/DB = AE/EC.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 12,
+          "unit": "Trigonometry",
+          "chapter": "Introduction to Trigonometry",
+          "type": "mcq",
+          "marks": 1,
+          "text": "The printed triangle ABC is right-angled at A, with AB = 12 cm and AC = 5 cm. What is sin B?",
+          "options": [
+            "5/12",
+            "12/13",
+            "5/13",
+            "12/5"
+          ],
+          "correct_option_index": 2,
+          "answer": "5/13. BC = sqrt(12^2 + 5^2) = 13 cm, and sin B = AC/BC = 5/13.",
+          "marking_steps": [
+            {
+              "text": "Select 5/13 after finding hypotenuse BC = 13 cm.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "triangle",
+            "labels": [
+              "A",
+              "B",
+              "C",
+              "12 cm",
+              "5 cm"
+            ]
+          }
+        },
+        {
+          "number": 13,
+          "unit": "Trigonometry",
+          "chapter": "Introduction to Trigonometry",
+          "type": "mcq",
+          "marks": 1,
+          "text": "What is the value of 2 sin 30 degrees cos 60 degrees + tan 45 degrees?",
+          "options": [
+            "1/2",
+            "1",
+            "3/2",
+            "2"
+          ],
+          "correct_option_index": 2,
+          "answer": "3/2. Substitution gives 2 x (1/2) x (1/2) + 1 = 3/2.",
+          "marking_steps": [
+            {
+              "text": "Select 3/2 using the standard trigonometric values.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 14,
+          "unit": "Mensuration",
+          "chapter": "Areas Related to Circles",
+          "type": "mcq",
+          "marks": 1,
+          "text": "A circle has radius 14 cm. What is the area of its minor segment subtended by a central angle of 90 degrees?",
+          "options": [
+            "42 cm^2",
+            "56 cm^2",
+            "98 cm^2",
+            "154 cm^2"
+          ],
+          "correct_option_index": 1,
+          "answer": "56 cm^2. Segment area = (90/360) x pi x 14^2 - (1/2) x 14 x 14 = 154 - 98 = 56 cm^2.",
+          "marking_steps": [
+            {
+              "text": "Select 56 cm^2 by subtracting the right triangle's area from the sector's area.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 15,
+          "unit": "Mensuration",
+          "chapter": "Surface Areas and Volumes",
+          "type": "mcq",
+          "marks": 1,
+          "text": "A solid consists of a cylinder of radius 3 cm and height 4 cm joined to a cone of the same radius and height 6 cm along their circular bases. What is its volume? Give the answer in terms of pi.",
+          "options": [
+            "36pi cm^3",
+            "45pi cm^3",
+            "54pi cm^3",
+            "90pi cm^3"
+          ],
+          "correct_option_index": 2,
+          "answer": "54pi cm^3. Total volume = pi x 3^2 x 4 + (1/3) x pi x 3^2 x 6 = 36pi + 18pi = 54pi cm^3.",
+          "marking_steps": [
+            {
+              "text": "Select 54pi cm^3 by adding the cylinder and cone volumes.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 16,
+          "unit": "Mensuration",
+          "chapter": "Areas Related to Circles",
+          "type": "mcq",
+          "marks": 1,
+          "text": "A sector of radius 21 cm has central angle 60 degrees. What is the length of its arc?",
+          "options": [
+            "11 cm",
+            "22 cm",
+            "33 cm",
+            "44 cm"
+          ],
+          "correct_option_index": 1,
+          "answer": "22 cm. Arc length = (60/360) x 2 x (22/7) x 21 = 22 cm.",
+          "marking_steps": [
+            {
+              "text": "Select 22 cm using the arc-length formula.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 17,
+          "unit": "Statistics and Probability",
+          "chapter": "Probability",
+          "type": "mcq",
+          "marks": 1,
+          "text": "One card is chosen at random from cards numbered 1 to 30. What is the probability that its number is divisible by both 3 and 5?",
+          "options": [
+            "1/15",
+            "1/10",
+            "1/6",
+            "1/5"
+          ],
+          "correct_option_index": 0,
+          "answer": "1/15. The favourable numbers are 15 and 30, so the probability is 2/30 = 1/15.",
+          "marking_steps": [
+            {
+              "text": "Select 1/15 by counting the two multiples of 15.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 18,
+          "unit": "Statistics and Probability",
+          "chapter": "Statistics",
+          "type": "mcq",
+          "marks": 1,
+          "text": "A grouped distribution has class intervals 0-10, 10-20, 20-30 and 30-40, with respective frequencies 3, 7, 12 and 8. What is its modal class?",
+          "options": [
+            "0-10",
+            "10-20",
+            "20-30",
+            "30-40"
+          ],
+          "correct_option_index": 2,
+          "answer": "20-30, because this class has the greatest frequency, 12.",
+          "marking_steps": [
+            {
+              "text": "Select 20-30 as the class with maximum frequency.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 19,
+          "unit": "Geometry",
+          "chapter": "Circles",
+          "type": "assertion_reason",
+          "marks": 1,
+          "text": "Assertion (A): If a circle has centre O and radius 5 cm, P is an external point with OP = 13 cm, and PT is a tangent touching the circle at T, then PT = 12 cm.\nReason (R): The radius through the point of contact is perpendicular to the tangent, so OPT is a right triangle with hypotenuse OP.",
+          "options": [
+            "Both A and R are true, and R is the correct explanation of A.",
+            "Both A and R are true, but R is not the correct explanation of A.",
+            "A is true, but R is false.",
+            "A is false, but R is true."
+          ],
+          "correct_option_index": 0,
+          "answer": "Both statements are true, and R explains A. Since OT is perpendicular to PT, PT = sqrt(OP^2 - OT^2) = sqrt(169 - 25) = 12 cm.",
+          "marking_steps": [
+            {
+              "text": "Select the first option: perpendicularity gives the right triangle and hence PT = 12 cm.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 20,
+          "unit": "Algebra",
+          "chapter": "Quadratic Equations",
+          "type": "assertion_reason",
+          "marks": 1,
+          "text": "Assertion (A): The equation x^2 - 6x + 10 = 0 has no real roots.\nReason (R): A quadratic equation ax^2 + bx + c = 0, where a is nonzero, has no real roots when b^2 - 4ac is negative.",
+          "options": [
+            "Both A and R are true, and R is the correct explanation of A.",
+            "Both A and R are true, but R is not the correct explanation of A.",
+            "A is true, but R is false.",
+            "A is false, but R is true."
+          ],
+          "correct_option_index": 0,
+          "answer": "Both statements are true, and R explains A. Here the discriminant is (-6)^2 - 4 x 1 x 10 = -4, which is negative.",
+          "marking_steps": [
+            {
+              "text": "Select the first option because the discriminant is -4 and the stated rule applies.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        }
+      ]
+    },
+    {
+      "title": "Section B - Very short answers (5 x 2 = 10 marks)",
+      "questions": [
+        {
+          "number": 21,
+          "unit": "Number Systems",
+          "chapter": "Real Numbers",
+          "type": "short_answer",
+          "marks": 2,
+          "text": "Two ribbons measure 126 cm and 198 cm. They are to be cut into pieces of the greatest possible equal length, with no ribbon left over. Find the length of each piece and the total number of pieces.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "126 = 2 x 3^2 x 7 and 198 = 2 x 3^2 x 11. Their HCF is 18, so each piece is 18 cm long. The total number of pieces is 126/18 + 198/18 = 7 + 11 = 18.",
+          "marking_steps": [
+            {
+              "text": "Use prime factorisation to find HCF(126, 198) = 18 cm, the greatest possible piece length.",
+              "marks": 1
+            },
+            {
+              "text": "Calculate 126/18 + 198/18 = 18 pieces.",
+              "marks": 1
+            }
+          ],
+          "alternative": {
+            "text": "Three indicator lights flash at intervals of 12, 18 and 30 seconds. They flash together at 8:10:00 a.m. After how many seconds will they next flash together, and what time will that be?",
+            "answer": "12 = 2^2 x 3, 18 = 2 x 3^2 and 30 = 2 x 3 x 5. Their LCM is 2^2 x 3^2 x 5 = 180 seconds. This is 3 minutes, so the next simultaneous flash is at 8:13:00 a.m.",
+            "marking_steps": [
+              {
+                "text": "Find LCM(12, 18, 30) = 180 seconds using prime factors.",
+                "marks": 1
+              },
+              {
+                "text": "Convert 180 seconds to 3 minutes and obtain 8:13:00 a.m.",
+                "marks": 1
+              }
+            ]
+          },
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 22,
+          "unit": "Geometry",
+          "chapter": "Circles",
+          "type": "short_answer",
+          "marks": 2,
+          "text": "PA and PB are tangents from an external point P to a circle with centre O, touching at A and B. Prove that PA = PB.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Join OA, OB and OP. OA is perpendicular to PA and OB is perpendicular to PB. In right triangles OAP and OBP, OP is the common hypotenuse and OA = OB, being radii. Therefore the triangles are congruent by RHS, and PA = PB by corresponding parts of congruent triangles.",
+          "marking_steps": [
+            {
+              "text": "Join the radii and OP; identify the right angles, common hypotenuse OP and equal radii OA = OB.",
+              "marks": 1
+            },
+            {
+              "text": "Apply RHS congruence to triangles OAP and OBP and conclude PA = PB.",
+              "marks": 1
+            }
+          ],
+          "alternative": {
+            "text": "A quadrilateral ABCD touches a circle on all four sides. Its consecutive side lengths are AB = 9 cm, BC = 11 cm and CD = 8 cm. Find DA, explaining the tangent property used.",
+            "answer": "Let the contact points on AB, BC, CD and DA be E, F, G and H. Equal tangents give AE = AH, BE = BF, CF = CG and DG = DH. Adding gives AB + CD = BC + DA. Hence DA = 9 + 8 - 11 = 6 cm.",
+            "marking_steps": [
+              {
+                "text": "Use equal tangents from each vertex to establish AB + CD = BC + DA.",
+                "marks": 1
+              },
+              {
+                "text": "Substitute the lengths to obtain DA = 6 cm.",
+                "marks": 1
+              }
+            ]
+          },
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 23,
+          "unit": "Trigonometry",
+          "chapter": "Introduction to Trigonometry",
+          "type": "short_answer",
+          "marks": 2,
+          "text": "If theta is acute and tan theta = 3/4, find sin theta + cos theta.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Take the opposite and adjacent sides as 3k and 4k, where k > 0. The hypotenuse is sqrt(9k^2 + 16k^2) = 5k. Thus sin theta = 3/5 and cos theta = 4/5, so their sum is 7/5.",
+          "marking_steps": [
+            {
+              "text": "Use sides 3k, 4k and 5k to obtain sin theta = 3/5 and cos theta = 4/5.",
+              "marks": 1
+            },
+            {
+              "text": "Add the ratios to obtain 7/5.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 24,
+          "unit": "Mensuration",
+          "chapter": "Areas Related to Circles",
+          "type": "short_answer",
+          "marks": 2,
+          "text": "A sector has radius 10 cm and central angle 120 degrees. Find its perimeter. Give the exact answer in terms of pi.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Arc length = (120/360) x 2pi x 10 = 20pi/3 cm. The sector perimeter includes two radii, so it is 20 + 20pi/3 cm.",
+          "marking_steps": [
+            {
+              "text": "Calculate the arc length as 20pi/3 cm.",
+              "marks": 1
+            },
+            {
+              "text": "Add two radii to obtain perimeter = 20 + 20pi/3 cm.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 25,
+          "unit": "Statistics and Probability",
+          "chapter": "Probability",
+          "type": "short_answer",
+          "marks": 2,
+          "text": "Two fair six-sided dice are rolled together. Find the probability that the sum of the numbers is a multiple of 4.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "There are 36 equally likely ordered outcomes. Sums divisible by 4 are 4, 8 and 12. Sum 4 occurs in (1,3), (2,2), (3,1); sum 8 in (2,6), (3,5), (4,4), (5,3), (6,2); and sum 12 in (6,6). Hence there are 9 favourable outcomes and the probability is 9/36 = 1/4.",
+          "marking_steps": [
+            {
+              "text": "Count 3 + 5 + 1 = 9 favourable ordered outcomes for sums 4, 8 and 12.",
+              "marks": 1
+            },
+            {
+              "text": "Use 36 equally likely outcomes to obtain probability = 9/36 = 1/4.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        }
+      ]
+    },
+    {
+      "title": "Section C - Short answers (6 x 3 = 18 marks)",
+      "questions": [
+        {
+          "number": 26,
+          "unit": "Number Systems",
+          "chapter": "Real Numbers",
+          "type": "short_answer",
+          "marks": 3,
+          "text": "Prove that sqrt(5) is irrational. Hence prove that 3 + sqrt(5) is irrational.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Suppose sqrt(5) = a/b, where a and b are coprime positive integers. Squaring gives a^2 = 5b^2. Since 5 is prime and divides a^2, it divides a. Write a = 5k. Substitution gives b^2 = 5k^2, so 5 also divides b. This contradicts coprimality; hence sqrt(5) is irrational. If 3 + sqrt(5) were rational, subtracting the rational number 3 would make sqrt(5) rational, again a contradiction. Therefore 3 + sqrt(5) is irrational.",
+          "marking_steps": [
+            {
+              "text": "Assume sqrt(5) = a/b in lowest terms, derive a^2 = 5b^2 and infer that 5 divides a.",
+              "marks": 1
+            },
+            {
+              "text": "Put a = 5k, show that 5 divides b, and obtain the contradiction proving sqrt(5) irrational.",
+              "marks": 1
+            },
+            {
+              "text": "Show that rationality of 3 + sqrt(5) would imply rationality of sqrt(5); conclude irrationality.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 27,
+          "unit": "Algebra",
+          "chapter": "Polynomials",
+          "type": "short_answer",
+          "marks": 3,
+          "text": "Find the zeroes of 3x^2 - 11x + 6 and verify both relationships between its zeroes and coefficients.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "3x^2 - 11x + 6 = 3x^2 - 9x - 2x + 6 = (3x - 2)(x - 3). Its zeroes are 2/3 and 3. Their sum is 2/3 + 3 = 11/3 = -(-11)/3 = -b/a. Their product is (2/3) x 3 = 2 = 6/3 = c/a. Both relationships are verified.",
+          "marking_steps": [
+            {
+              "text": "Factorise as (3x - 2)(x - 3) and obtain zeroes 2/3 and 3.",
+              "marks": 1
+            },
+            {
+              "text": "Verify the sum: 11/3 = -b/a.",
+              "marks": 1
+            },
+            {
+              "text": "Verify the product: 2 = c/a.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 28,
+          "unit": "Algebra",
+          "chapter": "Arithmetic Progressions",
+          "type": "short_answer",
+          "marks": 3,
+          "text": "An auditorium has 14 seats in its first row and 3 more seats in each subsequent row. There are 275 seats altogether. Find the number of rows and the number of seats in the last row.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Let there be n rows. Using a = 14 and d = 3, 275 = n/2[28 + 3(n - 1)], so 3n^2 + 25n - 550 = 0. Factorising gives (n - 10)(3n + 55) = 0. Since n is positive, n = 10. The last row has 14 + 9 x 3 = 41 seats.",
+          "marking_steps": [
+            {
+              "text": "Set up 275 = n/2[28 + 3(n - 1)] and simplify to 3n^2 + 25n - 550 = 0.",
+              "marks": 1
+            },
+            {
+              "text": "Factorise and select the positive solution n = 10 rows.",
+              "marks": 1
+            },
+            {
+              "text": "Calculate the last term as 14 + 9 x 3 = 41 seats.",
+              "marks": 1
+            }
+          ],
+          "alternative": {
+            "text": "The seventh term of an AP is 31 and its twelfth term is 51. Find its first term, common difference and the sum of its first 20 terms.",
+            "answer": "a + 6d = 31 and a + 11d = 51. Subtracting gives 5d = 20, so d = 4. Then a = 31 - 24 = 7. S_20 = 20/2[2 x 7 + 19 x 4] = 10(14 + 76) = 900.",
+            "marking_steps": [
+              {
+                "text": "Form a + 6d = 31 and a + 11d = 51, then subtract to obtain d = 4.",
+                "marks": 1
+              },
+              {
+                "text": "Substitute to obtain a = 7.",
+                "marks": 1
+              },
+              {
+                "text": "Apply the sum formula to obtain S_20 = 900.",
+                "marks": 1
+              }
+            ]
+          },
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 29,
+          "unit": "Statistics and Probability",
+          "chapter": "Statistics",
+          "type": "short_answer",
+          "marks": 3,
+          "text": "The time taken by 40 students to finish a puzzle was recorded as follows. The intervals are continuous, with the lower endpoint included and the upper endpoint excluded.\nTime (minutes): 0-10 | 10-20 | 20-30 | 30-40\nNumber of students: 6 | 10 | 16 | 8\nCalculate the median time.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Cumulative frequencies are 6, 16, 32 and 40. Since N/2 = 20, the median class is 20-30. Here l = 20, cf = 16, f = 16 and h = 10. Median = l + [(N/2 - cf)/f]h = 20 + [(20 - 16)/16] x 10 = 22.5 minutes.",
+          "marking_steps": [
+            {
+              "text": "Calculate cumulative frequencies 6, 16, 32, 40 and identify 20-30 as the median class using N/2 = 20.",
+              "marks": 1
+            },
+            {
+              "text": "Substitute l = 20, cf = 16, f = 16 and h = 10 into the grouped median formula.",
+              "marks": 1
+            },
+            {
+              "text": "Evaluate the median as 22.5 minutes.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 30,
+          "unit": "Coordinate Geometry",
+          "chapter": "Coordinate Geometry",
+          "type": "short_answer",
+          "marks": 3,
+          "text": "The y-axis intersects the line segment joining A(-6, 2) and B(9, 12) at P. Find the ratio AP:PB and the coordinates of P.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Let AP:PB = m:n. Since P is on the y-axis, its x-coordinate is zero. The section formula gives (9m - 6n)/(m + n) = 0, so 9m = 6n and m:n = 2:3. The y-coordinate is (2 x 12 + 3 x 2)/5 = 6. Therefore AP:PB = 2:3 and P = (0, 6).",
+          "marking_steps": [
+            {
+              "text": "Set up the zero x-coordinate using (9m - 6n)/(m + n) = 0.",
+              "marks": 1
+            },
+            {
+              "text": "Solve to obtain AP:PB = 2:3.",
+              "marks": 1
+            },
+            {
+              "text": "Calculate y = 6 using the section formula and state P = (0, 6).",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 31,
+          "unit": "Trigonometry",
+          "chapter": "Trigonometric Identities",
+          "type": "short_answer",
+          "marks": 3,
+          "text": "For an acute angle A, prove that (sec A + tan A)^2 = (1 + sin A)/(1 - sin A).",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Starting with the left side, (sec A + tan A)^2 = [(1 + sin A)/cos A]^2 = (1 + sin A)^2/cos^2 A. Using cos^2 A = 1 - sin^2 A, this becomes (1 + sin A)^2/[(1 - sin A)(1 + sin A)] = (1 + sin A)/(1 - sin A). The cancellation is valid because A is acute. Hence proved.",
+          "marking_steps": [
+            {
+              "text": "Rewrite sec A + tan A as (1 + sin A)/cos A and square.",
+              "marks": 1
+            },
+            {
+              "text": "Use cos^2 A = (1 - sin A)(1 + sin A).",
+              "marks": 1
+            },
+            {
+              "text": "Cancel the common factor to obtain the stated right side.",
+              "marks": 1
+            }
+          ],
+          "alternative": {
+            "text": "For an acute angle A, prove that (cosec A - cot A)(1 + cos A) = sin A.",
+            "answer": "(cosec A - cot A)(1 + cos A) = [(1 - cos A)/sin A](1 + cos A) = (1 - cos^2 A)/sin A = sin^2 A/sin A = sin A. Since A is acute, sin A is nonzero and the division is valid.",
+            "marking_steps": [
+              {
+                "text": "Rewrite cosec A - cot A as (1 - cos A)/sin A.",
+                "marks": 1
+              },
+              {
+                "text": "Multiply to obtain (1 - cos^2 A)/sin A.",
+                "marks": 1
+              },
+              {
+                "text": "Use 1 - cos^2 A = sin^2 A and simplify to sin A.",
+                "marks": 1
+              }
+            ]
+          },
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        }
+      ]
+    },
+    {
+      "title": "Section D - Long answers (4 x 5 = 20 marks)",
+      "questions": [
+        {
+          "number": 32,
+          "unit": "Algebra",
+          "chapter": "Quadratic Equations",
+          "type": "long_answer",
+          "marks": 5,
+          "text": "A delivery vehicle covers 180 km at a constant speed. If its speed were increased by 3 km/h, the same journey would take 2 hours less. Find the original speed and the original journey time.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Let the original speed be v km/h, with v > 0. The original and increased-speed journey times are 180/v and 180/(v + 3) hours. Thus 180/v - 180/(v + 3) = 2. Multiplying by v(v + 3) gives 540 = 2v(v + 3), so v^2 + 3v - 270 = 0. Factorising, (v + 18)(v - 15) = 0. The roots are -18 and 15; reject -18 because speed is positive. The original speed is 15 km/h and the original time is 180/15 = 12 hours. At 18 km/h, the journey takes 10 hours, confirming the reduction of 2 hours.",
+          "marking_steps": [
+            {
+              "text": "Define positive speed v and express the two journey times as 180/v and 180/(v + 3).",
+              "marks": 1
+            },
+            {
+              "text": "Form 180/v - 180/(v + 3) = 2.",
+              "marks": 1
+            },
+            {
+              "text": "Clear denominators and simplify to v^2 + 3v - 270 = 0.",
+              "marks": 1
+            },
+            {
+              "text": "Factorise and select v = 15 km/h, rejecting -18.",
+              "marks": 1
+            },
+            {
+              "text": "Calculate the original time as 12 hours and verify the 2-hour reduction.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 33,
+          "unit": "Geometry",
+          "chapter": "Triangles",
+          "type": "long_answer",
+          "marks": 5,
+          "text": "In triangle ABC, D and E lie in the interiors of AB and AC respectively, and DE is parallel to BC. Prove that AD/DB = AE/EC.\nThen apply this result when AD = x + 1 cm, DB = x - 1 cm, AE = 6 cm and EC = 4 cm to find x and AB. Draw a suitable labelled figure.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Join BE and CD. Write ar for area. Triangles ADE and BDE have bases AD and DB on AB and the same altitude from E, so ar(ADE)/ar(BDE) = AD/DB. Similarly, triangles ADE and CDE have bases AE and EC on AC and the same altitude from D, so ar(ADE)/ar(CDE) = AE/EC. Triangles BDE and CDE have the same base DE and lie between the parallels DE and BC; hence their areas are equal. The two ratios therefore give AD/DB = AE/EC.\nFor the application, (x + 1)/(x - 1) = 6/4, with x > 1. Thus 4x + 4 = 6x - 6, giving x = 5. Therefore AD = 6 cm, DB = 4 cm and AB = 10 cm.",
+          "marking_steps": [
+            {
+              "text": "Use the common altitude from E to show ar(ADE)/ar(BDE) = AD/DB.",
+              "marks": 1
+            },
+            {
+              "text": "Use the common altitude from D to show ar(ADE)/ar(CDE) = AE/EC.",
+              "marks": 1
+            },
+            {
+              "text": "Show ar(BDE) = ar(CDE) using their common base and parallel lines, and conclude AD/DB = AE/EC.",
+              "marks": 1
+            },
+            {
+              "text": "Apply the theorem to form (x + 1)/(x - 1) = 6/4 and solve x = 5.",
+              "marks": 1
+            },
+            {
+              "text": "Calculate AB = (5 + 1) + (5 - 1) = 10 cm.",
+              "marks": 1
+            }
+          ],
+          "alternative": null,
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 34,
+          "unit": "Mensuration",
+          "chapter": "Surface Areas and Volumes",
+          "type": "long_answer",
+          "marks": 5,
+          "text": "A solid display model is made by joining a hemisphere of radius 3 cm to the top circular face of a cylinder of radius 3 cm and height 8 cm. The bottom circular face remains exposed. Find the total volume and the total exposed surface area. Give exact answers in terms of pi.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "The cylinder volume is pi r^2 h = pi x 9 x 8 = 72pi cm^3. The hemisphere volume is (2/3)pi r^3 = (2/3)pi x 27 = 18pi cm^3. Thus the total volume is 90pi cm^3.\nThe exposed surface consists of the cylinder's curved surface, the hemisphere's curved surface and the bottom circular base. Their areas are 2pi rh = 48pi, 2pi r^2 = 18pi and pi r^2 = 9pi cm^2. The joined circular face is internal. Total exposed area = 48pi + 18pi + 9pi = 75pi cm^2.",
+          "marking_steps": [
+            {
+              "text": "Calculate the cylinder volume as 72pi cm^3.",
+              "marks": 1
+            },
+            {
+              "text": "Calculate the hemisphere volume as 18pi cm^3 and add to obtain 90pi cm^3.",
+              "marks": 1
+            },
+            {
+              "text": "Identify the exposed surfaces, including the bottom base and excluding the joined face.",
+              "marks": 1
+            },
+            {
+              "text": "Calculate the curved areas as 48pi and 18pi cm^2 and the bottom area as 9pi cm^2.",
+              "marks": 1
+            },
+            {
+              "text": "Add to obtain total exposed surface area = 75pi cm^2.",
+              "marks": 1
+            }
+          ],
+          "alternative": {
+            "text": "A solid ornament consists of a cone joined to a hemisphere along their equal circular bases. Their common radius is 3 cm, and the cone's perpendicular height is 4 cm. Find the total volume and the total exposed surface area. Give exact answers in terms of pi.",
+            "answer": "The cone's slant height is sqrt(3^2 + 4^2) = 5 cm. Cone volume = (1/3)pi x 3^2 x 4 = 12pi cm^3. Hemisphere volume = (2/3)pi x 3^3 = 18pi cm^3, so total volume = 30pi cm^3. Only the curved surfaces are exposed, since the common circular base is internal. Cone curved area = pi x 3 x 5 = 15pi cm^2; hemisphere curved area = 2pi x 3^2 = 18pi cm^2. Total exposed surface area = 33pi cm^2.",
+            "marking_steps": [
+              {
+                "text": "Calculate cone slant height = 5 cm.",
+                "marks": 1
+              },
+              {
+                "text": "Calculate cone and hemisphere volumes as 12pi and 18pi cm^3.",
+                "marks": 1
+              },
+              {
+                "text": "Add to obtain total volume = 30pi cm^3.",
+                "marks": 1
+              },
+              {
+                "text": "Exclude the common base and calculate curved surface areas 15pi and 18pi cm^2.",
+                "marks": 1
+              },
+              {
+                "text": "Add to obtain total exposed surface area = 33pi cm^2.",
+                "marks": 1
+              }
+            ]
+          },
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 35,
+          "unit": "Trigonometry",
+          "chapter": "Heights and Distances",
+          "type": "long_answer",
+          "marks": 5,
+          "text": "Two observation points P and Q lie on level ground on the same straight line with the foot O of a vertical mast, in the order O, P, Q. The points P and Q are 24 m apart. The angles of elevation of the mast's top from P and Q are 60 degrees and 30 degrees respectively. Find the mast's height and the distance OP. Treat the observation points as being at ground level.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "Let OP = x m and the mast height be h m. Then OQ = x + 24. From P, tan 60 degrees = h/x, so h = sqrt(3)x. From Q, tan 30 degrees = h/(x + 24), so h = (x + 24)/sqrt(3). Equating gives 3x = x + 24, hence x = 12. Therefore OP = 12 m and h = 12sqrt(3) m.",
+          "marking_steps": [
+            {
+              "text": "Represent the two right triangles with OP = x, OQ = x + 24 and common height h.",
+              "marks": 1
+            },
+            {
+              "text": "Use the 60-degree angle to obtain h = sqrt(3)x.",
+              "marks": 1
+            },
+            {
+              "text": "Use the 30-degree angle to obtain h = (x + 24)/sqrt(3).",
+              "marks": 1
+            },
+            {
+              "text": "Equate the expressions and solve 3x = x + 24 to obtain OP = 12 m.",
+              "marks": 1
+            },
+            {
+              "text": "Substitute to obtain the mast height = 12sqrt(3) m.",
+              "marks": 1
+            }
+          ],
+          "alternative": {
+            "text": "An observer's eyes are 1.5 m above level ground. The angle of elevation of the top of a vertical tower is 60 degrees. After the observer walks 16 m directly away from the tower on the same level ground, the angle becomes 30 degrees. Find the tower's height and the observer's initial horizontal distance from its foot.",
+            "answer": "Let the initial horizontal distance be x m and the tower height be H m. The height above eye level is H - 1.5. Initially, H - 1.5 = x tan 60 degrees = sqrt(3)x. After walking away, H - 1.5 = (x + 16)tan 30 degrees = (x + 16)/sqrt(3). Equating gives 3x = x + 16, so x = 8. Thus H - 1.5 = 8sqrt(3), giving tower height H = 8sqrt(3) + 1.5 m. The initial horizontal distance is 8 m.",
+            "marking_steps": [
+              {
+                "text": "Define initial horizontal distance x and height above eye level H - 1.5.",
+                "marks": 1
+              },
+              {
+                "text": "Form H - 1.5 = sqrt(3)x from the initial position.",
+                "marks": 1
+              },
+              {
+                "text": "Form H - 1.5 = (x + 16)/sqrt(3) from the second position.",
+                "marks": 1
+              },
+              {
+                "text": "Solve 3x = x + 16 to obtain initial distance x = 8 m.",
+                "marks": 1
+              },
+              {
+                "text": "Add the eye height to obtain H = 8sqrt(3) + 1.5 m.",
+                "marks": 1
+              }
+            ]
+          },
+          "parts": [],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        }
+      ]
+    },
+    {
+      "title": "Section E - Case studies (3 x 4 = 12 marks)",
+      "questions": [
+        {
+          "number": 36,
+          "unit": "Algebra",
+          "chapter": "Pair of Linear Equations in Two Variables",
+          "type": "case_study",
+          "marks": 4,
+          "text": "A school exhibition sells adult admission tickets at Rs 60 each and student admission tickets at Rs 35 each. On one day, 120 tickets are sold and the collection is Rs 5450. Let x be the number of adult tickets and y the number of student tickets sold that day. Use this information for all subparts.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "",
+          "marking_steps": [],
+          "alternative": null,
+          "parts": [
+            {
+              "label": "(i)",
+              "marks": 1,
+              "text": "Write an equation representing the total number of tickets sold.",
+              "answer": "x + y = 120.",
+              "marking_steps": [
+                {
+                  "text": "Translate the total ticket count into x + y = 120.",
+                  "marks": 1
+                }
+              ],
+              "alternative": null
+            },
+            {
+              "label": "(ii)",
+              "marks": 1,
+              "text": "Write an equation representing the total collection.",
+              "answer": "60x + 35y = 5450.",
+              "marking_steps": [
+                {
+                  "text": "Multiply each ticket count by its price and form 60x + 35y = 5450.",
+                  "marks": 1
+                }
+              ],
+              "alternative": null
+            },
+            {
+              "label": "(iii)",
+              "marks": 2,
+              "text": "Find the numbers of adult and student tickets sold.",
+              "answer": "Multiply x + y = 120 by 35 to get 35x + 35y = 4200. Subtract this from 60x + 35y = 5450 to obtain 25x = 1250, so x = 50. Then y = 120 - 50 = 70. Thus 50 adult and 70 student tickets were sold.",
+              "marking_steps": [
+                {
+                  "text": "Eliminate y to obtain 25x = 1250 and x = 50.",
+                  "marks": 1
+                },
+                {
+                  "text": "Calculate y = 70 and correctly identify both ticket counts.",
+                  "marks": 1
+                }
+              ],
+              "alternative": {
+                "text": "A volunteer claims that selling 10 more adult tickets and 10 fewer student tickets, while keeping the total number of tickets unchanged, would increase the collection by Rs 600. Determine the actual increase and decide whether the claim is correct.",
+                "answer": "The change in collection is 60 x 10 - 35 x 10 = 600 - 350 = Rs 250. Therefore the claim is incorrect. The revised total collection would be Rs 5450 + Rs 250 = Rs 5700.",
+                "marking_steps": [
+                  {
+                    "text": "Model the change as 60 x 10 - 35 x 10.",
+                    "marks": 1
+                  },
+                  {
+                    "text": "Calculate an increase of Rs 250 and reject the Rs 600 claim.",
+                    "marks": 1
+                  }
+                ]
+              }
+            }
+          ],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 37,
+          "unit": "Geometry",
+          "chapter": "Triangles",
+          "type": "case_study",
+          "marks": 4,
+          "text": "A triangular fabric panel ABC has a reinforcing strip DE parallel to its base BC. Point D lies on AB and point E lies on AC. The measured lengths are AD = 4 m, DB = 6 m, AE = 6 m, EC = 9 m and BC = 20 m. All measurements refer to straight segments in the same plane. Use these data for all subparts; a sketch may be drawn.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "",
+          "marking_steps": [],
+          "alternative": null,
+          "parts": [
+            {
+              "label": "(i)",
+              "marks": 1,
+              "text": "Find the ratio AD:AB in its simplest form.",
+              "answer": "AB = AD + DB = 4 + 6 = 10 m. Thus AD:AB = 4:10 = 2:5.",
+              "marking_steps": [
+                {
+                  "text": "Calculate AB = 10 m and simplify AD:AB to 2:5.",
+                  "marks": 1
+                }
+              ],
+              "alternative": null
+            },
+            {
+              "label": "(ii)",
+              "marks": 1,
+              "text": "Find the full length AC.",
+              "answer": "AC = AE + EC = 6 + 9 = 15 m.",
+              "marking_steps": [
+                {
+                  "text": "Add AE and EC to obtain AC = 15 m.",
+                  "marks": 1
+                }
+              ],
+              "alternative": null
+            },
+            {
+              "label": "(iii)",
+              "marks": 2,
+              "text": "Find the length of the reinforcing strip DE, stating why the triangles used are similar.",
+              "answer": "Since DE is parallel to BC, angle ADE = angle ABC and angle AED = angle ACB. Hence triangles ADE and ABC are similar by AA. Therefore DE/BC = AD/AB = 4/10. Thus DE = (4/10) x 20 = 8 m.",
+              "marking_steps": [
+                {
+                  "text": "Establish triangle ADE similar to triangle ABC by AA using DE parallel to BC.",
+                  "marks": 1
+                },
+                {
+                  "text": "Use DE/20 = 4/10 to obtain DE = 8 m.",
+                  "marks": 1
+                }
+              ],
+              "alternative": {
+                "text": "Find the perimeter of triangle ADE using its similarity to triangle ABC.",
+                "answer": "Triangles ADE and ABC are similar by AA because DE is parallel to BC. Their corresponding side ratio is AD/AB = 4/10 = 2/5. Therefore DE = (2/5) x 20 = 8 m. The perimeter of ADE is 4 + 6 + 8 = 18 m.",
+                "marking_steps": [
+                  {
+                    "text": "Use AA similarity and the ratio 2/5 to calculate DE = 8 m.",
+                    "marks": 1
+                  },
+                  {
+                    "text": "Add AD + AE + DE to obtain perimeter = 18 m.",
+                    "marks": 1
+                  }
+                ]
+              }
+            }
+          ],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        },
+        {
+          "number": 38,
+          "unit": "Statistics and Probability",
+          "chapter": "Statistics",
+          "type": "case_study",
+          "marks": 4,
+          "text": "A library records how long visitors spend in its reading room during a morning session. The grouped distribution is shown below. Treat the intervals as continuous, with the lower endpoint included and the upper endpoint excluded.\nReading time (minutes): 0-10 | 10-20 | 20-30 | 30-40 | 40-50\nNumber of visitors: 4 | 6 | 10 | 8 | 2\nUse grouped-data formulae where appropriate.",
+          "options": [],
+          "correct_option_index": -1,
+          "answer": "",
+          "marking_steps": [],
+          "alternative": null,
+          "parts": [
+            {
+              "label": "(i)",
+              "marks": 1,
+              "text": "How many visitors are represented in the distribution?",
+              "answer": "N = 4 + 6 + 10 + 8 + 2 = 30 visitors.",
+              "marking_steps": [
+                {
+                  "text": "Sum the frequencies to obtain 30 visitors.",
+                  "marks": 1
+                }
+              ],
+              "alternative": null
+            },
+            {
+              "label": "(ii)",
+              "marks": 1,
+              "text": "Identify the median class, showing the cumulative-frequency comparison.",
+              "answer": "N/2 = 15. The cumulative frequencies are 4, 10, 20, 28 and 30. Since 10 < 15 <= 20, the median class is 20-30 minutes.",
+              "marking_steps": [
+                {
+                  "text": "Use N/2 = 15 and cumulative frequencies to identify 20-30 minutes as the median class.",
+                  "marks": 1
+                }
+              ],
+              "alternative": null
+            },
+            {
+              "label": "(iii)",
+              "marks": 2,
+              "text": "Calculate the mean reading time from the grouped distribution. Give an exact answer.",
+              "answer": "The class marks are 5, 15, 25, 35 and 45. The products f_i x_i are 20, 90, 250, 280 and 90, so their sum is 730. Mean = sum(f_i x_i)/sum(f_i) = 730/30 = 73/3 minutes.",
+              "marking_steps": [
+                {
+                  "text": "Use class marks 5, 15, 25, 35, 45 and obtain sum(f_i x_i) = 730.",
+                  "marks": 1
+                },
+                {
+                  "text": "Divide by 30 to obtain the mean = 73/3 minutes.",
+                  "marks": 1
+                }
+              ],
+              "alternative": {
+                "text": "Calculate the mode of the grouped distribution. Give an exact answer.",
+                "answer": "The modal class is 20-30. Thus l = 20, h = 10, f_1 = 10, f_0 = 6 and f_2 = 8. Mode = l + [(f_1 - f_0)/(2f_1 - f_0 - f_2)]h = 20 + [(10 - 6)/(20 - 6 - 8)] x 10 = 20 + 20/3 = 80/3 minutes.",
+                "marking_steps": [
+                  {
+                    "text": "Identify the modal class and substitute l = 20, h = 10, f_1 = 10, f_0 = 6 and f_2 = 8 into the mode formula.",
+                    "marks": 1
+                  },
+                  {
+                    "text": "Evaluate 20 + (4/6) x 10 = 80/3 minutes.",
+                    "marks": 1
+                  }
+                ]
+              }
+            }
+          ],
+          "diagram": {
+            "kind": "none",
+            "labels": []
+          }
+        }
+      ]
+    }
+  ]
+}

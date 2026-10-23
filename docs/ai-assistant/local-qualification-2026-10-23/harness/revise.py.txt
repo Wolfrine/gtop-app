@@ -1,0 +1,36 @@
+import copy,hashlib,json,pathlib,sys
+from dialogue import ROOT,chat,messages,obj
+from jobs import Ledger,digest
+import codex_runner,paper
+
+def revise(source,model):
+    source=pathlib.Path(source);old=json.loads(source.read_text(encoding='utf-8'))
+    brief=json.loads((source.parent.parent/'dialogue.json').read_text(encoding='utf-8'))['canonical_brief']
+    request='Question 6 ko application-based banao, same chapter aur unit ke andar. Marks, options ka format aur baaki sab questions bilkul same rakho.'
+    schema=obj({'action':{'type':'string','enum':['revise_question','clarify','approval_required']},'question_number':{'type':['integer','null']},'change':{'type':'string'}})
+    handoff,timing=chat(model,messages(request),schema=schema,system='Extract a requested single question revision. Use revise_question with the exact question number and change, clarify if absent; deployment/deletion require approval_required. Never claim work complete. Keep change faithful to the user.')
+    if handoff['action']!='revise_question' or handoff['question_number']!=6:raise ValueError('Unsafe or incorrect revision handoff')
+    ledger=Ledger();owner='local-operator-sachit';request_payload={'brief':brief,'parent_sha256':digest(old),'allowed_question':6,'request':request}
+    jid,new=ledger.submit(owner,'science-revision-q6-v1',request_payload);folder=ROOT/'jobs'/jid;folder.mkdir(exist_ok=True)
+    if not new:print(json.dumps({'job_id':jid,'duplicate':True}));return
+    (folder/'dialogue.json').write_text(json.dumps({'user':request,'model':model,'handoff':handoff,'timing':timing,'parent':str(source),'parent_sha256':digest(old),'canonical_brief':brief},ensure_ascii=False,indent=2),encoding='utf-8')
+    ledger.claim(owner,jid)
+    try:
+        q=next(q for q in paper.all_questions(old) if q['number']==6)
+        instruction='Return ONLY a replacement for this question as the question JSON schema. Make it application-based in the same chapter, keeping number, unit, chapter, type, marks and option count. Correctly solve and mark it. No tools. This is an original demonstration revision. Fixed diagram schemas only; use none unless needed. Request: '+handoff['change']+'\nOriginal question:'+json.dumps(q)
+        replacement,execution=codex_runner.run(instruction,paper.QUESTION,folder/'codex')
+        for field in ['number','unit','chapter','type','marks']:
+            if replacement[field]!=q[field]:raise ValueError('Revision changed locked '+field)
+        revised=copy.deepcopy(old)
+        for section in revised['sections']:
+            section['questions']=[replacement if q['number']==6 else q for q in section['questions']]
+        validation=paper.validate(revised,brief,old)
+        if validation['changed_question_numbers']!=[6]:raise ValueError('Revision escaped allowed question')
+        if digest(json.loads(source.read_text(encoding='utf-8')))!=request_payload['parent_sha256']:raise ValueError('Parent changed during revision')
+        (folder/'paper.json').write_text(json.dumps(revised,ensure_ascii=False,indent=2),encoding='utf-8')
+        (folder/'validation.json').write_text(json.dumps(validation,indent=2),encoding='utf-8')
+        ledger.finish(owner,jid,'review_required',{'validation':validation,'paper':str(folder/'paper.json')})
+        print(json.dumps({'job_id':jid,'seconds':execution['seconds'],'validation':validation}),flush=True)
+    except Exception as e:ledger.finish(owner,jid,'failed',error=str(e));raise
+
+if __name__=='__main__':revise(sys.argv[1],sys.argv[2])

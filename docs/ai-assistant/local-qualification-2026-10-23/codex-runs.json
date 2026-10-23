@@ -1,0 +1,149 @@
+[
+  {
+    "id": "science-generation",
+    "subject": "science",
+    "stage": "generation",
+    "prompt": "codex/science-generation/prompt.txt",
+    "schema": "codex/science-generation/output-schema.json",
+    "execution": "codex/science-generation/execution.json",
+    "result": "codex/science-generation/result.json",
+    "prompt_original_sha256": "4c0efc92ad9ad92fe53f4feb95d525aa54a3bdd62d23e8a96839c94b6b466126",
+    "prompt_original_bytes": 51903,
+    "prompt_archive_bytes": 3998,
+    "seconds": 340.375,
+    "model": "gpt-6.1-sol",
+    "tools_called": 0,
+    "usage": {
+      "input_tokens": 25090,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 14464,
+      "reasoning_output_tokens": 467
+    },
+    "local_llm_invoked_for_this_stage": true
+  },
+  {
+    "id": "science-review",
+    "subject": "science",
+    "stage": "review",
+    "prompt": "codex/science-review/prompt.txt",
+    "schema": "codex/science-review/output-schema.json",
+    "execution": "codex/science-review/execution.json",
+    "result": "codex/science-review/result.json",
+    "prompt_original_sha256": "2b6e6461260d09a9b40671dec82ac0dffb24b91f94b0afef3176651c4dec051f",
+    "prompt_original_bytes": 49736,
+    "prompt_archive_bytes": 49736,
+    "seconds": 64.125,
+    "model": "gpt-6.1-sol",
+    "tools_called": 0,
+    "usage": {
+      "input_tokens": 25769,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1657,
+      "reasoning_output_tokens": 907
+    },
+    "local_llm_invoked_for_this_stage": false
+  },
+  {
+    "id": "science-correction",
+    "subject": "science",
+    "stage": "correction",
+    "prompt": "codex/science-correction/prompt.txt",
+    "schema": "codex/science-correction/output-schema.json",
+    "execution": "codex/science-correction/execution.json",
+    "result": "codex/science-correction/result.json",
+    "prompt_original_sha256": "f6fc0447170010d60de9bfcc62f42bf3d1c5cfa3e5585d69216317fa66069ebe",
+    "prompt_original_bytes": 9943,
+    "prompt_archive_bytes": 9943,
+    "seconds": 39.672,
+    "model": "gpt-6.1-sol",
+    "tools_called": 0,
+    "usage": {
+      "input_tokens": 15784,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1592,
+      "reasoning_output_tokens": 0
+    },
+    "local_llm_invoked_for_this_stage": false
+  },
+  {
+    "id": "maths-standard-generation",
+    "subject": "maths-standard",
+    "stage": "generation",
+    "prompt": "codex/maths-standard-generation/prompt.txt",
+    "schema": "codex/maths-standard-generation/output-schema.json",
+    "execution": "codex/maths-standard-generation/execution.json",
+    "result": "codex/maths-standard-generation/result.json",
+    "prompt_original_sha256": "30edc00c86da2cdd6fd1bd05c0774ee509239c62172a5512a2b416651abb446e",
+    "prompt_original_bytes": 35174,
+    "prompt_archive_bytes": 4044,
+    "seconds": 432.109,
+    "model": "gpt-6.1-sol",
+    "tools_called": 0,
+    "usage": {
+      "input_tokens": 22418,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 16765,
+      "reasoning_output_tokens": 2070
+    },
+    "local_llm_invoked_for_this_stage": true
+  },
+  {
+    "id": "maths-standard-review",
+    "subject": "maths-standard",
+    "stage": "review",
+    "prompt": "codex/maths-standard-review/prompt.txt",
+    "schema": "codex/maths-standard-review/output-schema.json",
+    "execution": "codex/maths-standard-review/execution.json",
+    "result": "codex/maths-standard-review/result.json",
+    "prompt_original_sha256": "56a8e5aad43e626b434626642cf441aac0355f7de55427867e6983c5ac2e9b61",
+    "prompt_original_bytes": 40787,
+    "prompt_archive_bytes": 40787,
+    "seconds": 50.375,
+    "model": "gpt-6.1-sol",
+    "tools_called": 0,
+    "usage": {
+      "input_tokens": 26104,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1345,
+      "reasoning_output_tokens": 753
+    },
+    "local_llm_invoked_for_this_stage": false
+  },
+  {
+    "id": "science-revision-q6-generation",
+    "subject": "science-revision-q6",
+    "stage": "generation",
+    "prompt": "codex/science-revision-q6-generation/prompt.txt",
+    "schema": "codex/science-revision-q6-generation/output-schema.json",
+    "execution": "codex/science-revision-q6-generation/execution.json",
+    "result": "codex/science-revision-q6-generation/result.json",
+    "prompt_original_sha256": "669483a757cf883d29a55851ffce3b02c09b131ad544306987fe8a4ac4e1a9e5",
+    "prompt_original_bytes": 1162,
+    "prompt_archive_bytes": 1162,
+    "seconds": 15.141,
+    "model": "gpt-6.1-sol",
+    "tools_called": 0,
+    "usage": {
+      "input_tokens": 13528,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 256,
+      "reasoning_output_tokens": 0
+    },
+    "local_llm_invoked_for_this_stage": true
+  },
+  {
+    "id": "session-resume",
+    "stage": "resume-check",
+    "seconds": 7.485,
+    "execution": "codex/session-resume/execution.json",
+    "prompt": "codex/session-resume/input.txt",
+    "local_llm_invoked_for_this_stage": false,
+    "usage_note": "Observed usage is cumulative over resumed session; do not add to original job usage."
+  }
+]

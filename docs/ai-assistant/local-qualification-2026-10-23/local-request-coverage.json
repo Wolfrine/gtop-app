@@ -1,0 +1,15 @@
+{
+  "retained_request_response_pairs": 180,
+  "groups": {
+    "benchmark": 162,
+    "free-conversation": 9,
+    "paper-workflow": 3,
+    "selected-context-stress": 6
+  },
+  "not_fully_retained": [
+    "Preliminary --limit 3 Qwen 2B smoke records were overwritten by the full benchmark. Their prompt templates are the same en-01/en-02/en-03 cases.",
+    "An initial free-conversation attempt stopped at a Windows console encoding error; the canonical saved rerun contains all nine turns.",
+    "The final duplicate Maths check retains the duplicate/unchanged-dialogue result but not that local inference response or timing. Its request equals the maths-standard paper-workflow request."
+  ],
+  "non_dialogue_calls": "Model unload /api/generate keep_alive=0 calls are not conversational prompts."
+}

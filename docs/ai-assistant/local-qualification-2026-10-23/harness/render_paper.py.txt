@@ -1,0 +1,105 @@
+"""Trusted PDF renderer. Model emits content data only, never rendering code."""
+import argparse,hashlib,html,json,pathlib,re
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.styles import ParagraphStyle,getSampleStyleSheet
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.platypus import SimpleDocTemplate,Paragraph,Spacer,KeepTogether,Flowable,CondPageBreak
+from pypdf import PdfReader
+from paper import all_questions
+
+for name,file in [('Arial','arial.ttf'),('Arial-Bold','arialbd.ttf'),('Arial-Italic','ariali.ttf')]:
+    pdfmetrics.registerFont(TTFont(name,'C:/Windows/Fonts/'+file))
+pdfmetrics.registerFontFamily('Arial',normal='Arial',bold='Arial-Bold',italic='Arial-Italic',boldItalic='Arial-Bold')
+styles=getSampleStyleSheet()
+styles.add(ParagraphStyle(name='BodyGT',fontName='Arial',fontSize=10.4,leading=14.3,spaceAfter=6))
+styles.add(ParagraphStyle(name='SmallGT',fontName='Arial',fontSize=9,leading=12,spaceAfter=5))
+styles.add(ParagraphStyle(name='TitleGT',fontName='Arial-Bold',fontSize=19,leading=24,alignment=TA_CENTER,spaceAfter=10))
+styles.add(ParagraphStyle(name='SectionGT',fontName='Arial-Bold',fontSize=13,leading=17,spaceBefore=14,spaceAfter=10,keepWithNext=True,textColor=colors.HexColor('#15364b')))
+styles.add(ParagraphStyle(name='QuestionGT',fontName='Arial-Bold',fontSize=10.4,leading=14.3,spaceAfter=5,keepWithNext=True))
+def clean(value):return html.escape(str(value)).replace('\n','<br/>').replace('−','-').replace('–','-').replace('—','-')
+def para(value,style='BodyGT'):return Paragraph(clean(value),styles[style])
+
+class Diagram(Flowable):
+    def __init__(self,spec):Flowable.__init__(self);self.spec=spec;self.width=350;self.height=115
+    def draw(self):
+        c=self.canv;c.setStrokeColor(colors.black);c.setLineWidth(1);c.setFont('Arial',10);labels=self.spec['labels']
+        if self.spec['kind']=='series_circuit':
+            c.line(25,30,25,85);c.line(25,85,75,85);c.line(95,85,330,85);c.line(330,85,330,30);c.line(330,30,25,30)
+            c.line(75,72,75,98);c.line(95,77,95,93);c.drawCentredString(85,104,labels[0])
+            for x,label in [(150,labels[1]),(250,labels[2])]:
+                c.setFillColor(colors.white);c.rect(x-20,23,40,14,fill=1,stroke=1);c.setFillColor(colors.black);c.drawCentredString(x,9,label)
+            c.drawString(42,65,'+');c.drawString(108,65,'-')
+        elif self.spec['kind']=='triangle':
+            a,b,cc=(labels+['A','B','C'])[:3];c.line(70,20,290,20);c.line(70,20,70,95);c.line(70,95,290,20)
+            c.line(70,32,82,32);c.line(82,32,82,20);c.drawString(53,8,a);c.drawString(298,15,b);c.drawString(55,100,cc)
+            if len(labels)>=5:c.drawCentredString(180,5,labels[3]);c.drawRightString(62,58,labels[4])
+        elif self.spec['kind']=='bpt':
+            A=(170,95);B=(70,15);C=(310,15);D=(130,63);E=(226,63)
+            c.line(*A,*B);c.line(*A,*C);c.line(*B,*C);c.line(*D,*E)
+            c.setDash(3,2);c.line(*B,*E);c.line(*C,*D);c.setDash()
+            for label,xy in [('A',(166,100)),('B',(57,10)),('C',(315,10)),('D',(113,64)),('E',(231,64))]:c.drawString(*xy,label)
+        c.setFont('Arial-Italic',8);c.drawRightString(350,107,'Schematic - not to scale')
+
+def question(q,answers=False):
+    story=[CondPageBreak(70),para(f"{q['number']}.  {q['text']}  [{q['marks']} marks]")]
+    if q['diagram']['kind']!='none':story.append(Diagram(q['diagram']))
+    if q['options']:
+        options=[para(f"({chr(65+i)}) {v}") for i,v in enumerate(q['options'])];story+=options
+    def solution(item):
+        items=[para('Answer: '+item['answer'],'SmallGT')]
+        for step in item['marking_steps']:items.append(para(f"  {step['text']}  [{step['marks']:g}]",'SmallGT'))
+        return items
+    if q['parts']:
+        for part in q['parts']:
+            label=part['label'].strip('() ')
+            story.append(para(f"({label}) {part['text']}  [{part['marks']} marks]"))
+            if answers:story+=solution(part)
+            if part['alternative']:
+                story.append(para('OR','QuestionGT'));story.append(para(part['alternative']['text']))
+                if answers:story+=solution(part['alternative'])
+    elif answers:
+        if q['options']:story.append(para('Correct option: '+chr(65+q['correct_option_index']),'SmallGT'))
+        story+=solution(q)
+    if q['alternative']:
+        story.append(para('OR','QuestionGT'));story.append(para(q['alternative']['text']))
+        if answers:story+=solution(q['alternative'])
+    story.append(Spacer(1,8));return story
+
+def render(path,output=None):
+    path=pathlib.Path(path);p=json.loads(path.read_text(encoding='utf-8'));job_root=path.parent if (path.parent/'dialogue.json').is_file() else path.parent.parent
+    output=pathlib.Path(output) if output else job_root/'output/pdf';output.mkdir(parents=True,exist_ok=True)
+    artifacts=[]
+    for answers in [False,True]:
+        name='marking-scheme.pdf' if answers else 'question-paper.pdf';dest=output/name
+        story=[para('GROWTH TUTORIALS','SmallGT'),para(p['subject'],'TitleGT'),para('CBSE Class '+p['standard']+' | '+p['academic_year']+' | '+('Worked marking scheme' if answers else 'Question paper'),'SmallGT'),para('Maximum marks: 80     Time allowed: 3 hours','QuestionGT'),para('Original demonstration - requires teacher approval before examination use.','SmallGT'),Spacer(1,8)]
+        if not answers:
+            instructions=[f"All {len(all_questions(p))} questions are compulsory. Marks are shown beside each question.",'Attempt only one alternative wherever an internal choice is provided.','Select one answer for each objective question. Show working and relevant reasoning for written answers.','Use the Cartesian sign convention for mirrors and lenses.' if p['subject']=='Science' else 'Draw clear labelled figures where required. Use pi = 22/7 only where specified.']
+            for i,text in enumerate(instructions,1):story.append(para(f'{i}. {text}','SmallGT'))
+        else:story.append(para('Award equivalent valid methods. Alternative questions carry the same marks; they do not increase the attempted total.','SmallGT'))
+        for section in p['sections']:
+            for index,q in enumerate(section['questions']):
+                block=question(q,answers)
+                if index==0:block=[block[0],para(section['title'],'SectionGT')]+block[1:]
+                if not answers or index==0 or q['type'] in ['mcq','assertion_reason']:story.append(KeepTogether(block[1:]))
+                else:story+=block
+        if answers:
+            story.append(para('Source and provenance','SectionGT'));story.append(para('Original generated questions. Official CBSE 2026-27 syllabus and sample structure were used as references; no live GTOP question bank was accessed.','SmallGT'))
+            if p['subject']=='Science':story.append(para('Curriculum ambiguity: Heredity inclusion is provisional. The detailed unit list and official sample assess it, while the teacher note ambiguously excludes Heredity and Evolution. Obtain authoritative clarification before real examination use.','SmallGT'))
+            for source in p['sources']:story.append(para(source,'SmallGT'))
+        def page(c,doc):
+            c.saveState();c.setFont('Arial',8);c.setFillColor(colors.HexColor('#4b5c64'));c.line(42,37,553,37);c.drawString(42,25,'GTOP local AI qualification | '+('Teacher copy' if answers else 'Student copy'));c.drawRightString(553,25,str(doc.page));c.restoreState()
+        doc=SimpleDocTemplate(str(dest),pagesize=A4,rightMargin=42,leftMargin=42,topMargin=40,bottomMargin=49,title=p['subject']+' - '+name,author='Growth Tutorials - local AI qualification')
+        doc.build(story,onFirstPage=page,onLaterPages=page)
+        reader=PdfReader(dest);text='\n'.join(page.extract_text() for page in reader.pages)
+        if '\ufffd' in text or '\x00' in text:raise ValueError('Unrenderable text detected')
+        for q in all_questions(p):
+            if not re.search(r'\b'+str(q['number'])+r'\.',text):raise ValueError('Missing question '+str(q['number']))
+        artifacts.append({'path':str(dest),'pages':len(reader.pages),'bytes':dest.stat().st_size,'sha256':hashlib.sha256(dest.read_bytes()).hexdigest()})
+    manifest={'paper_source':str(path.resolve()),'source_file_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'artifacts':artifacts}
+    (output/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8');print(json.dumps(artifacts),flush=True);return artifacts
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser();parser.add_argument('path');parser.add_argument('--output');args=parser.parse_args();render(args.path,args.output)

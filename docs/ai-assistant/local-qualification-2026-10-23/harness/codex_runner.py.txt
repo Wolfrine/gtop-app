@@ -1,0 +1,52 @@
+import json,os,pathlib,queue,subprocess,threading,time
+from dialogue import ROOT
+
+EXE=pathlib.Path(r'C:\Users\Sachit Tewary\AppData\Local\OpenAI\Codex\bin\9614f1d9b40d9c4f\codex.exe')
+DISABLED=['hooks','apps','plugins','shell_tool','memories','view_image','browser_use','computer_use','code_mode_host','image_generation','multi_agent','workspace_dependencies','remote_plugin','skill_search','shell_snapshot']
+def run(prompt,schema,jobdir,timeout=900,resume=None):
+    jobdir=pathlib.Path(jobdir);jobdir.mkdir(parents=True,exist_ok=True)
+    schema_path=jobdir/'output-schema.json';schema_path.write_text(json.dumps(schema),encoding='utf-8')
+    (jobdir/'input.txt').write_text(prompt,encoding='utf-8')
+    args=[str(EXE)]
+    for feature in DISABLED:args+=['--disable',feature]
+    args+=['-c','web_search="disabled"','-c','approval_policy="never"','-c','model_reasoning_effort="medium"','exec','--ignore-user-config','--ignore-rules','--sandbox','read-only','--json','--skip-git-repo-check','--output-schema',str(schema_path),'-m','gpt-6.1-sol']
+    args+=['resume',resume,'-'] if resume else ['-']
+    env=os.environ.copy()
+    for key in ['OPENAI_API_KEY','CODEX_API_KEY']:env.pop(key,None)
+    started=time.monotonic();events=[];final=None
+    with (jobdir/'stderr.txt').open('w',encoding='utf-8') as stderr,(jobdir/'events.jsonl').open('w',encoding='utf-8') as log:
+        process=subprocess.Popen(args,cwd=jobdir,env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=stderr,text=True,encoding='utf-8')
+        incoming=queue.Queue()
+        def reader():
+            for line in process.stdout:incoming.put(line)
+            incoming.put(None)
+        threading.Thread(target=reader,daemon=True).start()
+        process.stdin.write(prompt);process.stdin.close()
+        last_heartbeat=started
+        while True:
+            if time.monotonic()-started>timeout:
+                process.terminate();process.wait(timeout=10);raise TimeoutError('Codex job exceeded deadline')
+            try:line=incoming.get(timeout=1)
+            except queue.Empty:
+                if time.monotonic()-last_heartbeat>30:
+                    print(json.dumps({'event':'controller.heartbeat','seconds':round(time.monotonic()-started,1),'state':'running','progress_percent':None}),flush=True);last_heartbeat=time.monotonic()
+                continue
+            if line is None:break
+            log.write(line);log.flush()
+            try:event=json.loads(line)
+            except Exception:continue
+            events.append(event)
+            typ=event.get('type');item=event.get('item',{})
+            if typ=='item.completed' and item.get('type')=='agent_message':final=item.get('text')
+            if typ!='item.completed' or item.get('type')!='agent_message':
+                print(json.dumps({'event':typ,'item_type':item.get('type'),'seconds':round(time.monotonic()-started,1)}),flush=True)
+        exit_code=process.wait(timeout=10)
+    completed=any(e.get('type')=='turn.completed' for e in events)
+    failed=any(e.get('type') in ['turn.failed','error'] for e in events)
+    tools=[e for e in events if e.get('item',{}).get('type') in ['command_execution','mcp_tool_call','web_search','file_change']]
+    summary={'exit_code':exit_code,'seconds':round(time.monotonic()-started,3),'completed':completed,'failed':failed,'thread_id':next((e.get('thread_id') for e in events if e.get('type')=='thread.started'),None),'resumed_thread_id':resume,'tools_called':len(tools),'usage':next((e.get('usage') for e in reversed(events) if e.get('type')=='turn.completed'),None),'authentication':'existing ChatGPT login; API-key variables removed','executable':str(EXE),'model':'gpt-6.1-sol','output_received':final is not None}
+    (jobdir/'execution.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
+    if exit_code or failed or not completed or final is None:raise RuntimeError('Codex did not complete: '+json.dumps(summary))
+    if tools:raise RuntimeError('Unexpected tool execution in content-only job')
+    result=json.loads(final);(jobdir/'result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+    return result,summary

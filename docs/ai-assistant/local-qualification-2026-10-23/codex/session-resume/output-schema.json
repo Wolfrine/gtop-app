@@ -1,0 +1,1 @@
+{"type": "object", "properties": {"marker": {"type": "string"}, "subject": {"type": "string"}, "marks": {"type": "integer"}, "question_count": {"type": "integer"}}, "required": ["marker", "subject", "marks", "question_count"], "additionalProperties": false}

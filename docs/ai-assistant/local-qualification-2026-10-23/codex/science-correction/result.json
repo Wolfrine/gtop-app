@@ -1,0 +1,171 @@
+{
+  "questions": [
+    {
+      "number": 15,
+      "unit": "World of Living",
+      "chapter": "Heredity",
+      "type": "case_study",
+      "marks": 4,
+      "text": "In pea plants, round seeds (R) are dominant over wrinkled seeds (r). A true-breeding round-seeded plant is crossed with a true-breeding wrinkled-seeded plant. The F1 plants are self-pollinated to produce F2. Assume normal Mendelian segregation and a large number of offspring.",
+      "options": [],
+      "correct_option_index": -1,
+      "answer": "",
+      "marking_steps": [],
+      "alternative": null,
+      "parts": [
+        {
+          "label": "A",
+          "marks": 1,
+          "text": "State the genotype and seed shape of the F1 plants.",
+          "answer": "RR x rr gives only Rr offspring. The F1 offspring are all Rr and have the round-seed phenotype.",
+          "marking_steps": [
+            {
+              "text": "F1 genotype Rr and round phenotype.",
+              "marks": 1
+            }
+          ],
+          "alternative": null
+        },
+        {
+          "label": "B",
+          "marks": 1,
+          "text": "What fraction of the F2 offspring is expected to be wrinkled? Explain using its genotype.",
+          "answer": "The F2 cross Rr x Rr gives RR, Rr, Rr and rr. The wrinkled genotype rr occurs in 1/4 of the offspring.",
+          "marking_steps": [
+            {
+              "text": "States 1/4 and identifies rr as the recessive genotype.",
+              "marks": 1
+            }
+          ],
+          "alternative": null
+        },
+        {
+          "label": "C",
+          "marks": 2,
+          "text": "An F1 plant is crossed with a wrinkled-seeded plant. Show the possible offspring genotypes and their phenotypic ratio.",
+          "answer": "Cross: Rr x rr. The F1 parent produces R and r gametes; the wrinkled parent produces only r gametes. Offspring are 1/2 Rr and 1/2 rr, giving round : wrinkled = 1 : 1.",
+          "marking_steps": [
+            {
+              "text": "Correct cross and gametes: Rr x rr; R/r and r.",
+              "marks": 1
+            },
+            {
+              "text": "Offspring Rr and rr in equal proportions; phenotypic ratio 1:1.",
+              "marks": 1
+            }
+          ],
+          "alternative": {
+            "text": "Can a round-seeded F2 plant be assumed to be true-breeding? Explain and give the genotypic ratio in the complete F2 generation.",
+            "answer": "No. A round-seeded F2 plant may be RR or Rr; only RR is true-breeding for round seeds. The complete F2 genotypic ratio is RR : Rr : rr = 1 : 2 : 1.",
+            "marking_steps": [
+              {
+                "text": "Explains that round plants may be RR or Rr and only RR is true-breeding.",
+                "marks": 1
+              },
+              {
+                "text": "Correct F2 genotypic ratio 1 RR : 2 Rr : 1 rr.",
+                "marks": 1
+              }
+            ]
+          }
+        }
+      ],
+      "diagram": {
+        "kind": "none",
+        "labels": []
+      }
+    },
+    {
+      "number": 23,
+      "unit": "Chemical Substances",
+      "chapter": "Metals and Non-metals",
+      "type": "mcq",
+      "marks": 1,
+      "text": "Metal P is different from zinc and copper. Under standard displacement-series assumptions, P displaces copper from copper sulphate solution but does not displace zinc from zinc sulphate solution. Which order of reactivity is consistent with these observations?",
+      "options": [
+        "Zn > P > Cu",
+        "P > Zn > Cu",
+        "Cu > P > Zn",
+        "Zn > Cu > P"
+      ],
+      "correct_option_index": 0,
+      "answer": "P is more reactive than copper but less reactive than zinc, so Zn > P > Cu.",
+      "marking_steps": [
+        {
+          "text": "Select option A.",
+          "marks": 1
+        }
+      ],
+      "alternative": null,
+      "parts": [],
+      "diagram": {
+        "kind": "none",
+        "labels": []
+      }
+    },
+    {
+      "number": 39,
+      "unit": "Natural Phenomena",
+      "chapter": "The Human Eye and the Colourful World",
+      "type": "long_answer",
+      "marks": 5,
+      "text": "A student can read a nearby book clearly but cannot see the classroom board clearly. An eye examination finds that the far point is 2.0 m.\n(i) Name the defect and state where parallel rays from a distant object focus relative to the retina before correction.\n(ii) Give two possible anatomical causes.\n(iii) State the correcting lens type and calculate its required power for viewing a distant object. Neglect the distance between the lens and eye.\n(iv) Explain how the correcting lens helps.",
+      "options": [],
+      "correct_option_index": -1,
+      "answer": "(i) The defect is myopia. Rays from a distant object focus in front of the retina.\n(ii) Possible causes are excessive curvature/converging power of the eye lens and elongation of the eyeball.\n(iii) A concave lens is required. For a distant object, u = infinity and the lens must form a virtual image at the far point, v = -2.0 m. Thus f = -2.0 m and P = 1/f = -0.50 D.\n(iv) The concave lens diverges incoming parallel rays so they appear to originate at the student's far point. The eye lens then focuses them on the retina.",
+      "marking_steps": [
+        {
+          "text": "Identifies myopia and image formation in front of the retina.",
+          "marks": 1
+        },
+        {
+          "text": "Gives both causes: excessive converging power and elongated eyeball.",
+          "marks": 1
+        },
+        {
+          "text": "Selects concave lens and obtains f = -2.0 m from the far point.",
+          "marks": 1
+        },
+        {
+          "text": "Calculates power = -0.50 D.",
+          "marks": 1
+        },
+        {
+          "text": "Explains divergence to form a virtual image at the far point, enabling retinal focus.",
+          "marks": 1
+        }
+      ],
+      "alternative": {
+        "text": "A person has hypermetropia unrelated to age-related loss of accommodation, with a near point of 50 cm, and wants to read a book at 25 cm.\n(i) Name the vision defect and state where rays from the nearby book would focus relative to the retina before correction.\n(ii) Give two possible anatomical causes.\n(iii) State the correcting lens type and calculate its power. Neglect the distance between the lens and eye.\n(iv) Explain how the lens helps.",
+        "answer": "(i) The defect is hypermetropia. Rays from the nearby book would focus behind the retina.\n(ii) Possible causes are insufficient converging power, or an excessively long focal length, of the eye lens and a shorter-than-normal eyeball.\n(iii) A convex lens must form a virtual image at the near point. Taking u = -25 cm and v = -50 cm, 1/f = 1/v - 1/u = -1/50 + 1/25 = 1/50 cm^-1. Therefore f = +50 cm = +0.50 m and P = +2.0 D.\n(iv) The convex lens provides additional convergence and makes the book at 25 cm appear at the person's near point of 50 cm, allowing the eye to focus it on the retina.",
+        "marking_steps": [
+          {
+            "text": "Identifies hypermetropia and image formation behind the retina.",
+            "marks": 1
+          },
+          {
+            "text": "Gives both causes: insufficient eye-lens converging power and short eyeball.",
+            "marks": 1
+          },
+          {
+            "text": "Selects convex lens; uses u = -25 cm, v = -50 cm and obtains f = +50 cm.",
+            "marks": 1
+          },
+          {
+            "text": "Converts focal length to metres and calculates P = +2.0 D.",
+            "marks": 1
+          },
+          {
+            "text": "Explains additional convergence/virtual image at the near point, enabling retinal focus.",
+            "marks": 1
+          }
+        ]
+      },
+      "parts": [],
+      "diagram": {
+        "kind": "none",
+        "labels": []
+      }
+    }
+  ]
+}

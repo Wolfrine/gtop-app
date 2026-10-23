@@ -1,0 +1,68 @@
+"""Local single-user qualification job ledger; never an Internet-facing service."""
+import contextlib,hashlib,json,pathlib,re,sqlite3,time,uuid
+from dialogue import ROOT,FIELDS
+
+def digest(value):return hashlib.sha256(json.dumps(value,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+def canonical(brief):
+    b=dict(brief)
+    if isinstance(b.get('standard'),str):
+        m=re.fullmatch(r'(?:Class\s*|कक्षा\s*)?(\d{1,2})',b['standard'],re.I)
+        if m:b['standard']=m.group(1)
+    b['subject']={'विज्ञान':'Science','Mathematics':'Mathematics Standard','गणित मानक':'Mathematics Standard'}.get(b.get('subject'),b.get('subject'))
+    return b
+
+def require_supported(brief,allow_original_demo):
+    if set(brief)!=set(FIELDS):raise ValueError('Unexpected brief fields')
+    required={'board':'CBSE','standard':'10','academic_year':'2026-27','scope':'full_syllabus','marks':80,'duration_minutes':180,'paper_language':'English','answer_language':'English','internal_choices':True}
+    for key,value in required.items():
+        if type(brief[key])!=type(value) or brief[key]!=value:raise ValueError('Unsupported or missing '+key)
+    if brief['subject'] not in ['Science','Mathematics Standard']:raise ValueError('Unsupported subject')
+    if brief['source_policy']!='bank_first' or not allow_original_demo:
+        raise ValueError('No live bank connector: original demo requires explicit operator authorization; bank-only cannot fall back')
+
+class Ledger:
+    def __init__(self,path=None):
+        self.path=path or ROOT/'jobs/jobs.sqlite3';pathlib.Path(self.path).parent.mkdir(parents=True,exist_ok=True)
+        with self.connect() as c:
+            c.execute('CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY,owner TEXT NOT NULL,request_key TEXT NOT NULL,request_hash TEXT NOT NULL,state TEXT NOT NULL,brief TEXT NOT NULL,created REAL NOT NULL,updated REAL NOT NULL,error TEXT,result TEXT,UNIQUE(owner,request_key))')
+    @contextlib.contextmanager
+    def connect(self):
+        connection=sqlite3.connect(self.path,timeout=10)
+        try:
+            with connection:yield connection
+        finally:connection.close()
+    def submit(self,owner,key,brief):
+        if not owner or not key:raise ValueError('Missing trusted owner/request id')
+        payload=json.dumps(brief,ensure_ascii=False,sort_keys=True);hashed=digest(brief);now=time.time()
+        with self.connect() as c:
+            row=c.execute('SELECT id,request_hash FROM jobs WHERE owner=? AND request_key=?',(owner,key)).fetchone()
+            if row:
+                if row[1]!=hashed:raise ValueError('Idempotency key reused with changed requirements')
+                return row[0],False
+            job_id=str(uuid.uuid4());c.execute('INSERT INTO jobs VALUES (?,?,?,?,?,?,?,?,?,?)',(job_id,owner,key,hashed,'queued',payload,now,now,None,None))
+        return job_id,True
+    def get(self,owner,job_id):
+        with self.connect() as c:
+            c.row_factory=sqlite3.Row;row=c.execute('SELECT * FROM jobs WHERE id=? AND owner=?',(job_id,owner)).fetchone()
+        if not row:raise PermissionError('Job not found for this owner')
+        return dict(row)
+    def claim(self,owner,job_id):
+        self.get(owner,job_id)
+        with self.connect() as c:
+            cursor=c.execute("UPDATE jobs SET state='running',updated=? WHERE id=? AND owner=? AND state='queued'",(time.time(),job_id,owner))
+            return cursor.rowcount==1
+    def finish(self,owner,job_id,state,result=None,error=None):
+        if state not in ['completed','failed','review_required']:raise ValueError('Invalid terminal state')
+        self.get(owner,job_id)
+        with self.connect() as c:
+            cursor=c.execute("UPDATE jobs SET state=?,updated=?,result=?,error=? WHERE id=? AND owner=? AND state='running'",(state,time.time(),json.dumps(result),error,job_id,owner))
+            if cursor.rowcount!=1:raise ValueError('Job is not running')
+    def cancel(self,owner,job_id):
+        self.get(owner,job_id)
+        with self.connect() as c:
+            return c.execute("UPDATE jobs SET state='cancelled',updated=? WHERE id=? AND owner=? AND state='queued'",(time.time(),job_id,owner)).rowcount==1
+
+def authorize(action,brief,allow_original_demo=False):
+    # No model-written strings become process arguments. No development/deploy path exists.
+    if action!='create_paper':raise PermissionError('This action does not authorize a content job')
+    b=canonical(brief);require_supported(b,allow_original_demo);return b

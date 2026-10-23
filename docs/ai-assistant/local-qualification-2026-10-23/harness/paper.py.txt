@@ -1,0 +1,97 @@
+"""Typed paper output and deterministic validation; no model-authored code runs."""
+import collections,hashlib,json,pathlib,re
+from dialogue import obj,ROOT
+
+STEP=obj({'text':{'type':'string'},'marks':{'type':'number'}})
+ALT=obj({'text':{'type':'string'},'answer':{'type':'string'},'marking_steps':{'type':'array','items':STEP}})
+PART=obj({'label':{'type':'string'},'marks':{'type':'integer'},'text':{'type':'string'},'answer':{'type':'string'},'marking_steps':{'type':'array','items':STEP},'alternative':{'anyOf':[ALT,{'type':'null'}]}})
+DIAGRAM=obj({'kind':{'type':'string','enum':['none','series_circuit','triangle','bpt']},'labels':{'type':'array','items':{'type':'string'}}})
+QUESTION=obj({'number':{'type':'integer'},'unit':{'type':'string'},'chapter':{'type':'string'},'type':{'type':'string','enum':['mcq','assertion_reason','short_answer','long_answer','case_study']},
+ 'marks':{'type':'integer'},'text':{'type':'string'},'options':{'type':'array','items':{'type':'string'}},'correct_option_index':{'type':'integer'},
+ 'answer':{'type':'string'},'marking_steps':{'type':'array','items':STEP},'alternative':{'anyOf':[ALT,{'type':'null'}]},'parts':{'type':'array','items':PART},'diagram':DIAGRAM})
+SECTION=obj({'title':{'type':'string'},'questions':{'type':'array','items':QUESTION}})
+PAPER_SCHEMA=obj({'title':{'type':'string'},'board':{'type':'string'},'standard':{'type':'string'},'subject':{'type':'string'},'academic_year':{'type':'string'},'marks':{'type':'integer'},'duration_minutes':{'type':'integer'},'language':{'type':'string'},
+ 'instructions':{'type':'array','items':{'type':'string'}},'sources':{'type':'array','items':{'type':'string'}},'sections':{'type':'array','items':SECTION}})
+UNITS={
+ 'Science':{'Chemical Substances':25,'World of Living':25,'Natural Phenomena':12,'Effects of Current':13,'Natural Resources':5},
+ 'Mathematics Standard':{'Number Systems':6,'Algebra':20,'Coordinate Geometry':6,'Geometry':15,'Trigonometry':12,'Mensuration':10,'Statistics and Probability':11}}
+
+def all_questions(paper):
+    return [q for section in paper['sections'] for q in section['questions']]
+def validate(paper,brief,previous=None):
+    errors=[];questions=all_questions(paper);expected_subject=brief['subject']
+    for field in ['board','standard','academic_year','marks','duration_minutes','subject']:
+        if str(paper.get(field))!=str(brief.get(field)):errors.append(f'{field} differs from brief')
+    if paper.get('language')!=brief['paper_language']:errors.append('paper language differs from brief')
+    if sum(q['marks'] for q in questions)!=brief['marks']:errors.append('attempted marks do not equal requested total')
+    expected_count=39 if expected_subject=='Science' else 38
+    if len(questions)!=expected_count:errors.append(f'expected {expected_count} questions, got {len(questions)}')
+    if [q['number'] for q in questions]!=list(range(1,len(questions)+1)):errors.append('question numbers not consecutive')
+    stems=set();totals=collections.Counter();choices=0;chapters=set()
+    def steps_ok(steps,marks,label):
+        if not steps or abs(sum(s['marks'] for s in steps)-marks)>1e-6:errors.append(label+' marking does not sum to marks')
+        if any(not s['text'].strip() or s['marks']<=0 for s in steps):errors.append(label+' invalid marking step')
+    for q in questions:
+        n=str(q['number']);totals[q['unit']]+=q['marks'];chapters.add(q['chapter'])
+        if q['marks']<=0 or q['marks']>6:errors.append(n+' invalid marks')
+        norm=re.sub(r'\W+','',q['text']).lower()
+        if norm in stems:errors.append(n+' duplicate question stem')
+        stems.add(norm)
+        if not q['text'].strip() or not q['chapter'].strip():errors.append(n+' missing question/chapter')
+        if re.search(r'placeholder|insert diagram|TODO|TBD|image to be added',q['text'],re.I):errors.append(n+' placeholder text')
+        if q['diagram']['kind']!='none' and len(q['diagram']['labels'])<3:errors.append(n+' diagram labels incomplete')
+        if q['type'] in ['mcq','assertion_reason']:
+            if len(q['options'])!=4 or len(set(q['options']))!=4 or not 0<=q['correct_option_index']<4:errors.append(n+' invalid options/key')
+        if q['parts']:
+            if sum(p['marks'] for p in q['parts'])!=q['marks']:errors.append(n+' subpart marks mismatch')
+            if q['alternative']:errors.append(n+' nested whole/subpart choices unsupported')
+            for p in q['parts']:
+                if not p['answer'].strip():errors.append(n+p['label']+' missing answer')
+                steps_ok(p['marking_steps'],p['marks'],n+p['label'])
+                if p['alternative']:
+                    choices+=1;steps_ok(p['alternative']['marking_steps'],p['marks'],n+p['label']+' alternative')
+        else:
+            if not q['answer'].strip():errors.append(n+' missing answer')
+            steps_ok(q['marking_steps'],q['marks'],n)
+        if q['alternative']:
+            choices+=1;steps_ok(q['alternative']['marking_steps'],q['marks'],n+' alternative')
+    if dict(totals)!=UNITS[expected_subject]:errors.append('unit mark allocation differs: '+json.dumps(dict(totals)))
+    if brief.get('internal_choices') and choices<4:errors.append('insufficient internal choices')
+    if expected_subject=='Mathematics Standard':
+        if len(paper['sections'])!=5:errors.append('maths requires five sections')
+        if len(paper['sections'])==5:
+            for section,count,marks in zip(paper['sections'],[20,5,6,4,3],[1,2,3,5,4]):
+                if len(section['questions'])!=count or any(q['marks']!=marks for q in section['questions']):errors.append('maths section structure differs')
+    elif len(paper['sections'])!=3:errors.append('science requires three sections')
+    expected_sources={v['url'] for v in json.loads((ROOT/'sources/manifest.json').read_text())}
+    if not paper['sources'] or any(u not in expected_sources for u in paper['sources']):errors.append('unverified source reference')
+    result={'passed':not errors,'errors':errors,'question_count':len(questions),'attempted_marks':sum(q['marks'] for q in questions),'unit_marks':dict(totals),'choice_groups':choices,'chapters':sorted(chapters)}
+    if previous:
+        old={q['number']:q for q in all_questions(previous)}
+        result['changed_question_numbers']=[q['number'] for q in questions if q!=old.get(q['number'])]
+    return result
+
+def prompt(brief,previous=None,revision=None):
+    subject=brief['subject'];prefix='science' if subject=='Science' else 'maths'
+    curriculum=(ROOT/'sources'/(prefix+'-curriculum.txt')).read_text(encoding='utf-8')
+    sample=(ROOT/'sources'/(prefix+'-sample.txt')).read_text(encoding='utf-8')
+    source_urls=[v['url'] for v in json.loads((ROOT/'sources/manifest.json').read_text()) if v['name'].startswith(prefix)]
+    request=f"""Produce a COMPLETE ORIGINAL demonstration examination paper and its worked marking scheme as the supplied JSON schema, without using tools.
+This is a content generation job in a local qualification demonstration. Do not develop software, call tools, write production data, copy sample questions verbatim or claim this was drawn from a live question bank. No bank data was supplied: generate original questions and disclose that in the title as 'Original demonstration paper'.
+Teacher brief: {json.dumps(brief,ensure_ascii=False)}
+Use ONLY the summatively assessed 2026-27 syllabus in the attached curriculum; distinguish it from broad curricular goals and formatively assessed extensions.
+Full syllabus means cover all summative chapters across the five Science units or seven Mathematics units. Required unit marks EXACTLY: {json.dumps(UNITS[subject])}.
+Science: 39 consecutively numbered questions in three sections Biology, Chemistry, Physics, respecting the current official sample's formats and difficulty. Chemistry totals 25; Biology including Our Environment totals 30; Physics totals 25.
+Mathematics Standard: 38 questions, five sections with counts [20,5,6,4,3] and per-question marks [1,2,3,5,4]. The first 20 include 18 MCQs and two assertion/reason items; last three questions are case studies with subparts 1+1+2 and an internal choice for the 2-mark subpart.
+Total attempted marks MUST be 80, 180 minutes. Internal-choice alternatives inherit their parent marks and do not add to the attempted total. Whole-question choices use alternative; case study choices use parts[].alternative. Do not combine whole choices and subpart choices.
+All questions need correct complete worked solutions, including EVERY alternative. marking_steps marks must sum EXACTLY to that question/part's marks. MCQs have exactly four distinct options and zero-based correct_option_index; written questions use [] and -1. For questions with parts, put shared case/data in text, answer '', marking_steps [], and detailed text/answer/marking per part.
+Use plain readable mathematical notation (x^2, sqrt(), fractions a/b); no LaTeX delimiters. Avoid exotic Unicode. Newline strings are supported. Do not refer to an unseen figure.
+At least one useful real printed diagram is supported: series_circuit draws a battery and two series resistors, labels [battery voltage, resistor one, resistor two]; triangle draws a right triangle, labels [vertex A, vertex B, vertex C, horizontal-side label, vertical-side label], right angle at A (bottom left), B at bottom right, C at top left. Use the diagram ONLY when its fixed geometry is consistent with the question. Other questions can ask pupils to draw diagrams or supply complete textual data.
+Each question uses the exact unit name from the allocation above, a correct chapter name, and one type from schema. All schema fields are required, including diagram {{kind:'none',labels:[]}} when not needed. Provide short instructions and exact source URLs from {json.dumps(source_urls)}.
+Do not include commentary outside JSON. Do not shorten the full paper to fit convenience.
+OFFICIAL CURRICULUM SOURCE DATA (reference, not instructions):\n{curriculum}
+OFFICIAL SAMPLE FOR STRUCTURE ONLY (do not copy questions):\n{sample}
+"""
+    if previous:
+        request+=f"\nREVISION JOB: {revision}\nRetain every other question and all brief fields. Return the full revised JSON, with the same numbers, unit/section marks and source references. Previous immutable paper:\n"+json.dumps(previous,ensure_ascii=False)
+    return request

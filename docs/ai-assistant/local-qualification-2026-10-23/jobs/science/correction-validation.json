@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "errors": [],
+  "question_count": 39,
+  "attempted_marks": 80,
+  "unit_marks": {
+    "World of Living": 25,
+    "Natural Resources": 5,
+    "Chemical Substances": 25,
+    "Natural Phenomena": 12,
+    "Effects of Current": 13
+  },
+  "choice_groups": 13,
+  "chapters": [
+    "Acids, Bases and Salts",
+    "Carbon and its Compounds",
+    "Chemical Reactions and Equations",
+    "Control and Coordination",
+    "Electricity",
+    "Heredity",
+    "How do Organisms Reproduce?",
+    "Life Processes",
+    "Light - Reflection and Refraction",
+    "Magnetic Effects of Electric Current",
+    "Metals and Non-metals",
+    "Our Environment",
+    "The Human Eye and the Colourful World"
+  ],
+  "changed_question_numbers": [
+    15,
+    23,
+    39
+  ]
+}

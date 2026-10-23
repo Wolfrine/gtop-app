@@ -1,0 +1,46 @@
+{
+  "user": "CBSE class 10 Mathematics Standard ka 2026-27 full syllabus paper: 80 marks, 3 hours, paper aur answers English mein, internal choices, bank first.",
+  "model": "qwen3.5:4b-q4_K_M",
+  "raw_handoff": {
+    "action": "create_paper",
+    "reply": "Paper created for CBSE Class 10 Mathematics.",
+    "brief": {
+      "board": "CBSE",
+      "standard": "10",
+      "subject": "Mathematics",
+      "academic_year": "2026-27",
+      "scope": "full_syllabus",
+      "marks": 80,
+      "duration_minutes": 180,
+      "paper_language": "English",
+      "answer_language": "English",
+      "source_policy": "bank_first",
+      "internal_choices": true
+    },
+    "missing": []
+  },
+  "canonical_brief": {
+    "board": "CBSE",
+    "standard": "10",
+    "subject": "Mathematics Standard",
+    "academic_year": "2026-27",
+    "scope": "full_syllabus",
+    "marks": 80,
+    "duration_minutes": 180,
+    "paper_language": "English",
+    "answer_language": "English",
+    "source_policy": "bank_first",
+    "internal_choices": true
+  },
+  "timing": {
+    "first_content_s": 6.9233,
+    "wall_s": 8.8186,
+    "load_s": 6.5123,
+    "prompt_tokens": 653,
+    "output_tokens": 118,
+    "decode_tokens_s": 62.27,
+    "context": 4096,
+    "done_reason": "stop"
+  },
+  "trusted_operator_permission": "Original synthetic demonstration authorized; no live bank data supplied"
+}

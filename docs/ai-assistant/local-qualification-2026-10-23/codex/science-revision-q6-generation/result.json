@@ -1,0 +1,28 @@
+{
+  "number": 6,
+  "unit": "World of Living",
+  "chapter": "Heredity",
+  "type": "mcq",
+  "marks": 1,
+  "text": "A couple has two daughters and is expecting another child. A relative claims that their next child must be a boy. Using the chromosomal basis of sex determination in humans, which response is correct?",
+  "options": [
+    "The claim is correct because Y-bearing eggs become more likely after two daughters.",
+    "The claim is correct because the father's sperm now carry only Y chromosomes.",
+    "The claim is incorrect because an X-bearing egg can be fertilised by either an X-bearing or a Y-bearing sperm, independently of previous births.",
+    "The claim is incorrect because every child of the same couple must have the same sex chromosomes."
+  ],
+  "correct_option_index": 2,
+  "answer": "C. Each egg carries an X chromosome. Fertilisation by an X-bearing sperm produces XX, while fertilisation by a Y-bearing sperm produces XY. Previous births do not determine which sperm fertilises the next egg, so the next child is not necessarily a boy.",
+  "marking_steps": [
+    {
+      "text": "Select option C (index 2).",
+      "marks": 1
+    }
+  ],
+  "alternative": null,
+  "parts": [],
+  "diagram": {
+    "kind": "none",
+    "labels": []
+  }
+}

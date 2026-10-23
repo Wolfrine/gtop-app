@@ -1,0 +1,46 @@
+{
+  "user": "CBSE class 10 Science ka 2026-27 full syllabus paper chahiye: 80 marks, 3 hours, paper aur worked answers English mein, internal choices, bank first.",
+  "model": "qwen3.5:2b-q4_K_M",
+  "raw_handoff": {
+    "action": "create_paper",
+    "reply": "Paper created for CBSE Class 10 Science (2026-27) with 80 marks, 3 hours, English language, internal choices, and bank-first approach.",
+    "brief": {
+      "board": "CBSE",
+      "standard": "Class 10",
+      "subject": "Science",
+      "academic_year": "2026-27",
+      "scope": "full_syllabus",
+      "marks": 80,
+      "duration_minutes": 180,
+      "paper_language": "English",
+      "answer_language": "English",
+      "source_policy": "bank_first",
+      "internal_choices": true
+    },
+    "missing": []
+  },
+  "canonical_brief": {
+    "board": "CBSE",
+    "standard": "10",
+    "subject": "Science",
+    "academic_year": "2026-27",
+    "scope": "full_syllabus",
+    "marks": 80,
+    "duration_minutes": 180,
+    "paper_language": "English",
+    "answer_language": "English",
+    "source_policy": "bank_first",
+    "internal_choices": true
+  },
+  "timing": {
+    "first_content_s": 3.4387,
+    "wall_s": 5.1476,
+    "load_s": 3.1132,
+    "prompt_tokens": 656,
+    "output_tokens": 183,
+    "decode_tokens_s": 107.09,
+    "context": 4096,
+    "done_reason": "stop"
+  },
+  "trusted_operator_permission": "Original synthetic demonstration authorized; no live bank data supplied"
+}

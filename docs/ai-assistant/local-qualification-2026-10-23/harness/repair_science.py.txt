@@ -1,0 +1,26 @@
+import copy,json,pathlib
+from dialogue import ROOT,obj
+import codex_runner,paper
+from jobs import digest
+
+source=ROOT/'jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/codex/result.json'
+old=json.loads(source.read_text(encoding='utf-8'));folder=source.parent.parent/'correction';folder.mkdir(exist_ok=True)
+review=json.loads((source.parent.parent/'review/result.json').read_text(encoding='utf-8'))
+schema=obj({'questions':{'type':'array','items':paper.QUESTION}})
+questions=[q for q in paper.all_questions(old) if q['number'] in [15,23,39]]
+request='Correct only the specified review issues for questions 15, 23 and 39. Return those three complete question objects. Keep number, unit, chapter, marks and type identical. Keep every other detail unchanged unless necessary for the correction. Q15 F1 phenotype vs offspring seed distinction; Q23 P is distinct from Cu and Zn; Q39 alternative explicitly hypermetropic, not age-related accommodation. All correct answers/alternatives/marking must remain complete. No tools. Review:'+json.dumps(review)+'\nQuestions:'+json.dumps(questions)
+replacement,execution=codex_runner.run(request,schema,folder/'codex')
+mapping={q['number']:q for q in replacement['questions']}
+if set(mapping)!={15,23,39}:raise ValueError('Unexpected correction scope')
+for q in questions:
+    for key in ['number','unit','chapter','marks','type']:
+        if mapping[q['number']][key]!=q[key]:raise ValueError('Correction changed locked '+key)
+new=copy.deepcopy(old)
+for section in new['sections']:section['questions']=[mapping.get(q['number'],q) for q in section['questions']]
+brief=json.loads((source.parent.parent/'dialogue.json').read_text(encoding='utf-8'))['canonical_brief']
+validation=paper.validate(new,brief,old)
+if not validation['passed']:raise ValueError(validation)
+(folder/'paper.json').write_text(json.dumps(new,ensure_ascii=False,indent=2),encoding='utf-8')
+(folder/'validation.json').write_text(json.dumps(validation,indent=2),encoding='utf-8')
+(folder/'provenance.json').write_text(json.dumps({'raw_parent_sha256':digest(old),'review_issues':review['issues'],'changed_questions':validation['changed_question_numbers'],'rendered_diagram_issue':'Q37 is drawn by trusted renderer from metadata; not missing in PDF','academic_status':'Requires teacher review and resolution of source ambiguity'},indent=2),encoding='utf-8')
+print(json.dumps({'path':str(folder/'paper.json'),'validation':validation}),flush=True)

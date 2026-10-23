@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "errors": [],
+  "question_count": 38,
+  "attempted_marks": 80,
+  "unit_marks": {
+    "Number Systems": 6,
+    "Algebra": 20,
+    "Coordinate Geometry": 6,
+    "Geometry": 15,
+    "Trigonometry": 12,
+    "Mensuration": 10,
+    "Statistics and Probability": 11
+  },
+  "choice_groups": 9,
+  "chapters": [
+    "Areas Related to Circles",
+    "Arithmetic Progressions",
+    "Circles",
+    "Coordinate Geometry",
+    "Heights and Distances",
+    "Introduction to Trigonometry",
+    "Pair of Linear Equations in Two Variables",
+    "Polynomials",
+    "Probability",
+    "Quadratic Equations",
+    "Real Numbers",
+    "Statistics",
+    "Surface Areas and Volumes",
+    "Triangles",
+    "Trigonometric Identities"
+  ]
+}

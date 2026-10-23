@@ -1,0 +1,42 @@
+"""Explicit local terminal demo. No HTTP listener, Firebase writes or application changes."""
+import argparse,json,pathlib,time
+from dialogue import ROOT,chat,messages
+from benchmark import BASE,TEXTS
+from jobs import Ledger,authorize
+import codex_runner,paper
+
+def generate(model,subject,request_key):
+    request=TEXTS['hinglish'][0 if subject=='Science' else 1]
+    raw,timing=chat(model,messages(request))
+    brief=authorize(raw['action'],raw['brief'],allow_original_demo=True)
+    # This qualification's known test oracle fails closed rather than quietly repairing facts.
+    expected=BASE.copy();expected['subject']=subject
+    if brief!=expected:raise ValueError('LLM changed the known test requirements: '+json.dumps(raw,ensure_ascii=False))
+    ledger=Ledger();owner='local-operator-sachit';jid,new=ledger.submit(owner,request_key,brief);folder=ROOT/'jobs'/jid
+    if not new:
+        print(json.dumps({'job_id':jid,'duplicate':True,'state':ledger.get(owner,jid)['state']}),flush=True);return
+    folder.mkdir(exist_ok=True)
+    (folder/'dialogue.json').write_text(json.dumps({'user':request,'model':model,'raw_handoff':raw,'canonical_brief':brief,'timing':timing,'trusted_operator_permission':'Original synthetic demonstration authorized; no live bank data supplied'},ensure_ascii=False,indent=2),encoding='utf-8')
+    if not ledger.claim(owner,jid):raise RuntimeError('Job already claimed')
+    try:
+        result,execution=codex_runner.run(paper.prompt(brief),paper.PAPER_SCHEMA,folder/'codex')
+        validation=paper.validate(result,brief)
+        (folder/'validation.json').write_text(json.dumps(validation,indent=2),encoding='utf-8')
+        state='review_required'  # Generation success is not academic or artifact acceptance.
+        ledger.finish(owner,jid,state,{'paper':str(folder/'codex/result.json'),'validation':validation})
+        print(json.dumps({'job_id':jid,'state':state,'seconds':execution['seconds'],'validation':validation}),flush=True)
+    except Exception as e:
+        ledger.finish(owner,jid,'failed',error=str(e));raise
+
+def review(path):
+    path=pathlib.Path(path);p=json.loads(path.read_text(encoding='utf-8'))
+    schema={'type':'object','properties':{'ready_for_teacher_review':{'type':'boolean'},'issues':{'type':'array','items':{'type':'object','properties':{'question_number':{'type':'integer'},'severity':{'type':'string','enum':['major','minor']},'issue':{'type':'string'},'correction':{'type':'string'}},'required':['question_number','severity','issue','correction'],'additionalProperties':False}},'assessment':{'type':'string'}},'required':['ready_for_teacher_review','issues','assessment'],'additionalProperties':False}
+    text='Independently review this original CBSE Class 10 80-mark demonstration paper and all answers. Recalculate numerical answers, verify unique MCQ answers and correct option index, examine ambiguities, false science, inaccurate assertions, mark allocation, diagrams and all internal choices. Check full chapter coverage. Do not call tools. Do not rubber-stamp. List concrete defects by question number (0 for overall). ready_for_teacher_review means no major defects, not final school approval. Source conflict: current science curriculum detailed list and sample assess Heredity but its Note for Teachers ambiguously lists Heredity and Evolution excluded. Flag this ambiguity; do not resolve it silently. PAPER:\n'+json.dumps(p,ensure_ascii=False)
+    result,execution=codex_runner.run(text,schema,path.parent.parent/'review');print(json.dumps(result,ensure_ascii=False,indent=2),flush=True)
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
+    g=sub.add_parser('generate');g.add_argument('--model',required=True);g.add_argument('--subject',choices=['Science','Mathematics Standard'],required=True);g.add_argument('--request-key',required=True)
+    r=sub.add_parser('review');r.add_argument('path');a=p.parse_args()
+    if a.command=='generate':generate(a.model,a.subject,a.request_key)
+    else:review(a.path)

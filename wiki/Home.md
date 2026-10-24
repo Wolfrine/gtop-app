@@ -12,7 +12,7 @@ The core student model is the [[Practice Loop]]: choose relevant practice, answe
 
 The strategic base is [[Question Bank Quality]]. The founder has also chosen comprehensive current-year curriculum coverage with source-backed admin preview and approval, so paper scope does not shrink to the questions already stored. A large MCQ bank only matters if it is correct, covered, tagged, and continuously improved. [[Learning Diagnosis]] depends on that base and on enough repeated usage to turn attempts into strong-area, weak-area, topic, and next-action signals.
 
-For admin assessment work, the chosen [[Decisions]] now connect conversational paper requirements to bank reuse, automatic gap generation, notification and saved printable results. Manual question approval is removed from this chat-paper workflow; independent syllabus and learner-bank trust remain part of [[Question Bank Quality]].
+For admin assessment work, the latest [[Decisions]] begin Aparna's private conversational Question Paper sub-app. Natural English/Hindi/Hinglish discussion should lead to checked printable questions, separate answers and preserved revisions. The earlier scheduled creator stays stopped while legacy data and access are preserved. Independent syllabus and learner-bank trust remain part of [[Question Bank Quality]].
 
 [[Student Pulse]] is the clearest exploratory expression of AI-assisted feedback. It should remain grounded in diagnosis and should not overclaim certainty when student activity or question metadata is thin.
 
@@ -42,3 +42,4 @@ The strongest current [[Decisions]] are:
 - `raw/2026-09-28-current-syllabus-and-paper-coverage.md`
 
 - `raw/2026-10-04-paper-chat-bank-first.md`
+- `raw/2026-10-24-conversational-paper-pilot-approval.md`

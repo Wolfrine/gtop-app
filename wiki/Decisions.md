@@ -10,6 +10,16 @@ GTOP's current product bets build on each other. [[Question Bank Quality]] enabl
 
 Future agents should treat these as strategic anchors: question-bank quality, ongoing enrichment, student usage, learning diagnosis, AI-assisted feedback, and future-ready education direction.
 
+The latest admin-assessment direction is Aparna's private conversational pilot. It supersedes the earlier scheduled-creator rhythm for the new journey; historical decisions remain context, not instructions to restart that service.
+
+## Begin Conversational Paper Assistance With Aparna
+
+Question Paper Creation becomes an independent sub-app while GTOP core retains objective practice. The first usable journey is a natural request, clarification, actual progress, printable questions, separate worked answers and a revision preserving the prior paper. Start with full-syllabus CBSE Class12 Chemistry as a custom80-mark Growth Tutorials practice paper, distinct from official70-mark theory.
+
+The local model supplies continuous English/Hindi/Hinglish conversation and lightweight help; its harness supplies relevant context, verified tools and execution feedback; Codex supplies substantial generation and review. Original requests, corrections and verified requirements survive delegation. Model-written interpretations and approval claims cannot replace intent or authority. Routine permitted paper tasks proceed directly; development, deployment and destructive changes require Sachit's explicit approval.
+
+Keep the earlier scheduled creator stopped and preserve data/access while replacing the experience gradually. The initial pilot uses original questions and teacher review, with bank integration and broader capabilities reserved for later decisions. Judge improvement through actual use and feedback rather than delaying the app for more pre-app model qualification. A demonstration remains distinct from academic approval or reduced workload. See [[Question Bank Quality]] and [[Intent]].
+
 ## GTOP Is Independent
 
 GTOP is owned as an independent production application. It should not be treated as a Hub submodule.
@@ -109,6 +119,8 @@ Rendered desktop and phone inspection is an explicit quality requirement. Build 
 GTOP should study what students may expect from education products over the next decade and use that thinking to shape product bets. This is a strategic direction, not a wiki todo list or a commitment to any specific AI feature.
 
 ## Source Notes
+
+- `raw/2026-10-24-conversational-paper-pilot-approval.md`
 
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`

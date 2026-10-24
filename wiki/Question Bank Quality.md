@@ -40,6 +40,8 @@ Example snapshot: if several students flag the same MCQ or repeatedly choose the
 
 ## One Admin Journey
 
+The24October2026 decision starts Aparna's private conversational Question Paper sub-app and keeps the previous creator stopped. Preserve existing papers/data while changing the experience. The older bank-first and scheduled-service paragraphs below describe the previous journey; the new pilot uses original checked practice questions and separate worked answers, without claiming live-bank access. Teacher review remains required. Natural conversation, actual progress, preserved intent and immutable revisions are part of content trust. See [[Decisions]].
+
 Admins should express a paper requirement in natural language and return through the same stable paper record, with the request conversation and completed outputs connected and all saved work easy to find. The founder identifies mobile complexity, vague requirement discovery and inconsistent entry points as real operating problems. Simplicity must cover the full lifecycle: requirements, submission, scheduled waiting, preparation, clarification, completion, revision, cancellation and later retrieval. The next action should be clear without making an admin rediscover the process on every visit.
 
 A paper needs a stable identity connecting its requirements, progress, clarification and outputs. Submitting a request must leave a discoverable record and status. Returning after years, with thousands of papers in the history, must still make it practical to find the intended paper and continue from the right point; an ever-growing dropdown does not meet that expectation. Dependable saved work and responsive return visits are part of this product requirement.
@@ -86,3 +88,4 @@ When prioritizing product work, question-bank improvements should be favored whe
 
 - `raw/2026-10-04-paper-chat-bank-first.md`
 - `raw/2026-10-04-returning-admin-paper-journey.md`
+- `raw/2026-10-24-conversational-paper-pilot-approval.md`

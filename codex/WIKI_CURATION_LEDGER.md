@@ -1,5 +1,13 @@
 # GTOP Wiki Curation Ledger
 
+### 2026-10-24 - Private Conversational Paper Pilot Approval
+
+- Raw note: `raw/2026-10-24-conversational-paper-pilot-approval.md`; processed.
+- Wiki pages: Home, Intent, Decisions, Question Bank Quality.
+- Durable decisions: keep core objective practice; independent chat-first paper journey for Aparna; local conversation/harness/Codex roles; preserve original intent and independent authority; custom80-mark Chemistry practice scope; teacher review; real-use improvement without further pre-app qualification. Earlier scheduler direction is explicitly superseded for this journey, with data/access preserved and creator stopped.
+- Evidence boundary: implementation approval is real; synthetic-admin demonstrations do not establish Aparna acceptance or academic/workload outcomes. Earlier dated raw notes remain intact; unrelated research curation is outside this bounded pass.
+- PM handoff: engineering, release, print and human-acceptance evidence remain in Action Plan `QndHjDJw0x3wzzG5szwW` and docs, not wiki todos.
+
 This ledger records raw-to-wiki processing for GTOP product memory. It is operational bookkeeping, not product wiki content.
 
 Use it to answer:

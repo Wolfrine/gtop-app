@@ -20,6 +20,8 @@ The long-term [[Product Direction]] is a future-ready practice system: disciplin
 
 ## Related Product Concepts
 
+The24October2026 direction preserves objective practice as GTOP core and gives Question Paper Creation its own conversational sub-app, beginning with Aparna. The assistant should understand and clarify naturally in English, Hindi and Hinglish, retain relevant context, and stay responsive while substantial content work runs. Original requests and corrections remain authoritative through delegation. Actual progress, dependable saved outputs and usable revisions matter more than an impressive model demonstration. Improve the working journey through observed use and feedback; a central launcher and wider capabilities follow later decisions.
+
 GTOP's [[Features]] should serve student practice continuity, admin content quality, and Growth Tutorials brand trust. The [[Problems]] page tracks the product problems that should shape future priorities.
 
 ## Source Notes
@@ -27,3 +29,4 @@ GTOP's [[Features]] should serve student practice continuity, admin content qual
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
+- `raw/2026-10-24-conversational-paper-pilot-approval.md`

@@ -1,0 +1,11 @@
+{
+  "synthetic": true,
+  "shallowDepth": 2,
+  "missingBaseDiffExit": 128,
+  "exactBaseFetchSucceeded": true,
+  "changedPaths": [
+    "design/review.md",
+    "question-papers/src/styles.css",
+    "tools/gtop-assistant/guard.txt"
+  ]
+}

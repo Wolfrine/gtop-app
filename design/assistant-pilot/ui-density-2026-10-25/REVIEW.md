@@ -27,6 +27,8 @@ Required states: ready paper, working, offline/queued, failed/retry, empty, clar
 
 M3 prereview from critic: separate body/title roles; no display typography in chat. Keep familiar navigation, meaningful state colors and practical tap targets. Remove duplicate shell/guidance. A passing build does not establish visual quality.
 
+Reference sources: [Linear's actual redesign](https://linear.app/now/how-we-redesigned-the-linear-ui), [Claude Artifacts working-interface example](https://zapier.com/blog/claude-artifacts/), [official Material Web typography](https://material-web.dev/theming/typography/). The committed GTOP prototype remains a labelled concept reference. Third-party image files used for inspection remain outside this public repository.
+
 ## Direction studies
 
 Local-only HTML/image artifacts under `candidates/`; not a production selector. Same explicitly synthetic working-paper content at desktop 1440×900 and phone 390×844. Temporary mark is labelled provisional.

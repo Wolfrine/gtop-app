@@ -27,3 +27,5 @@ In actual Chrome on an isolated production build, the Angular worker registered 
 Native OS installation, a physical handheld keyboard, actual A4 printing and teacher acceptance are not claimed. No production conversation, paper or account data was written during this UI QA. Local fixtures are synthetic and cannot establish educational accuracy or backend authority.
 
 Final delivery proceeds through the existing protected pipeline, scoped to independent Hosting. Deployment and live verification belong in `docs/ai-assistant/UI_PWA_2026-10-25.md`.
+
+Release closeout: corrected run 40135303415 succeeded, backend skipped, live commit f9d3f07 confirmed. The earlier cancelled attempt submitted an unnecessary backend redeployment because its shallow checkout lacked the comparison base; the release document records the actual completed cloud operation and exact-base-fetch correction. Post-release public sign-in/install UI was visually checked; authenticated live conversations could not be rechecked after the Chrome connection disappeared. This does not replace the source-bound synthetic working-state evidence or intended-user acceptance.

@@ -6,7 +6,7 @@ import {spawnSync} from 'node:child_process';
 import {groundedReply,calculate} from '../src/tools.js';
 import {skill} from '../src/skills.js';
 import {inputBinding} from '../src/recovery.js';
-import {paperOutputSchema,revisionOutputSchema} from '../src/paper-contract.js';
+import {paperOutputSchema,revisionOutputSchema,outputSchemas} from '../src/paper-contract.js';
 import {cloudReleaseRequired,cloudReleasePlan} from '../src/release-scope.js';
 import {curriculum,defaults} from '../../../assistant-service/domain/index.mjs';
 import {assertSchema} from '../../../assistant-service/domain/schemas.mjs';
@@ -30,6 +30,7 @@ test('controller-only releases keep checks while remote or unknown changes retai
   assert.equal(cloudReleaseRequired([]),true);
   assert.deepEqual(cloudReleasePlan(['question-papers/src/api.service.ts','question-papers/public/assistant-config.json','.github/workflows/gtop-assistant-release.yml']),{backend:false,hosting:true});
   assert.deepEqual(cloudReleasePlan(['question-papers/src/main.ts','assistant-service/runtime.mjs']),{backend:true,hosting:true});
+  assert.deepEqual(cloudReleasePlan(['assistant-service/domain/catalogue.mjs','tools/gtop-assistant/src/worker.ts','docs/release.md']),{backend:true,hosting:false});
   assert.deepEqual(cloudReleasePlan(['docs/report.md']),{backend:false,hosting:false});
   assert.deepEqual(cloudReleasePlan([]),{backend:true,hosting:true});
 });
@@ -67,3 +68,5 @@ test('explicit new paper with existing paper stays creation; scope derives from 
 test('whole assistant plus explanation skill fits prompt budget and saved skill hashes remain correct',async()=>{const j=job('Explain question 6 in Hindi');j.context.latestPaper={id:'p',title:'Test',sections:[{questions:[{number:6,question:'Test',answer:'Verified answer'}]}]};const conversation=await skill('conversation'),explanation=await skill('explain-paper');const b=localRequest({model:'test'} as any,j,conversation.text+'\n'+explanation.text);assert(Buffer.byteLength(JSON.stringify({messages:b.messages,format:b.format}))<=9000);assert.equal(hash(conversation.text),conversation.sha256);});
 
 test('asking curriculum-check status cannot start another check',()=>{for(const text of ['What is the status of the latest syllabus check?','Please check the status of my curriculum research.']){const j=job(text);j.controllerFacts.activeCurriculumJob={kind:'curriculum',state:'validating',phase:'reviewing_curriculum'};const p=route(j,{...proposal,action:'check_curriculum'});assert.equal(p.action,'status');assert.match(p.reply,/curriculum check/);assert.equal(selectContext(j).currentExecutionFacts.activeCurriculumJob?.phase,'reviewing_curriculum');}});
+
+test('paper machine scope and verified settings are constrained before inference rather than consuming a repair',()=>{const s=outputSchemas({...curriculum,standard:'10',subject:'Science'},{marks:80,durationMinutes:180,questionLanguage:'English',answerLanguage:'Hindi'}).paper;assert.throws(()=>assertSchema('Full saved GTOP chapter list',s.properties.scope),/unsupported/);assertSchema('full_syllabus',s.properties.scope);assert.throws(()=>assertSchema('12',s.properties.standard));assert.throws(()=>assertSchema(70,s.properties.marks));assertSchema('Hindi',s.properties.answerLanguage);});

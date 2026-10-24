@@ -29,3 +29,12 @@ Synthetic structural tests exercise every configured board/class pair, distinct 
 Local TypeScript checks, independent-app production build, production gateway import and isolated Auth/Firestore/Functions/RTDB tests have passed. Required CI gates and representative hosted use are recorded after deployment. Native A4/PDF pagination, physical printing and teacher/classroom acceptance remain separate outstanding gates from the earlier pilot.
 
 Private runtime logs retain exact local prompts, outputs, controller decisions, Codex handoffs/invocations/events, skills/hashes, source proofs and stage timings. Do not copy private production conversations or credentials into this public repository. See the later acceptance addendum for measured runs.
+
+
+## First hosted use and bounded corrections
+
+Main release `19d5067` passed all protected checks, gateway deployment and independent Hosting deployment in [Actions run40101667519](https://github.com/Wolfrine/gtop-app/actions/runs/40101667519). The existing conversation's exact Class10 capability question now receives a complete-service answer without delegation; local inference was7.098s. A new80-mark Class10 Science request selected16 distinct saved titles from22 live GTOP records, not the old Chemistry curriculum. Its local interpretation took7.908s. This exact subject read goes beyond the bounded MCP sample.
+
+Live use caught a controller parsing defect: “Hindi mein samjhao” selected the Hindi subject while the already pinned Science paper continued correctly. Conversation-language clauses are now excluded from subject selection, while explicit Hindi-subject creation remains supported; a regression covers the actual request. The wrong historical assistant reply is preserved as evidence, not silently rewritten. Codex also put a prose provenance notice into the machine `scope` field; validation caught it. Output schemas now pin board/class/subject/year/scope and verified marks, duration and document languages to avoid spending a repair on copying those values.
+
+These are application-use corrections, not another model benchmark gate. The correction release retains all required checks and updates the gateway without redeploying unchanged Hosting assets. Unknown deployment paths still retain both deployment gates. Exact hosted paper/check results and timings are appended after completion.

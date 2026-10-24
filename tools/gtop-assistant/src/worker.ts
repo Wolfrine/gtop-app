@@ -60,7 +60,7 @@ export class Worker {
   }
   async paper(job:any,dir:string,signal:AbortSignal){
     const pinned=job.curriculumSnapshot||job.context?.curriculum||curriculum;
-    const {paper:paperSchema,revision:revisionSchema}=outputSchemas(pinned);
+    const {paper:paperSchema,revision:revisionSchema}=outputSchemas(pinned,job.requirements);
     const packet=handoff(job);const instructions=await skill(job.operation==='revise_paper'?'revise-paper':'create-paper');await record(dir,'skill.json',instructions);await record(dir,'handoff.json',packet);const timings:any[]=[];
     const event=async(phase:string)=>{const a=await this.api.post(`/worker/jobs/${job.id}/event`,{leaseId:job.leaseId,phase,state:['structure_validation','codex_reviewing','preparing_documents'].includes(phase)?'validating':'running'});if(!a.active)throw Error('This job no longer owns its revision.');};
     const run=async(stage:string,prompt:string,schema:any)=>{await event(stage==='generation'?'codex_generating':stage.includes('review')?'codex_reviewing':'codex_correcting');const r=await codex(this.config,instructions.text+'\n\n'+prompt,schema,path.join(dir,stage),signal,async()=>{await this.api.post(`/worker/jobs/${job.id}/heartbeat`,{leaseId:job.leaseId});});timings.push({stage,...r.metrics,skill:instructions.name,skillVersion:instructions.version,skillSha256:instructions.sha256});return r.value;};

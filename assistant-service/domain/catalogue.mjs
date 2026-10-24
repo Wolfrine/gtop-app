@@ -54,7 +54,7 @@ export function extractScope(text,index={},base={}){
   if(grade)out.standard=(grade[1]||grade[2]||grade[3]).replace(/[०-९]/g,c=>String('०१२३४५६७८९'.indexOf(c)));
   const year=text.match(/\b(20\d{2})[-–](\d{2})\b/);if(year)out.academicYear=year[1]+'-'+year[2];
   const candidates=[...new Set((index.scopes||[]).filter(s=>(!out.board||s.board===out.board)&&(!out.standard||s.standard===out.standard)).map(s=>s.subject)), 'Mathematics','Chemistry','Physics','Biology','Science','History','Geography','English','Hindi','Computer','Economics','Civics','Social Science','Accountancy','Business Studies'];
-  const subjectText=text.replace(/(?:in|में)\s+(?:English|Hindi|हिंदी|अंग्रेजी)/gi,'');
+  const subjectText=text.replace(/(?:Hindi|English|Hinglish|हिंदी|हिन्दी|अंग्रेजी|हिंग्लिश)\s+(?:mein|me|में)\s+(?:samjhao|samjha|bolo|boliye|batao|bataye|explain|reply|answer|समझा\S*|बोल\S*|बताइ\S*|बता\S*)/gi,'').replace(/(?:in|में)\s+(?:English|Hindi|हिंदी|अंग्रेजी)/gi,'');
   let matched=candidates.filter(s=>new RegExp('(?:^|\\b)'+escaped(s)+'(?:\\b|$)','i').test(subjectText));
   if(/\bmaths?\b|गणित/i.test(subjectText)){const saved=(index.scopes||[]).filter(s=>(!out.board||s.board===out.board)&&(!out.standard||s.standard===out.standard)).map(s=>s.subject);matched.push(saved.find(s=>/^mathematics$/i.test(s))||saved.find(s=>/^maths?$/i.test(s))||'Mathematics');}
   matched=[...new Set(matched)].sort((a,b)=>b.length-a.length);

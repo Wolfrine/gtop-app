@@ -281,3 +281,13 @@ Use it to answer:
 - Wiki pages changed: none. Existing journey intent and real-admin outcome boundaries remain intact.
 - Evidence boundary: controlled reproduction resolved the diagnosis; the exact CI instance remains a timeline-based inference. Independent QA recommended the published fixture-only correction. Mandatory build and service checks had passed, while the browser first-attempt result was pending at this observation. Previously verified production delivery remains established.
 - Project Manager Handoff: retain subsequent CI, merge and release closeout in Action Plan `yqPTIZkZPfkCQn3507cc`; no repeated product-memory rewrite is needed solely as execution checks advance. Evaluate actual admin ease of use and workload reduction through usage and feedback.
+
+
+### 2026-10-24 - Whole-assistant capabilities and broader curricula
+
+- Raw source: `raw/2026-10-24-paper-assistant-broad-curriculum.md`; processed.
+- Wiki changed: `wiki/Intent.md`.
+- Durable decision: Class 12 Chemistry was a test, not a product boundary. The service supports configured GTOP boards/appropriate programmes and Classes 5–12, describes delegated capabilities honestly, reuses saved curricula, and performs official-source checks on request.
+- Evidence boundary: saved chapter availability does not prove current official completeness or teacher acceptance. Programme, level, cohort and textbook ambiguity requires clarification.
+- Project Manager Handoff: expanded implementation, deployment and actual-use evidence remain with Action Plan `QndHjDJw0x3wzzG5szwW` and engineering release records. The deferred paper library remains later scope. No execution checklist was added to the wiki.
+- Curation scope: this new source was read fully and reconciled with Intent. Existing unrelated raw sources were not re-curated.

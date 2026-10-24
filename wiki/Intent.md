@@ -20,7 +20,9 @@ The long-term [[Product Direction]] is a future-ready practice system: disciplin
 
 ## Related Product Concepts
 
-The24October2026 direction preserves objective practice as GTOP core and gives Question Paper Creation its own conversational sub-app, beginning with Aparna. The assistant should understand and clarify naturally in English, Hindi and Hinglish, retain relevant context, and stay responsive while substantial content work runs. Original requests and corrections remain authoritative through delegation. Actual progress, dependable saved outputs and usable revisions matter more than an impressive model demonstration. Improve the working journey through observed use and feedback; a central launcher and wider capabilities follow later decisions.
+The 24 October 2026 direction preserves objective practice as GTOP core and gives Question Paper Creation its own conversational sub-app, beginning with Aparna. The assistant should understand and clarify naturally in English, Hindi and Hinglish, retain relevant context, and stay responsive while substantial content work runs. Original requests and corrections remain authoritative through delegation. Actual progress, dependable saved outputs and usable revisions matter more than an impressive model demonstration. Improve the working journey through observed use and feedback; a central launcher and wider capabilities follow later decisions.
+
+Question Paper Creation is intended to serve Classes 5–12 across GTOP's configured boards and the appropriate programmes. Class 12 Chemistry was a testing example, not the assistant's product boundary. The assistant speaks for the complete service: it can discuss requirements, arrange reviewed papers and separate answers, revise earlier work, explain questions and report actual progress. It should reuse saved GTOP curricula and check official current sources when requested. Saved chapters alone do not establish current-year completeness; programme, level, examination cohort and textbook differences must be clarified rather than silently selected.
 
 GTOP's [[Features]] should serve student practice continuity, admin content quality, and Growth Tutorials brand trust. The [[Problems]] page tracks the product problems that should shape future priorities.
 
@@ -30,3 +32,5 @@ GTOP's [[Features]] should serve student practice continuity, admin content qual
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
 - `raw/2026-10-24-conversational-paper-pilot-approval.md`
+
+- `raw/2026-10-24-paper-assistant-broad-curriculum.md`

@@ -94,6 +94,9 @@ test('controller-only releases keep checks while remote or unknown changes retai
   assert.deepEqual(cloudReleasePlan(['assistant-service/domain/catalogue.mjs','tools/gtop-assistant/src/worker.ts','docs/release.md']),{backend:true,hosting:false});
   assert.deepEqual(cloudReleasePlan(['assistant-service/domain/exam-copy.mjs']),{backend:true,hosting:true});
   assert.deepEqual(cloudReleasePlan(['docs/report.md']),{backend:false,hosting:false});
+  assert.deepEqual(cloudReleasePlan(['question-papers/src/styles.css','design/assistant-pilot/review.md','design/assistant-pilot/phone.jpg']),{backend:false,hosting:true});
+  assert.deepEqual(cloudReleasePlan(['design/assistant-pilot/review.md']),{backend:false,hosting:false});
+  assert.deepEqual(cloudReleasePlan(['question-papers/src/styles.css','firebase.assistant.json']),{backend:true,hosting:true});
   assert.deepEqual(cloudReleasePlan([]),{backend:true,hosting:true});
 });
 test('Windows pairing decrypts under a PowerShell Core parent without importing its modules',{skip:process.platform!=='win32'},async()=>{

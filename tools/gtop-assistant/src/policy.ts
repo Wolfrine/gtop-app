@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto';
 import {defaults,validateRequirements,curriculum} from '../../../assistant-service/domain/index.mjs';
 import {capabilityFacts,scopeFromHistory,capabilityQuestion,latestRequest,extractScope,sameScope,missingScopeReply,replyLanguage} from '../../../assistant-service/domain/catalogue.mjs';
+import {buildTaskBrief,missingTaskField,clarificationText,requirementDiscussion,creationIntent as hasCreationIntent} from '../../../assistant-service/domain/task-brief.mjs';
 
 export const hash=(v:string)=>createHash('sha256').update(v,'utf8').digest('hex');
 export function verifyOriginals(job:any){for(const original of [job.request,job.rootRequest])if(!original || hash(original.text)!==original.sha256Utf8)throw Error('Original request integrity check failed.');}
@@ -13,8 +14,12 @@ export function selectContext(job:any){
   const recent:any[]=[];let budget=11500;
   for(const m of [...job.history].reverse()){const item={role:m.role,text:m.text,id:m.id};if(m.id===job.request.id||item.role==='system'||(item.role==='assistant'&&/deployed|(?:paper|job|file).{0,30}(?:ready|started|completed|running)|I can only explain|my scope is limited to explaining|only support.{0,35}Class 12/i.test(item.text)))continue;const size=JSON.stringify(item).length;if(size>budget)continue;recent.unshift(item);budget-=size;}
   const active=job.controllerFacts.activePaperJob;
-  const scope=scopeFromHistory(job,job.catalogue||{});
-  return {originalCurrentRequest:{id:job.request.id,text:job.request.text},rootRequest:{id:job.rootRequest.id,text:job.rootRequest.text},relevantConversation:recent,explicitMemory:job.profile,requirements:{...(job.context?.activeRequirements||{}),...scope},capabilities:capabilityFacts(job.catalogue||{},scope),latestPaper:paper,currentExecutionFacts:{permissions:job.controllerFacts.permissions,activePaperJob:active?{state:active.state,phase:active.phase,elapsedSeconds:active.elapsedSeconds}:null,activeCurriculumJob:job.controllerFacts.activeCurriculumJob?{state:job.controllerFacts.activeCurriculumJob.state,phase:job.controllerFacts.activeCurriculumJob.phase,elapsedSeconds:job.controllerFacts.activeCurriculumJob.elapsedSeconds}:null,availableData:{bankConnector:job.controllerFacts.availableData?.bankConnector,curriculumId:job.context?.curriculum?.id}}};
+  const brief=job.taskBrief||buildTaskBrief(job),scope=brief.requirements;
+  const capabilities=capabilityFacts(job.catalogue||{},scope);
+  // Ordinary chat needs the capability summary, not every configured board/class.
+  if(!capabilityQuestion(job.request.text)){delete capabilities.boards;delete capabilities.savedSubjects;}
+  const sources=Object.fromEntries(Object.entries(brief.sources||{}).map(([k,v]:any)=>[k,{messageId:v.messageId,quote:v.quote.slice(0,80)}]));
+  return {originalCurrentRequest:{id:job.request.id,text:job.request.text},rootRequest:{id:job.rootRequest.id,text:job.rootRequest.text},relevantConversation:recent.slice(-12),explicitMemory:job.profile,requirements:scope,taskBrief:{coverage:brief.coverage,sources,pendingClarification:brief.pendingClarification},capabilities,latestPaper:paper,currentExecutionFacts:{permissions:job.controllerFacts.permissions,activePaperJob:active?{state:active.state,phase:active.phase,elapsedSeconds:active.elapsedSeconds}:null,activeCurriculumJob:job.controllerFacts.activeCurriculumJob?{state:job.controllerFacts.activeCurriculumJob.state,phase:job.controllerFacts.activeCurriculumJob.phase,elapsedSeconds:job.controllerFacts.activeCurriculumJob.elapsedSeconds}:null,availableData:{bankConnector:job.controllerFacts.availableData?.bankConnector,curriculumId:job.context?.curriculum?.id}}};
 }
 const clipped=(v:string,bytes:number)=>{let out='';for(const c of v){if(Buffer.byteLength(out+c)>bytes)break;out+=c;}return out;};
 export function boundedContext(job:any,maxBytes:number){
@@ -28,7 +33,7 @@ export function boundedContext(job:any,maxBytes:number){
   if(size()>maxBytes)throw Error('Conversation context cannot fit the local model safely. Please use a shorter message.');
   return c;
 }
-export function taskRoot(job:any){const candidates=job.history.filter((m:any)=>m.role==='user'&&/(?:create|generate|prepare|want|need|बनाओ|बनाना|चाहिए).{0,100}(?:paper|पेपर|प्रश्नपत्र)|(?:paper|पेपर|प्रश्नपत्र).{0,45}(?:banana|banwa|बनाना|बनाओ|चाहिए)/i.test(m.text));return candidates.at(-1)?.id || job.request.id;}
+export function taskRoot(job:any){return (job.taskBrief||buildTaskBrief(job)).creationRequestId||job.request.id;}
 export function socialReply(job:any){
   const t=job.request.text.trim(),language=replyLanguage(job);
   if(/^(?:how (?:are you|are you doing|have you been)(?: today)?|how's it going|kaise ho(?: aap)?|aap kaise (?:ho|hain)|आप कैसे हैं|कैसे हो)[?!.\s]*$/i.test(t))return language==='hi'?'मैं ठीक हूँ, धन्यवाद! आप कैसे हैं?':language==='hinglish'?'Main theek hoon, shukriya! Aap kaise hain?':'Doing well, thanks! How are you?';
@@ -49,7 +54,7 @@ export function scopeClarificationReply(job:any){
 export function verifiedRequirements(job:any,proposal:any){
   const original=job.request.text,lower=original.toLowerCase();
   if(/bank[ -]?only|only.{0,15}bank|सिर्फ.{0,15}बैंक/i.test(original))throw Error('Bank-only creation is unavailable in this pilot. Please authorize original questions.');
-  const selected:any=scopeFromHistory(job,job.catalogue||{});
+  const selected:any=(job.taskBrief||buildTaskBrief(job)).requirements;
   const missing=['board','standard','subject'].filter(k=>!selected[k]);
   if(missing.length)throw Error(missingScopeReply(selected,replyLanguage(job))||'Which board is this for?');
   const r:any={...defaults,...(job.context?.activeRequirements || {}),...selected};
@@ -78,6 +83,7 @@ export function verifiedRequirements(job:any,proposal:any){
   }
   if(proposal.action==='revise_paper'&&proposal.targetQuestionNumber!=null&&r.marks!==(job.context?.activeRequirements?.marks ?? r.marks))throw Error('Changing a single question cannot change the paper total. Please request a whole-paper revision.');
   if(proposal.action==='revise_paper'&&job.context?.latestPaper?.curriculumSnapshot&&!sameScope(r,job.context.latestPaper.curriculumSnapshot))throw Error('Please create a new paper when changing programme, level, subject code, exam year or textbook edition.');
+  if(proposal.action==='revise_paper'&&job.context?.latestPaper?.requirements){const base=job.context.latestPaper.requirements;if(base.scope!==r.scope||JSON.stringify(base.selectedChapters||[])!==JSON.stringify(r.selectedChapters||[]))throw Error('Please create a new paper when changing the selected chapters or syllabus coverage.');}
   return validateRequirements(r);
 }
 export function route(job:any,p:any){
@@ -89,12 +95,13 @@ export function route(job:any,p:any){
   const discussionOnly=/(?:only|just).{0,25}(?:discuss|understand|plan|explain)|(?:discuss|understand|explain|tell me).{0,45}(?:how|process|workflow)|(?:if|suppose|hypothetically).{0,50}(?:create|make|paper)|(?:sirf|bas).{0,30}(?:samajh|baat|discuss|planning)|सिर्फ.{0,30}(?:समझ|चर्चा)|कैसे.{0,25}(?:बनाते|बनता|बनाएंगे)/i.test(t);
   if(discussionOnly)return {...p,action:'local_answer'};
   if(/\b(?:status|progress|how long|finished|ready yet)\b|कहाँ तक|कितना समय/i.test(t))return {action:'status',reply:statusReply(job)};
+  if(requirementDiscussion(t))return {...p,action:'local_answer'};
   if(latestRequest(t)&&!/(?:do not|don't|not yet).{0,30}(?:check|verify|fetch|update)/i.test(t))return {...p,action:'check_curriculum'};
   if(examPatternRequested(t))return {...p,action:'clarify',reply:patternClarification(job)};
   if(p.action==='check_curriculum')return {...p,action:'clarify',reply:'I can check the official curriculum online when you ask. '+(missingScopeReply(scopeFromHistory(job,job.catalogue||{}),replyLanguage(job))||'Would you like me to check it?')};
   if(/^(?:why|how|क्यों|कैसे).{0,60}(?:change|revis|replace|बदल)/i.test(t))return {action:'explain_paper',reply:p.reply};
   let action=p.action;
-  const creationIntent=(text:string)=>/(?:create|generate|prepare|make|want|need|बनाओ|बना दो|बनाइए|बनाना|चाहिए).{0,100}(?:paper|पेपर|प्रश्नपत्र)|(?:paper|पेपर|प्रश्नपत्र).{0,65}(?:banana|banao|banaiye|chahiye|banwa|बनाओ|बना दो|बनाइए|बनाना|चाहिए)/i.test(text);
+  const creationIntent=hasCreationIntent;
   const explicitCreation=creationIntent(t);
   if(explicitCreation){
     const recent=(job.history||[]).slice(-12);let patternPending=false,formatQuestion=false;
@@ -107,7 +114,21 @@ export function route(job:any,p:any){
     if(patternPending&&!/custom practice (?:paper|format)|practice format (?:is fine|works)/i.test(t))return {...p,action:'clarify',reply:patternClarification(job)};
   }
   if(explicitCreation)action='generate_paper';
-  if(['generate_paper','clarify','local_answer'].includes(action)&&!explicitCreation){
+  const brief=job.taskBrief||buildTaskBrief(job);
+  if(brief.creationPaused&&!explicitCreation)return {...p,action:'local_answer',reply:replyLanguage(job)==='hi'?'पेपर बनाना अभी रुका हुआ है। जब तैयार हों, बनाने को कहिए।':'Paper creation is on hold. Ask me to create it when you are ready.'};
+  const topicAnswer=/\ball (?:the )?topics?\b|\bfull chapters?\b|सभी\s*(?:टॉपिक|विषय)|पूरे?\s*अध्याय|saare\s*topics?|are (?:the )?chapters?|chapters?\s*:/i.test(t)||!!p.selection;
+  const fieldAnswer=topicAnswer||Object.keys(extractScope(t,job.catalogue||{})).length>0||/^\s*\d{2,3}\s*(?:marks?)?[.!\s]*$/i.test(t);
+  const latestPaper=job.context?.latestPaper;
+  const root=(job.history||[]).find((m:any)=>m.id===brief.creationRequestId)||job.request;
+  const pendingCreation=brief.creationRequestId&&(!latestPaper||(root.createdAt&&latestPaper.createdAt&&root.createdAt>latestPaper.createdAt));
+  if(explicitCreation||(pendingCreation&&fieldAnswer)){
+    const active=job.controllerFacts?.activePaperJob;
+    if(active&&['queued','running','validating'].includes(active.state)&&!/\b(?:new|another|different)\s+paper\b/i.test(t))return {action:'status',reply:statusReply(job)};
+    const field=missingTaskField(brief);
+    if(field){const attempts=brief.pendingClarification?.field===field?(brief.pendingClarification.attempts||0):0;const r=brief.requirements;let reply=clarificationText(field,replyLanguage(job));if(field==='level'&&r.board==='IB')reply=replyLanguage(job)==='hi'?'IB DP के लिए SL चाहिए या HL?':replyLanguage(job)==='hinglish'?'IB DP ke liye SL chahiye ya HL?':'For IB DP, should this be SL or HL?';if(attempts)reply=(replyLanguage(job)==='hi'?'बाकी जानकारी सुरक्षित है। ':replyLanguage(job)==='hinglish'?'Baaki details saved hain. ':'The other details are saved. ')+reply;return {...p,action:'clarify',clarificationField:field,reply};}
+    action='generate_paper';
+  }
+  if(['generate_paper','clarify','local_answer'].includes(action)&&!explicitCreation&&!(pendingCreation&&fieldAnswer)){
     const previous=(job.history || []).filter((m:any)=>m.id!==job.request.id);
     const priorAssistant=[...previous].reverse().find((m:any)=>m.role==='assistant')?.text || '';
     const scopeAnswer=Object.keys(extractScope(t,job.catalogue||{})).length>0;

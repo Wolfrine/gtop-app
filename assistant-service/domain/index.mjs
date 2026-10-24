@@ -6,6 +6,7 @@ import {readFileSync} from 'node:fs';
 import {curriculum,defaults} from './curriculum.mjs';
 import {assertSchema,paperSchema} from './schemas.mjs';
 import {validateScope,scopeKeys,sameScope} from './catalogue.mjs';
+import {selectedCurriculum as selectPaperCurriculum} from './task-brief.mjs';
 export {curriculum,defaults};
 export {paperSchema,questionSchema,revisionSchema,reviewSchema,proposalSchema,assertSchema} from './schemas.mjs';
 
@@ -15,9 +16,11 @@ function require(test,message){if(!test)throw Error(message);}
 const cleanText=(v,max=12000)=>typeof v==='string'&&v.trim().length>0&&v.length<=max;
 export function validateRequirements(input){
   require(input&&typeof input==='object'&&!Array.isArray(input),'Paper requirements are missing.');
-  const allowed=new Set([...Object.keys(defaults),...scopeKeys]);require(Object.keys(input).every(k=>allowed.has(k)),'Unknown paper requirement.');
+  const allowed=new Set([...Object.keys(defaults),...scopeKeys,'selectedChapters']);require(Object.keys(input).every(k=>allowed.has(k)),'Unknown paper requirement.');
   const r={...defaults,...input};
-  Object.assign(r,validateScope(r));require(r.scope==='full_syllabus','Only full selected-curriculum papers are supported.');
+  Object.assign(r,validateScope(r));require(['full_syllabus','selected_chapters'].includes(r.scope),'Choose full syllabus or selected chapters.');
+  if(r.scope==='selected_chapters')require(Array.isArray(r.selectedChapters)&&r.selectedChapters.length>0&&r.selectedChapters.length<=30&&r.selectedChapters.every(c=>cleanText(c,200)),'Selected chapter names are required.');
+  else require(!r.selectedChapters?.length,'Full-syllabus papers cannot retain a chapter restriction.');
   require(Number.isInteger(r.marks)&&r.marks>=10&&r.marks<=100,'Choose a whole mark total between 10 and 100.');
   require(Number.isInteger(r.durationMinutes)&&r.durationMinutes>=15&&r.durationMinutes<=360,'Duration must be 15–360 minutes.');
   require(['English','Hindi'].includes(r.questionLanguage)&&['English','Hindi'].includes(r.answerLanguage),'Paper and answer languages must be English or Hindi.');
@@ -28,7 +31,7 @@ export function validatePaper(p,requirements=null,selectedCurriculum=null){
   require(p&&typeof p==='object','Missing paper.');
   assertSchema(paperContent(p),paperSchema);
   const r=validateRequirements(requirements??Object.fromEntries(Object.keys(defaults).map(k=>[k,k in p?p[k]:defaults[k]])));
-  const pinned=selectedCurriculum||p.curriculumSnapshot||curriculum;
+  const pinned=selectPaperCurriculum(selectedCurriculum||p.curriculumSnapshot||curriculum,r);
   require(sameScope(pinned,r),'Selected curriculum programme, level, code, cohort or edition differs from the verified requirements.');
   for(const k of ['board','standard','subject','academicYear'])require(pinned[k]===r[k],`Selected curriculum ${k} differs from the paper scope.`);
   for(const k of ['board','standard','subject','academicYear','scope','marks','durationMinutes','questionLanguage','answerLanguage'])require(p[k]===r[k],`Paper ${k} differs from verified requirements.`);
@@ -68,9 +71,9 @@ export function paperContent(p){return Object.fromEntries(['title','board','stan
 export function validateRevision(base,candidate,targetQuestionNumber=null,selectedCurriculum=null){
   const pinned=selectedCurriculum||base.curriculumSnapshot;
   const variants=Object.fromEntries(scopeKeys.slice(4).map(k=>[k,base.requirements?.[k]||pinned?.[k]||'']));
-  const requirements={...variants,...Object.fromEntries(Object.keys(defaults).map(k=>[k,k in base?base[k]:defaults[k]]))};
+  const requirements={...variants,...(base.requirements?.selectedChapters?{selectedChapters:base.requirements.selectedChapters}:{}),...Object.fromEntries(Object.keys(defaults).map(k=>[k,k in base?base[k]:defaults[k]]))};
   requirements.internalChoices=base.sections.some(s=>s.questions.some(q=>q.alternative));
-  const candidateRequirements={...variants,...Object.fromEntries(Object.keys(defaults).map(k=>[k,k in candidate?candidate[k]:defaults[k]]))};
+  const candidateRequirements={...variants,...(requirements.selectedChapters?{selectedChapters:requirements.selectedChapters}:{}),...Object.fromEntries(Object.keys(defaults).map(k=>[k,k in candidate?candidate[k]:defaults[k]]))};
   candidateRequirements.internalChoices=candidate.sections.some(s=>s.questions.some(q=>q.alternative));
   validatePaper(candidate,targetQuestionNumber==null?candidateRequirements:requirements,selectedCurriculum||base.curriculumSnapshot||null);
   if(targetQuestionNumber!==null&&targetQuestionNumber!==undefined){

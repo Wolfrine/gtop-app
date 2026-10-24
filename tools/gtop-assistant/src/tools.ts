@@ -36,6 +36,8 @@ export function groundedReply(job:any,p:any){
     return (hindi?'चुने हुए syllabus के chapters हैं: ':'The selected curriculum covers these chapters: ')+titles+'.'+(inFlight?(hindi?' आपका paper अभी बन रहा है। ':' Your paper is being prepared. ')+statusReply(job):'');
   }
   if(p.action==='status')return statusReply(job);
+  const claimedExecution=/(?:I(?:'ve| have)?|we(?:'ve| have)?)\s+(?:already\s+)?(?:sent|passed|delegated|started|queued|launched)\b|(?:Codex|the worker)\s+is\s+(?:working|generating|creating|writing)|(?:your|the) (?:request|paper).{0,25}(?:has been|is)\s+(?:sent|passed|delegated|started|queued)|मैंने.{0,50}(?:भेज|शुरू)|(?:maine|humne).{0,50}(?:bhej|shuru)/i.test(p.reply||'');
+  if(claimedExecution){const research=job.controllerFacts?.activeCurriculumJob;return inFlight||(research&&['queued','running','validating'].includes(research.state))?statusReply(job):hindi?'अभी कोई नया काम शुरू नहीं हुआ है।':'No new task has been started.';}
   const scope=scopeFromHistory(job,job.catalogue||{});
   const userTexts=[...(job.history||[]).filter((m:any)=>m.role==='user').map((m:any)=>m.text),t];
   const marksKnown=userTexts.some((text:string)=>/\b\d{2,3}\s*[- ]?\s*(?:marks?|अंक)/i.test(text));

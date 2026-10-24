@@ -5,12 +5,33 @@ import {defaults,validateRequirements,validatePaper,validateRevision,renderPaper
 import {researchCurriculum,validateResearchCandidate,retrieveOfficialSource} from '../domain/research.mjs';
 import {AssistantService} from '../service.mjs';
 import {MemoryStore} from '../store.mjs';
+import {buildTaskBrief,selectedCurriculum} from '../domain/task-brief.mjs';
 const scope={board:'CBSE',standard:'10',subject:'Science',academicYear:'2026-27'};
 const rows=Array.from({length:10},(_,i)=>({...scope,id:'saved-'+i,chapter:'Chapter '+(i+1)}));
 function paper(r,c){return {...defaults,...r,title:'SYNTHETIC structural fixture',instructions:['Attempt all numbered questions.'],sections:[{title:'Section A',instructions:'',questions:c.chapters.map((x,i)=>({number:i+1,chapter:x.title,type:'short_answer',marks:1,question:'SYNTHETIC fixture '+i,options:[],correctIndex:null,answer:'PRIVATE answer '+i,markingPoints:['PRIVATE mark '+i],alternative:null}))}],sourceReferences:[{id:c.id,url:c.url,title:c.title}]};}
 const candidate=(r=scope)=>({...Object.fromEntries(['programme','level','subjectCode','examYear','edition'].map(k=>[k,''])),...r,status:'found',reply:'Source-backed test fixture only.',title:'SYNTHETIC official source fixture',complete:true,chapters:[{id:'c1',title:'Chapter one',focus:'Test focus'}],sources:[{url:'https://cbseacademic.nic.in/test.pdf',title:'Official test fixture',applicableYear:'2026-27',locator:'p.1'}],limitations:[]});
 const proofs=[{url:'https://cbseacademic.nic.in/test.pdf',finalUrl:'https://cbseacademic.nic.in/test.pdf',sha256:'a'.repeat(64),bytes:100,checkedAt:'2026-10-24T00:00:00Z'}];
 function fixture(){let n=0;const store=new MemoryStore({'users/owner':{role:'admin'},'assistantConfig/pilot':{allowedOwnerUids:['owner']},'assistantWorkers/w':{enabled:true,allowedOwnerUids:['owner']},...Object.fromEntries(rows.map(x=>['syllabus/'+x.id,x]))});const service=new AssistantService(store,{id:()=>`test-${++n}`});return {store,service,w:{id:'w',allowedOwnerUids:['owner']}};}
+
+test('sourced brief survives turns and fresh worker context; invented and assistant-sourced selections fail',async()=>{
+  const f=fixture();const t=await turn(f,null,'Create a CBSE Class 10 Science 20 marks paper. Chapters: Chapter 1, Chapter 2.');
+  await f.service.complete(f.w,t.job.id,{leaseId:t.job.leaseId,reply:'Both chapters are saved.'});
+  const saved=await f.store.get('assistantConversations/'+t.cid);assert.deepEqual(saved.taskBrief.requirements.selectedChapters,['Chapter 1','Chapter 2']);assert.equal(saved.taskBrief.requirements.marks,20);
+  const next=await turn(f,t.cid,'All topics. Start creating the paper.');assert.deepEqual(next.job.context.taskBrief.requirements.selectedChapters,['Chapter 1','Chapter 2']);
+  const r={...defaults,...buildTaskBrief(next.job).requirements,internalChoices:false};const selected=await f.service.resolveCurriculum(r,t.cid,f.w);assert.equal(selected.chapters.length,2);
+  await assert.rejects(()=>f.service.delegate(f.w,next.job.id,{leaseId:next.job.leaseId,operation:'generate_paper',requirements:{...r,scope:'full_syllabus',selectedChapters:undefined},interpretation:'widened',proposedActions:[]}),/cannot be widened/);
+  await assert.rejects(()=>f.service.delegate(f.w,next.job.id,{leaseId:next.job.leaseId,operation:'generate_paper',requirements:{...r,selectedChapters:['Chapter 3']},interpretation:'invented',proposedActions:[]}),/saved user evidence/);
+  await assert.rejects(()=>f.service.complete(f.w,next.job.id,{leaseId:next.job.leaseId,reply:'Forged',selection:{chapters:['Chapter 3'],sourceMessageId:next.job.request.id,quote:'Chapter 3'}}),/saved user/);
+  await f.service.delegate(f.w,next.job.id,{leaseId:next.job.leaseId,operation:'generate_paper',requirements:r,rootRequestMessageId:t.job.request.id,interpretation:'Both selected chapters, every topic',proposedActions:['generate_paper']});
+  const paperJob=(await f.service.claim(f.w,{kind:'paper'})).job;assert.equal(paperJob.curriculumSnapshot.chapters.length,2);assert.equal(paperJob.rootRequest.text,t.job.request.text);assert.equal(paperJob.requirements.scope,'selected_chapters');
+});
+test('selected-chapter publication rejects other chapters and missing selected coverage',()=>{
+  const r={...defaults,...scope,scope:'selected_chapters',selectedChapters:['Chapter 1','Chapter 2'],marks:10,internalChoices:false};const all=savedCurriculum(r,rows),c=selectedCurriculum(all,r);
+  const p=paper(r,c);p.sections[0].questions=Array.from({length:10},(_,i)=>({...p.sections[0].questions[i%2],number:i+1,question:'SYNTHETIC selected question '+i}));assert(validatePaper(p,r,all).passed);
+  const bad=structuredClone(p);bad.sections[0].questions[0].chapter='Chapter 3';assert.throws(()=>validatePaper(bad,r,all),/pinned/);
+  const missing=structuredClone(p);missing.sections[0].questions.forEach(q=>q.chapter='Chapter 1');assert.throws(()=>validatePaper(missing,r,all),/all 2 chapters/);
+  const base={...p,requirements:r,curriculumSnapshot:c};assert(validateRevision(base,p,null,c).passed);
+});
 async function turn(f,cid,text){if(!cid)cid=(await f.service.createConversation('owner',{})).conversation.id;await f.service.submit('owner',cid,{text,clientMessageId:Math.random().toString(36).slice(2)});return {cid,job:(await f.service.claim(f.w,{kind:'turn'})).job};}
 const delegate=(f,t,operation='generate_paper',requirements={...defaults,...scope,marks:10,internalChoices:false})=>f.service.delegate(f.w,t.job.id,{leaseId:t.job.leaseId,operation,requirements,interpretation:'Synthetic test only',proposedActions:[operation]});
 test('all configured board/class scopes 5–12 validate against their own pinned chapters; cross-scope output fails',()=>{let count=0;for(const board of boards)for(const standard of board.standards){const r=validateRequirements({...defaults,board:board.name,standard:String(standard),subject:'Science',marks:10,internalChoices:false});const c=savedCurriculum(r,rows.map(x=>({...x,board:r.board,standard:r.standard})));assert.equal(validatePaper(paper(r,c),r,c).attemptedMarks,10);assert.throws(()=>validatePaper(paper(r,c),{...r,standard:'4'},c));count++;}assert(count>=40);const r={...defaults,...scope,marks:10,internalChoices:false},c=savedCurriculum(r,rows);const html=renderPaper({...paper(r,c),curriculumSnapshot:c,requirements:r});assert(html.includes('Class 10'));assert(!html.includes('PRIVATE answer'));assert(!html.includes('official completeness'));assert(!/<p class="notice">/.test(html));assert(c.provenance.records.includes('saved-1'));assert.equal(savedCurriculum({...r,marks:80},rows).id,c.id);});

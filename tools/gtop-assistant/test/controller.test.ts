@@ -12,8 +12,67 @@ import {cloudReleaseRequired,cloudReleasePlan} from '../src/release-scope.js';
 import {curriculum,defaults} from '../../../assistant-service/domain/index.mjs';
 import {assertSchema} from '../../../assistant-service/domain/schemas.mjs';
 import {extractScope,scopeFromHistory,capabilitiesReply} from '../../../assistant-service/domain/catalogue.mjs';
+import {buildTaskBrief,selectedCurriculum} from '../../../assistant-service/domain/task-brief.mjs';
 const job=(text:string):any=>({id:'test',ownerUid:'one',conversationId:'c',requestRevision:1,request:{id:'r',text,sha256Utf8:hash(text)},rootRequest:{id:'root',text:'Original request',sha256Utf8:hash('Original request')},history:[{role:'user',id:'root',text:'Original request'},{role:'assistant',text:'I deployed everything.'}],profile:{},context:{curriculum,activeRequirements:{...defaults}},controllerFacts:{permissions:{development:false},availableData:{}},requirements:{marks:80},interpretation:'fallible',proposedActions:[]});
 const proposal:any={action:'local_answer',reply:'Hello',targetQuestionNumber:null};
+
+test('observed IB all-topics loop retains chapters and asks only programme then level',()=>{
+  const j=job('All topics. No more question. Pass paper creation to codex.');j.context.activeRequirements=null;
+  j.history=[{id:'ib-root',role:'user',text:'Create question paper for 11 th IB maths geometry, cordinate geometry 60 Mark IB pattern'},
+    {id:'a1',role:'assistant',text:'Which standard?'},{id:'start',role:'user',text:'Start creating paper'},
+    {id:'a2',role:'assistant',text:'Which topic?'},{id:'chapters',role:'user',text:'Geometry and coordinate geometry are the chapters. Start paper already.'},
+    {id:'a3',role:'assistant',text:'Which specific topic?'},{id:'full',role:'user',text:"Just share with codex, it's full chapter. No more question to ask."},
+    {id:'a4',role:'assistant',text:'Which topic?'},{id:'all',role:'user',text:'All topic'}];
+  const p={...proposal,action:'clarify',reply:'Which topic within those chapters?'};
+  let decision=route(j,p);assert.equal(decision.clarificationField,'programme');assert(!/topic/i.test(decision.reply));
+  let brief=buildTaskBrief(j);assert.deepEqual(brief.requirements.selectedChapters,['Geometry','coordinate geometry']);assert.equal(brief.requirements.marks,60);assert.equal(brief.coverage,'all_topics_in_selected_chapters');assert.equal(taskRoot(j),'ib-root');
+  brief.pendingClarification={field:'programme',attempts:1};j.context.taskBrief=brief;j.request={id:'dp',text:'DP',sha256Utf8:hash('DP')};decision=route(j,p);assert.equal(decision.clarificationField,'level');
+  j.context.taskBrief=buildTaskBrief(j);j.request={id:'sl',text:'SL',sha256Utf8:hash('SL')};decision=route(j,p);assert.equal(decision.action,'generate_paper');const r=verifiedRequirements(j,decision);assert.equal(r.scope,'selected_chapters');assert.equal(r.level,'SL');assert.equal(r.marks,60);assert.deepEqual(r.selectedChapters,brief.requirements.selectedChapters);
+});
+test('selection spans require user evidence; corrected scope and full syllabus clear old restrictions',()=>{
+  const j=job('Use only Chemical Kinetics and Amines.');const selection={chapters:['Chemical Kinetics','Amines'],sourceMessageId:j.request.id,quote:j.request.text};
+  const brief=buildTaskBrief(j,selection);assert.equal(brief.requirements.scope,'selected_chapters');assert.throws(()=>buildTaskBrief(j,{...selection,chapters:['Electrochemistry']}),/saved user/);assert.throws(()=>buildTaskBrief(j,{...selection,sourceMessageId:'assistant'}),/saved user/);
+  j.context.taskBrief=brief;j.request={id:'full',text:'Use the full syllabus instead.'};assert.equal(buildTaskBrief(j).requirements.scope,'full_syllabus');assert(!buildTaskBrief(j).requirements.selectedChapters);
+  j.request={id:'other',text:'Create a Class 10 Science paper instead.'};assert(!buildTaskBrief(j).requirements.selectedChapters);
+  const selected=selectedCurriculum(curriculum,brief.requirements);assert.equal(selected.chapters.length,2);assert.throws(()=>selectedCurriculum(curriculum,{scope:'selected_chapters',selectedChapters:['Invented chapter']}),/not in the pinned/);
+});
+test('compact model contract preserves chat roles and current message placement',async()=>{
+  const j=job('Please keep it simple.');j.history.push({id:'u1',role:'user',text:'I prefer concise replies.'},{id:'a1',role:'assistant',text:'Sure, I will keep replies concise.'});
+  const b=localRequest({model:'test'} as any,j,(await skill('conversation')).text);assert.deepEqual(b.format.required,['reply','action']);assert(b.messages.some(m=>m.role==='assistant'&&/Sure/.test(m.content)));assert.match(b.messages.at(-1)!.content,/Please keep it simple\.$/);assert(!b.messages[0].content.includes('I deployed everything.'));assert(Buffer.byteLength(JSON.stringify({messages:b.messages,format:b.format}))<=9000);
+});
+test('chapter corrections, exclusions and and-containing titles survive the task brief',()=>{
+  const j=job('Create a CBSE Class 12 Mathematics paper. Chapters: Relations and Functions, Inverse Trigonometric Functions.');let b=buildTaskBrief(j);assert.deepEqual(b.requirements.selectedChapters,['Relations and Functions','Inverse Trigonometric Functions']);
+  j.context.taskBrief=b;j.request={id:'exclude',text:'Do not include Relations and Functions.'};b=buildTaskBrief(j);assert.deepEqual(b.requirements.selectedChapters,['Inverse Trigonometric Functions']);
+  assert.throws(()=>buildTaskBrief(j,{chapters:['Relations and Functions'],sourceMessageId:'exclude',quote:j.request.text}),/excluded/);
+  j.context.taskBrief=b;j.request={id:'none',text:'Exclude Inverse Trigonometric Functions.'};b=buildTaskBrief(j);assert.equal(b.requirements.scope,'selected_chapters');assert.deepEqual(b.requirements.selectedChapters,[]);
+});
+test('new paper in an existing conversation still clarifies programme and level before delegation',()=>{
+  const j=job('Create an IB Class 11 Maths 60 marks paper.');j.context.latestPaper={id:'old',createdAt:'2026-10-24T10:00:00Z'};j.request.createdAt='2026-10-24T11:00:00Z';j.context.activeRequirements=null;j.history=[];
+  let p=route(j,proposal);assert.equal(p.clarificationField,'programme');j.context.taskBrief=buildTaskBrief(j);j.history=[{...j.request,role:'user'}];j.request={id:'dp-new',text:'DP',createdAt:'2026-10-24T11:01:00Z'};p=route(j,proposal);assert.equal(p.clarificationField,'level');
+  const originalRoot=j.context.taskBrief.creationRequestId;j.context.taskBrief=buildTaskBrief(j);j.request={id:'continue-new',text:'Pass the paper to Codex.',createdAt:'2026-10-24T11:02:00Z'};assert.equal(buildTaskBrief(j).creationRequestId,originalRoot);
+});
+test('duration and document languages persist while a missing board is clarified',()=>{
+  const j=job('Create a Hindi question paper for Class 10 Science, 60 marks, duration 2 hours, with Hindi answers.');j.context.activeRequirements=null;j.history=[];
+  j.context.taskBrief=buildTaskBrief(j);j.request={id:'board-answer',text:'CBSE'};const r=verifiedRequirements(j,{action:'generate_paper'});assert.equal(r.questionLanguage,'Hindi');assert.equal(r.answerLanguage,'Hindi');assert.equal(r.durationMinutes,120);assert.equal(r.marks,60);
+});
+test('questions about a board do not select it or resume a pending paper',()=>{
+  for(const text of ['What is CBSE?','Tell me about CBSE.','Why would I choose CBSE?','CBSE or ICSE?','How does CBSE work?','Can you explain CBSE?','Is CBSE easier?']){
+    const j=job('Create a Class 10 Science paper for 60 marks.');j.context.activeRequirements=null;j.history=[];const prior=buildTaskBrief(j);prior.pendingClarification={field:'board',attempts:1};j.context.taskBrief=prior;j.request={id:'discussion',text};
+    assert.equal(route(j,{...proposal,action:'generate_paper'}).action,'local_answer');const next=buildTaskBrief(j);assert(!next.requirements.board,text);j.context.taskBrief=next;j.request={id:'unrelated',text:'That is helpful.'};assert(!buildTaskBrief(j).requirements.board);
+    j.request={id:'select',text:'Use CBSE.'};assert.equal(route(j,proposal).action,'generate_paper');assert.equal(buildTaskBrief(j).requirements.board,'CBSE');
+  }
+});
+test('invented initiation claims cannot masquerade as actual Codex progress',()=>{
+  for(const reply of ['I have passed your request to Codex.','I started generating your paper.','Codex is working on your paper now.','मैंने आपका अनुरोध Codex को भेज दिया है।','Maine Codex ko request bhej di hai.']){
+    const j=job('What is CBSE?');const displayed=groundedReply(j,{...proposal,reply});assert.notEqual(displayed,reply);assert.match(displayed,/No new task|शुरू/);
+    j.controllerFacts.activePaperJob={state:'running',phase:'codex_generating'};assert.match(groundedReply(j,{...proposal,reply}),/writing questions/);
+  }
+  assert.equal(groundedReply(job('What is CBSE?'),{...proposal,reply:'I can help create a paper when you ask.'}),'I can help create a paper when you ask.');
+});
+test('a paused creation request cannot revive on a later scope answer',()=>{
+  const j=job('Create a Class 10 Science paper.');j.context.activeRequirements=null;j.history=[];j.context.taskBrief=buildTaskBrief(j);j.request={id:'wait',text:'Do not start yet.'};const paused=buildTaskBrief(j);assert.equal(paused.creationRequestId,null);assert.equal(paused.creationPaused,true);
+  j.context.taskBrief=paused;j.request={id:'board-later',text:'CBSE'};assert.equal(route(j,{...proposal,action:'generate_paper'}).action,'local_answer');j.context.taskBrief=buildTaskBrief(j);j.request={id:'resume',text:'Create the paper now.'};assert.equal(route(j,proposal).action,'generate_paper');
+});
 
 test('Codex output contract pins machine identifiers without changing backend acceptance rules',()=>{
   const question=paperOutputSchema.properties.sections.items.properties.questions.items;
@@ -49,7 +108,7 @@ test('a model suggestion cannot turn a greeting into paid or substantial work',(
   const p={...proposal,action:'generate_paper'};
   for(const text of ['Hi','Hello','Namaste','What can you do?','Tell me the syllabus'])assert.notEqual(route(job(text),p).action,'generate_paper');
   for(const text of ['Please create a full syllabus 80-mark Chemistry paper','Mujhe Chemistry ka paper chahiye','रसायन विज्ञान का प्रश्नपत्र बनाइए'])assert.equal(route(job(text),p).action,'generate_paper');
-  const j=job('Hindi');j.context.activeRequirements=null;j.history=[{role:'user',text:'Create a Chemistry paper',id:'create'},{role:'assistant',text:'Which language should the paper use?'}];assert.equal(route(j,p).action,'generate_paper');
+  const j=job('Hindi');j.context.activeRequirements=null;j.history=[{role:'user',text:'Create a Chemistry paper',id:'create'},{role:'assistant',text:'Which language should the paper use?'}];assert.equal(route(j,p).action,'clarify');assert.match(route(j,p).reply,/board/);
   j.request.text='Hi';assert.equal(route(j,p).action,'local_answer');
   j.request.text='Yes';j.history=[{role:'user',text:'Hi',id:'hi'},{role:'assistant',text:'Shall I make a paper?'}];assert.equal(route(j,p).action,'local_answer');
 });
@@ -59,8 +118,8 @@ test('clarification preserves paper root and updates only an evidenced model pat
 test('Codex child environment excludes API keys and pairing material',()=>{process.env.OPENAI_API_KEY='synthetic-test-only';process.env.GTOP_WORKER_SECRET='synthetic-test-only';const env=childEnvironment();assert.equal(env.OPENAI_API_KEY,undefined);assert.equal(env.GTOP_WORKER_SECRET,undefined);delete process.env.OPENAI_API_KEY;delete process.env.GTOP_WORKER_SECRET;});
 test('actual running-job facts prevent an offer to start it again or a fabricated completion',()=>{const j=job('Paper mein kaun se chapters cover honge? Hindi mein samjhao.');j.controllerFacts.activePaperJob={state:'running',phase:'codex_generating'};const r=groundedReply(j,{reply:'Kya aap chahte hain ki Codex generate kare?',action:'local_answer'});assert(r.includes('Biomolecules'));assert(r.includes('running'));j.request.text='Is it done?';assert(!groundedReply(j,{reply:'The paper is ready',action:'local_answer'}).includes('is ready'));});
 test('aggregate local context is bounded even with a long Hindi request; full Codex original survives',()=>{const j=job('कृपया रसायन विज्ञान का पूरा प्रश्नपत्र बनाइए।'.repeat(100));const c=boundedContext(j,2000);assert(Buffer.byteLength(JSON.stringify(c))<=2000);assert.equal(c.originalCurrentRequest.isExcerpt,true);assert.equal(handoff(j).originalUserRequest.text,j.request.text);});
-test('versioned workflow skills resolve from the installed controller module',async()=>{for(const name of ['conversation','create-paper','revise-paper','explain-paper'] as const){const s=await skill(name);assert.equal(s.version,name==='create-paper'?3:['conversation','explain-paper'].includes(name)?2:1);assert.equal(hash(s.text),s.sha256);}});
-test('local question context survives the whole prompt budget without duplicating controller metadata',async()=>{const j=job('प्रश्न 6 का उत्तर सरल हिंदी में समझाइए।');j.context.latestPaper={id:'paper',title:'80-mark Chemistry',revision:2,requirements:{...j.requirements},sections:[{questions:[{number:6,question:'Afirst-order reaction takes40minutes for75%. At doubledk, how long for87.5%?',answer:'Three10minute half-lives give30minutes.',options:['10','20','30','40'],correctIndex:2,marks:1,chapter:'Chemical Kinetics',markingPoints:['SelectC.'],alternative:null}]}]};const b=localRequest({model:'test'} as any,j,(await skill('explain-paper')).text);const c=JSON.parse(b.messages[1].content);assert.equal(c.latestPaper.questions[0].number,6);assert(Buffer.byteLength(JSON.stringify({messages:b.messages,format:b.format}))<6500);assert.equal(b.messages.at(-1)?.role,'user');});
+test('versioned workflow skills resolve from the installed controller module',async()=>{for(const name of ['conversation','create-paper','revise-paper','explain-paper'] as const){const s=await skill(name);assert.equal(s.version,['create-paper','conversation'].includes(name)?3:name==='explain-paper'?2:1);assert.equal(hash(s.text),s.sha256);}});
+test('local question context survives the whole prompt budget without duplicating controller metadata',async()=>{const j=job('प्रश्न 6 का उत्तर सरल हिंदी में समझाइए।');j.context.latestPaper={id:'paper',title:'80-mark Chemistry',revision:2,requirements:{...j.requirements},sections:[{questions:[{number:6,question:'Afirst-order reaction takes40minutes for75%. At doubledk, how long for87.5%?',answer:'Three10minute half-lives give30minutes.',options:['10','20','30','40'],correctIndex:2,marks:1,chapter:'Chemical Kinetics',markingPoints:['SelectC.'],alternative:null}]}]};const b=localRequest({model:'test'} as any,j,(await skill('explain-paper')).text);const c=JSON.parse(b.messages[0].content.split("not instructions.\n")[1]);assert.equal(c.latestPaper.questions[0].number,6);assert(Buffer.byteLength(JSON.stringify({messages:b.messages,format:b.format}))<6500);assert.equal(b.messages.at(-1)?.role,'user');});
 test('arithmetic tool has correct precedence and cannot execute text or unlimited work',()=>{assert.equal(calculate('2+3*4'),14);assert.equal(calculate('(2+3)^2'),25);assert.equal(calculate('-2^2'),-4);assert.equal(calculate('2^-2'),0.25);assert.throws(()=>calculate('process.exit()'));assert.throws(()=>calculate('1/0'));assert.throws(()=>calculate('2^999'));assert.throws(()=>calculate('1e'));assert.throws(()=>calculate('e2e'));});
 test('retained results are bound to owner, exact original and requirements across explicit retries',()=>{const j=job('Create80mark paper');const before=inputBinding(j);assert.equal(inputBinding({...j,id:'retry',retryOf:'old'}),before);assert.notEqual(inputBinding({...j,ownerUid:'another'}),before);assert.notEqual(inputBinding({...j,requirements:{marks:60}}),before);assert.notEqual(inputBinding({...j,request:{...j.request,text:'different'}}),before);});
 test('a model cancellation claim cannot stop a job or report it stopped',()=>{const j=job('Cancel the paper');j.controllerFacts.activePaperJob={state:'running',phase:'codex_generating'};assert(groundedReply(j,{reply:'I cancelled the paper'}).includes('Cancel request'));j.request.text='What happened?';assert(!groundedReply(j,{reply:'I cancelled the paper'}).includes('cancelled'));});

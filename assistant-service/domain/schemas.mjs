@@ -7,6 +7,9 @@ export const paperSchema=object({title:string,board:string,standard:string,subje
 export const revisionSchema=object({question:questionSchema,reason:string});
 export const reviewSchema=object({verdict:{type:'string',enum:['pass','needs_correction']},summary:string,issues:{type:'array',items:object({questionNumber:{type:'integer'},severity:{type:'string',enum:['minor','major']},problem:string,correction:string})}});
 export const proposalSchema=object({reply:string,action:{type:'string',enum:['local_answer','clarify','describe_capabilities','generate_paper','revise_paper','explain_paper','check_curriculum','status','unsupported']},interpretation:string,proposedActions:strings,requirementsPatch:object({board:{type:['string','null']},standard:{type:['string','null']},subject:{type:['string','null']},academicYear:{type:['string','null']},marks:{type:['integer','null']},durationMinutes:{type:['integer','null']},questionLanguage:{type:['string','null']},answerLanguage:{type:['string','null']},sourcePolicy:{type:['string','null']}}),targetQuestionNumber:{type:['integer','null']},memoryPatch:object({assistantLanguage:{type:['string','null']},preferredName:{type:['string','null']}})});
+// Only two fields are mandatory for ordinary conversation. Task-only details are
+// optional and never grant authority or replace controller-verified requirements.
+export const conversationSchema={...object({reply:string,action:proposalSchema.properties.action,interpretation:string,selection:object({chapters:strings,sourceMessageId:string,quote:string})}),required:['reply','action']};
 
 /** Deliberately limited validator for our generated JSON schemas; no coercion. */
 export function assertSchema(value,schema,path='output'){

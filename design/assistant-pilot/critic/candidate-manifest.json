@@ -1,19 +1,19 @@
 {
   "candidate_algorithm": "v2: sha256(canonical_json({production_build:[path,sha256],source_snapshot:[path,sha256],project_configuration:[path,sha256],fixture_sources:[path,sha256]})); sorted keys and compact separators",
-  "candidate": "3881d76d38b4f9e9ab8b8598c877031fae5e7227eb715a9f1cf92e87595d6623",
-  "observed_git_revision": "9be7fd99b67310fdf40ad385ad5e1dfbc6d6bc28",
+  "candidate": "0d9c9d4a3a7bf4733b8a03c0eedf2262c3cdc9d63643c047c471f87b7d38ed22",
+  "observed_git_revision": "cf7b78ab78b7cd44784b1f40e0ff44c48e9a8c25",
   "production_build": [
     {
       "path": "question-papers/dist/question-papers/browser/assistant-config.json",
-      "sha256": "5abd9da57a34ac189cd59c6164f66dc96307d64dc3dc0d16ce123c49fcaeea60"
+      "sha256": "0ee6a826965985082e35f9f71f26d9d24ee165cfeb854c4ba168bd846562ceb7"
     },
     {
       "path": "question-papers/dist/question-papers/browser/index.html",
-      "sha256": "7d9e3e48c1a638541aa596f2a1c37c90514d915d784b8d91e51c41bd158d31ce"
+      "sha256": "e7eee734233eaa938859afdbf41fd2f5ce01146961c900e70f9a88ce2a994abf"
     },
     {
-      "path": "question-papers/dist/question-papers/browser/main-KWC7FPSD.js",
-      "sha256": "ee68e8232cc674a12c84f59fb059781c137dab48918d58b3cb0c4b47865e2b92"
+      "path": "question-papers/dist/question-papers/browser/main-NLUVOD6G.js",
+      "sha256": "7f8dc846c2941c713706eef0832fe701aa362bc64731aead45a17c7dae923b8d"
     },
     {
       "path": "question-papers/dist/question-papers/browser/media/KaTeX_AMS-Regular-CYEKBG2K.woff",
@@ -260,18 +260,18 @@
       "sha256": "f1b35a3b4db37b73ca0281d6b6247701465ff9e56a7a7b3aff9784518dc2c30a"
     },
     {
-      "path": "question-papers/dist/question-papers/browser/styles-PRJABARU.css",
-      "sha256": "9e536a40943ff6b6f4e7354f91cc71dfa4b2d9ae77e8fa73484c717e42f7557a"
+      "path": "question-papers/dist/question-papers/browser/styles-7HFPSV73.css",
+      "sha256": "6457bd88a27593f73999a6f23ae3df587bb6ac846c46a75edd78b2229dd32537"
     }
   ],
   "source_snapshot": [
     {
       "path": "question-papers/src/api.service.ts",
-      "sha256": "1c0bc3b37daa531a6c42c0c67f3279499307786536e52799426b8b570506d799"
+      "sha256": "e1f75529dfedf6384625a5fe402fd81d36ac2ad6fc8744770542c724e4e5da28"
     },
     {
       "path": "question-papers/src/artifact-presentation.mjs",
-      "sha256": "a70b6bba3e4bbea79029f5fd9dd8bc88f432e150e30063e9242e17ff9d3e1390"
+      "sha256": "ae901b4e296a8246bfb222e577d1525a6b3bde2feda0e976298210ac112edf19"
     },
     {
       "path": "question-papers/src/chat-math.directive.ts",
@@ -283,7 +283,7 @@
     },
     {
       "path": "question-papers/src/contracts.ts",
-      "sha256": "c173fb1fe023f435a6670ed7133dd7107813d3b942c4349992971c3127c00121"
+      "sha256": "38845a71229f05a879db8d6d99616a58262a0c5944fe9fd1c745539bd19a7e1a"
     },
     {
       "path": "question-papers/src/dev-transport.production.ts",
@@ -291,7 +291,7 @@
     },
     {
       "path": "question-papers/src/dev-transport.ts",
-      "sha256": "d1916453ca92d28746f60ca87b3a43577d4554c1a90ef7ef1fe5b5f90a5d3524"
+      "sha256": "a304cfcd5ab8efda4e85b218ded04784c39161035d2367557744d45609cbee57"
     },
     {
       "path": "question-papers/src/fixtures/actual-local-q6-reply.json",
@@ -303,19 +303,19 @@
     },
     {
       "path": "question-papers/src/main.ts",
-      "sha256": "dff08f939b098608ff1157b6071f4ad7d44d785d9951116ab4aeff4000de6b64"
+      "sha256": "00ec39f117ad142c1aa0a7be53ab54d837340ffbfe3cc765426fb71e827b08b3"
     },
     {
       "path": "question-papers/src/presentation.mjs",
-      "sha256": "4e002a4d7c2e3e422bb71373c4973256d09932c66d1c72d8725c974b54b996c8"
+      "sha256": "910d63da678dd27039da48a9f279974ac633ccb2400536c47d3766f769d81a30"
     },
     {
       "path": "question-papers/src/styles.css",
-      "sha256": "3ea1d3cbf2e65d501e47c7032a2d73eae8476aedd12c00a0260ae6c33f57b892"
+      "sha256": "c4810e3c3076628baaf1c38d52983d02cb80ca60b34539416b8cbe505aafd608"
     },
     {
       "path": "question-papers/src/workspace.html",
-      "sha256": "09bd0c894a2054a279d875690056c6c440cb5dbfb36072f46c7cf17d1d3bcdb3"
+      "sha256": "620fca09744e3e3a9bcff2912b30d271d600f0a5925b1e2bb1f7cec2cc2ced50"
     }
   ],
   "project_configuration": [
@@ -492,6 +492,46 @@
     {
       "path": "design/assistant-pilot/critic/final-candidate/production-auth-gate-1440.png",
       "sha256": "a0506e31756811997ac9648bf633b9658b99cfc00dbb182b15c8d1299ec73b4a"
+    },
+    {
+      "path": "design/assistant-pilot/critic/library/desktop-papers-1440.png",
+      "sha256": "6511f9be3cb54bd0c625c3e01c2ed8135582b3e44deb37f449ee6fd43a0b1bee"
+    },
+    {
+      "path": "design/assistant-pilot/critic/library/phone-cross-admin-paper-390.png",
+      "sha256": "7649c10c73d2d262263914fabdbb270c4f57f88b6e0059013f166db95cdef20f"
+    },
+    {
+      "path": "design/assistant-pilot/critic/library/phone-cross-admin-readonly-390.png",
+      "sha256": "3e7c42121b13c4ff8f7b20ffdc90a89626ffa6f89fe7e9b7493be8b159579254"
+    },
+    {
+      "path": "design/assistant-pilot/critic/library/phone-empty-390.png",
+      "sha256": "7d651fe37922e1f1093e087284facff537d4c44b89a857a9bd1454dea55730b6"
+    },
+    {
+      "path": "design/assistant-pilot/critic/library/phone-error-390.png",
+      "sha256": "efb917c06a4631ce1c41048677279952c0e8c629a592cf3362bc8aca61768d02"
+    },
+    {
+      "path": "design/assistant-pilot/critic/library/phone-exhausted-no-match-fixed-390.png",
+      "sha256": "b32bc925aa45606b2945246037102d1202a4f4e74eb39c9fc38a014adc05016d"
+    },
+    {
+      "path": "design/assistant-pilot/critic/library/phone-loading-390.png",
+      "sha256": "59e1b985471c3ff8648d8e99e0a49ae6057fe02fa4ef7a0534135c47f7a48547"
+    },
+    {
+      "path": "design/assistant-pilot/critic/library/phone-no-loaded-matches-390.png",
+      "sha256": "b9c788265653a57d75e14f93ff1ccab0fb9bb9f7eeeb4b49691873d628fe64be"
+    },
+    {
+      "path": "design/assistant-pilot/critic/library/phone-owner-continuation-390.png",
+      "sha256": "58b8b926fa2fff53db23112ede9dd40ddea35e6c17560924ed67d2b74ca6380d"
+    },
+    {
+      "path": "design/assistant-pilot/critic/library/phone-papers-390.png",
+      "sha256": "6e6d3d09b1bcf24eec6a682c84d8dbbaa1b824a1945f392516e1a50d8886ee4b"
     },
     {
       "path": "design/assistant-pilot/critic/retry-chain-fix/desktop-retry-chain-1440.png",

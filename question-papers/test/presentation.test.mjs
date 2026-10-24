@@ -5,6 +5,41 @@ import {artifactPresentationVersion,presentArtifact} from '../src/artifact-prese
 import {createHash} from 'node:crypto';
 import {escapeChatText,renderAssistantFormula} from '../src/chat-math.mjs';
 import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+
+// Execute the production filter/access helpers rather than duplicate them here.
+const contractsSource=readFileSync(new URL('../src/contracts.ts',import.meta.url),'utf8');
+const contractsModule=ts.transpileModule(contractsSource,{compilerOptions:{module:ts.ModuleKind.ES2022,target:ts.ScriptTarget.ES2022}}).outputText;
+const {libraryMatches,mergeLibraryItems,conversationReadOnly}=await import('data:text/javascript;base64,'+Buffer.from(contractsModule).toString('base64'));
+
+test('library filters combine exact curriculum values with safe normalized text search',()=>{
+  const item={id:'paper-1',title:'Chemistry · 80 marks',creatorName:'Aparna Tewary',board:'CBSE',standard:'12',subject:'Chemistry',academicYear:'2026-27'};
+  const filters={board:'cbse',standard:'12',subject:'Chemistry',text:' ＡＰＡＲＮＡ '};
+  assert.equal(libraryMatches(item,filters),true);
+  assert.equal(libraryMatches(item,{...filters,standard:'1'}),false);
+  assert.equal(libraryMatches(item,{...filters,text:'2026-27'}),true);
+  assert.equal(libraryMatches(item,{...filters,text:'<script>'}),false);
+  assert.equal(libraryMatches({id:'without-metadata',title:'Untitled'},{board:'CBSE',standard:'',subject:'',text:''}),false);
+});
+test('library pagination preserves loaded ordering, merges duplicates and retains filters',()=>{
+  const first=[{id:'a',title:'Chemistry',subject:'Chemistry'},{id:'b',title:'Mathematics',subject:'Mathematics'}];
+  const second=[{id:'b',title:'Mathematics revised',subject:'Mathematics'},{id:'c',title:'Chemistry second paper',subject:'Chemistry'}];
+  const filters={board:'',standard:'',subject:'Chemistry',text:''};
+  const combined=mergeLibraryItems(first,second);
+  assert.deepEqual(combined.map(item=>item.id),['a','b','c']);
+  assert.equal(combined[1].title,'Mathematics revised');
+  assert.deepEqual(first.map(item=>item.title),['Chemistry','Mathematics']);
+  assert.deepEqual(first.filter(item=>libraryMatches(item,filters)).map(item=>item.id),['a']);
+  assert.deepEqual(combined.filter(item=>libraryMatches(item,filters)).map(item=>item.id),['a','c']);
+  assert.deepEqual(filters,{board:'',standard:'',subject:'Chemistry',text:''});
+});
+test('cross-owner and server read-only conversations cannot become editable through client claims',()=>{
+  assert.equal(conversationReadOnly({conversation:{ownerUid:'creator'},readOnly:false},'viewer'),true);
+  assert.equal(conversationReadOnly({conversation:{ownerUid:'creator'},readOnly:true},'creator'),true);
+  assert.equal(conversationReadOnly({conversation:{ownerUid:'creator'},readOnly:false},'creator'),false);
+  assert.equal(conversationReadOnly({conversation:{ownerUid:'creator'}},undefined),true);
+  assert.equal(conversationReadOnly(undefined,'viewer'),false);
+});
 test('only actual pending states use active polling',()=>{assert.equal(pollingDelay([{state:'running'}]),2000);assert.equal(pollingDelay([{state:'completed'},{state:'failed'}]),15000);assert.equal(pollingDelay([]),15000);});
 test('offline queue does not claim execution or completion',()=>{assert.match(phaseLabel({state:'queued'},true),/waiting/);assert.match(workerPresentation({state:'offline',modelReady:false}).detail,/wait safely/);assert.equal(workerPresentation({state:'ready',modelReady:false}).tone,'waiting');assert.equal(workerPresentation({state:'busy',modelReady:true}).tone,'online');});
 test('status uses fresh facts and maps unrecognized phases safely',()=>{assert.equal(phaseLabel({state:'running',phase:'reviewing',kind:'paper'}),'Reviewing questions and answers');assert.equal(phaseLabel({state:'running',phase:'structure_validation',kind:'paper'}),'Checking structure, marks and coverage');assert.equal(phaseLabel({state:'running',phase:'codex_correcting',kind:'paper'}),'Making corrections');assert.equal(phaseLabel({state:'cancelled',phase:'reviewing'}),'Cancelled');assert.equal(phaseLabel({state:'running',phase:'secret_internal_command',kind:'paper'}),'Working on your paper');});

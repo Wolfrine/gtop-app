@@ -1,6 +1,6 @@
 import {curriculum} from '../../../assistant-service/domain/index.mjs';
-import {statusReply} from './policy.js';
-import {capabilitiesReply} from '../../../assistant-service/domain/catalogue.mjs';
+import {statusReply,socialReply,scopeClarificationReply} from './policy.js';
+import {capabilitiesReply,scopeFromHistory} from '../../../assistant-service/domain/catalogue.mjs';
 /** Arithmetic only: a bounded recursive-descent parser, never JavaScript evaluation. */
 export function calculate(expression:string){
   if(expression.length>160||!/^[\d.eE+*/^()\s-]+$/.test(expression))throw Error('Use only a short numeric expression.');
@@ -23,6 +23,7 @@ export const tools=Object.freeze({
 export function groundedReply(job:any,p:any){
   const t=job.request.text, hindi=/हिंदी|हिन्दी|हिंग्लिश|Hindi|Hinglish|samjhao|kaun|honge|kya/i.test(t);
   const active=job.controllerFacts?.activePaperJob;
+  const social=socialReply(job);if(social)return social;
   if(p.action==='describe_capabilities')return capabilitiesReply(job,job.catalogue||{});
   if(/I can only explain|my scope is limited to explaining|only support.{0,35}Class 12|cannot (?:generate|create) (?:any |question )?papers/i.test(p.reply||''))return capabilitiesReply(job,job.catalogue||{});
   const inFlight=active&&['queued','running','validating'].includes(active.state);
@@ -35,6 +36,11 @@ export function groundedReply(job:any,p:any){
     return (hindi?'चुने हुए syllabus के chapters हैं: ':'The selected curriculum covers these chapters: ')+titles+'.'+(inFlight?(hindi?' आपका paper अभी बन रहा है। ':' Your paper is being prepared. ')+statusReply(job):'');
   }
   if(p.action==='status')return statusReply(job);
+  const scope=scopeFromHistory(job,job.catalogue||{});
+  const userTexts=[...(job.history||[]).filter((m:any)=>m.role==='user').map((m:any)=>m.text),t];
+  const marksKnown=userTexts.some((text:string)=>/\b\d{2,3}\s*[- ]?\s*(?:marks?|अंक)/i.test(text));
+  const repeatsKnown=(scope.board&&/which board|what board|कौन.?सा बोर्ड/i.test(p.reply||''))||(scope.standard&&/which (?:class|standard)|what (?:class|standard)|कौन.?सी कक्षा/i.test(p.reply||''))||(scope.subject&&/which subject|what subject|कौन.?सा विषय/i.test(p.reply||''))||(marksKnown&&/how many marks|what.{0,12}mark total|कितने (?:marks|अंक)/i.test(p.reply||''));
+  if(repeatsKnown&&!inFlight&&!/(?:explain|why|how|समझा|क्यों)/i.test(t))return scopeClarificationReply(job);
   // Fail closed on unverified execution claims. Conversation may never invent a delivered artifact.
   const claimsDone=/(?:paper|files?|documents?).{0,35}(?:ready|completed|finished|generated)|(?:generated|created|completed).{0,20}(?:paper|files?)|पेपर.{0,20}(?:तैयार|बन गया)/i.test(p.reply || '');
   if(/(?:cancelled|canceled|stopped|रद्द)/i.test(p.reply || '')&&active?.state!=='cancelled')return statusReply(job);

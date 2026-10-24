@@ -33,10 +33,23 @@ test('actual Auth/Firestore/function endpoint enforces identity, durable ownersh
   const created=await request('POST','/conversations',{},ownerToken);assert.equal(created.status,200);const cid=created.body.conversation.id;
   const sent=await request('POST',`/conversations/${cid}/messages`,{text:'Synthetic emulator Hindi request: पूरा syllabus — 80 marks',clientMessageId:'fixture-one'},ownerToken);assert.equal(sent.status,200);
   assert.equal((await request('GET',`/conversations/${cid}`,null,otherToken)).status,404);
+  const library=await request('POST','/admin/library',{kind:'conversations'},otherToken);assert.equal(library.status,200);assert(library.body.items.some(c=>c.id===cid));
+  const shared=await request('GET',`/admin/conversations/${cid}`,null,otherToken);assert.equal(shared.status,200);assert.equal(shared.body.readOnly,true);assert(!JSON.stringify(shared.body).includes('leaseId'));
+  assert.equal((await request('POST',`/conversations/${cid}/messages`,{text:'Cross-owner edit',clientMessageId:'forbidden'},otherToken)).status,404);
+  assert.equal((await request('POST','/admin/library',{kind:'papers'},learnerToken)).status,403);
+  // More than one page exercises real Firestore document-id cursors without composite indexes.
+  const batch=db.batch();for(let n=0;n<53;n++){const id='library-'+suffix+'-'+String(n).padStart(3,'0');batch.set(db.doc('assistantPapers/'+id),{id,ownerUid:owner,title:'Synthetic library fixture',board:'CBSE',standard:'10',subject:'Science',marks:80,revision:1,createdAt:'2026-10-24T09:00:00Z'});}await batch.commit();
+  const first=await request('POST','/admin/library',{kind:'papers'},otherToken);assert.equal(first.status,200);assert.equal(first.body.items.length,50);assert(first.body.nextCursor);
+  const second=await request('POST','/admin/library',{kind:'papers',cursor:first.body.nextCursor},otherToken);assert.equal(second.status,200);assert.equal(second.body.items.length,3);assert.equal(second.body.nextCursor,null);assert.equal(new Set([...first.body.items,...second.body.items].map(p=>p.id)).size,53);
   const claim=await request('POST','/worker/claim',{kind:'turn'},workerToken);assert.equal(claim.status,200);assert.equal(claim.body.job.request.text,sent.body.message.text);
   const jid=claim.body.job.id,leaseId=claim.body.job.leaseId;
   assert.equal((await request('POST',`/worker/jobs/${jid}/heartbeat`,{leaseId},workerToken)).body.active,true);
   await db.doc('assistantJobs/'+jid).update({leaseUntil:'2020-01-01T00:00:00.000Z'});
+  const beforeCrossRetry=(await db.doc('assistantJobs/'+jid).get()).data();
+  assert.equal((await request('POST',`/jobs/${jid}/retry`,{},otherToken)).status,404);
+  assert.deepEqual((await db.doc('assistantJobs/'+jid).get()).data(),beforeCrossRetry);
+  assert.equal((await request('GET',`/admin/conversations/${cid}`,null,otherToken)).body.readOnly,true);
+  assert.deepEqual((await db.doc('assistantJobs/'+jid).get()).data(),beforeCrossRetry);
   assert.equal((await request('POST',`/worker/jobs/${jid}/complete`,{leaseId,reply:'Must not publish'},workerToken)).body.active,false);
   const view=await request('GET',`/conversations/${cid}`,null,ownerToken);assert.equal(view.body.jobs[0].state,'failed');assert(!JSON.stringify(view).includes('leaseId'));
   const retry=await request('POST',`/jobs/${jid}/retry`,{},ownerToken);assert.equal(retry.status,200);assert.notEqual(retry.body.job.id,jid);

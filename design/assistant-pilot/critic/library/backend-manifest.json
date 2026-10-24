@@ -1,0 +1,22 @@
+[
+  {
+    "path": "assistant-service/service.mjs",
+    "sha256": "ed67c6b6a0e5b94d81ef58a24af301cd769f7c363a37e1b511c7f6b888103eee"
+  },
+  {
+    "path": "assistant-service/gateway.mjs",
+    "sha256": "0cb6eb30b5552713a40f7c7aedf37f7a81ea6e0841c6f8d59fbc03a0529eec86"
+  },
+  {
+    "path": "assistant-service/store.mjs",
+    "sha256": "7ca5de03b3327c4e711457d61601e3bd16dd5506d0f8edef4e71c0fe4c350b5a"
+  },
+  {
+    "path": "assistant-service/test/gateway.test.mjs",
+    "sha256": "b1fa7b04a9a538cde4f720c856fdc7cb5e0a5a75fcf2ab1f0ebefac1a02b6425"
+  },
+  {
+    "path": "assistant-service/test/firestore.integration.mjs",
+    "sha256": "ab2ecf84c7344d6736f601651d96e23cfd14d6fdd4e93eba4883f45a29216712"
+  }
+]

@@ -14,7 +14,8 @@ const text = (value, max = 12000) => { if (typeof value !== 'string' || !value.t
 const clean = value => JSON.parse(JSON.stringify(value));
 const publicJob = job => job && clean(Object.fromEntries(['id','kind','ownerUid','conversationId','state','phase','createdAt','updatedAt','startedAt','elapsedSeconds','error','requestRevision','paperId','retryable'].filter(key => job[key] !== undefined).map(key => [key,job[key]])));
 const publicConversation = c => c && clean(Object.fromEntries(['id','title','status','updatedAt','activePaperJobId','activeCurriculumJobId','latestPaperId'].filter(key => c[key] !== undefined).map(key => [key,c[key]])));
-const summary = p => ({id:p.id,title:p.title,revision:p.revision,marks:p.marks,createdAt:p.createdAt,jobId:p.jobId});
+const summary = p => clean(Object.fromEntries(['id','title','revision','marks','createdAt','jobId','conversationId','ownerUid','board','standard','subject','academicYear'].filter(k=>p[k]!==undefined).map(k=>[k,p[k]])));
+const paperConversationTitle=p=>p.board&&p.standard&&p.subject?`${p.board} Class ${p.standard} ${p.subject} · ${p.marks} marks`.slice(0,120):String(p.title||'Question paper').replace(/\s+/g,' ').slice(0,120);
 const ref = (collection,id) => `${collection}/${safeId(id)}`;
 const messagePath = (cid,id) => `assistantConversations/${safeId(cid)}/messages/${safeId(id)}`;
 const bounded = (value, max = 24000) => { const s = JSON.stringify(value ?? null); if (Buffer.byteLength(s) > max) fail(400,'payload_too_large','Payload is too large.'); return clean(value ?? {}); };
@@ -41,7 +42,7 @@ export class AssistantService {
     if (!claims?.uid || claims.assistantWorker) fail(401,'sign_in_required','Sign in with your Growth Tutorials account.');
     const [profile, config] = await Promise.all([this.store.get(ref('users',claims.uid)),this.store.get('assistantConfig/pilot')]);
     if (profile?.role !== 'admin' || !config?.allowedOwnerUids?.includes(claims.uid)) fail(403,'pilot_access_required','This private pilot is restricted to invited Growth Tutorials administrators.');
-    return {uid:claims.uid,displayName:profile.displayName || profile.name || claims.name || '',email:claims.email || profile.email || ''};
+    return {uid:claims.uid,displayName:profile.displayName || profile.name || claims.name || '',email:claims.email || profile.email || '',libraryAccess:true};
   }
   async worker(claims) {
     if (claims?.assistantWorker !== true || !claims.workerId || claims.uid !== `assistant-worker-${claims.workerId}`) fail(403,'worker_access_required','A paired assistant worker is required.');
@@ -94,6 +95,29 @@ export class AssistantService {
     try{return savedCurriculum(r,rows);}catch(e){fail(400,'curriculum_unavailable',e.message);}
   }
   async conversations(uid) { const rows = await this.store.list('assistantConversations',[['ownerUid','==',uid]],100); return {conversations:rows.sort((a,b) => b.updatedAt.localeCompare(a.updatedAt)).map(publicConversation)}; }
+  async adminLibrary(uid,body={}) {
+    await this.user({uid});
+    if(!['papers','conversations'].includes(body.kind))fail(400,'invalid_library_kind','Choose papers or conversations.');
+    const cursor=body.cursor?safeId(body.cursor):null;
+    const collection=body.kind==='papers'?'assistantPapers':'assistantConversations';
+    const fields=body.kind==='papers'?['id','title','revision','marks','createdAt','jobId','conversationId','ownerUid','board','standard','subject','academicYear']:['id','title','status','createdAt','updatedAt','ownerUid','latestPaperId'];
+    const rows=await this.store.list(collection,[],51,{includeId:true,orderBy:['__name__','asc'],...(cursor?{startAfter:cursor}:{}),select:fields});
+    const page=rows.slice(0,50),names=new Map();
+    for(const owner of new Set(page.map(x=>x.ownerUid))){const profile=owner?await this.store.get(ref('users',owner)):null;names.set(owner,String(profile?.displayName||profile?.name||'GTOP administrator').slice(0,120));}
+    const items=await Promise.all(page.map(async row=>{
+      if(body.kind==='papers')return {...summary(row),creatorName:names.get(row.ownerUid)};
+      const latest=row.latestPaperId?await this.store.get(ref('assistantPapers',row.latestPaperId)):null;
+      const paper=latest?.ownerUid===row.ownerUid&&latest.conversationId===row.id?latest:null;
+      return {...publicConversation(row),createdAt:row.createdAt,ownerUid:row.ownerUid,creatorName:names.get(row.ownerUid),...(paper?{title:paperConversationTitle(paper),board:paper.board,standard:paper.standard,subject:paper.subject,academicYear:paper.academicYear}:{})};
+    }));
+    return {items,nextCursor:rows.length>50?page.at(-1).id:null};
+  }
+  async adminConversation(uid,id) {
+    await this.user({uid});const c=await this.store.get(ref('assistantConversations',id));if(!c)fail(404,'not_found','Conversation unavailable.');
+    const detail=await this.conversationView(c),profile=await this.store.get(ref('users',c.ownerUid));
+    return {...detail,readOnly:c.ownerUid!==uid,creatorName:String(profile?.displayName||profile?.name||'GTOP administrator').slice(0,120)};
+  }
+  async adminArtifact(uid,id,kind) {await this.user({uid});const p=await this.store.get(ref('assistantPapers',id));if(!p)fail(404,'not_found','Paper unavailable.');return this.artifact(p.ownerUid,id,kind);}
   async createConversation(uid, body) {
     const id = body.clientRequestId ? hash(`${uid}:conversation:${safeId(body.clientRequestId)}`).slice(0,40) : this.id();
     const result = await this.store.transaction(async tx => {
@@ -108,8 +132,13 @@ export class AssistantService {
     let c = await this.owned(uid,'assistantConversations',id);
     await this.expireConversationJobs(uid,id);
     c = await this.owned(uid,'assistantConversations',id);
-    const [messages,jobs,papers] = await Promise.all([this.store.list(`assistantConversations/${id}/messages`,[],250,{orderBy:['createdAt','desc']}),this.store.list('assistantJobs',[['conversationId','==',id]],100),this.store.list('assistantPapers',[['conversationId','==',id]],100,{select:['id','title','revision','marks','createdAt','jobId','ownerUid']})]);
-    return {conversation:publicConversation(c),messages:messages.sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id)),jobs:jobs.filter(j => j.ownerUid===uid).map(publicJob),papers:papers.filter(p => p.ownerUid===uid).map(summary).sort((a,b) => a.createdAt.localeCompare(b.createdAt))};
+    return this.conversationView(c);
+  }
+  async conversationView(c) {
+    const id=c.id,uid=c.ownerUid;
+    const [messages,jobs,papers] = await Promise.all([this.store.list(`assistantConversations/${id}/messages`,[],250,{orderBy:['createdAt','desc']}),this.store.list('assistantJobs',[['conversationId','==',id]],100),this.store.list('assistantPapers',[['conversationId','==',id]],100,{select:['id','title','revision','marks','createdAt','jobId','ownerUid','conversationId','board','standard','subject','academicYear']})]);
+    const ownPapers=papers.filter(p=>p.ownerUid===uid).sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
+    return {conversation:{...publicConversation(c),...(ownPapers.length?{title:paperConversationTitle(ownPapers.at(-1))}:{})},messages:messages.sort((a,b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id)),jobs:jobs.filter(j => j.ownerUid===uid).map(publicJob),papers:ownPapers.map(summary)};
   }
   async submit(uid,cid,body) {
     const original = text(body.text), clientId = safeId(body.clientMessageId), mid = hash(`${uid}:${cid}:${clientId}`).slice(0,40), jid = `turn-${mid}`;
@@ -133,7 +162,7 @@ export class AssistantService {
     });
   }
   async retry(uid,jid) {
-    await this.expireOne(jid);
+    await this.expireOne(jid,uid);
     return this.store.transaction(async tx => {
       const j = await tx.get(ref('assistantJobs',jid)); if(!j || j.ownerUid!==uid) fail(404,'not_found','Task unavailable.');
       const c = await tx.get(ref('assistantConversations',j.conversationId));
@@ -164,9 +193,9 @@ export class AssistantService {
     if(!['ready','loading','busy','offline'].includes(body.state) || typeof body.modelReady!=='boolean')fail(400,'invalid_heartbeat','Invalid worker heartbeat.');
     await this.store.transaction(async tx=>{const current=await tx.get(ref('assistantWorkers',worker.id));tx.set(ref('assistantWorkers',worker.id),{...current,state:body.state,modelReady:body.modelReady,version:text(body.version,100),lastSeenAt:this.iso()});});return {ok:true};
   }
-  async expireOne(id) {
+  async expireOne(id,ownerUid=null) {
     await this.store.transaction(async tx=>{
-      const j=await tx.get(ref('assistantJobs',id));if(!j || !['running','validating'].includes(j.state) || Date.parse(j.leaseUntil || '')>this.now().getTime())return;
+      const j=await tx.get(ref('assistantJobs',id));if(!j || (ownerUid!==null&&j.ownerUid!==ownerUid) || !['running','validating'].includes(j.state) || Date.parse(j.leaseUntil || '')>this.now().getTime())return;
       tx.set(ref('assistantJobs',id),{...j,state:'failed',phase:'worker_disconnected',error:'The local worker stopped responding. Retry explicitly to continue.',retryable:true,updatedAt:this.iso(),leaseId:null,leaseUntil:null});
     });
   }
@@ -285,7 +314,7 @@ export class AssistantService {
       let curriculumId=null;
       if(checkedCurriculum){curriculumId=this.id();tx.create(ref('assistantCurricula',curriculumId),{id:curriculumId,ownerUid:job.ownerUid,conversationId:c.id,curriculum:checkedCurriculum,jobId:id,createdAt:now});final.phase='curriculum_checked';}
       if(paper){tx.create(ref('assistantPapers',paper.id),paper);tx.create(`assistantPapers/${paper.id}/artifacts/student`,artifactStudent);tx.create(`assistantPapers/${paper.id}/artifacts/answers`,artifactAnswers);}
-      tx.create(messagePath(c.id,mid),message);tx.set(ref('assistantJobs',id),final);tx.set(ref('assistantConversations',c.id),{...c,updatedAt:now,...(paper?{latestPaperId:paper.id}:{}),...(curriculumId?{latestCurriculumId:curriculumId}:{}),...(mergedMemory?{memory:mergedMemory}: {})});
+      tx.create(messagePath(c.id,mid),message);tx.set(ref('assistantJobs',id),final);tx.set(ref('assistantConversations',c.id),{...c,updatedAt:now,...(paper?{latestPaperId:paper.id,title:paperConversationTitle(paper),titleSource:'generated-paper'}:{}),...(curriculumId?{latestCurriculumId:curriculumId}:{}),...(mergedMemory?{memory:mergedMemory}: {})});
       return {active:true,...(paper?{paperId:paper.id}:{})};
     });
   }

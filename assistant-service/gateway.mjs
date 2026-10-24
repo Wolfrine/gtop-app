@@ -31,12 +31,14 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false}={}
         else if(method==='GET' && path==='/conversations')output=await service.conversations(uid);
         else if(method==='POST' && path==='/conversations')output=await service.createConversation(uid,body);
         else if(method==='POST' && path==='/feedback')output=await service.feedback(uid,body);
+        else if(method==='POST' && path==='/admin/library')output=await service.adminLibrary(uid,body);
+        else if(method==='GET' && /^\/admin\/conversations\/[^/]+$/.test(path))output=await service.adminConversation(uid,path.split('/').at(-1));
         else {let m;
           if(method==='GET' && (m=path.match(/^\/conversations\/([^/]+)$/)))output=await service.conversation(uid,m[1]);
           else if(method==='POST' && (m=path.match(/^\/conversations\/([^/]+)\/messages$/)))output=await service.submit(uid,m[1],body);
           else if(method==='POST' && (m=path.match(/^\/jobs\/([^/]+)\/(cancel|retry)$/)))output=await service[m[2]](uid,m[1]);
           else if(method==='GET' && (m=path.match(/^\/papers\/([^/]+)$/)))output=await service.paper(uid,m[1]);
-          else if(method==='GET' && (m=path.match(/^\/papers\/([^/]+)\/artifact\/(student|answers)$/))){output=await service.artifact(uid,m[1],m[2]);responseHeaders['Content-Type']='text/html; charset=utf-8';responseHeaders['Content-Security-Policy']="default-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'";}
+          else if(method==='GET' && (m=path.match(/^\/(admin\/)?papers\/([^/]+)\/artifact\/(student|answers)$/))){output=await service[m[1]?'adminArtifact':'artifact'](uid,m[2],m[3]);responseHeaders['Content-Type']='text/html; charset=utf-8';responseHeaders['Content-Security-Policy']="default-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'";}
           else throw new HttpError(404,'not_found','Endpoint unavailable.');
         }
       }

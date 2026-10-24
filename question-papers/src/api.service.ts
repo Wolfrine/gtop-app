@@ -36,10 +36,13 @@ export class AssistantApi implements Transport {
   async logout():Promise<void> {await signOut(this.auth!);this.user=null;}
   private async authorized(path:string,method='GET',body?:unknown):Promise<Response> {
     if(!this.user)throw new Error('Unauthenticated');
-    const response=await fetch(this.apiBase+path,{method,signal:AbortSignal.timeout(20000),headers:{'Authorization':'Bearer '+await this.user.getIdToken(),'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});
+    let response:Response;
+    try{response=await fetch(this.apiBase+path,{method,signal:AbortSignal.timeout(20000),headers:{'Authorization':'Bearer '+await this.user.getIdToken(),'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});}
+    catch(error){if((error as {name?:string})?.name==='TimeoutError')throw Error('This connection took longer than expected. Please try again; saved work remains available.');throw error;}
     if(!response.ok){let reason='Request failed ('+response.status+')';try{const payload=await response.json();reason=payload.error?.message || payload.error || payload.message || reason;}catch{}throw new Error(typeof reason==='string'?reason:JSON.stringify(reason));}
     return response;
   }
   async request<T>(path:string,method='GET',body?:unknown):Promise<T> {return (await this.authorized(path,method,body)).json();}
   async artifact(id:string,kind:'student'|'answers'):Promise<string> {return (await this.authorized('/papers/'+encodeURIComponent(id)+'/artifact/'+kind)).text();}
+  async adminArtifact(id:string,kind:'student'|'answers'):Promise<string> {return (await this.authorized('/admin/papers/'+encodeURIComponent(id)+'/artifact/'+kind)).text();}
 }

@@ -11,6 +11,8 @@ test('assistant-only exact security prerequisite avoids core promotion while arb
   assert(!assistantOnlyRelease([...files,'gtop-app/src/app/app.component.ts'],old,current));
   assert(!assistantOnlyRelease(files,old,path=>current(path).replace('existing validation','broadened validation')));
   assert(!assistantOnlyRelease(files,old,path=>current(path)+'unexpected-rule-change'));
-  assert(!assistantOnlyRelease(['assistant-service/runtime.mjs'],old,current));
+  assert(assistantOnlyRelease(['assistant-service/runtime.mjs'],old,current));
+  assert(assistantOnlyRelease(['.github/workflows/firebase-deploy.yml','assistant-service/scripts/release-scope.mjs'],old,current));
+  assert(!assistantOnlyRelease(['gtop-app/functions/hosting-readiness.test.mjs'],old,current));
   assert.deepEqual(withoutWorkerDatabaseRule(newDatabase),JSON.parse(oldDatabase));
 });

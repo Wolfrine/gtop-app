@@ -6,7 +6,8 @@ export function assistantOnlyRelease(files,readBefore,readCurrent){
   const allowed=/^(?:assistant-service\/|question-papers\/|tools\/gtop-assistant\/|docs\/|design\/assistant-pilot\/|wiki\/|raw\/|codex\/|firebase\.assistant\.json$|\.gitignore$|\.github\/workflows\/(?:gtop-assistant-release|firebase-deploy)\.yml$|gtop-app\/(?:firestore\.rules|database\.rules\.json)$)/;
   if(!files.length || files.some(file=>!allowed.test(file)))return false;
   const rulePaths=files.filter(file=>file.startsWith('gtop-app/'));
-  if(!rulePaths.length)return false;
+  // Assistant/pipeline-only follow-ups must not deploy the unchanged core either.
+  if(!rulePaths.length)return true;
   try{
     for(const path of rulePaths){
       const before=readBefore(path),current=readCurrent(path);

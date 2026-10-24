@@ -45,7 +45,7 @@ jobs:
         run: |
           node <<'NODE'
           const {execFileSync} = require('node:child_process');
-          const {appendFileSync} = require('node:fs');
+          const {appendFileSync, existsSync} = require('node:fs');
           const {pathToFileURL} = require('node:url');
           (async()=>{
           const before = process.env.RELEASE_BEFORE || '';
@@ -57,7 +57,7 @@ jobs:
             // Unknown paths, missing history, and explicit dispatches retain the backend gate.
             const frontendOnly = /^(?:gtop-app\/(?:src\/|e2e\/)|docs\/|\.github\/workflows\/firebase-deploy\.yml$)/;
             required = files.some(file => !frontendOnly.test(file));
-            if(files.includes('gtop-app/firestore.rules') || files.includes('gtop-app/database.rules.json')) {
+            if(existsSync('assistant-service/scripts/release-scope.mjs')) {
               const {assistantOnlyRelease}=await import(pathToFileURL(process.cwd()+'/assistant-service/scripts/release-scope.mjs'));
               const readAt=revision=>path=>execFileSync('git',['show',revision+':'+path],{encoding:'utf8'});
               assistantOnly=assistantOnlyRelease(files,readAt(before),readAt(process.env.GITHUB_SHA));
@@ -82,6 +82,8 @@ jobs:
 
   build-and-verify:
     needs: release-scope
+    outputs:
+      assistant_only: ${{ needs.release-scope.outputs.assistant_only }}
     if: >-
       !cancelled() && needs.release-scope.result == 'success' &&
       (github.event_name != 'push' || github.event.head_commit != null) &&
@@ -140,10 +142,10 @@ jobs:
           if-no-files-found: ignore
 
   promote-hosting:
-    needs: [release-scope, reviewed-backend, build-and-verify]
+    needs: [reviewed-backend, build-and-verify]
     if: >-
       always() && !cancelled() && needs.build-and-verify.result == 'success' &&
-      needs.release-scope.outputs.assistant_only != 'true' &&
+      needs.build-and-verify.outputs.assistant_only != 'true' &&
       (needs.reviewed-backend.result == 'success' || needs.reviewed-backend.result == 'skipped') &&
       (github.event_name != 'workflow_dispatch' || inputs.target != 'production' || github.ref_name == 'main')
     runs-on: ubuntu-latest

@@ -1,5 +1,6 @@
 import {curriculum} from '../../../assistant-service/domain/index.mjs';
 import {statusReply} from './policy.js';
+import {capabilitiesReply} from '../../../assistant-service/domain/catalogue.mjs';
 /** Arithmetic only: a bounded recursive-descent parser, never JavaScript evaluation. */
 export function calculate(expression:string){
   if(expression.length>160||!/^[\d.eE+*/^()\s-]+$/.test(expression))throw Error('Use only a short numeric expression.');
@@ -14,7 +15,7 @@ export function calculate(expression:string){
 }
 /** Closed capability registry. Model text never names executable commands or grants permission. */
 export const tools=Object.freeze({
-  syllabus:{version:1,description:'Read the pinned ten-chapter Chemistry syllabus.',run:()=>curriculum},
+  syllabus:{version:2,description:'Read the controller-selected curriculum snapshot.',run:(job:any)=>job.context?.curriculum||null},
   status:{version:1,description:'Read gateway-owned job state.',run:(job:any)=>job.controllerFacts.activePaperJob},
   ownQuestion:{version:1,description:'Read a question from the gateway-verified current owned paper.',run:(job:any,number:number)=>{if(!Number.isInteger(number)||number<1||number>100)throw Error('Question number must be1–100.');return job.context?.latestPaper?.sections.flatMap((s:any)=>s.questions).find((q:any)=>q.number===number) || null;}},
   calculate:{version:1,description:'Evaluate a short numeric expression without code execution.',run:calculate},
@@ -22,12 +23,16 @@ export const tools=Object.freeze({
 export function groundedReply(job:any,p:any){
   const t=job.request.text, hindi=/हिंदी|हिन्दी|हिंग्लिश|Hindi|Hinglish|samjhao|kaun|honge|kya/i.test(t);
   const active=job.controllerFacts?.activePaperJob;
+  if(p.action==='describe_capabilities')return capabilitiesReply(job,job.catalogue||{});
+  if(/I can only explain|my scope is limited to explaining|only support.{0,35}Class 12|cannot (?:generate|create) (?:any |question )?papers/i.test(p.reply||''))return capabilitiesReply(job,job.catalogue||{});
   const inFlight=active&&['queued','running','validating'].includes(active.state);
   if(/(?:cancel|stop).{0,25}(?:paper|request|task)|(?:paper|request|task).{0,25}(?:cancel|stop)|रद्द|रोक दो/i.test(t)&&inFlight)return (hindi?'अनुरोध रोकने के लिए “Cancel request” दबाएँ। ':'Use “Cancel request” to stop this task. ')+statusReply(job);
   const arithmetic=t.match(/^\s*(?:calculate|what is|evaluate)\s+([\d.eE+*/^()\s-]+)\??\s*$/i);if(arithmetic)try{return arithmetic[1].trim()+' = '+tools.calculate.run(arithmetic[1]);}catch(e:any){return e.message;}
   if(/(?:which|what|kaun|कौन).{0,35}(?:chapters?|अध्याय)|(?:chapters?|अध्याय).{0,35}(?:cover|होंगे|honge)/i.test(t)){
-    const titles=tools.syllabus.run().chapters.map(c=>c.title).join('; ');
-    return (hindi?'पूरे syllabus में ये दस chapters हैं: ':'The full syllabus covers these ten chapters: ')+titles+'.'+(inFlight?(hindi?' आपका paper अभी बन रहा है। ':' Your paper is being prepared. ')+statusReply(job):'');
+    const pinned=job.curriculumSnapshot||job.context?.curriculum;
+    if(!pinned?.chapters?.length)return hindi?'कृपया board, class और subject बताइए ताकि मैं GTOP का सही syllabus देख सकूँ।':'Please tell me the board, class and subject so I can look up the right GTOP curriculum.';
+    const titles=pinned.chapters.map((c:any)=>c.title).join('; ');
+    return (hindi?'चुने हुए syllabus के chapters हैं: ':'The selected curriculum covers these chapters: ')+titles+'.'+(inFlight?(hindi?' आपका paper अभी बन रहा है। ':' Your paper is being prepared. ')+statusReply(job):'');
   }
   if(p.action==='status')return statusReply(job);
   // Fail closed on unverified execution claims. Conversation may never invent a delivered artifact.

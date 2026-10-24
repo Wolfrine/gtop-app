@@ -86,3 +86,5 @@ test('captured actual local Q6 reply renders every delimited formula without ano
   assert(sources.every(source=>renderAssistantFormula(source).valid));
   assert.match(fixture.text,/30\.0\\,\\mathrm\{min\}/);
 });
+
+test('curriculum checks have separate progress and retry visibility alongside a paper',()=>{const detail={conversation:{activePaperJobId:'p',activeCurriculumJobId:'c'},jobs:[{id:'p',kind:'paper',state:'running',phase:'codex_generating'},{id:'c',kind:'curriculum',state:'validating',phase:'reviewing_curriculum'},{id:'old',kind:'curriculum',state:'failed'}]};assert.equal(visibleJobs(detail).length,2);assert.equal(phaseLabel(detail.jobs[1]),'Reviewing curriculum sources');});

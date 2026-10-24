@@ -8,7 +8,7 @@ export function fixture(){return {...defaults,title:'Structural test — 80 mark
 test('OR alternatives do not inflate attempted marks and all chapters are checked',()=>{
   const p=fixture();assertSchema(Object.fromEntries(Object.keys(paperSchema.properties).map(k=>[k,p[k]])),paperSchema);const v=validatePaper(p,defaults);assert.equal(v.attemptedMarks,80);assert.equal(v.internalChoices,1);assert.equal(v.chaptersCovered.length,10);
   const wrong=structuredClone(p);wrong.sections[0].questions[0].marks=7;assert.throws(()=>validatePaper(wrong,defaults),/total/);
-  wrong.sections[0].questions[0].marks=8;wrong.sections[0].questions[1].chapter=wrong.sections[0].questions[0].chapter;assert.throws(()=>validatePaper(wrong,defaults),/ten/);
+  wrong.sections[0].questions[0].marks=8;wrong.sections[0].questions[1].chapter=wrong.sections[0].questions[0].chapter;assert.throws(()=>validatePaper(wrong,defaults),/all 10/);
 });
 test('student artifact contains no answer fields and hostile markup is escaped',()=>{
   const p=fixture();p.title='<script>alert(1)</script>';const student=renderPaper(p),answers=renderPaper(p,true);
@@ -19,7 +19,7 @@ test('revision changes only the requested question and preserves previous conten
   p.sections[0].questions[4].answer='Changed another answer';assert.throws(()=>validateRevision(base,p,6),/untargeted/);
 });
 test('requirements and incomplete artifacts fail closed without implicit bank fallback',()=>{
-  assert.throws(()=>validateRequirements({...defaults,sourcePolicy:'bank_only'}),/Bank-only/);assert.throws(()=>validateRequirements({...defaults,standard:'10'}),/Unsupported/);
+  assert.throws(()=>validateRequirements({...defaults,sourcePolicy:'bank_only'}),/Bank-only/);assert.throws(()=>validateRequirements({...defaults,standard:'4'}),/Classes 5/);
   const p=fixture();p.sections[0].questions[0].markingPoints=[];assert.throws(()=>validatePaper(p),/marking/);p.sections[0].questions[0].markingPoints=['valid'];p.sourceReferences[0].url='https://example.com';assert.throws(()=>validatePaper(p),/source/);
 });
 test('whole-paper changes may change totals/choices while targeted changes cannot alter sections',()=>{

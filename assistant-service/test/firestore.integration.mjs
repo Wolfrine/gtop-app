@@ -53,6 +53,8 @@ test('canonical shared rules deny all direct assistant access, including admins 
     for(const ctx of [env.unauthenticatedContext(),env.authenticatedContext('rules-admin'),env.authenticatedContext('rules-worker',{assistantWorker:true,workerId:'rules-worker'})]){
       await assertFails(getDoc(doc(ctx.firestore(),'assistantConfig','pilot')));
       await assertFails(getDoc(doc(ctx.firestore(),'assistantPapers','rules-paper')));
+      await assertFails(getDoc(doc(ctx.firestore(),'assistantCurricula','rules-curriculum')));
+      await assertFails(setDoc(doc(ctx.firestore(),'assistantCurricula','forged'),{ownerUid:'rules-admin'}));
       await assertFails(setDoc(doc(ctx.firestore(),'assistantJobs','forged'),{ownerUid:'rules-admin',state:'completed'}));
     }
     await assertSucceeds(getDoc(doc(env.authenticatedContext('rules-admin').firestore(),'users','rules-admin')));

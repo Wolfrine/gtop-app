@@ -2,7 +2,7 @@ import path from 'node:path';
 import {readFile} from 'node:fs/promises';
 import {hash,paperContent,validatePaper,validateRevision} from '../../../assistant-service/domain/index.mjs';
 import {record} from './adapters.js';
-export function inputBinding(job:any){return hash({ownerUid:job.ownerUid,conversationId:job.conversationId,request:job.request,rootRequest:job.rootRequest,requirements:job.requirements,operation:job.operation || 'generate_paper',targetQuestionNumber:job.targetQuestionNumber ?? null,base:job.basePaper?hash(paperContent(job.basePaper)):null});}
+export function inputBinding(job:any){return hash({ownerUid:job.ownerUid,conversationId:job.conversationId,request:job.request,rootRequest:job.rootRequest,requirements:job.requirements,operation:job.operation || 'generate_paper',targetQuestionNumber:job.targetQuestionNumber ?? null,base:job.basePaper?hash(paperContent(job.basePaper)):null,...(job.curriculumSnapshot?{curriculumHash:hash(job.curriculumSnapshot)}:{})});}
 export async function saveValidated(dir:string,job:any,paper:any,metrics:any){await record(dir,'validated-output.json',{version:1,binding:inputBinding(job),paper,paperHash:hash(paperContent(paper)),independentReviewPassed:true,metrics});}
 export async function recoverValidated(root:string,job:any,depth=0):Promise<any>{
   if(depth>8)throw Error('Retry history is too deep; manual review is required.');
@@ -16,6 +16,6 @@ export async function recoverValidated(root:string,job:any,depth=0):Promise<any>
     }catch{try{const old=JSON.parse(await readFile(path.join(dir,'job.json'),'utf8'));if(old.retryOf&&inputBinding(old)===inputBinding(job))return recoverValidated(root,{...job,retryOf:old.retryOf},depth+1);}catch{}return null;}
   }
   if(cached.version!==1||cached.binding!==inputBinding(job)||cached.paperHash!==hash(paperContent(cached.paper))||cached.independentReviewPassed!==true)throw Error('Retained result does not match this retry request.');
-  validatePaper(cached.paper,job.requirements);if(job.basePaper)validateRevision(job.basePaper,cached.paper,job.targetQuestionNumber ?? null);
+  validatePaper(cached.paper,job.requirements,job.curriculumSnapshot||job.context?.curriculum||null);if(job.basePaper)validateRevision(job.basePaper,cached.paper,job.targetQuestionNumber ?? null,job.curriculumSnapshot||job.context?.curriculum||null);
   return {...cached,reusedFrom:job.retryOf};
 }

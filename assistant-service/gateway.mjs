@@ -21,6 +21,8 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false}={}
       if(path.startsWith('/worker/')) {
         const worker=await service.worker(claims);
         if(method==='POST' && path==='/worker/heartbeat')output=await service.heartbeat(worker,body);
+        else if(method==='POST' && path==='/worker/curriculum/catalogue')output=await service.curriculumCatalogue();
+        else if(method==='POST' && path==='/worker/curriculum/resolve')output={curriculum:await service.resolveCurriculum(body.requirements,body.conversationId,worker)};
         else if(method==='POST' && path==='/worker/claim')output=await service.claim(worker,body);
         else {const m=path.match(/^\/worker\/jobs\/([^/]+)\/(heartbeat|event|delegate|complete|fail)$/);if(method!=='POST'||!m)throw new HttpError(404,'not_found','Endpoint unavailable.');const fn={heartbeat:'renew',event:'event',delegate:'delegate',complete:'complete',fail:'failed'}[m[2]];output=await service[fn](worker,m[1],body);}
       } else {

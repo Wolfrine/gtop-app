@@ -8,7 +8,7 @@ export class FirestoreStore {
     if(options.orderBy)query=query.orderBy(options.orderBy[0],options.orderBy[1]);
     if(options.select)query=query.select(...options.select);
     const result = await query.limit(limit).get();
-    return result.docs.map(d => d.data());
+    return result.docs.map(d => options.includeId?{...d.data(),id:d.id}:d.data());
   }
   transaction(fn) {
     return this.db.runTransaction(tx => fn({
@@ -24,7 +24,7 @@ export class MemoryStore {
   constructor(seed = {}) { this.docs = new Map(Object.entries(structuredClone(seed))); this.tail = Promise.resolve(); }
   async get(path) { return structuredClone(this.docs.get(path) ?? null); }
   async list(path, filters = [], limit = 200, options = {}) {
-    let rows=[...this.docs.entries()].filter(([key, value]) => key.startsWith(path + '/') && key.split('/').length === path.split('/').length + 1 && filters.every(([field, op, expected]) => op === '==' && value[field] === expected)).map(([,value])=>structuredClone(value));
+    let rows=[...this.docs.entries()].filter(([key, value]) => key.startsWith(path + '/') && key.split('/').length === path.split('/').length + 1 && filters.every(([field, op, expected]) => op === '==' && value[field] === expected)).map(([key,value])=>structuredClone(options.includeId?{...value,id:key.split('/').at(-1)}:value));
     if(options.orderBy){const [field,direction]=options.orderBy;rows.sort((a,b)=>String(a[field]).localeCompare(String(b[field]))*(direction==='desc'?-1:1));}
     rows=rows.slice(0,limit);return options.select?rows.map(value=>Object.fromEntries(options.select.filter(key=>value[key]!==undefined).map(key=>[key,value[key]]))):rows;
   }

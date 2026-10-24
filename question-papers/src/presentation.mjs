@@ -21,8 +21,8 @@ export function visibleJobs(detail) {
   if(!detail)return [];
   const jobs=detail.jobs || [];
   const latestTurn=jobs.filter(job=>job.kind==='turn').sort((a,b)=>(b.createdAt || '').localeCompare(a.createdAt || '') || b.id.localeCompare(a.id))[0];
-  return jobs.filter(job=>job.kind==='paper'
-    ? job.id===detail.conversation?.activePaperJobId && !['completed','review_required'].includes(job.state)
+  return jobs.filter(job=>['paper','curriculum'].includes(job.kind)
+    ? job.id===detail.conversation?.[job.kind==='curriculum'?'activeCurriculumJobId':'activePaperJobId'] && !['completed','review_required'].includes(job.state)
     : pendingStates.has(job.state) || (job.id===latestTurn?.id && ['failed','cancelled'].includes(job.state)));
 }
 export function pollingDelay(jobs) { return jobs.some(j=>pendingStates.has(j.state)) ? 2000 : 15000; }
@@ -33,13 +33,13 @@ export function workerPresentation(worker) {
 }
 export function phaseLabel(job, offline=false) {
   if (job.state==='queued') return offline ? 'Saved · waiting for the assistant' : 'Waiting to begin';
-  if (job.state==='validating') return 'Checking the paper';
+  if (job.state==='validating') return job.kind==='curriculum'?(job.phase==='reviewing_curriculum'?'Reviewing curriculum sources':'Checking official curriculum online'):'Checking the paper';
   if (job.state==='review_required') return 'Ready for your review';
   if (job.state==='completed') return 'Completed';
   if (job.state==='failed') return 'Could not complete this request';
   if (job.state==='cancelled') return 'Cancelled';
   if (job.state==='needs_info') return 'A few details are needed';
-  const phases={interpreting:'Understanding your request',conversation:'Preparing a reply',local_conversation:'Preparing your reply',generating:'Writing your paper',codex_starting:'Starting your paper',codex_generating:'Writing your paper',structure_validation:'Checking structure, marks and coverage',codex_reviewing:'Reviewing questions and worked answers',codex_correcting:'Making corrections',preparing_documents:'Preparing printable documents',paper_ready_for_teacher_review:'Ready for your review',reviewing:'Reviewing questions and answers',correcting:'Making corrections',rendering:'Preparing printable documents',validating:'Checking the paper',starting:'Starting your request'};
+  const phases={interpreting:'Understanding your request',conversation:'Preparing a reply',local_conversation:'Preparing your reply',generating:'Writing your paper',codex_starting:'Starting your paper',codex_generating:'Writing your paper',structure_validation:'Checking structure, marks and coverage',codex_reviewing:'Reviewing questions and worked answers',checking_curriculum_online:'Checking official curriculum online',reviewing_curriculum:'Reviewing curriculum sources',codex_correcting:'Making corrections',preparing_documents:'Preparing printable documents',paper_ready_for_teacher_review:'Ready for your review',reviewing:'Reviewing questions and answers',correcting:'Making corrections',rendering:'Preparing printable documents',validating:'Checking the paper',starting:'Starting your request'};
   return phases[job.phase] || (job.kind==='paper' ? 'Working on your paper' : 'Preparing a reply');
 }
 export function readableError(error) {

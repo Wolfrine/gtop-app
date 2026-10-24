@@ -20,6 +20,12 @@ The local model supplies continuous English/Hindi/Hinglish conversation and ligh
 
 Keep the earlier scheduled creator stopped and preserve data/access while replacing the experience gradually. The initial pilot uses original questions and teacher review, with bank integration and broader capabilities reserved for later decisions. Judge improvement through actual use and feedback rather than delaying the app for more pre-app model qualification. A demonstration remains distinct from academic approval or reduced workload. See [[Question Bank Quality]] and [[Intent]].
 
+## Make Created Papers Reusable After The Base MVP
+
+Previously created papers should remain useful teaching material. Sachit wants a paper library/dashboard organized by board, standard and subject so administrators can find and refer to existing work. Conversation history alone should not be the only route back to a paper. This extends the returning-admin retrieval principle in [[Question Bank Quality]].
+
+The library is deferred until the base conversational Question Paper MVP is complete. This is a direction for later review, not current development approval; the precise experience and visibility across administrators remain open.
+
 ## GTOP Is Independent
 
 GTOP is owned as an independent production application. It should not be treated as a Hub submodule.
@@ -120,6 +126,7 @@ GTOP should study what students may expect from education products over the next
 
 ## Source Notes
 
+- `raw/2026-10-24-post-mvp-paper-library.md`
 - `raw/2026-10-24-conversational-paper-pilot-approval.md`
 
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`

@@ -1,5 +1,12 @@
 # GTOP Wiki Curation Ledger
 
+### 2026-10-24 - Defer Paper Library Until Base MVP
+
+- Raw note: `raw/2026-10-24-post-mvp-paper-library.md`; processed.
+- Wiki page: Decisions. Preserved the rationale for finding and reusing existing papers by board, standard and subject, with development explicitly deferred until the base conversational MVP is complete. Exact design and cross-admin visibility remain open.
+- Related context: current private-pilot decision and existing returning-admin retrieval principle; no unrelated raw sources re-curated. Home/Intent need no map change for this bounded follow-up.
+- PM handoff: planned Action Plan `EAZaJl5UKPch63ct1oUr` depends on base MVP `QndHjDJw0x3wzzG5szwW`. A read-only daily thread heartbeat checks completion and sends one reminder, then pauses. This does not resume the old scheduler or authorize feature development.
+
 ### 2026-10-24 - Private Conversational Paper Pilot Approval
 
 - Raw note: `raw/2026-10-24-conversational-paper-pilot-approval.md`; processed.

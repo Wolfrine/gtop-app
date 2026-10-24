@@ -23,7 +23,7 @@
   },
   "worker": {
     "id": "sachit-windows",
-    "state": "busy",
+    "state": "ready",
     "runningController": true,
     "bootstrapStatus": 200,
     "bootstrapErrorCode": null,
@@ -42,10 +42,11 @@
     },
     "dpapiRegression": "passed on Windows after isolating PowerShell5 built-in module path",
     "modelReady": true,
-    "pid": 167144,
+    "pid": 163544,
     "bootstrapCheckedAt": "2026-10-24T11:19:54.380Z",
     "readyHeartbeatAt": "2026-10-24T11:21:52.803Z",
-    "lastSeenAt": "2026-10-24T11:25:24.100Z"
+    "lastSeenAt": "2026-10-24T11:41:22.712Z",
+    "controllerCommit": "bfe0143f18581d067d8b8cbd6336d47cabb1524f"
   },
   "actions": {
     "runId": 40089170006,
@@ -190,6 +191,15 @@
     "additionalInferenceRun": false,
     "requiresExplicitUserRetry": true,
     "serverValidationRelaxed": false,
-    "cloudPublication": "not required for a local-controller-only update; existing verification remains required"
+    "cloudPublication": "not required for a local-controller-only update; existing verification remains required",
+    "commit": "bfe0143f18581d067d8b8cbd6336d47cabb1524f",
+    "verificationRun": 40090641372,
+    "requiredVerification": "passed",
+    "backendDeployment": "skipped",
+    "hostingDeployment": "skipped",
+    "retainedInvalidOutputsRejected": true,
+    "applied": true,
+    "idleProcessIdentityChecked": true,
+    "newPid": 163544
   }
 }

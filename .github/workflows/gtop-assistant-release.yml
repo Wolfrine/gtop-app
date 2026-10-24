@@ -27,6 +27,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
+      - name: Fetch the exact push comparison base before classifying deployment
+        if: github.event_name == 'push'
+        env:
+          RELEASE_BEFORE: '${{ github.event.before }}'
+        run: |
+          [[ "$RELEASE_BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 1
+          if [[ "$RELEASE_BEFORE" != "0000000000000000000000000000000000000000" ]]; then
+            git fetch --no-tags --depth=1 origin "$RELEASE_BEFORE"
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -142,6 +151,24 @@ jobs:
         env:
           ACCESS_TOKEN: '${{ steps.hosting-auth.outputs.access_token }}'
         run: node assistant-service/scripts/prepare-site.mjs
+      - name: Verify existing gateway state without deploying it
+        env:
+          ACCESS_TOKEN: '${{ steps.hosting-auth.outputs.access_token }}'
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          const url='https://cloudfunctions.googleapis.com/v2/projects/gtop-app/locations/us-central1/functions/gtopAssistantGateway';
+          let fn;
+          for(let attempt=0;attempt<12;attempt++){
+            const r=await fetch(url,{headers:{Authorization:'Bearer '+process.env.ACCESS_TOKEN},signal:AbortSignal.timeout(30000)});
+            assert(r.ok,'Read-only gateway state check failed: HTTP '+r.status);fn=await r.json();
+            if(fn.state==='ACTIVE')break;
+            console.log('Existing gateway state: '+fn.state+'; waiting before Hosting release.');
+            await new Promise(resolve=>setTimeout(resolve,10000));
+          }
+          assert.equal(fn.state,'ACTIVE');
+          console.log(JSON.stringify({gatewayState:fn.state,gatewayRelease:fn.labels?.['gtop-release'],updatedAt:fn.updateTime,revision:fn.serviceConfig?.revision}));
+          NODE
       - name: Deploy only independent Question Paper Hosting site
         run: npx --yes firebase-tools@15 deploy --project gtop-app --config firebase.assistant.json --only hosting:gtop-question-papers --non-interactive
       - name: Verify served commit and private gateway boundary

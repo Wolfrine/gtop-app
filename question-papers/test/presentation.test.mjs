@@ -39,9 +39,9 @@ test('versioned formula presentation derives a view without changing immutable H
   const original='<!doctype html><html><head><style>.katex{font-size:1em}</style></head><body><p>Original question</p><span class="katex">long chemical equation</span></body></html>';
   const hash=createHash('sha256').update(original).digest('hex');
   const view=presentArtifact(original);
-  assert.equal(artifactPresentationVersion,2);
+  assert.equal(artifactPresentationVersion,3);
   assert.equal(createHash('sha256').update(original).digest('hex'),hash);
-  assert.match(view,/data-presentation-version="2"/);
+  assert.match(view,/data-presentation-version="3"/);
   assert(view.indexOf('gtop-artifact-presentation')<view.indexOf('</head>'));
   assert.match(view,/@media screen[\s\S]*overflow-x:auto/);
   assert.match(view,/padding-inline-end:\.35em/);
@@ -53,10 +53,15 @@ test('versioned formula presentation derives a view without changing immutable H
 test('exam view removes actual schema directions and uses the controller revision without editing questions or stored content',()=>{
   const original='<html><head></head><body><h1>Chemistry, Version 1</h1><ol class="instructions"><li>Attempt all 38 questions.</li><li>Separate answers use markingPoints and answer fields.</li><li>This corrected version addresses the independent content review.</li></ol><article class="question">Which fields change? $x^2$</article></body></html>';
   const before=createHash('sha256').update(original).digest('hex');const view=presentArtifact(original,2);
-  assert.match(view,/<h1>Chemistry<\/h1><div class="gtop-document-revision">Document revision 2<\/div>/);
+  assert.match(view,/<h1>Chemistry<\/h1>/);
   assert.match(view,/<ol class="instructions"><li>Attempt all 38 questions.<\/li><\/ol>/);
   assert.match(view,/<article class="question">Which fields change\? \$x\^2\$<\/article>/);
   assert.equal(createHash('sha256').update(original).digest('hex'),before);
+});
+test('existing paper copies remove admin caveats and preserve student rules, questions and answers',()=>{
+  const original='<html><head></head><body><h1>Science — Custom Practice Paper, Version 2</h1><p class="notice">GTOP saved syllabus; not official; teacher review.</p><ol class="instructions"><li>Attempt all questions. This paper follows GTOP syllabus.</li><li>Draw labelled diagrams.</li><li>Not an official board paper.</li></ol><p class="section-note">Answer either alternative. Teacher review required.</p><article class="question">Explain the official language policy.</article><div class="answer">Retained worked answer.</div><p class="source">Curriculum source: https://example.invalid</p></body></html>';
+  const before=createHash('sha256').update(original).digest('hex'),view=presentArtifact(original,1);
+  assert.match(view,/<h1>Science Practice Paper<\/h1>/);assert(!/GTOP saved|GTOP syllabus|not official|Not an official|Teacher review|Curriculum source|Version 2|Document revision/.test(view));assert.match(view,/Attempt all questions\./);assert.match(view,/Draw labelled diagrams/);assert.match(view,/Answer either alternative\./);assert.match(view,/Explain the official language policy/);assert.match(view,/Retained worked answer/);assert.equal(createHash('sha256').update(original).digest('hex'),before);
 });
 test('mixed Markdown/math preserves TeX sources then renders bounded KaTeX with local chemistry support',()=>{
   const raw=String.raw`**Half-life**\n* At $30.0\,\mathrm{min}$, use \(k=\frac{0.693}{t_{1/2}}\).`.replaceAll('\\n','\n');

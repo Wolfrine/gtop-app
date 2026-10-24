@@ -14,6 +14,10 @@ test('student artifact contains no answer fields and hostile markup is escaped',
   const p=fixture();p.title='<script>alert(1)</script>';const student=renderPaper(p),answers=renderPaper(p,true);
   assert(!student.includes('PRIVATE ANSWER'));assert(!student.includes('PRIVATE MARKING'));assert(!student.includes('PRIVATE ALTERNATIVE'));assert(answers.includes('PRIVATE ANSWER'));assert(!student.includes('<script>'));assert(student.includes('&lt;script&gt;'));assert(student.includes('data:font/woff2;base64,'));assert(student.length<950000);
 });
+test('final classroom copies omit provenance and workflow notes but retain examination rules and immutable content',()=>{
+  const p=fixture();p.instructions=['Attempt all questions. This paper follows the GTOP syllabus.','This is not an official paper. Teacher review is required.','Show working; use a ruler where needed.'];p.sections[0].instructions='Answer either alternative. Curriculum coverage is unverified.';
+  const before=hash(p);for(const answers of [false,true]){const html=renderPaper(p,answers);assert(!/<p class="(?:notice|source)">/.test(html));assert(!/GTOP syllabus|not an official|Teacher review|unverified/.test(html));assert.match(html,/Attempt all questions\./);assert.match(html,/Show working; use a ruler/);assert.match(html,/Answer either alternative\./);assert.match(html,/@page\{size:A4/);}assert.equal(hash(p),before);
+});
 test('revision changes only the requested question and preserves previous content',()=>{
   const base=fixture(),before=hash(paperContent(base)),p=structuredClone(base);p.sections[0].questions[5].question='Updated fixture Q6';assert(validateRevision(base,p,6).passed);assert.equal(hash(paperContent(base)),before);
   p.sections[0].questions[4].answer='Changed another answer';assert.throws(()=>validateRevision(base,p,6),/untargeted/);

@@ -1,5 +1,6 @@
 // Trusted view-only presentation for immutable gateway artifacts. Never persist this copy.
-export const artifactPresentationVersion=2;
+import {cleanExamHtml} from '../../assistant-service/domain/exam-copy.mjs';
+export const artifactPresentationVersion=3;
 const presentationCss=`
 @media screen {
   .katex { display:inline-block; box-sizing:border-box; max-width:100%; padding-inline-end:.35em; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
@@ -16,10 +17,7 @@ export function presentArtifact(html,revision=null) {
   if(typeof html!=='string')throw new TypeError('Expected trusted artifact HTML');
   // Keep model-written schema/workflow directions out of examination instructions.
   // This is a view of the immutable original, not a rewrite of the stored paper.
-  let view=html.replace(/(<ol class="instructions">)([\s\S]*?)(<\/ol>)/i,(_all,start,items,end)=>start+items.replace(/<li>([\s\S]*?)<\/li>/gi,(item,content)=>/markingPoints|correct-option indices|answer fields|question fields|controller validation|independent (?:content )?review/i.test(content.replace(/<[^>]*>/g,''))?'':item)+end);
-  if(Number.isInteger(revision)&&revision>0){
-    view=view.replace(/(<h1>)([\s\S]*?)(<\/h1>)/i,(_all,start,title,end)=>start+title.replace(/,?\s+Version\s+\d+\s*$/i,'')+end+'<div class="gtop-document-revision">Document revision '+revision+'</div>');
-  }
+  let view=cleanExamHtml(html);
   const style=`<style id="gtop-artifact-presentation" data-presentation-version="${artifactPresentationVersion}">${presentationCss}</style>`;
   // The original string remains the source of truth for storage and its integrity hash.
   return /<\/head\s*>/i.test(view)?view.replace(/<\/head\s*>/i,style+'</head>'):view+style;

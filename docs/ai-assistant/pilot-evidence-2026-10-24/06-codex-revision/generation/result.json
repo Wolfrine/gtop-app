@@ -1,0 +1,22 @@
+{
+  "question": {
+    "number": 6,
+    "chapter": "Chemical Kinetics",
+    "type": "mcq",
+    "marks": 1,
+    "question": "A first-order reaction reaches 75% completion in $40.0\\,\\mathrm{min}$ at temperature $T_1$. At temperature $T_2$, its rate constant is twice that at $T_1$. How long will a fresh sample take to reach 87.5% completion at $T_2$?",
+    "options": [
+      "$15.0\\,\\mathrm{min}$",
+      "$20.0\\,\\mathrm{min}$",
+      "$30.0\\,\\mathrm{min}$",
+      "$60.0\\,\\mathrm{min}$"
+    ],
+    "correctIndex": 2,
+    "answer": "Option C is correct. At $T_1$, 75% completion means that the fraction remaining is $0.25=(1/2)^2$, so two half-lives take $40.0\\,\\mathrm{min}$. Thus $t_{1/2,1}=20.0\\,\\mathrm{min}$. Since $t_{1/2}=\\ln 2/k$ and $k_2=2k_1$, the half-life at $T_2$ is $t_{1/2,2}=10.0\\,\\mathrm{min}$. For 87.5% completion, the fraction remaining is $0.125=(1/2)^3$, requiring three half-lives. Therefore, the required time is $3\\times10.0=30.0\\,\\mathrm{min}$. Award 1 mark for selecting option C.",
+    "markingPoints": [
+      "1 mark: Select option C, 30.0 min. The worked reasoning is explanatory; no additional marks are allocated."
+    ],
+    "alternative": null
+  },
+  "reason": "Seedhe formula recall ki jagah completion fraction, half-life aur doubled rate constant ko jodkar application-based MCQ banaya hai. Number, chapter, type aur 1 mark barkarar hain; question aur worked answer English mein hain. Paper ke attempted marks 80 hi rahenge."
+}

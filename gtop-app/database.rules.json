@@ -3,9 +3,9 @@
     ".read": false,
     ".write": false,
     "activeUsers": {
-      ".read": "auth != null",
+      ".read": "auth != null && auth.token.assistantWorker !== true",
       "$uid": {
-        ".write": "auth != null",
+        ".write": "auth != null && auth.token.assistantWorker !== true",
         ".validate": "!newData.exists() || (newData.child('userId').val() === $uid && newData.child('isOnline').isBoolean())"
       }
     }

@@ -1,0 +1,119 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "question",
+    "reason"
+  ],
+  "properties": {
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "number",
+        "chapter",
+        "type",
+        "marks",
+        "question",
+        "options",
+        "correctIndex",
+        "answer",
+        "markingPoints",
+        "alternative"
+      ],
+      "properties": {
+        "number": {
+          "type": "integer"
+        },
+        "chapter": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "mcq",
+            "assertion_reason",
+            "short_answer",
+            "long_answer",
+            "numerical",
+            "case_based"
+          ]
+        },
+        "marks": {
+          "type": "integer"
+        },
+        "question": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "correctIndex": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "answer": {
+          "type": "string"
+        },
+        "markingPoints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "alternative": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "question",
+                "options",
+                "correctIndex",
+                "answer",
+                "markingPoints"
+              ],
+              "properties": {
+                "question": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "correctIndex": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "answer": {
+                  "type": "string"
+                },
+                "markingPoints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "reason": {
+      "type": "string"
+    }
+  }
+}

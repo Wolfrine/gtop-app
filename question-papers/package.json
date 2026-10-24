@@ -1,0 +1,27 @@
+{
+  "name": "gtop-question-papers",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "ng serve --host 127.0.0.1 --port 4317",
+    "build": "ng build --configuration production",
+    "test": "node --test test/presentation.test.mjs"
+  },
+  "dependencies": {
+    "@angular/common": "17.3.12",
+    "@angular/compiler": "17.3.12",
+    "@angular/core": "17.3.12",
+    "@angular/forms": "17.3.12",
+    "@angular/platform-browser": "17.3.12",
+    "firebase": "11.4.0",
+    "rxjs": "7.8.2",
+    "tslib": "2.8.1",
+    "zone.js": "0.14.10"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "17.3.17",
+    "@angular/cli": "17.3.17",
+    "@angular/compiler-cli": "17.3.12",
+    "typescript": "5.4.5"
+  }
+}

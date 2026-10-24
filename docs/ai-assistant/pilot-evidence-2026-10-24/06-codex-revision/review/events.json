@@ -1,0 +1,35 @@
+[
+  {
+    "type": "thread.started",
+    "thread_id": "01a16d0e-64c1-7c12-9da1-565a1923fba1"
+  },
+  {
+    "type": "item.completed",
+    "item": {
+      "id": "item_0",
+      "type": "error",
+      "message": "Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."
+    }
+  },
+  {
+    "type": "turn.started"
+  },
+  {
+    "type": "item.completed",
+    "item": {
+      "id": "item_1",
+      "type": "agent_message",
+      "text": "{\"verdict\":\"pass\",\"summary\":\"सभी 38 प्रश्नों, worked answers और OR विकल्पों की जाँच में कोई आवश्यक सुधार नहीं मिला। केवल Q6 बदला है; वह अधिक चुनौतीपूर्ण है और उसका अध्याय, MCQ प्रकार तथा 1 अंक सुरक्षित हैं। सही उत्तर C: 30.0 min है। कुल attempted marks 80 हैं, सभी दस अध्याय शामिल हैं और दोनों दस्तावेज़ English में बने हैं। Teacher acceptance अभी आवश्यक है।\",\"issues\":[]}"
+    }
+  },
+  {
+    "type": "turn.completed",
+    "usage": {
+      "input_tokens": 45614,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 296,
+      "reasoning_output_tokens": 181
+    }
+  }
+]

@@ -32,6 +32,7 @@ jobs:
       contents: read
     outputs:
       backend_required: ${{ steps.scope.outputs.backend_required }}
+      assistant_only: ${{ steps.scope.outputs.assistant_only }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,17 +46,28 @@ jobs:
           node <<'NODE'
           const {execFileSync} = require('node:child_process');
           const {appendFileSync} = require('node:fs');
+          const {pathToFileURL} = require('node:url');
+          (async()=>{
           const before = process.env.RELEASE_BEFORE || '';
           let required = true;
+          let assistantOnly = false;
           if (process.env.RELEASE_EVENT === 'push' && /^[a-f0-9]{40}$/.test(before) && !/^0+$/.test(before)) {
             const files = execFileSync('git', ['diff', '--no-renames', '--name-only', '-z', before, process.env.GITHUB_SHA], {encoding: 'utf8'}).split('\0').filter(Boolean);
             // Only known frontend and documentation paths can skip backend deployment.
             // Unknown paths, missing history, and explicit dispatches retain the backend gate.
             const frontendOnly = /^(?:gtop-app\/(?:src\/|e2e\/)|docs\/|\.github\/workflows\/firebase-deploy\.yml$)/;
             required = files.some(file => !frontendOnly.test(file));
+            if(files.includes('gtop-app/firestore.rules') || files.includes('gtop-app/database.rules.json')) {
+              const {assistantOnlyRelease}=await import(pathToFileURL(process.cwd()+'/assistant-service/scripts/release-scope.mjs'));
+              const readAt=revision=>path=>execFileSync('git',['show',revision+':'+path],{encoding:'utf8'});
+              assistantOnly=assistantOnlyRelease(files,readAt(before),readAt(process.env.GITHUB_SHA));
+              if(assistantOnly)required=false;
+            }
             console.log(`Reviewed release: ${files.length} changed paths; backend required: ${required}`);
           }
           appendFileSync(process.env.GITHUB_OUTPUT, `backend_required=${required}\n`);
+          appendFileSync(process.env.GITHUB_OUTPUT, `assistant_only=${assistantOnly}\n`);
+          })().catch(error=>{console.error(error);process.exitCode=1;});
           NODE
 
   reviewed-backend:
@@ -109,6 +121,7 @@ jobs:
           npm run e2e
         working-directory: gtop-app
       - name: Keep the verified application build for promotion
+        if: needs.release-scope.outputs.assistant_only != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: verified-application-${{ github.sha }}
@@ -116,7 +129,7 @@ jobs:
           retention-days: 1
           if-no-files-found: error
       - name: Keep review evidence
-        if: always()
+        if: always() && needs.release-scope.outputs.assistant_only != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: current-application-verification
@@ -127,9 +140,10 @@ jobs:
           if-no-files-found: ignore
 
   promote-hosting:
-    needs: [reviewed-backend, build-and-verify]
+    needs: [release-scope, reviewed-backend, build-and-verify]
     if: >-
       always() && !cancelled() && needs.build-and-verify.result == 'success' &&
+      needs.release-scope.outputs.assistant_only != 'true' &&
       (needs.reviewed-backend.result == 'success' || needs.reviewed-backend.result == 'skipped') &&
       (github.event_name != 'workflow_dispatch' || inputs.target != 'production' || github.ref_name == 'main')
     runs-on: ubuntu-latest

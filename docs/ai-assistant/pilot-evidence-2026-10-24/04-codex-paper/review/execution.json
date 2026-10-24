@@ -1,0 +1,13 @@
+{
+  "elapsedMs": 24536,
+  "exitCode": 0,
+  "completed": true,
+  "usage": {
+    "input_tokens": 29729,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 420,
+    "reasoning_output_tokens": 302
+  },
+  "model": "gpt-6.1-sol"
+}

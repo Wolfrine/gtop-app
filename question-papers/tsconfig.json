@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target":"ES2022","module":"ES2022","moduleResolution":"node",
+    "lib":["ES2022","DOM"],"strict":true,"experimentalDecorators":true,
+    "useDefineForClassFields":false,"skipLibCheck":true,"allowJs":true,
+    "esModuleInterop":true,"outDir":"./out-tsc","types":[]
+  },
+  "angularCompilerOptions": {"strictTemplates":true},
+  "files":["src/main.ts"]
+}

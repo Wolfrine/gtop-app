@@ -1,0 +1,20 @@
+{
+  "reply": "Namaste! Main aapke saath Hinglish mein baat karunga aur questions ko English mein hi samjhaunga.\n\nAapka request clear hai: **CBSE Class 12 Chemistry** ka ek practice paper. Isme:\n*   **Chapters:** Full syllabus ke chapters honge (Solutions, Electrochemistry, Chemical Kinetics, d- & f-Block, Coordination Compounds, Haloalkanes, Alcohols/Phenols/Ethers, Carbonyl compounds, Amines, Biomolecules).\n*   **Questions aur Answers:** Sirf **English** mein honge.\n*   **Explanation:** Agar koi specific question verify ho jaye, toh uska solution Hindi/Hinglish mein samjhaunga. Abhi tak verified content available nahi hai, isliye main abhi paper generate karne ke liye ready hu.\n\nKya aap chahte hain ki main abhi **Codex** ko instruction dekar full syllabus ka 80-mark practice paper generate karwaun? Ya phir pehle kuch specific chapter par focus karna hai?",
+  "action": "clarify",
+  "interpretation": "User wants a CBSE Class 12 Chemistry practice paper (80 marks, 180 mins) with English questions/answers but Hindi explanations. The user is asking which chapters will be covered. Based on requirements, all listed chapters are included. No specific question to explain yet.",
+  "proposedActions": [
+    "generate_paper"
+  ],
+  "requirementsPatch": {
+    "marks": 80,
+    "durationMinutes": 180,
+    "questionLanguage": "English",
+    "answerLanguage": "English",
+    "sourcePolicy": "original"
+  },
+  "targetQuestionNumber": null,
+  "memoryPatch": {
+    "assistantLanguage": "Hinglish",
+    "preferredName": "Growth Tutorials Assistant"
+  }
+}

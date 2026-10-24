@@ -1,0 +1,9 @@
+import {spawn} from 'node:child_process';
+import assert from 'node:assert/strict';
+const project='gtop-app',name='gtopAssistantGateway',runtime='78765581239-compute@developer.gserviceaccount.com';
+if(process.env.GITHUB_REF!=='refs/heads/main' || !/^[a-f0-9]{40}$/.test(process.env.GITHUB_SHA || ''))throw Error('Deployment requires a verified main commit in GitHub Actions.');
+function command(args,capture=false){return new Promise((resolve,reject)=>{const p=spawn('gcloud',args,{stdio:['ignore','pipe','pipe']});let result='';p.stdout.on('data',b=>{if(capture)result+=b;else process.stdout.write(b);});p.stderr.on('data',b=>process.stderr.write(b));p.on('error',reject);p.on('exit',code=>code===0?resolve(result):reject(Error('gcloud deployment failed: '+code)));});}
+await command(['functions','deploy',name,'--project='+project,'--gen2','--region=us-central1','--runtime=nodejs22','--source=assistant-service','--entry-point='+name,'--service-account='+runtime,'--build-service-account=projects/'+project+'/serviceAccounts/'+runtime,'--memory=512Mi','--timeout=60s','--max-instances=3','--concurrency=40','--trigger-http','--allow-unauthenticated','--update-labels=firebase-functions-codebase=gtop-assistant,gtop-release='+process.env.GITHUB_SHA,'--quiet']);
+const fn=JSON.parse(await command(['functions','describe',name,'--project='+project,'--region=us-central1','--gen2','--format=json'],true));
+assert.equal(fn.state,'ACTIVE');assert.equal(fn.buildConfig.runtime,'nodejs22');assert.equal(fn.buildConfig.entryPoint,name);assert.equal(fn.serviceConfig.serviceAccountEmail,runtime);assert.equal(fn.labels['gtop-release'],process.env.GITHUB_SHA);
+console.log('Verified only gtopAssistantGateway, Node22, expected runtime account and release. No legacy functions, IAM role grants, indexes or rules deployed.');

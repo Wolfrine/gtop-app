@@ -1,0 +1,22 @@
+{
+  "requirements": {
+    "board": "CBSE",
+    "standard": "12",
+    "subject": "Chemistry",
+    "academicYear": "2026-27",
+    "scope": "full_syllabus",
+    "marks": 80,
+    "durationMinutes": 180,
+    "questionLanguage": "English",
+    "answerLanguage": "English",
+    "sourcePolicy": "original",
+    "internalChoices": true
+  },
+  "originalSourceIds": [
+    "69e99a5f4796e90d94a04557c10210af22541d6b",
+    "593287f0beef3076994ae86b183366dbb6207471",
+    "245038aec76596dde5f695e24ea8f8cd50041683"
+  ],
+  "currentRequestId": "245038aec76596dde5f695e24ea8f8cd50041683",
+  "modelPatchIsAuthoritative": false
+}

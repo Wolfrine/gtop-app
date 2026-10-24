@@ -1,0 +1,322 @@
+{
+  "algorithm": "SHA256",
+  "identity": "synthetic emulator administrator",
+  "inference": "actual Qwen/Ollama and ChatGPT-authenticated Codex CLI",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 80,
+      "sha256": "6996b224f9896f9bd19f9a6b5ce3d321980ad607dfe022bd7465b49f2db64bc1"
+    },
+    {
+      "path": "01-local-create/controller-decision.json",
+      "bytes": 2059,
+      "sha256": "ad8fe5931a6c22e2e143a78fa7e1862486579606dde689894d13519bde07c1df"
+    },
+    {
+      "path": "01-local-create/finished.json",
+      "bytes": 89,
+      "sha256": "2f12d39ea4937e5b61138dfc1c568b6fc9ee751ef06dca48147b35cf056fef5e"
+    },
+    {
+      "path": "01-local-create/local-input.json",
+      "bytes": 7058,
+      "sha256": "aebfdff2c468f8f6634d9e5a01633f0b4d858f5c864a566fbe1793c29bb6d4a7"
+    },
+    {
+      "path": "01-local-create/local-response-0.json",
+      "bytes": 2518,
+      "sha256": "666a676f9ac43104e66b14877e848c8d2945a211d047e95433775c3aafa23a10"
+    },
+    {
+      "path": "01-local-create/local-result.json",
+      "bytes": 2288,
+      "sha256": "7bb8dca4ea95b14f672af74984f03de0aa0add4662cef11da24b8b486c3d8c9b"
+    },
+    {
+      "path": "02-local-continuity/controller-decision.json",
+      "bytes": 1562,
+      "sha256": "d5f9db170c2204f86f3fa75962e5667880a73952196da7af60490ec9a623c3e2"
+    },
+    {
+      "path": "02-local-continuity/finished.json",
+      "bytes": 89,
+      "sha256": "47859779d5867776b6ee9018e0de323ec966be8e6de2a5632180490fb4127e83"
+    },
+    {
+      "path": "02-local-continuity/local-input.json",
+      "bytes": 7647,
+      "sha256": "e51197e81f6c4f26f8632bec4f20fcdf58424e364e7f908b03ffe17439bdc4a2"
+    },
+    {
+      "path": "02-local-continuity/local-response-0.json",
+      "bytes": 2011,
+      "sha256": "c252213c734c8dd8bd600e931c22d9101e4b2c1fa370bf08f4192f9520447cfb"
+    },
+    {
+      "path": "02-local-continuity/local-result.json",
+      "bytes": 1787,
+      "sha256": "78cd93bd04c8cbe4e6ab2f8a4e972066b4947276ba2e5701d03e05865034c60f"
+    },
+    {
+      "path": "03-local-revision/controller-decision.json",
+      "bytes": 1261,
+      "sha256": "932d817683efe4cca591117395f6fbe635610c6fd9c340c044c105d6af6a5ed9"
+    },
+    {
+      "path": "03-local-revision/finished.json",
+      "bytes": 89,
+      "sha256": "b67b0befdd73f389cbf9a1a2683deacea44a3c6ae475988c40e7918201764334"
+    },
+    {
+      "path": "03-local-revision/local-input.json",
+      "bytes": 7223,
+      "sha256": "fefa0f1ef09c2cfd9ada31a28c82c003e4865e2c8c72019015d04497b42a3b51"
+    },
+    {
+      "path": "03-local-revision/local-response-0.json",
+      "bytes": 1700,
+      "sha256": "d9815f9b760c61140aebe8b79312f8cbc3f27d7d9efa380113d7771c6bbf63ff"
+    },
+    {
+      "path": "03-local-revision/local-result.json",
+      "bytes": 1480,
+      "sha256": "e76b25e92c5367c533675ce9d0839fcd6ec56d75ed0fa469fe22145b4de3be1f"
+    },
+    {
+      "path": "03-local-revision/skill.json",
+      "bytes": 641,
+      "sha256": "a389317ca98b65e58af397a736cb8024fc22608608e778ddec8e8048862610ba"
+    },
+    {
+      "path": "03-local-revision/verified-requirements.json",
+      "bytes": 609,
+      "sha256": "0ad3b3f05e394c8ac4fd89705648950c955db1198363d8b288f0b739cdb0781d"
+    },
+    {
+      "path": "04-codex-paper/failure.json",
+      "bytes": 122,
+      "sha256": "55df7027a0c9514982e2ed9e48fadba70c40751fa1152fa536ca71968e412dab"
+    },
+    {
+      "path": "04-codex-paper/generation/events.json",
+      "bytes": 56232,
+      "sha256": "dbe1e5ad0d0609ce0f101f275801bda6d3326b63930cd7a7a236baf3097c6eeb"
+    },
+    {
+      "path": "04-codex-paper/generation/execution.json",
+      "bytes": 262,
+      "sha256": "4fb81c743fcd0e4febf91e4dc4155ef7b4b8f37134e8802a14924658d497dd7b"
+    },
+    {
+      "path": "04-codex-paper/generation/invocation.json",
+      "bytes": 1233,
+      "sha256": "3612f4dff169769423d62766395eb6d6ddd4cde4258d3774a42342a01241c0a9"
+    },
+    {
+      "path": "04-codex-paper/generation/prompt.txt",
+      "bytes": 11995,
+      "sha256": "8ead74f1bbb493d9bbefca4301030a15a7bf679162d5ff66860db2679ccbd87b"
+    },
+    {
+      "path": "04-codex-paper/generation/result.json",
+      "bytes": 53531,
+      "sha256": "a1292b0b1805a012c378dc96e1886602e9ca806ad206d1757640bf8a9be5f2d3"
+    },
+    {
+      "path": "04-codex-paper/generation/schema.json",
+      "bytes": 5063,
+      "sha256": "b803fb4b56b13c7c71659976fb6876e548ba61a987e2b84dad6496a9cdb253cd"
+    },
+    {
+      "path": "04-codex-paper/generation/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "04-codex-paper/handoff.json",
+      "bytes": 7297,
+      "sha256": "8e63a5c3e2e996c725c2839ac916d87d4d36d4a138d36604958125232c795d42"
+    },
+    {
+      "path": "04-codex-paper/paper.json",
+      "bytes": 53531,
+      "sha256": "a1292b0b1805a012c378dc96e1886602e9ca806ad206d1757640bf8a9be5f2d3"
+    },
+    {
+      "path": "04-codex-paper/review.json",
+      "bytes": 521,
+      "sha256": "c50832fc5d624b7d205d65a37e2f202f5105b2b4c303b4ce60c96160ff0ab20a"
+    },
+    {
+      "path": "04-codex-paper/review/events.json",
+      "bytes": 1301,
+      "sha256": "a618efd89121f5988f73b029328bfb85df32fa280982ebc75bb8fe32c715e736"
+    },
+    {
+      "path": "04-codex-paper/review/execution.json",
+      "bytes": 259,
+      "sha256": "3fcab0c12ce9532c34c1effc2fc03bb3179735e1d7fe04b681956360bc53294d"
+    },
+    {
+      "path": "04-codex-paper/review/invocation.json",
+      "bytes": 1229,
+      "sha256": "e8a92e5751f06230423cfcdb9237f0de9770e531e25db20720eff63edbbdc092"
+    },
+    {
+      "path": "04-codex-paper/review/prompt.txt",
+      "bytes": 64230,
+      "sha256": "66c341c9138dfad9715dd1d413eaaf8d4c3a700846ae9be7ba641d0f74b08dab"
+    },
+    {
+      "path": "04-codex-paper/review/result.json",
+      "bytes": 521,
+      "sha256": "c50832fc5d624b7d205d65a37e2f202f5105b2b4c303b4ce60c96160ff0ab20a"
+    },
+    {
+      "path": "04-codex-paper/review/schema.json",
+      "bytes": 953,
+      "sha256": "99f03519993b2238bed446f8a11989984e4c521d04e7c07bb1b53cfeda6c5ee5"
+    },
+    {
+      "path": "04-codex-paper/review/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "04-codex-paper/validation.json",
+      "bytes": 555,
+      "sha256": "6e29da4f247befa4db94900f8e76f649fe7b8b8b72cdb3facb2c346a9a6902ac"
+    },
+    {
+      "path": "05-delivery-recovery/delivery.json",
+      "bytes": 73,
+      "sha256": "35d5852ca66d07005b37e337f587ddd04d342a524716da847640b30e3b1a6965"
+    },
+    {
+      "path": "05-delivery-recovery/finished.json",
+      "bytes": 87,
+      "sha256": "2c8992f842e48b07d368f2699c80513cfcc8760df56c2361195c5d204cd3167b"
+    },
+    {
+      "path": "05-delivery-recovery/handoff.json",
+      "bytes": 7386,
+      "sha256": "27f75556636694ea1d9e020f4c1771824bec2d090060d506c0d16a771b841027"
+    },
+    {
+      "path": "06-codex-revision/delivery.json",
+      "bytes": 73,
+      "sha256": "7b3cdad9c98e8204d49b913cf617ad857aebca93d6c7fb873119ef99938a4aa7"
+    },
+    {
+      "path": "06-codex-revision/finished.json",
+      "bytes": 89,
+      "sha256": "c62d75644d46cb6cc125db4ea730896ddc3f0bb176b06f890eec4263d939e3de"
+    },
+    {
+      "path": "06-codex-revision/generation/events.json",
+      "bytes": 2355,
+      "sha256": "5b9d6f50e8ef1bf7cbcc2f683fa960c404734f7cbe88eddae4bebf19a7abf2ea"
+    },
+    {
+      "path": "06-codex-revision/generation/execution.json",
+      "bytes": 259,
+      "sha256": "4b2fbc2e0767c2a045193aae4006fbb9a5d6becaf518eed5359aa1b670e632ea"
+    },
+    {
+      "path": "06-codex-revision/generation/invocation.json",
+      "bytes": 1233,
+      "sha256": "37b4f3e9078efdf46ec696cb9b449bac5c798539c16179c2309233090826fb43"
+    },
+    {
+      "path": "06-codex-revision/generation/prompt.txt",
+      "bytes": 72697,
+      "sha256": "b672db47aa1250a0952a631e7b60e1f6e5bf199b388bbf376b5c3f65913b9b17"
+    },
+    {
+      "path": "06-codex-revision/generation/result.json",
+      "bytes": 1484,
+      "sha256": "05673b7bd7c64825d467d4f54bc355d0199b89d3507feb62d0d7e4b083dd11a7"
+    },
+    {
+      "path": "06-codex-revision/generation/schema.json",
+      "bytes": 2549,
+      "sha256": "2fc994ffd0060dd7700e01f7eae54fbddd3e94a79c7286d402ae31c22ff23b47"
+    },
+    {
+      "path": "06-codex-revision/generation/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "06-codex-revision/handoff.json",
+      "bytes": 67848,
+      "sha256": "0d2d715a8dd1589ef845ec92b1ca4292ad42eed81e82a3c9bfc9cba12b822192"
+    },
+    {
+      "path": "06-codex-revision/paper.json",
+      "bytes": 54176,
+      "sha256": "0327b918afaf3354478af52cd14144676845ca7b721111b70b169ba7fe8650d4"
+    },
+    {
+      "path": "06-codex-revision/review.json",
+      "bytes": 769,
+      "sha256": "848d6aeae71a5210c36453e8810ae65a729204d8a7c27533c9208f37d3fcb8e8"
+    },
+    {
+      "path": "06-codex-revision/review/events.json",
+      "bytes": 1532,
+      "sha256": "0616a028e1b4cb568158a5317f26d168e19bbb67bb1389cc42764dfcf968de04"
+    },
+    {
+      "path": "06-codex-revision/review/execution.json",
+      "bytes": 259,
+      "sha256": "db7bb22908ca148b655867c92cb00c74a9b87fdbdc0a517689c6ddc24ad4717c"
+    },
+    {
+      "path": "06-codex-revision/review/invocation.json",
+      "bytes": 1229,
+      "sha256": "7783dc4bc4b7092f1053ef5ce3261c74556147a28ce23e63c50eef14bdeb668c"
+    },
+    {
+      "path": "06-codex-revision/review/prompt.txt",
+      "bytes": 125959,
+      "sha256": "c2f2b989362fe11f660312e17a8406b00c6248030a4aed3dbaa41e39f132cf51"
+    },
+    {
+      "path": "06-codex-revision/review/result.json",
+      "bytes": 769,
+      "sha256": "848d6aeae71a5210c36453e8810ae65a729204d8a7c27533c9208f37d3fcb8e8"
+    },
+    {
+      "path": "06-codex-revision/review/schema.json",
+      "bytes": 953,
+      "sha256": "99f03519993b2238bed446f8a11989984e4c521d04e7c07bb1b53cfeda6c5ee5"
+    },
+    {
+      "path": "06-codex-revision/review/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "06-codex-revision/skill.json",
+      "bytes": 672,
+      "sha256": "9563f6cb22e9f47a42cf5772d247bf582b7ae72f58cd5cd492eefa01edeb899d"
+    },
+    {
+      "path": "06-codex-revision/validation.json",
+      "bytes": 613,
+      "sha256": "9881024337aa203edd87f0224d7797814d407d9180f1de783489bed031b68a3a"
+    },
+    {
+      "path": "independent-containment-check.json",
+      "bytes": 1695,
+      "sha256": "7c24dcbd3c5286895c507a95cddca571b805272b177861196160a0fea257469f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4634,
+      "sha256": "8541901b8229166f85f4309a896bd46a4dce6b9c8a6e540fddf335a1267325df"
+    }
+  ]
+}

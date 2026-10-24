@@ -1,0 +1,209 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "title",
+    "board",
+    "standard",
+    "subject",
+    "academicYear",
+    "scope",
+    "marks",
+    "durationMinutes",
+    "questionLanguage",
+    "answerLanguage",
+    "instructions",
+    "sections",
+    "sourceReferences"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "board": {
+      "type": "string"
+    },
+    "standard": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "academicYear": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "marks": {
+      "type": "integer"
+    },
+    "durationMinutes": {
+      "type": "integer"
+    },
+    "questionLanguage": {
+      "type": "string"
+    },
+    "answerLanguage": {
+      "type": "string"
+    },
+    "instructions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "instructions",
+          "questions"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "instructions": {
+            "type": "string"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "number",
+                "chapter",
+                "type",
+                "marks",
+                "question",
+                "options",
+                "correctIndex",
+                "answer",
+                "markingPoints",
+                "alternative"
+              ],
+              "properties": {
+                "number": {
+                  "type": "integer"
+                },
+                "chapter": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "mcq",
+                    "assertion_reason",
+                    "short_answer",
+                    "long_answer",
+                    "numerical",
+                    "case_based"
+                  ]
+                },
+                "marks": {
+                  "type": "integer"
+                },
+                "question": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "correctIndex": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "answer": {
+                  "type": "string"
+                },
+                "markingPoints": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "alternative": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "question",
+                        "options",
+                        "correctIndex",
+                        "answer",
+                        "markingPoints"
+                      ],
+                      "properties": {
+                        "question": {
+                          "type": "string"
+                        },
+                        "options": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "correctIndex": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        },
+                        "answer": {
+                          "type": "string"
+                        },
+                        "markingPoints": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "sourceReferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "url",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

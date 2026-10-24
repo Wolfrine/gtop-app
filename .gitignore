@@ -1,0 +1,6 @@
+# Local Firebase emulator state and logs. Never publish these runtime artifacts.
+.firebase/
+firebase-debug*.log
+firestore-debug*.log
+database-debug*.log
+ui-debug*.log

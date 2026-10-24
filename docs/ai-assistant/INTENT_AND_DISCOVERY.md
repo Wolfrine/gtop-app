@@ -1,6 +1,6 @@
 # GTOP AI Assistant & Sub-App Ecosystem — Intent and Discovery Handoff
 
-**Status:** Approved product direction; local feasibility and architecture not yet decided (23 October 2026).  
+**Status:** The private conversational Question Paper pilot was approved for implementation on 24 October 2026. See [current implementation scope](PILOT_IMPLEMENTATION.md). The discovery-only instructions below describe the earlier stage and do not undo that explicit approval.
 **Source:** GTOP ChatGPT Space intent and founder discussions.  
 **Space:** https://chatgpt.com/space/page_6adb22349a988191b07dddfd2455e8ef
 

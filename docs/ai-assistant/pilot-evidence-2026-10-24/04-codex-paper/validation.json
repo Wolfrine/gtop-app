@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "questionCount": 38,
+  "attemptedMarks": 80,
+  "chaptersCovered": [
+    "Solutions",
+    "Electrochemistry",
+    "Chemical Kinetics",
+    "d- and f-Block Elements",
+    "Coordination Compounds",
+    "Haloalkanes and Haloarenes",
+    "Alcohols, Phenols and Ethers",
+    "Aldehydes, Ketones and Carboxylic Acids",
+    "Amines",
+    "Biomolecules"
+  ],
+  "internalChoices": 4,
+  "sourceId": "cbse-043-2026-27-xii",
+  "paperContentSha256": "2c2cd9a1db0475a91a4832e4eb2309619c62fa3279bfd5e24f2da228228879bb",
+  "academicApproval": false
+}

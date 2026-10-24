@@ -1,0 +1,130 @@
+name: GTOP private assistant pilot
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assistant-service/**'
+      - 'question-papers/**'
+      - 'tools/gtop-assistant/**'
+      - 'firebase.assistant.json'
+      - 'gtop-app/firestore.rules'
+      - 'gtop-app/database.rules.json'
+      - '.github/workflows/gtop-assistant-release.yml'
+  workflow_dispatch:
+concurrency:
+  group: gtop-assistant-main
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            assistant-service/package-lock.json
+            question-papers/package-lock.json
+            tools/gtop-assistant/package-lock.json
+            gtop-app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+        working-directory: assistant-service
+      - run: npm run check && npm test
+        working-directory: assistant-service
+      - run: npm ci && npm run check && npm test
+        working-directory: tools/gtop-assistant
+      - name: Exercise actual Auth, Firestore, function endpoints and shared default-deny rules
+        run: npx --yes firebase-tools@15 emulators:exec --config firebase.assistant.json --only auth,firestore,functions,database --project demo-gtop-assistant 'node --test assistant-service/test/firestore.integration.mjs'
+      - name: Preserve existing shared Firestore and database permission regression gates
+        run: npm ci && npm run test:rules && npm run test:database-rules
+        working-directory: gtop-app
+      - run: npm ci && npm test && npm run build
+        working-directory: question-papers
+      - name: Verify fixed hosting and gateway deployment scope
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';import assert from 'node:assert/strict';
+          const cfg=JSON.parse(fs.readFileSync('firebase.assistant.json'));
+          assert.equal(cfg.hosting.site,'gtop-question-papers');assert.equal(cfg.functions.length,1);
+          assert.equal(cfg.functions[0].codebase,'gtop-assistant');assert.equal(cfg.functions[0].source,'assistant-service');
+          assert.equal(cfg.hosting.rewrites[0].function.functionId,'gtopAssistantGateway');
+          fs.writeFileSync(cfg.hosting.public+'/version.json',JSON.stringify({application:'gtop-question-papers',commit:process.env.GITHUB_SHA,builtAt:new Date().toISOString()}));
+          NODE
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: verified-question-papers-${{ github.sha }}
+          path: question-papers/dist/question-papers/browser
+          retention-days: 1
+          if-no-files-found: error
+  backend:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: firebase-live-backend
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --omit=dev
+        working-directory: assistant-service
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Check live rule drift and deploy only worker identity restrictions
+        run: node assistant-service/scripts/deploy-rules.mjs
+      - name: Deploy only new assistant gateway using existing runtime permissions
+        run: node assistant-service/scripts/deploy.mjs
+      - name: Verify active private pilot access without production fixtures
+        run: node assistant-service/scripts/verify-live.mjs
+  hosting:
+    needs: [verify,backend]
+    runs-on: ubuntu-latest
+    environment: firebase-production
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rebuild verified exact source commit without relying on artifact quota
+        run: |
+          npm ci
+          npm run build
+          node -e 'require("node:fs").writeFileSync("dist/question-papers/browser/version.json",JSON.stringify({application:"gtop-question-papers",commit:process.env.GITHUB_SHA,builtAt:new Date().toISOString()}))'
+        working-directory: question-papers
+      - uses: google-github-actions/auth@v2
+        id: hosting-auth
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
+      - name: Prepare only independent site and its Firebase Authentication domains
+        env:
+          ACCESS_TOKEN: '${{ steps.hosting-auth.outputs.access_token }}'
+        run: node assistant-service/scripts/prepare-site.mjs
+      - name: Deploy only independent Question Paper Hosting site
+        run: npx --yes firebase-tools@15 deploy --project gtop-app --config firebase.assistant.json --only hosting:gtop-question-papers --non-interactive
+      - name: Verify served commit and private gateway boundary
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          const origin='https://gtop-question-papers.web.app';
+          const version=await fetch(origin+'/version.json',{signal:AbortSignal.timeout(30000)});assert(version.ok);assert.equal((await version.json()).commit,process.env.GITHUB_SHA);
+          assert.equal((await fetch(origin+'/api/session',{signal:AbortSignal.timeout(30000)})).status,401);
+          const html=await fetch(origin,{signal:AbortSignal.timeout(30000)});assert(html.ok);assert((await html.text()).includes('<app-root'));
+          console.log('Independent Hosting commit and unauthenticated gateway denial verified. Visual acceptance is separately recorded.');
+          NODE

@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "verdict",
+    "summary",
+    "issues"
+  ],
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "needs_correction"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "questionNumber",
+          "severity",
+          "problem",
+          "correction"
+        ],
+        "properties": {
+          "questionNumber": {
+            "type": "integer"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "minor",
+              "major"
+            ]
+          },
+          "problem": {
+            "type": "string"
+          },
+          "correction": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

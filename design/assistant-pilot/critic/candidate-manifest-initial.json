@@ -1,0 +1,175 @@
+{
+  "candidate_algorithm": "sha256(canonical_json({production_build:[path,sha256],fixture_sources:[path,sha256]})); sorted keys and compact separators",
+  "candidate": "fbfbaca874f6efe497a95be03d338d6723dd7645a7f36ece1d362a16dce026e6",
+  "production_build": [
+    {
+      "path": "question-papers/dist/question-papers/browser/assistant-config.json",
+      "sha256": "5abd9da57a34ac189cd59c6164f66dc96307d64dc3dc0d16ce123c49fcaeea60"
+    },
+    {
+      "path": "question-papers/dist/question-papers/browser/index.html",
+      "sha256": "d2c0f9ae56992b5048361ef42f8328ca1931c16f50710909a6569c25103dcdd8"
+    },
+    {
+      "path": "question-papers/dist/question-papers/browser/main-4ILX3ZM7.js",
+      "sha256": "6b0b48af332e8e6a1527cda4f1c7401be619f211625b8c74e2dbe9af97733895"
+    },
+    {
+      "path": "question-papers/dist/question-papers/browser/polyfills-FFHMD2TL.js",
+      "sha256": "69dcea045643dd0de998a3cd0ccbbb46b46bff2651a87a56c73c28eb208e8f98"
+    },
+    {
+      "path": "question-papers/dist/question-papers/browser/styles-OEDS4IQE.css",
+      "sha256": "d7994cd49ccad6693a18ec1f519d59005692960d8db155256463f9053be4ff2e"
+    }
+  ],
+  "source_snapshot": [
+    {
+      "path": "question-papers/src/api.service.ts",
+      "sha256": "1c0bc3b37daa531a6c42c0c67f3279499307786536e52799426b8b570506d799"
+    },
+    {
+      "path": "question-papers/src/contracts.ts",
+      "sha256": "c173fb1fe023f435a6670ed7133dd7107813d3b942c4349992971c3127c00121"
+    },
+    {
+      "path": "question-papers/src/dev-transport.production.ts",
+      "sha256": "f87d1d642bdc17841a1cb83637c11e3f36f958916e6d0dfa9f950e26e9e1bfa2"
+    },
+    {
+      "path": "question-papers/src/dev-transport.ts",
+      "sha256": "463eac528ba2f725cadff43b6cee37027a92273ce73c313bab8b242a7748dd29"
+    },
+    {
+      "path": "question-papers/src/index.html",
+      "sha256": "271eb5a5b5c02bd14ca0a8faae2337dcd6f65a5ec32f2a5f15f96ba6bd77f1c7"
+    },
+    {
+      "path": "question-papers/src/main.ts",
+      "sha256": "cfed3a9e23aba16a86a6cb2c1eeadad3cf5faba72e2b888a6aaee99a1f1d5658"
+    },
+    {
+      "path": "question-papers/src/presentation.mjs",
+      "sha256": "7c3a6bb78e2d70b744e3229d2c47331b5abdf8283e534ae9a48fc76a863a0eba"
+    },
+    {
+      "path": "question-papers/src/styles.css",
+      "sha256": "8b9cfc5fb926b30927bba08eff26157f0b8365cbdfc71cfbe7d6975753dc4157"
+    },
+    {
+      "path": "question-papers/src/workspace.html",
+      "sha256": "c76f7b73a2463b1f3206a23d6700700da4bf88779471377ddbd8417148330f1e"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/desktop-empty-1440.png",
+      "sha256": "95d899c87cefeebc6632d32329c699e6064f685f195bed0dd422ab09c336195a"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/desktop-working-1440.png",
+      "sha256": "a41706668df1a43a376ee263c1f5fd3eaaf7fb9c85e4a6cf299f572a93272ba7"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/phone-drawer-390.png",
+      "sha256": "b4b253a4b50d797e2a957530e88e54acb5a77d1f738f371770f9a60e6a4ac5de"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/phone-offline-320.png",
+      "sha256": "bcf7d0e2524a2f76381307ea7bb3c541e7063590c7d1bc1311f4222f5b4ef4a7"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/phone-ready-390.png",
+      "sha256": "441336f3dbb4da2cfebebf69fba8a78c2c2a66abd223a2fcf61659c23168750d"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/phone-student-390.png",
+      "sha256": "9d425d185838f192fd3215a91091ebeb8b73ed664768544d2b180b75f929586e"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/phone-working-390.png",
+      "sha256": "29ac9f7deb0b9e828fe0a22a59b3007c6f682503294cd50d8a8db0bf294f39b2"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/tablet-error-820.png",
+      "sha256": "dfa926bdadb7fd01f282cc13a099864e3eb6327cd5c372481370baeffda431e5"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-2/phone-answers-390.png",
+      "sha256": "b077bdf9c676f68f0534bcc6639100991464eb3441d6275b4f95bcebe0e5487f"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-2/phone-student-390.png",
+      "sha256": "f9a260de0098027f967ebb97a98343811fe9836b5550fbe1c78ead62c32c67bc"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-3/desktop-long-answers-1440.png",
+      "sha256": "e26eb8e8a60c6d79c27ab725f7606e0a4c455a506e7644bdd4674ebc07677979"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-3/phone-long-student-body-390.png",
+      "sha256": "dc57bfcfa17393c822a0b8d7647d99f03626edc97e54f89b4d9bb54bace8b3d6"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-3/phone-revision-composer-390.png",
+      "sha256": "2608cdc4e159895607d918004d17f754ba6f8e897dc8314ac119d467cbc1afe5"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-3/tablet-long-answers-820.png",
+      "sha256": "dfd92861c625dba5bac494dfde5a930266da0e511c139a988a86f7db8a03659a"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/desktop-revisions-expanded-1440.png",
+      "sha256": "29b421e96ffa265600586431e32349ac64c7657cb164f2cf5b13bb3e57d3315f"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/phone-cancelled-390.png",
+      "sha256": "e04cc58a8575f5bdc312b6547566925e800218dbeda5b3481df2a3f23952acca"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/phone-clarify-320.png",
+      "sha256": "a6960bc5bdec8df1af592ce1da8ce0f0d6a9fca21d8076380db2651b2d302f94"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/phone-retry-queued-390.png",
+      "sha256": "ad2c3efd2be4a9aded18ff486e55ae99d6144e6ee08105844889f1d8178318a3"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/phone-revisions-expanded-390.png",
+      "sha256": "e9a001eb1e56e52662243aad039cc0444a2b050df00c4f928ac399cb5c8af888"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/phone-student-toolbar-320.png",
+      "sha256": "be8aa4ca38e11cc97060227f07d3540f769abd58eb16caa069cfff66e0ad7da8"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/desktop-conversation-paper-1440.png",
+      "sha256": "ebcc2d06057c406be005cb08769a9ffb7b2aeecef53f74489b421517f0bfa9da"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/desktop-empty-1440.png",
+      "sha256": "69b814988164644fc1289b91ea4b2d930debd96e6119847a7dab29c20e92b51c"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/phone-cancelled-390.png",
+      "sha256": "3b61a38244681f898ae82e1bddedf14680db2780cea13196e66348349e8a2439"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/phone-ready-revision-390.png",
+      "sha256": "c5761ef149398049d23a18628bc04268428519892c0e9b5534a890ace4c2377f"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/phone-working-390.png",
+      "sha256": "a245d61fb23997361936eec764668c22008904b8a451ba64f3856b7bb38c54ef"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/production-email-390.png",
+      "sha256": "028bd569085e2ab1708f8ed9f2bb308daeac9a766bb23344b9a24708b8618742"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/production-signin-1440.png",
+      "sha256": "132007808e4c21394cf6201f6a99b6d82a405dacf2c7752366f6c4876c4a7567"
+    }
+  ],
+  "evidence_truth": "Critic-created localhost browser captures; signed-in workflow data is explicit synthetic fixture data. Production build sign-in gate viewed without credentials or sign-in."
+}

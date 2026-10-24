@@ -1,0 +1,28 @@
+{
+  "proposal": {
+    "reply": "Namaste! Main aapke liye Hindi aur Hinglish mein baat karunga.\n\nAapne Question 6 ko thoda mushkil banana chaaha hai, lekin iski marks, type (MCQ), aur chapter (Chemical Kinetics) change nahi karna chahte. Sabhi doosre sawal aur dono documents ki bhasha (English) waisi hi rakhni hai.\n\nMain abhi Question 6 ko revise karke usse challenging bana sakta hoon, lekin mujhe **Question 6 ka original text** chahiye taaki main iski baare mein sahi samajh saath use kar sake. Kya aap mujhe pehle paper se Question 6 ka exact question aur options share karein?\n\nAgar aapne pehle se hi revised version banaya hai, toh woh bhi share kar sakte hain taaki main confirm kar sakoon ki changes sahi hain ya nahi.",
+    "action": "clarify",
+    "interpretation": "User wants Question 6 from the existing paper made more challenging while keeping marks, type, and chapter same. Requires original question text to proceed with revision or explanation.",
+    "proposedActions": [],
+    "requirementsPatch": {
+      "marks": null,
+      "durationMinutes": null,
+      "questionLanguage": null,
+      "answerLanguage": null,
+      "sourcePolicy": null
+    },
+    "targetQuestionNumber": 6,
+    "memoryPatch": {
+      "assistantLanguage": "Hinglish",
+      "preferredName": "Aparna"
+    }
+  },
+  "metrics": {
+    "elapsedMs": 17429,
+    "attempts": 1,
+    "model": "qwen3.5:4b-q4_K_M",
+    "promptTokens": 1371,
+    "outputTokens": 370,
+    "loadMs": 7553.6205
+  }
+}

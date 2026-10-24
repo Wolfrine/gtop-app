@@ -1,0 +1,30 @@
+{
+  "proposal": {
+    "reply": "Namaste! Ji zaroor, main aapke saath Hindi aur Hinglish mein baat karunga. \n\nAapne Class 12 Chemistry ke liye ek practice paper banana chaaha hai. Main samajh gaya hoon ki aapko **CBSE** board ke syllabus (2026-27) par based ek original paper chahiye.\n\nYeh raha maine taiyaar kiya hua summary aur confirmation:\n\n1.  **Language**: Questions English mein hongi, lekin agar aapko Hindi mein questions bhi chahiye toh batayein (abhi default English hai). Answers English mein rahenge.\n2.  **Scope**: Full Syllabus (Solutions, Electrochemistry, Kinetics, d/f-Block, Coordination Compounds, Haloalkanes, Alcohols/Phenols/Ethers, Carbonyl, Amines, Biomolecules) ka cover kiya jayega.\n3.  **Format**: \n    *   Total Marks: 80\n    *   Duration: 180 Minutes\n    *   Internal Choices: Haan (kuch questions mein aapko option dena padega).\n    *   Note: Yeh ek **Practice Paper** hai (Growth Tutorials), official CBSE board paper ka format thoda alag hota hai (official theory marks 70 hote hain, practice paper mein 80 mark ki limit rakhi gayi hai taaki extra questions ho sakein).\n\nKya aap chahti hain ki main abhi hi yeh **full syllabus practice paper** generate karun? Ya pehle kuch specific chapters par focus karna chahiye?\n\nAgar confirm kar dijiye, toh main turant paper text taiyaar karke dungi.",
+    "action": "generate_paper",
+    "interpretation": "User requested a Class 12 Chemistry practice paper in Hindi/Hinglish conversation. The user's intent is clear: generate an original CBSE-style paper with specific parameters (80 marks, 180 mins, full syllabus). No clarification needed on ambiguous requests as the requirements are explicit in the JSON context.",
+    "proposedActions": [
+      "generate_paper"
+    ],
+    "requirementsPatch": {
+      "marks": 80,
+      "durationMinutes": 180,
+      "questionLanguage": "English",
+      "answerLanguage": "English",
+      "sourcePolicy": "original"
+    },
+    "targetQuestionNumber": null,
+    "memoryPatch": {
+      "assistantLanguage": "Hindi/Hinglish",
+      "preferredName": "Growth Tutorials Assistant"
+    }
+  },
+  "metrics": {
+    "elapsedMs": 25183,
+    "attempts": 1,
+    "model": "qwen3.5:4b-q4_K_M",
+    "promptTokens": 1264,
+    "outputTokens": 601,
+    "loadMs": 10561.6508
+  }
+}

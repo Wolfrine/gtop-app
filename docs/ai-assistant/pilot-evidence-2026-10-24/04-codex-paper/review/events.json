@@ -1,0 +1,35 @@
+[
+  {
+    "type": "thread.started",
+    "thread_id": "01a16cfd-7063-7440-a220-c3effe8c320e"
+  },
+  {
+    "type": "item.completed",
+    "item": {
+      "id": "item_0",
+      "type": "error",
+      "message": "Code Mode is unavailable because code-mode host is disabled. Code mode will fail closed; enable `features.code_mode_host` and install `codex-code-mode-host`."
+    }
+  },
+  {
+    "type": "turn.started"
+  },
+  {
+    "type": "item.completed",
+    "item": {
+      "id": "item_1",
+      "type": "agent_message",
+      "text": "{\n  \"verdict\": \"pass\",\n  \"summary\": \"Independent review mein koi material correction nahi mili. OR choices ko ek hi allocation mein ginte hue attempted total 80 marks hai. Sabhi 10 pinned chapters covered hain; removed chapters nahi hain. Numerical calculations, MCQ keys, balanced equations, worked solutions aur marking allocations sahi hain. Alternatives ki difficulty comparable hai. Custom practice-paper label aur official 70-mark distinction clear hain. Teacher acceptance abhi bhi required hai.\",\n  \"issues\": []\n}"
+    }
+  },
+  {
+    "type": "turn.completed",
+    "usage": {
+      "input_tokens": 29729,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 420,
+      "reasoning_output_tokens": 302
+    }
+  }
+]

@@ -2,6 +2,7 @@
 
 - [Product intent and discovery handoff](INTENT_AND_DISCOVERY.md): scope, conversational responsibilities and approval boundaries.
 - [Approved pilot implementation](PILOT_IMPLEMENTATION.md): current private Question Paper app, controller, permissions and operational limits.
+- [Pilot release and acceptance record, 24 October 2026](PILOT_RELEASE_2026-10-24.md): verified deployment state, checks and remaining human acceptance.
 - [Actual pilot integration evidence, 24 October 2026](pilot-evidence-2026-10-24/README.md): exact local/Codex prompts, real generation/revision/review timings, failures, recovery and immutable content checks.
 - [Local qualification, 23 October 2026](local-qualification-2026-10-23/README.md): what was actually prompted, who generated the paper content, measured local/Codex timings, failures and retained evidence.
 - [Conversational roles and architecture experiment, 23 October 2026](role-architecture-evaluation-2026-10-23/README.md): local primary intelligence, intent-preserving Codex handoffs, independent controller gates, live review, remaining failures and a phased proposal for approval.

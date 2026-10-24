@@ -1,0 +1,239 @@
+{
+  "candidate_algorithm": "sha256(canonical_json({production_build:[path,sha256],fixture_sources:[path,sha256]})); sorted keys and compact separators",
+  "candidate": "aabaf48da428d2626f52435d9d786e99ef2e2e8f6ecc76bf768f5a50babdb4d4",
+  "production_build": [
+    {
+      "path": "question-papers/dist/question-papers/browser/assistant-config.json",
+      "sha256": "5abd9da57a34ac189cd59c6164f66dc96307d64dc3dc0d16ce123c49fcaeea60"
+    },
+    {
+      "path": "question-papers/dist/question-papers/browser/index.html",
+      "sha256": "ba0ebbe235d9bc4896ee3c0d86a85a0bad99ffc4849ad1d4512b0bb3c8737147"
+    },
+    {
+      "path": "question-papers/dist/question-papers/browser/main-QEFIX72U.js",
+      "sha256": "62b793b4a5e5c1cccc91200ce331372008628f3b3a42ac6186a8dd62cdfe2e6c"
+    },
+    {
+      "path": "question-papers/dist/question-papers/browser/polyfills-FFHMD2TL.js",
+      "sha256": "69dcea045643dd0de998a3cd0ccbbb46b46bff2651a87a56c73c28eb208e8f98"
+    },
+    {
+      "path": "question-papers/dist/question-papers/browser/styles-UTYJG5JI.css",
+      "sha256": "cd04e5b81a45291150eded1856690aba08f0ffc3e8f2820b7e214cef4ba12c95"
+    }
+  ],
+  "source_snapshot": [
+    {
+      "path": "question-papers/src/api.service.ts",
+      "sha256": "1c0bc3b37daa531a6c42c0c67f3279499307786536e52799426b8b570506d799"
+    },
+    {
+      "path": "question-papers/src/artifact-presentation.mjs",
+      "sha256": "a70b6bba3e4bbea79029f5fd9dd8bc88f432e150e30063e9242e17ff9d3e1390"
+    },
+    {
+      "path": "question-papers/src/contracts.ts",
+      "sha256": "c173fb1fe023f435a6670ed7133dd7107813d3b942c4349992971c3127c00121"
+    },
+    {
+      "path": "question-papers/src/dev-transport.production.ts",
+      "sha256": "f87d1d642bdc17841a1cb83637c11e3f36f958916e6d0dfa9f950e26e9e1bfa2"
+    },
+    {
+      "path": "question-papers/src/dev-transport.ts",
+      "sha256": "64e586c0dc2c8fd45d1414688b3dc1e37d441d36ef77d6b4483ea383e2b23ca2"
+    },
+    {
+      "path": "question-papers/src/index.html",
+      "sha256": "271eb5a5b5c02bd14ca0a8faae2337dcd6f65a5ec32f2a5f15f96ba6bd77f1c7"
+    },
+    {
+      "path": "question-papers/src/main.ts",
+      "sha256": "2b1f208a40d702ca250a351dd0dec419ded60e3c42c59a0788a86c9e4a2686e3"
+    },
+    {
+      "path": "question-papers/src/presentation.mjs",
+      "sha256": "a131c5cd20e7a0946bab809cb90a76b6a26925299d96ba16fffb9739c22da633"
+    },
+    {
+      "path": "question-papers/src/styles.css",
+      "sha256": "25eb27e9df2bde65c15899dcd8341e9a6e398fc95c70e1a7e8bf483c7d2b1669"
+    },
+    {
+      "path": "question-papers/src/workspace.html",
+      "sha256": "6d2d606db0b043590d56876eb5a685d47ca7af1bfb442403558cbfcb49d86854"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/desktop-actual-conversation-1440.png",
+      "sha256": "078ff80ac3cd97226c02ab8e3b4073a079dfbf254d693cf9ac5793dd85dee565"
+    },
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/desktop-actual-student-1440.png",
+      "sha256": "547f59ccf3f3e40161022cffd329ff5cd842826437697f1adb49f279b8ac03fe"
+    },
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/phone-actual-answer-equation-overflow-390.png",
+      "sha256": "08138a823ce8ae58a59c043f8a495ef8b70485160722949871f5853d17674edf"
+    },
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/phone-actual-equation-contained-390.png",
+      "sha256": "266322c8ad167d2d97bffe1388ec679af23c255e36ee25f4b003ea36ed8384c8"
+    },
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/phone-actual-or-choice-390.png",
+      "sha256": "0f222de59320203d4c861d6b11409614f0cde04d22d30782feb45871d602d5ce"
+    },
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/phone-actual-student-390.png",
+      "sha256": "fcaa5138436aa435ef166d18c24d4b59e2bab016581d04da2f591cb5f3743e9c"
+    },
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/phone-actual-student-questions-390.png",
+      "sha256": "7a88df4dacc22fde9d8810c6d4c103c3964b3a0a6f2ab015b0b913ed0a51542e"
+    },
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/phone-equation-tiny-scrollbar-regression-390.png",
+      "sha256": "2f73058272128a12872751487b72632a1b8de15f0d5b2bff76e148b5c786f1fc"
+    },
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/phone-safe-formatting-390.png",
+      "sha256": "fe5006923ba74b11d809222c005469df1ca6f508a6944636a9891e8ce9d6ed6b"
+    },
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/tablet-actual-answer-overflow-820.png",
+      "sha256": "8dd975f661d2e2fe763af6881bf21e6163feca63bef1007ce1dc734d542e0c2d"
+    },
+    {
+      "path": "design/assistant-pilot/critic/actual-emulator-paper/tablet-actual-equation-contained-820.png",
+      "sha256": "142192254ba7d4bfddff1d90c53a9ceeeee033cc2b6848a71ab3ec20d184e1b5"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/desktop-empty-1440.png",
+      "sha256": "95d899c87cefeebc6632d32329c699e6064f685f195bed0dd422ab09c336195a"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/desktop-working-1440.png",
+      "sha256": "a41706668df1a43a376ee263c1f5fd3eaaf7fb9c85e4a6cf299f572a93272ba7"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/phone-drawer-390.png",
+      "sha256": "b4b253a4b50d797e2a957530e88e54acb5a77d1f738f371770f9a60e6a4ac5de"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/phone-offline-320.png",
+      "sha256": "bcf7d0e2524a2f76381307ea7bb3c541e7063590c7d1bc1311f4222f5b4ef4a7"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/phone-ready-390.png",
+      "sha256": "441336f3dbb4da2cfebebf69fba8a78c2c2a66abd223a2fcf61659c23168750d"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/phone-student-390.png",
+      "sha256": "9d425d185838f192fd3215a91091ebeb8b73ed664768544d2b180b75f929586e"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/phone-working-390.png",
+      "sha256": "29ac9f7deb0b9e828fe0a22a59b3007c6f682503294cd50d8a8db0bf294f39b2"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-1/tablet-error-820.png",
+      "sha256": "dfa926bdadb7fd01f282cc13a099864e3eb6327cd5c372481370baeffda431e5"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-2/phone-answers-390.png",
+      "sha256": "b077bdf9c676f68f0534bcc6639100991464eb3441d6275b4f95bcebe0e5487f"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-2/phone-student-390.png",
+      "sha256": "f9a260de0098027f967ebb97a98343811fe9836b5550fbe1c78ead62c32c67bc"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-3/desktop-long-answers-1440.png",
+      "sha256": "e26eb8e8a60c6d79c27ab725f7606e0a4c455a506e7644bdd4674ebc07677979"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-3/phone-long-student-body-390.png",
+      "sha256": "dc57bfcfa17393c822a0b8d7647d99f03626edc97e54f89b4d9bb54bace8b3d6"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-3/phone-revision-composer-390.png",
+      "sha256": "2608cdc4e159895607d918004d17f754ba6f8e897dc8314ac119d467cbc1afe5"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-3/tablet-long-answers-820.png",
+      "sha256": "dfd92861c625dba5bac494dfde5a930266da0e511c139a988a86f7db8a03659a"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/desktop-revisions-expanded-1440.png",
+      "sha256": "29b421e96ffa265600586431e32349ac64c7657cb164f2cf5b13bb3e57d3315f"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/phone-cancelled-390.png",
+      "sha256": "e04cc58a8575f5bdc312b6547566925e800218dbeda5b3481df2a3f23952acca"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/phone-clarify-320.png",
+      "sha256": "a6960bc5bdec8df1af592ce1da8ce0f0d6a9fca21d8076380db2651b2d302f94"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/phone-retry-queued-390.png",
+      "sha256": "ad2c3efd2be4a9aded18ff486e55ae99d6144e6ee08105844889f1d8178318a3"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/phone-revisions-expanded-390.png",
+      "sha256": "e9a001eb1e56e52662243aad039cc0444a2b050df00c4f928ac399cb5c8af888"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-4/phone-student-toolbar-320.png",
+      "sha256": "be8aa4ca38e11cc97060227f07d3540f769abd58eb16caa069cfff66e0ad7da8"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/desktop-conversation-paper-1440.png",
+      "sha256": "ebcc2d06057c406be005cb08769a9ffb7b2aeecef53f74489b421517f0bfa9da"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/desktop-empty-1440.png",
+      "sha256": "69b814988164644fc1289b91ea4b2d930debd96e6119847a7dab29c20e92b51c"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/phone-cancelled-390.png",
+      "sha256": "3b61a38244681f898ae82e1bddedf14680db2780cea13196e66348349e8a2439"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/phone-ready-revision-390.png",
+      "sha256": "c5761ef149398049d23a18628bc04268428519892c0e9b5534a890ace4c2377f"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/phone-working-390.png",
+      "sha256": "a245d61fb23997361936eec764668c22008904b8a451ba64f3856b7bb38c54ef"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/production-email-390.png",
+      "sha256": "028bd569085e2ab1708f8ed9f2bb308daeac9a766bb23344b9a24708b8618742"
+    },
+    {
+      "path": "design/assistant-pilot/critic/cycle-5/production-signin-1440.png",
+      "sha256": "132007808e4c21394cf6201f6a99b6d82a405dacf2c7752366f6c4876c4a7567"
+    },
+    {
+      "path": "design/assistant-pilot/critic/final-candidate/production-auth-gate-1440.png",
+      "sha256": "a0506e31756811997ac9648bf633b9658b99cfc00dbb182b15c8d1299ec73b4a"
+    },
+    {
+      "path": "design/assistant-pilot/critic/retry-chain-fix/desktop-retry-chain-1440.png",
+      "sha256": "818ae352b160448e8413374df79a26fad308cc940c49169d0d43fde2615edcbf"
+    },
+    {
+      "path": "design/assistant-pilot/critic/retry-chain-fix/phone-retry-chain-390.png",
+      "sha256": "483f19ea52cb838d9f1ccdb40502d37875da49dafec4af227dd09578601c5db0"
+    },
+    {
+      "path": "design/assistant-pilot/critic/retry-chain-fix/phone-retry-queued-390.png",
+      "sha256": "1ac6f26a9f8a55b6de1f971a2e449aa305ca9b969bbfeb406d5cbd9b400ccb9c"
+    }
+  ],
+  "evidence_truth": "Critic-created localhost browser captures; signed-in workflow data is explicit synthetic fixture data. Production build sign-in gate viewed without credentials or sign-in."
+}

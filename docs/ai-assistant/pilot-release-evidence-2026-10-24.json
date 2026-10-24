@@ -1,0 +1,85 @@
+{
+  "applicationCandidate": "9be7fd99b67310fdf40ad385ad5e1dfbc6d6bc28",
+  "servedCandidate": "a6cbc839d66afa78d5dbda9cb82fe17f0382a0a4",
+  "site": "https://gtop-question-papers.web.app",
+  "servedChecks": {
+    "htmlStatus": 200,
+    "expectedRoot": "gtop-paper-app",
+    "cacheControl": "no-store",
+    "anonymousSessionStatus": 401,
+    "existingInvitedAdminSession": "passed in protected a6cbc83 release; no production chat or paper fixture"
+  },
+  "gateway": {
+    "function": "gtopAssistantGateway",
+    "state": "ACTIVE",
+    "region": "us-central1",
+    "runtime": "nodejs22",
+    "cpu": 1,
+    "memory": "512MiB",
+    "concurrency": 40,
+    "maximumInstances": 3,
+    "runtimeAccount": "78765581239-compute@developer.gserviceaccount.com"
+  },
+  "worker": {
+    "id": "sachit-windows",
+    "state": "offline",
+    "runningController": false,
+    "bootstrapStatus": 500,
+    "bootstrapErrorCode": "auth/insufficient-permission",
+    "preciseIamDiagnosticRetrieved": false,
+    "signerGrantApplied": false,
+    "dpapiRegression": "passed on Windows after isolating PowerShell5 built-in module path"
+  },
+  "actions": {
+    "runId": 40084938604,
+    "checkRunId": 120845832005,
+    "runnerStarted": false,
+    "steps": [],
+    "annotation": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings",
+    "annotationSource": "https://api.github.com/repos/Wolfrine/gtop-app/check-runs/120845832005/annotations",
+    "annotationRetrieval": "Authenticated read using existing repository Git credential helper; no credential retained or printed",
+    "billingChanged": false
+  },
+  "localChecks": {
+    "node": "24.19.0",
+    "backendDomainReleaseTestsPassed": 25,
+    "controllerTestsPassed": 15,
+    "uiTestsPassed": 12,
+    "actualFirebaseEmulatorIntegrationTestsPassedAfterDependencyUpdate": 2,
+    "typescriptCheck": "passed",
+    "productionBuild": "passed",
+    "independentAppAuditFindingsAll": 0,
+    "backendAuditFindingsAll": 0,
+    "controllerAuditFindingsAll": 0,
+    "patchedCandidateNode22Ci": "not started because account blocked runner"
+  },
+  "realInferenceEvidence": {
+    "identity": "synthetic emulator administrator",
+    "generation": "actual ChatGPT-authenticated Codex CLI, gpt-6.1-sol",
+    "conversation": "actual local Qwen3.5 4B",
+    "questions": 38,
+    "attemptedMarks": 80,
+    "chapters": 10,
+    "wholeQuestionOrChoices": 4,
+    "revisionChangedQuestions": [6],
+    "otherQuestionsUnchanged": 37,
+    "productionInference": false,
+    "teacherApproval": false,
+    "paperContentSha256": "b4a516f4a34a9db96029ac6ee30c31bd7017714ab4112c936ad1fb8ad4246cd9",
+    "patchedRendererDeterministicCheck": {
+      "studentRawBytes": 573720,
+      "studentGzipBytes": 278563,
+      "answersRawBytes": 1009401,
+      "answersGzipBytes": 301485,
+      "embeddedFonts": true,
+      "contentHashUnchanged": true
+    }
+  },
+  "acceptanceStillRequired": [
+    "Restore GitHub Actions account availability and run protected candidate checks/release",
+    "Diagnose and resolve runtime token signing with explicit approval for any IAM expansion",
+    "Verify production worker readiness and real invited-admin conversation/paper journey",
+    "Inspect actual A4 PDF pagination and physical printing",
+    "Aparna academic and classroom acceptance"
+  ]
+}

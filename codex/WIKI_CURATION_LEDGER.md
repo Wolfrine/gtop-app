@@ -1,5 +1,13 @@
 # GTOP Wiki Curation Ledger
 
+### 2026-10-25 - Compact paper workspace and independent identity
+
+- Raw source: `raw/2026-10-25-paper-workspace-density-and-identity.md`; processed.
+- Wiki changed: `wiki/Intent.md`.
+- Durable memory: reduce oversized chat text, competing guidance and wasted space; keep task progress and paper actions clear, supporting details on demand, and an independent recognizable installable identity. Agent review does not replace intended-user acceptance.
+- Evidence boundary: this preserves the authorized direction and user rejection of the prior UI, not a claim of teacher acceptance or offline paper generation. Existing unrelated sources were not re-curated.
+- Project Manager Handoff: rendered UI/PWA verification, protected release and user feedback belong to Action Plan `S7pLVLGongTdgauNRdOm` and the design/engineering evidence. No execution checklist added to the wiki.
+
 ### 2026-10-25 - Retain settled conversational requirements
 
 - Raw source: `raw/2026-10-25-conversational-harness-improvements.md`; processed.

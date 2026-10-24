@@ -28,6 +28,8 @@ The assistant should be short, sweet and friendly: answer the current question, 
 
 Settled requirements should survive the conversation. When an administrator supplies chapters and says “all topics,” the scope is every topic within those chapters; the assistant should not repeatedly demand a narrower topic or expand it to the whole subject. Ask only for a genuine remaining gap, preserve corrections through delegation, and describe actual execution honestly. Discussing a board does not select it, and pausing creation must remain effective until the administrator asks to proceed. A useful harness should help the local model meet these expectations without making teachers manage the model's limitations.
 
+The paper workspace should be calm and compact. Teachers must be able to read the discussion, understand current progress and find the next paper action without oversized chat text, repeated guidance or wasted space. Filters, feedback and earlier revisions remain easy to reach when needed. Question Paper Creation has its own recognizable, installable identity while retaining Growth Tutorials' private sign-in. Installation offers convenient access; conversation and paper creation still depend on connectivity. Agent review is supporting evidence, and the intended users' experience remains the acceptance standard.
+
 GTOP's [[Features]] should serve student practice continuity, admin content quality, and Growth Tutorials brand trust. The [[Problems]] page tracks the product problems that should shape future priorities.
 
 ## Source Notes
@@ -41,3 +43,4 @@ GTOP's [[Features]] should serve student practice continuity, admin content qual
 
 - `raw/2026-10-24-classroom-copy-and-assistant-feedback.md`
 - `raw/2026-10-25-conversational-harness-improvements.md`
+- `raw/2026-10-25-paper-workspace-density-and-identity.md`

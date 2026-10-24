@@ -1,5 +1,13 @@
 # Question Paper pilot release record — 24 October 2026
 
+## Latest: authenticated production journey delivered
+
+See the [production acceptance record](PRODUCTION_ACCEPTANCE_2026-10-24.md) for the current result, exact acceptance messages and measured stage timings. Google sign-in, a reviewed 80-mark full-syllabus paper, separate student/worked-answer documents, retained-result delivery recovery and a Question 6-only immutable revision were exercised in the hosted app. Hosting is now `fd7834536a3802b99cc491fc578197a9e54e656d`; gateway `d5e5046` was preserved. Controller `a1f5789` runs as manual process172756. Both frontend correction releases deployed Hosting only, and the controller-only release skipped both cloud deployments.
+
+The real student/answer views were visually checked on desktop and phone; controller/hash comparison confirms that only Question 6 changed. **Native A4/PDF pagination, physical printing and Aparna's academic/classroom acceptance remain unverified.** They are not represented as completed by the successful software checks. Earlier records below document the preceding failures and releases; they are not the latest live status.
+
+## Earlier release and recovery record
+
 Implementation: `main`, deployed application release `d5e504682b568a1afa282d24a6dfd796612ccaaf`. The [protected release](https://github.com/Wolfrine/gtop-app/actions/runs/40089170006) passed verification, backend and Hosting. Direct readback at11:22:36UTC confirmed the exact served SHA,200 expected application root,`no-store` and401 anonymous session access. **The production controller is online with its local model loaded; human paper/print acceptance remains outstanding.** This record distinguishes real integration, deployed infrastructure and remaining human acceptance.
 
 Latest resolution: Sachit approved the scoped signing change in this conversation. In signed-in Chrome, the existing runtime account received `roles/iam.serviceAccountTokenCreator` on its own service-account resource only. Console readback shows the role with **No inheritance**, alongside its unchanged inherited Editor role. No project-wide binding or service-account key was added. The missing gRPC dependency is now explicit, and the protected backend job imports the real entry point with production-only dependencies before cloud authentication/deployment. This correction passed Node22 CI and deployed through one main release. Worker token exchange returned200 at11:19:54UTC without exposing its token. The manual controller, process167144, reported `ready`/`modelReady:true` at11:21:52UTC and subsequently `busy` with a fresh heartbeat while handling live work. No startup service or scheduler was added.

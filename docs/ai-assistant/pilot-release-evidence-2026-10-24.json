@@ -1,6 +1,6 @@
 {
-  "applicationCandidate": "d5e504682b568a1afa282d24a6dfd796612ccaaf",
-  "servedCandidate": "d5e504682b568a1afa282d24a6dfd796612ccaaf",
+  "applicationCandidate": "fd7834536a3802b99cc491fc578197a9e54e656d",
+  "servedCandidate": "fd7834536a3802b99cc491fc578197a9e54e656d",
   "site": "https://gtop-question-papers.web.app",
   "servedChecks": {
     "htmlStatus": 200,
@@ -42,11 +42,11 @@
     },
     "dpapiRegression": "passed on Windows after isolating PowerShell5 built-in module path",
     "modelReady": true,
-    "pid": 163544,
+    "pid": 172756,
     "bootstrapCheckedAt": "2026-10-24T11:19:54.380Z",
     "readyHeartbeatAt": "2026-10-24T11:21:52.803Z",
-    "lastSeenAt": "2026-10-24T11:41:22.712Z",
-    "controllerCommit": "bfe0143f18581d067d8b8cbd6336d47cabb1524f"
+    "lastSeenAt": "2026-10-24T12:53:41.847Z",
+    "controllerCommit": "a1f5789b7c52170ff638b20b8c0300f98d29293e"
   },
   "actions": {
     "runId": 40089170006,
@@ -135,9 +135,7 @@
     }
   },
   "acceptanceStillRequired": [
-    "Owner verification of actual Google sign-in and authenticated hosted UI",
-    "Accept the first production paper/revision and separate artifacts; private live job records remain authoritative",
-    "Inspect actual A4 PDF pagination and physical printing",
+    "Inspect actual native A4 PDF pagination and physical printing",
     "Aparna academic and classroom acceptance"
   ],
   "liveOperationalEvidence": {
@@ -146,7 +144,7 @@
       10035,
       8905
     ],
-    "codexPaper": "failed safely before independent review or publication after the single permitted correction",
+    "codexPaper": "Historical first attempt failed before review; later production acceptance delivered a reviewed paper and immutable revision, detailed below.",
     "createdProductionTestFixture": false,
     "paperFailure": {
       "generationElapsedMs": 225015,
@@ -156,6 +154,54 @@
       "sourceIdReturned": "curriculum-controller-pinned",
       "sourceIdExpected": "cbse-043-2026-27-xii",
       "published": false
+    },
+    "productionAcceptance": {
+      "identity": "existing invited administrator, exercised by Codex for authorized acceptance; not Aparna approval",
+      "localInferenceMs": [
+        8146,
+        9767,
+        10431
+      ],
+      "localControllerTotalMs": [
+        11331,
+        11664,
+        15373
+      ],
+      "generation": {
+        "codexMs": 205553,
+        "reviewMs": 18704,
+        "contentCorrectionMs": 101428,
+        "finalReviewMs": 14781,
+        "initialJobTotalMs": 397747,
+        "initialDelivery": "timeout after validation",
+        "explicitRecoveryMs": 11250,
+        "additionalCodexOnRecovery": false,
+        "delivered": true,
+        "questionCount": 38,
+        "attemptedMarks": 80,
+        "chapters": 10,
+        "wholeQuestionOrPairs": 4
+      },
+      "revision": {
+        "codexMs": 20300,
+        "reviewMs": 18491,
+        "totalJobMs": 56613,
+        "delivered": true,
+        "changedQuestions": [
+          6
+        ],
+        "priorContentHash": "6aa0fd3553a12fd31479d677412b9dfc110f91b3101747479cef68c37279e2d7",
+        "revisedContentHash": "3ed3fcde17cbda391dc3a6f1aeb84ce86b7cbd0cfe8fe901718877aac696cd5f",
+        "originalPreserved": true
+      },
+      "studentAnswerBlocks": 0,
+      "workedAnswerBlocks": 42,
+      "objectiveKeys": 20,
+      "katexErrors": 0,
+      "academicApproval": false,
+      "nativePrintVerified": false,
+      "privateEvidence": "H:/GTOP-Local-AI/pilot-runtime/production/jobs",
+      "documentation": "PRODUCTION_ACCEPTANCE_2026-10-24.md"
     }
   },
   "visualReleaseChecks": {
@@ -170,9 +216,30 @@
       "height": 844,
       "scrollWidth": 390
     },
-    "surface": "actual deployed sign-in page",
-    "authenticatedUi": "Google account chooser input timed out under browser automation; owner check still required",
-    "privateScreenshots": "H:/GTOP-Local-AI/pilot-runtime/production/release-qa"
+    "surface": "Final authenticated hosted paper and separate answer views; native print dialog not inspected",
+    "authenticatedUi": "Verified same-origin Google sign-in, real production conversation, private paper/answers and immutable revision in final hosted release",
+    "privateScreenshots": "H:/GTOP-Local-AI/pilot-runtime/production/release-qa",
+    "finalDesktop": {
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "questions": 38,
+      "workedAnswers": 42,
+      "documentRevision": 2
+    },
+    "finalPhone": {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "questions": 38,
+      "studentAnswerBlocks": 0,
+      "documentRevision": 2
+    },
+    "finalTablet": {
+      "width": 900,
+      "height": 1100,
+      "scrollWidth": 900
+    }
   },
   "localCloudCli": {
     "version": "590.0.1",
@@ -201,5 +268,32 @@
     "applied": true,
     "idleProcessIdentityChecked": true,
     "newPid": 163544
+  },
+  "frontendCorrections": [
+    {
+      "commit": "82f68f718a7a827972b14fcc822a08b0b6a8ea7e",
+      "run": 40093896594,
+      "verification": "success",
+      "hosting": "success",
+      "backend": "skipped",
+      "purpose": "same-origin Google redirect"
+    },
+    {
+      "commit": "fd7834536a3802b99cc491fc578197a9e54e656d",
+      "run": 40095388608,
+      "verification": "success",
+      "hosting": "success",
+      "backend": "skipped",
+      "purpose": "student-facing instructions and controller revision presentation"
+    }
+  ],
+  "controllerIntentCorrection": {
+    "commit": "a1f5789b7c52170ff638b20b8c0300f98d29293e",
+    "run": 40094043914,
+    "windowsTestsPassed": 18,
+    "verification": "success",
+    "backend": "skipped",
+    "hosting": "skipped",
+    "greetingsCannotAuthorizeGeneration": true
   }
 }

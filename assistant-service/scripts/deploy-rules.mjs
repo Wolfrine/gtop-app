@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import {applicationDefault} from 'firebase-admin/app';
-import {withoutWorkerFirestoreRule,withoutWorkerDatabaseRule} from './release-scope.mjs';
+import {withoutWorkerFirestoreRule,withoutWorkerDatabaseRule,parseRulesJson} from './release-scope.mjs';
 import {isDeepStrictEqual} from 'node:util';
 
 const project='gtop-app';
 assert.equal(process.env.GITHUB_REF,'refs/heads/main','Scoped rules deployment requires main.');
 const token=(await applicationDefault().getAccessToken()).access_token;
-async function get(url){const r=await fetch(url,{headers:{Authorization:'Bearer '+token},signal:AbortSignal.timeout(30000)});assert(r.ok,'Read-only rule prerequisite failed: HTTP '+r.status);return r.json();}
+async function get(url){const r=await fetch(url,{headers:{Authorization:'Bearer '+token},signal:AbortSignal.timeout(30000)});assert(r.ok,'Read-only rule prerequisite failed: HTTP '+r.status);return parseRulesJson(await r.text());}
 const normalize=s=>s.replace(/\s/g,'');
 const checked=await readFile('gtop-app/firestore.rules','utf8');
 const release=await get('https://firebaserules.googleapis.com/v1/projects/'+project+'/releases/cloud.firestore');

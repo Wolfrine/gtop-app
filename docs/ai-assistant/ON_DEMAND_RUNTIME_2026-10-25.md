@@ -26,6 +26,10 @@ Real installed-model acceptance used the actual worker claim loops and Assistant
 | Planning request, no creation |44.178s|46.726s|50.361s|
 | Follow-up asking the remembered mark total |5.961s|7.532s|12.899s|
 
-These are two observations on this PC, not a general latency benchmark. After each turn `/api/ps` was empty. Whole-machine RAM use during this later test was around80%, showing that other resident applications and current OS accounting affect the overall figure. The original idle model runner was the confirmed largest removable consumer; removing it does not establish that every other process is unnecessary.
+These are two observations on this PC, not a general latency benchmark. After each turn `/api/ps` was empty. Whole-machine RAM use during this later test was around80%, showing that other resident applications and current OS accounting affect the overall figure. A later snapshot showed the user's game running with about4GiB working set, with the model runner absent. Game performance itself was not measured. The original idle model runner was the confirmed largest removable consumer; removing it does not establish that every other process is unnecessary.
 
 Private before/after snapshots, actual prompts/responses, task briefs, release results and cold-start timings remain under `H:/GTOP-Local-AI/pilot-runtime/production/release-qa/on-demand-2026-10-25/`. Protected CI and final production listener readback are recorded below after delivery. No UI, model weights, legacy scheduler or cloud application behavior is changed by this local controller release.
+
+## Production listener readback
+
+The actual Windows launcher was exercised, including corrected PowerShell argument-array quoting and a fail-fast check for immediate child exit. Repeating the launcher against the same configuration correctly refused a duplicate. The final listener process120168 uses one direct Node invocation at below-normal priority; its observed working set was79.1MiB and private memory71.6MiB. Its startup error log was empty. An authoritative worker-document readback at24October21:44:51.823UTC (25October03:14:51.823IST) reported `harness-4-on-demand`, `ready`, `modelReady:false`; `/api/ps` was empty. The production job query was empty before launch. No production acceptance request or new paper was submitted.

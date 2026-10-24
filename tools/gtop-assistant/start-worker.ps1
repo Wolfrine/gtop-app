@@ -17,8 +17,9 @@ $errPath=Join-Path $settings.dataDirectory 'worker.stderr.log'
 $active=Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'node.exe' -and $_.CommandLine -match 'src[\\/]main\.ts' -and $_.CommandLine.Replace('\','/').Contains($configPath.Replace('\','/')) }
 if($active){throw 'This controller configuration is already running. Inspect the existing process rather than starting a duplicate.'}
 $loaderUri=([System.Uri]$loaderPath).AbsoluteUri
-$workerArguments=@('--import','"'+$loaderUri+'"','"'+(Join-Path $controllerRoot 'src\main.ts')+'"','"'+$configPath+'"')
+$workerArguments=@('--import',('"{0}"' -f $loaderUri),('"{0}"' -f (Join-Path $controllerRoot 'src\main.ts')),('"{0}"' -f $configPath))
 $workerProcess=Start-Process -FilePath $nodeExecutable -ArgumentList $workerArguments -WorkingDirectory $controllerRoot -WindowStyle Hidden -RedirectStandardOutput $outPath -RedirectStandardError $errPath -PassThru
+if($workerProcess.WaitForExit(1500)){throw ('Controller exited during startup. Inspect '+$errPath)}
 $workerProcess.PriorityClass='BelowNormal'
 @{pid=$workerProcess.Id;startedAt=(Get-Date).ToUniversalTime().ToString('o');config=$configPath;stdout=$outPath;stderr=$errPath} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $settings.dataDirectory 'process.json') -Encoding utf8
 Write-Output ('Controller started as process '+$workerProcess.Id+'. Readiness is reported by the application.')

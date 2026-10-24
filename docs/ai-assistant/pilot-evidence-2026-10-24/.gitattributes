@@ -1,2 +1,2 @@
 # Preserve byte-for-byte prompt/event evidence and its SHA256 manifest.
-* -text
+* -text whitespace=cr-at-eol

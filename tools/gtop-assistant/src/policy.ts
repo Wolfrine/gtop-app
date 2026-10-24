@@ -7,11 +7,12 @@ export function selectContext(job:any){
   const qmatch=job.request.text.match(/(?:question|ques|q\.?|प्रश्न)\s*(\d+)/i);
   const latest=job.context?.latestPaper;
   const questions=latest?.sections?.flatMap((s:any)=>s.questions) || [];
-  const paper=latest?{id:latest.id,title:latest.title,revision:latest.revision,requirements:latest.requirements,questions:qmatch?questions.filter((q:any)=>q.number===Number(qmatch[1])):questions.map((q:any)=>({number:q.number,chapter:q.chapter,marks:q.marks,question:q.question.slice(0,160)}))}:null;
+  const paper=latest?{id:latest.id,title:latest.title,revision:latest.revision,questions:qmatch?questions.filter((q:any)=>q.number===Number(qmatch[1])):questions.map((q:any)=>({number:q.number,chapter:q.chapter,marks:q.marks,question:q.question.slice(0,160)}))}:null;
   // Keep useful assistant clarification and explanation turns; execution claims are not memory facts.
   const recent:any[]=[];let budget=11500;
-  for(const m of [...job.history].reverse()){const item={role:m.role,text:m.text,id:m.id};if(item.role==='system'||(item.role==='assistant'&&/deployed|(?:paper|job|file).{0,30}(?:ready|started|completed|running)/i.test(item.text)))continue;const size=JSON.stringify(item).length;if(size>budget)continue;recent.unshift(item);budget-=size;}
-  return {originalCurrentRequest:job.request,rootRequest:job.rootRequest,relevantConversation:recent,explicitMemory:job.profile,requirements:job.context?.activeRequirements || defaults,latestPaper:paper,currentExecutionFacts:{permissions:job.controllerFacts.permissions,activePaperJob:job.controllerFacts.activePaperJob,availableData:{bankConnector:job.controllerFacts.availableData?.bankConnector,curriculumId:job.context?.curriculum?.id}}};
+  for(const m of [...job.history].reverse()){const item={role:m.role,text:m.text,id:m.id};if(m.id===job.request.id||item.role==='system'||(item.role==='assistant'&&/deployed|(?:paper|job|file).{0,30}(?:ready|started|completed|running)/i.test(item.text)))continue;const size=JSON.stringify(item).length;if(size>budget)continue;recent.unshift(item);budget-=size;}
+  const active=job.controllerFacts.activePaperJob;
+  return {originalCurrentRequest:{id:job.request.id,text:job.request.text},rootRequest:{id:job.rootRequest.id,text:job.rootRequest.text},relevantConversation:recent,explicitMemory:job.profile,requirements:job.context?.activeRequirements || defaults,latestPaper:paper,currentExecutionFacts:{permissions:job.controllerFacts.permissions,activePaperJob:active?{state:active.state,phase:active.phase,elapsedSeconds:active.elapsedSeconds}:null,availableData:{bankConnector:job.controllerFacts.availableData?.bankConnector,curriculumId:job.context?.curriculum?.id}}};
 }
 const clipped=(v:string,bytes:number)=>{let out='';for(const c of v){if(Buffer.byteLength(out+c)>bytes)break;out+=c;}return out;};
 export function boundedContext(job:any,maxBytes:number){

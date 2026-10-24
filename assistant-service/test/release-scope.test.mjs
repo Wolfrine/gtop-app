@@ -1,6 +1,10 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {assistantOnlyRelease,withoutWorkerDatabaseRule,parseRulesJson,equivalentDatabaseRules} from '../scripts/release-scope.mjs';
+import {assistantOnlyRelease,withoutWorkerDatabaseRule,parseRulesJson,equivalentDatabaseRules,firestoreRuleSource} from '../scripts/release-scope.mjs';
+test('Firestore source selects bare or uploaded path names and rejects missing or ambiguous sources',()=>{
+  for(const name of ['firestore.rules','gtop-app/firestore.rules','gtop-app\\firestore.rules'])assert.equal(firestoreRuleSource({source:{files:[{name,content:'rules source'}]}}),'rules source');
+  for(const files of [[],[{name:'unrelated.rules',content:'x'}],[{name:'firestore.rules',content:''}],[{name:'firestore.rules',content:'x'},{name:'other/firestore.rules',content:'y'}]])assert.throws(()=>firestoreRuleSource({source:{files}}));
+});
 const oldFirestore="function signedIn(){return request.auth != null;}";
 const newFirestore="function signedIn(){return request.auth != null\n && request.auth.token.get('assistantWorker', false) != true;}";
 const oldDatabase=JSON.stringify({rules:{activeUsers:{'.read':'auth != null',$uid:{'.write':'auth != null','.validate':'existing validation'}}}});

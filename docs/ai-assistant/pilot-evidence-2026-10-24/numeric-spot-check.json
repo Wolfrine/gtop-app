@@ -1,0 +1,77 @@
+{
+  "method": "Manually transcribed givens and formulae from actual questions; numeric answer extraction; independent JavaScript arithmetic",
+  "checks": [
+    {
+      "question": 22,
+      "quantity": "conductivity_S_per_cm",
+      "computed": 0.002,
+      "reported": 0.002,
+      "passed": true
+    },
+    {
+      "question": 22,
+      "quantity": "molar_conductivity_S_cm2_per_mol",
+      "computed": 100,
+      "reported": 100,
+      "passed": true
+    },
+    {
+      "question": 36,
+      "quantity": "molality_mol_per_kg",
+      "computed": 0.13333333333333333,
+      "reported": 0.1333,
+      "passed": true
+    },
+    {
+      "question": 36,
+      "quantity": "molar_mass_g_per_mol",
+      "computed": 90,
+      "reported": 90,
+      "passed": true
+    },
+    {
+      "question": 36,
+      "quantity": "osmotic_pressure_atm",
+      "computed": 2.463,
+      "reported": 2.463,
+      "passed": true
+    },
+    {
+      "question": 37,
+      "quantity": "cell_potential_V",
+      "computed": 1.0704,
+      "reported": 1.0704,
+      "passed": true
+    },
+    {
+      "question": 37,
+      "quantity": "copper_mass_g",
+      "computed": 0.635,
+      "reported": 0.635,
+      "passed": true
+    },
+    {
+      "question": 38,
+      "quantity": "rate_constant_per_min",
+      "computed": 0.03465,
+      "reported": 0.03465,
+      "passed": true
+    },
+    {
+      "question": 38,
+      "quantity": "half_life_min",
+      "computed": 20,
+      "reported": 20,
+      "passed": true
+    },
+    {
+      "question": 38,
+      "quantity": "initial_rate_mol_per_L_min",
+      "computed": 0.002772,
+      "reported": 0.0027719999999999997,
+      "passed": true
+    }
+  ],
+  "academicApproval": false,
+  "limitations": "Selected numerical values only; does not verify all chemistry, balance every reaction, assess difficulty or establish teacher acceptance."
+}

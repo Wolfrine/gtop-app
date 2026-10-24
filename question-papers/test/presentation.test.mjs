@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {pollingDelay,phaseLabel,workerPresentation,readableError,artifactKind,visibleJobs,formatAssistantText} from '../src/presentation.mjs';
 import {artifactPresentationVersion,presentArtifact} from '../src/artifact-presentation.mjs';
 import {createHash} from 'node:crypto';
+import {escapeChatText,renderAssistantFormula} from '../src/chat-math.mjs';
+import {readFileSync} from 'node:fs';
 test('only actual pending states use active polling',()=>{assert.equal(pollingDelay([{state:'running'}]),2000);assert.equal(pollingDelay([{state:'completed'},{state:'failed'}]),15000);assert.equal(pollingDelay([]),15000);});
 test('offline queue does not claim execution or completion',()=>{assert.match(phaseLabel({state:'queued'},true),/waiting/);assert.match(workerPresentation({state:'offline',modelReady:false}).detail,/wait safely/);assert.equal(workerPresentation({state:'ready',modelReady:false}).tone,'waiting');assert.equal(workerPresentation({state:'busy',modelReady:true}).tone,'online');});
 test('status uses fresh facts and maps unrecognized phases safely',()=>{assert.equal(phaseLabel({state:'running',phase:'reviewing',kind:'paper'}),'Reviewing questions and answers');assert.equal(phaseLabel({state:'running',phase:'structure_validation',kind:'paper'}),'Checking structure, marks and coverage');assert.equal(phaseLabel({state:'running',phase:'codex_correcting',kind:'paper'}),'Making corrections');assert.equal(phaseLabel({state:'cancelled',phase:'reviewing'}),'Cancelled');assert.equal(phaseLabel({state:'running',phase:'secret_internal_command',kind:'paper'}),'Working on your paper');});
@@ -46,4 +48,32 @@ test('versioned formula presentation derives a view without changing immutable H
   assert.match(view,/@media print[\s\S]*display:inline; max-width:none; padding-inline-end:0; overflow:visible/);
   assert.match(view,/<body><p>Original question<\/p><span class="katex">long chemical equation<\/span><\/body>/);
   assert(!/<script/i.test(view));
+});
+test('mixed Markdown/math preserves TeX sources then renders bounded KaTeX with local chemistry support',()=>{
+  const raw=String.raw`**Half-life**\n* At $30.0\,\mathrm{min}$, use \(k=\frac{0.693}{t_{1/2}}\).`.replaceAll('\\n','\n');
+  const formatted=formatAssistantText(raw);
+  assert.match(formatted,/<strong>Half-life<\/strong>/);
+  assert.equal((formatted.match(/class="assistant-math-source"/g)||[]).length,2);
+  const rendered=renderAssistantFormula(String.raw`$30.0\,\mathrm{min}$`);
+  assert.equal(rendered.valid,true);assert.match(rendered.html,/class="katex"/);assert.match(rendered.html,/<math/);
+  assert.equal(renderAssistantFormula(String.raw`$\ce{CH3COCH3}$`).valid,true);
+  assert.equal(renderAssistantFormula(String.raw`$$x^2+y^2=z^2$$`).display,true);
+  assert.equal(formatAssistantText(String.raw`Literal \$80 and unfinished $x`),'<p>Literal \\$80 and unfinished $x</p>');
+});
+test('hostile TeX commands, expansion loops and malformed formulas fall back to escaped literal text',()=>{
+  for(const raw of [String.raw`$\href{javascript:alert(1)}{bad}$`,String.raw`$\includegraphics{https://example.invalid/x}$`,String.raw`$\htmlStyle{background:url(x)}{y}$`,String.raw`$\def\boom{\boom}\boom$`,String.raw`$\frac{1}{$`]){
+    const rendered=renderAssistantFormula(raw);assert.equal(rendered.valid,false);assert.equal(rendered.html,escapeChatText(raw));
+  }
+  const withLiteralMarkup=renderAssistantFormula(String.raw`$\text{<script>alert(1)</script>}$`);
+  assert(!/<(?:script|img|a)(?:\s|>)/i.test(withLiteralMarkup.html));
+  const mixed=formatAssistantText('**Safe** $x^2$ <img src=x onerror="alert(1)"> [bad](javascript:alert(2))');
+  assert.match(mixed,/&lt;img src=x/);assert(!/<(?:script|img|a)(?:\s|>)/i.test(mixed));
+});
+test('captured actual local Q6 reply renders every delimited formula without another inference run',()=>{
+  const fixture=JSON.parse(readFileSync(new URL('../src/fixtures/actual-local-q6-reply.json',import.meta.url),'utf8'));
+  assert.equal(fixture.messageId,'6c62f1a9-55b9-44df-91b8-5228e9914160');
+  const sources=[...formatAssistantText(fixture.text).matchAll(/<span class="assistant-math-source">([\s\S]*?)<\/span>/g)].map(match=>match[1].replaceAll('&amp;','&').replaceAll('&lt;','<').replaceAll('&gt;','>').replaceAll('&quot;','"').replaceAll('&#39;',"'"));
+  assert(sources.length>=15);
+  assert(sources.every(source=>renderAssistantFormula(source).valid));
+  assert.match(fixture.text,/30\.0\\,\\mathrm\{min\}/);
 });

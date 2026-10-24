@@ -12,6 +12,7 @@ This is an application integration run with a **synthetic emulator administrator
 | Q6 revision request | Qwen3.5 4B, local interpretation |17.429s (7.554s context reload)|
 | Q6 replacement | Codex gpt-6.1-sol, actual revised content |33.466s|
 | Independent revision review | New Codex invocation |16.998s|
+| Explain revised Q6 in Hindi | Qwen3.5 4B only, two attempts |48.917s|
 
 Times include model calls/CLI startup as recorded, not the entire user wait or later engineering repair. The warm conversation was slower than earlier small synthetic replies; this is the measured application result. Matching model warm-up to8K context avoids the observed4K→8K reload in subsequent startup code; that improvement is not represented as an already measured speedup here.
 
@@ -26,7 +27,10 @@ Observed failures and fixes:
 - Math-heavy rendered answers exceeded the initial850KB raw artifact allowance. Publication failed. Artifacts now use private gzip storage with raw-size/SHA verification. The reviewed result was recovered rather than regenerated.
 - During development, a worker replacement interrupted the first retry before a retained result was delivered. The lease expired and UI exposed retry. Earlier failure-report shape and duplicate retry-card defects were fixed. Only the current task is actionable.
 - Actual chemical equations overflowed phone/tablet answers although synthetic fixtures fit. Versioned presentation CSS contains each wide formula; short formulas remain normal. Source questions, stored HTML and integrity hashes are preserved.
+- The subsequent request explicitly asked for a simple Hindi explanation without changing the paper. Qwen's first response exhausted its1500-token allowance and truncated JSON. The repair returned a correct but verbose Roman Hinglish explanation, taking48.917s in total. The repair had been appended as an English user turn; the controller now keeps repair feedback in the system instruction, preserves the original language and uses a shorter explanation skill (version2). That prompt change has unit/compile checks, not a new measured inference result. Safe chat math rendering was visually checked against the retained actual reply. No Codex invocation or paper change occurred for this explanation.
 
 The subsequent Q6 paper passed controller containment: every other question, section and paper setting stayed equal to the base. The first version's content hash is `2c2cd9a1db0475a91a4832e4eb2309619c62fa3279bfd5e24f2da228228879bb`; the revised hash is `b4a516f4a34a9db96029ac6ee30c31bd7017714ab4112c936ad1fb8ad4246cd9`. A separate deterministic comparison is retained in `independent-containment-check.json`.
+
+`numeric-spot-check.mjs` independently recomputes ten selected numerical values from questions22,36,37 and38; all matched the retained answers. This limited arithmetic check does not constitute complete Chemistry review.
 
 Files were copied from private runtime evidence using an explicit allowlist. Incomplete interrupted retry input is not counted as another completed generation. Hash manifest accompanies the retained files. Production deployment, actual account login and printing acceptance are reported in the release record, independently of these emulator results.

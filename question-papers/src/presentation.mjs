@@ -1,8 +1,10 @@
+import {escapeChatText,protectMathSources} from './chat-math.mjs';
 export const pendingStates = new Set(['queued','running','validating']);
 export function formatAssistantText(value) {
   // Escape model output before recognizing a deliberately tiny formatting grammar.
   // Never parse links, images, attributes, raw HTML, or executable Markdown.
-  const escaped=String(value ?? '').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const protectedMath=protectMathSources(value);
+  const escaped=escapeChatText(protectedMath.text);
   const strong=text=>text.replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
   const blocks=[];let paragraph=[],bullets=[];
   const flushParagraph=()=>{if(paragraph.length){blocks.push('<p>'+paragraph.map(strong).join('<br>')+'</p>');paragraph=[];}};
@@ -13,7 +15,7 @@ export function formatAssistantText(value) {
     if(bullet){flushParagraph();bullets.push(bullet[1]);}
     else{flushBullets();paragraph.push(line);}
   }
-  flushParagraph();flushBullets();return blocks.join('');
+  flushParagraph();flushBullets();return protectedMath.restore(blocks.join(''));
 }
 export function visibleJobs(detail) {
   if(!detail)return [];

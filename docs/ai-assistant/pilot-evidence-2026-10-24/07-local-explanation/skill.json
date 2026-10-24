@@ -1,0 +1,6 @@
+{
+  "name": "explain-paper",
+  "version": 1,
+  "sha256": "78e65ec5ff091453e38c0f706c3262d1ba42ea3c88323a30e1b0d22a28358af1",
+  "text": "# Explain paper · version 1\n\nUse the gateway-selected owned paper and question. Explain the supplied worked answer naturally in the user's conversation language, distinguishing it from the paper's language. Clarify which question if absent. State uncertainty when the supplied data is insufficient. Do not invent a new paper, a source, an answer or an execution state. Substantial new content requires the reviewed paper workflow; this lightweight explanation is not independent academic approval.\n"
+}

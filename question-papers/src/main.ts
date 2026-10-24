@@ -7,10 +7,11 @@ import { AssistantApi } from './api.service';
 import { Conversation, ConversationDetail, Job, PaperSummary, PilotSession, Transport } from './contracts';
 import { getDevTransport } from './dev-transport';
 import { presentArtifact } from './artifact-presentation.mjs';
+import { ChatMathDirective } from './chat-math.directive';
 import { formatAssistantText, idForRequest, pendingStates, phaseLabel, pollingDelay, readableError, visibleJobs, workerPresentation } from './presentation.mjs';
 
 @Component({
-  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./workspace.html'
+  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective],templateUrl:'./workspace.html'
 })
 class PaperWorkspace implements OnInit,OnDestroy {
   private api=inject(AssistantApi);private sanitizer=inject(DomSanitizer);

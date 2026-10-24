@@ -2,8 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import {applicationDefault} from 'firebase-admin/app';
-import {withoutWorkerFirestoreRule,withoutWorkerDatabaseRule,parseRulesJson,equivalentDatabaseRules} from './release-scope.mjs';
-import {isDeepStrictEqual} from 'node:util';
+import {withoutWorkerFirestoreRule,withoutWorkerDatabaseRule,parseRulesJson,equivalentDatabaseRules,firestoreRuleSource} from './release-scope.mjs';
 
 const project='gtop-app';
 assert.equal(process.env.GITHUB_REF,'refs/heads/main','Scoped rules deployment requires main.');
@@ -13,7 +12,7 @@ const normalize=s=>s.replace(/\s/g,'');
 const checked=await readFile('gtop-app/firestore.rules','utf8');
 const release=await get('https://firebaserules.googleapis.com/v1/projects/'+project+'/releases/cloud.firestore');
 const ruleset=await get('https://firebaserules.googleapis.com/v1/'+release.rulesetName);
-const live=ruleset.source.files.find(f=>f.name==='firestore.rules')?.content;assert(live,'Live Firestore source unavailable.');
+const live=firestoreRuleSource(ruleset);
 assert([normalize(checked),normalize(withoutWorkerFirestoreRule(checked))].includes(normalize(live)),'Unrelated live Firestore rule drift blocks assistant-only deployment.');
 
 // The new worker must gain no legacy Storage access from its Firebase token.
@@ -46,6 +45,6 @@ if(!equivalentDatabaseRules(liveDatabase,checkedDatabase)&&!equivalentDatabaseRu
 await new Promise((resolve,reject)=>{const p=spawn('npx',['--yes','firebase-tools@15','deploy','--project',project,'--config','firebase.assistant.json','--only','firestore:rules,database','--non-interactive'],{stdio:'inherit'});p.on('error',reject);p.on('exit',code=>code===0?resolve():reject(Error('Scoped rules deployment failed: '+code)));});
 const readbackRelease=await get('https://firebaserules.googleapis.com/v1/projects/'+project+'/releases/cloud.firestore');
 const readback=await get('https://firebaserules.googleapis.com/v1/'+readbackRelease.rulesetName);
-assert.equal(normalize(readback.source.files.find(f=>f.name==='firestore.rules').content),normalize(checked));
+assert.equal(normalize(firestoreRuleSource(readback)),normalize(checked));
 assert(equivalentDatabaseRules(await get(database.databaseUrl.replace(/\/$/,'')+'/.settings/rules.json'),checkedDatabase));
 console.log('Verified only worker-claim privilege reductions in Firestore/Realtime Database; existing server-only Storage rules inspected and unchanged.');

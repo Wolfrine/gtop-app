@@ -1,10 +1,11 @@
 import { Conversation, ConversationDetail, Job, Message, PaperSummary, Transport } from './contracts';
+import actualQ6 from './fixtures/actual-local-q6-reply.json';
 
 // Development-only, localhost-only visual fixtures. Angular production replaces this entire file.
 export function getDevTransport():{transport:Transport;scenario:string}|null {
   const scenario=new URLSearchParams(location.search).get('fixture');
   if(!['localhost','127.0.0.1','[::1]'].includes(location.hostname) || !scenario)return null;
-  if(!['empty','working','ready','offline','error','long','clarify','revisions','retry-chain','formatting'].includes(scenario))return null;
+  if(!['empty','working','ready','offline','error','long','clarify','revisions','retry-chain','formatting','math'].includes(scenario))return null;
   return {transport:new FixtureTransport(scenario),scenario};
 }
 class FixtureTransport implements Transport {
@@ -17,6 +18,11 @@ class FixtureTransport implements Transport {
     if(scenario==='empty')return;
     this.messages=[this.message('user','Create a full-syllabus Class 12 Chemistry practice paper for 80 marks. Include internal choices and separate worked answers.'),this.message('assistant',scenario==='clarify'?'I can help with that. Would you like the worked answers in English, Hindi or Hinglish?':'I’ll prepare an 80-mark Growth Tutorials practice paper covering all 10 chapters, with internal choices and separate worked answers in English. This is a custom practice paper; the official CBSE theory paper is 70 marks.')];
     if(scenario==='formatting')this.messages=[this.message('user','Keep **my original wording** and <b>literal markup</b> unchanged.'),this.message('assistant','**Your paper details**\nI can help you refine these requirements.\n\n* **Class:** 12 Chemistry\n* **Marks:** 80\n- Answers in हिन्दी or Hinglish are available.\n\nLiteral untrusted text stays visible:\n<img src=x onerror="alert(1)">\n<script>alert(2)</script>\n[unsafe link](javascript:alert(3))')];
+    if(scenario==='math')this.messages=[this.message('user',actualQ6.request.text),this.message('assistant',actualQ6.text),this.message('assistant',String.raw`**Additional synthetic rendering checks**
+
+Malformed math stays literal: $\frac{1}{$
+Untrusted commands stay literal: $\href{javascript:alert(1)}{bad}$
+Literal HTML stays inert: <img src=x onerror="alert(1)">` )];
     if(scenario==='long')this.messages.push(this.message('user','Please make the reasoning questions more challenging, but keep the marks and syllabus coverage the same.'),this.message('assistant','I’ll preserve the total marks and chapter coverage while making the reasoning more demanding. I’ll keep your existing paper unchanged and create a new revision.\n\nFor the Electrochemistry questions, I’ll ask students to connect cell potential with reaction feasibility. In Coordination Compounds, I’ll include interpretation of structures and bonding. The worked answers will explain the reasoning as well as award marks for each step.\n\nYou can continue discussing changes here while the paper is being prepared.'));
     if(scenario==='working'||scenario==='offline')this.jobs=[this.job(scenario==='offline'?'queued':'running',scenario==='offline'?'queued':'reviewing')];
     if(scenario==='error')this.jobs=[{...this.job('failed','generating'),error:'The connection was interrupted before the paper finished. No incomplete paper was published.'}];

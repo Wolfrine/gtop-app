@@ -1,4 +1,10 @@
 import {isDeepStrictEqual} from 'node:util';
+/** Firebase may preserve the configured path in uploaded source filenames. */
+export function firestoreRuleSource(ruleset){
+  const matches=(ruleset?.source?.files || []).filter(file=>typeof file.name==='string'&&file.name.replaceAll('\\','/').split('/').at(-1)==='firestore.rules');
+  if(matches.length!==1||typeof matches[0].content!=='string'||!matches[0].content.trim())throw Error('Expected exactly one nonempty Firestore rule source.');
+  return matches[0].content;
+}
 /** RTDB returns its commented JSON rules source, rather than strict JSON. No evaluation. */
 export function parseRulesJson(source){
   let out='',quoted=false,escaped=false;

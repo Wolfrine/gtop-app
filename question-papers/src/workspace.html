@@ -54,7 +54,7 @@
         <div class="conversation-content" *ngIf="detail?.messages?.length">
           <article *ngFor="let message of detail?.messages" class="message" [class.user-message]="message.role==='user'" [class.system-message]="message.role==='system'">
             <span class="message-avatar" [class.teacher-avatar]="message.role==='user'" aria-hidden="true">{{message.role==='user'?initials():'G'}}</span>
-            <div class="message-body"><div class="message-byline"><strong>{{message.role==='user'?'You':message.role==='system'?'Workspace':'GTOP assistant'}}</strong><time [attr.datetime]="message.createdAt">{{relativeTime(message.createdAt)}}</time></div><div *ngIf="message.role==='assistant';else verbatimMessage" class="assistant-text" [innerHTML]="assistantText(message.text)"></div><ng-template #verbatimMessage><p>{{message.text}}</p></ng-template></div>
+            <div class="message-body"><div class="message-byline"><strong>{{message.role==='user'?'You':message.role==='system'?'Workspace':'GTOP assistant'}}</strong><time [attr.datetime]="message.createdAt">{{relativeTime(message.createdAt)}}</time></div><div *ngIf="message.role==='assistant';else verbatimMessage" class="assistant-text" [innerHTML]="assistantText(message.text)" [assistantMath]="message.text"></div><ng-template #verbatimMessage><p>{{message.text}}</p></ng-template></div>
           </article>
 
           <section *ngFor="let job of paperJobs" class="job-status" [class.failed]="job.state==='failed'" [class.finished]="job.state==='completed'||job.state==='review_required'" aria-label="Request progress" aria-live="polite">

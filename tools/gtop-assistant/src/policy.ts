@@ -66,7 +66,16 @@ export function route(job:any,p:any){
   if(/^(?:why|how|क्यों|कैसे).{0,60}(?:change|revis|replace|बदल)/i.test(t))return {action:'explain_paper',reply:p.reply};
   if(/\b(?:status|progress|how long|finished|ready yet)\b|कहाँ तक|कितना समय/i.test(t))return {action:'status',reply:statusReply(job)};
   let action=p.action;
-  if(/(?:create|generate|prepare|बनाओ|बना दो|बनाइए).{0,80}(?:paper|प्रश्नपत्र)|(?:paper|प्रश्नपत्र).{0,50}(?:बनाओ|बना दो|बनाइए)/i.test(t))action='generate_paper';
+  const creationIntent=(text:string)=>/(?:create|generate|prepare|make|want|need|बनाओ|बना दो|बनाइए|बनाना|चाहिए).{0,100}(?:paper|प्रश्नपत्र)|(?:paper|प्रश्नपत्र).{0,65}(?:banana|banao|banaiye|chahiye|banwa|बनाओ|बना दो|बनाइए|बनाना|चाहिए)/i.test(text);
+  const explicitCreation=creationIntent(t);
+  if(explicitCreation)action='generate_paper';
+  if(action==='generate_paper'&&!explicitCreation){
+    const previous=(job.history || []).filter((m:any)=>m.id!==job.request.id);
+    const priorUser=[...previous].reverse().find((m:any)=>m.role==='user');
+    const priorAssistant=[...previous].reverse().find((m:any)=>m.role==='assistant')?.text || '';
+    const answersClarification=/^\s*(?:yes(?: please)?|go ahead|proceed|confirmed?|Hindi|English|हिंदी|हाँ|हां|जी|\d{2,3}(?:\s*marks?)?)\s*[.!]?\s*$/i.test(t)&&/(?:\?|confirm|which|language|marks|भाषा|अंक)/i.test(priorAssistant)&&priorUser&&creationIntent(priorUser.text);
+    if(!answersClarification)return {action:'clarify',reply:'What would you like help with? I can create a CBSE Class 12 Chemistry practice paper, discuss requirements, or explain a question. Please tell me when you want a paper created.'};
+  }
   const revisionIntent=/(?:^|[.!?]\s*|please\s+|you\s+)(?:revise|replace|change|make\b)|बदलो|बदल दो|बदल दीजिए|कठिन.{0,15}(?:करो|कर दो|बनाओ)/i.test(t);
   if(job.context?.latestPaper&&revisionIntent)action='revise_paper';
   if(action==='revise_paper'&&!revisionIntent)return {action:'clarify',reply:'Please state the change you want to make. I have not started a revision.'};

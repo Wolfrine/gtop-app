@@ -9,7 +9,7 @@ export function outputSchemas(pinned:any,requirements:any={}){
   paper.properties.scope={type:'string',enum:['full_syllabus']};
   for(const k of ['marks','durationMinutes','questionLanguage','answerLanguage'])if(requirements[k]!==undefined)paper.properties[k]={...paper.properties[k],enum:[requirements[k]]};
 paper.properties.sections.items.properties.questions.items.properties.chapter=chapter;
-  const source=paper.properties.sourceReferences.items.properties;source.id={type:'string',enum:[pinned.id]};source.url={type:'string',enum:[pinned.url]};
+  const source=paper.properties.sourceReferences.items.properties;source.id={type:'string',enum:[pinned.id]};source.url={type:'string',enum:[pinned.url]};source.title={type:'string',enum:[String(pinned.title||'Selected GTOP curriculum').slice(0,250)]};
   const revision=structuredClone(revisionSchema);revision.properties.question.properties.chapter=chapter;
   return {paper,revision};
 }

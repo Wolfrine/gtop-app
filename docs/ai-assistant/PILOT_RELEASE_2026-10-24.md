@@ -1,6 +1,10 @@
 # Question Paper pilot release record — 24 October 2026
 
-## Latest: authenticated production journey delivered
+## Current: capability-aware assistant and Classes5–12
+
+See the [curriculum expansion and live acceptance record](CURRICULUM_EXPANSION_2026-10-24.md). The assistant now describes the complete service, selects saved curricula for configured GTOP boards/Classes5–12, and checks official sources on request with explicit source/coverage limits. Real Class5 and Class10 papers and a Class10 Q6-only revision were delivered. Hosting is `19d5067`, gateway `ba306c6`; later controller-only changes passed required checks without another cloud deployment. Native print and teacher acceptance remain open. Earlier Chemistry records below are retained as dated evidence, not the latest scope or deployed version.
+
+## Earlier: authenticated Chemistry journey delivered
 
 See the [production acceptance record](PRODUCTION_ACCEPTANCE_2026-10-24.md) for the current result, exact acceptance messages and measured stage timings. Google sign-in, a reviewed 80-mark full-syllabus paper, separate student/worked-answer documents, retained-result delivery recovery and a Question 6-only immutable revision were exercised in the hosted app. Hosting is now `fd7834536a3802b99cc491fc578197a9e54e656d`; gateway `d5e5046` was preserved. Controller `a1f5789` runs as manual process172756. Both frontend correction releases deployed Hosting only, and the controller-only release skipped both cloud deployments.
 

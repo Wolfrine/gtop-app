@@ -39,15 +39,24 @@ test('versioned formula presentation derives a view without changing immutable H
   const original='<!doctype html><html><head><style>.katex{font-size:1em}</style></head><body><p>Original question</p><span class="katex">long chemical equation</span></body></html>';
   const hash=createHash('sha256').update(original).digest('hex');
   const view=presentArtifact(original);
-  assert.equal(artifactPresentationVersion,1);
+  assert.equal(artifactPresentationVersion,2);
   assert.equal(createHash('sha256').update(original).digest('hex'),hash);
-  assert.match(view,/data-presentation-version="1"/);
+  assert.match(view,/data-presentation-version="2"/);
   assert(view.indexOf('gtop-artifact-presentation')<view.indexOf('</head>'));
   assert.match(view,/@media screen[\s\S]*overflow-x:auto/);
   assert.match(view,/padding-inline-end:\.35em/);
   assert.match(view,/@media print[\s\S]*display:inline; max-width:none; padding-inline-end:0; overflow:visible/);
   assert.match(view,/<body><p>Original question<\/p><span class="katex">long chemical equation<\/span><\/body>/);
   assert(!/<script/i.test(view));
+});
+
+test('exam view removes actual schema directions and uses the controller revision without editing questions or stored content',()=>{
+  const original='<html><head></head><body><h1>Chemistry, Version 1</h1><ol class="instructions"><li>Attempt all 38 questions.</li><li>Separate answers use markingPoints and answer fields.</li><li>This corrected version addresses the independent content review.</li></ol><article class="question">Which fields change? $x^2$</article></body></html>';
+  const before=createHash('sha256').update(original).digest('hex');const view=presentArtifact(original,2);
+  assert.match(view,/<h1>Chemistry<\/h1><div class="gtop-document-revision">Document revision 2<\/div>/);
+  assert.match(view,/<ol class="instructions"><li>Attempt all 38 questions.<\/li><\/ol>/);
+  assert.match(view,/<article class="question">Which fields change\? \$x\^2\$<\/article>/);
+  assert.equal(createHash('sha256').update(original).digest('hex'),before);
 });
 test('mixed Markdown/math preserves TeX sources then renders bounded KaTeX with local chemistry support',()=>{
   const raw=String.raw`**Half-life**\n* At $30.0\,\mathrm{min}$, use \(k=\frac{0.693}{t_{1/2}}\).`.replaceAll('\\n','\n');

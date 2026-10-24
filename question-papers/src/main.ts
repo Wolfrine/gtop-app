@@ -83,7 +83,7 @@ class PaperWorkspace implements OnInit,OnDestroy {
   relativeTime(value:string){const date=new Date(value);if(Number.isNaN(date.getTime()))return '';const minutes=Math.floor((Date.now()-date.getTime())/60000);if(minutes<1)return 'Just now';if(minutes<60)return minutes+' min ago';if(minutes<1440)return date.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});return date.toLocaleDateString('en-IN',{day:'numeric',month:'short'});}
   initials(){return (this.user?.displayName || this.user?.email || 'Teacher').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();}
   async showDocument(paper:PaperSummary,kind:'student'|'answers'){
-    const request=++this.documentRequest;this.documentLoading=true;this.error='';try{const html=await this.transport.artifact(paper.id,kind);if(request!==this.documentRequest)return;this.releaseDocument();this.document={paper,kind,safe:this.sanitizer.bypassSecurityTrustHtml(presentArtifact(html))};}catch(e){this.error=readableError(e);}finally{if(request===this.documentRequest)this.documentLoading=false;}
+    const request=++this.documentRequest;this.documentLoading=true;this.error='';try{const html=await this.transport.artifact(paper.id,kind);if(request!==this.documentRequest)return;this.releaseDocument();this.document={paper,kind,safe:this.sanitizer.bypassSecurityTrustHtml(presentArtifact(html,paper.revision))};}catch(e){this.error=readableError(e);}finally{if(request===this.documentRequest)this.documentLoading=false;}
   }
   closeDocument(){++this.documentRequest;this.documentLoading=false;this.releaseDocument();}
   private releaseDocument(){this.document=undefined;}

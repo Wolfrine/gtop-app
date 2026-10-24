@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import {applicationDefault} from 'firebase-admin/app';
-import {withoutWorkerFirestoreRule,withoutWorkerDatabaseRule,parseRulesJson} from './release-scope.mjs';
+import {withoutWorkerFirestoreRule,withoutWorkerDatabaseRule,parseRulesJson,equivalentDatabaseRules} from './release-scope.mjs';
 import {isDeepStrictEqual} from 'node:util';
 
 const project='gtop-app';
@@ -36,11 +36,14 @@ const checkedDatabase=JSON.parse(await readFile('gtop-app/database.rules.json','
 const instances=await get('https://firebasedatabase.googleapis.com/v1beta/projects/'+project+'/locations/-/instances');
 const database=(instances.instances || []).find(i=>i.type==='DEFAULT_DATABASE');assert(database?.databaseUrl,'Existing default Realtime Database must be located.');
 const liveDatabase=await get(database.databaseUrl.replace(/\/$/,'')+'/.settings/rules.json');
-assert(isDeepStrictEqual(liveDatabase,checkedDatabase)||isDeepStrictEqual(liveDatabase,withoutWorkerDatabaseRule(JSON.stringify(checkedDatabase))),'Unrelated live Realtime Database rule drift blocks deployment.');
+if(!equivalentDatabaseRules(liveDatabase,checkedDatabase)&&!equivalentDatabaseRules(liveDatabase,withoutWorkerDatabaseRule(JSON.stringify(checkedDatabase)))){
+  console.log('Live rule source for access-policy review (rules only, no user data):',JSON.stringify(liveDatabase));
+  throw Error('Unrelated live Realtime Database rule drift blocks deployment. Review the actual policy before changing it.');
+}
 
 await new Promise((resolve,reject)=>{const p=spawn('npx',['--yes','firebase-tools@15','deploy','--project',project,'--config','firebase.assistant.json','--only','firestore:rules,database','--non-interactive'],{stdio:'inherit'});p.on('error',reject);p.on('exit',code=>code===0?resolve():reject(Error('Scoped rules deployment failed: '+code)));});
 const readbackRelease=await get('https://firebaserules.googleapis.com/v1/projects/'+project+'/releases/cloud.firestore');
 const readback=await get('https://firebaserules.googleapis.com/v1/'+readbackRelease.rulesetName);
 assert.equal(normalize(readback.source.files.find(f=>f.name==='firestore.rules').content),normalize(checked));
-assert(isDeepStrictEqual(await get(database.databaseUrl.replace(/\/$/,'')+'/.settings/rules.json'),checkedDatabase));
+assert(equivalentDatabaseRules(await get(database.databaseUrl.replace(/\/$/,'')+'/.settings/rules.json'),checkedDatabase));
 console.log('Verified only worker-claim privilege reductions in Firestore/Realtime Database; existing server-only Storage rules inspected and unchanged.');

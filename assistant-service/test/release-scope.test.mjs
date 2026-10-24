@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {assistantOnlyRelease,withoutWorkerDatabaseRule,parseRulesJson} from '../scripts/release-scope.mjs';
+import {assistantOnlyRelease,withoutWorkerDatabaseRule,parseRulesJson,equivalentDatabaseRules} from '../scripts/release-scope.mjs';
 const oldFirestore="function signedIn(){return request.auth != null;}";
 const newFirestore="function signedIn(){return request.auth != null\n && request.auth.token.get('assistantWorker', false) != true;}";
 const oldDatabase=JSON.stringify({rules:{activeUsers:{'.read':'auth != null',$uid:{'.write':'auth != null','.validate':'existing validation'}}}});
@@ -19,4 +19,9 @@ test('assistant-only exact security prerequisite avoids core promotion while arb
 test('live commented RTDB rule JSON parses without altering strings or accepting malformed source',()=>{
   assert.deepEqual(parseRulesJson('{\n// live comment\n"rules": {/* block */".read":"auth != null", "url":"https://example.test/a//b", "quote":"\\\"/*literal*/"}}'),{rules:{'.read':'auth != null',url:'https://example.test/a//b',quote:'"/*literal*/'}});
   assert.throws(()=>parseRulesJson('{/* unterminated'));assert.throws(()=>parseRulesJson('{"rules": nope}'));
+});
+test('rule expression formatting is equivalent while quoted values and human permission changes remain distinct',()=>{
+  assert(equivalentDatabaseRules({rules:{'.read':"auth != null && auth.uid == 'a b'"}},{rules:{'.read':"auth!=null&&auth.uid=='a b'"}}));
+  assert(!equivalentDatabaseRules({rules:{'.read':"auth.uid=='a b'"}},{rules:{'.read':"auth.uid=='ab'"}}));
+  assert(!equivalentDatabaseRules({rules:{'.read':'auth != null'}},{rules:{'.read':'true'}}));
 });

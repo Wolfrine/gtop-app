@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "activeUsers": {
+      ".read": "auth != null && auth.token.assistantWorker !== true",
+      ".write": "auth != null && auth.token.assistantWorker !== true"
+    }
+  }
+}

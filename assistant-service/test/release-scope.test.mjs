@@ -1,4 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {assistantOnlyRelease,withoutWorkerDatabaseRule,parseRulesJson,equivalentDatabaseRules} from '../scripts/release-scope.mjs';
 const oldFirestore="function signedIn(){return request.auth != null;}";
 const newFirestore="function signedIn(){return request.auth != null\n && request.auth.token.get('assistantWorker', false) != true;}";
@@ -24,4 +25,11 @@ test('rule expression formatting is equivalent while quoted values and human per
   assert(equivalentDatabaseRules({rules:{'.read':"auth != null && auth.uid == 'a b'"}},{rules:{'.read':"auth!=null&&auth.uid=='a b'"}}));
   assert(!equivalentDatabaseRules({rules:{'.read':"auth.uid=='a b'"}},{rules:{'.read':"auth.uid=='ab'"}}));
   assert(!equivalentDatabaseRules({rules:{'.read':'auth != null'}},{rules:{'.read':'true'}}));
+});
+test('pilot presence rules preserve the inspected collection-level human baseline exactly',()=>{
+  const config=JSON.parse(readFileSync(new URL('../../firebase.assistant.json',import.meta.url),'utf8'));
+  assert.equal(config.database.rules,'assistant-service/security/worker-database.rules.json');
+  const source=readFileSync(new URL('../security/worker-database.rules.json',import.meta.url),'utf8');
+  assert.deepEqual(withoutWorkerDatabaseRule(source),{rules:{activeUsers:{'.read':'auth != null','.write':'auth != null'}}});
+  const current=JSON.parse(source);assert(current.rules.activeUsers['.read'].includes('assistantWorker !== true'));assert(current.rules.activeUsers['.write'].includes('assistantWorker !== true'));
 });

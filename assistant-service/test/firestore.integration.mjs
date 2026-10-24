@@ -47,7 +47,7 @@ test('actual Auth/Firestore/function endpoint enforces identity, durable ownersh
 });
 
 test('canonical shared rules deny all direct assistant access, including admins and worker claims',async()=>{
-  const env=await initializeTestEnvironment({projectId:project,firestore:{rules:await readFile(new URL('../../gtop-app/firestore.rules',import.meta.url),'utf8')},database:{host:'127.0.0.1',port:9380,rules:await readFile(new URL('../../gtop-app/database.rules.json',import.meta.url),'utf8')}});
+  const env=await initializeTestEnvironment({projectId:project,firestore:{rules:await readFile(new URL('../../gtop-app/firestore.rules',import.meta.url),'utf8')},database:{host:'127.0.0.1',port:9380,rules:await readFile(new URL('../security/worker-database.rules.json',import.meta.url),'utf8')}});
   try{
     await env.withSecurityRulesDisabled(async ctx=>{await setDoc(doc(ctx.firestore(),'users','rules-admin'),{role:'admin'});await setDoc(doc(ctx.firestore(),'assistantConfig','pilot'),{allowedOwnerUids:['rules-admin']});await setDoc(doc(ctx.firestore(),'assistantPapers','rules-paper'),{ownerUid:'rules-admin'});await setDoc(doc(ctx.firestore(),'questions','rules-question'),{question:'Synthetic rule test'});});
     for(const ctx of [env.unauthenticatedContext(),env.authenticatedContext('rules-admin'),env.authenticatedContext('rules-worker',{assistantWorker:true,workerId:'rules-worker'})]){

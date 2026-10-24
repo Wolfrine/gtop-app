@@ -32,7 +32,9 @@ do{
 }while(page);
 assert(storageCount>0,'Configured Firebase Storage policy must be inspected before adding worker identity.');
 
-const checkedDatabase=JSON.parse(await readFile('gtop-app/database.rules.json','utf8'));
+// Live inspection found collection-level presence grants. Preserve that human
+// baseline; the canonical core file's child validation is a separate migration.
+const checkedDatabase=JSON.parse(await readFile('assistant-service/security/worker-database.rules.json','utf8'));
 const instances=await get('https://firebasedatabase.googleapis.com/v1beta/projects/'+project+'/locations/-/instances');
 const database=(instances.instances || []).find(i=>i.type==='DEFAULT_DATABASE');assert(database?.databaseUrl,'Existing default Realtime Database must be located.');
 const liveDatabase=await get(database.databaseUrl.replace(/\/$/,'')+'/.settings/rules.json');

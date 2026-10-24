@@ -8,6 +8,6 @@
   },
   "functions": [{"source":"assistant-service","codebase":"gtop-assistant","runtime":"nodejs22","ignore":["node_modules","test","*-debug.log"]}],
   "firestore": {"rules":"gtop-app/firestore.rules"},
-  "database": {"rules":"gtop-app/database.rules.json"},
+  "database": {"rules":"assistant-service/security/worker-database.rules.json"},
   "emulators": {"auth":{"port":9299},"firestore":{"port":8280},"database":{"port":9380},"functions":{"port":5201},"eventarc":{"port":9300},"ui":{"enabled":false},"singleProjectMode":true}
 }

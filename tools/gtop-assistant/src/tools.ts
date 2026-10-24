@@ -23,6 +23,7 @@ export function groundedReply(job:any,p:any){
   const t=job.request.text, hindi=/हिंदी|हिन्दी|हिंग्लिश|Hindi|Hinglish|samjhao|kaun|honge|kya/i.test(t);
   const active=job.controllerFacts?.activePaperJob;
   const inFlight=active&&['queued','running','validating'].includes(active.state);
+  if(/(?:cancel|stop).{0,25}(?:paper|request|task)|(?:paper|request|task).{0,25}(?:cancel|stop)|रद्द|रोक दो/i.test(t)&&inFlight)return (hindi?'अनुरोध रोकने के लिए “Cancel request” दबाएँ। ':'Use “Cancel request” to stop this task. ')+statusReply(job);
   const arithmetic=t.match(/^\s*(?:calculate|what is|evaluate)\s+([\d.eE+*/^()\s-]+)\??\s*$/i);if(arithmetic)try{return arithmetic[1].trim()+' = '+tools.calculate.run(arithmetic[1]);}catch(e:any){return e.message;}
   if(/(?:which|what|kaun|कौन).{0,35}(?:chapters?|अध्याय)|(?:chapters?|अध्याय).{0,35}(?:cover|होंगे|honge)/i.test(t)){
     const titles=tools.syllabus.run().chapters.map(c=>c.title).join('; ');
@@ -31,6 +32,7 @@ export function groundedReply(job:any,p:any){
   if(p.action==='status')return statusReply(job);
   // Fail closed on unverified execution claims. Conversation may never invent a delivered artifact.
   const claimsDone=/(?:paper|files?|documents?).{0,35}(?:ready|completed|finished|generated)|(?:generated|created|completed).{0,20}(?:paper|files?)|पेपर.{0,20}(?:तैयार|बन गया)/i.test(p.reply || '');
+  if(/(?:cancelled|canceled|stopped|रद्द)/i.test(p.reply || '')&&active?.state!=='cancelled')return statusReply(job);
   const asksToStart=/(?:shall|should|would you|do you want|kya aap).{0,100}(?:generate|codex|create)|(?:ready|तैयार).{0,30}(?:generate|बनाने)/i.test(p.reply || '');
   if((claimsDone&&!job.context?.latestPaper)||(inFlight&&(claimsDone||asksToStart)))return (hindi?'आपका अनुरोध सुरक्षित है। ':'Your request is saved. ')+statusReply(job);
   return p.reply?.trim() || (hindi?'बताइए, मैं आपकी किस तरह मदद करूँ?':'Please tell me what you would like help with.');

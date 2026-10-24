@@ -24,6 +24,8 @@ The 24 October 2026 direction preserves objective practice as GTOP core and give
 
 Question Paper Creation is intended to serve Classes 5–12 across GTOP's configured boards and the appropriate programmes. Class 12 Chemistry was a testing example, not the assistant's product boundary. The assistant speaks for the complete service: it can discuss requirements, arrange reviewed papers and separate answers, revise earlier work, explain questions and report actual progress. It should reuse saved GTOP curricula and check official current sources when requested. Saved chapters alone do not establish current-year completeness; programme, level, examination cohort and textbook differences must be clarified rather than silently selected.
 
+The assistant should be short, sweet and friendly: answer the current question, accept clear requirements and remember details already given. Detailed explanations belong where requested or necessary for the task. Daily conversation reviews should produce evidence and a proposed correction plan for Sachit's confirmation, rather than silently changing behavior. Administrators should be able to find existing papers by board, standard and subject and read their linked discussions, helping them reuse work before requesting another paper. Conversation titles should describe the completed paper.
+
 GTOP's [[Features]] should serve student practice continuity, admin content quality, and Growth Tutorials brand trust. The [[Problems]] page tracks the product problems that should shape future priorities.
 
 ## Source Notes
@@ -34,3 +36,5 @@ GTOP's [[Features]] should serve student practice continuity, admin content qual
 - `raw/2026-10-24-conversational-paper-pilot-approval.md`
 
 - `raw/2026-10-24-paper-assistant-broad-curriculum.md`
+
+- `raw/2026-10-24-classroom-copy-and-assistant-feedback.md`

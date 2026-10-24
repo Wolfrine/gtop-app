@@ -291,3 +291,12 @@ Use it to answer:
 - Evidence boundary: saved chapter availability does not prove current official completeness or teacher acceptance. Programme, level, cohort and textbook ambiguity requires clarification.
 - Project Manager Handoff: expanded implementation, deployment and actual-use evidence remain with Action Plan `QndHjDJw0x3wzzG5szwW` and engineering release records. The deferred paper library remains later scope. No execution checklist was added to the wiki.
 - Curation scope: this new source was read fully and reconciled with Intent. Existing unrelated raw sources were not re-curated.
+
+
+### 2026-10-24 - Finished classroom copy and concise assistant
+
+- Raw source: `raw/2026-10-24-classroom-copy-and-assistant-feedback.md`; processed.
+- Wiki changed: Intent and Question Bank Quality.
+- Durable decisions: student papers/answers must be ready for direct printing; provenance/process caveats stay administrative. Conversation is concise and friendly, retains established details, and daily evidence reviews propose corrections for Sachit's confirmation. The deferred library is now approved for shared admin reference, with descriptive paper-based conversation titles.
+- Evidence boundary: this records requested product behavior, not a claim of completed release, learning benefit or teacher acceptance. Existing raw notes remain historical; unrelated sources were not re-curated.
+- Project Manager Handoff: ordered releases, private evidence, daily review and shared read-only retrieval remain with QndHjDJw0x3wzzG5szwW and EAZaJl5UKPch63ct1oUr. No execution checklist added to the wiki.

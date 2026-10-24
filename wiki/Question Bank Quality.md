@@ -54,6 +54,10 @@ Service labels must reflect actual capabilities. All admins have access; creator
 
 Private activity evidence should help improve this journey: which areas and actions admins use, where operations fail, and approximate active time. It should not create a new reporting task for admins, collect their typed content, or turn activity duration into a productivity ranking. At most a monthly readout is part of the chosen operating routine. A complete returning-admin journey at realistic history volume is the review unit; actual usability and workload improvements remain to be established through usage and feedback.
 
+## Finished Classroom Copies
+
+A generated question paper is a finished document that a teacher can print and give to students directly. Its title, instructions, questions, marks and layout should be suitable for that use without later removal of GTOP syllabus caveats, official-format disclaimers, generation notes or internal review advice. Separate worked answers should be equally usable. Source trust, curriculum completeness and teacher acceptance still matter; keep those administrative facts with the saved paper and discussion, outside the printable copies. Never imply that a custom practice paper was issued by an examination board.
+
 ## Current-Year Curriculum Trust
 
 The founder wants complete current-year syllabus coverage across boards, standards, subjects and chapters, with administrators able to preview official sources, correct omissions and approve what is accurate. This is part of question-bank trust: existing question coverage cannot define the syllabus, because missing questions would then hide missing teaching content.
@@ -89,3 +93,5 @@ When prioritizing product work, question-bank improvements should be favored whe
 - `raw/2026-10-04-paper-chat-bank-first.md`
 - `raw/2026-10-04-returning-admin-paper-journey.md`
 - `raw/2026-10-24-conversational-paper-pilot-approval.md`
+
+- `raw/2026-10-24-classroom-copy-and-assistant-feedback.md`

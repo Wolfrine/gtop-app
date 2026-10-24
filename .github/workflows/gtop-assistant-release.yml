@@ -83,6 +83,9 @@ jobs:
           node-version: 22
       - run: npm ci --omit=dev
         working-directory: assistant-service
+      - name: Load actual gateway with production-only dependencies before deployment
+        run: node scripts/verify-runtime.mjs
+        working-directory: assistant-service
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'

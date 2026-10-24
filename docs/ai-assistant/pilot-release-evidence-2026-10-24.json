@@ -11,7 +11,7 @@
   },
   "gateway": {
     "function": "gtopAssistantGateway",
-    "state": "ACTIVE",
+    "state": "previous successful revision still serves; latest update failed startup",
     "region": "us-central1",
     "runtime": "nodejs22",
     "cpu": 1,
@@ -26,16 +26,23 @@
     "runningController": false,
     "bootstrapStatus": 500,
     "bootstrapErrorCode": "auth/insufficient-permission",
-    "preciseIamDiagnosticRetrieved": false,
-    "signerGrantApplied": false,
+    "preciseIamDiagnosticRetrieved": true,
+    "signerDiagnostic": "2026-10-24T10:53:37.338189Z: Permission 'iam.serviceAccounts.signBlob' denied on resource (or it may not exist)",
+    "signerGrantApplied": true,
+    "signerGrant": {"approvedBy":"Sachit in active conversation","method":"signed-in Chrome Google Cloud console","resource":"projects/gtop-app/serviceAccounts/78765581239-compute@developer.gserviceaccount.com","member":"serviceAccount:78765581239-compute@developer.gserviceaccount.com","role":"roles/iam.serviceAccountTokenCreator","readback":"Policy updated; No inheritance for this role","projectWideGrant":false,"newKey":false},
     "dpapiRegression": "passed on Windows after isolating PowerShell5 built-in module path"
   },
   "actions": {
     "runId": 40084938604,
-    "checkRunId": 120845832005,
-    "runnerStarted": false,
-    "steps": [],
-    "annotation": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings",
+    "initialBlockedCheckRunId": 120845832005,
+    "runnerStarted": true,
+    "runAttempt": 3,
+    "repositoryVisibility": "public; verified through unauthenticated GitHub API",
+    "verifyJob": {"id":120853618332,"conclusion":"success","node":"22.23.3"},
+    "backendJob": {"id":120854133754,"conclusion":"failure","failure":"Cloud Run startup: Cannot find module '@grpc/grpc-js'","failedRevision":"gtopassistantgateway-00002-coy"},
+    "hostingConclusion": "skipped",
+    "additionalDeploymentAfterFailure": false,
+    "initialAttemptAnnotation": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings",
     "annotationSource": "https://api.github.com/repos/Wolfrine/gtop-app/check-runs/120845832005/annotations",
     "annotationRetrieval": "Authenticated read using existing repository Git credential helper; no credential retained or printed",
     "billingChanged": false
@@ -51,7 +58,11 @@
     "independentAppAuditFindingsAll": 0,
     "backendAuditFindingsAll": 0,
     "controllerAuditFindingsAll": 0,
-    "patchedCandidateNode22Ci": "not started because account blocked runner"
+    "patchedCandidateNode22Ci": "attempt3 passed verification; backend production startup failed",
+    "runtimeCorrection": "this release: explicit @grpc/grpc-js1.13.7 production dependency and predeployment entry-point import gate",
+    "productionOnlyInstallReproducedFailure": true,
+    "cleanProductionOnlyInstallAfterCorrection": "passed; actual gateway export imported; zero audit findings on Node24.19.0",
+    "correctionPublished": "main release publishing; check Actions and served version.json for live confirmation"
   },
   "realInferenceEvidence": {
     "identity": "synthetic emulator administrator",
@@ -76,8 +87,7 @@
     }
   },
   "acceptanceStillRequired": [
-    "Restore GitHub Actions account availability and run protected candidate checks/release",
-    "Diagnose and resolve runtime token signing with explicit approval for any IAM expansion",
+    "Publish and deploy locally verified production dependency correction through protected Node22 main release",
     "Verify production worker readiness and real invited-admin conversation/paper journey",
     "Inspect actual A4 PDF pagination and physical printing",
     "Aparna academic and classroom acceptance"

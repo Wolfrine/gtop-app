@@ -1,0 +1,18 @@
+{
+  "paper_source": "H:\\GTOP-Local-AI\\jobs\\85453e04-3030-4f89-b87a-b6fa9a69c07d\\correction\\paper.json",
+  "source_file_sha256": "63b71a4993a3e259deddf24846f7119d3aab84047666152009f7fdad865f6a0f",
+  "artifacts": [
+    {
+      "path": "H:\\GTOP-Local-AI\\jobs\\85453e04-3030-4f89-b87a-b6fa9a69c07d\\output\\pdf\\question-paper.pdf",
+      "pages": 8,
+      "bytes": 117786,
+      "sha256": "d8e7134511d6aec4bc8a277c9cfba0b00d3ad75b666f676235769c0114193854"
+    },
+    {
+      "path": "H:\\GTOP-Local-AI\\jobs\\85453e04-3030-4f89-b87a-b6fa9a69c07d\\output\\pdf\\marking-scheme.pdf",
+      "pages": 14,
+      "bytes": 133774,
+      "sha256": "5fcc98ce40b175e365cb63ac2ca366a1c7ca504f48460ede201646dfddb14d22"
+    }
+  ]
+}

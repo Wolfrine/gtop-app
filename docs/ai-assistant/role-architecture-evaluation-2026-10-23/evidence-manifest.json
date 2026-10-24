@@ -1,0 +1,365 @@
+{
+  "date": "2026-10-23",
+  "local_root": "H:/GTOP-Local-AI",
+  "scope": "Role refinement: synthetic live local inference, content-only ChatGPT-authenticated Codex calls, offline controller tests. No app or production-data changes.",
+  "capture": "HTTP message/option objects saved before each local call, not network packet traces. Codex explicit stdin captured; implicit CLI system context not captured.",
+  "harness": "Final observed snapshots; tiny controller authentication guard strengthened after original execution and tests rerun. Not a per-invocation version history.",
+  "excluded": "SQLite fixture databases, weights, generated media, auth credentials and other users data.",
+  "files": [
+    {
+      "path": "local-evaluation.json",
+      "bytes": 60013,
+      "sha256": "bb1c8c10e1d808e9182d7ceb1b13792cc4c43aea19edb9e278dc599cda9d4a35",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/local-evaluation.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "local-evaluation-v2.json",
+      "bytes": 59041,
+      "sha256": "61aa18ae98da556e0e5422178d147f99aac46a9f926bd03738cb28336878371b",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/local-evaluation-v2.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "context-selection-and-holdout.json",
+      "bytes": 20088,
+      "sha256": "a485f37e76fb8cd51a104ac9cc31f0a6f3d8b0869f6869c266cd49b72975722c",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/context-selection-and-holdout.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "handoff-cases.json",
+      "bytes": 31898,
+      "sha256": "0492a63e219341a58ddc1aea38ebb778b90aacd709b3a331a96ff181df4bb0b7",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/handoff-cases.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "handoff-results.json",
+      "bytes": 17923,
+      "sha256": "ad41e002757a796bc5dfb049d9fa02d9c54c627a1f0cef657b3878344adace03",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/handoff-results.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "execution-handoff.json",
+      "bytes": 2510,
+      "sha256": "274dc98ec8d5e1308c94f16f0207d4d5d6c7aac9203dadefc3287a3a704f774d",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/execution-handoff.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "execution-validation.json",
+      "bytes": 1694,
+      "sha256": "8ebb5ffa45f178e2c1287b4696ac4e149fc1ad9cab0eb2186c33dccbb6610f46",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/execution-validation.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "controller-tests.txt",
+      "bytes": 563,
+      "sha256": "30e7373f74dad3d7988ead36e716ac4e3e13d0522de3a0484903839da31559b7",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/controller-tests.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "offline-fixture-result.json",
+      "bytes": 209,
+      "sha256": "8d31d1ea359a39b7cb618af23eeadc68d0c1040d175332629baf7111f7f0d934",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/offline-fixture-result.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "manual-audit.json",
+      "bytes": 18301,
+      "sha256": "844d10bd49897d30e31d177c8f0f0dd28e320f05bd8a80ea72f6693fdccbf628",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/manual-audit.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "harness/evaluate_roles.py.txt",
+      "bytes": 31390,
+      "sha256": "346c2024cf2322091c2d341d44a1c7efb0865e5f9c0bbb96d02645f8921a4f8e",
+      "source_relative_to_local_root": "scripts/evaluate_roles.py",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "harness/evaluate_context.py.txt",
+      "bytes": 4227,
+      "sha256": "c1a831d0a5e63150e498c699832450f2a8daabc4fac6fef9de6e3e0caceaafb6",
+      "source_relative_to_local_root": "scripts/evaluate_context.py",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "harness/role_controls.py.txt",
+      "bytes": 1639,
+      "sha256": "e2c3ae48f94ae95507691537d1d00d03bb2ae58e71bec6109e2c52be5579b960",
+      "source_relative_to_local_root": "scripts/role_controls.py",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "harness/test_role_controls.py.txt",
+      "bytes": 3503,
+      "sha256": "a6b96e5be1575b59586e575a7c467973497ff554f1bf49308b2d6746aa35348d",
+      "source_relative_to_local_root": "scripts/test_role_controls.py",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "harness/codex_runner.py.txt",
+      "bytes": 4170,
+      "sha256": "3acfa93776c521e3c7b542e055ca11f5c24dfc2852081af21f1df128c9a1acb3",
+      "source_relative_to_local_root": "scripts/codex_runner.py",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "harness/jobs.py.txt",
+      "bytes": 4539,
+      "sha256": "9585cb70dd34f6c338eda58dfce9eafd5de694f81fe8a5c3b16a3195cda68931",
+      "source_relative_to_local_root": "scripts/jobs.py",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "harness/dialogue.py.txt",
+      "bytes": 4303,
+      "sha256": "209f4bc1051dbcb701436a7d70abc3e21db5410b6c43c946f8e566978eaa71c8",
+      "source_relative_to_local_root": "scripts/dialogue.py",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "harness/export_role_evidence.py.txt",
+      "bytes": 6309,
+      "sha256": "599c6202236e647ab2aecdee8347e881e2ac4752758f514ac8d32fbf0c47537e",
+      "source_relative_to_local_root": "scripts/export_role_evidence.py",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "harness/audit_roles.py.txt",
+      "bytes": 5055,
+      "sha256": "2a11884a385302e96dbe18e0c0303eafe1d646e8a1e165708876baf3e2335281",
+      "source_relative_to_local_root": "scripts/audit_roles.py",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-only/events.jsonl",
+      "bytes": 3706,
+      "sha256": "39886609697ec50aa7c4cd146f51bc3f65dd909fb7eafaa4b3215dd6d0edce23",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-only/events.jsonl",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-only/execution.json",
+      "bytes": 610,
+      "sha256": "e8ee0cb5a7e2bf8dcb12d6d0ed2d47806fca264ccd2a9af6ff5352488231daee",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-only/execution.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-only/input.txt",
+      "bytes": 6137,
+      "sha256": "0cfdd69d853b356bdb9363f51cdafbd8d915e68bdb46d9012f351664728948ce",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-only/input.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-only/output-schema.json",
+      "bytes": 1226,
+      "sha256": "5deaa34874a00dfa3f3ed79c110ca1295b1a0ebfcd3385554446257758294c01",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-only/output-schema.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-only/result.json",
+      "bytes": 4124,
+      "sha256": "04100c07b9871b5febbd482924a2a2c356db64efcfba1a27d8a984f4b0131229",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-only/result.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-only/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-only/stderr.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-reversed-repeat/events.jsonl",
+      "bytes": 1329,
+      "sha256": "5e1457537908bce0b04bd8a18154d88367d25d7d0bedd607df6d70d333f1fe9b",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-reversed-repeat/events.jsonl",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-reversed-repeat/execution.json",
+      "bytes": 609,
+      "sha256": "1e19eff4a8f4d098dee2ecbdab3ee17705a747ad33c765827e0c9ac5cde5513e",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-reversed-repeat/execution.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-reversed-repeat/input.txt",
+      "bytes": 2393,
+      "sha256": "a8610d3245485b89ad1e7d6cdf4b6eb13d5ec76eccaffb81d733dfaf588d4730",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-reversed-repeat/input.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-reversed-repeat/output-schema.json",
+      "bytes": 1226,
+      "sha256": "5deaa34874a00dfa3f3ed79c110ca1295b1a0ebfcd3385554446257758294c01",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-reversed-repeat/output-schema.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-reversed-repeat/result.json",
+      "bytes": 993,
+      "sha256": "d7533e69601a9c243710566dba887dd0f1089279b0aa8b04f7ece6732ac1e8f9",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-reversed-repeat/result.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/brief-reversed-repeat/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/brief-reversed-repeat/stderr.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/real-worked-review/events.jsonl",
+      "bytes": 1438,
+      "sha256": "a7d7aed86d2c29089914d789ff458aa518f6eb86b41b6431e7b97d6ae9bed0ff",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/real-worked-review/events.jsonl",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/real-worked-review/execution.json",
+      "bytes": 609,
+      "sha256": "5dbc9bc290e19cded61e1a3b836b0bf2333d8d643dcd14db65db3bdc7417d237",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/real-worked-review/execution.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/real-worked-review/input.txt",
+      "bytes": 2531,
+      "sha256": "f1b41cfe5980530770a4c00d82c583709d5d15be065832f9c2f17f579e4ae2ba",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/real-worked-review/input.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/real-worked-review/output-schema.json",
+      "bytes": 657,
+      "sha256": "979587800c937b93484b17f190c1c9acb5be51c343a4f715071d0cbc5357925f",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/real-worked-review/output-schema.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/real-worked-review/result.json",
+      "bytes": 848,
+      "sha256": "ad8a8ad5a708b091ddbc31c85a8f6a22c27c69e68703fc5964b7b9bad2de2eb1",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/real-worked-review/result.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/real-worked-review/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/real-worked-review/stderr.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich/events.jsonl",
+      "bytes": 6691,
+      "sha256": "407973160403339d2dfcbea6a4f1398bc09aec7abcb0e7384d88bb1f78cdfe6e",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich/events.jsonl",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich/execution.json",
+      "bytes": 612,
+      "sha256": "a37b8f62f856fc0791f4d16561237e178d65605ecfe3b09ab01834fdf4676ce8",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich/execution.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich/input.txt",
+      "bytes": 17603,
+      "sha256": "38c5e3cdbb305b4f0fafb5b016471f5ad0e36c3c39b2b685985021f55da244c3",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich/input.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich/output-schema.json",
+      "bytes": 1226,
+      "sha256": "5deaa34874a00dfa3f3ed79c110ca1295b1a0ebfcd3385554446257758294c01",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich/output-schema.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich/result.json",
+      "bytes": 5790,
+      "sha256": "0af9403dc258454bae203496c10de38652e66469912810cab5ee5fd9ea09ef11",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich/result.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich/stderr.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich-reversed-repeat/events.jsonl",
+      "bytes": 1772,
+      "sha256": "82ad9cfa9e5a4623f16e68451b5f454bb890cba446368ec35d8fc1d2d26405ad",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich-reversed-repeat/events.jsonl",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich-reversed-repeat/execution.json",
+      "bytes": 609,
+      "sha256": "84aa576717dbc75d821a4a0df4d499fca1ceb9739bd333360860f3715e78b7a7",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich-reversed-repeat/execution.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich-reversed-repeat/input.txt",
+      "bytes": 5068,
+      "sha256": "ed3c95a91e8a248d02ef11a7f0a274b4bfcf22148e5a757404a852d247a87116",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich-reversed-repeat/input.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich-reversed-repeat/output-schema.json",
+      "bytes": 1226,
+      "sha256": "5deaa34874a00dfa3f3ed79c110ca1295b1a0ebfcd3385554446257758294c01",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich-reversed-repeat/output-schema.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich-reversed-repeat/result.json",
+      "bytes": 1501,
+      "sha256": "4a33ad9c37d4305a45abf13feda0aa5ff9bb9a4e51540b510a946a60425ffab0",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich-reversed-repeat/result.json",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "codex/rich-reversed-repeat/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_relative_to_local_root": "roles-evaluation-2026-10-23/codex/rich-reversed-repeat/stderr.txt",
+      "classification": "verbatim saved file"
+    },
+    {
+      "path": "captured-local-turns.jsonl",
+      "bytes": 768927,
+      "sha256": "4f3643b7c3b2f536bafcb52a18720e3a681150cd5ed09867de8b425a486ae851",
+      "classification": "faithful JSON-value aggregation of captured requests and responses; original-file byte hashes in each record"
+    },
+    {
+      "path": "metrics.json",
+      "bytes": 5799,
+      "sha256": "81a101819dae32c0a4224601766af5437e97d428a548cbbece283e822df3d0a1",
+      "classification": "derived aggregates; verifier recomputes"
+    }
+  ]
+}

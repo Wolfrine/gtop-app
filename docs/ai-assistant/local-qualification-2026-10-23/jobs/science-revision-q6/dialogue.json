@@ -1,0 +1,34 @@
+{
+  "user": "Question 6 ko application-based banao, same chapter aur unit ke andar. Marks, options ka format aur baaki sab questions bilkul same rakho.",
+  "model": "qwen3.5:4b-q4_K_M",
+  "handoff": {
+    "action": "revise_question",
+    "question_number": 6,
+    "change": "Convert to application-based question while maintaining the same chapter and unit context."
+  },
+  "timing": {
+    "first_content_s": 0.5794,
+    "wall_s": 1.2752,
+    "load_s": 0.0045,
+    "prompt_tokens": 172,
+    "output_tokens": 43,
+    "decode_tokens_s": 61.85,
+    "context": 4096,
+    "done_reason": "stop"
+  },
+  "parent": "H:\\GTOP-Local-AI\\jobs\\85453e04-3030-4f89-b87a-b6fa9a69c07d\\correction\\paper.json",
+  "parent_sha256": "ca4c8575ad262a36abeb1aec49fc5a1b7c6a93206dab31fd0e736e815ba13ac7",
+  "canonical_brief": {
+    "board": "CBSE",
+    "standard": "10",
+    "subject": "Science",
+    "academic_year": "2026-27",
+    "scope": "full_syllabus",
+    "marks": 80,
+    "duration_minutes": 180,
+    "paper_language": "English",
+    "answer_language": "English",
+    "source_policy": "bank_first",
+    "internal_choices": true
+  }
+}

@@ -1,0 +1,8 @@
+test_ownership_idempotency_and_claim (__main__.Controls.test_ownership_idempotency_and_claim) ... ok
+test_queued_job_survives_reopen (__main__.Controls.test_queued_job_survives_reopen) ... ok
+test_scope_and_source_gates (__main__.Controls.test_scope_and_source_gates) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.789s
+
+OK

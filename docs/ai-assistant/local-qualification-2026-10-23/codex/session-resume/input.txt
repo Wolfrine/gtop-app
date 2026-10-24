@@ -1,0 +1,1 @@
+Do not create or revise anything. Recall the examination paper you generated in THIS session. Return marker gtop-resume-ok, its subject, total attempted marks and question count. No tools.

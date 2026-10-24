@@ -1,0 +1,18 @@
+import collections,json,pathlib,statistics
+from dialogue import ROOT
+from benchmark import evaluate,normalize,suite
+from jobs import canonical
+
+def pct(values,p):
+    values=sorted(values);return round(values[min(len(values)-1,int((len(values)-1)*p))],4) if values else None
+output=[];cases={c['id']:c for c in suite()}
+for path in (ROOT/'evidence').glob('benchmark-*.jsonl'):
+    records=[json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line];standard=[r for r in records if r['kind']=='standard'];valid=[r for r in records if r.get('timing')]
+    warm=[r for r in valid if r['timing']['load_s']<.1 and r['kind'] in ['standard','warm_repeat']];cold=[r for r in valid if r['kind']=='cold_start']
+    normalized=0
+    for r in standard:
+        if 'result' not in r:continue
+        result=dict(r['result']);result['brief']=canonical(result['brief']);normalized+=int(evaluate(cases[r['case_id']],result)['passed'])
+    gpu=[int(r['gpu_after'].split(',')[0]) for r in records if r.get('gpu_after')]
+    output.append({'model':records[0]['model'] if records else path.name,'standard_passed':sum(r['passed'] for r in standard),'standard_total':len(standard),'canonical_passed':normalized,'by_language':{lang:{'passed':sum(r['passed'] for r in standard if r['language']==lang),'total':sum(r['language']==lang for r in standard)} for lang in ['en','hi','hinglish']},'total_runs':len(records),'errors':sum('error' in r for r in records),'warm_wall_p50_s':pct([r['timing']['wall_s'] for r in warm],.5),'warm_wall_p95_s':pct([r['timing']['wall_s'] for r in warm],.95),'warm_first_p50_s':pct([r['timing']['first_content_s'] for r in warm],.5),'warm_decode_median_tokens_s':pct([r['timing']['decode_tokens_s'] for r in warm],.5),'cold_wall_s':[r['timing']['wall_s'] for r in cold],'long_context_passed':sum(r['passed'] for r in records if r['kind']=='long_context'),'long_context_prompt_tokens':[r['timing']['prompt_tokens'] for r in records if r['kind']=='long_context' and r.get('timing')],'gpu_total_used_max_mib':max(gpu) if gpu else None,'limitations':['Synthetic requirements test; one fixed seed; full-syllabus brief extraction, not local paper generation','Global GPU memory includes desktop and other apps; samples are not allocator peak telemetry','Long context is actual prompt-token count above, not advertised maximum context','Warm excludes measured load durations >=0.1 sec; cold is runner reload, may benefit from Windows filesystem cache']})
+(ROOT/'evidence/comparison.json').write_text(json.dumps(output,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(output,ensure_ascii=False,indent=2))

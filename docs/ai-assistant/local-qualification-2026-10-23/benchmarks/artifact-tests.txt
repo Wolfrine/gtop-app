@@ -1,0 +1,8 @@
+test_all_three_real_papers_and_private_keys (__main__.Artifacts.test_all_three_real_papers_and_private_keys) ... ok
+test_revision_keeps_exact_other_questions (__main__.Artifacts.test_revision_keeps_exact_other_questions) ... ok
+test_validator_rejects_realistic_corruptions (__main__.Artifacts.test_validator_rejects_realistic_corruptions) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.893s
+
+OK

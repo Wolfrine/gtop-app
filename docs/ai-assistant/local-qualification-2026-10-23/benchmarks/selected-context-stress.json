@@ -1,0 +1,217 @@
+[
+  {
+    "language": "en",
+    "context": 4096,
+    "result": {
+      "action": "create_paper",
+      "reply": "Generating CBSE Class 10 Science paper.",
+      "brief": {
+        "board": "CBSE",
+        "standard": "10",
+        "subject": "Science",
+        "academic_year": "2026-27",
+        "scope": "full_syllabus",
+        "marks": 80,
+        "duration_minutes": 180,
+        "paper_language": "English",
+        "answer_language": "English",
+        "source_policy": "bank_first",
+        "internal_choices": true
+      },
+      "missing": []
+    },
+    "timing": {
+      "first_content_s": 1.3274,
+      "wall_s": 3.2983,
+      "load_s": 0.0058,
+      "prompt_tokens": 3317,
+      "output_tokens": 116,
+      "decode_tokens_s": 58.87,
+      "context": 4096,
+      "done_reason": "stop"
+    },
+    "gpu": "5295, 2663, 35",
+    "passed": true,
+    "mismatches": {}
+  },
+  {
+    "language": "en",
+    "context": 8192,
+    "result": {
+      "action": "create_paper",
+      "reply": "Creating CBSE Class 10 Science full-syllabus paper.",
+      "brief": {
+        "board": "CBSE",
+        "standard": "10",
+        "subject": "Science",
+        "academic_year": "2026-27",
+        "scope": "full_syllabus",
+        "marks": 80,
+        "duration_minutes": 180,
+        "paper_language": "English",
+        "answer_language": "English",
+        "source_policy": "bank_first",
+        "internal_choices": true
+      },
+      "missing": []
+    },
+    "timing": {
+      "first_content_s": 8.59,
+      "wall_s": 10.6864,
+      "load_s": 6.1414,
+      "prompt_tokens": 7217,
+      "output_tokens": 120,
+      "decode_tokens_s": 57.26,
+      "context": 8192,
+      "done_reason": "stop"
+    },
+    "gpu": "5513, 2445, 83",
+    "passed": true,
+    "mismatches": {}
+  },
+  {
+    "language": "hi",
+    "context": 4096,
+    "result": {
+      "action": "create_paper",
+      "reply": "Paper created: CBSE Class 10 Science, 2026-27, Full Syllabus, 80 marks, 180 mins, English/English, Bank First.",
+      "brief": {
+        "board": "CBSE",
+        "standard": "10",
+        "subject": "Science",
+        "academic_year": "2026-27",
+        "scope": "full_syllabus",
+        "marks": 80,
+        "duration_minutes": 180,
+        "paper_language": "English",
+        "answer_language": "English",
+        "source_policy": "bank_first",
+        "internal_choices": true
+      },
+      "missing": []
+    },
+    "timing": {
+      "first_content_s": 7.5684,
+      "wall_s": 10.1108,
+      "load_s": 6.3953,
+      "prompt_tokens": 3382,
+      "output_tokens": 149,
+      "decode_tokens_s": 58.62,
+      "context": 4096,
+      "done_reason": "stop"
+    },
+    "gpu": "5295, 2663, 79",
+    "passed": true,
+    "mismatches": {}
+  },
+  {
+    "language": "hi",
+    "context": 8192,
+    "result": {
+      "action": "create_paper",
+      "reply": "Paper created: CBSE Class 10 Science, 2026-27, Full Syllabus, 80 marks, 180 mins, English/English, Bank First, Internal Choices.",
+      "brief": {
+        "board": "CBSE",
+        "standard": "10",
+        "subject": "Science",
+        "academic_year": "2026-27",
+        "scope": "full_syllabus",
+        "marks": 80,
+        "duration_minutes": 180,
+        "paper_language": "English",
+        "answer_language": "English",
+        "source_policy": "bank_first",
+        "internal_choices": true
+      },
+      "missing": []
+    },
+    "timing": {
+      "first_content_s": 8.5473,
+      "wall_s": 11.1312,
+      "load_s": 6.1569,
+      "prompt_tokens": 7282,
+      "output_tokens": 152,
+      "decode_tokens_s": 58.85,
+      "context": 8192,
+      "done_reason": "stop"
+    },
+    "gpu": "5511, 2447, 82",
+    "passed": true,
+    "mismatches": {}
+  },
+  {
+    "language": "hinglish",
+    "context": 4096,
+    "result": {
+      "action": "create_paper",
+      "reply": "Paper created per original requirements.",
+      "brief": {
+        "board": "CBSE",
+        "standard": "10",
+        "subject": "Science",
+        "academic_year": "2026-27",
+        "scope": "full_syllabus",
+        "marks": 80,
+        "duration_minutes": 180,
+        "paper_language": "English",
+        "answer_language": "English",
+        "source_policy": "bank_first",
+        "internal_choices": true
+      },
+      "missing": []
+    },
+    "timing": {
+      "first_content_s": 7.3164,
+      "wall_s": 9.1609,
+      "load_s": 6.2044,
+      "prompt_tokens": 3311,
+      "output_tokens": 112,
+      "decode_tokens_s": 60.74,
+      "context": 4096,
+      "done_reason": "stop"
+    },
+    "gpu": "5293, 2665, 81",
+    "passed": true,
+    "mismatches": {}
+  },
+  {
+    "language": "hinglish",
+    "context": 8192,
+    "result": {
+      "action": "clarify",
+      "reply": "Full syllabus (80 marks) confirmed. Scope and marks unchanged.",
+      "brief": {
+        "board": "CBSE",
+        "standard": "10",
+        "subject": "Science",
+        "academic_year": "2026-27",
+        "scope": "full_syllabus",
+        "marks": 80,
+        "duration_minutes": 180,
+        "paper_language": "English",
+        "answer_language": "English",
+        "source_policy": "bank_first",
+        "internal_choices": true
+      },
+      "missing": []
+    },
+    "timing": {
+      "first_content_s": 9.0825,
+      "wall_s": 11.14,
+      "load_s": 6.6871,
+      "prompt_tokens": 7211,
+      "output_tokens": 121,
+      "decode_tokens_s": 58.94,
+      "context": 8192,
+      "done_reason": "stop"
+    },
+    "gpu": "5513, 2445, 75",
+    "passed": false,
+    "mismatches": {
+      "action": {
+        "expected": "create_paper",
+        "actual": "clarify"
+      }
+    }
+  }
+]

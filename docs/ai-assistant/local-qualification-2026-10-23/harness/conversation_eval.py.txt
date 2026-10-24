@@ -1,0 +1,18 @@
+import json,sys,time,urllib.request
+sys.stdout.reconfigure(encoding='utf-8')
+from dialogue import ROOT
+tests={
+'en':['Hello. I need help planning a question paper. Ask me for the essential details first.','CBSE Class 10 Science, full syllabus, 80 marks, 3 hours, English questions and solutions.','Change only the solutions language to Hindi. Summarize the final requirements briefly; do not create the paper.'],
+'hi':['नमस्ते। मुझे प्रश्नपत्र बनवाना है। पहले जरूरी जानकारी पूछिए। कृपया हिंदी में बात कीजिए।','CBSE कक्षा 10 विज्ञान, पूरा पाठ्यक्रम, 80 अंक, 3 घंटे। प्रश्न और हल अंग्रेज़ी में चाहिए।','केवल हल की भाषा हिंदी कर दीजिए। अंतिम शर्तों का छोटा सार हिंदी में बताइए। अभी पेपर मत बनाइए।'],
+'hinglish':['Hi, question paper plan karna hai. Pehle essential details poochho. Hinglish mein baat karo.','CBSE class 10 Science, full syllabus, 80 marks, 3 hours, questions aur solutions English mein.','Sirf solutions Hindi mein kar do. Final requirements Hinglish mein summarize karo, abhi paper mat banao.']}
+records=[]
+for lang,turns in tests.items():
+    system='You are GTOP planning assistant. Help collect requirements; you have NO tools and no paper has been generated. Never claim execution or completion. Ask at most two questions. Do not invent unstated facts. Keep each answer under 65 words. '+{'en':'Reply in English.','hi':'हर जवाब केवल सरल हिंदी में दें। नाम और CBSE जैसे शब्द रख सकते हैं।','hinglish':'Reply in natural Hinglish, using Roman-script Hindi and English.'}[lang]
+    history=[{'role':'system','content':system}]
+    for index,user in enumerate(turns,1):
+        history.append({'role':'user','content':user});start=time.monotonic()
+        data={'model':'qwen3.5:4b-q4_K_M','messages':history,'think':False,'stream':False,'keep_alive':'5m','options':{'num_ctx':4096,'num_predict':200,'temperature':0.2,'seed':42}}
+        req=urllib.request.Request('http://127.0.0.1:11434/api/chat',data=json.dumps(data,ensure_ascii=False).encode(),headers={'Content-Type':'application/json'})
+        response=json.load(urllib.request.urlopen(req,timeout=90));reply=response['message']['content'];history.append({'role':'assistant','content':reply})
+        record={'language':lang,'turn':index,'user':user,'reply':reply,'seconds':round(time.monotonic()-start,3)};records.append(record);print(json.dumps(record,ensure_ascii=False),flush=True)
+(ROOT/'evidence/conversation-eval.json').write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding='utf-8')

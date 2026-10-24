@@ -1,0 +1,628 @@
+{
+  "local_evidence_root": "H:/GTOP-Local-AI",
+  "date": "2026-10-23",
+  "repository_base": "9a7e49c22129cad8e209a00b2dbc6155ab8fb92c",
+  "scope": "technical experiment documentation only; no new inference, app/deployment or production-data operation",
+  "files": [
+    {
+      "source_relative_to_local_root": "evidence/benchmark-gemma4_e2b-it-qat.jsonl",
+      "repository_path": "benchmarks/benchmark-gemma4_e2b-it-qat.jsonl",
+      "source_sha256": "776068bf4ab9aefdeba6eb92bba4b9419bfffa532502bbb5a36664ceef258019",
+      "archive_sha256": "776068bf4ab9aefdeba6eb92bba4b9419bfffa532502bbb5a36664ceef258019",
+      "bytes": 44647,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/benchmark-qwen3.5_2b-q4_K_M.jsonl",
+      "repository_path": "benchmarks/benchmark-qwen3.5_2b-q4_K_M.jsonl",
+      "source_sha256": "4266434b952e865c21cb9d2ef80496cdf7009edddbdc33ccc7371f537c5eba20",
+      "archive_sha256": "4266434b952e865c21cb9d2ef80496cdf7009edddbdc33ccc7371f537c5eba20",
+      "bytes": 52495,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/benchmark-qwen3.5_4b-q4_K_M.jsonl",
+      "repository_path": "benchmarks/benchmark-qwen3.5_4b-q4_K_M.jsonl",
+      "source_sha256": "3c526359218354c4a760f5c03bc38a8cbde9e8dce904fe310af4da920597362c",
+      "archive_sha256": "3c526359218354c4a760f5c03bc38a8cbde9e8dce904fe310af4da920597362c",
+      "bytes": 44367,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/dialogue.json",
+      "repository_path": "jobs/science/dialogue.json",
+      "source_sha256": "f60ee3e618da7c22d4083114b53ce36df71cca4757e4adec77a3d9dd99ccdebc",
+      "archive_sha256": "f60ee3e618da7c22d4083114b53ce36df71cca4757e4adec77a3d9dd99ccdebc",
+      "bytes": 1491,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/validation.json",
+      "repository_path": "jobs/science/validation.json",
+      "source_sha256": "04ff1d355fbbfa954a3e97627aeb7ae2d39342217d204b6c5c14bbb07a0133f8",
+      "archive_sha256": "04ff1d355fbbfa954a3e97627aeb7ae2d39342217d204b6c5c14bbb07a0133f8",
+      "bytes": 731,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/conversation-result.json",
+      "repository_path": "jobs/science/conversation-result.json",
+      "source_sha256": "3c64b736f230e8ce86a50c6de101bca9a99de0d80d06e66df243c33f0f707e1b",
+      "archive_sha256": "3c64b736f230e8ce86a50c6de101bca9a99de0d80d06e66df243c33f0f707e1b",
+      "bytes": 2252,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/correction/paper.json",
+      "repository_path": "jobs/science/selected-paper.json",
+      "source_sha256": "63b71a4993a3e259deddf24846f7119d3aab84047666152009f7fdad865f6a0f",
+      "archive_sha256": "63b71a4993a3e259deddf24846f7119d3aab84047666152009f7fdad865f6a0f",
+      "bytes": 68728,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/correction/validation.json",
+      "repository_path": "jobs/science/correction-validation.json",
+      "source_sha256": "4f807b8a3b760c8c210d065a709532a65ad9ab9ea517a96ecdf7a814002d1bc0",
+      "archive_sha256": "4f807b8a3b760c8c210d065a709532a65ad9ab9ea517a96ecdf7a814002d1bc0",
+      "bytes": 796,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/correction/provenance.json",
+      "repository_path": "jobs/science/correction-provenance.json",
+      "source_sha256": "81b5988360e9a23c780c4878b56c922e6ae56c86488fa10cdd5d748cdf362843",
+      "archive_sha256": "81b5988360e9a23c780c4878b56c922e6ae56c86488fa10cdd5d748cdf362843",
+      "bytes": 3054,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/output/pdf/manifest.json",
+      "repository_path": "jobs/science/pdf-manifest.json",
+      "source_sha256": "3837a89b44d0e5a9ed5b92cf888af55a267339da5c2e771fc7dfecaebc26c855",
+      "archive_sha256": "3837a89b44d0e5a9ed5b92cf888af55a267339da5c2e771fc7dfecaebc26c855",
+      "bytes": 738,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/dialogue.json",
+      "repository_path": "jobs/maths-standard/dialogue.json",
+      "source_sha256": "6bc65a190318fb6b243e0cf1f3d9764d8ca9bded26b62c6d8dbc22556dc3c36b",
+      "archive_sha256": "6bc65a190318fb6b243e0cf1f3d9764d8ca9bded26b62c6d8dbc22556dc3c36b",
+      "bytes": 1409,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/validation.json",
+      "repository_path": "jobs/maths-standard/validation.json",
+      "source_sha256": "9cd31b2bf47b9aaa6ec682d1697b09fad71ba055418cd5dcd7ad2aee08c31f03",
+      "archive_sha256": "9cd31b2bf47b9aaa6ec682d1697b09fad71ba055418cd5dcd7ad2aee08c31f03",
+      "bytes": 764,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/conversation-result.json",
+      "repository_path": "jobs/maths-standard/conversation-result.json",
+      "source_sha256": "fcddf876ac3acab1d7ccee32f12538350ea28ed1b895d7f9a1b3ed2b2d7aadc3",
+      "archive_sha256": "fcddf876ac3acab1d7ccee32f12538350ea28ed1b895d7f9a1b3ed2b2d7aadc3",
+      "bytes": 2319,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/correction/paper.json",
+      "repository_path": "jobs/maths-standard/selected-paper.json",
+      "source_sha256": "7b8c65e87970a567e3110edd1443cfac4823a58976bd4f9a94edb6367cd25a8a",
+      "archive_sha256": "7b8c65e87970a567e3110edd1443cfac4823a58976bd4f9a94edb6367cd25a8a",
+      "bytes": 58602,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/correction/validation.json",
+      "repository_path": "jobs/maths-standard/correction-validation.json",
+      "source_sha256": "62902752ab7e63aa8ec0461eb0aeab69dc8c648e283d0e23878a6ba730b7f267",
+      "archive_sha256": "62902752ab7e63aa8ec0461eb0aeab69dc8c648e283d0e23878a6ba730b7f267",
+      "bytes": 820,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/correction/provenance.json",
+      "repository_path": "jobs/maths-standard/correction-provenance.json",
+      "source_sha256": "8ba7ce9392cddac3a9d8bb3a3799b6edf849c8bb0ef78c0478207001c70c7905",
+      "archive_sha256": "8ba7ce9392cddac3a9d8bb3a3799b6edf849c8bb0ef78c0478207001c70c7905",
+      "bytes": 320,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/output/pdf/manifest.json",
+      "repository_path": "jobs/maths-standard/pdf-manifest.json",
+      "source_sha256": "58f87b90df3c4d619c35f9f721386a414b2a44fb37a9dbe42984fe5c6f256592",
+      "archive_sha256": "58f87b90df3c4d619c35f9f721386a414b2a44fb37a9dbe42984fe5c6f256592",
+      "bytes": 738,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/0988b2ad-0027-45a2-aff8-11bec61cb2d8/dialogue.json",
+      "repository_path": "jobs/science-revision-q6/dialogue.json",
+      "source_sha256": "f965c1226f9c5ea1640bc0726d9f0f8d40c82a6af1e59461f7d9c93214809dab",
+      "archive_sha256": "f965c1226f9c5ea1640bc0726d9f0f8d40c82a6af1e59461f7d9c93214809dab",
+      "bytes": 1151,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/0988b2ad-0027-45a2-aff8-11bec61cb2d8/validation.json",
+      "repository_path": "jobs/science-revision-q6/validation.json",
+      "source_sha256": "2f5c5ccf0519b2f5fa44182c21bd411e3688a9cab3d4ec9247be45e6d8fa324f",
+      "archive_sha256": "2f5c5ccf0519b2f5fa44182c21bd411e3688a9cab3d4ec9247be45e6d8fa324f",
+      "bytes": 777,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/0988b2ad-0027-45a2-aff8-11bec61cb2d8/conversation-result.json",
+      "repository_path": "jobs/science-revision-q6/conversation-result.json",
+      "source_sha256": "58b836c5c02569125036373bfb135c503f8202cfe91d8fd18b92bad328459b4a",
+      "archive_sha256": "58b836c5c02569125036373bfb135c503f8202cfe91d8fd18b92bad328459b4a",
+      "bytes": 2240,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/0988b2ad-0027-45a2-aff8-11bec61cb2d8/paper.json",
+      "repository_path": "jobs/science-revision-q6/selected-paper.json",
+      "source_sha256": "46a1175677d99ccf3fda5eaf40b10026b5984bc2353bd021f30743107d92c89e",
+      "archive_sha256": "46a1175677d99ccf3fda5eaf40b10026b5984bc2353bd021f30743107d92c89e",
+      "bytes": 69175,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/0988b2ad-0027-45a2-aff8-11bec61cb2d8/output/pdf/manifest.json",
+      "repository_path": "jobs/science-revision-q6/pdf-manifest.json",
+      "source_sha256": "29a813c6a89a674026fd2567fa05a748b9b81ea46db972d05761a714fc1d9084",
+      "archive_sha256": "29a813c6a89a674026fd2567fa05a748b9b81ea46db972d05761a714fc1d9084",
+      "bytes": 726,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/codex/input.txt",
+      "repository_path": "codex/science-generation/prompt.txt",
+      "source_sha256": "4c0efc92ad9ad92fe53f4feb95d525aa54a3bdd62d23e8a96839c94b6b466126",
+      "archive_sha256": "35a711e55f4f3a48f5770b90c740b60363ae331f90701b2745b6ffdbe4408bb3",
+      "source_bytes": 51903,
+      "bytes": 3998,
+      "classification": "saved controller instructions, with third-party curriculum/sample bodies omitted explicitly"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/codex/output-schema.json",
+      "repository_path": "codex/science-generation/output-schema.json",
+      "source_sha256": "c6254ceed3bb9a1aabd5cf0f127b2e69b5338b9182f62b08ebc01ffa93cf59e3",
+      "archive_sha256": "c6254ceed3bb9a1aabd5cf0f127b2e69b5338b9182f62b08ebc01ffa93cf59e3",
+      "bytes": 3225,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/codex/execution.json",
+      "repository_path": "codex/science-generation/execution.json",
+      "source_sha256": "b176edd2b4b45e732fda1197e22cc5ec7781087e5866f5065ab0615e37409169",
+      "archive_sha256": "b176edd2b4b45e732fda1197e22cc5ec7781087e5866f5065ab0615e37409169",
+      "bytes": 584,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/codex/result.json",
+      "repository_path": "codex/science-generation/result.json",
+      "source_sha256": "d69e03e8772d5bf48e1d1ce725548feec847264bf31d5d4ac7512afb29d57514",
+      "archive_sha256": "d69e03e8772d5bf48e1d1ce725548feec847264bf31d5d4ac7512afb29d57514",
+      "bytes": 68569,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/review/input.txt",
+      "repository_path": "codex/science-review/prompt.txt",
+      "source_sha256": "2b6e6461260d09a9b40671dec82ac0dffb24b91f94b0afef3176651c4dec051f",
+      "archive_sha256": "2b6e6461260d09a9b40671dec82ac0dffb24b91f94b0afef3176651c4dec051f",
+      "source_bytes": 49736,
+      "bytes": 49736,
+      "classification": "verbatim saved controller prompt"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/review/output-schema.json",
+      "repository_path": "codex/science-review/output-schema.json",
+      "source_sha256": "d71635d2397867c8113c99cbafcc5af66b813f1eec3a07cbd645a1b492c1884e",
+      "archive_sha256": "d71635d2397867c8113c99cbafcc5af66b813f1eec3a07cbd645a1b492c1884e",
+      "bytes": 550,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/review/execution.json",
+      "repository_path": "codex/science-review/execution.json",
+      "source_sha256": "2b2773ba193172ff5969388427291f7451e1a638598acd6ccd438d6992828594",
+      "archive_sha256": "2b2773ba193172ff5969388427291f7451e1a638598acd6ccd438d6992828594",
+      "bytes": 582,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/review/result.json",
+      "repository_path": "codex/science-review/result.json",
+      "source_sha256": "e180fa2f478b2f67a93656ba55b0e5a12c7c5a067293fdd6e78ad2c10f39cab0",
+      "archive_sha256": "e180fa2f478b2f67a93656ba55b0e5a12c7c5a067293fdd6e78ad2c10f39cab0",
+      "bytes": 3565,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/correction/codex/input.txt",
+      "repository_path": "codex/science-correction/prompt.txt",
+      "source_sha256": "f6fc0447170010d60de9bfcc62f42bf3d1c5cfa3e5585d69216317fa66069ebe",
+      "archive_sha256": "f6fc0447170010d60de9bfcc62f42bf3d1c5cfa3e5585d69216317fa66069ebe",
+      "source_bytes": 9943,
+      "bytes": 9943,
+      "classification": "verbatim saved controller prompt"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/correction/codex/output-schema.json",
+      "repository_path": "codex/science-correction/output-schema.json",
+      "source_sha256": "6719b419dd65e725cbfa5f668080271976dd19b8fa29a51fcfeadb0a3d749ea2",
+      "archive_sha256": "6719b419dd65e725cbfa5f668080271976dd19b8fa29a51fcfeadb0a3d749ea2",
+      "bytes": 2544,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/correction/codex/execution.json",
+      "repository_path": "codex/science-correction/execution.json",
+      "source_sha256": "1b916cab754cfef9b5dfc9226f375944b96b2f97cedb367255eab0d73c7cc1ba",
+      "archive_sha256": "1b916cab754cfef9b5dfc9226f375944b96b2f97cedb367255eab0d73c7cc1ba",
+      "bytes": 580,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/85453e04-3030-4f89-b87a-b6fa9a69c07d/correction/codex/result.json",
+      "repository_path": "codex/science-correction/result.json",
+      "source_sha256": "92f3c539dbf4784931f8d064c33d91be2f174e7639a58960f2a10fafe6354369",
+      "archive_sha256": "92f3c539dbf4784931f8d064c33d91be2f174e7639a58960f2a10fafe6354369",
+      "bytes": 8031,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/codex/input.txt",
+      "repository_path": "codex/maths-standard-generation/prompt.txt",
+      "source_sha256": "30edc00c86da2cdd6fd1bd05c0774ee509239c62172a5512a2b416651abb446e",
+      "archive_sha256": "9acf03fc615d0b85b25ac4dbcef31561b9dfafbae5e35542f94f12d0895ca3b2",
+      "source_bytes": 35174,
+      "bytes": 4044,
+      "classification": "saved controller instructions, with third-party curriculum/sample bodies omitted explicitly"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/codex/output-schema.json",
+      "repository_path": "codex/maths-standard-generation/output-schema.json",
+      "source_sha256": "c6254ceed3bb9a1aabd5cf0f127b2e69b5338b9182f62b08ebc01ffa93cf59e3",
+      "archive_sha256": "c6254ceed3bb9a1aabd5cf0f127b2e69b5338b9182f62b08ebc01ffa93cf59e3",
+      "bytes": 3225,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/codex/execution.json",
+      "repository_path": "codex/maths-standard-generation/execution.json",
+      "source_sha256": "ff9e51315b9c6edaf51bc426301cefe0ae95966d5fe09a1487d740a21976ef20",
+      "archive_sha256": "ff9e51315b9c6edaf51bc426301cefe0ae95966d5fe09a1487d740a21976ef20",
+      "bytes": 585,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/codex/result.json",
+      "repository_path": "codex/maths-standard-generation/result.json",
+      "source_sha256": "622b0f2d83a8fb588242ed3bf3debc8345c02646b766a78f0773eea4f3371fee",
+      "archive_sha256": "622b0f2d83a8fb588242ed3bf3debc8345c02646b766a78f0773eea4f3371fee",
+      "bytes": 58440,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/review/input.txt",
+      "repository_path": "codex/maths-standard-review/prompt.txt",
+      "source_sha256": "56a8e5aad43e626b434626642cf441aac0355f7de55427867e6983c5ac2e9b61",
+      "archive_sha256": "56a8e5aad43e626b434626642cf441aac0355f7de55427867e6983c5ac2e9b61",
+      "source_bytes": 40787,
+      "bytes": 40787,
+      "classification": "verbatim saved controller prompt"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/review/output-schema.json",
+      "repository_path": "codex/maths-standard-review/output-schema.json",
+      "source_sha256": "d71635d2397867c8113c99cbafcc5af66b813f1eec3a07cbd645a1b492c1884e",
+      "archive_sha256": "d71635d2397867c8113c99cbafcc5af66b813f1eec3a07cbd645a1b492c1884e",
+      "bytes": 550,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/review/execution.json",
+      "repository_path": "codex/maths-standard-review/execution.json",
+      "source_sha256": "7a145146af888d95f6f698ba0747f12c94da1265413c008fbb7710f083b3aa7f",
+      "archive_sha256": "7a145146af888d95f6f698ba0747f12c94da1265413c008fbb7710f083b3aa7f",
+      "bytes": 612,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/36873eef-e011-4e59-909e-37711e1e16e2/review/result.json",
+      "repository_path": "codex/maths-standard-review/result.json",
+      "source_sha256": "0f5961cccc07684d81282f377b507ea46093435d4d731dbe85c2627ed4f28153",
+      "archive_sha256": "0f5961cccc07684d81282f377b507ea46093435d4d731dbe85c2627ed4f28153",
+      "bytes": 2916,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/0988b2ad-0027-45a2-aff8-11bec61cb2d8/codex/input.txt",
+      "repository_path": "codex/science-revision-q6-generation/prompt.txt",
+      "source_sha256": "669483a757cf883d29a55851ffce3b02c09b131ad544306987fe8a4ac4e1a9e5",
+      "archive_sha256": "669483a757cf883d29a55851ffce3b02c09b131ad544306987fe8a4ac4e1a9e5",
+      "source_bytes": 1162,
+      "bytes": 1162,
+      "classification": "verbatim saved controller prompt"
+    },
+    {
+      "source_relative_to_local_root": "jobs/0988b2ad-0027-45a2-aff8-11bec61cb2d8/codex/output-schema.json",
+      "repository_path": "codex/science-revision-q6-generation/output-schema.json",
+      "source_sha256": "04223e14578659f3695df277ce2e154240d75c0b5b7313cc9c43a3d302fe17b1",
+      "archive_sha256": "04223e14578659f3695df277ce2e154240d75c0b5b7313cc9c43a3d302fe17b1",
+      "bytes": 2409,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/0988b2ad-0027-45a2-aff8-11bec61cb2d8/codex/execution.json",
+      "repository_path": "codex/science-revision-q6-generation/execution.json",
+      "source_sha256": "f6bd4023fe0dcd583e46a0a2ac57c3f9d4ddf6e3158e09096a1c4d3eef15c395",
+      "archive_sha256": "f6bd4023fe0dcd583e46a0a2ac57c3f9d4ddf6e3158e09096a1c4d3eef15c395",
+      "bytes": 609,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "jobs/0988b2ad-0027-45a2-aff8-11bec61cb2d8/codex/result.json",
+      "repository_path": "codex/science-revision-q6-generation/result.json",
+      "source_sha256": "1f0a2f16be523cd52a01a2b8494043a78761c8bb4a1baadf5568dea78526bc90",
+      "archive_sha256": "1f0a2f16be523cd52a01a2b8494043a78761c8bb4a1baadf5568dea78526bc90",
+      "bytes": 1287,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/codex-resume/input.txt",
+      "repository_path": "codex/session-resume/input.txt",
+      "source_sha256": "5b5495e58d281dc55ddd2124171d84e6fe635f2cbe25506b4462b912eacba7fe",
+      "archive_sha256": "5b5495e58d281dc55ddd2124171d84e6fe635f2cbe25506b4462b912eacba7fe",
+      "bytes": 188,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/codex-resume/output-schema.json",
+      "repository_path": "codex/session-resume/output-schema.json",
+      "source_sha256": "3fa24d3b1806ea8832907e955fa03acc8c8202f4d758c4ab8d6ef2cf4e9ee8e5",
+      "archive_sha256": "3fa24d3b1806ea8832907e955fa03acc8c8202f4d758c4ab8d6ef2cf4e9ee8e5",
+      "bytes": 257,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/codex-resume/execution.json",
+      "repository_path": "codex/session-resume/execution.json",
+      "source_sha256": "5471695159d502d70f6fdf438a652091913ed52ae3ae98192e745d76a83b4168",
+      "archive_sha256": "5471695159d502d70f6fdf438a652091913ed52ae3ae98192e745d76a83b4168",
+      "bytes": 646,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/codex-resume/result.json",
+      "repository_path": "codex/session-resume/result.json",
+      "source_sha256": "800817b3a40fbd2de0d5b7f820a8890e128a6fce6f3c147df5ce7fa3cee247eb",
+      "archive_sha256": "800817b3a40fbd2de0d5b7f820a8890e128a6fce6f3c147df5ce7fa3cee247eb",
+      "bytes": 100,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/codex-smoke.jsonl",
+      "repository_path": "codex/subscription-smoke-events.jsonl",
+      "source_sha256": "1de5ea571380ca51abff1df586fbf0dab72f574656bf06017d5a2d2f342dbf19",
+      "archive_sha256": "1de5ea571380ca51abff1df586fbf0dab72f574656bf06017d5a2d2f342dbf19",
+      "bytes": 622,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/eval-cases.json",
+      "repository_path": "benchmarks/eval-cases.json",
+      "source_sha256": "17faf494304e8cd70d91c29a32e62993e27dbc47065de5390abad20279093175",
+      "archive_sha256": "17faf494304e8cd70d91c29a32e62993e27dbc47065de5390abad20279093175",
+      "bytes": 28935,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/comparison.json",
+      "repository_path": "benchmarks/comparison.json",
+      "source_sha256": "62a8d192f8428be4c0095238adef6b4059908e05cb33769aebee2ded42f89c62",
+      "archive_sha256": "62a8d192f8428be4c0095238adef6b4059908e05cb33769aebee2ded42f89c62",
+      "bytes": 3820,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/selected-context-stress.json",
+      "repository_path": "benchmarks/selected-context-stress.json",
+      "source_sha256": "a556eb48d686fa73b280c488eefc61a875ea48092621fcb594285da476595d4f",
+      "archive_sha256": "a556eb48d686fa73b280c488eefc61a875ea48092621fcb594285da476595d4f",
+      "bytes": 5779,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/conversation-eval.json",
+      "repository_path": "benchmarks/conversation-eval.json",
+      "source_sha256": "0816d3ec66c5dc98f69df2d9606aaf9cd4e6d7d3652859680718854b4c5f8c14",
+      "archive_sha256": "0816d3ec66c5dc98f69df2d9606aaf9cd4e6d7d3652859680718854b4c5f8c14",
+      "bytes": 4864,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/fresh-models.json",
+      "repository_path": "benchmarks/fresh-models.json",
+      "source_sha256": "c2e8bbca034a289ae3e50294b960ec113fd63f18197663b1501d36dd2a3cebc0",
+      "archive_sha256": "c2e8bbca034a289ae3e50294b960ec113fd63f18197663b1501d36dd2a3cebc0",
+      "bytes": 2210,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/cpu.json",
+      "repository_path": "benchmarks/cpu.json",
+      "source_sha256": "476627b2a73436183659a8826bbfcff5e31d360f003b6767d44db98efee6d879",
+      "archive_sha256": "476627b2a73436183659a8826bbfcff5e31d360f003b6767d44db98efee6d879",
+      "bytes": 169,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/os-memory.json",
+      "repository_path": "benchmarks/os-memory.json",
+      "source_sha256": "6811f83865b4de2c4e3c1763f6b563c37ef913eecdf4df64f9d61d47f3dd954a",
+      "archive_sha256": "6811f83865b4de2c4e3c1763f6b563c37ef913eecdf4df64f9d61d47f3dd954a",
+      "bytes": 176,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/gpu.txt",
+      "repository_path": "benchmarks/gpu.txt",
+      "source_sha256": "a9d32c30d14994f458a6b564f3ac163b03f716daf41a291ab116868c78b65d1f",
+      "archive_sha256": "a9d32c30d14994f458a6b564f3ac163b03f716daf41a291ab116868c78b65d1f",
+      "bytes": 43,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/control-tests.txt",
+      "repository_path": "benchmarks/control-tests.txt",
+      "source_sha256": "a21cf93e8edb2221e7e523cbefa6f93bdd84b121b38e8e3b6b94820c467c697f",
+      "archive_sha256": "a21cf93e8edb2221e7e523cbefa6f93bdd84b121b38e8e3b6b94820c467c697f",
+      "bytes": 381,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/artifact-tests.txt",
+      "repository_path": "benchmarks/artifact-tests.txt",
+      "source_sha256": "d5eb10c0c52ed7c9556ac8c57b9a3ab7e969f1244ad7788ae7d5a829c04597cf",
+      "archive_sha256": "d5eb10c0c52ed7c9556ac8c57b9a3ab7e969f1244ad7788ae7d5a829c04597cf",
+      "bytes": 452,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "evidence/duplicate-live-check.json",
+      "repository_path": "benchmarks/duplicate-live-check.json",
+      "source_sha256": "56ccc1260e65137b6a5c59695f113c060a5a0aacc951856c5957bdc4a067cda3",
+      "archive_sha256": "56ccc1260e65137b6a5c59695f113c060a5a0aacc951856c5957bdc4a067cda3",
+      "bytes": 187,
+      "classification": "verbatim saved artifact"
+    },
+    {
+      "source_relative_to_local_root": "scripts/dialogue.py",
+      "repository_path": "harness/dialogue.py.txt",
+      "source_sha256": "209f4bc1051dbcb701436a7d70abc3e21db5410b6c43c946f8e566978eaa71c8",
+      "archive_sha256": "209f4bc1051dbcb701436a7d70abc3e21db5410b6c43c946f8e566978eaa71c8",
+      "bytes": 4303,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/benchmark.py",
+      "repository_path": "harness/benchmark.py.txt",
+      "source_sha256": "40dd8d3e1852d96a2a8337e7ccfb5ce3611c8070a7f98027b60887257b525b58",
+      "archive_sha256": "40dd8d3e1852d96a2a8337e7ccfb5ce3611c8070a7f98027b60887257b525b58",
+      "bytes": 12115,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/paper.py",
+      "repository_path": "harness/paper.py.txt",
+      "source_sha256": "c1e5f3961379f665eda4aeee3edb81a5979739ccbb86b582de9899d17aefa7ad",
+      "archive_sha256": "c1e5f3961379f665eda4aeee3edb81a5979739ccbb86b582de9899d17aefa7ad",
+      "bytes": 10344,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/jobs.py",
+      "repository_path": "harness/jobs.py.txt",
+      "source_sha256": "9585cb70dd34f6c338eda58dfce9eafd5de694f81fe8a5c3b16a3195cda68931",
+      "archive_sha256": "9585cb70dd34f6c338eda58dfce9eafd5de694f81fe8a5c3b16a3195cda68931",
+      "bytes": 4539,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/demo.py",
+      "repository_path": "harness/demo.py.txt",
+      "source_sha256": "50e4b55b445087f16bc294dffaee2cc3e41dd4ae6791a9babe144dbfffc3c925",
+      "archive_sha256": "50e4b55b445087f16bc294dffaee2cc3e41dd4ae6791a9babe144dbfffc3c925",
+      "bytes": 4053,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/revise.py",
+      "repository_path": "harness/revise.py.txt",
+      "source_sha256": "b71efb5a49ccf8b9f77dbb1662b52632ce0b5240b2cb989c5aaf713ade111aa2",
+      "archive_sha256": "b71efb5a49ccf8b9f77dbb1662b52632ce0b5240b2cb989c5aaf713ade111aa2",
+      "bytes": 3520,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/codex_runner.py",
+      "repository_path": "harness/codex_runner.py.txt",
+      "source_sha256": "3acfa93776c521e3c7b542e055ca11f5c24dfc2852081af21f1df128c9a1acb3",
+      "archive_sha256": "3acfa93776c521e3c7b542e055ca11f5c24dfc2852081af21f1df128c9a1acb3",
+      "bytes": 4170,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/conversation_eval.py",
+      "repository_path": "harness/conversation_eval.py.txt",
+      "source_sha256": "6511b4061c9e34c59ce2afbe2a8985d7ef2b383fde2b344df5dd659b145773f3",
+      "archive_sha256": "6511b4061c9e34c59ce2afbe2a8985d7ef2b383fde2b344df5dd659b145773f3",
+      "bytes": 2988,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/stress_context.py",
+      "repository_path": "harness/stress_context.py.txt",
+      "source_sha256": "b6c7d1f3f93af192f402826e9a44bbb1d636801961dfae01376a23a9310a69e2",
+      "archive_sha256": "b6c7d1f3f93af192f402826e9a44bbb1d636801961dfae01376a23a9310a69e2",
+      "bytes": 868,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/repair_science.py",
+      "repository_path": "harness/repair_science.py.txt",
+      "source_sha256": "2d87898677605e8407245c6cd9f5ebe2c7880772860cb3fe6d188ad57c99515e",
+      "archive_sha256": "2d87898677605e8407245c6cd9f5ebe2c7880772860cb3fe6d188ad57c99515e",
+      "bytes": 2439,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/refine_maths.py",
+      "repository_path": "harness/refine_maths.py.txt",
+      "source_sha256": "dce78c37902138b1fc53c6a550a39413d1d14476445fc7902e161c68d65f1e7b",
+      "archive_sha256": "dce78c37902138b1fc53c6a550a39413d1d14476445fc7902e161c68d65f1e7b",
+      "bytes": 1978,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/summarize_eval.py",
+      "repository_path": "harness/summarize_eval.py.txt",
+      "source_sha256": "20ad229ee1903ec29f9f0ffb9d6205e24a2d8cdcccb8899adfe570e789ab21eb",
+      "archive_sha256": "20ad229ee1903ec29f9f0ffb9d6205e24a2d8cdcccb8899adfe570e789ab21eb",
+      "bytes": 2642,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/render_paper.py",
+      "repository_path": "harness/render_paper.py.txt",
+      "source_sha256": "edaa9d7a07497d65bcfd9ff9fd0b7c0753d8fc44a5b4cc118d89c2d76c29eae2",
+      "archive_sha256": "edaa9d7a07497d65bcfd9ff9fd0b7c0753d8fc44a5b4cc118d89c2d76c29eae2",
+      "bytes": 8754,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    },
+    {
+      "source_relative_to_local_root": "scripts/deliver.py",
+      "repository_path": "harness/deliver.py.txt",
+      "source_sha256": "e9bdf1201172aad6bd1bfa495d9f95b9537015c9448e4324863ef1e5edfdc3f0",
+      "archive_sha256": "e9bdf1201172aad6bd1bfa495d9f95b9537015c9448e4324863ef1e5edfdc3f0",
+      "bytes": 2533,
+      "classification": "final harness snapshot; read-only evidence, not necessarily a version captured at each run start"
+    }
+  ],
+  "local_requests_sha256": "25640780acff6a14c40f51c7a0bfa0b144fa0ed7d3c71e69ba0e92e3f7bfb8e4",
+  "exclusions": [
+    "No credentials, auth.json, environment dump, model weights, source PDFs, generated PDFs or image captures.",
+    "Third-party reference text bodies omitted from the two generation prompt copies; original hashes and source URLs retained.",
+    "No CLI implicit system/developer context or raw HTTP packet capture was recorded."
+  ]
+}

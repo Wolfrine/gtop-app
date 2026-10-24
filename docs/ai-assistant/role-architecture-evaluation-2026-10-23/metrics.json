@@ -1,0 +1,191 @@
+{
+  "experiment_date": "2026-10-23",
+  "local_model": "qwen3.5:4b-q4_K_M",
+  "local_context_tokens": 8192,
+  "captured_local_attempts": 90,
+  "local_valid_responses": 89,
+  "local_failed_attempts": 1,
+  "baseline": {
+    "turns": 36,
+    "route_pass": 12,
+    "valid_responses": 35,
+    "latency": {
+      "warm_load_threshold_seconds": 1,
+      "warm_n": 34,
+      "wall_p50_seconds": 3.32355,
+      "wall_p95_nearest_rank_seconds": 6.4202,
+      "first_streamed_content_p50_seconds": 0.2812,
+      "decode_tokens_s_p50": 58.54
+    }
+  },
+  "v2": {
+    "turns": 36,
+    "route_pass": 31,
+    "language_script_sanity_pass": 36,
+    "latency": {
+      "warm_load_threshold_seconds": 1,
+      "warm_n": 36,
+      "wall_p50_seconds": 2.98245,
+      "wall_p95_nearest_rank_seconds": 5.0389,
+      "first_streamed_content_p50_seconds": 0.3035,
+      "decode_tokens_s_p50": 60.625
+    },
+    "limitation": "Same cases used to tune v2; route and script checks are not semantic correctness or fluency."
+  },
+  "cold_observed": [
+    {
+      "id": "en-learner-1",
+      "timing": {
+        "wall_s": 47.7476,
+        "first_content_s": 43.263,
+        "load_s": 42.7225,
+        "prompt_tokens": 531,
+        "output_tokens": 256,
+        "decode_tokens_s": 57.08,
+        "started_utc": "2026-10-23T16:37:45.516303+00:00",
+        "completed_utc": "2026-10-23T16:38:33.267368+00:00"
+      }
+    }
+  ],
+  "targeted_context_selection_turns": 6,
+  "fresh_dialogue_holdout_turns": 9,
+  "holdout_route_pass": 9,
+  "handoff_batches": [
+    {
+      "batch": "brief-only",
+      "strict_pass": 1,
+      "case_decisions": 8,
+      "wall_seconds": 19.906
+    },
+    {
+      "batch": "brief-reversed-repeat",
+      "strict_pass": 0,
+      "case_decisions": 2,
+      "wall_seconds": 9.547
+    },
+    {
+      "batch": "rich",
+      "strict_pass": 7,
+      "case_decisions": 8,
+      "wall_seconds": 26.797
+    },
+    {
+      "batch": "rich-reversed-repeat",
+      "strict_pass": 2,
+      "case_decisions": 2,
+      "wall_seconds": 10.188
+    }
+  ],
+  "codex_runs": [
+    {
+      "id": "brief-only",
+      "exit_code": 0,
+      "seconds": 19.906,
+      "completed": true,
+      "failed": false,
+      "thread_id": "01a169a2-d87c-7cd3-80a0-fe22cefa2cd2",
+      "resumed_thread_id": null,
+      "tools_called": 0,
+      "usage": {
+        "input_tokens": 14464,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 699,
+        "reasoning_output_tokens": 80
+      },
+      "authentication": "existing ChatGPT login; API-key variables removed",
+      "executable": "C:\\Users\\Sachit Tewary\\AppData\\Local\\OpenAI\\Codex\\bin\\9614f1d9b40d9c4f\\codex.exe",
+      "model": "gpt-6.1-sol",
+      "output_received": true
+    },
+    {
+      "id": "brief-reversed-repeat",
+      "exit_code": 0,
+      "seconds": 9.547,
+      "completed": true,
+      "failed": false,
+      "thread_id": "01a169a3-b6d0-72f1-b3f2-4ffb6264327a",
+      "resumed_thread_id": null,
+      "tools_called": 0,
+      "usage": {
+        "input_tokens": 13554,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 192,
+        "reasoning_output_tokens": 31
+      },
+      "authentication": "existing ChatGPT login; API-key variables removed",
+      "executable": "C:\\Users\\Sachit Tewary\\AppData\\Local\\OpenAI\\Codex\\bin\\9614f1d9b40d9c4f\\codex.exe",
+      "model": "gpt-6.1-sol",
+      "output_received": true
+    },
+    {
+      "id": "real-worked-review",
+      "exit_code": 0,
+      "seconds": 14.25,
+      "completed": true,
+      "failed": false,
+      "thread_id": "01a169a7-f6f9-7a43-b0eb-f19373df21d6",
+      "resumed_thread_id": null,
+      "tools_called": 0,
+      "usage": {
+        "input_tokens": 13687,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 343,
+        "reasoning_output_tokens": 30
+      },
+      "authentication": "existing ChatGPT login; API-key variables removed",
+      "executable": "C:\\Users\\Sachit Tewary\\AppData\\Local\\OpenAI\\Codex\\bin\\9614f1d9b40d9c4f\\codex.exe",
+      "model": "gpt-6.1-sol",
+      "output_received": true
+    },
+    {
+      "id": "rich",
+      "exit_code": 0,
+      "seconds": 26.797,
+      "completed": true,
+      "failed": false,
+      "thread_id": "01a169a3-2633-75f1-86b8-0e079c34769f",
+      "resumed_thread_id": null,
+      "tools_called": 0,
+      "usage": {
+        "input_tokens": 17405,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1436,
+        "reasoning_output_tokens": 111
+      },
+      "authentication": "existing ChatGPT login; API-key variables removed",
+      "executable": "C:\\Users\\Sachit Tewary\\AppData\\Local\\OpenAI\\Codex\\bin\\9614f1d9b40d9c4f\\codex.exe",
+      "model": "gpt-6.1-sol",
+      "output_received": true
+    },
+    {
+      "id": "rich-reversed-repeat",
+      "exit_code": 0,
+      "seconds": 10.188,
+      "completed": true,
+      "failed": false,
+      "thread_id": "01a169a3-8efa-72e0-a739-5dec6242a9a7",
+      "resumed_thread_id": null,
+      "tools_called": 0,
+      "usage": {
+        "input_tokens": 14214,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 246,
+        "reasoning_output_tokens": 0
+      },
+      "authentication": "existing ChatGPT login; API-key variables removed",
+      "executable": "C:\\Users\\Sachit Tewary\\AppData\\Local\\OpenAI\\Codex\\bin\\9614f1d9b40d9c4f\\codex.exe",
+      "model": "gpt-6.1-sol",
+      "output_received": true
+    }
+  ],
+  "subscription_snapshot": {
+    "weekly_used_percent": 12,
+    "snapshot_utc": "2026-10-23T16:56Z approximate",
+    "scope": "Account-wide shared usage; not attributable to these five calls. No API keys or credit purchases."
+  }
+}

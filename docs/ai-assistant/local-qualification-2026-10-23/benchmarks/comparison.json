@@ -1,0 +1,143 @@
+[
+  {
+    "model": "gemma4:e2b-it-qat",
+    "standard_passed": 19,
+    "standard_total": 36,
+    "canonical_passed": 19,
+    "by_language": {
+      "en": {
+        "passed": 8,
+        "total": 12
+      },
+      "hi": {
+        "passed": 2,
+        "total": 12
+      },
+      "hinglish": {
+        "passed": 9,
+        "total": 12
+      }
+    },
+    "total_runs": 54,
+    "errors": 0,
+    "warm_wall_p50_s": 1.2396,
+    "warm_wall_p95_s": 5.5088,
+    "warm_first_p50_s": 0.1324,
+    "warm_decode_median_tokens_s": 106.21,
+    "cold_wall_s": [
+      8.6348,
+      8.4745,
+      8.4271
+    ],
+    "long_context_passed": 1,
+    "long_context_prompt_tokens": [
+      1696,
+      2801,
+      1706,
+      2811,
+      1686,
+      2791
+    ],
+    "gpu_total_used_max_mib": 4483,
+    "limitations": [
+      "Synthetic requirements test; one fixed seed; full-syllabus brief extraction, not local paper generation",
+      "Global GPU memory includes desktop and other apps; samples are not allocator peak telemetry",
+      "Long context is actual prompt-token count above, not advertised maximum context",
+      "Warm excludes measured load durations >=0.1 sec; cold is runner reload, may benefit from Windows filesystem cache"
+    ]
+  },
+  {
+    "model": "qwen3.5:2b-q4_K_M",
+    "standard_passed": 6,
+    "standard_total": 36,
+    "canonical_passed": 15,
+    "by_language": {
+      "en": {
+        "passed": 2,
+        "total": 12
+      },
+      "hi": {
+        "passed": 2,
+        "total": 12
+      },
+      "hinglish": {
+        "passed": 2,
+        "total": 12
+      }
+    },
+    "total_runs": 54,
+    "errors": 0,
+    "warm_wall_p50_s": 1.5941,
+    "warm_wall_p95_s": 2.1059,
+    "warm_first_p50_s": 0.1246,
+    "warm_decode_median_tokens_s": 100.78,
+    "cold_wall_s": [
+      6.8282,
+      8.7871,
+      7.1901
+    ],
+    "long_context_passed": 0,
+    "long_context_prompt_tokens": [
+      1688,
+      2793,
+      1753,
+      2858,
+      1682,
+      2787
+    ],
+    "gpu_total_used_max_mib": 3957,
+    "limitations": [
+      "Synthetic requirements test; one fixed seed; full-syllabus brief extraction, not local paper generation",
+      "Global GPU memory includes desktop and other apps; samples are not allocator peak telemetry",
+      "Long context is actual prompt-token count above, not advertised maximum context",
+      "Warm excludes measured load durations >=0.1 sec; cold is runner reload, may benefit from Windows filesystem cache"
+    ]
+  },
+  {
+    "model": "qwen3.5:4b-q4_K_M",
+    "standard_passed": 28,
+    "standard_total": 36,
+    "canonical_passed": 28,
+    "by_language": {
+      "en": {
+        "passed": 8,
+        "total": 12
+      },
+      "hi": {
+        "passed": 11,
+        "total": 12
+      },
+      "hinglish": {
+        "passed": 9,
+        "total": 12
+      }
+    },
+    "total_runs": 54,
+    "errors": 0,
+    "warm_wall_p50_s": 2.266,
+    "warm_wall_p95_s": 2.5917,
+    "warm_first_p50_s": 0.2415,
+    "warm_decode_median_tokens_s": 62.76,
+    "cold_wall_s": [
+      7.5433,
+      7.6718,
+      7.7177
+    ],
+    "long_context_passed": 6,
+    "long_context_prompt_tokens": [
+      1688,
+      2793,
+      1753,
+      2858,
+      1682,
+      2787
+    ],
+    "gpu_total_used_max_mib": 5511,
+    "limitations": [
+      "Synthetic requirements test; one fixed seed; full-syllabus brief extraction, not local paper generation",
+      "Global GPU memory includes desktop and other apps; samples are not allocator peak telemetry",
+      "Long context is actual prompt-token count above, not advertised maximum context",
+      "Warm excludes measured load durations >=0.1 sec; cold is runner reload, may benefit from Windows filesystem cache"
+    ]
+  }
+]

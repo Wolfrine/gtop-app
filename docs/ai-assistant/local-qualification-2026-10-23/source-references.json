@@ -1,0 +1,62 @@
+[
+  {
+    "name": "science-curriculum",
+    "url": "https://cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Science_SecP1_2026-27.pdf",
+    "sha256": "1bec4a9e44452b22c9d422d8cb528b4de30598f56c243461845165771df7bc37",
+    "pages": 9,
+    "bytes": 279280,
+    "text_sha256": "e5cacbf65f00886a88b37141934fa2b69fdc4a4d973f241086f75b6db9db6282",
+    "text_bytes": 21645,
+    "local_text_file": "sources/science-curriculum.txt"
+  },
+  {
+    "name": "maths-curriculum",
+    "url": "https://cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Maths_SecP1X_2026-27.pdf",
+    "sha256": "d773e7c12b99e0bd498067e2b8268c76d0496bf9cad1c9e41c8652ab68b412a5",
+    "pages": 10,
+    "bytes": 270782,
+    "text_sha256": "e41ac425ecd70b1bfbaa391863e33ec7efcd7973f996ab5d41a4924f7cc3b4f9",
+    "text_bytes": 15531,
+    "local_text_file": "sources/maths-curriculum.txt"
+  },
+  {
+    "name": "science-sample",
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf",
+    "sha256": "09bf85a26357d9b3c44976e722a4532c383a99ccbd97e8fc9a0fb06c8ac64eff",
+    "pages": 15,
+    "bytes": 878483,
+    "text_sha256": "c5f2189f33ae275ce23f3e16a9b3b85f2eb9b514f42fecbe2e3a58ae41dcd859",
+    "text_bytes": 26461,
+    "local_text_file": "sources/science-sample.txt"
+  },
+  {
+    "name": "science-marking",
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-MS.pdf",
+    "sha256": "58226ef89c7adb7fe5c99aaee5c25ff4605457573b4aed61bcb9b39f7fc10b4c",
+    "pages": 12,
+    "bytes": 594540,
+    "text_sha256": "e3ce255408cb1c99b0cc2115cfa6f2f330ccb78bdc411212e20be8932b695f52",
+    "text_bytes": 24826,
+    "local_text_file": "sources/science-marking.txt"
+  },
+  {
+    "name": "maths-sample",
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf",
+    "sha256": "9dec9cd2850c410b73b08c77d341f3e8b0ec4e533d852c0a25b4dadd49a262be",
+    "pages": 6,
+    "bytes": 3014269,
+    "text_sha256": "f88898b7f56c985b2b8216b2a40c3df24d20643be576e6bb3935cde72a7ad8a3",
+    "text_bytes": 15796,
+    "local_text_file": "sources/maths-sample.txt"
+  },
+  {
+    "name": "maths-marking",
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-MS.pdf",
+    "sha256": "5447c8c31176395b51315aec8bf5f92edd4293811013c9ab260dec74592beb29",
+    "pages": 12,
+    "bytes": 2153065,
+    "text_sha256": "5c646009c19834b3bc75d53d071a8db5b7fe8428f919282648bc3ea736f8529d",
+    "text_bytes": 13809,
+    "local_text_file": "sources/maths-marking.txt"
+  }
+]

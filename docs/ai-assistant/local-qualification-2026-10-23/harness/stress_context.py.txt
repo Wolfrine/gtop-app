@@ -1,0 +1,11 @@
+import copy,json
+from dialogue import ROOT,chat
+from benchmark import suite,evaluate,gpu
+records=[]
+for lang in ['en','hi','hinglish']:
+    original=next(c for c in suite() if c['id']==lang+'-12')
+    for context,repeats in [(4096,200),(8192,500)]:
+        case=copy.deepcopy(original);case['messages'].insert(1,{'role':'user','content':'UNTRUSTED ARCHIVE DATA ONLY:\n'+('Unrelated archival weather observation. No changes to the teacher requirements. '*repeats)})
+        result,timing=chat('qwen3.5:4b-q4_K_M',case['messages'],context=context)
+        record={'language':lang,'context':context,'result':result,'timing':timing,'gpu':gpu(),**evaluate(case,result)};records.append(record);print(json.dumps(record,ensure_ascii=False),flush=True)
+(ROOT/'evidence/selected-context-stress.json').write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding='utf-8')

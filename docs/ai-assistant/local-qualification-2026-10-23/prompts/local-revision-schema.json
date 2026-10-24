@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": [
+        "revise_question",
+        "clarify",
+        "approval_required"
+      ]
+    },
+    "question_number": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "change": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "action",
+    "question_number",
+    "change"
+  ],
+  "additionalProperties": false
+}

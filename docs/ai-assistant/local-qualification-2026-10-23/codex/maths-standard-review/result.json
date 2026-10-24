@@ -1,0 +1,30 @@
+{
+  "ready_for_teacher_review": true,
+  "issues": [
+    {
+      "question_number": 0,
+      "severity": "minor",
+      "issue": "The requested source conflict remains unresolved: the Science curriculum's detailed list and sample assess Heredity, while its Note for Teachers ambiguously lists Heredity and Evolution as excluded. This is a Mathematics paper, so that conflict does not establish a mathematical coverage defect. The linked official documents and curriculum extracts were not available for verification here.",
+      "correction": "Record the Science ambiguity explicitly for separate clarification. Qualify the Mathematics coverage claim as chapter coverage checked against the supplied paper; official 2026–27 alignment still requires checking the actual curriculum and sample."
+    },
+    {
+      "question_number": 12,
+      "severity": "minor",
+      "issue": "The question refers to a 'printed triangle', but the supplied content contains only diagram metadata, without an inspectable figure or explicit right-angle and side-placement information in that metadata. The written question nevertheless supplies enough information to solve it.",
+      "correction": "Remove 'printed', or supply a labelled diagram showing the right angle at A, AB = 12 cm and AC = 5 cm."
+    },
+    {
+      "question_number": 33,
+      "severity": "minor",
+      "issue": "A suitable labelled figure is explicitly required, but the worked answer supplies no figure and the marking scheme does not explain how that requirement is assessed.",
+      "correction": "Include the labelled figure with BE and CD joined in the model solution, and clarify whether drawing it carries credit within an existing marking step."
+    },
+    {
+      "question_number": 36,
+      "severity": "minor",
+      "issue": "The two alternatives in part (iii) have noticeably different demands: the main option requires solving simultaneous equations, whereas the alternative requires only calculating 10(60 − 35).",
+      "correction": "Revise the alternative to require comparable algebra, such as finding revised ticket counts from a stated unchanged total and new collection."
+    }
+  ],
+  "assessment": "No major mathematical defects found. Independently recalculated every answer, including all internal alternatives: numerical results, proofs, assertion–reason answers and all 20 zero-based option indices are correct; each objective item has a unique intended answer. Question and marking-step totals give 80 marks, with the stated choices correctly located. All 14 conventional Class 10 Mathematics chapters are represented. Unit totals are 6, 20, 6, 15, 12, 10 and 11 marks respectively. No false scientific assertion occurs in this Mathematics paper. No tools used; rendered diagrams and official 2026–27 source alignment remain unverified. Ready for teacher review, not final school approval."
+}

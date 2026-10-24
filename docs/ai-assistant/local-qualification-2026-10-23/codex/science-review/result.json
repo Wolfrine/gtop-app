@@ -1,0 +1,36 @@
+{
+  "ready_for_teacher_review": false,
+  "issues": [
+    {
+      "question_number": 0,
+      "severity": "minor",
+      "issue": "The Heredity scope conflict remains unresolved: the detailed curriculum and sample assess it, while the Note for Teachers ambiguously lists Heredity and Evolution as excluded. The paper acknowledges this but adopts one interpretation for 5 marks of assessment.",
+      "correction": "Keep an explicit unresolved curriculum-ambiguity flag for Q6 and Q15. Describe their inclusion as provisional pending authoritative clarification; distinguish this from the unambiguous exclusion of Evolution."
+    },
+    {
+      "question_number": 15,
+      "severity": "major",
+      "issue": "Part A's worked answer says, 'All F1 plants produce round seeds.' This confuses the phenotype of the F1 seeds/plants with the seeds subsequently produced by those plants. Self-pollinated Rr F1 plants produce F2 seeds with an expected 3:1 round-to-wrinkled ratio.",
+      "correction": "Write: 'The F1 offspring are all Rr and have the round-seed phenotype.' Delete the claim that every seed produced by an F1 plant is round."
+    },
+    {
+      "question_number": 23,
+      "severity": "minor",
+      "issue": "Option A is uniquely consistent, but the explanation overstates the inference. Failure to displace zinc does not by itself establish that P is strictly less reactive than zinc; P could itself be zinc.",
+      "correction": "Specify that P is a different metal from zinc and copper, using the standard displacement-series assumptions. Alternatively, say the observations establish P > Cu and are consistent with Zn > P."
+    },
+    {
+      "question_number": 37,
+      "severity": "minor",
+      "issue": "The stem refers to a 'printed circuit', but the supplied paper contains only diagram metadata and labels, without an actual circuit drawing. The numerical question remains answerable from its text.",
+      "correction": "Supply the complete closed-loop series-circuit drawing with battery and resistor symbols, or remove the reference to a printed circuit."
+    },
+    {
+      "question_number": 39,
+      "severity": "major",
+      "issue": "The alternative does not uniquely establish hypermetropia. A near point of 50 cm and difficulty reading at 25 cm can also arise from presbyopia. The compulsory identification and two-cause marking scheme therefore impose a diagnosis unsupported by the stem.",
+      "correction": "Explicitly state that the person has hypermetropia unrelated to age-related loss of accommodation, or supply sufficient diagnostic information. Otherwise accept a justified presbyopia answer and adapt the causes rubric. The correcting power remains +2.0 D."
+    }
+  ],
+  "assessment": "Reviewed entirely from the supplied text, without tools or independent retrieval of the linked sources. All 20 objective questions have unique intended answers and correct zero-based option indices. All numerical results, genetic ratios and supplied chemical equations recalculate correctly. Question totals, marking-step totals and internal-choice marks are consistent: Biology 30, Chemistry 25, Physics 25; unit totals 25/25/12/13/5; overall 80 marks across 39 questions. All 13 named retained chapters are represented, although this does not establish coverage of every curriculum subtopic. Every internal choice was checked; Q39's alternative needs revision. No rendered diagrams were available for visual inspection. Correct the major answer and diagnostic defects before teacher review."
+}

@@ -1,0 +1,115 @@
+{
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": [
+        "clarify",
+        "create_paper",
+        "status",
+        "approval_required"
+      ]
+    },
+    "reply": {
+      "type": "string"
+    },
+    "brief": {
+      "type": "object",
+      "properties": {
+        "board": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "standard": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subject": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "academic_year": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "marks": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "duration_minutes": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "paper_language": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "answer_language": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_policy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "internal_choices": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "board",
+        "standard",
+        "subject",
+        "academic_year",
+        "scope",
+        "marks",
+        "duration_minutes",
+        "paper_language",
+        "answer_language",
+        "source_policy",
+        "internal_choices"
+      ],
+      "additionalProperties": false
+    },
+    "missing": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "action",
+    "reply",
+    "brief",
+    "missing"
+  ],
+  "additionalProperties": false
+}

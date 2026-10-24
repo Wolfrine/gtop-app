@@ -1,0 +1,41 @@
+{
+  "science": {
+    "local_model": "qwen3.5:2b-q4_K_M",
+    "local_wall_s": 5.1476,
+    "local_first_content_s": 3.4387,
+    "local_load_s_included": 3.1132,
+    "codex_stages_s": {
+      "generation": 340.375,
+      "review": 64.125,
+      "correction": 39.672
+    },
+    "measured_stage_sum_s": 449.3196,
+    "is_end_to_end_delivery_latency": false,
+    "excluded": "orchestration gaps, inspection, local refinements, PDF/render QA and unretained retries"
+  },
+  "maths-standard": {
+    "local_model": "qwen3.5:4b-q4_K_M",
+    "local_wall_s": 8.8186,
+    "local_first_content_s": 6.9233,
+    "local_load_s_included": 6.5123,
+    "codex_stages_s": {
+      "generation": 432.109,
+      "review": 50.375
+    },
+    "measured_stage_sum_s": 491.3026,
+    "is_end_to_end_delivery_latency": false,
+    "excluded": "orchestration gaps, inspection, local refinements, PDF/render QA and unretained retries"
+  },
+  "science-revision-q6": {
+    "local_model": "qwen3.5:4b-q4_K_M",
+    "local_wall_s": 1.2752,
+    "local_first_content_s": 0.5794,
+    "local_load_s_included": 0.0045,
+    "codex_stages_s": {
+      "generation": 15.141
+    },
+    "measured_stage_sum_s": 16.4162,
+    "is_end_to_end_delivery_latency": false,
+    "excluded": "orchestration gaps, inspection, local refinements, PDF/render QA and unretained retries"
+  }
+}

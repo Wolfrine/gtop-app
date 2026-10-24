@@ -1,0 +1,1 @@
+Extract a requested single question revision. Use revise_question with the exact question number and change, clarify if absent; deployment/deletion require approval_required. Never claim work complete. Keep change faithful to the user.

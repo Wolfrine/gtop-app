@@ -1,0 +1,66 @@
+{
+  "job_id": "0988b2ad-0027-45a2-aff8-11bec61cb2d8",
+  "owner": "local-operator-sachit",
+  "conversation_id": "0988b2ad-0027-45a2-aff8-11bec61cb2d8",
+  "state": "review_required",
+  "content_generation_complete": true,
+  "teacher_approved": false,
+  "message": "Science ka 39-question, 80-mark paper aur worked marking scheme taiyar hain. Teacher review pending hai.",
+  "brief": {
+    "board": "CBSE",
+    "standard": "10",
+    "subject": "Science",
+    "academic_year": "2026-27",
+    "scope": "full_syllabus",
+    "marks": 80,
+    "duration_minutes": 180,
+    "paper_language": "English",
+    "answer_language": "English",
+    "source_policy": "bank_first",
+    "internal_choices": true
+  },
+  "paper_source": "H:\\GTOP-Local-AI\\jobs\\0988b2ad-0027-45a2-aff8-11bec61cb2d8\\paper.json",
+  "paper_sha256": "127d5a234fbdfd9bcee07ba1716f223e0b2f46fc6d599d33a94bb809ad0d9e4a",
+  "validation": {
+    "passed": true,
+    "errors": [],
+    "question_count": 39,
+    "attempted_marks": 80,
+    "unit_marks": {
+      "World of Living": 25,
+      "Natural Resources": 5,
+      "Chemical Substances": 25,
+      "Natural Phenomena": 12,
+      "Effects of Current": 13
+    },
+    "choice_groups": 13,
+    "chapters": [
+      "Acids, Bases and Salts",
+      "Carbon and its Compounds",
+      "Chemical Reactions and Equations",
+      "Control and Coordination",
+      "Electricity",
+      "Heredity",
+      "How do Organisms Reproduce?",
+      "Life Processes",
+      "Light - Reflection and Refraction",
+      "Magnetic Effects of Electric Current",
+      "Metals and Non-metals",
+      "Our Environment",
+      "The Human Eye and the Colourful World"
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "H:\\GTOP-Local-AI\\jobs\\0988b2ad-0027-45a2-aff8-11bec61cb2d8\\output\\pdf\\question-paper.pdf",
+      "sha256": "cdb1b8fe01129387371fccd2efc5221a73a8728b317e6508a5d84279accc4dac",
+      "bytes": 117976
+    },
+    {
+      "path": "H:\\GTOP-Local-AI\\jobs\\0988b2ad-0027-45a2-aff8-11bec61cb2d8\\output\\pdf\\marking-scheme.pdf",
+      "sha256": "da18da8b2a5f1d8d1dff9089579e8fd5f853f0c0706740b91be3e8ce03138645",
+      "bytes": 134029
+    }
+  ],
+  "delivered_at": 1792759839.8670104
+}

@@ -1,0 +1,70 @@
+{
+  "job_id": "36873eef-e011-4e59-909e-37711e1e16e2",
+  "owner": "local-operator-sachit",
+  "conversation_id": "36873eef-e011-4e59-909e-37711e1e16e2",
+  "state": "review_required",
+  "content_generation_complete": true,
+  "teacher_approved": false,
+  "message": "Mathematics Standard ka 38-question, 80-mark paper aur worked marking scheme taiyar hain. Teacher review pending hai.",
+  "brief": {
+    "board": "CBSE",
+    "standard": "10",
+    "subject": "Mathematics Standard",
+    "academic_year": "2026-27",
+    "scope": "full_syllabus",
+    "marks": 80,
+    "duration_minutes": 180,
+    "paper_language": "English",
+    "answer_language": "English",
+    "source_policy": "bank_first",
+    "internal_choices": true
+  },
+  "paper_source": "H:\\GTOP-Local-AI\\jobs\\36873eef-e011-4e59-909e-37711e1e16e2\\correction\\paper.json",
+  "paper_sha256": "358b7a9b9cd68d58b23de1a84c269e9f733f722312e0b4e755ec085c9e89c41a",
+  "validation": {
+    "passed": true,
+    "errors": [],
+    "question_count": 38,
+    "attempted_marks": 80,
+    "unit_marks": {
+      "Number Systems": 6,
+      "Algebra": 20,
+      "Coordinate Geometry": 6,
+      "Geometry": 15,
+      "Trigonometry": 12,
+      "Mensuration": 10,
+      "Statistics and Probability": 11
+    },
+    "choice_groups": 9,
+    "chapters": [
+      "Areas Related to Circles",
+      "Arithmetic Progressions",
+      "Circles",
+      "Coordinate Geometry",
+      "Heights and Distances",
+      "Introduction to Trigonometry",
+      "Pair of Linear Equations in Two Variables",
+      "Polynomials",
+      "Probability",
+      "Quadratic Equations",
+      "Real Numbers",
+      "Statistics",
+      "Surface Areas and Volumes",
+      "Triangles",
+      "Trigonometric Identities"
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "H:\\GTOP-Local-AI\\jobs\\36873eef-e011-4e59-909e-37711e1e16e2\\output\\pdf\\question-paper.pdf",
+      "sha256": "9f3a8919b64381fc7b3058ac013c20cfa5f355e33c41221c1467e3545e2e96b3",
+      "bytes": 114247
+    },
+    {
+      "path": "H:\\GTOP-Local-AI\\jobs\\36873eef-e011-4e59-909e-37711e1e16e2\\output\\pdf\\marking-scheme.pdf",
+      "sha256": "8fde0963723d3b252c07db3b919e49c6bad41e43006ff6c08dafdafcf420c3f2",
+      "bytes": 128039
+    }
+  ],
+  "delivered_at": 1792759838.3500972
+}

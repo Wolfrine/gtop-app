@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "checks": {
+    "equivalent_resistance_ohm": true,
+    "total_current_amp": true,
+    "parallel_12ohm_current_amp": true,
+    "parallel_6ohm_current_amp": true,
+    "energy_300s_joule": true,
+    "evidence_ids": true
+  },
+  "independent_fraction_calculation": {
+    "equivalent_resistance_ohm": 10.0,
+    "total_current_amp": 2.4,
+    "parallel_12ohm_current_amp": 0.8,
+    "parallel_6ohm_current_amp": 1.6,
+    "energy_300s_joule": 17280.0
+  },
+  "codex_seconds": 14.25,
+  "local_interpretation_seconds": 4.4512,
+  "progress_controller_facts": {
+    "fixture": false,
+    "assistant_language": "Hinglish (Roman Hindi plus English)",
+    "profile": {
+      "display_name": "Learner L1 (synthetic)",
+      "role": "local synthetic operator",
+      "board": "CBSE",
+      "standard": "10",
+      "subject": "Science",
+      "weak_topic": "Electricity",
+      "available_minutes": 15,
+      "learning_preference": "worked examples"
+    },
+    "permissions": {
+      "simple_help": true,
+      "routine_content": true,
+      "development_approved": false,
+      "deployment_approved": false,
+      "destructive_approved": false
+    },
+    "available_data": {
+      "eligible_bank_questions": 0,
+      "bank_connector_available": false
+    },
+    "job": {
+      "id": "real-worked-review",
+      "state": "running",
+      "phase": "Codex process running",
+      "progress_percent": null,
+      "eta_s": null,
+      "artifact_ready": false
+    },
+    "other_conversation_data": null
+  },
+  "scope": "Real content-only Codex result; no app change. Numerical validation uses Python Fraction independently of either model."
+}

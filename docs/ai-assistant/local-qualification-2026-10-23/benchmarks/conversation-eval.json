@@ -1,0 +1,65 @@
+[
+  {
+    "language": "en",
+    "turn": 1,
+    "user": "Hello. I need help planning a question paper. Ask me for the essential details first.",
+    "reply": "Hello! To plan your question paper, what is the subject and grade level? Also, how many questions do you need?",
+    "seconds": 0.812
+  },
+  {
+    "language": "en",
+    "turn": 2,
+    "user": "CBSE Class 10 Science, full syllabus, 80 marks, 3 hours, English questions and solutions.",
+    "reply": "Understood: CBSE Class 10 Science, full syllabus, 80 marks, 3 hours, English language, with solutions.\n\nWhat specific topics or chapters should be prioritized for the question paper?",
+    "seconds": 0.829
+  },
+  {
+    "language": "en",
+    "turn": 3,
+    "user": "Change only the solutions language to Hindi. Summarize the final requirements briefly; do not create the paper.",
+    "reply": "Final requirements: CBSE Class 10 Science, full syllabus, 80 marks, 3 hours, English questions with Hindi solutions. Prioritize all chapters equally unless specified otherwise. Please confirm if any specific chapter needs emphasis or adjustment before proceeding.",
+    "seconds": 1.015
+  },
+  {
+    "language": "hi",
+    "turn": 1,
+    "user": "नमस्ते। मुझे प्रश्नपत्र बनवाना है। पहले जरूरी जानकारी पूछिए। कृपया हिंदी में बात कीजिए।",
+    "reply": "नमस्ते! क्या आप CBSE बोर्ड के किसी विषय का प्रश्नपत्र चाहते हैं?  \nक्या आपके पास छात्रों की उम्र, परीक्षा का समय और आवश्यक अंक जैसे विवरण हैं?",
+    "seconds": 1.063
+  },
+  {
+    "language": "hi",
+    "turn": 2,
+    "user": "CBSE कक्षा 10 विज्ञान, पूरा पाठ्यक्रम, 80 अंक, 3 घंटे। प्रश्न और हल अंग्रेज़ी में चाहिए।",
+    "reply": "सही जानकारी मिल गई है। क्या आप चाहते हैं कि प्रश्नपत्र के साथ समाधान भी अलग पेज पर हों या एक ही पेज में?  \nक्या आपके पास कोई विशेष विषय (जैसे रासायनिक अभिक्रिया) शामिल करना है या पूरा पाठ्यक्रम समान वजन का होना चाहिए?",
+    "seconds": 1.453
+  },
+  {
+    "language": "hi",
+    "turn": 3,
+    "user": "केवल हल की भाषा हिंदी कर दीजिए। अंतिम शर्तों का छोटा सार हिंदी में बताइए। अभी पेपर मत बनाइए।",
+    "reply": "शर्तें: प्रश्न-पत्र अंग्रेज़ी, हल हिंदी। 80 अंक, 3 घंटे, पूरा पाठ्यक्रम समान वजन के साथ। कोई विशेष विषय नहीं।  \nअब क्या आप चाहते हैं कि मैं प्रश्नपत्र तैयार करूँ?",
+    "seconds": 1.422
+  },
+  {
+    "language": "hinglish",
+    "turn": 1,
+    "user": "Hi, question paper plan karna hai. Pehle essential details poochho. Hinglish mein baat karo.",
+    "reply": "Hello! Question paper planning ke liye pehle ye do zaroori cheezein batao: Is exam ka topic ya subject kya hai aur kitne sawalon (MCQ/Long answer) chahiye?",
+    "seconds": 0.922
+  },
+  {
+    "language": "hinglish",
+    "turn": 2,
+    "user": "CBSE class 10 Science, full syllabus, 80 marks, 3 hours, questions aur solutions English mein.",
+    "reply": "Samajh gaya! Class 10 Science ka full syllabus hai, toh main chapters ko balance karke design karunga—MCQs ke saath long answers aur diagrams ke liye space bhi dena hoga. Solutions clear steps mein English mein likhunga taaki students easily samajh sakein. Kya koi specific chapter ko zyada weightage chahiye ya koi nayi pattern change?",
+    "seconds": 1.609
+  },
+  {
+    "language": "hinglish",
+    "turn": 3,
+    "user": "Sirf solutions Hindi mein kar do. Final requirements Hinglish mein summarize karo, abhi paper mat banao.",
+    "reply": "Samajh gaya! Solutions Hindi mein hongi, questions English mein rahegi. Total 80 marks, 3 hours ka plan hai full syllabus ke hisaab se. Kya aapko specific difficulty level (Easy/Medium/Hard) ya koi particular marking scheme chahiye jo abhi nahi batayi?",
+    "seconds": 1.266
+  }
+]

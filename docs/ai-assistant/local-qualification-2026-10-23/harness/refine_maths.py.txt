@@ -1,0 +1,15 @@
+import copy,json
+from dialogue import ROOT
+from jobs import digest
+import paper
+folder=ROOT/'jobs/36873eef-e011-4e59-909e-37711e1e16e2';old=json.loads((folder/'codex/result.json').read_text(encoding='utf-8'));new=copy.deepcopy(old)
+for q in paper.all_questions(new):
+    if q['number']==33:
+        q['diagram']={'kind':'bpt','labels':['A','B','C','D','E']}
+        q['marking_steps'][0]['text']='Use a correctly labelled figure with BE and CD joined; use the common altitude from E to show ar(ADE)/ar(BDE) = AD/DB. The figure supports this step; no additional mark is added.'
+    if q['number']==36:
+        q['parts'][2]['alternative']={'text':'On another day, 120 tickets are sold at the same prices and the collection is Rs 5700. Find the numbers of adult and student tickets sold that day.','answer':'Let a and s be the new adult and student counts. Then a + s = 120 and 60a + 35s = 5700. Subtract 35a + 35s = 4200 to get 25a = 1500, so a = 60. Hence s = 60.','marking_steps':[{'text':'Form the two equations and eliminate one variable to obtain 25a = 1500 and a = 60.','marks':1},{'text':'Find s = 60 and state 60 adult tickets and 60 student tickets.','marks':1}]}
+brief=json.loads((folder/'dialogue.json').read_text(encoding='utf-8'))['canonical_brief'];validation=paper.validate(new,brief,old)
+assert validation['passed'] and validation['changed_question_numbers']==[33,36],validation
+dest=folder/'correction';dest.mkdir(exist_ok=True);(dest/'paper.json').write_text(json.dumps(new,ensure_ascii=False,indent=2),encoding='utf-8');(dest/'validation.json').write_text(json.dumps(validation,indent=2),encoding='utf-8')
+(dest/'provenance.json').write_text(json.dumps({'raw_parent_sha256':digest(old),'changes':'Reviewed local corrections: labelled BPT figure and comparable algebra demand for case-study alternative; no change to marks, chapter scope or other questions','academic_status':'Requires teacher review'},indent=2),encoding='utf-8');print(json.dumps(validation))

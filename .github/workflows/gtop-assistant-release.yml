@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       deploy_required: ${{ steps.scope.outputs.deploy_required }}
+      backend_required: ${{ steps.scope.outputs.backend_required }}
+      hosting_required: ${{ steps.scope.outputs.hosting_required }}
     permissions:
       contents: read
     steps:
@@ -82,7 +84,7 @@ jobs:
           if-no-files-found: error
   backend:
     needs: verify
-    if: ${{ needs.verify.outputs.deploy_required == 'true' }}
+    if: ${{ needs.verify.outputs.backend_required == 'true' }}
     runs-on: ubuntu-latest
     environment: firebase-live-backend
     permissions:
@@ -114,7 +116,7 @@ jobs:
         run: gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="gtopassistantgateway" AND textPayload:"Assistant gateway error:"' --project=gtop-app --freshness=30m --limit=5 --format='value(textPayload)'
   hosting:
     needs: [verify,backend]
-    if: ${{ !cancelled() && needs.verify.result == 'success' && needs.verify.outputs.deploy_required == 'true' && needs.backend.result == 'success' }}
+    if: ${{ !cancelled() && needs.verify.result == 'success' && needs.verify.outputs.hosting_required == 'true' && (needs.backend.result == 'success' || needs.backend.result == 'skipped') }}
     runs-on: ubuntu-latest
     environment: firebase-production
     permissions:

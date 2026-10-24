@@ -7,7 +7,7 @@ import {groundedReply,calculate} from '../src/tools.js';
 import {skill} from '../src/skills.js';
 import {inputBinding} from '../src/recovery.js';
 import {paperOutputSchema,revisionOutputSchema} from '../src/paper-contract.js';
-import {cloudReleaseRequired} from '../src/release-scope.js';
+import {cloudReleaseRequired,cloudReleasePlan} from '../src/release-scope.js';
 import {curriculum} from '../../../assistant-service/domain/index.mjs';
 import {assertSchema} from '../../../assistant-service/domain/schemas.mjs';
 const job=(text:string):any=>({id:'test',ownerUid:'one',conversationId:'c',requestRevision:1,request:{id:'r',text,sha256Utf8:hash(text)},rootRequest:{id:'root',text:'Original request',sha256Utf8:hash('Original request')},history:[{role:'user',id:'root',text:'Original request'},{role:'assistant',text:'I deployed everything.'}],profile:{},context:{},controllerFacts:{permissions:{development:false},availableData:{}},requirements:{marks:80},interpretation:'fallible',proposedActions:[]});
@@ -28,6 +28,10 @@ test('controller-only releases keep checks while remote or unknown changes retai
   assert.equal(cloudReleaseRequired(['tools/gtop-assistant/src/worker.ts','tools/gtop-assistant/test/controller.test.ts','docs/ai-assistant/PILOT_RELEASE_2026-10-24.md','.github/workflows/gtop-assistant-release.yml']),false);
   for(const file of ['assistant-service/runtime.mjs','question-papers/src/main.ts','firebase.assistant.json','gtop-app/firestore.rules','unexpected/file'])assert.equal(cloudReleaseRequired(['tools/gtop-assistant/src/worker.ts',file]),true);
   assert.equal(cloudReleaseRequired([]),true);
+  assert.deepEqual(cloudReleasePlan(['question-papers/src/api.service.ts','question-papers/public/assistant-config.json','.github/workflows/gtop-assistant-release.yml']),{backend:false,hosting:true});
+  assert.deepEqual(cloudReleasePlan(['question-papers/src/main.ts','assistant-service/runtime.mjs']),{backend:true,hosting:true});
+  assert.deepEqual(cloudReleasePlan(['docs/report.md']),{backend:false,hosting:false});
+  assert.deepEqual(cloudReleasePlan([]),{backend:true,hosting:true});
 });
 test('Windows pairing decrypts under a PowerShell Core parent without importing its modules',{skip:process.platform!=='win32'},async()=>{
   const encoded=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',"$ErrorActionPreference='Stop'; $env:PSModulePath=$PSHOME+'\\Modules'; ConvertFrom-SecureString (ConvertTo-SecureString 'synthetic-test-only' -AsPlainText -Force)"],{encoding:'utf8',windowsHide:true});

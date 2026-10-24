@@ -2,7 +2,7 @@
   "apiBase": "/api",
   "firebase": {
     "apiKey": "AIzaSyATxEIUYY7rPgJriy_0q7yjfcP-QyBMZkM",
-    "authDomain": "gtop-app.firebaseapp.com",
+    "authDomain": "gtop-question-papers.web.app",
     "projectId": "gtop-app",
     "storageBucket": "gtop-app.firebasestorage.app",
     "messagingSenderId": "78765581239",

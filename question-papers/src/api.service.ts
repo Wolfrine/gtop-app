@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
-import { getAuth, Auth, User, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, connectAuthEmulator, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, Auth, User, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, connectAuthEmulator, signInWithEmailAndPassword } from 'firebase/auth';
 import { Transport } from './contracts';
 
 @Injectable({providedIn:'root'})
@@ -25,9 +25,13 @@ export class AssistantApi implements Transport {
     this.auth=getAuth(initializeApp(config.firebase));
     if(local && config.authEmulatorUrl)connectAuthEmulator(this.auth,config.authEmulatorUrl,{disableWarnings:true});
     await setPersistence(this.auth,browserLocalPersistence);
+    // The hosted auth helper shares this app's origin, including on browsers
+    // with partitioned storage. Return through Firebase's normal OAuth flow.
+    const redirected=await getRedirectResult(this.auth);
+    if(redirected)this.user=redirected.user;
     await new Promise<void>(resolve=>{const unsubscribe=onAuthStateChanged(this.auth!,user=>{this.user=user;unsubscribe();resolve();});});
   }
-  async login():Promise<void> {const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});const result=await signInWithPopup(this.auth!,provider);this.user=result.user;}
+  async login():Promise<void> {const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await signInWithRedirect(this.auth!,provider);}
   async loginEmail(email:string,password:string):Promise<void> {const result=await signInWithEmailAndPassword(this.auth!,email,password);this.user=result.user;}
   async logout():Promise<void> {await signOut(this.auth!);this.user=null;}
   private async authorized(path:string,method='GET',body?:unknown):Promise<Response> {

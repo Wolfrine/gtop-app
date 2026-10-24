@@ -66,3 +66,12 @@ Final verification:34 backend/domain/release tests,26 controller tests and TypeS
 Cloud deployment count for this expansion: one initial gateway+independent-Hosting release, then one gateway-only correction. Later controller changes skip both cloud targets. GTOP core, legacy data/access, invitation boundaries and the stopped old scheduler were not changed. No credentials/API billing or startup service was added. The manual controller retains prompts/events/results and source hashes privately on H:.
 
 Remaining acceptance: teacher/classroom correctness for each requested curriculum, complete coverage for missing/ambiguous programmes and editions, complete official snapshot activation in a real unambiguous source case, native A4/PDF pagination and physical printing. Intermittent gateway connection timeouts were observed; Reconnect restored the durable conversation without repeating inference or losing the published papers. These observations remain release limitations, not successful latency/print/coverage acceptance. The board/class/subject paper-library dashboard remains deferred until the base pilot is accepted.
+
+
+## Final verified state
+
+[Run40104068389](https://github.com/Wolfrine/gtop-app/actions/runs/40104068389) passed the complete required checks for controller/source-contract commit `dcb6f960a5b78794c9cb76d1d2b20f7c69d70575`; backend and Hosting were both skipped. Manual controller process156540 loaded that clean source. Live worker readback at14:53:26UTC was `ready`, `modelReady:true`; private process/source-hash records are in `H:/GTOP-Local-AI/pilot-runtime/production/`.
+
+Final rendered Class5 checks: student20 questions/0 answers; answer copy20 questions/20 solutions/10 objective keys; no KaTeX errors. Both desktop and phone were inspected and the phone document had no horizontal overflow. Class5 local interpretation8.927s; Class10 revision interpretation7.500s. Class10's earlier Revision1 remains accessible from the published Revision2 conversation. Screenshots and the explicit38-question containment comparison are retained in the private `release-qa/` folder. The temporary loopback preview from this turn was stopped; the existing local tools, manual production controller and stopped legacy scheduler were preserved.
+
+These facts close the requested software expansion and representative application checks. The broader pilot remains in progress for the listed native-print and teacher acceptance gates; source conflicts and missing coverage remain visible, not approved by a model claim.

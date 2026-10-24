@@ -1,5 +1,5 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener, inject, provideZoneChangeDetection } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -101,4 +101,4 @@ class PaperWorkspace implements OnInit,OnDestroy {
   revise(paper:PaperSummary){const latest=this.currentPaper || paper;this.closeDocument();this.draft='In revision '+latest.revision+', please ';setTimeout(()=>document.querySelector<HTMLTextAreaElement>('#message-input')?.focus(),0);}
   async feedback(rating:'helpful'|'needs_work',paperId?:string){this.feedbackMessage='';try{await this.transport.request('/feedback','POST',{conversationId:this.detail!.conversation.id,...(paperId?{paperId}:{}),rating,...(this.feedbackText.trim()?{text:this.feedbackText.trim()}:{})});this.feedbackMessage='Thank you. Your feedback has been saved.';this.feedbackText='';this.feedbackPaperId='';}catch(e){this.error=readableError(e);}}
 }
-bootstrapApplication(PaperWorkspace).catch(error=>{console.error(error);document.body.textContent='The workspace could not start. Please reload and try again.';});
+bootstrapApplication(PaperWorkspace,{providers:[provideZoneChangeDetection()]}).catch(error=>{console.error(error);document.body.textContent='The workspace could not start. Please reload and try again.';});

@@ -38,6 +38,9 @@ jobs:
         working-directory: assistant-service
       - run: npm run check && npm test
         working-directory: assistant-service
+      - name: Check assistant runtime dependency advisories
+        run: npm audit --omit=dev --audit-level=high
+        working-directory: assistant-service
       - run: npm ci && npm run check && npm test
         working-directory: tools/gtop-assistant
       - name: Exercise actual Auth, Firestore, function endpoints and shared default-deny rules
@@ -46,6 +49,9 @@ jobs:
         run: npm ci && npm run test:rules && npm run test:database-rules
         working-directory: gtop-app
       - run: npm ci && npm test && npm run build
+        working-directory: question-papers
+      - name: Check independent app runtime dependency advisories
+        run: npm audit --omit=dev --audit-level=high
         working-directory: question-papers
       - name: Verify fixed hosting and gateway deployment scope
         run: |
@@ -89,6 +95,9 @@ jobs:
         run: node assistant-service/scripts/deploy.mjs
       - name: Verify active private pilot access without production fixtures
         run: node assistant-service/scripts/verify-live.mjs
+      - name: Inspect only assistant token-signing error diagnostics
+        continue-on-error: true
+        run: gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="gtopassistantgateway" AND textPayload:"Assistant gateway error:"' --project=gtop-app --freshness=30m --limit=5 --format='value(textPayload)'
   hosting:
     needs: [verify,backend]
     runs-on: ubuntu-latest
@@ -125,6 +134,6 @@ jobs:
           const origin='https://gtop-question-papers.web.app';
           const version=await fetch(origin+'/version.json',{signal:AbortSignal.timeout(30000)});assert(version.ok);assert.equal((await version.json()).commit,process.env.GITHUB_SHA);
           assert.equal((await fetch(origin+'/api/session',{signal:AbortSignal.timeout(30000)})).status,401);
-          const html=await fetch(origin,{signal:AbortSignal.timeout(30000)});assert(html.ok);assert((await html.text()).includes('<app-root'));
+          const html=await fetch(origin,{signal:AbortSignal.timeout(30000)});assert(html.ok);assert((await html.text()).includes('<gtop-paper-app'));
           console.log('Independent Hosting commit and unauthenticated gateway denial verified. Visual acceptance is separately recorded.');
           NODE

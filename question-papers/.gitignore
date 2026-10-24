@@ -1,4 +1,6 @@
 node_modules/
+node_modules.security-backup/
+package-lock.security-backup.json
 dist/
 .angular/
 out-tsc/

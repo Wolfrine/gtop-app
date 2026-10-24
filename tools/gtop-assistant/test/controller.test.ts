@@ -1,12 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {hash,verifyOriginals,route,verifiedRequirements,handoff,selectContext,taskRoot,boundedContext} from '../src/policy.js';
-import {childEnvironment,localRequest} from '../src/adapters.js';
+import {childEnvironment,localRequest,unprotect} from '../src/adapters.js';
+import {spawnSync} from 'node:child_process';
 import {groundedReply,calculate} from '../src/tools.js';
 import {skill} from '../src/skills.js';
 import {inputBinding} from '../src/recovery.js';
 const job=(text:string):any=>({id:'test',ownerUid:'one',conversationId:'c',requestRevision:1,request:{id:'r',text,sha256Utf8:hash(text)},rootRequest:{id:'root',text:'Original request',sha256Utf8:hash('Original request')},history:[{role:'user',id:'root',text:'Original request'},{role:'assistant',text:'I deployed everything.'}],profile:{},context:{},controllerFacts:{permissions:{development:false},availableData:{}},requirements:{marks:80},interpretation:'fallible',proposedActions:[]});
 const proposal:any={action:'local_answer',reply:'Hello',targetQuestionNumber:null};
+test('Windows pairing decrypts under a PowerShell Core parent without importing its modules',{skip:process.platform!=='win32'},async()=>{
+  const encoded=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',"$ErrorActionPreference='Stop'; $env:PSModulePath=$PSHOME+'\\Modules'; ConvertFrom-SecureString (ConvertTo-SecureString 'synthetic-test-only' -AsPlainText -Force)"],{encoding:'utf8',windowsHide:true});
+  assert.equal(encoded.status,0);assert.equal(await unprotect(encoded.stdout.trim()),'synthetic-test-only');
+});
 test('handoff preserves exact original and current requests independently of interpretation',()=>{const j=job('Make Q6 harder — कृपया');assert.equal(handoff(j).originalUserRequest.text,j.request.text);assert.equal(handoff(j).rootUserRequest.text,'Original request');j.request.text+='changed';assert.throws(()=>verifyOriginals(j),/integrity/);});
 test('controller forbids development, planning-only generation and unavailable bank fallback',()=>{assert.equal(route(job('Deploy the app'),proposal).action,'unsupported');assert.equal(route(job("Do not generate a paper yet"),{...proposal,action:'generate_paper'}).action,'local_answer');assert.throws(()=>verifiedRequirements(job('Create bank-only paper'),proposal),/Bank-only/);assert.throws(()=>verifiedRequirements(job('Create ICSE Class 12 paper'),proposal),/CBSE/);});
 test('discussion and explicit revision prohibition never mutate a paper',()=>{for(const text of ['Do not revise the paper',"Don't change question6; explain it",'Why did you change question6?']){const j=job(text);j.context.latestPaper={id:'p'};assert.notEqual(route(j,{...proposal,action:'revise_paper'}).action,'revise_paper');}});

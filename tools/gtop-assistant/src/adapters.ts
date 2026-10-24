@@ -18,7 +18,9 @@ export async function readConfig(file:string):Promise<Config>{
   const o=new URL(c.ollama);if(o.hostname!=='127.0.0.1'||o.protocol!=='http:')throw Error('Ollama must remain loopback only.');
   return c;
 }
-async function unprotect(value:string){return new Promise<string>((resolve,reject)=>{const p=spawn('powershell.exe',['-NoProfile','-NonInteractive','-Command','$s=[Console]::In.ReadToEnd() | ConvertTo-SecureString; $b=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($s); try {[Console]::Out.Write([Runtime.InteropServices.Marshal]::PtrToStringBSTR($b))} finally {[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b)}'],{windowsHide:true,stdio:['pipe','pipe','pipe']});let out='';p.stdout.on('data',b=>out+=b);p.on('error',reject);p.on('exit',code=>code===0?resolve(out):reject(Error('Windows worker secret decryption failed.')));p.stdin.end(value);});}
+// A PowerShell7 parent can inherit incompatible Core modules into Windows PowerShell5.
+// Use only that child's own built-in modules; pairing data travels over stdin/stdout.
+export async function unprotect(value:string){return new Promise<string>((resolve,reject)=>{const p=spawn('powershell.exe',['-NoProfile','-NonInteractive','-Command',"$ErrorActionPreference='Stop'; $env:PSModulePath=$PSHOME+'\\Modules'; $s=[Console]::In.ReadToEnd() | ConvertTo-SecureString; $b=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($s); try {[Console]::Out.Write([Runtime.InteropServices.Marshal]::PtrToStringBSTR($b))} finally {[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($b)}"],{windowsHide:true,stdio:['pipe','pipe','pipe']});let out='';p.stdout.on('data',b=>out+=b);p.on('error',reject);p.on('exit',code=>code===0?resolve(out):reject(Error('Windows worker secret decryption failed.')));p.stdin.end(value);});}
 export class Gateway {
   private token='';private until=0;
   constructor(public config:Config){}

@@ -26,6 +26,8 @@ Question Paper Creation is intended to serve Classes 5–12 across GTOP's config
 
 The assistant should be short, sweet and friendly: answer the current question, accept clear requirements and remember details already given. Detailed explanations belong where requested or necessary for the task. Daily conversation reviews should produce evidence and a proposed correction plan for Sachit's confirmation, rather than silently changing behavior. Administrators should be able to find existing papers by board, standard and subject and read their linked discussions, helping them reuse work before requesting another paper. Conversation titles should describe the completed paper.
 
+Settled requirements should survive the conversation. When an administrator supplies chapters and says “all topics,” the scope is every topic within those chapters; the assistant should not repeatedly demand a narrower topic or expand it to the whole subject. Ask only for a genuine remaining gap, preserve corrections through delegation, and describe actual execution honestly. Discussing a board does not select it, and pausing creation must remain effective until the administrator asks to proceed. A useful harness should help the local model meet these expectations without making teachers manage the model's limitations.
+
 GTOP's [[Features]] should serve student practice continuity, admin content quality, and Growth Tutorials brand trust. The [[Problems]] page tracks the product problems that should shape future priorities.
 
 ## Source Notes
@@ -38,3 +40,4 @@ GTOP's [[Features]] should serve student practice continuity, admin content qual
 - `raw/2026-10-24-paper-assistant-broad-curriculum.md`
 
 - `raw/2026-10-24-classroom-copy-and-assistant-feedback.md`
+- `raw/2026-10-25-conversational-harness-improvements.md`

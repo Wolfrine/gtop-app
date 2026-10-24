@@ -1,5 +1,13 @@
 # GTOP Wiki Curation Ledger
 
+### 2026-10-25 - Retain settled conversational requirements
+
+- Raw source: `raw/2026-10-25-conversational-harness-improvements.md`; processed.
+- Wiki changed: Intent.
+- Durable direction: preserve selected chapters and all-topic coverage, corrections and pauses; distinguish discussion from selection; ask only genuine missing requirements and report actual execution.
+- Evidence boundary: approved product behavior and an observed user problem, not a guarantee of all language formulations, educational accuracy or teacher acceptance. Existing unrelated raw sources were not re-curated.
+- Project Manager Handoff: implementation, regressions, inference evidence and scoped release belong to Action Plan `QndHjDJw0x3wzzG5szwW` and `docs/ai-assistant/HARNESS_IMPROVEMENTS_2026-10-25.md`. No execution checklist was added to the wiki.
+
 ### 2026-10-24 - Defer Paper Library Until Base MVP
 
 - Raw note: `raw/2026-10-24-post-mvp-paper-library.md`; processed.

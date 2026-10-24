@@ -1,6 +1,6 @@
 import path from 'node:path';
-import {Gateway,converse,codex,delay,record,type Config} from './adapters.js';
-import {route,verifiedRequirements,handoff,verifyOriginals,taskRoot,examPatternRequested} from './policy.js';
+import {Gateway,converse,codex,delay,record,localModelLoaded,type Config} from './adapters.js';
+import {route,verifiedRequirements,handoff,verifyOriginals,taskRoot,examPatternRequested,socialReply} from './policy.js';
 import {curriculum,validatePaper,validateRevision,paperContent} from '../../../assistant-service/domain/index.mjs';
 import {reviewSchema} from '../../../assistant-service/domain/schemas.mjs';
 import {outputSchemas} from './paper-contract.js';
@@ -19,12 +19,14 @@ function replaceQuestion(base:any,q:any){const copy=structuredClone(paperContent
 export class Worker {
   api:Gateway;ready=false;stopping=false;paperBusy=false;turnBusy=false;catalogue:any=null;catalogueAt=0;
   constructor(public config:Config){this.api=new Gateway(config);}
+  async heartbeat(){
+    // Queue availability and model residency are separate: idle is ready with no model loaded.
+    this.ready=await localModelLoaded(this.config).catch(()=>false);
+    await this.api.post('/worker/heartbeat',{state:this.turnBusy||this.paperBusy?'busy':'ready',modelReady:this.ready,version:'harness-4-on-demand'});
+  }
   async start(signal:AbortSignal){
-    await this.api.post('/worker/heartbeat',{state:'loading',modelReady:false,version:'harness-3'});
-    const warm=await fetch(this.config.ollama+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:this.config.model,options:{num_ctx:8192},keep_alive:-1,stream:false}),signal:AbortSignal.timeout(180000)});if(!warm.ok)throw Error('Installed local model could not load.');await warm.json();this.ready=true;
-    const heartbeat=async()=>this.api.post('/worker/heartbeat',{state:this.turnBusy||this.paperBusy?'busy':'ready',modelReady:this.ready,version:'harness-3'});
-    await heartbeat();const timer=setInterval(()=>void heartbeat().catch(e=>console.error(e.message)),30000);
-    try{await Promise.all([this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.ready=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:'harness-3'}).catch(()=>{});}
+    await this.heartbeat();const timer=setInterval(()=>void this.heartbeat().catch(e=>console.error(e.message)),30000);
+    try{await Promise.all([this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.ready=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:'harness-4-on-demand'}).catch(()=>{});}
   }
   async loop(kind:'turn'|'paper',signal:AbortSignal){while(!signal.aborted){try{const {job}=await this.api.post('/worker/claim',{kind,waitSeconds:0},signal);if(job)await this.run(job,signal);else await delay(5000,signal);}catch(e:any){if(signal.aborted)break;console.error(`${kind}: ${e.message}`);await delay(5000,signal).catch(()=>{});}}}
   async run(job:any,parent:AbortSignal){
@@ -36,9 +38,16 @@ export class Worker {
     if(job.kind==='turn')this.turnBusy=true;else this.paperBusy=true;
     try{verifyOriginals(job);if(job.kind==='turn')await this.turn(job,dir,signal);else if(job.operation==='check_curriculum')await this.research(job,dir,signal);else await this.paper(job,dir,signal);await record(dir,'finished.json',{completedAt:new Date().toISOString(),elapsedMs:Date.now()-started,aborted:signal.aborted});}
     catch(e:any){await record(dir,'failure.json',{message:e.message,elapsedMs:Date.now()-started,aborted:signal.aborted});const reply=String(e.message || 'The local worker could not complete this task. Please retry.').replace(/^Gateway \d+: /,'').slice(0,2000);if(!signal.aborted)await this.api.post(`/worker/jobs/${job.id}/fail`,{leaseId:job.leaseId,error:reply,retryable:true}).catch(async error=>{await record(dir,'failure-report-error.json',{message:error.message});});console.error(`Task ${job.id}: ${e.message}`);}
-    finally{clearInterval(timer);parent.removeEventListener('abort',cancel);if(job.kind==='turn')this.turnBusy=false;else this.paperBusy=false;}
+    finally{clearInterval(timer);parent.removeEventListener('abort',cancel);if(job.kind==='turn')this.turnBusy=false;else this.paperBusy=false;await this.heartbeat().catch(e=>console.error(e.message));}
   }
   async turn(job:any,dir:string,signal:AbortSignal){
+    const social=socialReply(job);
+    if(social){
+      // These exact social replies already belong to the controller; avoid a cold model load for them.
+      const metrics={engine:'controller',localInference:false,reason:'exact_social_reply'};
+      await record(dir,'controller-decision.json',{action:'local_answer',reply:social,metrics});
+      await this.api.post(`/worker/jobs/${job.id}/complete`,{leaseId:job.leaseId,reply:social,metrics});return;
+    }
     if(!this.catalogue||Date.now()-this.catalogueAt>3600000){this.catalogue=await this.api.post('/worker/curriculum/catalogue',{});this.catalogueAt=Date.now();}job.catalogue=this.catalogue;
     job.taskBrief=buildTaskBrief(job);
     const scope:any=job.taskBrief.requirements;

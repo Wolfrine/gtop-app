@@ -1,17 +1,18 @@
 {
-  "applicationCandidate": "9be7fd99b67310fdf40ad385ad5e1dfbc6d6bc28",
-  "servedCandidate": "a6cbc839d66afa78d5dbda9cb82fe17f0382a0a4",
+  "applicationCandidate": "d5e504682b568a1afa282d24a6dfd796612ccaaf",
+  "servedCandidate": "d5e504682b568a1afa282d24a6dfd796612ccaaf",
   "site": "https://gtop-question-papers.web.app",
   "servedChecks": {
     "htmlStatus": 200,
     "expectedRoot": "gtop-paper-app",
     "cacheControl": "no-store",
     "anonymousSessionStatus": 401,
-    "existingInvitedAdminSession": "passed in protected a6cbc83 release; no production chat or paper fixture"
+    "existingInvitedAdminSession": "passed in protected a6cbc83 release; no production chat or paper fixture",
+    "checkedAt": "2026-10-24T11:22:36.482Z"
   },
   "gateway": {
     "function": "gtopAssistantGateway",
-    "state": "previous successful revision still serves; latest update failed startup",
+    "state": "ACTIVE; corrected production entry point and runtime assertions passed",
     "region": "us-central1",
     "runtime": "nodejs22",
     "cpu": 1,
@@ -22,30 +23,74 @@
   },
   "worker": {
     "id": "sachit-windows",
-    "state": "offline",
-    "runningController": false,
-    "bootstrapStatus": 500,
-    "bootstrapErrorCode": "auth/insufficient-permission",
+    "state": "busy",
+    "runningController": true,
+    "bootstrapStatus": 200,
+    "bootstrapErrorCode": null,
     "preciseIamDiagnosticRetrieved": true,
     "signerDiagnostic": "2026-10-24T10:53:37.338189Z: Permission 'iam.serviceAccounts.signBlob' denied on resource (or it may not exist)",
     "signerGrantApplied": true,
-    "signerGrant": {"approvedBy":"Sachit in active conversation","method":"signed-in Chrome Google Cloud console","resource":"projects/gtop-app/serviceAccounts/78765581239-compute@developer.gserviceaccount.com","member":"serviceAccount:78765581239-compute@developer.gserviceaccount.com","role":"roles/iam.serviceAccountTokenCreator","readback":"Policy updated; No inheritance for this role","projectWideGrant":false,"newKey":false},
-    "dpapiRegression": "passed on Windows after isolating PowerShell5 built-in module path"
+    "signerGrant": {
+      "approvedBy": "Sachit in active conversation",
+      "method": "signed-in Chrome Google Cloud console",
+      "resource": "projects/gtop-app/serviceAccounts/78765581239-compute@developer.gserviceaccount.com",
+      "member": "serviceAccount:78765581239-compute@developer.gserviceaccount.com",
+      "role": "roles/iam.serviceAccountTokenCreator",
+      "readback": "Policy updated; No inheritance for this role",
+      "projectWideGrant": false,
+      "newKey": false
+    },
+    "dpapiRegression": "passed on Windows after isolating PowerShell5 built-in module path",
+    "modelReady": true,
+    "pid": 167144,
+    "bootstrapCheckedAt": "2026-10-24T11:19:54.380Z",
+    "readyHeartbeatAt": "2026-10-24T11:21:52.803Z",
+    "lastSeenAt": "2026-10-24T11:25:24.100Z"
   },
   "actions": {
-    "runId": 40084938604,
-    "initialBlockedCheckRunId": 120845832005,
-    "runnerStarted": true,
-    "runAttempt": 3,
-    "repositoryVisibility": "public; verified through unauthenticated GitHub API",
-    "verifyJob": {"id":120853618332,"conclusion":"success","node":"22.23.3"},
-    "backendJob": {"id":120854133754,"conclusion":"failure","failure":"Cloud Run startup: Cannot find module '@grpc/grpc-js'","failedRevision":"gtopassistantgateway-00002-coy"},
-    "hostingConclusion": "skipped",
-    "additionalDeploymentAfterFailure": false,
-    "initialAttemptAnnotation": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings",
-    "annotationSource": "https://api.github.com/repos/Wolfrine/gtop-app/check-runs/120845832005/annotations",
-    "annotationRetrieval": "Authenticated read using existing repository Git credential helper; no credential retained or printed",
-    "billingChanged": false
+    "runId": 40089170006,
+    "commit": "d5e504682b568a1afa282d24a6dfd796612ccaaf",
+    "verify": {
+      "jobId": 120858128122,
+      "conclusion": "success"
+    },
+    "backend": {
+      "jobId": 120858686051,
+      "conclusion": "success",
+      "productionOnlyEntryPoint": "passed",
+      "existingInvitedAdminSession": "passed",
+      "optionalLogDiagnostic": "permission denied; no extra Log Viewer grant"
+    },
+    "hosting": {
+      "jobId": 120859150149,
+      "conclusion": "success",
+      "servedCommit": "verified"
+    },
+    "singleNewCorrectionRelease": true,
+    "previousAttempt": {
+      "runId": 40084938604,
+      "initialBlockedCheckRunId": 120845832005,
+      "runnerStarted": true,
+      "runAttempt": 3,
+      "repositoryVisibility": "public; verified through unauthenticated GitHub API",
+      "verifyJob": {
+        "id": 120853618332,
+        "conclusion": "success",
+        "node": "22.23.3"
+      },
+      "backendJob": {
+        "id": 120854133754,
+        "conclusion": "failure",
+        "failure": "Cloud Run startup: Cannot find module '@grpc/grpc-js'",
+        "failedRevision": "gtopassistantgateway-00002-coy"
+      },
+      "hostingConclusion": "skipped",
+      "additionalDeploymentAfterFailure": false,
+      "initialAttemptAnnotation": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings",
+      "annotationSource": "https://api.github.com/repos/Wolfrine/gtop-app/check-runs/120845832005/annotations",
+      "annotationRetrieval": "Authenticated read using existing repository Git credential helper; no credential retained or printed",
+      "billingChanged": false
+    }
   },
   "localChecks": {
     "node": "24.19.0",
@@ -58,11 +103,11 @@
     "independentAppAuditFindingsAll": 0,
     "backendAuditFindingsAll": 0,
     "controllerAuditFindingsAll": 0,
-    "patchedCandidateNode22Ci": "attempt3 passed verification; backend production startup failed",
-    "runtimeCorrection": "this release: explicit @grpc/grpc-js1.13.7 production dependency and predeployment entry-point import gate",
+    "patchedCandidateNode22Ci": "corrected candidate passed verify, production entry-point gate and deployment",
+    "runtimeCorrection": "explicit @grpc/grpc-js1.13.7 production dependency and predeployment entry-point import gate",
     "productionOnlyInstallReproducedFailure": true,
     "cleanProductionOnlyInstallAfterCorrection": "passed; actual gateway export imported; zero audit findings on Node24.19.0",
-    "correctionPublished": "main release publishing; check Actions and served version.json for live confirmation"
+    "correctionPublished": true
   },
   "realInferenceEvidence": {
     "identity": "synthetic emulator administrator",
@@ -72,7 +117,9 @@
     "attemptedMarks": 80,
     "chapters": 10,
     "wholeQuestionOrChoices": 4,
-    "revisionChangedQuestions": [6],
+    "revisionChangedQuestions": [
+      6
+    ],
     "otherQuestionsUnchanged": 37,
     "productionInference": false,
     "teacherApproval": false,
@@ -87,9 +134,62 @@
     }
   },
   "acceptanceStillRequired": [
-    "Publish and deploy locally verified production dependency correction through protected Node22 main release",
-    "Verify production worker readiness and real invited-admin conversation/paper journey",
+    "Owner verification of actual Google sign-in and authenticated hosted UI",
+    "Accept the first production paper/revision and separate artifacts; private live job records remain authoritative",
     "Inspect actual A4 PDF pagination and physical printing",
     "Aparna academic and classroom acceptance"
-  ]
+  ],
+  "liveOperationalEvidence": {
+    "identity": "existing invited administrator; prompts and output stay in private H: job records",
+    "completedLocalControllerTurnElapsedMs": [
+      10035,
+      8905
+    ],
+    "codexPaper": "failed safely before independent review or publication after the single permitted correction",
+    "createdProductionTestFixture": false,
+    "paperFailure": {
+      "generationElapsedMs": 225015,
+      "totalElapsedMs": 370562,
+      "initialFailure": "combined chapter label outside exact allowlist",
+      "finalFailure": "Pinned curriculum source is missing",
+      "sourceIdReturned": "curriculum-controller-pinned",
+      "sourceIdExpected": "cbse-043-2026-27-xii",
+      "published": false
+    }
+  },
+  "visualReleaseChecks": {
+    "route": "https://gtop-question-papers.web.app",
+    "desktop": {
+      "width": 1920,
+      "height": 863,
+      "scrollWidth": 1920
+    },
+    "phone": {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390
+    },
+    "surface": "actual deployed sign-in page",
+    "authenticatedUi": "Google account chooser input timed out under browser automation; owner check still required",
+    "privateScreenshots": "H:/GTOP-Local-AI/pilot-runtime/production/release-qa"
+  },
+  "localCloudCli": {
+    "version": "590.0.1",
+    "executable": "H:/GTOP-Local-AI/tools/gcloud-590.0.1/google-cloud-sdk/bin/gcloud.cmd",
+    "archiveSha256": "38dad2c60c8507a2042e419ac9293e66b9f96156226c6cda92dcb1c4e8c65cf2",
+    "officialSource": "https://docs.cloud.google.com/sdk/docs/downloads-versioned-archives",
+    "versionVerified": true,
+    "authenticatedAccounts": [],
+    "globalPathChanged": false,
+    "newKeyCreated": false
+  },
+  "localControllerCorrection": {
+    "scope": "specialist output enums for chapter, source ID and source URL; generation and targeted revisions",
+    "typecheck": "passed",
+    "localTestsPassed": 17,
+    "additionalInferenceRun": false,
+    "requiresExplicitUserRetry": true,
+    "serverValidationRelaxed": false,
+    "cloudPublication": "not required for a local-controller-only update; existing verification remains required"
+  }
 }

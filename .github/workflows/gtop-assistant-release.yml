@@ -17,10 +17,14 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    outputs:
+      deploy_required: ${{ steps.scope.outputs.deploy_required }}
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -42,6 +46,12 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
         working-directory: assistant-service
       - run: npm ci && npm run check && npm test
+        working-directory: tools/gtop-assistant
+      - name: Classify cloud deployment scope without skipping required verification
+        id: scope
+        env:
+          RELEASE_BEFORE: '${{ github.event.before }}'
+        run: node --import ./node_modules/tsx/dist/loader.mjs src/release-scope.ts
         working-directory: tools/gtop-assistant
       - name: Exercise actual Auth, Firestore, function endpoints and shared default-deny rules
         run: npx --yes firebase-tools@15 emulators:exec --config firebase.assistant.json --only auth,firestore,functions,database --project demo-gtop-assistant 'node --test assistant-service/test/firestore.integration.mjs'
@@ -72,6 +82,7 @@ jobs:
           if-no-files-found: error
   backend:
     needs: verify
+    if: ${{ needs.verify.outputs.deploy_required == 'true' }}
     runs-on: ubuntu-latest
     environment: firebase-live-backend
     permissions:
@@ -103,6 +114,7 @@ jobs:
         run: gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="gtopassistantgateway" AND textPayload:"Assistant gateway error:"' --project=gtop-app --freshness=30m --limit=5 --format='value(textPayload)'
   hosting:
     needs: [verify,backend]
+    if: ${{ !cancelled() && needs.verify.result == 'success' && needs.verify.outputs.deploy_required == 'true' && needs.backend.result == 'success' }}
     runs-on: ubuntu-latest
     environment: firebase-production
     permissions:

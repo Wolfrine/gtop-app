@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {hash,verifyOriginals,route,verifiedRequirements,handoff,selectContext,taskRoot,boundedContext} from '../src/policy.js';
-import {childEnvironment,localRequest,unprotect} from '../src/adapters.js';
+import {childEnvironment,localRequest,unprotect,codexArguments} from '../src/adapters.js';
 import {spawnSync} from 'node:child_process';
 import {groundedReply,calculate} from '../src/tools.js';
 import {skill} from '../src/skills.js';
+import {incompleteCurriculumReply} from '../src/curriculum-feedback.js';
 import {inputBinding} from '../src/recovery.js';
 import {paperOutputSchema,revisionOutputSchema,outputSchemas} from '../src/paper-contract.js';
 import {cloudReleaseRequired,cloudReleasePlan} from '../src/release-scope.js';
@@ -70,3 +71,7 @@ test('whole assistant plus explanation skill fits prompt budget and saved skill 
 test('asking curriculum-check status cannot start another check',()=>{for(const text of ['What is the status of the latest syllabus check?','Please check the status of my curriculum research.']){const j=job(text);j.controllerFacts.activeCurriculumJob={kind:'curriculum',state:'validating',phase:'reviewing_curriculum'};const p=route(j,{...proposal,action:'check_curriculum'});assert.equal(p.action,'status');assert.match(p.reply,/curriculum check/);assert.equal(selectContext(j).currentExecutionFacts.activeCurriculumJob?.phase,'reviewing_curriculum');}});
 
 test('paper machine scope and verified settings are constrained before inference rather than consuming a repair',()=>{const s=outputSchemas({...curriculum,standard:'10',subject:'Science'},{marks:80,durationMinutes:180,questionLanguage:'English',answerLanguage:'Hindi'}).paper;assert.throws(()=>assertSchema('Full saved GTOP chapter list',s.properties.scope),/unsupported/);assertSchema('full_syllabus',s.properties.scope);assert.throws(()=>assertSchema('12',s.properties.standard));assert.throws(()=>assertSchema(70,s.properties.marks));assertSchema('Hindi',s.properties.answerLanguage);});
+
+test('live research enables its dispatcher and official-domain search while retaining the closed execution boundary',()=>{const c={codexModel:'test'} as any,normal=codexArguments(c,'schema.json'),live=codexArguments(c,'schema.json',true,['cbseacademic.nic.in','ncert.nic.in']);assert(normal.includes('web_search="disabled"'));assert(!normal.includes('--search'));assert.equal(normal[normal.indexOf('code_mode_host')-1],'--disable');assert.equal(live[live.indexOf('code_mode_host')-1],'--enable');assert(live.includes('--search'));assert(live.some(x=>x==='tools.web_search.allowed_domains=["cbseacademic.nic.in","ncert.nic.in"]'));for(const f of ['shell_tool','apps','plugins','browser_use','computer_use','hooks'])assert.equal(live[live.indexOf(f)-1],'--disable');assert.equal(live[live.indexOf('--sandbox')+1],'read-only');assert.throws(()=>codexArguments(c,'schema.json',true,[]),/domains/);});
+
+test('incomplete official research displays bounded provisional findings and cannot claim activation',()=>{const reply=incompleteCurriculumReply({reply:'A source conflict needs review.',chapters:[{title:'Chemical reactions'}],sources:[{url:'https://evil.example/pretend',title:'Bad'},{url:'https://cbseacademic.nic.in/test.pdf',title:'Official',applicableYear:'2026-27',locator:'p.6'}],limitations:['Heredity inclusion conflicts with the exclusion note.']},'CBSE');assert(reply.includes('Chemical reactions'));assert(reply.includes('not activated'));assert(reply.includes('p.6'));assert(reply.includes('Heredity'));assert(!reply.includes('evil.example'));assert(reply.includes('existing papers are unchanged'));});

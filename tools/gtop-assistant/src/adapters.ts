@@ -62,10 +62,14 @@ export async function converse(config:Config,job:any,dir:string,signal:AbortSign
 }
 const disabled=['hooks','apps','plugins','shell_tool','memories','view_image','browser_use','computer_use','code_mode_host','image_generation','multi_agent','workspace_dependencies','remote_plugin','skill_search','shell_snapshot'];
 export function childEnvironment(){const allowed=['SystemRoot','WINDIR','COMSPEC','PATH','PATHEXT','TEMP','TMP','USERPROFILE','APPDATA','LOCALAPPDATA','PROGRAMDATA','HOMEDRIVE','HOMEPATH','USERNAME','OS','PROCESSOR_ARCHITECTURE','CODEX_HOME'];return Object.fromEntries(Object.entries(process.env).filter(([k,v])=>v!==undefined&&allowed.some(a=>a.toLowerCase()===k.toLowerCase()))) as NodeJS.ProcessEnv;}
-export async function codex(config:Config,prompt:string,schema:any,dir:string,signal:AbortSignal,onProgress:()=>Promise<void>,onlineResearch=false){
+export function codexArguments(config:Config,schemaFile:string,onlineResearch=false,domains:string[]=[]){
+  if(onlineResearch&&(!domains.length||domains.some(d=>! /^[a-z0-9.-]+$/.test(d))))throw Error('Official source domains are required for live curriculum research.');
+  return disabled.filter(x=>!onlineResearch||x!=='code_mode_host').flatMap(x=>['--disable',x]).concat(onlineResearch?['--enable','code_mode_host','--search','-c','tools.web_search.allowed_domains='+JSON.stringify(domains)]:['-c','web_search="disabled"']).concat(['-c','approval_policy="never"','-c','model_reasoning_effort="medium"','exec','--ignore-user-config','--ignore-rules','--sandbox','read-only','--json','--skip-git-repo-check','--output-schema',schemaFile,'-m',config.codexModel,'-']);
+}
+export async function codex(config:Config,prompt:string,schema:any,dir:string,signal:AbortSignal,onProgress:()=>Promise<void>,onlineResearch=false,domains:string[]=[]){
   signal.throwIfAborted();
   await mkdir(dir,{recursive:true});const schemaFile=path.join(dir,'schema.json');await record(dir,'schema.json',schema);await record(dir,'prompt.txt',prompt);
-  const args=disabled.flatMap(x=>['--disable',x]).concat(onlineResearch?['--search']:['-c','web_search="disabled"']).concat(['-c','approval_policy="never"','-c','model_reasoning_effort="medium"','exec','--ignore-user-config','--ignore-rules','--sandbox','read-only','--json','--skip-git-repo-check','--output-schema',schemaFile,'-m',config.codexModel,'-']);
+  const args=codexArguments(config,schemaFile,onlineResearch,domains);
   const start=Date.now();await record(dir,'invocation.json',{executable:config.codexExecutable,args,startedAt:new Date(start).toISOString(),authentication:'existing ChatGPT subscription; no API key'});
   return new Promise<{value:any;metrics:any}>(async(resolve,reject)=>{
     if(signal.aborted)return reject(signal.reason);

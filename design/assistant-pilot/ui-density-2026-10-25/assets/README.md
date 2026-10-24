@@ -1,0 +1,11 @@
+# GT Papers generated identity
+
+Generated for Sachit's requested independent Question Papers PWA using the built-in image generation tool on 25 October 2026. No separate image API key or paid API integration was added. The tool did not expose a model identifier; no specific underlying model version is claimed.
+
+The project-bound original is [gt-papers-source.png](gt-papers-source.png), 1254 × 1254 pixels. The requested output size in the prompt was 1024; the returned asset's actual dimensions are retained. Production icons are `question-papers/public/icons/gt-papers-{32,180,192,512}.png`. They were resized from the original with Pillow Lanczos and indexed to 256 colours. The manifest uses the 192 and 512 versions; the 32 version is the favicon and 180 version the Apple touch icon.
+
+The mark combines a sheet of paper, conversation tail and jade folded corner on dark ink. It was inspected at 32 and 192 pixels and in the rendered header. Foreground stays within the central safe region for operating-system icon masks. A single useful identity asset was generated; the working interface does not need decorative hero imagery.
+
+## Exact generation prompt
+
+Use case: logo-brand. Asset type: production app icon for GT Papers, Growth Tutorials' private conversational question-paper workspace. Create one polished flat app icon, square 1024x1024. Full-bleed solid very dark ink navy background (#12343B), no transparency, no rounded outer square (the operating system applies its own mask). At center, design a distinctive bold ivory sheet-of-paper glyph with a folded top-right corner and a subtle conversational speech-tail integrated into its bottom edge. Two short dark ink lines suggest questions; a small jade/teal folded accent (#65B7A5) connects the paper fold and idea of dialogue. Restrained editorial educational identity, modern geometric construction, optically balanced, strong silhouette legible at 24px. Keep every meaningful foreground element inside the central 64% safe zone for maskable PWA icons. Flat crisp shapes, high contrast, no texture, no shading, no gradients, no 3D, no letters or text, no pencil, no graduation cap, no sparkles or robot, no border, no watermark. A single final icon only, no contact sheet, no mockup, no surrounding UI.

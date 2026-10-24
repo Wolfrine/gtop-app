@@ -21,6 +21,7 @@
           },
           "configurations": {
             "production": {
+              "serviceWorker": "ngsw-config.json",
               "fileReplacements": [{"replace":"src/dev-transport.ts","with":"src/dev-transport.production.ts"}],
               "outputHashing": "all",
               "budgets": [{"type":"initial","maximumWarning":"900kb","maximumError":"1.2mb"}]

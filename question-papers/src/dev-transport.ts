@@ -5,7 +5,7 @@ import actualQ6 from './fixtures/actual-local-q6-reply.json';
 export function getDevTransport():{transport:Transport;scenario:string}|null {
   const scenario=new URLSearchParams(location.search).get('fixture');
   if(!['localhost','127.0.0.1','[::1]'].includes(location.hostname) || !scenario)return null;
-  if(!['empty','working','ready','offline','error','long','clarify','revisions','retry-chain','formatting','math','library','library-empty','library-error','library-loading'].includes(scenario))return null;
+  if(!['empty','working','replying','ready','offline','error','long','clarify','revisions','retry-chain','formatting','math','hindi','library','library-empty','library-error','library-loading'].includes(scenario))return null;
   return {transport:new FixtureTransport(scenario),scenario};
 }
 class FixtureTransport implements Transport {
@@ -23,8 +23,10 @@ class FixtureTransport implements Transport {
 Malformed math stays literal: $\frac{1}{$
 Untrusted commands stay literal: $\href{javascript:alert(1)}{bad}$
 Literal HTML stays inert: <img src=x onerror="alert(1)">` )];
+    if(scenario==='hindi'){this.conversation.title='Class 10 Mathematics · Geometry';this.messages=[this.message('user','कक्षा 10 गणित का 80 अंकों का प्रश्नपत्र बनाइए। ज्यामिति और निर्देशांक ज्यामिति के सभी विषय शामिल करें। उत्तर अलग रखिए।'),this.message('assistant','ज़रूर। दोनों अध्यायों के सभी विषय शामिल करूँगा और उत्तर अलग रखूँगा। यह किस बोर्ड के लिए है?'),this.message('user','CBSE. Paper English mein, answers Hindi mein samjhana. बाकी वही रखें।'),this.message('assistant','ठीक है—CBSE कक्षा 10 गणित, 80 अंक। प्रश्न अंग्रेज़ी में और अलग उत्तर हिन्दी में होंगे।')];}
     if(scenario==='long')this.messages.push(this.message('user','Please make the reasoning questions more challenging, but keep the marks and syllabus coverage the same.'),this.message('assistant','I’ll preserve the total marks and chapter coverage while making the reasoning more demanding. I’ll keep your existing paper unchanged and create a new revision.\n\nFor the Electrochemistry questions, I’ll ask students to connect cell potential with reaction feasibility. In Coordination Compounds, I’ll include interpretation of structures and bonding. The worked answers will explain the reasoning as well as award marks for each step.\n\nYou can continue discussing changes here while the paper is being prepared.'));
     if(scenario==='working'||scenario==='offline')this.jobs=[this.job(scenario==='offline'?'queued':'running',scenario==='offline'?'queued':'reviewing')];
+    if(scenario==='replying')this.jobs=[{...this.job('running','local_conversation'),kind:'turn'}];
     if(scenario==='error')this.jobs=[{...this.job('failed','generating'),error:'The connection was interrupted before the paper finished. No incomplete paper was published.'}];
     if(scenario==='retry-chain')this.jobs=[{...this.job('failed','generating'),id:'preview-original',error:'The first attempt did not finish.'},{...this.job('failed','generating'),id:'preview-retry-1',error:'An earlier retry did not finish.'},{...this.job('failed','generating'),id:'preview-retry-2',error:'The latest attempt was interrupted. You can try again.'}];
     if(scenario==='ready'||scenario==='long'||scenario==='revisions'||scenario.startsWith('library')){
@@ -61,7 +63,7 @@ Literal HTML stays inert: <img src=x onerror="alert(1)">` )];
       const paper=this.libraryItems('papers').find(paper=>paper.conversationId===id)!;
       result={conversation:{...this.conversation,...item},messages:own?this.messages:[{...this.message('user','Create a 50-mark Class 5 Mathematics paper on fractions, with separate answers.'),conversationId:id},{...this.message('assistant','Your practice paper and separate answers are ready. Please review them before sharing with students.'),conversationId:id}],jobs:[],papers:[paper],readOnly:!own,creatorName:item.creatorName};
     }
-    else if(path==='/session')result={user:{uid:'preview-only',displayName:'Aparna',email:'preview@example.invalid',libraryAccess:this.scenario.startsWith('library')},worker:{state:this.scenario==='offline'?'offline':'ready',modelReady:this.scenario!=='offline',lastSeenAt:this.stamp},capabilities:[],defaults:{}};
+    else if(path==='/session')result={user:{uid:'preview-only',displayName:'Aparna',email:'preview@example.invalid',libraryAccess:true},worker:{state:this.scenario==='offline'?'offline':'ready',modelReady:this.scenario!=='offline',lastSeenAt:this.stamp},capabilities:[],defaults:{}};
     else if(path==='/conversations' && method==='GET')result={conversations:this.scenario==='empty'?[]:[this.conversation]};
     else if(path==='/conversations' && method==='POST'){this.messages=[];this.jobs=[];this.papers=[];this.conversation={...this.conversation,id:crypto.randomUUID(),title:'New conversation'};result={conversation:this.conversation};}
     else if(path.endsWith('/messages')){const message=this.message('user',body.text);this.messages.push(message);const job={...this.job('queued','queued'),kind:'turn' as const};this.jobs=[...this.jobs,job];result={message,job};}

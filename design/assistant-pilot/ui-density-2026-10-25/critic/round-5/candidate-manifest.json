@@ -1,0 +1,46 @@
+{
+  "baseCommit": "1d4dc0fb245becce4fc2bb38c9f36343a77b01ba",
+  "note": "Final independent critic source binding, current uncommitted main candidate; rebind if reviewed sources change. Parent removed only a trailing blank CSS line for diff hygiene and rebound that hash; no CSS declarations or visual behavior changed.",
+  "files": [
+    {
+      "path": "question-papers/src/styles.css",
+      "sha256": "a07ac6f6ec5f486cc1fce6f8f41ccd174e2259f6d3ec64395beca87a854f49b3"
+    },
+    {
+      "path": "question-papers/src/workspace.html",
+      "sha256": "a63d16c22f6a66f48a129ff19726f329670f73faedd10d94bba3825e3227abd4"
+    },
+    {
+      "path": "question-papers/src/main.ts",
+      "sha256": "cc91c9fe01c8f1dfaf1a8f2afdf50812ef9999ed39e36259b619de37c07fac46"
+    },
+    {
+      "path": "question-papers/src/pwa-controls.ts",
+      "sha256": "a1033c07516fab0609264367ffd73c294be37477cec5c9480e797d8287ea155b"
+    },
+    {
+      "path": "question-papers/src/dev-transport.ts",
+      "sha256": "49b8d3da1faf9b7c6b5148533617c594417636275ae1cc40417d195125586712"
+    },
+    {
+      "path": "question-papers/src/index.html",
+      "sha256": "cb858c530563ca2850cc40e25a1aa30f79b96d9c5c8d620e480fcae9db4bac70"
+    },
+    {
+      "path": "question-papers/public/manifest.webmanifest",
+      "sha256": "2e2580653cf55ab0011a319530c26675d2c34c5b40048581c80f136995d86e0d"
+    },
+    {
+      "path": "question-papers/ngsw-config.json",
+      "sha256": "834aef163294bdf7cc49ce93a5b001a7e1db1be0c4e0262f3e7bc8f3de2cc302"
+    },
+    {
+      "path": "question-papers/public/icons/gt-papers-192.png",
+      "sha256": "3816a3a83c8f9f960d4ae085170762b0129a3656d506752706de404c729f756f"
+    },
+    {
+      "path": "question-papers/public/icons/gt-papers-512.png",
+      "sha256": "46ab24f5dfcf290f7f12ca8a34cd3dd68afee6d76d5a3af572f1cb2be6348a28"
+    }
+  ]
+}

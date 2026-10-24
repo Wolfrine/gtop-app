@@ -1,5 +1,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener, inject, provideZoneChangeDetection } from '@angular/core';
+import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener, inject, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { provideServiceWorker } from '@angular/service-worker';
+import { GtPwaControls } from './pwa-controls';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -11,7 +13,7 @@ import { ChatMathDirective } from './chat-math.directive';
 import { formatAssistantText, idForRequest, pendingStates, phaseLabel, pollingDelay, readableError, visibleJobs, workerPresentation } from './presentation.mjs';
 
 @Component({
-  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective],templateUrl:'./workspace.html'
+  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls],templateUrl:'./workspace.html'
 })
 class PaperWorkspace implements OnInit,OnDestroy {
   private api=inject(AssistantApi);private sanitizer=inject(DomSanitizer);
@@ -19,7 +21,7 @@ class PaperWorkspace implements OnInit,OnDestroy {
   transport:Transport=this.api;session?:PilotSession;conversations:Conversation[]=[];detail?:ConversationDetail;
   loading=true;sending=false;authenticating=false;emailForm=false;email='';password='';error='';draft='';drawer=false;fixture='';
   document?:{paper:PaperSummary;kind:'student'|'answers';safe:SafeHtml;adminView:boolean;readOnly:boolean};documentLoading=false;
-  view:'chat'|'library'='chat';libraryKind:LibraryKind='papers';libraryLoading=false;libraryError='';
+  view:'chat'|'library'='chat';libraryKind:LibraryKind='papers';libraryLoading=false;libraryError='';libraryFiltersOpen=false;
   libraryFilters:LibraryFilters={board:'',standard:'',subject:'',text:''};
   libraryPages:Record<LibraryKind,{items:LibraryItem[];nextCursor:string|null;loaded:boolean}>={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};
   public adminConversation=false;
@@ -36,6 +38,8 @@ class PaperWorkspace implements OnInit,OnDestroy {
   get libraryPage(){return this.libraryPages[this.libraryKind];}
   get filteredLibraryItems(){return this.libraryPage.items.filter(item=>libraryMatches(item,this.libraryFilters));}
   get libraryPapers(){return this.filteredLibraryItems as PaperSummary[];}
+  get libraryScopeCount(){return [this.libraryFilters.board,this.libraryFilters.standard,this.libraryFilters.subject].filter(Boolean).length;}
+  get libraryScopeSummary(){return [this.libraryFilters.board,this.libraryFilters.standard?'Class '+this.libraryFilters.standard:'',this.libraryFilters.subject].filter(Boolean).join(' · ');}
   libraryOptions(field:'board'|'standard'|'subject'){return [...new Set([...this.libraryPage.items.map(item=>item[field]||''),this.libraryFilters[field]].filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));}
   creatorInitials(){return (this.readOnly?(this.detail?.creatorName||this.detail?.conversation.creatorName||'Teacher'):(this.user?.displayName||'Teacher')).split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();}
   creatorLabel(){return this.readOnly?(this.detail?.creatorName||this.detail?.conversation.creatorName||'Paper creator'):'You';}
@@ -130,4 +134,4 @@ class PaperWorkspace implements OnInit,OnDestroy {
   revise(paper:PaperSummary){if(this.readOnly||this.view!=='chat')return;const latest=this.currentPaper || paper;this.closeDocument();this.draft='In revision '+latest.revision+', please ';setTimeout(()=>document.querySelector<HTMLTextAreaElement>('#message-input')?.focus(),0);}
   async feedback(rating:'helpful'|'needs_work',paperId?:string){if(this.readOnly)return;this.feedbackMessage='';try{await this.transport.request('/feedback','POST',{conversationId:this.detail!.conversation.id,...(paperId?{paperId}:{}),rating,...(this.feedbackText.trim()?{text:this.feedbackText.trim()}:{})});this.feedbackMessage='Thank you. Your feedback has been saved.';this.feedbackText='';this.feedbackPaperId='';}catch(e){this.error=readableError(e);}}
 }
-bootstrapApplication(PaperWorkspace,{providers:[provideZoneChangeDetection()]}).catch(error=>{console.error(error);document.body.textContent='The workspace could not start. Please reload and try again.';});
+bootstrapApplication(PaperWorkspace,{providers:[provideZoneChangeDetection(),provideServiceWorker('ngsw-worker.js',{enabled:!isDevMode(),registrationStrategy:'registerWhenStable:30000'})]}).catch(error=>{console.error(error);document.body.textContent='The workspace could not start. Please reload and try again.';});

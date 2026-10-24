@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "appData": {"application": "gt-papers", "cachePolicy": "public-shell-only"},
+  "assetGroups": [
+    {
+      "name": "gt-papers-shell",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {"files": ["/index.html", "/*.css", "/*.js", "/manifest.webmanifest", "/assistant-config.json", "/icons/gt-papers-32.png", "/icons/gt-papers-180.png", "/icons/gt-papers-192.png", "/icons/gt-papers-512.png", "/media/*.woff2"]}
+    }
+  ],
+  "dataGroups": [],
+  "navigationUrls": ["/**", "!/**/*.*", "!/api/**", "!/__/**", "!/__/auth/**"],
+  "navigationRequestStrategy": "freshness"
+}

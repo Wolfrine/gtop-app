@@ -1,4 +1,4 @@
-import test from 'node:test';
+import test,{after} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {initializeApp,deleteApp} from 'firebase-admin/app';
@@ -15,6 +15,7 @@ if(!process.env.FIRESTORE_EMULATOR_HOST || !process.env.FIREBASE_AUTH_EMULATOR_H
 const base=`http://127.0.0.1:5201/${project}/us-central1/gtopAssistantGateway`;
 const app=initializeApp({projectId:project},'assistant-integration');
 const db=getFirestore(app),auth=getAuth(app);
+after(()=>deleteApp(app));
 async function login(email,uid,claims){
   const password='SyntheticEmulatorPasswordOnly!';
   await auth.createUser({uid,email,password});
@@ -56,7 +57,23 @@ test('actual Auth/Firestore/function endpoint enforces identity, durable ownersh
   const service=new AssistantService(new FirestoreStore(db));
   const workerDoc=await service.worker({uid:'assistant-worker-'+worker,assistantWorker:true,workerId:worker});
   const [a,b]=await Promise.all([service.claim(workerDoc,{kind:'turn'}),service.claim(workerDoc,{kind:'turn'})]);assert.equal([a,b].filter(x=>x.job).length,1);
-  await deleteApp(app);
+});
+
+test('actual gateway starter mailbox replays one fixed start and requires a separate worker heartbeat',async()=>{
+  const suffix=Date.now().toString(),owner='starter-admin-'+suffix,learner='starter-learner-'+suffix,workerId='sachit-windows';
+  const [ownerToken,learnerToken,workerToken]=await Promise.all([login(owner+'@example.test',owner),login(learner+'@example.test',learner),login('starter-worker-'+suffix+'@example.test','assistant-worker-'+workerId,{assistantWorker:true,workerId})]);
+  await Promise.all([db.doc('users/'+owner).set({role:'admin'}),db.doc('users/'+learner).set({role:'user'}),db.doc('assistantConfig/pilot').set({allowedOwnerUids:[owner]}),db.doc('assistantWorkers/'+workerId).set({enabled:true,allowedOwnerUids:[owner]})]);
+  assert.equal((await request('POST','/service/start',{clientRequestId:'denied'})).status,401);
+  assert.equal((await request('POST','/service/start',{clientRequestId:'denied'},learnerToken)).status,403);
+  const poll=(lastStartResult)=>request('POST','/worker/service/poll',{version:'synthetic-emulator-starter',workerRunning:false,...(lastStartResult?{lastStartResult}:{})},workerToken);
+  assert.equal((await poll()).body.service.state,'offline');
+  const started=await request('POST','/service/start',{clientRequestId:'synthetic-start'},ownerToken);assert.equal(started.status,200);const id=started.body.service.request.id;
+  assert.equal((await request('POST','/service/start',{clientRequestId:'synthetic-start'},ownerToken)).body.service.request.id,id);
+  const first=await poll(),again=await poll();assert.equal(first.body.request.id,id);assert.deepEqual(first.body.request,again.body.request);
+  const acknowledged=await poll({requestId:id,state:'started'});assert.equal(acknowledged.body.request,null);assert.equal(acknowledged.body.service.state,'starting');
+  await request('POST','/worker/heartbeat',{state:'ready',modelReady:false,version:'synthetic-emulator-worker'},workerToken);
+  const ready=await poll();assert.equal(ready.body.service.state,'ready');assert.equal(ready.body.service.request.state,'completed');assert.equal(ready.body.service.worker.modelReady,false);
+  const receipt=await db.doc('assistantServiceControls/'+workerId+'/requests/'+id).get();assert(receipt.exists);
 });
 
 test('canonical shared rules deny all direct assistant access, including admins and worker claims',async()=>{
@@ -67,6 +84,9 @@ test('canonical shared rules deny all direct assistant access, including admins 
       await assertFails(getDoc(doc(ctx.firestore(),'assistantConfig','pilot')));
       await assertFails(getDoc(doc(ctx.firestore(),'assistantPapers','rules-paper')));
       await assertFails(getDoc(doc(ctx.firestore(),'assistantCurricula','rules-curriculum')));
+      await assertFails(getDoc(doc(ctx.firestore(),'assistantServiceControls','sachit-windows')));
+      await assertFails(setDoc(doc(ctx.firestore(),'assistantServiceControls','sachit-windows'),{request:{state:'pending',action:'start'}}));
+      await assertFails(setDoc(doc(ctx.firestore(),'assistantServiceControls','sachit-windows','requests','forged'),{state:'pending'}));
       await assertFails(setDoc(doc(ctx.firestore(),'assistantCurricula','forged'),{ownerUid:'rules-admin'}));
       await assertFails(setDoc(doc(ctx.firestore(),'assistantJobs','forged'),{ownerUid:'rules-admin',state:'completed'}));
     }

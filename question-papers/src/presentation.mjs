@@ -28,8 +28,16 @@ export function visibleJobs(detail) {
 export function pollingDelay(jobs) { return jobs.some(j=>pendingStates.has(j.state)) ? 2000 : 15000; }
 export function workerPresentation(worker) {
   if (!worker || worker.state === 'offline') return {label:'Assistant offline',detail:'You can send a request. It will wait safely until the assistant reconnects.',tone:'offline'};
-  if (worker.state === 'loading' || !worker.modelReady) return {label:'Assistant getting ready',detail:'The assistant is starting. Your messages are saved while it gets ready.',tone:'waiting'};
-  return {label:'Assistant available',detail:'Your private teaching workspace',tone:'online'};
+  if (worker.state === 'loading') return {label:'Assistant getting ready',detail:'The assistant is loading the model. Your messages are saved while it gets ready.',tone:'waiting'};
+  return {label:'Assistant available',detail:worker.modelReady?'Your private teaching workspace':'Connected. The model loads when a request arrives.',tone:'online'};
+}
+export function servicePresentation(service, worker) {
+  if (!service) return workerPresentation(worker);
+  if (service.state === 'ready') return {label:'Assistant available',detail:service.worker?.modelReady?'Ready for your next request.':'Connected. The model loads when a request arrives.',tone:'online'};
+  if (service.state === 'starting') return {label:'Assistant starting',detail:'Start requested. Waiting for the assistant to connect. Your messages are saved.',tone:'waiting'};
+  if (service.state === 'starter_offline') return {label:'Assistant offline',detail:'Keep the host PC awake and connected. Its starter is not responding. Your requests stay saved.',tone:'offline'};
+  if (service.state === 'failed') return {label:'Could not start assistant',detail:service.request?.errorCode==='model_unavailable'?'The local model is unavailable. Check Ollama on the host PC, then try again.':'Check the assistant setup on the host PC, then try again. Your requests stay saved.',tone:'offline'};
+  return {label:'Assistant offline',detail:'The host PC is connected. Start the assistant to continue; your requests stay saved.',tone:'offline'};
 }
 export function phaseLabel(job, offline=false) {
   if (job.state==='queued') return offline ? 'Saved · waiting for the assistant' : 'Waiting to begin';

@@ -1,11 +1,11 @@
-import { Conversation, ConversationDetail, Job, Message, PaperSummary, Transport, LibraryItem } from './contracts';
+import { AssistantServiceStatus, Conversation, ConversationDetail, Job, Message, PaperSummary, Transport, LibraryItem } from './contracts';
 import actualQ6 from './fixtures/actual-local-q6-reply.json';
 
 // Development-only, localhost-only visual fixtures. Angular production replaces this entire file.
 export function getDevTransport():{transport:Transport;scenario:string}|null {
   const scenario=new URLSearchParams(location.search).get('fixture');
   if(!['localhost','127.0.0.1','[::1]'].includes(location.hostname) || !scenario)return null;
-  if(!['empty','working','replying','ready','offline','error','long','clarify','revisions','retry-chain','formatting','math','hindi','library','library-empty','library-error','library-loading'].includes(scenario))return null;
+  if(!['empty','working','replying','ready','offline','error','long','clarify','revisions','retry-chain','formatting','math','hindi','library','library-empty','library-error','library-loading','service-offline','service-starting','service-failed','service-starter-offline','service-idle'].includes(scenario))return null;
   return {transport:new FixtureTransport(scenario),scenario};
 }
 class FixtureTransport implements Transport {
@@ -14,6 +14,7 @@ class FixtureTransport implements Transport {
   private messages:Message[]=[];
   private jobs:Job[]=[];
   private papers:PaperSummary[]=[];
+  private serviceStartedAt=0;
   constructor(private scenario:string) {
     if(scenario==='empty')return;
     this.messages=[this.message('user','Create a full-syllabus Class 12 Chemistry practice paper for 80 marks. Include internal choices and separate worked answers.'),this.message('assistant',scenario==='clarify'?'I can help with that. Would you like the worked answers in English, Hindi or Hinglish?':'I’ll prepare an 80-mark Growth Tutorials practice paper covering all 10 chapters, with internal choices and separate worked answers in English. This is a custom practice paper; the official CBSE theory paper is 70 marks.')];
@@ -39,6 +40,11 @@ Literal HTML stays inert: <img src=x onerror="alert(1)">` )];
   }
   private message(role:'user'|'assistant',text:string):Message{return {id:crypto.randomUUID(),conversationId:this.conversation.id,role,text,createdAt:this.stamp};}
   private job(state:string,phase:string):Job{return{id:'preview-job',kind:'paper',ownerUid:'preview-only',conversationId:this.conversation.id,state,phase,createdAt:this.stamp,updatedAt:this.stamp,elapsedSeconds:68};}
+  private service():AssistantServiceStatus {
+    const started=this.serviceStartedAt>0;
+    const state:AssistantServiceStatus['state']=started?(Date.now()-this.serviceStartedAt<8000?'starting':'ready'):this.scenario==='service-starting'?'starting':this.scenario==='service-failed'?'failed':this.scenario==='service-starter-offline'?'starter_offline':this.scenario==='service-offline'||this.scenario==='offline'?'offline':'ready';
+    return {workerId:'sachit-windows',state,starter:{state:state==='starter_offline'?'offline':'online',lastSeenAt:this.stamp},worker:{state:state==='ready'?'ready':'offline',modelReady:state==='ready'&&this.scenario!=='service-idle'&&!started,lastSeenAt:this.stamp},request:state==='failed'?{id:'synthetic-start',state:'failed',requestedAt:this.stamp,expiresAt:this.stamp,errorCode:'worker_start_timeout'}:null,canStart:['offline','failed'].includes(state)};
+  }
   private libraryItems(kind:string):LibraryItem[]{
     const papers:LibraryItem[]=[
       {id:'library-paper-own',title:'CBSE Class 12 Chemistry · 80 marks',revision:2,marks:80,createdAt:this.stamp,jobId:'preview-job',conversationId:this.conversation.id,ownerUid:'preview-only',creatorName:'Aparna',board:'CBSE',standard:'12',subject:'Chemistry',academicYear:'2026-27'},
@@ -63,7 +69,8 @@ Literal HTML stays inert: <img src=x onerror="alert(1)">` )];
       const paper=this.libraryItems('papers').find(paper=>paper.conversationId===id)!;
       result={conversation:{...this.conversation,...item},messages:own?this.messages:[{...this.message('user','Create a 50-mark Class 5 Mathematics paper on fractions, with separate answers.'),conversationId:id},{...this.message('assistant','Your practice paper and separate answers are ready. Please review them before sharing with students.'),conversationId:id}],jobs:[],papers:[paper],readOnly:!own,creatorName:item.creatorName};
     }
-    else if(path==='/session')result={user:{uid:'preview-only',displayName:'Aparna',email:'preview@example.invalid',libraryAccess:true},worker:{state:this.scenario==='offline'?'offline':'ready',modelReady:this.scenario!=='offline',lastSeenAt:this.stamp},capabilities:[],defaults:{}};
+    else if(path==='/session')result={user:{uid:'preview-only',displayName:'Aparna',email:'preview@example.invalid',libraryAccess:true},worker:this.service().worker,service:this.service(),capabilities:[],defaults:{}};
+    else if(path==='/service/start'&&method==='POST'){this.serviceStartedAt=Date.now();result={service:this.service()};}
     else if(path==='/conversations' && method==='GET')result={conversations:this.scenario==='empty'?[]:[this.conversation]};
     else if(path==='/conversations' && method==='POST'){this.messages=[];this.jobs=[];this.papers=[];this.conversation={...this.conversation,id:crypto.randomUUID(),title:'New conversation'};result={conversation:this.conversation};}
     else if(path.endsWith('/messages')){const message=this.message('user',body.text);this.messages.push(message);const job={...this.job('queued','queued'),kind:'turn' as const};this.jobs=[...this.jobs,job];result={message,job};}

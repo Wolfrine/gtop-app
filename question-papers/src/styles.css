@@ -46,3 +46,5 @@ button{transition:background-color .15s,border-color .15s}a{color:inherit;text-d
 @media(prefers-reduced-motion:reduce){.loader{animation:none}}
 /* Full-size targets surround compact artwork and single-line text. */
 .brand{min-height:44px}.composer textarea{min-height:44px}.sign-out{white-space:nowrap}
+/* A quiet recovery action appears only when the assistant is unavailable. */
+.service-notice{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.service-notice>div{flex:1 1 230px;min-width:0}.service-notice strong,.service-notice>div>span{display:block}.service-notice strong{font-size:12px;margin-bottom:3px}.service-notice .button,.service-notice>.text-button{flex-shrink:0;min-height:40px;font-size:12px;white-space:nowrap}.service-notice .service-error{margin-top:5px;color:#8a482e}.service-notice>.text-button{margin-left:0}@media(max-width:700px){.service-notice{gap:6px 12px;align-items:flex-start}.service-notice>div{flex-basis:100%}.service-notice .button,.service-notice>.text-button{min-height:44px}.service-notice>.text-button{padding-left:0}}

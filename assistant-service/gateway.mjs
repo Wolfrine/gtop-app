@@ -1,7 +1,7 @@
 import {HttpError} from './service.mjs';
-const allowedOrigins=new Set(['https://gtop-question-papers.web.app','https://gtop-question-papers.firebaseapp.com','http://localhost:4317','http://127.0.0.1:4317']);
+const allowedOrigins=new Set(['https://gtop-question-papers.web.app','https://gtop-question-papers.firebaseapp.com','https://pti-app-2ab59.web.app','https://pti-app-2ab59.firebaseapp.com','http://localhost:4317','http://127.0.0.1:4317']);
 /** Pure HTTP boundary: authentication is injected, so checks can be exercised without cloud credentials. */
-export function createGateway(service,verifyIdToken,{allowLocalOrigins=false}={}) {
+export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,verifyHostIdToken=null}={}) {
   return async ({method,path,headers={},body={}})=>{
     const responseHeaders={'Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff','Content-Type':'application/json; charset=utf-8'};
     const origin=headers.origin || headers.Origin;
@@ -16,11 +16,20 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false}={}
       if(method==='POST' && path==='/worker/session')return {status:200,headers:responseHeaders,body:await service.bootstrap(body)};
       const bearer=(headers.authorization || headers.Authorization || '').match(/^Bearer (\S+)$/);
       if(!bearer)throw new HttpError(401,'sign_in_required','Authentication is required.');
+      if(path.startsWith('/host/')){
+        let claims;try{if(!verifyHostIdToken)throw Error('Unavailable');claims=await verifyHostIdToken(bearer[1]);}catch{throw new HttpError(401,'invalid_token','Sign in to PTI again to continue.');}
+        const user=service.serviceControl.ptiUser(claims);let output;
+        if(method==='GET'&&path==='/host/status')output={service:await service.serviceControl.get(user)};
+        else if(method==='POST'&&path==='/host/start')output=await service.serviceControl.start(user,body);
+        else throw new HttpError(404,'not_found','Endpoint unavailable.');
+        return {status:200,headers:responseHeaders,body:output};
+      }
       let claims;try{claims=await verifyIdToken(bearer[1]);}catch{throw new HttpError(401,'invalid_token','Sign in again to continue.');}
       let output;
       if(path.startsWith('/worker/')) {
         const worker=await service.worker(claims);
         if(method==='POST' && path==='/worker/heartbeat')output=await service.heartbeat(worker,body);
+        else if(method==='POST' && path==='/worker/service/poll')output=await service.serviceControl.poll(worker,body);
         else if(method==='POST' && path==='/worker/curriculum/catalogue')output=await service.curriculumCatalogue();
         else if(method==='POST' && path==='/worker/curriculum/resolve')output={curriculum:await service.resolveCurriculum(body.requirements,body.conversationId,worker)};
         else if(method==='POST' && path==='/worker/claim')output=await service.claim(worker,body);
@@ -28,6 +37,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false}={}
       } else {
         const user=await service.user(claims),uid=user.uid;
         if(method==='GET' && path==='/session')output=await service.session(user);
+        else if(method==='POST' && path==='/service/start')output=await service.serviceControl.start(user,body);
         else if(method==='GET' && path==='/conversations')output=await service.conversations(uid);
         else if(method==='POST' && path==='/conversations')output=await service.createConversation(uid,body);
         else if(method==='POST' && path==='/feedback')output=await service.feedback(uid,body);

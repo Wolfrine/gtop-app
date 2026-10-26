@@ -4,6 +4,7 @@ import * as domain from './domain/index.mjs';
 import {catalogueIndex,capabilityFacts,savedCurriculum,validateScope,validateCurriculumScope,sameScope,officialUrl} from './domain/catalogue.mjs';
 import {researchCurriculum,curriculumResearchSchema} from './domain/research.mjs';
 import {buildTaskBrief,missingTaskField,selectedCurriculum} from './domain/task-brief.mjs';
+import {ServiceControl} from './service-control.mjs';
 
 export class HttpError extends Error { constructor(status, code, message) { super(message); this.status = status; this.code = code; } }
 const fail = (status, code, message) => { throw new HttpError(status, code, message); };
@@ -37,7 +38,7 @@ function decodeArtifact(doc){
 }
 
 export class AssistantService {
-  constructor(store, {now = () => new Date(), id = randomUUID, signer = null, sleep = ms => new Promise(r => setTimeout(r,ms)), domainApi = domain} = {}) { Object.assign(this,{store,now,id,signer,sleep,domain:domainApi}); }
+  constructor(store, {now = () => new Date(), id = randomUUID, signer = null, sleep = ms => new Promise(r => setTimeout(r,ms)), domainApi = domain} = {}) { Object.assign(this,{store,now,id,signer,sleep,domain:domainApi});this.serviceControl=new ServiceControl(this,fail); }
   iso() { return this.now().toISOString(); }
   async user(claims) {
     if (!claims?.uid || claims.assistantWorker) fail(401,'sign_in_required','Sign in with your Growth Tutorials account.');
@@ -71,7 +72,8 @@ export class AssistantService {
     const workers = await this.store.list('assistantWorkers', [['enabled','==',true]],20);
     const own = workers.filter(w => w.allowedOwnerUids?.includes(user.uid)).sort((a,b) => (b.lastSeenAt || '').localeCompare(a.lastSeenAt || ''))[0];
     const fresh = own && this.now().getTime() - Date.parse(own.lastSeenAt || '') < 90000;
-    return {user,worker:{state:fresh ? own.state || 'loading' : 'offline',lastSeenAt:own?.lastSeenAt || null,modelReady:!!(fresh && own.modelReady)},capabilities:capabilityFacts({}),defaults:{marks:80,durationMinutes:180,questionLanguage:'English',answerLanguage:'English'}};
+    const service=await this.serviceControl.get(user).catch(error=>{if([403,503].includes(error.status))return null;throw error;});
+    return {user,worker:{state:fresh ? own.state || 'loading' : 'offline',lastSeenAt:own?.lastSeenAt || null,modelReady:!!(fresh && own.modelReady)},service,capabilities:capabilityFacts({}),defaults:{marks:80,durationMinutes:180,questionLanguage:'English',answerLanguage:'English'}};
   }
   async curriculumCatalogue(){
     if(this.catalogueCache&&Date.now()-this.catalogueCache.at<21600000)return this.catalogueCache.value;

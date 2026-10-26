@@ -6,11 +6,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AssistantApi } from './api.service';
-import { Conversation, ConversationDetail, Job, PaperSummary, PilotSession, Transport, LibraryKind, LibraryItem, LibraryPage, LibraryFilters, libraryMatches, mergeLibraryItems, conversationReadOnly } from './contracts';
+import { Conversation, ConversationDetail, Job, PaperSummary, PilotSession, Transport, LibraryKind, LibraryItem, LibraryPage, LibraryFilters, AssistantServiceStatus, libraryMatches, mergeLibraryItems, conversationReadOnly } from './contracts';
 import { getDevTransport } from './dev-transport';
 import { presentArtifact } from './artifact-presentation.mjs';
 import { ChatMathDirective } from './chat-math.directive';
-import { formatAssistantText, idForRequest, pendingStates, phaseLabel, pollingDelay, readableError, visibleJobs, workerPresentation } from './presentation.mjs';
+import { formatAssistantText, idForRequest, pendingStates, phaseLabel, pollingDelay, readableError, visibleJobs, servicePresentation } from './presentation.mjs';
 
 @Component({
   selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls],templateUrl:'./workspace.html'
@@ -20,6 +20,7 @@ class PaperWorkspace implements OnInit,OnDestroy {
   @ViewChild('messageList') messageList?:ElementRef<HTMLElement>;
   transport:Transport=this.api;session?:PilotSession;conversations:Conversation[]=[];detail?:ConversationDetail;
   loading=true;sending=false;authenticating=false;emailForm=false;email='';password='';error='';draft='';drawer=false;fixture='';
+  serviceStarting=false;serviceError='';serviceStale=false;private serviceRequestId='';
   document?:{paper:PaperSummary;kind:'student'|'answers';safe:SafeHtml;adminView:boolean;readOnly:boolean};documentLoading=false;
   view:'chat'|'library'='chat';libraryKind:LibraryKind='papers';libraryLoading=false;libraryError='';libraryFiltersOpen=false;
   libraryFilters:LibraryFilters={board:'',standard:'',subject:'',text:''};
@@ -27,7 +28,8 @@ class PaperWorkspace implements OnInit,OnDestroy {
   public adminConversation=false;
   feedbackMessage='';feedbackText='';feedbackPaperId='';newRequestId='';private sendId='';private sendText='';private documentRequest=0;private timer?:ReturnType<typeof setTimeout>;private destroyed=false;private openingId='';
   get user(){return this.session?.user;}
-  get worker(){return workerPresentation(this.session?.worker);}
+  get worker(){return this.serviceStale?{label:'Assistant status unavailable',detail:'Could not check the assistant. Check your connection and refresh status.',tone:'offline'}:servicePresentation(this.session?.service,this.session?.worker);}
+  get canStartService(){return !!this.session?.service?.canStart&&!this.serviceStarting&&!this.serviceStale;}
   get activeJobs(){return (this.detail?.jobs||[]).filter(j=>pendingStates.has(j.state));}
   get paperJobs():Job[]{return visibleJobs(this.detail);}
   get currentPaper(){return this.detail?.papers?.at(-1);}
@@ -70,6 +72,7 @@ class PaperWorkspace implements OnInit,OnDestroy {
     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
   }
   @HostListener('window:resize') updateFormulaFocus(){this.prepareDocument();}
+  @HostListener('document:visibilitychange') visibilityChanged(){clearTimeout(this.timer);if(!document.hidden&&this.session)void this.reconnect().finally(()=>this.schedulePoll());}
   phase(job:Job){return phaseLabel(job,this.worker.tone==='offline');}
   assistantText(text:string){return formatAssistantText(text);}
   jobError(job:Job){return readableError(job.error);}
@@ -83,8 +86,8 @@ class PaperWorkspace implements OnInit,OnDestroy {
   }
   ngOnDestroy(){this.destroyed=true;clearTimeout(this.timer);this.releaseDocument();}
   async login(email=false){this.error='';this.authenticating=true;try{if(email)await this.api.loginEmail(this.email,this.password);else await this.api.login();this.password='';await this.loadSession();}catch(e){this.error=readableError(e);}finally{this.authenticating=false;}}
-  async logout(){if(this.fixture)return;await this.api.logout();clearTimeout(this.timer);this.session=undefined;this.detail=undefined;this.conversations=[];this.libraryPages={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};this.releaseDocument();}
-  private async loadSession(){this.session=await this.transport.request<PilotSession>('/session');await this.loadConversations();if(this.conversations.length)await this.openConversation(this.conversations[0].id);else this.schedulePoll();}
+  async logout(){if(this.fixture)return;await this.api.logout();clearTimeout(this.timer);this.session=undefined;this.detail=undefined;this.conversations=[];this.serviceError='';this.serviceRequestId='';this.libraryPages={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};this.releaseDocument();}
+  private async loadSession(){this.session=await this.transport.request<PilotSession>('/session');this.serviceStale=false;await this.loadConversations();if(this.conversations.length)await this.openConversation(this.conversations[0].id);else this.schedulePoll();}
   private async loadConversations(){const result=await this.transport.request<{conversations:Conversation[]}>('/conversations');this.conversations=result.conversations;}
   async openConversation(id:string){this.openingId=id;this.error='';this.drawer=false;this.closeDocument();try{const result=await this.transport.request<ConversationDetail>('/conversations/'+encodeURIComponent(id));if(this.openingId===id){this.detail=result;this.adminConversation=false;this.view='chat';this.feedbackPaperId='';this.feedbackMessage='';this.scrollMessages(true);}}catch(e){this.error=readableError(e);}finally{this.schedulePoll();}}
   async newConversation(){this.detail=undefined;this.view='chat';this.adminConversation=false;this.draft='';this.drawer=false;this.openingId='';this.error='';this.sendId='';this.closeDocument();this.schedulePoll();setTimeout(()=>document.querySelector<HTMLTextAreaElement>('#message-input')?.focus(),0);}
@@ -107,10 +110,18 @@ class PaperWorkspace implements OnInit,OnDestroy {
     const oldCount=this.detail?.messages.length;
     const admin=this.adminConversation;
     const [session,conversations,detail]=await Promise.all([this.transport.request<PilotSession>('/session'),this.transport.request<{conversations:Conversation[]}>('/conversations'),id?this.transport.request<ConversationDetail>((admin?'/admin/conversations/':'/conversations/')+encodeURIComponent(id)):Promise.resolve(undefined)]);
-    this.session=session;this.conversations=conversations.conversations;if(this.view==='chat'&&id===this.detail?.conversation.id&&detail){this.detail=admin?{...detail,readOnly:detail.readOnly??true}:detail;if(nearBottom&&oldCount!==detail.messages.length)this.scrollMessages();}
+    if(this.destroyed||!this.session)return;
+    this.session=session;this.serviceStale=false;if(session.service?.state==='ready')this.serviceError='';this.conversations=conversations.conversations;if(this.view==='chat'&&id===this.detail?.conversation.id&&detail){this.detail=admin?{...detail,readOnly:detail.readOnly??true}:detail;if(nearBottom&&oldCount!==detail.messages.length)this.scrollMessages();}
   }
-  async reconnect(){this.error='';try{await this.refresh();}catch(e){this.error=readableError(e);}}
-  private schedulePoll(){clearTimeout(this.timer);if(this.destroyed||!this.session)return;this.timer=setTimeout(async()=>{try{await this.refresh();}catch(e){this.error=readableError(e);}this.schedulePoll();},pollingDelay(this.detail?.jobs||[]));}
+  async reconnect(){this.error='';try{await this.refresh();}catch(e){this.serviceStale=true;this.error=readableError(e);}}
+  async startService(){
+    if(!this.canStartService)return;
+    this.serviceStarting=true;this.serviceError='';this.serviceRequestId||=idForRequest();
+    try{const result=await this.transport.request<{service:AssistantServiceStatus}>('/service/start','POST',{clientRequestId:this.serviceRequestId});if(this.session&&!this.destroyed){this.session={...this.session,service:result.service,worker:result.service.worker};this.serviceRequestId='';}}
+    catch{this.serviceStale=true;this.serviceError='Start could not be confirmed. Refresh status before trying again.';}
+    finally{this.serviceStarting=false;this.schedulePoll();}
+  }
+  private schedulePoll(){clearTimeout(this.timer);if(this.destroyed||!this.session||document.hidden)return;this.timer=setTimeout(async()=>{try{await this.refresh();}catch(e){this.serviceStale=true;this.error=readableError(e);}this.schedulePoll();},this.session.service?.state==='starting'?5000:pollingDelay(this.detail?.jobs||[]));}
   private scrollMessages(force=false){setTimeout(()=>{const el=this.messageList?.nativeElement;if(el)el.scrollTo({top:el.scrollHeight,behavior:force?'instant':'auto'});},30);}
   relativeTime(value:string){const date=new Date(value);if(Number.isNaN(date.getTime()))return '';const minutes=Math.floor((Date.now()-date.getTime())/60000);if(minutes<1)return 'Just now';if(minutes<60)return minutes+' min ago';if(minutes<1440)return date.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});return date.toLocaleDateString('en-IN',{day:'numeric',month:'short'});}
   initials(){return (this.user?.displayName || this.user?.email || 'Teacher').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();}

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {pollingDelay,phaseLabel,workerPresentation,readableError,artifactKind,visibleJobs,formatAssistantText} from '../src/presentation.mjs';
+import {pollingDelay,phaseLabel,workerPresentation,servicePresentation,readableError,artifactKind,visibleJobs,formatAssistantText} from '../src/presentation.mjs';
 import {artifactPresentationVersion,presentArtifact} from '../src/artifact-presentation.mjs';
 import {createHash} from 'node:crypto';
 import {escapeChatText,renderAssistantFormula} from '../src/chat-math.mjs';
@@ -41,7 +41,14 @@ test('cross-owner and server read-only conversations cannot become editable thro
   assert.equal(conversationReadOnly(undefined,'viewer'),false);
 });
 test('only actual pending states use active polling',()=>{assert.equal(pollingDelay([{state:'running'}]),2000);assert.equal(pollingDelay([{state:'completed'},{state:'failed'}]),15000);assert.equal(pollingDelay([]),15000);});
-test('offline queue does not claim execution or completion',()=>{assert.match(phaseLabel({state:'queued'},true),/waiting/);assert.match(workerPresentation({state:'offline',modelReady:false}).detail,/wait safely/);assert.equal(workerPresentation({state:'ready',modelReady:false}).tone,'waiting');assert.equal(workerPresentation({state:'busy',modelReady:true}).tone,'online');});
+test('offline queue does not claim execution or completion',()=>{assert.match(phaseLabel({state:'queued'},true),/waiting/);assert.match(workerPresentation({state:'offline',modelReady:false}).detail,/wait safely/);assert.equal(workerPresentation({state:'ready',modelReady:false}).tone,'online');assert.equal(workerPresentation({state:'busy',modelReady:true}).tone,'online');});
+test('start acceptance and model residency never substitute for a connected worker',()=>{
+  assert.equal(servicePresentation({state:'starting',worker:{state:'offline',modelReady:true}}).tone,'waiting');
+  assert.equal(servicePresentation({state:'starter_offline'}).tone,'offline');
+  const idle=servicePresentation({state:'ready',worker:{modelReady:false}});
+  assert.equal(idle.tone,'online');assert.match(idle.detail,/loads when a request/);
+  assert.match(servicePresentation({state:'failed',request:{errorCode:'model_unavailable'}}).detail,/Ollama/);
+});
 test('status uses fresh facts and maps unrecognized phases safely',()=>{assert.equal(phaseLabel({state:'running',phase:'reviewing',kind:'paper'}),'Reviewing questions and answers');assert.equal(phaseLabel({state:'running',phase:'structure_validation',kind:'paper'}),'Checking structure, marks and coverage');assert.equal(phaseLabel({state:'running',phase:'codex_correcting',kind:'paper'}),'Making corrections');assert.equal(phaseLabel({state:'cancelled',phase:'reviewing'}),'Cancelled');assert.equal(phaseLabel({state:'running',phase:'secret_internal_command',kind:'paper'}),'Working on your paper');});
 test('authentication failures and unknown artifacts are constrained',()=>{assert.match(readableError(new Error('403 forbidden')),/invited/);assert.match(readableError(new Error('Failed to fetch')),/connect/);assert.equal(artifactKind('student'),'student');assert.throws(()=>artifactKind('../logs'));});
 test('retry chain exposes only the controller-designated current paper attempt',()=>{

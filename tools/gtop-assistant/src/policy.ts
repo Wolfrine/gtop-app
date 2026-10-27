@@ -42,7 +42,14 @@ export function socialReply(job:any){
   return null;
 }
 export const examPatternRequested=(t:string)=>/\b(?:exam|board|official)\s+(?:paper\s+)?(?:pattern|format)\b|\b(?:ICSE|ISC|CBSE|IGCSE)\s+(?:exam\s+)?(?:pattern|format)\b|बोर्ड.{0,15}(?:पैटर्न|प्रारूप)|exam pattern/i.test(t);
-export function patternClarification(job:any){return replyLanguage(job)==='hi'?'Exact exam pattern में ऐसे choice rules हो सकते हैं जो अभी supported नहीं हैं। क्या सभी numbered questions ज़रूरी रखने और पूरे question में OR choice वाला practice format चलेगा?':replyLanguage(job)==='hinglish'?'Exact exam pattern ke kuch choice rules abhi supported nahi hain. Kya har numbered question required aur whole-question OR choices wala practice format chalega?':'An exact exam pattern may use choice rules this format doesn’t support yet. Would a practice paper with every numbered question required and whole-question OR choices work for you?';}
+export function patternClarification(job:any){return replyLanguage(job)==='hi'?'अभी सभी numbered questions ज़रूरी रखने और पूरे question में OR choices वाला practice paper बना सकता हूँ। क्या यह format चलेगा?':replyLanguage(job)==='hinglish'?'Abhi har numbered question required aur whole-question OR choices wala practice paper bana sakta hoon. Kya yeh format chalega?':'This format doesn’t support every board choice rule. Would a practice paper with every numbered question required and whole-question OR choices work?';}
+export function curriculumHelp(job:any){
+  const r=(job.taskBrief||buildTaskBrief(job)).requirements;
+  const scope=[r.board,r.standard?'Class '+r.standard:'',r.subject].filter(Boolean).join(' ');
+  const focus=r.selectedChapters?.slice(0,2).join(', ');
+  const saved=[scope,focus,r.marks?r.marks+' marks':''].filter(Boolean).join(' · ');
+  return replyLanguage(job)==='hi'?`${saved} — जानकारी सुरक्षित है। इसके लिए verified syllabus उपलब्ध नहीं है। क्या मैं online जाँच करूँ?`:replyLanguage(job)==='hinglish'?`${saved} — details saved hain. Iska verified syllabus available nahi hai. Kya main online check karoon?`:`Saved: ${saved}. I don’t have a verified syllabus for this scope. Shall I check it online?`;
+}
 export function scopeClarificationReply(job:any){
   const scope=scopeFromHistory(job,job.catalogue||{}),language=replyLanguage(job),missing=missingScopeReply(scope,language);
   if(missing)return missing;
@@ -57,7 +64,9 @@ export function verifiedRequirements(job:any,proposal:any){
   const selected:any=(job.taskBrief||buildTaskBrief(job)).requirements;
   const missing=['board','standard','subject'].filter(k=>!selected[k]);
   if(missing.length)throw Error(missingScopeReply(selected,replyLanguage(job))||'Which board is this for?');
-  const r:any={...defaults,...(job.context?.activeRequirements || {}),...selected};
+  // The brief already incorporates the old paper and user corrections.
+  // Re-merging that paper would resurrect intentionally removed qualifiers.
+  const r:any={...defaults,...selected};
   if(proposal.action==='revise_paper'&&job.context?.latestPaper){for(const key of ['board','standard','subject','academicYear'])if(r[key]!==job.context.latestPaper[key])throw Error('A revision must keep the existing paper curriculum. Please request a new paper for a different board, class, subject or year.');}
   // Earlier explicit user requirements survive a clarification before any paper job exists.
   if(!job.context?.activeRequirements){for(const m of job.history || [])if(m.role==='user'&&m.id!==job.request.id){const v=m.text.match(/\b(\d{2,3})\s*[- ]?\s*(?:marks?|अंक)/i);if(v)r.marks=Number(v[1]);if(/(?:paper|questions?)[^;.!?\n]{0,35}in hindi/i.test(m.text))r.questionLanguage='Hindi';if(/(?:answers?|solutions?)[^;.!?\n]{0,30}in hindi/i.test(m.text))r.answerLanguage='Hindi';}}
@@ -97,6 +106,8 @@ export function route(job:any,p:any){
   if(/\b(?:status|progress|how long|finished|ready yet)\b|कहाँ तक|कितना समय/i.test(t))return {action:'status',reply:statusReply(job)};
   if(requirementDiscussion(t))return {...p,action:'local_answer'};
   if(latestRequest(t)&&!/(?:do not|don't|not yet).{0,30}(?:check|verify|fetch|update)/i.test(t))return {...p,action:'check_curriculum'};
+  const currentBrief=job.taskBrief||buildTaskBrief(job);
+  if(currentBrief.pendingClarification?.field==='curriculum'&&!currentBrief.creationPaused&&currentBrief.creationRequestId&&!missingTaskField(currentBrief)&&/^\s*(?:yes(?: please)?|okay|ok|go ahead|proceed|haan|हाँ|हां|जी)[.!\s]*$/i.test(t))return {...p,action:'check_curriculum'};
   if(examPatternRequested(t))return {...p,action:'clarify',reply:patternClarification(job)};
   if(p.action==='check_curriculum')return {...p,action:'clarify',reply:'I can check the official curriculum online when you ask. '+(missingScopeReply(scopeFromHistory(job,job.catalogue||{}),replyLanguage(job))||'Would you like me to check it?')};
   if(/^(?:why|how|क्यों|कैसे).{0,60}(?:change|revis|replace|बदल)/i.test(t))return {action:'explain_paper',reply:p.reply};
@@ -135,7 +146,7 @@ export function route(job:any,p:any){
     const affirmation=/^\s*(?:yes(?: please)?|go ahead|proceed|confirmed?|haan|Hindi|English|हिंदी|हाँ|हां|जी|\d{2,3}(?:\s*marks?)?)\s*[.!]?\s*$/i.test(t);
     const latest=job.context?.latestPaper;
     const requested=previous.slice(-8).some((m:any)=>m.role==='user'&&creationIntent(m.text)&&!capabilityQuestion(m.text)&&(!latest||(m.createdAt&&latest.createdAt&&m.createdAt>latest.createdAt)));
-    const agreedToOffer=affirmation&&/shall I create|paper (?:bana doon|बना दूँ)|would a practice paper|har numbered question required|सभी numbered questions ज़रूरी/i.test(priorAssistant)&&['board','standard','subject'].every(k=>scopeFromHistory(job,job.catalogue||{})[k]);
+    const agreedToOffer=affirmation&&/shall I create|paper (?:bana doon|बना दूँ)|would a practice paper|would that format work|har numbered question required|सभी numbered questions ज़रूरी/i.test(priorAssistant)&&['board','standard','subject'].every(k=>scopeFromHistory(job,job.catalogue||{})[k]);
     const clarificationAsked=/(?:which|what.{0,18}(?:board|class|standard|subject)|language|marks|missing|please tell|भाषा|अंक|कौन|kaun|shall I create|paper (?:bana doon|बना दूँ)|would a practice paper|har numbered question required|सभी numbered questions ज़रूरी)|(?:shall|should|would).{0,35}(?:create|generate|prepare|make)/i.test(priorAssistant);
     const answersClarification=(scopeAnswer||affirmation)&&clarificationAsked&&(requested||agreedToOffer);
     if(answersClarification){

@@ -8,12 +8,26 @@ export const requirementDiscussion=t=>!/^\s*(?:do not include|don.t include|excl
 const cleanNames=names=>[...new Set(names.map(s=>s.trim().replace(/[.।]+$/,'')).filter(Boolean))];
 const excluded=(text,name)=>{const n=normalized(text),v=normalized(name);return ['do not include ','don t include ','exclude ','except ','without ','not ','हटाओ ','छोड़कर '].some(prefix=>n.includes(prefix+v));};
 
+// Recover a plainly named focus in comma/period-separated paper requirements.
+// This records user intent only; selectedCurriculum must still verify its title.
+function inlineChapters(text){
+  if(!/(?:paper|पेपर|प्रश्नपत्र)/i.test(text))return [];
+  return cleanNames(text.split(/[,.;।\n]+/).map(s=>s.trim()).filter(s=>
+    s.length>2&&s.length<=120&&s.split(/\s+/).length<=12&&/\p{L}/u.test(s)&&
+    !/[?!]/.test(s)&&!Object.keys(extractScope(s)).length&&
+    !/\b(?:papers?|questions?|answers?|solutions?|marks?|boards?|class|standards?|grades?|patterns?|formats?|duration|hours?|minutes?|create|generate|prepare|make|please|include|exclude|without|only|all|full|yes|no|hi|hello|thanks?|codex|use|want|need|start|stop|check|verify|print|english|hindi|hinglish)\b|पेपर|प्रश्न|उत्तर|अंक|बोर्ड|बनाओ|सभी|पूरा/i.test(s)
+  ));
+}
+
 // The model may identify spans, but only saved USER text can establish a selection.
 // Names must occur in the quoted span; assistant messages and invented source IDs fail closed.
 /** @param {any} job @param {any} selection */
 export function buildTaskBrief(job,selection=null){
-  const prior=job.context?.taskBrief;
-  const brief=structuredClone(prior||{version:1,requirements:{...(job.context?.activeRequirements||{}),academicYear:job.context?.activeRequirements?.academicYear||academicYear()},sources:{},creationRequestId:null,pendingClarification:null});
+  // Version 1 could retain deleted programme fields. Rebuild from preserved
+  // original messages on the next turn; never rewrite historical messages.
+  const saved=job.context?.taskBrief;
+  const prior=saved?.version===2?saved:null;
+  const brief=structuredClone(prior||{version:2,requirements:{...(job.context?.activeRequirements||{}),academicYear:job.context?.activeRequirements?.academicYear||academicYear()},sources:{},creationRequestId:null,pendingClarification:saved?.pendingClarification||null});
   const messages=[...new Map([...(job.history||[]).filter(m=>m.role==='user'),{...job.request,role:'user'}].map(m=>[m.id,m])).values()];
   const cursor=messages.findIndex(m=>m.id===prior?.lastMessageId);
   const fresh=prior?cursor>=0?messages.slice(cursor+1):messages.filter(m=>(m.id===job.request.id&&m.id!==prior.lastMessageId&&(!m.createdAt||!prior.lastMessageAt||m.createdAt>=prior.lastMessageAt))||(m.createdAt&&prior.lastMessageAt&&m.createdAt>prior.lastMessageAt)):messages;
@@ -26,15 +40,18 @@ export function buildTaskBrief(job,selection=null){
     const next=extractScope(text,job.catalogue||{},r);
     const changedScope=['board','standard','subject','academicYear'].some(k=>r[k]&&next[k]!==r[k]);
     const explicit=extractScope(text,job.catalogue||{});
-    Object.assign(r,next);for(const k of scopeKeys)if(Object.hasOwn(explicit,k))brief.sources[k]={messageId:m.id,quote:text.slice(0,300)};
-    if(changedScope){delete r.selectedChapters;r.scope='full_syllabus';delete brief.sources.selectedChapters;delete brief.sources.coverage;}
+    // extractScope intentionally deletes incompatible qualifiers. Assignment
+    // alone resurrects those fields from the previous requirements object.
+    for(const k of scopeKeys){if(Object.hasOwn(next,k))r[k]=next[k];else{delete r[k];delete brief.sources[k];}}
+    for(const k of scopeKeys)if(Object.hasOwn(explicit,k))brief.sources[k]={messageId:m.id,quote:text.slice(0,300)};
+    if(changedScope){delete r.selectedChapters;r.scope='full_syllabus';delete brief.sources.selectedChapters;delete brief.sources.scope;delete brief.sources.coverage;brief.pendingClarification=null;}
     const marks=text.match(/\b(\d{2,3})\s*[- ]?\s*(?:marks?|अंक)/i);
     if(marks)set('marks',Number(marks[1]),m,marks[0]);
     else if(/^\s*\d{2,3}[.!\s]*$/.test(text)&&brief.pendingClarification?.field==='marks')set('marks',Number(text.replace(/\D/g,'')),m);
     if(creationIntent(text)&&!capabilityQuestion(text)&&!prohibitedCreation(text)&&!/(?:only|just).{0,20}(?:discuss|explain|plan)|(?:if|suppose|hypothetically).{0,35}(?:create|make)/i.test(text)){
       const previousRoot=messages.find(x=>x.id===brief.creationRequestId);
       const completed=job.context?.latestPaper;
-      if(!brief.creationRequestId||(completed?.createdAt&&previousRoot?.createdAt&&previousRoot.createdAt<=completed.createdAt&&m.createdAt>completed.createdAt))brief.creationRequestId=m.id;
+      if(changedScope||!brief.creationRequestId||(completed?.createdAt&&previousRoot?.createdAt&&previousRoot.createdAt<=completed.createdAt&&m.createdAt>completed.createdAt))brief.creationRequestId=m.id;
       brief.creationPaused=false;
     }
     if(prohibitedCreation(text))brief.creationRequestId=null;
@@ -56,6 +73,9 @@ export function buildTaskBrief(job,selection=null){
         const whole=known.find(c=>normalized(c.title)===normalized(list));
         const names=cleanNames(whole?[list]:list.split(/[,;]/.test(list)?/\s*[,;]\s*/:/\s*(?:\band\b|और)\s*/i));
         if(names.length&&names.length<=30){set('selectedChapters',names,m,list);set('scope','selected_chapters',m,list);}
+      }else{
+        const names=inlineChapters(text);
+        if(names.length&&names.length<=30){set('selectedChapters',names,m);set('scope','selected_chapters',m);}
       }
     }
     if(r.selectedChapters?.length){const kept=r.selectedChapters.filter(name=>!excluded(text,name));if(kept.length!==r.selectedChapters.length){set('selectedChapters',kept,m);set('scope','selected_chapters',m);}}
@@ -69,6 +89,8 @@ export function buildTaskBrief(job,selection=null){
     if(selection.chapters.some(name=>excluded(m.text,name)))throw Error('Chapter selection includes a chapter explicitly excluded by the user.');
     // Replayed model output cannot override a more recent user correction.
     if(m.id!==job.request.id&&!fresh.some(x=>x.id===m.id)&&prior)return brief;
+    const latestScopeSource=scopeKeys.map(k=>brief.sources[k]?.messageId).map(id=>messages.findIndex(x=>x.id===id));
+    if(messages.indexOf(m)<Math.max(-1,...latestScopeSource))throw Error('Chapter selection predates the current curriculum scope.');
     if(brief.sources.scope&&messages.findIndex(x=>x.id===brief.sources.scope.messageId)>messages.indexOf(m))return brief;
     const names=cleanNames(selection.chapters);set('selectedChapters',names,m,selection.quote);set('scope','selected_chapters',m,selection.quote);
   }

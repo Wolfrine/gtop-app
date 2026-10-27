@@ -33,6 +33,40 @@ test('selected-chapter publication rejects other chapters and missing selected c
   const base={...p,requirements:r,curriculumSnapshot:c};assert(validateRevision(base,p,null,c).passed);
 });
 async function turn(f,cid,text){if(!cid)cid=(await f.service.createConversation('owner',{})).conversation.id;await f.service.submit('owner',cid,{text,clientMessageId:Math.random().toString(36).slice(2)});return {cid,job:(await f.service.claim(f.w,{kind:'turn'})).job};}
+
+test('observed ICSE chapter request stays scoped through gateway delegation, publication and immutable revision',async()=>{
+  const f=fixture();f.store.docs.set('syllabus/icse-digestive',{id:'icse-digestive',board:'ICSE',standard:'9',subject:'Biology',chapter:'Digestive system'});
+  f.store.docs.set('syllabus/icse-other',{id:'icse-other',board:'ICSE',standard:'9',subject:'Biology',chapter:'Respiration'});
+  const t=await turn(f,null,'Create question paper for 9 th ICSE, biology, Digestive system,40 mark');
+  const brief=buildTaskBrief(t.job);assert.deepEqual(brief.requirements.selectedChapters,['Digestive system']);
+  const r={...defaults,...brief.requirements,internalChoices:false};
+  await assert.rejects(()=>f.service.delegate(f.w,t.job.id,{leaseId:t.job.leaseId,operation:'generate_paper',requirements:{...r,scope:'full_syllabus',selectedChapters:undefined}}),/cannot be widened/);
+  await f.service.delegate(f.w,t.job.id,{leaseId:t.job.leaseId,operation:'generate_paper',requirements:r,rootRequestMessageId:t.job.request.id,interpretation:'Synthetic scope verification',proposedActions:['generate_paper']});
+  const p=(await f.service.claim(f.w,{kind:'paper'})).job;assert.deepEqual(p.curriculumSnapshot.chapters.map(c=>c.title),['Digestive system']);assert.equal(p.rootRequest.text,t.job.request.text);assert.equal(p.request.text,t.job.request.text);
+  const output=paper(r,p.curriculumSnapshot);output.sections[0].questions=Array.from({length:10},(_,i)=>({...output.sections[0].questions[0],number:i+1,marks:4,question:'SYNTHETIC question '+i}));
+  const delivered=await f.service.complete(f.w,p.id,{leaseId:p.leaseId,paper:output,reply:'Synthetic reviewed fixture only.'});
+  const old=await f.store.get('assistantPapers/'+delivered.paperId);assert.equal(old.requirements.scope,'selected_chapters');
+  const next=await turn(f,t.cid,'Revise question 1 to be harder.');await f.service.delegate(f.w,next.job.id,{leaseId:next.job.leaseId,operation:'revise_paper',requirements:r,basePaperId:old.id,targetQuestionNumber:1,interpretation:'Synthetic revision',proposedActions:['revise_paper']});
+  const revision=(await f.service.claim(f.w,{kind:'paper'})).job;const revised=structuredClone(output);revised.sections[0].questions[0].question='SYNTHETIC harder question';
+  await f.service.complete(f.w,revision.id,{leaseId:revision.leaseId,paper:revised,reply:'Synthetic revision only.'});assert.deepEqual(await f.store.get('assistantPapers/'+old.id),old);
+});
+
+test('curriculum offer is saved only after independent unavailability and cannot silently delegate',async()=>{
+  const f=fixture();const t=await turn(f,null,'Create Class 9 ICSE Biology paper, Digestive system, 40 marks');
+  await f.service.complete(f.w,t.job.id,{leaseId:t.job.leaseId,reply:'Shall I check it online?',curriculumOffer:true});
+  const c=await f.store.get('assistantConversations/'+t.cid);assert.equal(c.taskBrief.pendingClarification.field,'curriculum');assert.deepEqual(c.taskBrief.requirements.selectedChapters,['Digestive system']);
+  assert.equal((await f.service.claim(f.w,{kind:'paper'})).job,null);
+  const available=await turn(f,null,'Create CBSE Class 10 Science paper, 20 marks');await f.service.complete(f.w,available.job.id,{leaseId:available.job.leaseId,reply:'Forged offer',curriculumOffer:true});
+  assert.equal((await f.store.get('assistantConversations/'+available.cid)).taskBrief.pendingClarification,null);
+});
+
+test('brief evidence outside the recent 100 messages remains in the worker handoff',async()=>{
+  const f=fixture(),t=await turn(f,null,'Create CBSE Class 10 Science paper, 20 marks. Chapters: Chapter 1.');
+  await f.service.complete(f.w,t.job.id,{leaseId:t.job.leaseId,reply:'Saved.'});
+  const original=t.job.request;
+  for(let i=0;i<105;i++){const id='padding-'+i;f.store.docs.set(`assistantConversations/${t.cid}/messages/${id}`,{id,conversationId:t.cid,role:'assistant',text:'Synthetic padding',createdAt:'2026-10-27T00:00:00Z'});}
+  const next=await turn(f,t.cid,'All topics.');assert(next.job.history.some(m=>m.id===original.id));assert.deepEqual(buildTaskBrief(next.job).requirements.selectedChapters,['Chapter 1']);
+});
 const delegate=(f,t,operation='generate_paper',requirements={...defaults,...scope,marks:10,internalChoices:false})=>f.service.delegate(f.w,t.job.id,{leaseId:t.job.leaseId,operation,requirements,interpretation:'Synthetic test only',proposedActions:[operation]});
 test('all configured board/class scopes 5–12 validate against their own pinned chapters; cross-scope output fails',()=>{let count=0;for(const board of boards)for(const standard of board.standards){const r=validateRequirements({...defaults,board:board.name,standard:String(standard),subject:'Science',marks:10,internalChoices:false});const c=savedCurriculum(r,rows.map(x=>({...x,board:r.board,standard:r.standard})));assert.equal(validatePaper(paper(r,c),r,c).attemptedMarks,10);assert.throws(()=>validatePaper(paper(r,c),{...r,standard:'4'},c));count++;}assert(count>=40);const r={...defaults,...scope,marks:10,internalChoices:false},c=savedCurriculum(r,rows);const html=renderPaper({...paper(r,c),curriculumSnapshot:c,requirements:r});assert(html.includes('Class 10'));assert(!html.includes('PRIVATE answer'));assert(!html.includes('official completeness'));assert(!/<p class="notice">/.test(html));assert(c.provenance.records.includes('saved-1'));assert.equal(savedCurriculum({...r,marks:80},rows).id,c.id);});
 test('programme variants are not silently reused and unavailable programmes clarify',()=>{assert(!sameScope({...scope,level:'HL'},{...scope,level:'SL'}));assert.throws(()=>validateScope({...scope,board:'ICSE',standard:'12'}),/ISC/);assert.throws(()=>validateCurriculumScope({...scope,board:'IB'}),/programme/);assert.throws(()=>validateCurriculumScope({...scope,board:'Cambridge IGCSE'}),/code/);const index=catalogueIndex([{...rows[0],subject:'Math'}]);assert.equal(extractScope('CBSE Class 10 Maths in English',index).subject,'Math');assert.equal(extractScope('कक्षा ५ Science',{},{board:'CBSE'}).standard,'5');});

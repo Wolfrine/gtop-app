@@ -229,7 +229,12 @@ export class AssistantService {
     for(const p of [base,latest])if(p && (p.ownerUid!==job.ownerUid || p.conversationId!==c.id))fail(409,'invalid_paper_reference','Stored paper ownership could not be verified.');
     const root=await this.store.get(messagePath(c.id,job.rootRequestMessageId || latest?.rootRequestMessageId || c.rootRequestId));
     if(!request || !root)fail(409,'missing_original_request','Original conversation messages are unavailable.');
-    const all=[...new Map([root,...recent,request].map(m=>[m.id,m])).values()].sort((a,b)=>a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
+    // A bounded recent window must not erase the user evidence behind a brief.
+    const sourceIds=[...new Set([c.taskBrief?.creationRequestId,c.taskBrief?.lastMessageId,...Object.values(c.taskBrief?.sources||{}).map(s=>s.messageId)].filter(Boolean))];
+    if(sourceIds.length>30)fail(409,'brief_source_bound','Saved requirements need review before continuing.');
+    const evidence=await Promise.all(sourceIds.filter(id=>!recent.some(m=>m.id===id)).map(id=>this.store.get(messagePath(c.id,safeId(id)))));
+    if(evidence.some(m=>!m||m.role!=='user'||m.conversationId!==c.id))fail(409,'missing_requirement_evidence','Saved requirement evidence is unavailable. Please restate the paper requirements.');
+    const all=[...new Map([root,...evidence,...recent,request].map(m=>[m.id,m])).values()].sort((a,b)=>a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
     const original=m=>({id:m.id,text:m.text,sha256Utf8:hash(m.text)});
     const researchActive=c.activeCurriculumJobId?await this.store.get(ref('assistantJobs',c.activeCurriculumJobId)):null;
     const checked=c.latestCurriculumId?await this.store.get(ref('assistantCurricula',c.latestCurriculumId)):null;
@@ -246,6 +251,12 @@ export class AssistantService {
     let brief;try{brief=buildTaskBrief(input,body.selection||null);}catch(e){fail(400,'invalid_selection',e.message);}
     const field=missingTaskField(brief);
     brief.pendingClarification=body.clarificationField&&body.clarificationField===field?{field,attempts:brief.pendingClarification?.field===field?(brief.pendingClarification.attempts||0)+1:1}:null;
+    // An offer is actionable only after the gateway independently confirms
+    // unavailable curriculum. A model-written invitation grants nothing.
+    if(body.curriculumOffer===true&&!field&&brief.creationRequestId&&!brief.creationPaused){
+      try{await this.resolveCurriculum(brief.requirements,job.conversationId,worker);}
+      catch(e){if(e.code==='curriculum_unavailable')brief.pendingClarification={field:'curriculum',attempts:1};}
+    }
     return bounded(brief,20000);
   }
   async leased(tx,worker,id,leaseId) {

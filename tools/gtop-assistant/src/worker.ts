@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {Gateway,converse,codex,delay,record,localModelLoaded,type Config} from './adapters.js';
-import {route,verifiedRequirements,handoff,verifyOriginals,taskRoot,examPatternRequested,socialReply} from './policy.js';
+import {route,verifiedRequirements,handoff,verifyOriginals,taskRoot,examPatternRequested,socialReply,curriculumHelp} from './policy.js';
 import {curriculum,validatePaper,validateRevision,paperContent} from '../../../assistant-service/domain/index.mjs';
 import {reviewSchema} from '../../../assistant-service/domain/schemas.mjs';
 import {outputSchemas} from './paper-contract.js';
@@ -22,11 +22,11 @@ export class Worker {
   async heartbeat(){
     // Queue availability and model residency are separate: idle is ready with no model loaded.
     this.ready=await localModelLoaded(this.config).catch(()=>false);
-    await this.api.post('/worker/heartbeat',{state:this.turnBusy||this.paperBusy?'busy':'ready',modelReady:this.ready,version:'harness-4-on-demand'});
+    await this.api.post('/worker/heartbeat',{state:this.turnBusy||this.paperBusy?'busy':'ready',modelReady:this.ready,version:'harness-5-sourced-scope'});
   }
   async start(signal:AbortSignal){
     await this.heartbeat();const timer=setInterval(()=>void this.heartbeat().catch(e=>console.error(e.message)),30000);
-    try{await Promise.all([this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.ready=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:'harness-4-on-demand'}).catch(()=>{});}
+    try{await Promise.all([this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.ready=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:'harness-5-sourced-scope'}).catch(()=>{});}
   }
   async loop(kind:'turn'|'paper',signal:AbortSignal){while(!signal.aborted){try{const {job}=await this.api.post('/worker/claim',{kind,waitSeconds:0},signal);if(job)await this.run(job,signal);else await delay(5000,signal);}catch(e:any){if(signal.aborted)break;console.error(`${kind}: ${e.message}`);await delay(5000,signal).catch(()=>{});}}}
   async run(job:any,parent:AbortSignal){
@@ -65,7 +65,7 @@ export class Worker {
       let requirements;try{requirements=verifiedRequirements(job,p);}catch(e:any){await this.api.post(`/worker/jobs/${job.id}/complete`,{leaseId:job.leaseId,reply:e.message,metrics,...briefUpdate});return;}
       await record(dir,'verified-requirements.json',{requirements,originalSourceIds:job.history.filter((m:any)=>m.role==='user').map((m:any)=>m.id),currentRequestId:job.request.id,modelPatchIsAuthoritative:false});
       try{await this.api.post(`/worker/jobs/${job.id}/delegate`,{leaseId:job.leaseId,operation:p.action,requirements,rootRequestMessageId:taskRoot(job),interpretation:p.interpretation || proposal.interpretation || job.request.text,proposedActions:p.proposedActions || [p.action],...briefUpdate,basePaperId:p.action==='revise_paper'?job.context.latestPaper.id:undefined,targetQuestionNumber:p.targetQuestionNumber ?? null});}
-      catch(e:any){if(/^Gateway 400:/.test(e.message)){await this.api.post(`/worker/jobs/${job.id}/complete`,{leaseId:job.leaseId,reply:e.message.replace(/^Gateway 400: /,''),metrics,...briefUpdate});return;}throw e;}return;
+      catch(e:any){if(/^Gateway 400:/.test(e.message)){const unavailable=e.code==='curriculum_unavailable'||/saved (?:GTOP chapter list|chapters)|selected chapters are not in|published curriculum|verified programme/i.test(e.message);await this.api.post(`/worker/jobs/${job.id}/complete`,{leaseId:job.leaseId,reply:unavailable?curriculumHelp(job):e.message.replace(/^Gateway 400: /,''),metrics,...briefUpdate,...(unavailable?{curriculumOffer:true}:{})});return;}throw e;}return;
     }
     const reply=groundedReply(job,p);
     // Only exact, user-authored preference quotes are eligible for persistence.

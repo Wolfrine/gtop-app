@@ -1,5 +1,7 @@
 # GTOP AI assistant documentation
 
+- [Requirement continuity RCA and correction, 27 October 2026](SCOPE_RCA_2026-10-27.md): stale programme metadata, lost single-chapter scope, explicit curriculum-check recovery and regression evidence.
+
 - [Product intent and discovery handoff](INTENT_AND_DISCOVERY.md): scope, conversational responsibilities and approval boundaries.
 - [Approved pilot implementation](PILOT_IMPLEMENTATION.md): current private Question Paper app, controller, permissions and operational limits.
 - [Pilot release and acceptance record, 24 October 2026](PILOT_RELEASE_2026-10-24.md): verified deployment state, checks and remaining human acceptance.

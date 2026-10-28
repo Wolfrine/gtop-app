@@ -54,4 +54,12 @@ Private prompts, schemas, CLI events, timings, learning records and printable ar
 
 Browser interaction checks verified feedback before generation and a 390-pixel layout without document overflow. Pixel capture repeatedly timed out, including the visible path. Desktop/mobile visual acceptance, native A4/physical printing, teacher use and long-term availability remain open. No visual-design acceptance is claimed.
 
-Protected release and installed-worker readback will be recorded below; source tests alone do not establish deployment.
+## Delivered release
+
+Implementation `4a45825`, followed by product-memory commit `ee8191d`, passed [protected run 40645557860](https://github.com/Wolfrine/gtop-app/actions/runs/40645557860): verification, backend and independent Hosting all succeeded. This was one push/release run. Required actual Firebase Auth/Firestore/function integration, shared permission regressions, dependency audits and frontend build remained enabled. No GTOP core promotion was performed.
+
+The live independent site's version identifies `ee8191d04e9f64bc30c9a07cfdc318224447d4f2`; anonymous session access returns 401. After an authoritative empty active-job query, only the exact installed worker was reloaded through the existing native windowless host. Readback reports `harness-6-codex-escalation`, ready, fresh heartbeat and `modelReady:false`. Ollama confirms zero loaded models. The native host reports `createNoWindow:true`, the worker has no main window and existing startup pairing/settings were preserved. This verifies present readiness, not long-term uptime or full-screen gaming acceptance.
+
+Replay of the actual synthetic-admin learning cache retrieved two relevant examples for the same owner and none for another owner. No synthetic examples were seeded into production administrators' memories.
+
+Desktop DOM measurements at 1440 pixels and phone measurements at 390 pixels showed no document overflow; the open feedback form measured 925 and 358 pixels respectively. Feedback submission was verified in the isolated dev fixture. Pixel capture still failed. An optional fallback test-document server launch was rejected by automatic approval review with the reason “blocked by policy”; it was not started or worked around. Visual and physical-print acceptance remain explicitly open. The temporary preview server/tab were cleaned up.

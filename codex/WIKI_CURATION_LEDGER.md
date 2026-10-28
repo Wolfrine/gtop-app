@@ -316,3 +316,11 @@ Use it to answer:
 - Durable decisions: student papers/answers must be ready for direct printing; provenance/process caveats stay administrative. Conversation is concise and friendly, retains established details, and daily evidence reviews propose corrections for Sachit's confirmation. The deferred library is now approved for shared admin reference, with descriptive paper-based conversation titles.
 - Evidence boundary: this records requested product behavior, not a claim of completed release, learning benefit or teacher acceptance. Existing raw notes remain historical; unrelated sources were not re-curated.
 - Project Manager Handoff: ordered releases, private evidence, daily review and shared read-only retrieval remain with QndHjDJw0x3wzzG5szwW and EAZaJl5UKPch63ct1oUr. No execution checklist added to the wiki.
+
+### 2026-10-28 - Earlier delegation and learning from use
+
+- Raw source: `raw/2026-10-28-early-delegation-and-learning.md`; processed in full.
+- Wiki changed: Intent.
+- Durable direction: clear paper requirements reach Codex promptly; local difficulty escalates after one or two turns. Preserve originals and corrections. Improve through source-backed memory and validated experience without treating learning as permission or educational approval.
+- Evidence boundary: requested improvement is not a guarantee of model-weight training, gain on every turn, broad curriculum accuracy or human acceptance. Unrelated raw notes were not re-curated.
+- Project Manager Handoff: implementation, protected release, operational evidence and remaining visual/teacher/printing acceptance stay with QndHjDJw0x3wzzG5szwW and docs/ai-assistant/HARNESS_CORRECTIONS_2026-10-28.md.

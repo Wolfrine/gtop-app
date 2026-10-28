@@ -30,6 +30,8 @@ Settled requirements should survive the conversation. When an administrator supp
 
 The paper workspace should be calm and compact. Teachers must be able to read the discussion, understand current progress and find the next paper action without oversized chat text, repeated guidance or wasted space. Filters, feedback and earlier revisions remain easy to reach when needed. Question Paper Creation has its own recognizable, installable identity while retaining Growth Tutorials' private sign-in. Installation offers convenient access; conversation and paper creation still depend on connectivity. Agent review is supporting evidence, and the intended users' experience remains the acceptance standard.
 
+Clear paper requirements should reach Codex promptly. Local difficulty should lead to delegation after one or two turns, preserving original intent instead of repeating questions. The assistant should improve through source-backed memory, validated examples and reviewed corrections from use. Learning does not confer permission or guarantee educational accuracy; the controller remains responsible for authority and dependable delivery.
+
 GTOP's [[Features]] should serve student practice continuity, admin content quality, and Growth Tutorials brand trust. The [[Problems]] page tracks the product problems that should shape future priorities.
 
 ## Source Notes
@@ -44,3 +46,4 @@ GTOP's [[Features]] should serve student practice continuity, admin content qual
 - `raw/2026-10-24-classroom-copy-and-assistant-feedback.md`
 - `raw/2026-10-25-conversational-harness-improvements.md`
 - `raw/2026-10-25-paper-workspace-density-and-identity.md`
+- `raw/2026-10-28-early-delegation-and-learning.md`

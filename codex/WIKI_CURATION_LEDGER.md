@@ -324,3 +324,11 @@ Use it to answer:
 - Durable direction: clear paper requirements reach Codex promptly; local difficulty escalates after one or two turns. Preserve originals and corrections. Improve through source-backed memory and validated experience without treating learning as permission or educational approval.
 - Evidence boundary: requested improvement is not a guarantee of model-weight training, gain on every turn, broad curriculum accuracy or human acceptance. Unrelated raw notes were not re-curated.
 - Project Manager Handoff: implementation, protected release, operational evidence and remaining visual/teacher/printing acceptance stay with QndHjDJw0x3wzzG5szwW and docs/ai-assistant/HARNESS_CORRECTIONS_2026-10-28.md.
+
+### 2026-10-28 - Real paper request friction
+
+- Raw source: `raw/2026-10-28-real-paper-request-friction.md`; processed in full. Unrelated sources were not re-curated.
+- Wiki changed: Intent.
+- Durable lesson: assessment styles are not chapters; internal source details should not burden teachers. Resolved prerequisites continue the requested paper. Readiness and handoffs do not prove printable delivery.
+- Evidence boundary: two real journeys motivated this repair; broader curriculum reliability and teacher acceptance remain unproven.
+- Project Manager Handoff: specific defects, protected release and original-conversation recovery belong to QndHjDJw0x3wzzG5szwW and `docs/ai-assistant/PAPER_FAILURE_RCA_2026-10-28.md`. No execution checklist added to the wiki.

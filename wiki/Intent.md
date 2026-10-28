@@ -32,6 +32,8 @@ The paper workspace should be calm and compact. Teachers must be able to read th
 
 Clear paper requirements should reach Codex promptly. Local difficulty should lead to delegation after one or two turns, preserving original intent instead of repeating questions. The assistant should improve through source-backed memory, validated examples and reviewed corrections from use. Learning does not confer permission or guarantee educational accuracy; the controller remains responsible for authority and dependable delivery.
 
+Ordinary teaching language should not become administrative friction. “Competency based” describes question style, not another chapter to clarify. Source checks and routine prerequisites should continue the requested paper when resolved, while chat gives only the useful result or genuine remaining question. A ready service or successful handoff is supporting evidence; delivery means the teacher can access the requested printable questions and separate answers in the original discussion.
+
 GTOP's [[Features]] should serve student practice continuity, admin content quality, and Growth Tutorials brand trust. The [[Problems]] page tracks the product problems that should shape future priorities.
 
 ## Source Notes
@@ -47,3 +49,4 @@ GTOP's [[Features]] should serve student practice continuity, admin content qual
 - `raw/2026-10-25-conversational-harness-improvements.md`
 - `raw/2026-10-25-paper-workspace-density-and-identity.md`
 - `raw/2026-10-28-early-delegation-and-learning.md`
+- `raw/2026-10-28-real-paper-request-friction.md`

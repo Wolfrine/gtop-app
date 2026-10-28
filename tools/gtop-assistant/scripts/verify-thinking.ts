@@ -1,0 +1,13 @@
+import {readFile} from 'node:fs/promises';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {readConfig,converse,record} from '../src/adapters.js';
+import {hash} from '../src/policy.js';
+const installed=await readConfig(process.argv[2]),root=process.argv[3];if(!/^F:[\\/]/i.test(root||''))throw Error('Use private F-drive evidence storage.');
+const config={...installed,dataDirectory:root};
+const text='Why can food move through the oesophagus while a person is lying down? Explain in one short sentence.';
+const request={id:'synthetic-thinking-check',text,sha256Utf8:hash(text)};
+const result=await converse(config,{id:request.id,ownerUid:'synthetic-teacher',request,rootRequest:request,history:[],profile:{},context:{},controllerFacts:{permissions:{routinePaperWork:true},availableData:{}}},path.join(root,'thinking'),AbortSignal.timeout(180000));
+const first=JSON.parse(await readFile(path.join(root,'thinking','local-response-0.json'),'utf8'));
+assert(result.metrics.thinking);assert(String(first.message.thinking||'').length>0,'The provider must actually return thinking.');
+const evidence={...result,thinkingCharacters:String(first.message.thinking||'').length,synthetic:true,productionWrites:false};await record(root,'thinking-check.json',evidence);console.log(JSON.stringify(evidence));

@@ -37,17 +37,19 @@ export function buildTaskBrief(job,selection=null){
     const text=m.text;
     if(prohibitedCreation(text)||/^\s*(?:wait|hold on|not now|later|pause|रुको|अभी नहीं|abhi nahi)\b/i.test(text)){brief.creationRequestId=null;brief.creationPaused=true;}
     if(requirementDiscussion(text)||capabilityQuestion(text)){brief.lastMessageId=m.id;brief.lastMessageAt=m.createdAt||null;continue;}
-    const next=extractScope(text,job.catalogue||{},r);
+    const previousScope={...r};const next=extractScope(text,job.catalogue||{},r);
     const changedScope=['board','standard','subject','academicYear'].some(k=>r[k]&&next[k]!==r[k]);
     const explicit=extractScope(text,job.catalogue||{});
     // extractScope intentionally deletes incompatible qualifiers. Assignment
     // alone resurrects those fields from the previous requirements object.
     for(const k of scopeKeys){if(Object.hasOwn(next,k))r[k]=next[k];else{delete r[k];delete brief.sources[k];}}
-    for(const k of scopeKeys)if(Object.hasOwn(explicit,k))brief.sources[k]={messageId:m.id,quote:text.slice(0,300)};
-    if(changedScope){delete r.selectedChapters;r.scope='full_syllabus';delete brief.sources.selectedChapters;delete brief.sources.scope;delete brief.sources.coverage;brief.pendingClarification=null;}
+    for(const k of scopeKeys)if(Object.hasOwn(explicit,k)||(next[k]&&next[k]!==previousScope[k]))brief.sources[k]={messageId:m.id,quote:text.slice(0,300)};
+    if(changedScope){brief.scopeChangedAtMessageId=m.id;delete r.selectedChapters;r.scope='full_syllabus';delete brief.sources.selectedChapters;delete brief.sources.scope;delete brief.sources.coverage;brief.pendingClarification=null;}
     const marks=text.match(/\b(\d{2,3})\s*[- ]?\s*(?:marks?|अंक)/i);
     if(marks)set('marks',Number(marks[1]),m,marks[0]);
     else if(/^\s*\d{2,3}[.!\s]*$/.test(text)&&brief.pendingClarification?.field==='marks')set('marks',Number(text.replace(/\D/g,'')),m);
+    if(/(?:exam|board|official)\s+(?:paper\s+)?(?:pattern|format)|\b(?:ICSE|ISC|CBSE|IGCSE)\s+(?:exam\s+)?(?:pattern|format)/i.test(text))set('format','board',m);
+    if(/custom practice (?:paper|format)|practice format (?:is fine|works)|all numbered questions (?:required|compulsory)/i.test(text))set('format','practice',m);
     if(creationIntent(text)&&!capabilityQuestion(text)&&!prohibitedCreation(text)&&!/(?:only|just).{0,20}(?:discuss|explain|plan)|(?:if|suppose|hypothetically).{0,35}(?:create|make)/i.test(text)){
       const previousRoot=messages.find(x=>x.id===brief.creationRequestId);
       const completed=job.context?.latestPaper;
@@ -88,12 +90,15 @@ export function buildTaskBrief(job,selection=null){
     if(requirementDiscussion(m.text)||capabilityQuestion(m.text))throw Error('A discussion of chapters is not a chapter selection.');
     if(selection.chapters.some(name=>excluded(m.text,name)))throw Error('Chapter selection includes a chapter explicitly excluded by the user.');
     // Replayed model output cannot override a more recent user correction.
-    if(m.id!==job.request.id&&!fresh.some(x=>x.id===m.id)&&prior)return brief;
-    const latestScopeSource=scopeKeys.map(k=>brief.sources[k]?.messageId).map(id=>messages.findIndex(x=>x.id===id));
+    if(m.id!==job.request.id&&!fresh.some(x=>x.id===m.id)&&prior&&r.selectedChapters?.length)return brief;
+    const latestScopeSource=[brief.scopeChangedAtMessageId,brief.creationRequestId].map(id=>messages.findIndex(x=>x.id===id));
     if(messages.indexOf(m)<Math.max(-1,...latestScopeSource))throw Error('Chapter selection predates the current curriculum scope.');
     if(brief.sources.scope&&messages.findIndex(x=>x.id===brief.sources.scope.messageId)>messages.indexOf(m))return brief;
     const names=cleanNames(selection.chapters);set('selectedChapters',names,m,selection.quote);set('scope','selected_chapters',m,selection.quote);
   }
+  // In the dedicated paper app, a complete requirement packet is an actionable
+  // request even when the user omits the verb "create". Discussion and pauses stay inert.
+  if(!brief.creationRequestId&&!brief.creationPaused&&!requirementDiscussion(job.request.text)&&!capabilityQuestion(job.request.text)&&!prohibitedCreation(job.request.text)&&r.board&&r.standard&&r.subject&&r.selectedChapters?.length){brief.creationRequestId=job.request.id;}
   brief.coverage=r.scope==='selected_chapters'?'all_topics_in_selected_chapters':'full_syllabus';
   return brief;
 }
@@ -102,7 +107,7 @@ export function missingTaskField(brief){
   const r=brief.requirements;
   for(const key of ['board','standard','subject'])if(!r[key])return key;
   if(r.scope==='selected_chapters'&&!r.selectedChapters?.length)return 'selectedChapters';
-  if(r.board==='IB'){if(!r.programme)return 'programme';if((Number(r.standard)>=11||['DP','IBDP'].includes(r.programme.toUpperCase()))&&!r.level)return 'level';}
+  if(r.board==='IB'){if(!r.programme)return 'programme';if((Number(r.standard)>=11||['DP','IBDP'].includes(r.programme.toUpperCase()))&&!r.level)return 'level';if(Number(r.standard)>=11&&/math/i.test(r.subject)&&!['AA','AI'].includes(r.subjectCode))return 'subjectCode';}
   if(r.board?.startsWith('Cambridge')){for(const key of ['programme','subjectCode','examYear'])if(!r[key])return key;if(/math/i.test(r.subject)&&!r.level)return 'level';}
   return null;
 }

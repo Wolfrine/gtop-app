@@ -66,7 +66,7 @@ test('short format clarification retains the actual restriction and can be accep
   assert(patternClarification(j).split(/\s+/).length<30);assert.equal(route(j,{action:'local_answer',reply:'Okay'}).action,'generate_paper');
 });
 
-test('real worker and gateway logic recover missing curriculum and delegate only a confirmed check',async t=>{
+test('a clear request reaches Codex and missing curriculum starts a check that retains paper continuation',async t=>{
   const dir=await mkdtemp(path.join(os.tmpdir(),'gtop-scope-integration-'));t.after(()=>rm(dir,{recursive:true,force:true}));
   const store=new MemoryStore({'users/owner':{role:'admin'},'assistantConfig/pilot':{allowedOwnerUids:['owner']},'assistantWorkers/w':{enabled:true,allowedOwnerUids:['owner']}});
   let id=0,clock=Date.parse('2026-10-27T00:00:00Z');const service:any=new AssistantService(store,{id:()=>`scope-${++id}`,now:()=>new Date(clock+=1000)} as any);
@@ -77,15 +77,15 @@ test('real worker and gateway logic recover missing curriculum and delegate only
       const match=endpoint.match(/^\/worker\/jobs\/([^/]+)\/(delegate|complete)$/);assert(match,endpoint);return await (service as any)[match![2]](w,match![1],body);
     }catch(e:any){throw Object.assign(Error(`Gateway ${e.status||500}: ${e.message}`),{code:e.code});}
   }} as any;
+  t.mock.method(worker,'plan',async()=>({proposal:{action:'generate_paper',reply:'',interpretation:'Create the requested chapter paper',selection:null},metrics:{engine:'synthetic-codex-planner'}}));
   let chats=0,unloads=0;t.mock.method(globalThis,'fetch',async(input:any)=>{
     if(String(input).endsWith('/api/chat')){chats++;return Response.json({message:{content:JSON.stringify({action:'generate_paper',reply:'I have sent it to Codex.'})}});}
     assert(String(input).endsWith('/api/generate'));unloads++;return Response.json({done:true});
   });
   const original='Create question paper for 9 th ICSE, biology, Digestive system,40 mark';
   await service.submit('owner',c.id,{text:original,clientMessageId:'first'});let j=(await service.claim(w,{kind:'turn'})).job;await worker.turn(j,dir,new AbortController().signal);
-  const saved=await store.get('assistantConversations/'+c.id);assert.equal(saved.taskBrief.pendingClarification.field,'curriculum');assert.deepEqual(saved.taskBrief.requirements.selectedChapters,['Digestive system']);
-  assert.equal((await service.claim(w,{kind:'paper'})).job,null);
-  await service.submit('owner',c.id,{text:'Yes',clientMessageId:'confirmed'});j=(await service.claim(w,{kind:'turn'})).job;await worker.turn(j,dir,new AbortController().signal);
-  const research=(await service.claim(w,{kind:'paper'})).job;assert.equal(research.operation,'check_curriculum');assert.equal(research.rootRequest.text,original);assert.equal(research.request.text,'Yes');assert.deepEqual(research.requirements.selectedChapters,['Digestive system']);assert.equal(research.requirements.marks,40);
-  assert.equal(chats,2);assert.equal(unloads,2);
+  const saved=await store.get('assistantConversations/'+c.id);assert.deepEqual(saved.taskBrief.requirements.selectedChapters,['Digestive system']);
+  const research=(await service.claim(w,{kind:'paper'})).job;assert.equal(research.operation,'check_curriculum');assert.equal(research.rootRequest.text,original);assert.equal(research.request.text,original);assert.deepEqual(research.requirements.selectedChapters,['Digestive system']);assert.equal(research.requirements.marks,40);
+  const stored=await store.get('assistantJobs/'+research.id);assert.equal(stored.resumePaperAfterCheck,true);
+  assert.equal(chats,0);assert.equal(unloads,0);
 });

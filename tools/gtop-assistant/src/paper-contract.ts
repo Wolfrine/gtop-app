@@ -5,6 +5,7 @@ import {curriculum,paperSchema,revisionSchema} from '../../../assistant-service/
 export function outputSchemas(pinned:any,requirements:any={}){
   const chapter={type:'string',enum:pinned.chapters.map((c:any)=>c.title)};
   const paper=structuredClone(paperSchema);
+  paper.properties.sections.items.required=['title','instructions','attemptCount','questions'];
   for(const k of ['board','standard','subject','academicYear'])paper.properties[k]={type:'string',enum:[pinned[k]]};
   paper.properties.scope={type:'string',enum:[requirements.scope||'full_syllabus']};
   for(const k of ['marks','durationMinutes','questionLanguage','answerLanguage'])if(requirements[k]!==undefined)paper.properties[k]={...paper.properties[k],enum:[requirements[k]]};

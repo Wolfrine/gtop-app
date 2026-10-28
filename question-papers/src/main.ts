@@ -26,7 +26,7 @@ class PaperWorkspace implements OnInit,OnDestroy {
   libraryFilters:LibraryFilters={board:'',standard:'',subject:'',text:''};
   libraryPages:Record<LibraryKind,{items:LibraryItem[];nextCursor:string|null;loaded:boolean}>={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};
   public adminConversation=false;
-  feedbackMessage='';feedbackText='';feedbackPaperId='';newRequestId='';private sendId='';private sendText='';private documentRequest=0;private timer?:ReturnType<typeof setTimeout>;private destroyed=false;private openingId='';
+  feedbackMessage='';feedbackText='';feedbackPaperId='';feedbackOpen=false;newRequestId='';private sendId='';private sendText='';private documentRequest=0;private timer?:ReturnType<typeof setTimeout>;private destroyed=false;private openingId='';
   get user(){return this.session?.user;}
   get worker(){return this.serviceStale?{label:'Assistant status unavailable',detail:'Could not check the assistant. Check your connection and refresh status.',tone:'offline'}:servicePresentation(this.session?.service,this.session?.worker);}
   get canStartService(){return !!this.session?.service?.canStart&&!this.serviceStarting&&!this.serviceStale;}
@@ -57,7 +57,7 @@ class PaperWorkspace implements OnInit,OnDestroy {
   }
   async openLibraryConversation(id:string){
     if(!this.user?.libraryAccess)return;
-    this.openingId=id;this.error='';this.drawer=false;this.closeDocument();this.draft='';this.feedbackPaperId='';this.feedbackMessage='';
+    this.openingId=id;this.error='';this.drawer=false;this.closeDocument();this.draft='';this.feedbackPaperId='';this.feedbackOpen=false;this.feedbackText='';this.feedbackMessage='';
     try{const result=await this.transport.request<ConversationDetail>('/admin/conversations/'+encodeURIComponent(id));if(this.openingId!==id)return;this.detail={...result,readOnly:result.readOnly??true};this.adminConversation=true;this.view='chat';this.scrollMessages(true);}
     catch(e){this.libraryError=readableError(e);this.error=readableError(e);}finally{this.schedulePoll();}
   }
@@ -89,7 +89,7 @@ class PaperWorkspace implements OnInit,OnDestroy {
   async logout(){if(this.fixture)return;await this.api.logout();clearTimeout(this.timer);this.session=undefined;this.detail=undefined;this.conversations=[];this.serviceError='';this.serviceRequestId='';this.libraryPages={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};this.releaseDocument();}
   private async loadSession(){this.session=await this.transport.request<PilotSession>('/session');this.serviceStale=false;await this.loadConversations();if(this.conversations.length)await this.openConversation(this.conversations[0].id);else this.schedulePoll();}
   private async loadConversations(){const result=await this.transport.request<{conversations:Conversation[]}>('/conversations');this.conversations=result.conversations;}
-  async openConversation(id:string){this.openingId=id;this.error='';this.drawer=false;this.closeDocument();try{const result=await this.transport.request<ConversationDetail>('/conversations/'+encodeURIComponent(id));if(this.openingId===id){this.detail=result;this.adminConversation=false;this.view='chat';this.feedbackPaperId='';this.feedbackMessage='';this.scrollMessages(true);}}catch(e){this.error=readableError(e);}finally{this.schedulePoll();}}
+  async openConversation(id:string){this.openingId=id;this.error='';this.drawer=false;this.closeDocument();try{const result=await this.transport.request<ConversationDetail>('/conversations/'+encodeURIComponent(id));if(this.openingId===id){this.detail=result;this.adminConversation=false;this.view='chat';this.feedbackPaperId='';this.feedbackOpen=false;this.feedbackText='';this.feedbackMessage='';this.scrollMessages(true);}}catch(e){this.error=readableError(e);}finally{this.schedulePoll();}}
   async newConversation(){this.detail=undefined;this.view='chat';this.adminConversation=false;this.draft='';this.drawer=false;this.openingId='';this.error='';this.sendId='';this.closeDocument();this.schedulePoll();setTimeout(()=>document.querySelector<HTMLTextAreaElement>('#message-input')?.focus(),0);}
   async send(){
     const text=this.draft.trim();if(this.readOnly||this.view!=='chat'||!text||this.sending||this.blockedTurn)return;
@@ -143,6 +143,6 @@ class PaperWorkspace implements OnInit,OnDestroy {
   }
   printDocument(){const frame=document.querySelector<HTMLIFrameElement>('#paper-frame');frame?.contentWindow?.focus();frame?.contentWindow?.print();}
   revise(paper:PaperSummary){if(this.readOnly||this.view!=='chat')return;const latest=this.currentPaper || paper;this.closeDocument();this.draft='In revision '+latest.revision+', please ';setTimeout(()=>document.querySelector<HTMLTextAreaElement>('#message-input')?.focus(),0);}
-  async feedback(rating:'helpful'|'needs_work',paperId?:string){if(this.readOnly)return;this.feedbackMessage='';try{await this.transport.request('/feedback','POST',{conversationId:this.detail!.conversation.id,...(paperId?{paperId}:{}),rating,...(this.feedbackText.trim()?{text:this.feedbackText.trim()}:{})});this.feedbackMessage='Thank you. Your feedback has been saved.';this.feedbackText='';this.feedbackPaperId='';}catch(e){this.error=readableError(e);}}
+  async feedback(rating:'helpful'|'needs_work',paperId?:string){if(this.readOnly)return;this.feedbackMessage='';const messageId=[...(this.detail?.messages||[])].reverse().find(m=>m.role==='assistant')?.id;try{await this.transport.request('/feedback','POST',{conversationId:this.detail!.conversation.id,...(paperId?{paperId}:{}),...(messageId?{messageId}:{}),rating,...(this.feedbackText.trim()?{text:this.feedbackText.trim()}:{})});this.feedbackMessage='Thank you. Your feedback has been saved.';this.feedbackText='';this.feedbackPaperId='';this.feedbackOpen=false;}catch(e){this.error=readableError(e);}}
 }
 bootstrapApplication(PaperWorkspace,{providers:[provideZoneChangeDetection(),provideServiceWorker('ngsw-worker.js',{enabled:!isDevMode(),registrationStrategy:'registerWhenStable:30000'})]}).catch(error=>{console.error(error);document.body.textContent='The workspace could not start. Please reload and try again.';});

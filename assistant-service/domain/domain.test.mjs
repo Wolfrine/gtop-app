@@ -31,5 +31,19 @@ test('whole-paper changes may change totals/choices while targeted changes canno
   const changed=structuredClone(base);changed.sections[0].title='Changed';assert.throws(()=>validateRevision(base,changed,6),/section metadata/);
 });
 test('canonical nested shapes and unsupported selective attempt rules fail before publication',()=>{
-  const p=fixture();p.sections[0].instructions={bad:'object'};assert.throws(()=>validatePaper(p),/invalid type/);p.sections[0].instructions='Attempt any one question';assert.throws(()=>validatePaper(p),/selective/);
+  const p=fixture();p.sections[0].instructions={bad:'object'};assert.throws(()=>validatePaper(p),/invalid type/);p.sections[0].instructions='Attempt any one question';assert.throws(()=>validatePaper(p),/Selective/);
+});
+
+test('section choices count attempted marks for every permitted path and print authoritative rules',()=>{
+  const p=fixture();p.marks=40;p.sections[0].attemptCount=5;p.sections[0].instructions='Answer any 5 questions.';
+  const r={...defaults,marks:40};const v=validatePaper(p,r);assert.equal(v.attemptedMarks,40);assert.equal(v.attemptPolicy,'section_choice_with_whole_question_or');
+  const student=renderPaper(p),answers=renderPaper(p,true);assert.match(student,/Answer any 5 of the 10 questions/);assert(!student.includes('Attempt all questions'));assert(!student.includes('PRIVATE ANSWER'));assert(answers.includes('PRIVATE ANSWER 9'));
+  p.sections[0].questions[1].marks=7;assert.throws(()=>validatePaper(p,r),/equal marks/);p.sections[0].questions[1].marks=8;p.sections[0].attemptCount=11;assert.throws(()=>validatePaper(p,r),/attempt count|attemptCount/);
+});
+test('exact board format requires pinned applicable blueprint and matching section rules',()=>{
+  const p=fixture();p.marks=40;p.sections[0].attemptCount=5;
+  const r={...defaults,marks:40,format:'board'};
+  assert.throws(()=>validatePaper(p,r),/pattern/);
+  const pinned={...curriculum,paperPattern:{title:'SYNTHETIC blueprint only',academicYear:defaults.academicYear,marks:40,durationMinutes:180,sourceUrl:curriculum.url,sections:[{title:'Synthetic section',questionCount:10,attemptCount:5,attemptedMarks:40}]}};
+  assert(validatePaper(p,r,pinned).passed);p.sections[0].attemptCount=4;assert.throws(()=>validatePaper(p,r,pinned),/attempt rules/);
 });

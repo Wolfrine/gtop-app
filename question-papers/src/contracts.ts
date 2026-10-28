@@ -4,7 +4,7 @@ export interface AssistantServiceStatus {workerId:string;state:'ready'|'offline'
 export interface PilotSession {user:UserSummary;worker:WorkerStatus;service?:AssistantServiceStatus;capabilities:unknown;defaults:Record<string,unknown>}
 export interface Conversation {id:string;title:string;status:string;updatedAt:string;activePaperJobId?:string;activeCurriculumJobId?:string;latestPaperId?:string;ownerUid?:string;creatorName?:string;createdAt?:string}
 export interface Message {id:string;conversationId:string;role:'user'|'assistant'|'system';text:string;createdAt:string;jobId?:string;paperId?:string}
-export interface Job {id:string;kind:'turn'|'paper';ownerUid:string;conversationId:string;state:string;phase:string;createdAt:string;updatedAt:string;elapsedSeconds?:number;error?:string|{message?:string;code?:string};paperId?:string;retryable?:boolean}
+export interface Job {id:string;kind:'turn'|'paper'|'curriculum';ownerUid:string;conversationId:string;state:string;phase:string;createdAt:string;updatedAt:string;elapsedSeconds?:number;error?:string|{message?:string;code?:string};paperId?:string;retryable?:boolean}
 export interface LibraryMetadata {ownerUid?:string;creatorName?:string;board?:string;standard?:string;subject?:string;academicYear?:string}
 export interface PaperSummary extends LibraryMetadata {id:string;title:string;revision:number;marks:number;createdAt:string;jobId:string;conversationId?:string}
 export interface ConversationDetail {conversation:Conversation;messages:Message[];jobs:Job[];papers:PaperSummary[];readOnly?:boolean;creatorName?:string}

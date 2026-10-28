@@ -30,6 +30,7 @@ export function validateCurriculumScope(r){
   if(r.board==='IB'&&r.level&&!['SL','HL'].includes(r.level.toUpperCase()))throw Error('IB subject levels must be SL or HL.');
   if(r.board.startsWith('Cambridge')&&r.level&&!['CORE','EXTENDED','AS','A'].includes(r.level.toUpperCase()))throw Error('Please specify the Cambridge Core/Extended or AS/A Level route.');
   if(r.board==='IB'&&(!r.programme||(Number(r.standard)>=11&&!r.level)))throw Error('Please specify the IB programme (PYP/MYP/DP) and, for DP, the subject level (SL/HL).');
+  if(r.board==='IB'&&Number(r.standard)>=11&&/math/i.test(r.subject)&&!['AA','AI'].includes(r.subjectCode))throw Error('For IB DP Mathematics choose Analysis and Approaches (AA) or Applications and Interpretation (AI).');
   if(r.board.startsWith('Cambridge')&&(!r.programme||!r.subjectCode||!r.examYear))throw Error('Please specify the Cambridge programme, syllabus/subject code and examination year. Core/Extended or AS/A Level must be selected where applicable.');
   if(r.board==='Cambridge IGCSE'&&/math/i.test(r.subject)&&!r.level)throw Error('Please specify Core or Extended for this Cambridge Mathematics syllabus.');
   return r;
@@ -63,6 +64,7 @@ export function extractScope(text,index={},base={}){
   const programme=text.match(/\b(PYP|MYP|DP|IBDP|AS[ /-]?(?:and[ /-]?)?A[ -]?Level|AS[ -]?Level|A[ -]?Level|Lower Secondary|Primary|IGCSE)\b/i);if(programme)out.programme=programme[1].toUpperCase();
   const level=text.match(/\b(HL|SL|higher level|standard level|Core|Extended)\b(?!\s*\d)/i);if(level)out.level=({ 'higher level':'HL','standard level':'SL' })[level[1].toLowerCase()]||level[1].toUpperCase();
   const code=text.match(/(?:syllabus|subject|course)?\s*code\s*[:#-]?\s*([0-9A-Za-z-]{2,12})/i);if(code)out.subjectCode=code[1];
+  if(out.board==='IB'&&/math/i.test(out.subject||'')){const course=text.match(/\b(AA|AI|analysis\s+and\s+approaches|applications\s+and\s+interpretation)\b/i);if(course)out.subjectCode=/^AA$|analysis/i.test(course[1])?'AA':'AI';}
   const exam=text.match(/(?:exam(?:ination)?|cohort|session)\s*(?:year)?\s*[:#-]?\s*(20\d{2})/i);if(exam)out.examYear=exam[1];
   const edition=text.match(/(?:edition|textbook)\s*[:#-]?\s*([^.;!?\n]{1,100})/i);if(edition)out.edition=edition[1].trim();
   return out;

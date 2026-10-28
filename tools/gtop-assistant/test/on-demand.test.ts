@@ -32,7 +32,7 @@ test('queued work wakes an unloaded model and returns to idle after the reply',a
   const timeout=setTimeout(()=>stop.abort(Error('Synthetic queue test timed out')),5000);t.after(()=>clearTimeout(timeout));
   t.mock.method(globalThis,'fetch',async(input:any,init:any)=>{
     const url=String(input);if(url.endsWith('/api/ps'))return Response.json({models:[]});
-    const body=JSON.parse(init.body);assert.equal(body.keep_alive,0);assert(claimed,'No inference before a job is claimed');
+    const body=JSON.parse(init.body);assert.equal(body.keep_alive,url.endsWith('/api/chat')?30:0);assert(claimed,'No inference before a job is claimed');
     if(url.endsWith('/api/chat')){chats++;return Response.json({message:{content:JSON.stringify({action:'local_answer',reply:'Liquid molecules escape into the air as vapour.'})},prompt_eval_count:100,eval_count:10});}
     assert(url.endsWith('/api/generate'));unloads++;assert.equal(body.prompt,undefined);return Response.json({done:true,done_reason:'unload'});
   });
@@ -41,6 +41,7 @@ test('queued work wakes an unloaded model and returns to idle after the reply',a
     if(endpoint==='/worker/heartbeat')return {ok:true};
     if(endpoint==='/worker/claim'){if(body.kind==='turn'&&!claimed){claimed=true;return {job};}return {job:null};}
     if(endpoint==='/worker/curriculum/catalogue')return {boards:[]};
+    if(endpoint.endsWith('/event'))throw Error('Unexpected escalation: '+await readFile(path.join(dir,'jobs',job.id,'local-fallback.json'),'utf8'));
     if(endpoint.endsWith('/fail')){stop.abort(Error(body.error));throw Error(body.error);}
     assert.equal(endpoint,'/worker/jobs/idle-wake/complete');assert.equal(body.reply,'Liquid molecules escape into the air as vapour.');completed=true;stop.abort();return {active:true};
   }} as any;
@@ -61,8 +62,8 @@ test('exact greetings and thanks do not wake the model or query the catalogue',a
 test('invalid model JSON cannot leave the runner pinned after bounded repair',async t=>{
   const {config,dir,job}=await fixture(t);let chats=0,unloads=0;
   t.mock.method(globalThis,'fetch',async(input:any,init:any)=>{
-    assert.equal(JSON.parse(init.body).keep_alive,0);
-    if(String(input).endsWith('/api/chat')){chats++;return Response.json({message:{content:'invalid json'}});}
+    assert.equal(JSON.parse(init.body).keep_alive,String(input).endsWith('/api/chat')?30:0);
+    if(String(input).endsWith('/api/chat')){chats++;return Response.json({message:{content:'{"reply":'}});}
     unloads++;return Response.json({done:true,done_reason:'unload'});
   });
   await assert.rejects(()=>converse(config,job,dir,new AbortController().signal),/invalid response twice/);

@@ -9,7 +9,7 @@ import {buildTaskBrief,selectedCurriculum} from '../domain/task-brief.mjs';
 const scope={board:'CBSE',standard:'10',subject:'Science',academicYear:'2026-27'};
 const rows=Array.from({length:10},(_,i)=>({...scope,id:'saved-'+i,chapter:'Chapter '+(i+1)}));
 function paper(r,c){return {...defaults,...r,title:'SYNTHETIC structural fixture',instructions:['Attempt all numbered questions.'],sections:[{title:'Section A',instructions:'',questions:c.chapters.map((x,i)=>({number:i+1,chapter:x.title,type:'short_answer',marks:1,question:'SYNTHETIC fixture '+i,options:[],correctIndex:null,answer:'PRIVATE answer '+i,markingPoints:['PRIVATE mark '+i],alternative:null}))}],sourceReferences:[{id:c.id,url:c.url,title:c.title}]};}
-const candidate=(r=scope)=>({...Object.fromEntries(['programme','level','subjectCode','examYear','edition'].map(k=>[k,''])),...r,status:'found',reply:'Source-backed test fixture only.',title:'SYNTHETIC official source fixture',complete:true,chapters:[{id:'c1',title:'Chapter one',focus:'Test focus'}],sources:[{url:'https://cbseacademic.nic.in/test.pdf',title:'Official test fixture',applicableYear:'2026-27',locator:'p.1'}],limitations:[]});
+const candidate=(r=scope)=>({...Object.fromEntries(['programme','level','subjectCode','examYear','edition'].map(k=>[k,''])),...r,status:'found',reply:'Source-backed test fixture only.',title:'SYNTHETIC official source fixture',complete:true,chapters:[{id:'c1',title:'Chapter one',focus:'Test focus'}],sources:[{url:'https://cbseacademic.nic.in/test.pdf',title:'Official test fixture',applicableYear:'2026-27',locator:'p.1'}],paperPattern:null,limitations:[]});
 const proofs=[{url:'https://cbseacademic.nic.in/test.pdf',finalUrl:'https://cbseacademic.nic.in/test.pdf',sha256:'a'.repeat(64),bytes:100,checkedAt:'2026-10-24T00:00:00Z'}];
 function fixture(){let n=0;const store=new MemoryStore({'users/owner':{role:'admin'},'assistantConfig/pilot':{allowedOwnerUids:['owner']},'assistantWorkers/w':{enabled:true,allowedOwnerUids:['owner']},...Object.fromEntries(rows.map(x=>['syllabus/'+x.id,x]))});const service=new AssistantService(store,{id:()=>`test-${++n}`});return {store,service,w:{id:'w',allowedOwnerUids:['owner']}};}
 
@@ -80,3 +80,38 @@ test('variant-bearing revision retains exact pinned identity; unqualified saved 
 test('rejected scope mentions never win over explicit corrections',()=>{assert.equal(extractScope('Not HL, please use SL.',{},{}).level,'SL');assert.equal(extractScope('Not Core; use Extended.',{},{}).level,'EXTENDED');assert.equal(extractScope('I do not want CBSE; use ICSE Class 10 Science instead.',{},{}).board,'ICSE');assert.equal(extractScope('Not Class 12. Create Class 10 Science.',{},{}).standard,'10');assert.equal(extractScope('CBSE or ICSE Class 10 Science',{},{}).board,'');});
 
 test('conversation language requests never switch the selected school subject',()=>{for(const text of ['Paper mein kaun se chapters cover honge? Hindi mein samjhao, aur actual progress batao.','Hindi mein bolo','हिंदी में समझाइए','Please explain in Hindi'])assert.equal(extractScope(text,{},scope).subject,'Science',text);assert.equal(extractScope('Create CBSE Class 10 Hindi paper',{},{}).subject,'Hindi');});
+
+test('a successful prerequisite check resumes exactly one requested paper turn; chapter proof never becomes full-subject proof',async()=>{
+  const f=fixture(),t=await turn(f,null,'Create CBSE Class 10 Science 20 marks paper. Chapters: Chapter one.');
+  const r={...defaults,...buildTaskBrief(t.job).requirements,internalChoices:false};
+  await f.service.delegate(f.w,t.job.id,{leaseId:t.job.leaseId,operation:'check_curriculum',requirements:r,rootRequestMessageId:t.job.request.id,interpretation:'Check the selected chapter then create the paper',proposedActions:['check_curriculum','generate_paper']});
+  const check=(await f.service.claim(f.w,{kind:'paper'})).job;
+  const body={leaseId:check.leaseId,research:candidate(),sourceProofs:proofs,reply:'Synthetic checked source.'};
+  assert((await f.service.complete(f.w,check.id,body)).active);
+  assert.equal((await f.service.complete(f.w,check.id,body)).active,false);
+  const resumed=(await f.service.claim(f.w,{kind:'turn'})).job;assert(resumed);assert.equal(resumed.request.text,t.job.request.text);assert.deepEqual(buildTaskBrief(resumed).requirements.selectedChapters,['Chapter one']);
+  assert.equal((await f.service.claim(f.w,{kind:'turn'})).job,null);
+  await assert.rejects(()=>f.service.resolveCurriculum({...r,scope:'full_syllabus',selectedChapters:undefined},t.cid,f.w),/only covers/);
+});
+test('a newer user pause or correction prevents check completion from resuming a paper',async()=>{
+  for(const later of ['Do not create the paper yet.','Use different chapters instead.']){
+    const f=fixture(),t=await turn(f,null,'Create CBSE Class 10 Science 20 marks paper. Chapters: Chapter one.');const r={...defaults,...buildTaskBrief(t.job).requirements,internalChoices:false};
+    await f.service.delegate(f.w,t.job.id,{leaseId:t.job.leaseId,operation:'check_curriculum',requirements:r,interpretation:'Synthetic check',proposedActions:['check_curriculum']});const check=(await f.service.claim(f.w,{kind:'paper'})).job;
+    await f.service.submit('owner',t.cid,{text:later,clientMessageId:'newer'});await f.service.complete(f.w,check.id,{leaseId:check.leaseId,research:candidate(),sourceProofs:proofs,reply:'Synthetic checked source.'});
+    assert.equal((await f.store.list('assistantJobs',[],100)).filter(j=>j.resumedFromCurriculumJobId===check.id).length,0);
+  }
+});
+test('IB Mathematics course is explicit and conflicting or missing courses cannot be assumed',()=>{
+  const r={...scope,board:'IB',standard:'11',subject:'Mathematics',programme:'DP',level:'SL'};
+  assert.throws(()=>validateCurriculumScope(r),/Analysis and Approaches/);
+  assert.equal(extractScope('IB Class 11 Mathematics AA SL').subjectCode,'AA');assert.equal(extractScope('IB Class 11 Mathematics applications and interpretation HL').subjectCode,'AI');
+  assert(validateCurriculumScope({...r,subjectCode:'AA'}));
+});
+test('a new message cancels a queued automatic continuation before it can reach Codex',async()=>{
+  const f=fixture(),t=await turn(f,null,'Create CBSE Class 10 Science 20 marks paper. Chapters: Chapter one.');
+  const r={...defaults,...buildTaskBrief(t.job).requirements,internalChoices:false};
+  await f.service.delegate(f.w,t.job.id,{leaseId:t.job.leaseId,operation:'check_curriculum',requirements:r,interpretation:'Synthetic check',proposedActions:['check_curriculum']});const check=(await f.service.claim(f.w,{kind:'paper'})).job;
+  await f.service.complete(f.w,check.id,{leaseId:check.leaseId,research:candidate(),sourceProofs:proofs,reply:'Synthetic checked source.'});
+  await f.service.submit('owner',t.cid,{text:'Wait, do not create it yet.',clientMessageId:'pause-after-check'});
+  const continuation=await f.store.get('assistantJobs/resume-'+check.id);assert.equal(continuation.state,'cancelled');assert.equal(continuation.phase,'superseded_by_new_message');
+});

@@ -11,7 +11,14 @@ export function validateResearchCandidate(result,requirements){
   if(!result.chapters?.length||result.chapters.length>100||new Set(result.chapters.map(c=>c.title.trim().toLowerCase())).size!==result.chapters.length||result.chapters.some(c=>!c.title.trim()||!c.focus.trim()))throw Error('Official chapter coverage is incomplete or duplicated.');
   if(!result.sources?.length||result.sources.length>3)throw Error('Provide 1–3 official curriculum sources.');
   const start=Number(requirements.academicYear.slice(0,4));
-  for(const s of result.sources){officialUrl(s.url,requirements.board);if(!s.applicableYear||!s.locator||!s.title)throw Error('Every source needs its year and page/section.');if(![String(start),String(start+1)].some(y=>s.applicableYear.includes(y)))throw Error('Official source does not identify the requested academic/examination year.');}
+  const years=[start,start+1];
+  // CISCE publishes the two-year IX–X / XI–XII syllabus by examination cohort.
+  // Class IX / XI in 2026–27 normally uses the 2028 cohort, not 2027.
+  // The independent source review still verifies this mapping; this check must
+  // not reject an applicable official source solely for its cohort label.
+  if(requirements.examYear)years.push(Number(requirements.examYear));
+  else if((requirements.board==='ICSE'&&String(requirements.standard)==='9')||(requirements.board==='ISC'&&String(requirements.standard)==='11'))years.push(start+2);
+  for(const s of result.sources){officialUrl(s.url,requirements.board);if(!s.applicableYear||!s.locator||!s.title)throw Error('Every source needs its year and page/section.');if(!years.some(y=>new RegExp('\\b'+y+'\\b').test(s.applicableYear)))throw Error('Official source does not identify the requested academic/examination year.');}
   if(requirements.scope==='selected_chapters'){
     const key=s=>s.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
     if(!(requirements.selectedChapters||[]).every(name=>result.chapters.some(c=>key(c.title)===key(name))))throw Error('Checked curriculum must cover every selected chapter without widening scope.');

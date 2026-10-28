@@ -38,6 +38,21 @@ test('period-separated digestivesystem follow-up retains prior subject and never
   const b=buildTaskBrief(j);assert.deepEqual(b.requirements.selectedChapters,['Digestive system']);assert.equal(b.requirements.subject,'Biology');assert.equal(b.coverage,'all_topics_in_selected_chapters');
 });
 
+test('observed competency-based requests separate question style from chapters, including persisted mistakes',()=>{
+  for(const style of ['competency based','competency-based questions','case based','application-based','MCQ']){
+    const j=job(`Create question paper for 9 th ICSE, biology, digestive system, 40 mark, ${style}`);
+    j.taskBrief=buildTaskBrief(j);
+    assert.deepEqual(j.taskBrief.requirements.selectedChapters,['digestive system']);
+    assert.equal(j.taskBrief.requirements.marks,40);
+    assert(handoff(j).originalUserRequest.text.includes(style),'Style instructions must reach Codex verbatim');
+  }
+  const j=job("It's not cisce, request is for ICSE.");
+  j.context.taskBrief={version:2,requirements:{board:'ICSE',standard:'9',subject:'Biology',marks:40,scope:'selected_chapters',selectedChapters:['digestive system','competency based']},sources:{selectedChapters:{messageId:'original',quote:'digestive system, competency based'}},creationRequestId:'original',lastMessageId:'old'};
+  assert.deepEqual(buildTaskBrief(j).requirements.selectedChapters,['digestive system']);
+  const physics=buildTaskBrief(job('Create question paper for 9 th ICSE, physics , light ,40 mark, competency based questions'));
+  assert.deepEqual(physics.requirements.selectedChapters,['light']);
+});
+
 test('a prior active paper cannot reintroduce IB qualifiers after a board correction',()=>{
   const j=job('Create ICSE Class 9 Biology 40 mark paper. Chapters: Digestive system.');
   j.context.activeRequirements={board:'IB',standard:'11',subject:'Mathematics',programme:'DP',level:'HL',subjectCode:'old',examYear:'2027',edition:'old',marks:60};

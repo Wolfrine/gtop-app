@@ -5,7 +5,10 @@ const allTopics=t=>/\ball (?:the )?(?:topics?|chapters?)\b|\bfull chapters?\b|�
 export const creationIntent=t=>/(?:create|generate|prepare|make|want|need|start creating|बनाओ|बना दो|बनाइए|बनाना|चाहिए).{0,100}(?:paper|पेपर|प्रश्नपत्र)|(?:paper|पेपर|प्रश्नपत्र).{0,65}(?:creation now|banana|banao|banaiye|chahiye|banwa|बनाओ|बना दो|बनाइए|बनाना|चाहिए)|(?:pass|share|send).{0,45}codex/i.test(t);
 export const prohibitedCreation=t=>/(?:do not|don't|not yet|never|मत|नहीं|\bmat\b|\bnahi\b).{0,55}(?:create|generate|make|prepare|start|banao|बना)|(?:create|generate|banao|बना).{0,25}(?:\bmat\b|\bnahi\b|मत|नहीं)/i.test(t);
 export const requirementDiscussion=t=>!/^\s*(?:do not include|don.t include|exclude|remove|छोड़कर|हटाओ)\b/i.test(t)&&(/^\s*(?:what (?:is|are|does)|tell me about|why (?:would|should|is|do)|explain|compare|difference between|क्या.{0,25}है|समझा|फर्क|antar|samjhao)/i.test(t)||(!creationIntent(t)&&!/^\s*(?:use|choose|select|switch to|please use|रखो|चुनो)\b/i.test(t)&&(/[?？]|^\s*(?:how|what|why|which|can|could|would|should|is|are|does|do|क्या|कैसे|क्यों|कौन)\b/i.test(t)||/\b(?:versus|vs\.?|or)\b|या/.test(t))));
-const cleanNames=names=>[...new Set(names.map(s=>s.trim().replace(/[.।]+$/,'')).filter(Boolean))];
+// Assessment styles are instructions about questions, not chapter names.
+// Apply this to persisted briefs too, so an older parsing error is recoverable.
+const questionStyle=s=>/^(?:(?:competency|competence|case|application|skill|concept|inquiry)[ -]+based(?:\s+(?:questions?|assessment))?|(?:mcq|objective|subjective|multiple[ -]choice)(?:\s+questions?)?)$/i.test(s.trim());
+const cleanNames=names=>[...new Set(names.map(s=>s.trim().replace(/[.।]+$/,'')).filter(s=>s&&!questionStyle(s)))];
 const excluded=(text,name)=>{const n=normalized(text),v=normalized(name);return ['do not include ','don t include ','exclude ','except ','without ','not ','हटाओ ','छोड़कर '].some(prefix=>n.includes(prefix+v));};
 
 // Recover a plainly named focus in comma/period-separated paper requirements.
@@ -32,6 +35,7 @@ export function buildTaskBrief(job,selection=null){
   const cursor=messages.findIndex(m=>m.id===prior?.lastMessageId);
   const fresh=prior?cursor>=0?messages.slice(cursor+1):messages.filter(m=>(m.id===job.request.id&&m.id!==prior.lastMessageId&&(!m.createdAt||!prior.lastMessageAt||m.createdAt>=prior.lastMessageAt))||(m.createdAt&&prior.lastMessageAt&&m.createdAt>prior.lastMessageAt)):messages;
   const r=brief.requirements;
+  if(r.selectedChapters)r.selectedChapters=cleanNames(r.selectedChapters);
   const set=(field,value,m,quote=m.text)=>{r[field]=value;brief.sources[field]={messageId:m.id,quote:quote.slice(0,300)};};
   for(const m of fresh){
     const text=m.text;

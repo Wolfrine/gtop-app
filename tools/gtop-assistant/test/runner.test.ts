@@ -47,6 +47,12 @@ test('partial launch environments cannot silently use standalone or stale-config
   await assert.rejects(()=>prepareRunner(f.config,configFile,{...f.env,GTOP_OLLAMA_ENDPOINT:'http://127.0.0.1:11436'},{files:f.files}),/mismatch/);
   await assert.rejects(()=>prepareRunner(f.config,configFile,{...f.env,GTOP_CODEX_EXECUTABLE:bin+'\\old\\codex.exe'},{files:f.files}),/mismatch/);
 });
+test('contract and advertised executable paths must be absolute and trusted even with a valid hash',async()=>{
+  const f=fixture();
+  await assert.rejects(()=>prepareRunner(f.config,configFile,{...f.env,GTOP_RUNNER_CONTRACT:'F:relative.json'},{files:f.files}),/untrusted/);
+  f.body.codexExecutable='F:\\untrusted\\codex.exe';f.env.GTOP_CODEX_EXECUTABLE=f.body.codexExecutable;
+  await assert.rejects(()=>prepareRunner(f.config,configFile,f.env,{files:f.files}),/outside the desktop/);
+});
 test('helper failures, removed binaries and arbitrary executable paths are actionable without fallback',async()=>{
   for(const helper of [async()=>{throw Error('private detail');},async()=>({}),async()=>({resolveCodexExecutable:async()=>{throw Error('private detail');}}),
     async()=>({resolveCodexExecutable:async()=>'F:\\arbitrary\\codex.exe'})]){

@@ -48,7 +48,7 @@ export async function prepareRunner(config:RunnerConfig,configFile:string,env:No
     return {resolveCodex:()=>resolveDesktopCodex({localAppData:env.LOCALAPPDATA,list:files.list,info:files.info})};
   }
   const contractFile=env.GTOP_RUNNER_CONTRACT;
-  if(!same(contractFile,path.win32.join(INSTALL_ROOT,'data','gtop-runner.json')))return fail('missing or untrusted launch contract');
+  if(typeof contractFile!=='string'||!path.win32.isAbsolute(contractFile)||!same(contractFile,path.win32.join(INSTALL_ROOT,'data','gtop-runner.json')))return fail('missing or untrusted launch contract');
   let contract:any;try{
     if(!same(await files.real(contractFile!),contractFile))return fail('launch contract cannot be redirected');
     const info=await files.info(contractFile!);if(!info.isFile()||info.size>16384)return fail('invalid launch contract');
@@ -58,11 +58,12 @@ export async function prepareRunner(config:RunnerConfig,configFile:string,env:No
     ollamaEndpoint:contract.ollamaEndpoint,modelDirectory:contract.modelDirectory,model:contract.model,
     codexExecutable:contract.codexExecutable,codexResolverModule:contract.codexResolverModule};
   if(contract.schemaVersion!==1||contract.workerId!=='sachit-windows'||contract.workerId!==config.workerId||
-    !same(contract.workerConfig,configFile)||contract.ollamaEndpoint!==config.ollama||env.GTOP_OLLAMA_ENDPOINT!==config.ollama||
+    typeof contract.workerConfig!=='string'||!path.win32.isAbsolute(contract.workerConfig)||!same(contract.workerConfig,configFile)||contract.ollamaEndpoint!==config.ollama||env.GTOP_OLLAMA_ENDPOINT!==config.ollama||
     !same(contract.modelDirectory,MODEL_ROOT)||contract.model!==config.model||
     !/^[a-f0-9]{64}$/.test(contract.id)||createHash('sha256').update(JSON.stringify(identity)).digest('hex')!==contract.id)
     return fail('launch contract identity/config/endpoint/model mismatch');
   if(!same(contract.codexExecutable,env.GTOP_CODEX_EXECUTABLE))return fail('Codex launch environment mismatch');
+  desktopPath(contract.codexExecutable,env);
   const checked=async(file:unknown)=>{
     const candidate=desktopPath(file,env);
     try{if(!(await files.info(candidate)).isFile())return fail('resolved Codex executable is missing');}

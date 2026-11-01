@@ -7,6 +7,7 @@ import {Worker} from '../src/worker.js';
 import {hash} from '../src/policy.js';
 import {AssistantService} from '../../../assistant-service/service.mjs';
 import {MemoryStore} from '../../../assistant-service/store.mjs';
+import {buildTaskBrief} from '../../../assistant-service/domain/task-brief.mjs';
 
 // Real local Qwen/Codex, isolated in-memory application. Never starts the worker
 // claim loops, connects to the production gateway, or reads/resumes old jobs.
@@ -18,10 +19,11 @@ const config={...installed,gateway:'http://127.0.0.1',workerId:'synthetic-runner
   firebaseApiKey:'synthetic-unused',dataDirectory:root,codexModel:'gpt-6.1-sol',codexReasoningEffort:'xhigh' as const};
 const signal=AbortSignal.timeout(900000);
 await waitForRuntime(config,signal);
-const request={id:'synthetic-calculation',text:'What is 17 plus 25? Please give the result briefly.',sha256Utf8:hash('What is 17 plus 25? Please give the result briefly.')};
-const local=await converse(config,{id:'synthetic-calculation',ownerUid:'synthetic-teacher',request,rootRequest:request,
+const text='Reply briefly in English to this greeting: Good morning.';
+const request={id:'synthetic-greeting',text,sha256Utf8:hash(text)};
+const local=await converse(config,{id:'synthetic-greeting',ownerUid:'synthetic-teacher',request,rootRequest:request,
   history:[],profile:{},context:{},controllerFacts:{permissions:{routinePaperWork:true},availableData:{}}},path.join(root,'local'),signal);
-assert.match(local.proposal.reply,/42|forty.two/i);
+assert.match(local.proposal.reply,/morning|hello/i);
 assert.equal(await localModelLoaded(config),false,'Qwen must unload after the actual inference');
 console.log(JSON.stringify({stage:'local-inference',completed:true,modelResident:false}));
 
@@ -41,13 +43,17 @@ worker.api={post:async(endpoint:string,body:any)=>{
   return service[({heartbeat:'renew',event:'event',delegate:'delegate',complete:'complete',fail:'failed'} as any)[m[2]]](identity,m[1],body);
 }} as any;
 const c=(await service.createConversation('synthetic-teacher',{})).conversation;
-await service.submit('synthetic-teacher',c.id,{text:'Create a fresh CBSE Class 5 Mathematics practice paper in English. Only chapter Addition. Total 4 marks, two short-answer questions of 2 marks each, 10 minutes, all questions compulsory. Include worked answers. Use the selected saved curriculum; custom practice format.',clientMessageId:'synthetic-fresh-request'});
-const turn=(await service.claim(identity,{kind:'turn'})).job;assert(turn);await worker.run(turn,signal);
+await service.submit('synthetic-teacher',c.id,{text:'Create a fresh CBSE Class 5 Mathematics practice paper in English. Only chapter Addition. Total 10 marks. Duration 10 minutes. Exactly two short-answer questions worth 5 marks each. No internal choices. Include worked answers. Use the selected saved curriculum; custom practice format.',clientMessageId:'synthetic-fresh-request'});
+const turn=(await service.claim(identity,{kind:'turn'})).job;assert(turn);
+// Assert the interpreted scope before any paid/expensive generation. Preserve a
+// failed fixture instead of letting defaults silently expand the acceptance run.
+const brief=buildTaskBrief(turn);assert.equal(brief.requirements.marks,10);assert.equal(brief.requirements.durationMinutes,10);assert.equal(brief.requirements.internalChoices,false);
+await worker.run(turn,signal);
 const turnResult=await store.get('assistantJobs/'+turn.id);assert.equal(turnResult.state,'completed',turnResult.error);
 const paperJob=(await service.claim(identity,{kind:'paper'})).job;assert(paperJob,'Fresh explicit request must delegate one paper');
-assert.equal(paperJob.operation,'generate_paper');await worker.run(paperJob,signal);
+assert.equal(paperJob.operation,'generate_paper');assert.equal(paperJob.requirements.marks,10);assert.equal(paperJob.requirements.durationMinutes,10);assert.equal(paperJob.requirements.internalChoices,false);await worker.run(paperJob,signal);
 const final=await store.get('assistantJobs/'+paperJob.id);assert.equal(final.state,'completed',final.error);
-const paper=await store.get('assistantPapers/'+final.paperId);assert(paper);assert.equal(paper.validation.attemptedMarks,4);
+const paper=await store.get('assistantPapers/'+final.paperId);assert(paper);assert.equal(paper.validation.attemptedMarks,10);
 assert.equal(paper.validation.questionCount,2);
 const artifacts:any={};
 for(const kind of ['student','answers']){
@@ -63,4 +69,4 @@ await record(root,'summary.json',{evidenceKind:'actual-inference-synthetic-in-me
   productionQueueClaims:false,oldJobsReadOrResumed:false,endpoint:config.ollama,model:config.model,codexModel:config.codexModel,
   reasoningEffort:config.codexReasoningEffort,local:local.metrics,paperId:paper.id,validation:paper.validation,
   metrics:final.metrics,artifacts,modelResident:false,completedAt:new Date().toISOString()});
-console.log(JSON.stringify({completed:true,productionWrites:false,marks:4,questions:2,artifacts,modelResident:false}));
+console.log(JSON.stringify({completed:true,productionWrites:false,marks:10,questions:2,artifacts,modelResident:false}));

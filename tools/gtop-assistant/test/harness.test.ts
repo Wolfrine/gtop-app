@@ -13,7 +13,7 @@ import {assistantInstructions} from '../src/skills.js';
 import {Worker} from '../src/worker.js';
 
 function job(text:string):any{const request={id:'request',text,sha256Utf8:hash(text)};return {id:'fixture',ownerUid:'teacher-one',conversationId:'fixture',request,rootRequest:request,history:[],profile:{},context:{},controllerFacts:{permissions:{routinePaperWork:true,development:false},availableData:{}}};}
-async function fixture(t:any){const dir=await mkdtemp(path.join(os.tmpdir(),'gtop-harness-'));t.after(()=>rm(dir,{recursive:true,force:true}));const config:Config={gateway:'http://127.0.0.1',workerId:'fixture',firebaseApiKey:'synthetic',model:'synthetic',ollama:'http://127.0.0.1:11434',codexExecutable:process.execPath,codexModel:'unused',dataDirectory:dir};return {dir,config};}
+async function fixture(t:any){const dir=await mkdtemp(path.join(os.tmpdir(),'gtop-harness-'));t.after(()=>rm(dir,{recursive:true,force:true}));const config:Config={gateway:'http://127.0.0.1',workerId:'fixture',firebaseApiKey:'synthetic',model:'synthetic',ollama:'http://127.0.0.1:11435',codexExecutable:process.execPath,codexModel:'unused',dataDirectory:dir};return {dir,config};}
 
 test('clear paper requirements escalate before local inference, including a verbless packet',()=>{
   for(const text of ['Create ICSE Class 9 Biology, Digestive system, 40 marks paper.','ICSE Class 9 Biology paper, Digestive system, 40 marks']){const j=job(text);j.taskBrief=buildTaskBrief(j);assert.equal(escalationReason(j),'paper_requirements_ready');assert.deepEqual(j.taskBrief.requirements.selectedChapters,['Digestive system']);}
@@ -47,7 +47,7 @@ test('native read-only tool results are returned to Qwen without replaying its t
   t.mock.method(globalThis,'fetch',async(input:any,init:any)=>{
     const b=JSON.parse(init.body);
     if(String(input).endsWith('/api/generate')){unloads++;assert.equal(b.keep_alive,0);return Response.json({done:true});}
-    calls++;assert(b.tools.some((x:any)=>x.function.name==='read_skill'));assert.equal(b.keep_alive,30);
+    calls++;assert(b.tools.some((x:any)=>x.function.name==='read_skill'));assert.equal(b.keep_alive,0);
     if(calls===1)return Response.json({message:{content:'',thinking:'PRIVATE reasoning that must not enter history',tool_calls:[{function:{name:'calculate',arguments:{expression:'17*23'}}}]}});
     assert(b.messages.some((m:any)=>m.role==='tool'&&m.content==='391'));assert(!JSON.stringify(b.messages).includes('PRIVATE reasoning'));
     return Response.json({message:{content:JSON.stringify({reply:'17 × 23 = 391.',action:'local_answer'})}});

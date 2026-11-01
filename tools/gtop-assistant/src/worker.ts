@@ -1,5 +1,5 @@
 import path from 'node:path';
-import {Gateway,converse,codex,delay,record,localModelLoaded,type Config} from './adapters.js';
+import {Gateway,converse,codex,delay,record,runtimeHealth,waitForRuntime,type Config} from './adapters.js';
 import {route,verifiedRequirements,handoff,verifyOriginals,taskRoot,examPatternRequested,socialReply,curriculumHelp} from './policy.js';
 import {curriculum,validatePaper,validateRevision,paperContent} from '../../../assistant-service/domain/index.mjs';
 import {reviewSchema} from '../../../assistant-service/domain/schemas.mjs';
@@ -21,18 +21,21 @@ const educationalSystem=`You are producing Growth Tutorials educational content 
 function makePrompt(job:any,task:string,extra:any={}){return educationalSystem+'\nMachine fields: a complete paper may contain 1–100 numbered questions or question groups, according to the requested workload and any pinned official pattern. Cover the topic/focus list within every selected chapter, including when only a subset of chapters is selected. question.chapter must be exactly one chapter title from the pinned curriculum, even for a question spanning multiple chapters. sourceReferences must copy the pinned curriculum id and URL exactly; these are controller identifiers, not new source claims.\n\nTASK: '+task+'\n\nHANDOFF PACKET (controller preserved):\n'+JSON.stringify(handoff(job),null,2)+'\n\nADDITIONAL VERIFIED INPUT:\n'+JSON.stringify(extra,null,2);}
 function replaceQuestion(base:any,q:any){const copy=structuredClone(paperContent(base));for(const s of copy.sections)for(let i=0;i<s.questions.length;i++)if(s.questions[i].number===q.number)s.questions[i]=q;return copy;}
 export class Worker {
-  api:Gateway;ready=false;stopping=false;paperBusy=false;turnBusy=false;catalogue:any=null;catalogueAt=0;
+  api:Gateway;ready=false;available=false;stopping=false;paperBusy=false;turnBusy=false;catalogue:any=null;catalogueAt=0;
   constructor(public config:Config){this.api=new Gateway(config);}
   async heartbeat(){
     // Queue availability and model residency are separate: idle is ready with no model loaded.
-    this.ready=await localModelLoaded(this.config).catch(()=>false);
-    await this.api.post('/worker/heartbeat',{state:this.turnBusy||this.paperBusy?'busy':'ready',modelReady:this.ready,version:'harness-7-paper-recovery'});
+    const health=await runtimeHealth(this.config);this.ready=health.modelResident;this.available=health.available;
+    await record(this.config.dataDirectory,'worker-health.json',{schemaVersion:1,pid:process.pid,checkedAt:new Date().toISOString(),
+      endpoint:this.config.ollama,runnerContractId:this.config.runner?.contractId,...health});
+    await this.api.post('/worker/heartbeat',{state:!this.available?'offline':this.turnBusy||this.paperBusy?'busy':'ready',modelReady:this.ready,version:'harness-8-scoped-runner'});
   }
   async start(signal:AbortSignal){
-    await this.heartbeat();const timer=setInterval(()=>void this.heartbeat().catch(e=>console.error(e.message)),30000);
-    try{await Promise.all([this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.ready=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:'harness-7-paper-recovery'}).catch(()=>{});}
+    try{await waitForRuntime(this.config,signal);}catch(error){await record(this.config.dataDirectory,'worker-health.json',{schemaVersion:1,pid:process.pid,checkedAt:new Date().toISOString(),available:false,errorCode:'startup_preflight_failed'});throw error;}
+    await this.heartbeat();const timer=setInterval(()=>void this.heartbeat().catch(e=>{this.available=false;console.error(e.message);}),30000);
+    try{await Promise.all([this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.ready=false;this.available=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:'harness-8-scoped-runner'}).catch(()=>{});}
   }
-  async loop(kind:'turn'|'paper',signal:AbortSignal){while(!signal.aborted){try{const {job}=await this.api.post('/worker/claim',{kind,waitSeconds:0},signal);if(job)await this.run(job,signal);else await delay(5000,signal);}catch(e:any){if(signal.aborted)break;console.error(`${kind}: ${e.message}`);await delay(5000,signal).catch(()=>{});}}}
+  async loop(kind:'turn'|'paper',signal:AbortSignal){while(!signal.aborted){try{if(!this.available){await delay(5000,signal);continue;}const {job}=await this.api.post('/worker/claim',{kind,waitSeconds:0},signal);if(job)await this.run(job,signal);else await delay(5000,signal);}catch(e:any){if(signal.aborted)break;console.error(`${kind}: ${e.message}`);await delay(5000,signal).catch(()=>{});}}}
   async run(job:any,parent:AbortSignal){
     parent.throwIfAborted();
     const abort=new AbortController();const cancel=()=>abort.abort(Error('Controller stopped.'));parent.addEventListener('abort',cancel,{once:true});const signal=abort.signal;

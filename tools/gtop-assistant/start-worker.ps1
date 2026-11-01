@@ -1,11 +1,11 @@
-param([string]$Config='H:\GTOP-Local-AI\pilot-runtime\worker.json')
+param([string]$Config='F:\Workspace\Support\GTOP\assistant-runtime\worker.json')
 $ErrorActionPreference='Stop'
 $controllerRoot=$PSScriptRoot
 $configPath=(Resolve-Path -LiteralPath $Config).Path
 $nodeCandidate=Get-Command node -ErrorAction SilentlyContinue
 $nodeExecutable=if($nodeCandidate){$nodeCandidate.Source}else{''}
 if(!$nodeExecutable -or [int]((& $nodeExecutable -p 'process.versions.node.split(".")[0]')) -lt 22){
-  $nodeExecutable=Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe'
+  $nodeExecutable='F:\Workspace\Support\tools\node-24\node.exe'
 }
 if(!(Test-Path -LiteralPath $nodeExecutable)){throw 'Node22 or newer is required; no global runtime is installed by this launcher.'}
 $loaderPath=Join-Path $controllerRoot 'node_modules\tsx\dist\loader.mjs'

@@ -1,0 +1,75 @@
+{
+    "capturedAt":  "2026-11-01T08:52:08.5073020Z",
+    "kind":  "live-before",
+    "worker":  {
+                   "workerId":  "sachit-windows",
+                   "ollama":  "http://127.0.0.1:11434",
+                   "model":  "qwen3.5:4b-q4_K_M",
+                   "codexExecutable":  "C:\\Users\\Sachit Tewary\\AppData\\Local\\OpenAI\\Codex\\bin\\9614f1d9b40d9c4f\\codex.exe",
+                   "runnerContractVersion":  null
+               },
+    "configuredCodexExists":  false,
+    "userModelRoot":  "F:\\Workspace\\Support\\tools\\sefpo-local-research\\.ollama\\models",
+    "manifestSha256":  "0BFD9B30A103A15F8293AFAF1846A5073890AFAD5248553F3EA978626372C586",
+    "blobs":  [
+                  {
+                      "digest":  "sha256:788a4d94bc3f431ac0cd067005be4b838a09330427962952420b05d10ecf84db",
+                      "expectedBytes":  177,
+                      "actualBytes":  177,
+                      "lastWriteTimeUtc":  "2026-10-23T12:18:22.5178648Z"
+                  },
+                  {
+                      "digest":  "sha256:e56a899b1540860385465756dd308c84417410b94dbc1c380adffd20a921ca60",
+                      "expectedBytes":  675569120,
+                      "actualBytes":  675569120,
+                      "lastWriteTimeUtc":  "2026-10-23T12:18:58.3613806Z"
+                  },
+                  {
+                      "digest":  "sha256:a9d0a3e1d8c91732a3812becd31f8d4a8ff57414903f226306069f0437e2ac50",
+                      "expectedBytes":  2648593216,
+                      "actualBytes":  2648593216,
+                      "lastWriteTimeUtc":  "2026-10-23T12:21:47.2380546Z"
+                  },
+                  {
+                      "digest":  "sha256:b507b9c2f6ca642bffcd06665ea7c91f235fd32daeefdf875a0f938db05fb315",
+                      "expectedBytes":  13,
+                      "actualBytes":  13,
+                      "lastWriteTimeUtc":  "2026-10-23T12:17:57.5248441Z"
+                  },
+                  {
+                      "digest":  "sha256:50cbab8a892c5f2993b8c7351a99182507472def3b1374558308605d99b86b32",
+                      "expectedBytes":  11343,
+                      "actualBytes":  11343,
+                      "lastWriteTimeUtc":  "2026-10-23T12:17:58.5865995Z"
+                  },
+                  {
+                      "digest":  "sha256:9371364b27a52acac9d87f88bd93c9db1174d8d6ec57f6888925cdc1788871ff",
+                      "expectedBytes":  65,
+                      "actualBytes":  65,
+                      "lastWriteTimeUtc":  "2026-10-23T12:17:59.6918296Z"
+                  },
+                  {
+                      "digest":  "sha256:d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+                      "expectedBytes":  1088,
+                      "actualBytes":  1088,
+                      "lastWriteTimeUtc":  "2026-10-23T12:22:18.4398047Z"
+                  }
+              ],
+    "tags":  {
+                 "models":  [
+
+                            ]
+             },
+    "resident":  {
+                     "models":  [
+
+                                ]
+                 },
+    "listeners":  [
+                      {
+                          "LocalAddress":  "127.0.0.1",
+                          "LocalPort":  11434,
+                          "OwningProcess":  20516
+                      }
+                  ]
+}

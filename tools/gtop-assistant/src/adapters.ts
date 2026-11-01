@@ -6,18 +6,20 @@ import {boundedContext} from './policy.js';
 import {skill,assistantInstructions} from './skills.js';
 import {tools} from './tools.js';
 import {tokenCounter,fitRequest} from './context-budget.js';
+import {prepareRunner,resolveDesktopCodex,scopedEndpoint,type Runner} from './runner.js';
 
-export interface Config {gateway:string;workerId:string;secretProtected?:string;emulatorSecret?:string;firebaseApiKey:string;authEmulator?:string;ollama:string;model:string;codexExecutable:string;codexModel:string;dataDirectory:string;}
+export interface Config {gateway:string;workerId:string;secretProtected?:string;emulatorSecret?:string;firebaseApiKey:string;authEmulator?:string;ollama:string;model:string;codexExecutable:string;codexModel:string;dataDirectory:string;runnerContractVersion?:number;runner?:Runner;codexReasoningEffort?:'low'|'medium'|'high'|'xhigh';}
 export const delay=(ms:number,signal?:AbortSignal)=>new Promise<void>((resolve,reject)=>{if(signal?.aborted)return reject(signal.reason);const stop=()=>{clearTimeout(timer);signal?.removeEventListener('abort',stop);reject(signal?.reason);};const timer=setTimeout(()=>{signal?.removeEventListener('abort',stop);resolve();},ms);signal?.addEventListener('abort',stop,{once:true});});
 export async function record(dir:string,name:string,value:unknown){await mkdir(dir,{recursive:true});await writeFile(path.join(dir,name),typeof value==='string'?value:JSON.stringify(value,null,2),'utf8');}
 export async function readConfig(file:string):Promise<Config>{
-  const c=JSON.parse(await readFile(file,'utf8'));
+  const c=JSON.parse((await readFile(file,'utf8')).replace(/^\uFEFF/,''));
   const u=new URL(c.gateway);const local=['127.0.0.1','localhost'].includes(u.hostname);
   if(!local && (u.protocol!=='https:' || !['gtop-question-papers.web.app','us-central1-gtop-app.cloudfunctions.net'].includes(u.hostname)))throw Error('Gateway must be the fixed pilot endpoint.');
   if(c.authEmulator&&!local)throw Error('Auth emulator requires an explicit loopback gateway.');
   if(c.emulatorSecret&&!local)throw Error('Plaintext secrets are allowed only with the isolated emulator.');
-  if(!path.isAbsolute(c.codexExecutable)||!path.isAbsolute(c.dataDirectory))throw Error('Executable and private log directory must be absolute paths.');
-  const o=new URL(c.ollama);if(o.hostname!=='127.0.0.1'||o.protocol!=='http:')throw Error('Ollama must remain loopback only.');
+  if(typeof c.dataDirectory!=='string'||!path.isAbsolute(c.dataDirectory))throw Error('Private log directory must be an absolute path.');
+  c.runner=await prepareRunner(c,path.resolve(file));
+  c.codexExecutable=await c.runner.resolveCodex();
   return c;
 }
 // A PowerShell7 parent can inherit incompatible Core modules into Windows PowerShell5.
@@ -52,15 +54,42 @@ export function localRequest(config:Config,job:any,instructionText:string){
   const thinking=!!job.context?.latestPaper||/explain|why|how|समझ|क्यों|कैसे|compare|confus|समझा/i.test(job.request.text);
   return {model:config.model,think:thinking,stream:false,keep_alive:0,format:conversationSchema,options:{num_ctx:8192,num_predict:thinking?2048:800,temperature:thinking?1:0.7,top_p:thinking?0.95:0.8,top_k:20},messages};
 }
+export function ollamaFetch(config:Config,api:string,init:RequestInit={}){
+  return fetch(scopedEndpoint(config.ollama)+'/api/'+api,{...init,redirect:'error'});
+}
 export async function localModelLoaded(config:Config){
-  const r=await fetch(config.ollama+'/api/ps',{signal:AbortSignal.timeout(3000)});
+  const r=await ollamaFetch(config,'ps',{signal:AbortSignal.timeout(3000)});
   if(!r.ok)throw Error(`Local model status unavailable (${r.status}).`);
   const value=await r.json() as any;
   return (value.models || []).some((m:any)=>m.name===config.model || m.model===config.model);
 }
+export const resolveJobCodex=(config:Config)=>config.runner?config.runner.resolveCodex():resolveDesktopCodex();
+export async function runtimeHealth(config:Config){
+  let modelInstalled=false,modelResident=false,codexAvailable=false;
+  try{
+    const [tags,ps]=await Promise.all(['tags','ps'].map(api=>ollamaFetch(config,api,{signal:AbortSignal.timeout(3000)})));
+    if(!tags.ok||!ps.ok)throw Error('dispatcher_unavailable');
+    const installed=await tags.json() as any,resident=await ps.json() as any;
+    if(!Array.isArray(installed.models)||!Array.isArray(resident.models))throw Error('dispatcher_unavailable');
+    modelInstalled=installed.models.some((m:any)=>m.name===config.model||m.model===config.model);
+    modelResident=resident.models.some((m:any)=>m.name===config.model||m.model===config.model);
+  }catch{return {available:false,modelInstalled,modelResident,codexAvailable,errorCode:'dispatcher_unavailable'};}
+  try{await resolveJobCodex(config);codexAvailable=true;}catch{/* Never send local resolver details to the gateway. */}
+  return {available:modelInstalled&&codexAvailable,modelInstalled,modelResident,codexAvailable,
+    errorCode:!modelInstalled?'model_unavailable':!codexAvailable?'codex_unavailable':null};
+}
+export async function waitForRuntime(config:Config,signal:AbortSignal,probe=runtimeHealth){
+  for(let attempt=0;attempt<3;attempt++){
+    signal.throwIfAborted();const health=await probe(config);
+    if(health.available)return health;
+    if(health.errorCode!=='dispatcher_unavailable'||attempt===2)throw Error('GTOP startup: '+health.errorCode+'; inspect scoped runtime health before retrying.');
+    await delay(attempt===0?250:750,signal);
+  }
+  throw Error('GTOP startup: dispatcher_unavailable');
+}
 export async function releaseLocalModel(config:Config){
   // A fresh signal lets cleanup run after cancellation. Empty generate + zero unloads, never warms.
-  const r=await fetch(config.ollama+'/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:config.model,keep_alive:0,stream:false}),signal:AbortSignal.timeout(15000)});
+  const r=await ollamaFetch(config,'generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:config.model,keep_alive:0,stream:false}),signal:AbortSignal.timeout(15000)});
   if(!r.ok)throw Error(`Local model unload unavailable (${r.status}).`);
   await r.json();
 }
@@ -71,7 +100,7 @@ export async function converse(config:Config,job:any,dir:string,signal:AbortSign
   const agents=await assistantInstructions();await record(dir,'instructions.json',agents);
   const instructionText=agents.text+'\n'+instructions.text+(explain?'\n\n'+(await skill('explain-paper')).text:'');
   const body:any=localRequest(config,job,instructionText);
-  body.keep_alive=30; // Reuse within this active tool loop; finally unloads immediately.
+  body.keep_alive=0; // Contract v1: no retained residency, including between tool steps.
   const count=await tokenCounter(config.dataDirectory);
   const defs=[['syllabus','Read the selected saved curriculum',{}],['status','Read actual execution status',{}],['ownQuestion','Read a question and its answer from the current paper',{number:{type:'integer'}}],['calculate','Calculate arithmetic accurately',{expression:{type:'string'}}],['read_skill','Load relevant versioned assistant instructions',{name:{type:'string',enum:['explain-paper','conversation']}}]] as const;
   body.tools=defs.map(([name,description,properties])=>({type:'function',function:{name,description,parameters:{type:'object',additionalProperties:false,properties,required:Object.keys(properties)}}}));
@@ -84,7 +113,7 @@ export async function converse(config:Config,job:any,dir:string,signal:AbortSign
   try{for(let attempt=0;attempt<5;attempt++){
     if(toolSteps<2&&!toolsClosed)delete body.format;else{delete body.tools;body.format=conversationSchema;}
     budget=fitRequest(body,count);
-    const callStarted=Date.now();const r=await fetch(config.ollama+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:localSignal});
+    const callStarted=Date.now();const r=await ollamaFetch(config,'chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:localSignal});
     if(!r.ok)throw Error(`Local conversation unavailable (${r.status}).`);
     const response=await r.json() as any;await record(dir,`local-response-${attempt}.json`,response);
     runs.push({elapsedMs:Date.now()-callStarted,thinking:body.think,promptTokens:response.prompt_eval_count||0,outputTokens:response.eval_count||0,loadMs:(response.load_duration||0)/1e6,doneReason:response.done_reason||null});await record(dir,'local-runs.json',runs);
@@ -119,16 +148,18 @@ const disabled=['hooks','apps','plugins','shell_tool','memories','view_image','b
 export function childEnvironment(){const allowed=['SystemRoot','WINDIR','COMSPEC','PATH','PATHEXT','TEMP','TMP','USERPROFILE','APPDATA','LOCALAPPDATA','PROGRAMDATA','HOMEDRIVE','HOMEPATH','USERNAME','OS','PROCESSOR_ARCHITECTURE','CODEX_HOME'];return Object.fromEntries(Object.entries(process.env).filter(([k,v])=>v!==undefined&&allowed.some(a=>a.toLowerCase()===k.toLowerCase()))) as NodeJS.ProcessEnv;}
 export function codexArguments(config:Config,schemaFile:string,onlineResearch=false,domains:string[]=[]){
   if(onlineResearch&&(!domains.length||domains.some(d=>! /^[a-z0-9.-]+$/.test(d))))throw Error('Official source domains are required for live curriculum research.');
-  return disabled.filter(x=>!onlineResearch||x!=='code_mode_host').flatMap(x=>['--disable',x]).concat(onlineResearch?['--enable','code_mode_host','--search','-c','tools.web_search.allowed_domains='+JSON.stringify(domains)]:['-c','web_search="disabled"']).concat(['-c','approval_policy="never"','-c','model_reasoning_effort="medium"','exec','--ignore-user-config','--ignore-rules','--sandbox','read-only','--json','--skip-git-repo-check','--output-schema',schemaFile,'-m',config.codexModel,'-']);
+  const effort=config.codexReasoningEffort||'medium';if(!['low','medium','high','xhigh'].includes(effort))throw Error('Invalid Codex reasoning effort.');
+  return disabled.filter(x=>!onlineResearch||x!=='code_mode_host').flatMap(x=>['--disable',x]).concat(onlineResearch?['--enable','code_mode_host','--search','-c','tools.web_search.allowed_domains='+JSON.stringify(domains)]:['-c','web_search="disabled"']).concat(['-c','approval_policy="never"','-c',`model_reasoning_effort="${effort}"`,'exec','--ignore-user-config','--ignore-rules','--sandbox','read-only','--json','--skip-git-repo-check','--output-schema',schemaFile,'-m',config.codexModel,'-']);
 }
 export async function codex(config:Config,prompt:string,schema:any,dir:string,signal:AbortSignal,onProgress:()=>Promise<void>,onlineResearch=false,domains:string[]=[]){
   signal.throwIfAborted();
+  const executable=await resolveJobCodex(config);signal.throwIfAborted();
   await mkdir(dir,{recursive:true});const schemaFile=path.join(dir,'schema.json');await record(dir,'schema.json',schema);await record(dir,'prompt.txt',prompt);
   const args=codexArguments(config,schemaFile,onlineResearch,domains);
-  const start=Date.now();await record(dir,'invocation.json',{executable:config.codexExecutable,args,startedAt:new Date(start).toISOString(),authentication:'existing ChatGPT subscription; no API key'});
+  const start=Date.now();await record(dir,'invocation.json',{executable,args,runnerContractId:config.runner?.contractId,startedAt:new Date(start).toISOString(),authentication:'existing ChatGPT subscription; no API key'});
   return new Promise<{value:any;metrics:any}>(async(resolve,reject)=>{
     if(signal.aborted)return reject(signal.reason);
-    const child=spawn(config.codexExecutable,args,{cwd:dir,env:childEnvironment(),stdio:['pipe','pipe','pipe'],windowsHide:true});let buffer='',events:any[]=[],stderr='',result='',finished=false,usage:any,failed=false,settled=false;
+    const child=spawn(executable,args,{cwd:dir,env:childEnvironment(),stdio:['pipe','pipe','pipe'],windowsHide:true});let buffer='',events:any[]=[],stderr='',result='',finished=false,usage:any,failed=false,settled=false;
     const event=(e:any)=>{events.push(e);if(e.type==='error'||e.type==='turn.failed')failed=true;if(e.type==='turn.completed'){finished=true;usage=e.usage;}if(e.type==='item.completed'&&e.item?.type==='agent_message')result=e.item.text;};
     child.stdout.on('data',b=>{buffer+=b;let pos;while((pos=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,pos);buffer=buffer.slice(pos+1);try{event(JSON.parse(line));}catch{stderr+='Malformed JSON event\n';}}});child.stderr.on('data',b=>{stderr+=b;});
     const abort=()=>child.kill();signal.addEventListener('abort',abort,{once:true});const timeout=setTimeout(abort,900000);const progress=setInterval(()=>{void onProgress().catch(()=>{});},30000);

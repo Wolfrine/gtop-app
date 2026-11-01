@@ -97,6 +97,18 @@ export function verifiedRequirements(job:any,proposal:any){
   if(proposal.action==='revise_paper'&&job.context?.latestPaper?.requirements){const base=job.context.latestPaper.requirements;if(base.scope!==r.scope||JSON.stringify(base.selectedChapters||[])!==JSON.stringify(r.selectedChapters||[]))throw Error('Please create a new paper when changing the selected chapters or syllabus coverage.');}
   return validateRequirements(r);
 }
+// A parser miss must never turn an explicit original total into a defaulted
+// expensive generation. Preserve later sourced corrections before checking it.
+export function assertSourcedPaperTotal(job:any){
+  const brief=job.taskBrief||buildTaskBrief(job),expected=job.requirements?.marks;
+  if(brief.sources?.marks){
+    if(brief.requirements.marks!==expected)throw Error('The sourced paper total conflicts with the controller total. Correct the request before generation.');
+    return;
+  }
+  const root=(job.history||[]).find((m:any)=>m.role==='user'&&m.id===brief.creationRequestId)||job.rootRequest||job.request;
+  const explicit=String(root?.text||'').match(/\b(?:total(?:\s+of)?\s*:?\s*(\d{1,4})\s*[- ]?\s*marks?|(\d{1,4})\s*[- ]?\s*mark\s+paper)\b/i);
+  if(explicit&&Number(explicit[1]||explicit[2])!==expected)throw Error('The explicit original paper total was not preserved. Specify a supported total (10-100 marks) before generation.');
+}
 export function route(job:any,p:any){
   const t=job.request.text.normalize('NFKC').replace(/[’‘]/g,"'");
   if(/\b(?:deploy|restart.{0,20}schedul|delete.{0,15}data|modify.{0,15}(?:code|application)|develop.{0,15}app)\b/i.test(t))return {action:'unsupported',reply:'Development, deployment and destructive operations are unavailable in this paper pilot. Sachit must approve those separately.'};

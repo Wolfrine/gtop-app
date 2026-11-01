@@ -8,6 +8,7 @@ import {hash} from '../src/policy.js';
 import {AssistantService} from '../../../assistant-service/service.mjs';
 import {MemoryStore} from '../../../assistant-service/store.mjs';
 import {buildTaskBrief} from '../../../assistant-service/domain/task-brief.mjs';
+import {defaults,validateRequirements} from '../../../assistant-service/domain/index.mjs';
 
 // Real local Qwen/Codex, isolated in-memory application. Never starts the worker
 // claim loops, connects to the production gateway, or reads/resumes old jobs.
@@ -43,15 +44,17 @@ worker.api={post:async(endpoint:string,body:any)=>{
   return service[({heartbeat:'renew',event:'event',delegate:'delegate',complete:'complete',fail:'failed'} as any)[m[2]]](identity,m[1],body);
 }} as any;
 const c=(await service.createConversation('synthetic-teacher',{})).conversation;
-await service.submit('synthetic-teacher',c.id,{text:'Create a fresh CBSE Class 5 Mathematics practice paper in English. Only chapter Addition. Total 10 marks. Duration 10 minutes. Exactly two short-answer questions worth 5 marks each. No internal choices. Include worked answers. Use the selected saved curriculum; custom practice format.',clientMessageId:'synthetic-fresh-request'});
+await service.submit('synthetic-teacher',c.id,{text:'Create a fresh CBSE Class 5 Mathematics practice paper in English. Only chapter Addition. Total 10 marks. Duration 15 minutes. Exactly two short-answer questions worth 5 marks each. No internal choices. Include worked answers. Use the selected saved curriculum; custom practice format.',clientMessageId:'synthetic-fresh-request'});
 const turn=(await service.claim(identity,{kind:'turn'})).job;assert(turn);
 // Assert the interpreted scope before any paid/expensive generation. Preserve a
 // failed fixture instead of letting defaults silently expand the acceptance run.
-const brief=buildTaskBrief(turn);assert.equal(brief.requirements.marks,10);assert.equal(brief.requirements.durationMinutes,10);assert.equal(brief.requirements.internalChoices,false);
+const brief=buildTaskBrief(turn);validateRequirements({...defaults,...brief.requirements});assert.equal(brief.requirements.marks,10);assert.equal(brief.requirements.durationMinutes,15);assert.equal(brief.requirements.internalChoices,false);
 await worker.run(turn,signal);
 const turnResult=await store.get('assistantJobs/'+turn.id);assert.equal(turnResult.state,'completed',turnResult.error);
-const paperJob=(await service.claim(identity,{kind:'paper'})).job;assert(paperJob,'Fresh explicit request must delegate one paper');
-assert.equal(paperJob.operation,'generate_paper');assert.equal(paperJob.requirements.marks,10);assert.equal(paperJob.requirements.durationMinutes,10);assert.equal(paperJob.requirements.internalChoices,false);await worker.run(paperJob,signal);
+const paperJob=(await service.claim(identity,{kind:'paper'})).job;
+if(!paperJob)await record(root,'turn-outcome.json',await service.conversation('synthetic-teacher',c.id));
+assert(paperJob,'Fresh explicit request must delegate one paper; inspect turn-outcome.json');
+assert.equal(paperJob.operation,'generate_paper');assert.equal(paperJob.requirements.marks,10);assert.equal(paperJob.requirements.durationMinutes,15);assert.equal(paperJob.requirements.internalChoices,false);await worker.run(paperJob,signal);
 const final=await store.get('assistantJobs/'+paperJob.id);assert.equal(final.state,'completed',final.error);
 const paper=await store.get('assistantPapers/'+final.paperId);assert(paper);assert.equal(paper.validation.attemptedMarks,10);
 assert.equal(paper.validation.questionCount,2);

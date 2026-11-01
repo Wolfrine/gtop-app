@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-11-01T09:30:43.132Z",
+  "independentFileCheck": true,
+  "artifacts": {
+    "student": {
+      "bytes": 374604,
+      "sha256": "a496cc80a2c004daa58dc3635a1ee0722f72db29822a9365c80240312bf8f6bf",
+      "questions": 2,
+      "marks": 10,
+      "durationMinutes": 15
+    },
+    "answers": {
+      "bytes": 392718,
+      "sha256": "6af13b9733336f12417003a72cf5e3db33320b3ca64145e2e7c003dd83866a8e",
+      "questions": 2,
+      "marks": 10,
+      "durationMinutes": 15
+    }
+  }
+}

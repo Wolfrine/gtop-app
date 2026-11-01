@@ -1,0 +1,33 @@
+{
+  "capturedAt": "2026-11-01T09:23:14.876Z",
+  "evidenceKind": "installed-owned-runtime-and-authenticated-gateway",
+  "version": "1.2.0",
+  "release": "releases\\1.2.0-7e29cf8",
+  "sourceRevision": "7e29cf8",
+  "endpoint": "http://127.0.0.1:11435",
+  "runnerContractId": "1c274e488b424dd0490aa8870216a2fcfb5b42147ed7d648b5f5d3e88d6b7920",
+  "workerPid": 27516,
+  "dispatcherPid": 22240,
+  "health": {
+    "available": true,
+    "modelInstalled": true,
+    "modelResident": false,
+    "codexAvailable": true,
+    "errorCode": null
+  },
+  "gateway": {
+    "state": "ready",
+    "worker": {
+      "state": "ready",
+      "lastSeenAt": "2026-11-01T09:23:02.281Z",
+      "modelReady": false
+    },
+    "starter": {
+      "state": "online",
+      "lastSeenAt": "2026-11-01T09:23:15.113Z"
+    }
+  },
+  "onePieceEnabled": true,
+  "productionJobsCreated": 0,
+  "modelWarmup": false
+}

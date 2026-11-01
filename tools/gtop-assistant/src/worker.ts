@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {Gateway,converse,codex,delay,record,runtimeHealth,waitForRuntime,type Config} from './adapters.js';
-import {route,verifiedRequirements,handoff,verifyOriginals,taskRoot,examPatternRequested,socialReply,curriculumHelp} from './policy.js';
+import {route,verifiedRequirements,assertSourcedPaperTotal,handoff,verifyOriginals,taskRoot,examPatternRequested,socialReply,curriculumHelp} from './policy.js';
 import {curriculum,validatePaper,validateRevision,paperContent} from '../../../assistant-service/domain/index.mjs';
 import {reviewSchema} from '../../../assistant-service/domain/schemas.mjs';
 import {outputSchemas} from './paper-contract.js';
@@ -109,6 +109,7 @@ export class Worker {
     return {proposal:result.value,metrics:{engine:'codex-planning',escalationReason:reason,...result.metrics}};
   }
   async paper(job:any,dir:string,signal:AbortSignal){
+    assertSourcedPaperTotal(job);
     const pinned=job.curriculumSnapshot||job.context?.curriculum||curriculum;
     const {paper:paperSchema,revision:revisionSchema}=outputSchemas(pinned,job.requirements);
     const packet=handoff(job);const instructions=await skill(job.operation==='revise_paper'?'revise-paper':'create-paper');await record(dir,'skill.json',instructions);await record(dir,'handoff.json',packet);const timings:any[]=[];

@@ -1,0 +1,102 @@
+{
+  "evidenceKind": "actual-inference-synthetic-in-memory-application",
+  "productionWrites": false,
+  "productionQueueClaims": false,
+  "oldJobsReadOrResumed": false,
+  "endpoint": "http://127.0.0.1:11435",
+  "model": "qwen3.5:4b-q4_K_M",
+  "codexModel": "gpt-6.1-sol",
+  "reasoningEffort": "xhigh",
+  "local": {
+    "elapsedMs": 34560,
+    "attempts": 1,
+    "toolSteps": 0,
+    "repairs": 0,
+    "responseFormat": "native_text",
+    "thinking": false,
+    "inputTokensEstimated": 1333,
+    "generationTokensReserved": 800,
+    "contextTokens": 8192,
+    "model": "qwen3.5:4b-q4_K_M",
+    "promptTokens": 1264,
+    "outputTokens": 11,
+    "loadMs": 33668.2865,
+    "runs": [
+      {
+        "elapsedMs": 34549,
+        "thinking": false,
+        "promptTokens": 1264,
+        "outputTokens": 11,
+        "loadMs": 33668.2865,
+        "doneReason": "stop"
+      }
+    ]
+  },
+  "paperId": "runner-acceptance-11",
+  "validation": {
+    "passed": true,
+    "questionCount": 2,
+    "attemptedMarks": 10,
+    "attemptPolicy": "all_required_with_whole_question_or",
+    "chaptersCovered": [
+      "Addition"
+    ],
+    "internalChoices": 0,
+    "sourceId": "gtop-251533e2d08bc2dcb2c9751a204e",
+    "paperContentSha256": "d122c6ea4025c8bda5ec508ccda26b7906c0f6d8ba421b25e6b298c5a8f7b352",
+    "academicApproval": false
+  },
+  "metrics": {
+    "stages": [
+      {
+        "stage": "generation",
+        "elapsedMs": 160833,
+        "exitCode": 0,
+        "completed": true,
+        "usage": {
+          "input_tokens": 81092,
+          "cached_input_tokens": 63616,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 6679,
+          "reasoning_output_tokens": 3914
+        },
+        "model": "gpt-6.1-sol",
+        "skill": "create-paper",
+        "skillVersion": 4,
+        "skillSha256": "90ebfeefe5f408f8e12c844803d58fd2bf48aa0daea69e92ce2a76e83a3f3628"
+      },
+      {
+        "stage": "review",
+        "elapsedMs": 26040,
+        "exitCode": 0,
+        "completed": true,
+        "usage": {
+          "input_tokens": 16853,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 777,
+          "reasoning_output_tokens": 694
+        },
+        "model": "gpt-6.1-sol",
+        "skill": "create-paper",
+        "skillVersion": 4,
+        "skillSha256": "90ebfeefe5f408f8e12c844803d58fd2bf48aa0daea69e92ce2a76e83a3f3628"
+      }
+    ],
+    "correctionUsed": false,
+    "localModel": "qwen3.5:4b-q4_K_M",
+    "codexModel": "gpt-6.1-sol"
+  },
+  "artifacts": {
+    "student": {
+      "bytes": 374604,
+      "sha256": "a496cc80a2c004daa58dc3635a1ee0722f72db29822a9365c80240312bf8f6bf"
+    },
+    "answers": {
+      "bytes": 392718,
+      "sha256": "6af13b9733336f12417003a72cf5e3db33320b3ca64145e2e7c003dd83866a8e"
+    }
+  },
+  "modelResident": false,
+  "completedAt": "2026-11-01T09:28:21.020Z"
+}

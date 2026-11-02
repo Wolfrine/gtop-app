@@ -49,11 +49,15 @@ export class AssistantService {
     if (profile?.role !== 'admin' || !config?.allowedOwnerUids?.includes(claims.uid)) fail(403,'pilot_access_required','This private pilot is restricted to invited Growth Tutorials administrators.');
     return {uid:claims.uid,displayName:profile.displayName || profile.name || claims.name || '',email:claims.email || profile.email || '',libraryAccess:true};
   }
-  async worker(claims) {
+  workerIdentity(claims) {
     if (claims?.assistantWorker !== true || !claims.workerId || claims.uid !== `assistant-worker-${claims.workerId}`) fail(403,'worker_access_required','A paired assistant worker is required.');
-    const worker = await this.store.get(ref('assistantWorkers',claims.workerId));
+    return {id:safeId(claims.workerId)};
+  }
+  async worker(claims) {
+    const {id}=this.workerIdentity(claims);
+    const worker = await this.store.get(ref('assistantWorkers',id));
     if (!worker || worker.enabled !== true || !Array.isArray(worker.allowedOwnerUids)) fail(403,'worker_disabled','Worker pairing is disabled.');
-    return {...worker,id:claims.workerId};
+    return {...worker,id};
   }
   async bootstrap(body) {
     const workerId = safeId(body.workerId), secret = text(body.secret,256);
@@ -209,7 +213,7 @@ export class AssistantService {
   async artifact(uid,id,kind) { await this.owned(uid,'assistantPapers',id); if(!['student','answers'].includes(kind))fail(404,'not_found','Artifact unavailable.');const doc=await this.store.get(`assistantPapers/${safeId(id)}/artifacts/${kind}`);if(!doc)fail(404,'not_found','Artifact unavailable.');return decodeArtifact(doc); }
   async heartbeat(worker,body) {
     if(!['ready','loading','busy','offline'].includes(body.state) || typeof body.modelReady!=='boolean')fail(400,'invalid_heartbeat','Invalid worker heartbeat.');
-    await this.store.transaction(async tx=>{const current=await tx.get(ref('assistantWorkers',worker.id));tx.set(ref('assistantWorkers',worker.id),{...current,state:body.state,modelReady:body.modelReady,version:text(body.version,100),lastSeenAt:this.iso()});});return {ok:true};
+    await this.store.transaction(async tx=>{const current=await tx.get(ref('assistantWorkers',worker.id));if(current?.enabled!==true||!Array.isArray(current.allowedOwnerUids))fail(403,'worker_disabled','Worker pairing is disabled.');tx.set(ref('assistantWorkers',worker.id),{...current,state:body.state,modelReady:body.modelReady,version:text(body.version,100),lastSeenAt:this.iso()});});return {ok:true};
   }
   async expireOne(id,ownerUid=null) {
     await this.store.transaction(async tx=>{

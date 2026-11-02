@@ -13,4 +13,4 @@ export const dispatchRule = `    match /assistantDispatch/{ownerUid} {
       allow list, write: if false;
     }
 `;
-export const withoutDispatchRule = source => source.replace(dispatchRule, '');
+export const withoutDispatchRule = source => source.replaceAll('\r\n','\n').replace(dispatchRule, '');

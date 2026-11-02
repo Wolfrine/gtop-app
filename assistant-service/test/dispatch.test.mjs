@@ -5,6 +5,23 @@ import {MemoryStore} from '../store.mjs';
 import {dispatchRule,withoutDispatchRule} from '../dispatch-rule.mjs';
 import {assistantOnlyRelease} from '../scripts/release-scope.mjs';
 import {readFileSync} from 'node:fs';
+import {createGateway} from '../gateway.mjs';
+
+test('maintenance reads pairing once inside the transaction and still refuses disabled or forged identities',async()=>{
+  const store=new MemoryStore({'assistantWorkers/sachit-windows':{enabled:true,allowedOwnerUids:['owner']}}),service=new AssistantService(store);
+  const reads=[],get=store.get.bind(store);store.get=async path=>{reads.push(path);return get(path);};
+  const claims={uid:'assistant-worker-sachit-windows',assistantWorker:true,workerId:'sachit-windows'};
+  const route=createGateway(service,async()=>claims),request=(path,body)=>route({method:'POST',path,body,headers:{authorization:'Bearer fixture'}});
+  const heartbeat={state:'ready',modelReady:false,version:'fixture'};
+  assert.equal((await request('/worker/heartbeat',heartbeat)).status,200);
+  assert.deepEqual(reads,['assistantWorkers/sachit-windows']);reads.length=0;
+  assert.equal((await request('/worker/service/poll',{workerRunning:true,version:'fixture'})).status,200);
+  assert.deepEqual(reads.sort(),['assistantServiceControls/sachit-windows','assistantWorkers/sachit-windows']);
+  store.docs.set('assistantWorkers/sachit-windows',{enabled:false,allowedOwnerUids:['owner']});
+  assert.equal((await request('/worker/heartbeat',heartbeat)).status,403);
+  assert.equal((await request('/worker/service/poll',{workerRunning:true,version:'fixture'})).status,403);
+  claims.uid='forged';assert.equal((await request('/worker/heartbeat',heartbeat)).status,403);
+});
 
 test('enqueue marker is atomic, minimal and idempotent; health and lease changes never notify',async()=>{
   const store=new MemoryStore({'assistantWorkers/w':{enabled:true,allowedOwnerUids:['owner']}}),service=new AssistantService(store);
@@ -26,8 +43,9 @@ test('unchanged conversation revision avoids all history queries and enforces ow
 });
 
 test('shared release guard accepts exactly the dispatch grant and rejects widened access',()=>{
-  const source=readFileSync(new URL('../../gtop-app/firestore.rules',import.meta.url),'utf8'),old=withoutDispatchRule(source);
+  const source=readFileSync(new URL('../../gtop-app/firestore.rules',import.meta.url),'utf8').replaceAll('\r\n','\n'),old=withoutDispatchRule(source);
   assert.notEqual(old,source);assert(source.includes(dispatchRule));
+  assert.equal(withoutDispatchRule(source.replaceAll('\n','\r\n')),old);
   assert(assistantOnlyRelease(['gtop-app/firestore.rules'],()=>old,()=>source));
   assert(!assistantOnlyRelease(['gtop-app/firestore.rules'],()=>old,()=>source.replace('allow list, write: if false','allow list, write: if true')));
 });

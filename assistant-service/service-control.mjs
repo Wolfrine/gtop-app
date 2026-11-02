@@ -66,7 +66,8 @@ export class ServiceControl {
     const result=body.lastStartResult;
     if(result&&(Object.keys(result).some(k=>!['requestId','state','errorCode'].includes(k))||typeof result.requestId!=='string'||!/^[a-f0-9]{40}$/.test(result.requestId)||!['started','failed'].includes(result.state)||(result.errorCode!==undefined&&!errors.has(result.errorCode))))this.fail(400,'invalid_start_result','Invalid local start result.');
     return this.service.store.transaction(async tx=>{
-      const [currentWorker,stored]=await Promise.all([tx.get(workerPath),tx.get(controlPath)]);this.requireWorker(currentWorker);
+      const [currentWorker,stored]=await Promise.all([tx.get(workerPath),tx.get(controlPath)]);
+      if(currentWorker?.enabled!==true||!Array.isArray(currentWorker.allowedOwnerUids))this.fail(403,'worker_disabled','Worker pairing is disabled.');
       let request=this.normalRequest(stored?.request,currentWorker);
       if(result&&request?.id===result.requestId&&['claimed','started'].includes(request.state))request={...request,state:result.state,acknowledgedAt:this.service.iso(),errorCode:result.state==='failed'?result.errorCode||'start_failed':null};
       if(request?.state==='pending')request={...request,state:'claimed',claimedAt:this.service.iso()};

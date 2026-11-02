@@ -27,7 +27,8 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
       let claims;try{claims=await verifyIdToken(bearer[1]);}catch{throw new HttpError(401,'invalid_token','Sign in again to continue.');}
       let output;
       if(path.startsWith('/worker/')) {
-        const worker=await service.worker(claims);
+        // These maintenance transactions read/revalidate the pairing themselves.
+        const worker=['/worker/heartbeat','/worker/service/poll'].includes(path)?service.workerIdentity(claims):await service.worker(claims);
         if(method==='POST' && path==='/worker/heartbeat')output=await service.heartbeat(worker,body);
         else if(method==='POST' && path==='/worker/service/poll')output=await service.serviceControl.poll(worker,body);
         else if(method==='POST' && path==='/worker/curriculum/catalogue')output=await service.curriculumCatalogue();

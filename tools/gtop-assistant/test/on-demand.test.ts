@@ -23,7 +23,7 @@ test('idle startup advertises an available listener without loading a model',asy
   worker.api={post:async(endpoint:string,body:any)=>{assert.equal(endpoint,'/worker/heartbeat');heartbeats.push(body);stop.abort();return {ok:true};}} as any;
   await worker.start(stop.signal);
   assert.equal(calls.length,4);
-  assert.deepEqual(heartbeats.map(h=>[h.state,h.modelReady]),[['ready',false],['offline',false]]);
+  assert.deepEqual(heartbeats.map(h=>[h.state,h.modelReady]),[['offline',false],['offline',false]]);
 });
 
 test('queued work wakes an unloaded model and returns to idle after the reply',async t=>{
@@ -32,12 +32,12 @@ test('queued work wakes an unloaded model and returns to idle after the reply',a
   const timeout=setTimeout(()=>stop.abort(Error('Synthetic queue test timed out')),5000);t.after(()=>clearTimeout(timeout));
   t.mock.method(globalThis,'fetch',async(input:any,init:any)=>{
     const url=String(input);if(url.endsWith('/api/tags'))return Response.json({models:[{name:config.model}]});if(url.endsWith('/api/ps'))return Response.json({models:[]});
-    const body=JSON.parse(init.body);assert.equal(body.keep_alive,0);assert(claimed,'No inference before a job is claimed');
+    const body=JSON.parse(init.body);assert.equal(body.keep_alive,url.endsWith('/api/chat')?60:0);assert(claimed,'No inference before a job is claimed');
     if(url.endsWith('/api/chat')){chats++;return Response.json({message:{content:JSON.stringify({action:'local_answer',reply:'Liquid molecules escape into the air as vapour.'})},prompt_eval_count:100,eval_count:10});}
     assert(url.endsWith('/api/generate'));unloads++;assert.equal(body.prompt,undefined);return Response.json({done:true,done_reason:'unload'});
   });
   const worker=new Worker(config);
-  worker.api={post:async(endpoint:string,body:any)=>{
+  worker.api={listen:async(changed:any,connected:any)=>{connected(true);changed();return async()=>{};},post:async(endpoint:string,body:any)=>{
     if(endpoint==='/worker/heartbeat')return {ok:true};
     if(endpoint==='/worker/claim'){if(body.kind==='turn'&&!claimed){claimed=true;return {job};}return {job:null};}
     if(endpoint==='/worker/curriculum/catalogue')return {boards:[]};
@@ -62,7 +62,7 @@ test('exact greetings and thanks do not wake the model or query the catalogue',a
 test('invalid model JSON cannot leave the runner pinned after bounded repair',async t=>{
   const {config,dir,job}=await fixture(t);let chats=0,unloads=0;
   t.mock.method(globalThis,'fetch',async(input:any,init:any)=>{
-    assert.equal(JSON.parse(init.body).keep_alive,0);
+    assert.equal(JSON.parse(init.body).keep_alive,String(input).endsWith('/api/chat')?60:0);
     if(String(input).endsWith('/api/chat')){chats++;return Response.json({message:{content:'{"reply":'}});}
     unloads++;return Response.json({done:true,done_reason:'unload'});
   });
@@ -95,7 +95,7 @@ test('already cancelled work never starts local inference',async t=>{
 test('model-ready heartbeat reflects actual residency and remains false when Ollama is unavailable',async t=>{
   const {config}=await fixture(t),heartbeats:any[]=[];let count=0;
   t.mock.method(globalThis,'fetch',async(input:any)=>{if(String(input).endsWith('/tags'))count++;if(count===3)throw Error('Offline');return Response.json({models:[{name:String(input).endsWith('/tags')||count===2?config.model:'another-model'}]});});
-  const worker=new Worker(config);worker.api={post:async(_endpoint:string,body:any)=>{heartbeats.push(body);return {ok:true};}} as any;
+  const worker=new Worker(config);worker.listenerReady=true;worker.api={post:async(_endpoint:string,body:any)=>{heartbeats.push(body);return {ok:true};}} as any;
   await worker.heartbeat();await worker.heartbeat();await worker.heartbeat();
   assert.deepEqual(heartbeats.map(h=>[h.state,h.modelReady]),[['ready',false],['ready',true],['offline',false]]);
 });

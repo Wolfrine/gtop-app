@@ -20,6 +20,7 @@ customToken. Existing runtime service account signs it; do not add IAM silently.
 - GET /conversations => {conversations:[{id,title,status,updatedAt,activePaperJobId?,latestPaperId?}]}
 - POST /conversations {clientRequestId?} => {conversation}
 - GET /conversations/:id => {conversation,messages,jobs,papers}
+- GET /conversations/:id/revision => {updatedAt}; invited-admin equivalent under /admin/conversations/:id/revision.
 - POST /conversations/:id/messages {text,clientMessageId} => {message,job}
 - POST /jobs/:id/cancel {} => {job}; POST /jobs/:id/retry {} => {job}
 - GET /papers/:id => {paper: PaperRevision}; GET /papers/:id/artifact/student|answers => private HTML
@@ -31,11 +32,23 @@ updatedAt,startedAt?,elapsedSeconds?,error?,requestRevision?,paperId?}.
 States: queued,running,validating,review_required,completed,needs_info,failed,cancelled.
 Papers in conversation view are summaries: {id,title,revision,marks,createdAt,jobId}.
 All dates serialized ISO8601. No backend-internal tokens/leases in user responses.
-UI may poll own open conversation every 2s while pending, 15s while idle.
+Visible UI polls pending details every 2s; session/list overview at most every 30s.
+Idle polls every 60s and fetches full history only if the conversation revision
+changed. Foreground return and explicit user actions refresh immediately. Hidden
+tabs stop polling. No partial model text is written to Firestore.
 
 ## Worker API
 
 - POST /worker/heartbeat {state:'ready'|'loading'|'busy'|'offline',modelReady,version} => {ok:true}
+- POST /worker/dispatch {} => {ownerUids}; paired worker subscribes to exact
+  assistantDispatch/{ownerUid} documents with its existing Firebase identity.
+  Marker fields are only schemaVersion, random revision and updatedAt. Enqueue,
+  retry, delegation and curriculum continuation update the marker atomically.
+  Health, lease and progress writes never update it. Initial server snapshots and
+  reconnects drain both lanes; repeated revisions coalesce. Unready listeners
+  suspend admission, while existing leases continue to renew. Bearer refresh is
+  deliberate (50 minutes), terminal errors back off, and SDK network reconnects
+  do not recreate listeners. No prompts or job payloads are directly readable.
 - POST /worker/claim {kind:'turn'|'paper',waitSeconds?:20} => {job:null|WorkerJob}
   bounded outbound long-poll of worker inbox; claim atomic, leases 120s, renew every 30s.
 - POST /worker/jobs/:id/heartbeat {leaseId,phase?} => {active:boolean}

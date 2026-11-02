@@ -33,6 +33,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='POST' && path==='/worker/curriculum/catalogue')output=await service.curriculumCatalogue();
         else if(method==='POST' && path==='/worker/curriculum/resolve')output={curriculum:await service.resolveCurriculum(body.requirements,body.conversationId,worker)};
         else if(method==='POST' && path==='/worker/claim')output=await service.claim(worker,body);
+        else if(method==='POST' && path==='/worker/dispatch')output={ownerUids:worker.allowedOwnerUids};
         else {const m=path.match(/^\/worker\/jobs\/([^/]+)\/(heartbeat|event|delegate|complete|fail)$/);if(method!=='POST'||!m)throw new HttpError(404,'not_found','Endpoint unavailable.');const fn={heartbeat:'renew',event:'event',delegate:'delegate',complete:'complete',fail:'failed'}[m[2]];output=await service[fn](worker,m[1],body);}
       } else {
         const user=await service.user(claims),uid=user.uid;
@@ -43,6 +44,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='POST' && path==='/feedback')output=await service.feedback(uid,body);
         else if(method==='POST' && path==='/admin/library')output=await service.adminLibrary(uid,body);
         else if(method==='GET' && /^\/admin\/conversations\/[^/]+$/.test(path))output=await service.adminConversation(uid,path.split('/').at(-1));
+        else if(method==='GET' && /^\/(admin\/)?conversations\/[^/]+\/revision$/.test(path))output=await service.conversationRevision(uid,path.split('/').at(-2),path.startsWith('/admin/'));
         else {let m;
           if(method==='GET' && (m=path.match(/^\/conversations\/([^/]+)$/)))output=await service.conversation(uid,m[1]);
           else if(method==='POST' && (m=path.match(/^\/conversations\/([^/]+)\/messages$/)))output=await service.submit(uid,m[1],body);

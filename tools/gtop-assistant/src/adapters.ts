@@ -7,6 +7,7 @@ import {skill,assistantInstructions} from './skills.js';
 import {tools} from './tools.js';
 import {tokenCounter,fitRequest} from './context-budget.js';
 import {prepareRunner,resolveDesktopCodex,scopedEndpoint,type Runner} from './runner.js';
+import {listenForDispatch} from './dispatch.js';
 
 export interface Config {gateway:string;workerId:string;secretProtected?:string;emulatorSecret?:string;firebaseApiKey:string;authEmulator?:string;ollama:string;model:string;codexExecutable:string;codexModel:string;dataDirectory:string;runnerContractVersion?:number;runner?:Runner;codexReasoningEffort?:'low'|'medium'|'high'|'xhigh';}
 export const delay=(ms:number,signal?:AbortSignal)=>new Promise<void>((resolve,reject)=>{if(signal?.aborted)return reject(signal.reason);const stop=()=>{clearTimeout(timer);signal?.removeEventListener('abort',stop);reject(signal?.reason);};const timer=setTimeout(()=>{signal?.removeEventListener('abort',stop);resolve();},ms);signal?.addEventListener('abort',stop,{once:true});});
@@ -28,8 +29,8 @@ export async function unprotect(value:string){return new Promise<string>((resolv
 export class Gateway {
   private token='';private until=0;
   constructor(public config:Config){}
-  private async auth(){
-    if(Date.now()<this.until)return;
+  private async auth(force=false){
+    if(!force&&Date.now()<this.until)return;
     const base=this.config.authEmulator?`${this.config.authEmulator}/identitytoolkit.googleapis.com/v1`:'https://identitytoolkit.googleapis.com/v1';
     // Refresh via a new short-lived Firebase custom token; bootstrap secret never reaches a model or child process.
     const secret=this.config.emulatorSecret || await unprotect(this.config.secretProtected!);
@@ -39,6 +40,11 @@ export class Gateway {
     const signed=await fetch(base+'/accounts:signInWithCustomToken?key='+this.config.firebaseApiKey,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:customToken,returnSecureToken:true}),signal:AbortSignal.timeout(30000)});
     if(!signed.ok)throw Error(`Worker Firebase authentication failed (${signed.status}).`);
     const v=await signed.json() as any;this.token=v.idToken;this.until=Date.now()+(Number(v.expiresIn)-120)*1000;
+  }
+  async listen(changed:()=>void,connection:(online:boolean)=>void,failed:(error:Error)=>void){
+    await this.auth(true);
+    const {ownerUids}=await this.post('/worker/dispatch',{});
+    return listenForDispatch({apiKey:this.config.firebaseApiKey,idToken:this.token,workerId:this.config.workerId,ownerUids,changed,connection,failed});
   }
   async post(endpoint:string,body:any,signal?:AbortSignal):Promise<any>{await this.auth();const r=await fetch(this.config.gateway+endpoint,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+this.token},body:JSON.stringify(body),signal:signal?AbortSignal.any([signal,AbortSignal.timeout(45000)]):AbortSignal.timeout(45000)});const value=await r.json() as any;if(!r.ok){if(r.status===401)this.until=0;throw Object.assign(Error(`Gateway ${r.status}: ${value?.error?.message || value?.message || 'operation rejected'}`),{code:value?.error?.code,status:r.status});}return value;}
 }
@@ -100,7 +106,7 @@ export async function converse(config:Config,job:any,dir:string,signal:AbortSign
   const agents=await assistantInstructions();await record(dir,'instructions.json',agents);
   const instructionText=agents.text+'\n'+instructions.text+(explain?'\n\n'+(await skill('explain-paper')).text:'');
   const body:any=localRequest(config,job,instructionText);
-  body.keep_alive=0; // Contract v1: no retained residency, including between tool steps.
+  body.keep_alive=60; // Only between this turn's tool/repair calls; finally unloads immediately.
   const count=await tokenCounter(config.dataDirectory);
   const defs=[['syllabus','Read the selected saved curriculum',{}],['status','Read actual execution status',{}],['ownQuestion','Read a question and its answer from the current paper',{number:{type:'integer'}}],['calculate','Calculate arithmetic accurately',{expression:{type:'string'}}],['read_skill','Load relevant versioned assistant instructions',{name:{type:'string',enum:['explain-paper','conversation']}}]] as const;
   body.tools=defs.map(([name,description,properties])=>({type:'function',function:{name,description,parameters:{type:'object',additionalProperties:false,properties,required:Object.keys(properties)}}}));
@@ -116,7 +122,7 @@ export async function converse(config:Config,job:any,dir:string,signal:AbortSign
     const callStarted=Date.now();const r=await ollamaFetch(config,'chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:localSignal});
     if(!r.ok)throw Error(`Local conversation unavailable (${r.status}).`);
     const response=await r.json() as any;await record(dir,`local-response-${attempt}.json`,response);
-    runs.push({elapsedMs:Date.now()-callStarted,thinking:body.think,promptTokens:response.prompt_eval_count||0,outputTokens:response.eval_count||0,loadMs:(response.load_duration||0)/1e6,doneReason:response.done_reason||null});await record(dir,'local-runs.json',runs);
+    runs.push({elapsedMs:Date.now()-callStarted,thinking:body.think,promptTokens:response.prompt_eval_count||0,outputTokens:response.eval_count||0,loadMs:(response.load_duration||0)/1e6,promptMs:(response.prompt_eval_duration||0)/1e6,generationMs:(response.eval_duration||0)/1e6,doneReason:response.done_reason||null});await record(dir,'local-runs.json',runs);
     if(body.think&&response.done_reason==='length')throw Error('Local reasoning reached its budget; specialist handling is needed.');
     const calls=response.message?.tool_calls;
     if(calls?.length){
@@ -135,7 +141,7 @@ export async function converse(config:Config,job:any,dir:string,signal:AbortSign
     }
     try{const content=String(response.message.content||'').trim();let proposal:any,responseFormat='json';
       try{proposal=JSON.parse(content);}catch(e){if(!content||/^[\[{`]|<\/?think>/i.test(content))throw e;proposal={reply:content,action:'local_answer'};responseFormat='native_text';}
-      assertSchema(proposal,conversationSchema);const metrics={elapsedMs:Date.now()-start,attempts:attempt+1,toolSteps,repairs,responseFormat,thinking:thinkingRequested,...budget,model:config.model,promptTokens:runs.reduce((n,r)=>n+r.promptTokens,0),outputTokens:runs.reduce((n,r)=>n+r.outputTokens,0),loadMs:runs.reduce((n,r)=>n+r.loadMs,0),runs};await record(dir,'local-result.json',{proposal,metrics});return {proposal,metrics};}
+      assertSchema(proposal,conversationSchema);const metrics={elapsedMs:Date.now()-start,attempts:attempt+1,toolSteps,repairs,responseFormat,thinking:thinkingRequested,...budget,model:config.model,promptTokens:runs.reduce((n,r)=>n+r.promptTokens,0),outputTokens:runs.reduce((n,r)=>n+r.outputTokens,0),loadMs:runs.reduce((n,r)=>n+r.loadMs,0),promptMs:runs.reduce((n,r)=>n+r.promptMs,0),generationMs:runs.reduce((n,r)=>n+r.generationMs,0),runs};await record(dir,'local-result.json',{proposal,metrics});return {proposal,metrics};}
     catch(error){if(repairs++)throw Error('The local model returned an invalid response twice. Please retry.');toolsClosed=true;body.think=false;body.options.num_predict=800;body.options.temperature=0.7;body.options.top_p=0.8;body.messages.push({role:'assistant',content:String(response.message.content).slice(0,1800)},{role:'user',content:'Controller validation: invalid/truncated JSON. Return the corrected response to the original current request. Only reply and action are required; omit unused fields. Preserve the user language.'});}
   }throw Error('Local response unavailable.');}
   finally{

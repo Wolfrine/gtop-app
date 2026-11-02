@@ -1,4 +1,5 @@
 import {isDeepStrictEqual} from 'node:util';
+import {withoutDispatchRule} from '../dispatch-rule.mjs';
 /** Firebase may preserve the configured path in uploaded source filenames. */
 export function firestoreRuleSource(ruleset){
   const matches=(ruleset?.source?.files || []).filter(file=>typeof file.name==='string'&&file.name.replaceAll('\\','/').split('/').at(-1)==='firestore.rules');
@@ -35,7 +36,7 @@ export function assistantOnlyRelease(files,readBefore,readCurrent){
   try{
     for(const path of rulePaths){
       const before=readBefore(path),current=readCurrent(path);
-      if(path.endsWith('firestore.rules')){const normalize=s=>s.replace(/\s/g,'');if(normalize(before)!==normalize(withoutWorkerFirestoreRule(current)))return false;}
+      if(path.endsWith('firestore.rules')){const normalize=s=>s.replace(/\s/g,'');if(![current,withoutDispatchRule(current),withoutWorkerFirestoreRule(withoutDispatchRule(current))].some(s=>normalize(before)===normalize(s)))return false;}
       else if(!isDeepStrictEqual(JSON.parse(before),withoutWorkerDatabaseRule(current)))return false;
     }
     return true;

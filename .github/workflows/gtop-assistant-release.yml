@@ -114,6 +114,9 @@ jobs:
           token_format: access_token
           access_token_scopes: https://www.googleapis.com/auth/cloud-platform
       - uses: google-github-actions/setup-gcloud@v2
+      - name: Read aggregate Firestore usage with existing permissions
+        continue-on-error: true
+        run: node assistant-service/scripts/inspect-usage.mjs
       - name: Check live rule drift and deploy only worker identity restrictions
         run: node assistant-service/scripts/deploy-rules.mjs
       - name: Deploy only new assistant gateway using existing runtime permissions

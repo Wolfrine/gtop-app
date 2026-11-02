@@ -40,7 +40,7 @@ test('cross-owner and server read-only conversations cannot become editable thro
   assert.equal(conversationReadOnly({conversation:{ownerUid:'creator'}},undefined),true);
   assert.equal(conversationReadOnly(undefined,'viewer'),false);
 });
-test('only actual pending states use active polling',()=>{assert.equal(pollingDelay([{state:'running'}]),2000);assert.equal(pollingDelay([{state:'completed'},{state:'failed'}]),15000);assert.equal(pollingDelay([]),15000);});
+test('only actual pending states use active polling',()=>{assert.equal(pollingDelay([{state:'running'}]),2000);assert.equal(pollingDelay([{state:'completed'},{state:'failed'}]),60000);assert.equal(pollingDelay([]),60000);});
 test('offline queue does not claim execution or completion',()=>{assert.match(phaseLabel({state:'queued'},true),/waiting/);assert.match(workerPresentation({state:'offline',modelReady:false}).detail,/wait safely/);assert.equal(workerPresentation({state:'ready',modelReady:false}).tone,'online');assert.equal(workerPresentation({state:'busy',modelReady:true}).tone,'online');});
 test('start acceptance and model residency never substitute for a connected worker',()=>{
   assert.equal(servicePresentation({state:'starting',worker:{state:'offline',modelReady:true}}).tone,'waiting');

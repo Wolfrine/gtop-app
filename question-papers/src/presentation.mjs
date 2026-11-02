@@ -25,7 +25,7 @@ export function visibleJobs(detail) {
     ? job.id===detail.conversation?.[job.kind==='curriculum'?'activeCurriculumJobId':'activePaperJobId'] && !['completed','review_required'].includes(job.state)
     : pendingStates.has(job.state) || (job.id===latestTurn?.id && ['failed','cancelled'].includes(job.state)));
 }
-export function pollingDelay(jobs) { return jobs.some(j=>pendingStates.has(j.state)) ? 2000 : 15000; }
+export function pollingDelay(jobs) { return jobs.some(j=>pendingStates.has(j.state)) ? 2000 : 60000; }
 export function workerPresentation(worker) {
   if (!worker || worker.state === 'offline') return {label:'Assistant offline',detail:'You can send a request. It will wait safely until the assistant reconnects.',tone:'offline'};
   if (worker.state === 'loading') return {label:'Assistant getting ready',detail:'The assistant is loading the model. Your messages are saved while it gets ready.',tone:'waiting'};

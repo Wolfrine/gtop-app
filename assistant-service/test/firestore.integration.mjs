@@ -5,7 +5,7 @@ import {initializeApp,deleteApp} from 'firebase-admin/app';
 import {getFirestore} from 'firebase-admin/firestore';
 import {getAuth} from 'firebase-admin/auth';
 import {initializeTestEnvironment,assertFails,assertSucceeds} from '@firebase/rules-unit-testing';
-import {getDoc,setDoc,doc} from 'firebase/firestore';
+import {getDoc,setDoc,doc,getDocs,collection} from 'firebase/firestore';
 import {get,ref,set} from 'firebase/database';
 import {AssistantService} from '../service.mjs';
 import {FirestoreStore} from '../store.mjs';
@@ -16,6 +16,26 @@ const base=`http://127.0.0.1:5201/${project}/us-central1/gtopAssistantGateway`;
 const app=initializeApp({projectId:project},'assistant-integration');
 const db=getFirestore(app),auth=getAuth(app);
 after(()=>deleteApp(app));
+test('dispatch exact-document owner and pairing rules deny queries, payloads, writes and revoked workers',async()=>{
+  const env=await initializeTestEnvironment({projectId:project,firestore:{rules:await readFile('gtop-app/firestore.rules','utf8')}});
+  try{
+    await env.withSecurityRulesDisabled(async ctx=>{
+      for(const [p,v]of Object.entries({'users/marker-owner':{role:'admin'},'assistantConfig/pilot':{allowedOwnerUids:['marker-owner']},'assistantWorkers/marker-worker':{enabled:true,allowedOwnerUids:['marker-owner']},'assistantDispatch/marker-owner':{schemaVersion:1,revision:'fixture',updatedAt:'fixture'}}))await setDoc(doc(ctx.firestore(),p),v);
+    });
+    const owner=env.authenticatedContext('marker-owner').firestore(),worker=env.authenticatedContext('assistant-worker-marker-worker',{assistantWorker:true,workerId:'marker-worker'}).firestore();
+    for(const allowed of [owner,worker]){
+      await assertSucceeds(getDoc(doc(allowed,'assistantDispatch/marker-owner')));
+      await assertFails(getDocs(collection(allowed,'assistantDispatch')));
+      await assertFails(setDoc(doc(allowed,'assistantDispatch/marker-owner'),{revision:'forged'}));
+      await assertFails(getDoc(doc(allowed,'assistantJobs/private-job')));
+    }
+    await assertFails(getDoc(doc(env.authenticatedContext('marker-owner',{firebase:{sign_in_provider:'anonymous'}}).firestore(),'assistantDispatch/marker-owner')));
+    await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(),'assistantDispatch/marker-owner')));
+    await assertFails(getDoc(doc(env.authenticatedContext('other-owner').firestore(),'assistantDispatch/marker-owner')));
+    await env.withSecurityRulesDisabled(ctx=>setDoc(doc(ctx.firestore(),'assistantWorkers/marker-worker'),{enabled:false,allowedOwnerUids:['marker-owner']}));
+    await assertFails(getDoc(doc(worker,'assistantDispatch/marker-owner')));
+  }finally{await env.cleanup();}
+});
 async function login(email,uid,claims){
   const password='SyntheticEmulatorPasswordOnly!';
   await auth.createUser({uid,email,password});

@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import {applicationDefault} from 'firebase-admin/app';
 import {withoutWorkerFirestoreRule,withoutWorkerDatabaseRule,parseRulesJson,equivalentDatabaseRules,firestoreRuleSource} from './release-scope.mjs';
+import {withoutDispatchRule} from '../dispatch-rule.mjs';
 
 const project='gtop-app';
 assert.equal(process.env.GITHUB_REF,'refs/heads/main','Scoped rules deployment requires main.');
@@ -13,7 +14,7 @@ const checked=await readFile('gtop-app/firestore.rules','utf8');
 const release=await get('https://firebaserules.googleapis.com/v1/projects/'+project+'/releases/cloud.firestore');
 const ruleset=await get('https://firebaserules.googleapis.com/v1/'+release.rulesetName);
 const live=firestoreRuleSource(ruleset);
-assert([normalize(checked),normalize(withoutWorkerFirestoreRule(checked))].includes(normalize(live)),'Unrelated live Firestore rule drift blocks assistant-only deployment.');
+assert([checked,withoutDispatchRule(checked),withoutWorkerFirestoreRule(withoutDispatchRule(checked))].map(normalize).includes(normalize(live)),'Unrelated live Firestore rule drift blocks assistant-only deployment.');
 
 // The new worker must gain no legacy Storage access from its Firebase token.
 // Existing configured image buckets are server-only; preserve them and fail if
@@ -47,4 +48,4 @@ const readbackRelease=await get('https://firebaserules.googleapis.com/v1/project
 const readback=await get('https://firebaserules.googleapis.com/v1/'+readbackRelease.rulesetName);
 assert.equal(normalize(firestoreRuleSource(readback)),normalize(checked));
 assert(equivalentDatabaseRules(await get(database.databaseUrl.replace(/\/$/,'')+'/.settings/rules.json'),checkedDatabase));
-console.log('Verified only worker-claim privilege reductions in Firestore/Realtime Database; existing server-only Storage rules inspected and unchanged.');
+console.log('Verified scoped dispatch-marker access and worker identity restrictions; existing human and server-only Storage policies preserved.');

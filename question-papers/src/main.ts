@@ -21,6 +21,7 @@ class PaperWorkspace implements OnInit,OnDestroy {
   transport:Transport=this.api;session?:PilotSession;conversations:Conversation[]=[];detail?:ConversationDetail;
   loading=true;sending=false;authenticating=false;emailForm=false;email='';password='';error='';draft='';drawer=false;fixture='';
   serviceStarting=false;serviceError='';serviceStale=false;private serviceRequestId='';
+  private lastOverviewAt=0;private refreshPending?:Promise<void>;
   document?:{paper:PaperSummary;kind:'student'|'answers';safe:SafeHtml;adminView:boolean;readOnly:boolean};documentLoading=false;
   view:'chat'|'library'='chat';libraryKind:LibraryKind='papers';libraryLoading=false;libraryError='';libraryFiltersOpen=false;
   libraryFilters:LibraryFilters={board:'',standard:'',subject:'',text:''};
@@ -104,14 +105,30 @@ class PaperWorkspace implements OnInit,OnDestroy {
   composerKey(event:KeyboardEvent){if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();void this.send();}}
   useSuggestion(text:string){if(this.readOnly)return;this.draft=text;document.querySelector<HTMLTextAreaElement>('#message-input')?.focus();}
   async jobAction(job:Job,action:'cancel'|'retry'){if(this.readOnly)return;this.error='';try{await this.transport.request('/jobs/'+encodeURIComponent(job.id)+'/'+action,'POST',{});await this.refresh();}catch(e){this.error=readableError(e);}}
-  async refresh(){
+  async refresh(automatic=false){
+    if(this.refreshPending){await this.refreshPending;if(automatic)return;}
+    this.refreshPending=this.refreshNow(automatic);
+    try{await this.refreshPending;}finally{this.refreshPending=undefined;}
+  }
+  private async refreshNow(automatic:boolean){
     const id=this.view==='chat'?this.detail?.conversation.id:undefined;
     const nearBottom=this.messageList ? this.messageList.nativeElement.scrollHeight-this.messageList.nativeElement.scrollTop-this.messageList.nativeElement.clientHeight<150 : true;
     const oldCount=this.detail?.messages.length;
     const admin=this.adminConversation;
-    const [session,conversations,detail]=await Promise.all([this.transport.request<PilotSession>('/session'),this.transport.request<{conversations:Conversation[]}>('/conversations'),id?this.transport.request<ConversationDetail>((admin?'/admin/conversations/':'/conversations/')+encodeURIComponent(id)):Promise.resolve(undefined)]);
+    const overview=!automatic||Date.now()-this.lastOverviewAt>=30000;
+    const path=(admin?'/admin/conversations/':'/conversations/')+encodeURIComponent(id||'');
+    const getDetail=async()=>{
+      if(!id)return undefined;
+      if(automatic&&!this.fixture&&!this.activeJobs.length){
+        const revision=await this.transport.request<{updatedAt:string}>(path+'/revision');
+        if(revision.updatedAt===this.detail?.conversation.updatedAt)return undefined;
+      }
+      return this.transport.request<ConversationDetail>(path);
+    };
+    const [session,conversations,detail]=await Promise.all([overview?this.transport.request<PilotSession>('/session'):Promise.resolve(this.session!),overview?this.transport.request<{conversations:Conversation[]}>('/conversations'):Promise.resolve({conversations:this.conversations}),getDetail()]);
     if(this.destroyed||!this.session)return;
     this.session=session;this.serviceStale=false;if(session.service?.state==='ready')this.serviceError='';this.conversations=conversations.conversations;if(this.view==='chat'&&id===this.detail?.conversation.id&&detail){this.detail=admin?{...detail,readOnly:detail.readOnly??true}:detail;if(nearBottom&&oldCount!==detail.messages.length)this.scrollMessages();}
+    if(overview)this.lastOverviewAt=Date.now();
   }
   async reconnect(){this.error='';try{await this.refresh();}catch(e){this.serviceStale=true;this.error=readableError(e);}}
   async startService(){
@@ -121,7 +138,7 @@ class PaperWorkspace implements OnInit,OnDestroy {
     catch{this.serviceStale=true;this.serviceError='Start could not be confirmed. Refresh status before trying again.';}
     finally{this.serviceStarting=false;this.schedulePoll();}
   }
-  private schedulePoll(){clearTimeout(this.timer);if(this.destroyed||!this.session||document.hidden)return;this.timer=setTimeout(async()=>{try{await this.refresh();}catch(e){this.serviceStale=true;this.error=readableError(e);}this.schedulePoll();},this.session.service?.state==='starting'?5000:pollingDelay(this.detail?.jobs||[]));}
+  private schedulePoll(){clearTimeout(this.timer);if(this.destroyed||!this.session||document.hidden)return;this.timer=setTimeout(async()=>{try{await this.refresh(true);}catch(e){this.serviceStale=true;this.error=readableError(e);}this.schedulePoll();},this.session.service?.state==='starting'?5000:pollingDelay(this.view==='chat'?this.detail?.jobs||[]:[]));}
   private scrollMessages(force=false){setTimeout(()=>{const el=this.messageList?.nativeElement;if(el)el.scrollTo({top:el.scrollHeight,behavior:force?'instant':'auto'});},30);}
   relativeTime(value:string){const date=new Date(value);if(Number.isNaN(date.getTime()))return '';const minutes=Math.floor((Date.now()-date.getTime())/60000);if(minutes<1)return 'Just now';if(minutes<60)return minutes+' min ago';if(minutes<1440)return date.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});return date.toLocaleDateString('en-IN',{day:'numeric',month:'short'});}
   initials(){return (this.user?.displayName || this.user?.email || 'Teacher').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();}

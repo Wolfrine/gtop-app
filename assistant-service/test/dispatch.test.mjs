@@ -16,7 +16,7 @@ test('maintenance reads pairing once inside the transaction and still refuses di
   assert.equal((await request('/worker/heartbeat',heartbeat)).status,200);
   assert.deepEqual(reads,['assistantWorkers/sachit-windows']);reads.length=0;
   assert.equal((await request('/worker/service/poll',{workerRunning:true,version:'fixture'})).status,200);
-  assert.deepEqual(reads.sort(),['assistantServiceControls/sachit-windows','assistantWorkers/sachit-windows']);
+  assert.deepEqual(reads.sort(),['assistantServiceControls/sachit-windows','assistantWorkerHealth/sachit-windows','assistantWorkers/sachit-windows']);
   store.docs.set('assistantWorkers/sachit-windows',{enabled:false,allowedOwnerUids:['owner']});
   assert.equal((await request('/worker/heartbeat',heartbeat)).status,403);
   assert.equal((await request('/worker/service/poll',{workerRunning:true,version:'fixture'})).status,403);

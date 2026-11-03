@@ -39,6 +39,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
       } else {
         const user=await service.user(claims),uid=user.uid;
         if(method==='GET' && path==='/session')output=await service.session(user);
+        else if(method==='GET' && path==='/service/status')output={service:await service.serviceControl.get(user)};
         else if(method==='POST' && path==='/service/start')output=await service.serviceControl.start(user,body);
         else if(method==='GET' && path==='/conversations')output=await service.conversations(uid);
         else if(method==='POST' && path==='/conversations')output=await service.createConversation(uid,body);

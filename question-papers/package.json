@@ -8,7 +8,8 @@
   "scripts": {
     "start": "ng serve --host 127.0.0.1 --port 4317",
     "build": "ng build --configuration production",
-    "test": "node --test test/presentation.test.mjs test/pwa.test.mjs"
+    "test": "node --test test/presentation.test.mjs test/pwa.test.mjs test/events.test.mjs test/api.test.mjs",
+    "test:render": "node scripts/fixture-smoke.mjs"
   },
   "dependencies": {
     "@angular/common": "21.2.25",

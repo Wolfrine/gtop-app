@@ -16,6 +16,35 @@ const base=`http://127.0.0.1:5201/${project}/us-central1/gtopAssistantGateway`;
 const app=initializeApp({projectId:project},'assistant-integration');
 const db=getFirestore(app),auth=getAuth(app);
 after(()=>deleteApp(app));
+test('UI metadata is owner-only, presence is paired-admin-only, and stable pairing revocation remains immediate',async()=>{
+  const env=await initializeTestEnvironment({projectId:project,firestore:{rules:await readFile('gtop-app/firestore.rules','utf8')}});
+  try{
+    await env.withSecurityRulesDisabled(async ctx=>{
+      const data={'users/ui-owner':{role:'admin'},'users/ui-other':{role:'admin'},'assistantConfig/pilot':{allowedOwnerUids:['ui-owner','ui-other']},'assistantWorkers/ui-worker':{enabled:true,allowedOwnerUids:['ui-owner']},'assistantUiNotifications/ui-owner':{schemaVersion:1,revision:'one',updatedAt:'fixture'},'assistantWorkerHealth/ui-worker':{schemaVersion:1,state:'ready',modelReady:false,version:'fixture',lastSeenAt:'2026-11-03T00:00:00Z'},'assistantDispatch/ui-owner':{schemaVersion:1,revision:'dispatch',updatedAt:'fixture'}};
+      for(const [p,v]of Object.entries(data))await setDoc(doc(ctx.firestore(),p),v);
+    });
+    const owner=env.authenticatedContext('ui-owner').firestore(),other=env.authenticatedContext('ui-other').firestore(),worker=env.authenticatedContext('assistant-worker-ui-worker',{assistantWorker:true,workerId:'ui-worker'}).firestore();
+    await assertSucceeds(getDoc(doc(owner,'assistantUiNotifications/ui-owner')));
+    await assertSucceeds(getDoc(doc(owner,'assistantWorkerHealth/ui-worker')));
+    await assertSucceeds(getDoc(doc(worker,'assistantDispatch/ui-owner')));
+    for(const denied of [other,worker,env.unauthenticatedContext().firestore(),env.authenticatedContext('ui-owner',{firebase:{sign_in_provider:'anonymous'}}).firestore()])for(const p of ['assistantUiNotifications/ui-owner','assistantWorkerHealth/ui-worker'])await assertFails(getDoc(doc(denied,p)));
+    for(const namespace of ['assistantUiNotifications','assistantWorkerHealth']){
+      await assertFails(getDocs(collection(owner,namespace)));
+      await assertFails(setDoc(doc(owner,namespace,'forged'),{revision:'forged'}));
+    }
+    await assertFails(getDoc(doc(owner,'assistantWorkers/ui-worker')));
+    await assertFails(getDoc(doc(owner,'assistantJobs/private')));
+    await assertFails(setDoc(doc(owner,'assistantUiNotifications/ui-owner'),{schemaVersion:1,revision:'forged',updatedAt:'fixture'}));
+    await assertFails(setDoc(doc(owner,'assistantWorkerHealth/ui-worker'),{schemaVersion:1,state:'ready',modelReady:true,version:'forged',lastSeenAt:'2026-11-03T00:00:00Z'}));
+    await env.withSecurityRulesDisabled(ctx=>setDoc(doc(ctx.firestore(),'assistantWorkerHealth/ui-worker'),{schemaVersion:1,state:'busy',modelReady:true,version:'fixture',lastSeenAt:'2026-11-03T00:00:45Z'}));
+    await assertSucceeds(getDoc(doc(worker,'assistantDispatch/ui-owner')));
+    await env.withSecurityRulesDisabled(ctx=>setDoc(doc(ctx.firestore(),'assistantWorkers/ui-worker'),{enabled:false,allowedOwnerUids:['ui-owner']}));
+    await assertFails(getDoc(doc(owner,'assistantWorkerHealth/ui-worker')));
+    await assertFails(getDoc(doc(worker,'assistantDispatch/ui-owner')));
+    await env.withSecurityRulesDisabled(ctx=>setDoc(doc(ctx.firestore(),'users/ui-owner'),{role:'user'}));
+    await assertFails(getDoc(doc(owner,'assistantUiNotifications/ui-owner')));
+  }finally{await env.cleanup();}
+});
 test('dispatch exact-document owner and pairing rules deny queries, payloads, writes and revoked workers',async()=>{
   const env=await initializeTestEnvironment({projectId:project,firestore:{rules:await readFile('gtop-app/firestore.rules','utf8')}});
   try{

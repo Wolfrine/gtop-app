@@ -4,8 +4,13 @@ import {mkdtemp,readFile,rm} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {converse,type Config} from '../src/adapters.js';
-import {Worker} from '../src/worker.js';
+import {Worker,healthHeartbeatMs} from '../src/worker.js';
 import {hash} from '../src/policy.js';
+
+test('health interval remains below unchanged availability TTL while lease renewal stays independent',()=>{
+  assert.equal(healthHeartbeatMs,40000);
+  assert(healthHeartbeatMs*2+10000<=90000,'One missed publication plus network margin must fit the existing freshness bound');
+});
 
 async function fixture(t:any){
   const dir=await mkdtemp(path.join(os.tmpdir(),'gtop-on-demand-'));

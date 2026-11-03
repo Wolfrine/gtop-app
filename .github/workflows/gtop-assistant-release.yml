@@ -71,6 +71,44 @@ jobs:
         working-directory: gtop-app
       - run: npm ci && npm test && npm run build
         working-directory: question-papers
+      - name: Install existing Chromium test runtime
+        run: npx playwright install --with-deps chromium
+        working-directory: gtop-app
+      - name: Inspect synthetic Papers desktop and phone lifecycle surfaces
+        id: papers-render
+        env:
+          GTOP_PAPERS_RENDER_DIR: '${{ runner.temp }}/gtop-paper-fixtures'
+        run: |
+          npm --prefix question-papers start > "$RUNNER_TEMP/papers-serve.log" 2>&1 &
+          papers_pid=$!
+          trap 'kill "$papers_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 90); do
+            if curl --fail --silent http://127.0.0.1:4317/ > /dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "$ready" != 1 ]; then cat "$RUNNER_TEMP/papers-serve.log"; exit 1; fi
+          node question-papers/scripts/fixture-smoke.mjs
+      - uses: actions/upload-artifact@v4
+        id: papers-render-artifact
+        if: always() && steps.papers-render.outcome == 'success'
+        continue-on-error: true
+        with:
+          name: synthetic-papers-render-${{ github.sha }}
+          path: '${{ runner.temp }}/gtop-paper-fixtures'
+          retention-days: 1
+      - name: Retain public fixture image evidence if artifact storage is unavailable
+        if: always() && steps.papers-render.outcome == 'success' && steps.papers-render-artifact.outcome != 'success'
+        run: |
+          node --input-type=module <<'NODE'
+          import {readdir,readFile} from 'node:fs/promises';import path from 'node:path';
+          const root=path.join(process.env.RUNNER_TEMP,'gtop-paper-fixtures');
+          for(const name of await readdir(root))if(/^synthetic-[a-z-]+-\d+x\d+\.png$/.test(name)){
+            const bytes=await readFile(path.join(root,name));
+            if(bytes.length>2_000_000)throw Error('Fixture image exceeds evidence bound');
+            console.log('GTOP_PUBLIC_FIXTURE_PNG '+JSON.stringify({name,data:bytes.toString('base64')}));
+          }
+          NODE
       - name: Check independent app runtime dependency advisories
         run: npm audit --omit=dev --audit-level=high
         working-directory: question-papers

@@ -17,6 +17,8 @@ customToken. Existing runtime service account signs it; do not add IAM silently.
 ## User API
 
 - GET /session => {user:{uid,displayName,email}, worker:{state,lastSeenAt,modelReady}, capabilities, defaults}
+- Session additionally includes `notifications:{schemaVersion:1,contentPath:'assistantUiNotifications/'+uid,presencePath:'assistantWorkerHealth/sachit-windows'|null,freshnessMs:90000}`.
+- GET /service/status => {service}; invited user authorization and the existing sanitized service shape, without conversation/history reads.
 - GET /conversations => {conversations:[{id,title,status,updatedAt,activePaperJobId?,latestPaperId?}]}
 - POST /conversations {clientRequestId?} => {conversation}
 - GET /conversations/:id => {conversation,messages,jobs,papers}
@@ -32,14 +34,22 @@ updatedAt,startedAt?,elapsedSeconds?,error?,requestRevision?,paperId?}.
 States: queued,running,validating,review_required,completed,needs_info,failed,cancelled.
 Papers in conversation view are summaries: {id,title,revision,marks,createdAt,jobId}.
 All dates serialized ISO8601. No backend-internal tokens/leases in user responses.
-Visible UI polls pending details every 2s; session/list overview at most every 30s.
-Idle polls every 60s and fetches full history only if the conversation revision
-changed. Foreground return and explicit user actions refresh immediately. Hidden
-tabs stop polling. No partial model text is written to Firestore.
+Visible UI subscribes only to its exact owner content marker and paired health
+metadata. Meaningful content/job state/phase changes reconcile authoritative
+gateway details; lease-only/elapsed/unchanged progress does not invalidate content.
+Healthy connected idle views have no recurring history/list/session HTTP fetch.
+Cached snapshots do not establish readiness. Hidden views, signout and account
+changes detach streams/timers and fence stale asynchronous private responses.
+Unavailable-stream fallback, cross-admin read-only views, service expiry/start
+and active job lease expiry retain bounded HTTP reconciliation. Foreground return
+reconnects; no partial model text or private payload is stored in a marker.
 
 ## Worker API
 
 - POST /worker/heartbeat {state:'ready'|'loading'|'busy'|'offline',modelReady,version} => {ok:true}
+  Shape unchanged. The transaction authorizes against stable `assistantWorkers`
+  then writes only `assistantWorkerHealth` telemetry. New worker cadence40s,
+  freshness90s; legacy30s workers remain compatible. Job renewals remain30s.
 - POST /worker/dispatch {} => {ownerUids}; paired worker subscribes to exact
   assistantDispatch/{ownerUid} documents with its existing Firebase identity.
   Marker fields are only schemaVersion, random revision and updatedAt. Enqueue,

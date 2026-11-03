@@ -49,6 +49,24 @@ service cloud.firestore {
       return isSelf(uid) && request.resource.data.get('uid', uid) == uid;
     }
 
+    match /assistantUiNotifications/{ownerUid} {
+      allow get: if request.auth != null && request.auth.uid == ownerUid
+        && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous'
+        && isAdmin()
+        && ownerUid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids;
+      allow list, write: if false;
+    }
+
+    match /assistantWorkerHealth/{workerId} {
+      allow get: if signedIn()
+        && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous'
+        && isAdmin()
+        && request.auth.uid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids
+        && get(/databases/$(database)/documents/assistantWorkers/$(workerId)).data.enabled == true
+        && request.auth.uid in get(/databases/$(database)/documents/assistantWorkers/$(workerId)).data.allowedOwnerUids;
+      allow list, write: if false;
+    }
+
     match /assistantDispatch/{ownerUid} {
       allow get: if request.auth != null
         && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous' && (

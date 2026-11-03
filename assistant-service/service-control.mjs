@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {withWorkerHealth,workerFreshnessMs} from './presence.mjs';
 
 export const serviceWorkerId='sachit-windows';
 export const ptiProjectId='pti-app-2ab59';
@@ -7,7 +8,7 @@ const controlPath=`assistantServiceControls/${serviceWorkerId}`;
 const workerPath=`assistantWorkers/${serviceWorkerId}`;
 const pendingStates=new Set(['pending','claimed','started']);
 const errors=new Set(['start_failed','model_unavailable','port_in_use','configuration_invalid','worker_start_timeout']);
-const heartbeatMs=90000,requestMs=120000,cooldownMs=30000;
+const heartbeatMs=workerFreshnessMs,requestMs=120000,cooldownMs=30000;
 const fresh=(at,now)=>Number.isFinite(Date.parse(at))&&now-Date.parse(at)>=0&&now-Date.parse(at)<heartbeatMs;
 const publicRequest=r=>r?Object.fromEntries(['id','state','requestedAt','expiresAt','errorCode'].map(k=>[k,r[k]??null])):null;
 
@@ -34,7 +35,8 @@ export class ServiceControl {
     return {workerId:serviceWorkerId,state,starter:{state:online?'online':'offline',lastSeenAt:control.lastSeenAt||null},worker:{state:enabled&&workerOnline?worker.state:'offline',lastSeenAt:worker?.lastSeenAt||null,modelReady:!!(enabled&&ready&&worker.modelReady)},request:publicRequest(request),canStart:!!(enabled&&online&&!workerOnline&&!pending&&!cooling)};
   }
   async get(user){
-    const [worker,control]=await Promise.all([this.service.store.get(workerPath),this.service.store.get(controlPath)]);
+    const [pairing,health,control]=await Promise.all([this.service.store.get(workerPath),this.service.store.get(`assistantWorkerHealth/${serviceWorkerId}`),this.service.store.get(controlPath)]);
+    const worker=withWorkerHealth(pairing,health);
     this.requireWorker(worker);
     if(user.realm!=='pti'&&!worker.allowedOwnerUids.includes(user.uid))this.fail(403,'worker_access_required','This local assistant is not paired with your account.');
     return this.status(worker,control||{});
@@ -43,7 +45,8 @@ export class ServiceControl {
     if(Object.keys(body).some(k=>k!=='clientRequestId')||typeof body.clientRequestId!=='string'||!/^[A-Za-z0-9_-]{1,128}$/.test(body.clientRequestId))this.fail(400,'invalid_start_request','A start request identifier is required.');
     const requestId=createHash('sha256').update(`${user.realm||'gtop'}:${user.uid}:${body.clientRequestId}`).digest('hex').slice(0,40),requestPath=`${controlPath}/requests/${requestId}`;
     return this.service.store.transaction(async tx=>{
-      const [worker,stored,existing,profile,config]=await Promise.all([tx.get(workerPath),tx.get(controlPath),tx.get(requestPath),user.realm==='pti'?null:tx.get('users/'+user.uid),user.realm==='pti'?null:tx.get('assistantConfig/pilot')]);
+      const [pairing,health,stored,existing,profile,config]=await Promise.all([tx.get(workerPath),tx.get(`assistantWorkerHealth/${serviceWorkerId}`),tx.get(controlPath),tx.get(requestPath),user.realm==='pti'?null:tx.get('users/'+user.uid),user.realm==='pti'?null:tx.get('assistantConfig/pilot')]);
+      const worker=withWorkerHealth(pairing,health);
       this.requireWorker(worker);
       if(user.realm!=='pti'&&(profile?.role!=='admin'||!config?.allowedOwnerUids?.includes(user.uid)||!worker.allowedOwnerUids.includes(user.uid)))this.fail(403,'worker_access_required','This local assistant is not paired with your account.');
       const control=stored||{},status=this.status(worker,control);
@@ -66,7 +69,8 @@ export class ServiceControl {
     const result=body.lastStartResult;
     if(result&&(Object.keys(result).some(k=>!['requestId','state','errorCode'].includes(k))||typeof result.requestId!=='string'||!/^[a-f0-9]{40}$/.test(result.requestId)||!['started','failed'].includes(result.state)||(result.errorCode!==undefined&&!errors.has(result.errorCode))))this.fail(400,'invalid_start_result','Invalid local start result.');
     return this.service.store.transaction(async tx=>{
-      const [currentWorker,stored]=await Promise.all([tx.get(workerPath),tx.get(controlPath)]);
+      const [pairing,health,stored]=await Promise.all([tx.get(workerPath),tx.get(`assistantWorkerHealth/${serviceWorkerId}`),tx.get(controlPath)]);
+      const currentWorker=withWorkerHealth(pairing,health);
       if(currentWorker?.enabled!==true||!Array.isArray(currentWorker.allowedOwnerUids))this.fail(403,'worker_disabled','Worker pairing is disabled.');
       let request=this.normalRequest(stored?.request,currentWorker);
       if(result&&request?.id===result.requestId&&['claimed','started'].includes(request.state))request={...request,state:result.state,acknowledgedAt:this.service.iso(),errorCode:result.state==='failed'?result.errorCode||'start_failed':null};

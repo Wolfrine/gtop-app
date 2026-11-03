@@ -4,7 +4,8 @@ import * as domain from './domain/index.mjs';
 import {catalogueIndex,capabilityFacts,savedCurriculum,validateScope,validateCurriculumScope,sameScope,officialUrl} from './domain/catalogue.mjs';
 import {researchCurriculum,curriculumResearchSchema} from './domain/research.mjs';
 import {buildTaskBrief,missingTaskField,selectedCurriculum} from './domain/task-brief.mjs';
-import {ServiceControl} from './service-control.mjs';
+import {ServiceControl,serviceWorkerId} from './service-control.mjs';
+import {withWorkerHealth,workerFreshnessMs} from './presence.mjs';
 
 export class HttpError extends Error { constructor(status, code, message) { super(message); this.status = status; this.code = code; } }
 const fail = (status, code, message) => { throw new HttpError(status, code, message); };
@@ -42,6 +43,10 @@ export class AssistantService {
   iso() { return this.now().toISOString(); }
   notifyDispatch(tx,ownerUid) {
     tx.set(ref('assistantDispatch',ownerUid),{schemaVersion:1,revision:randomUUID(),updatedAt:this.iso()});
+    this.notifyContent(tx,ownerUid);
+  }
+  notifyContent(tx,ownerUid) {
+    tx.set(ref('assistantUiNotifications',ownerUid),{schemaVersion:1,revision:randomUUID(),updatedAt:this.iso()});
   }
   async user(claims) {
     if (!claims?.uid || claims.assistantWorker) fail(401,'sign_in_required','Sign in with your Growth Tutorials account.');
@@ -76,11 +81,12 @@ export class AssistantService {
     return doc;
   }
   async session(user) {
-    const workers = await this.store.list('assistantWorkers', [['enabled','==',true]],20);
+    const pairings = await this.store.list('assistantWorkers', [['enabled','==',true]],20,{includeId:true});
+    const workers=await Promise.all(pairings.filter(w=>w.allowedOwnerUids?.includes(user.uid)).map(async w=>withWorkerHealth(w,await this.store.get(ref('assistantWorkerHealth',w.id)))));
     const own = workers.filter(w => w.allowedOwnerUids?.includes(user.uid)).sort((a,b) => (b.lastSeenAt || '').localeCompare(a.lastSeenAt || ''))[0];
-    const fresh = own && this.now().getTime() - Date.parse(own.lastSeenAt || '') < 90000;
+    const fresh = own && this.now().getTime() - Date.parse(own.lastSeenAt || '')>=0 && this.now().getTime() - Date.parse(own.lastSeenAt || '') < workerFreshnessMs;
     const service=await this.serviceControl.get(user).catch(error=>{if([403,503].includes(error.status))return null;throw error;});
-    return {user,worker:{state:fresh ? own.state || 'loading' : 'offline',lastSeenAt:own?.lastSeenAt || null,modelReady:!!(fresh && own.modelReady)},service,capabilities:capabilityFacts({}),defaults:{marks:80,durationMinutes:180,questionLanguage:'English',answerLanguage:'English'}};
+    return {user,worker:{state:fresh ? own.state || 'loading' : 'offline',lastSeenAt:own?.lastSeenAt || null,modelReady:!!(fresh && own.modelReady)},service,notifications:{schemaVersion:1,contentPath:ref('assistantUiNotifications',user.uid),presencePath:service?ref('assistantWorkerHealth',serviceWorkerId):null,freshnessMs:workerFreshnessMs},capabilities:capabilityFacts({}),defaults:{marks:80,durationMinutes:180,questionLanguage:'English',answerLanguage:'English'}};
   }
   async curriculumCatalogue(){
     if(this.catalogueCache&&Date.now()-this.catalogueCache.at<21600000)return this.catalogueCache.value;
@@ -139,7 +145,7 @@ export class AssistantService {
       const existing = await tx.get(ref('assistantConversations',id));
       if (existing) { if(existing.ownerUid !== uid) fail(404,'not_found','Conversation unavailable.'); return existing; }
       const c = {id,ownerUid:uid,title:'New paper conversation',status:'active',createdAt:this.iso(),updatedAt:this.iso(),requestRevision:0};
-      tx.create(ref('assistantConversations',id),c); return c;
+      tx.create(ref('assistantConversations',id),c);this.notifyContent(tx,uid); return c;
     });
     return {conversation:publicConversation(result)};
   }
@@ -180,7 +186,7 @@ export class AssistantService {
     return this.store.transaction(async tx => {
       const j = await tx.get(ref('assistantJobs',jid)); if(!j || j.ownerUid!==uid) fail(404,'not_found','Task unavailable.');
       if(!activeStates.has(j.state)) return {job:publicJob(j)};
-      const next = {...j,state:'cancelled',phase:'cancelled_by_user',updatedAt:this.iso(),leaseId:null,leaseUntil:null}; tx.set(ref('assistantJobs',jid),next); return {job:publicJob(next)};
+      const next = {...j,state:'cancelled',phase:'cancelled_by_user',updatedAt:this.iso(),leaseId:null,leaseUntil:null}; tx.set(ref('assistantJobs',jid),next);this.notifyContent(tx,uid); return {job:publicJob(next)};
     });
   }
   async retry(uid,jid) {
@@ -213,12 +219,13 @@ export class AssistantService {
   async artifact(uid,id,kind) { await this.owned(uid,'assistantPapers',id); if(!['student','answers'].includes(kind))fail(404,'not_found','Artifact unavailable.');const doc=await this.store.get(`assistantPapers/${safeId(id)}/artifacts/${kind}`);if(!doc)fail(404,'not_found','Artifact unavailable.');return decodeArtifact(doc); }
   async heartbeat(worker,body) {
     if(!['ready','loading','busy','offline'].includes(body.state) || typeof body.modelReady!=='boolean')fail(400,'invalid_heartbeat','Invalid worker heartbeat.');
-    await this.store.transaction(async tx=>{const current=await tx.get(ref('assistantWorkers',worker.id));if(current?.enabled!==true||!Array.isArray(current.allowedOwnerUids))fail(403,'worker_disabled','Worker pairing is disabled.');tx.set(ref('assistantWorkers',worker.id),{...current,state:body.state,modelReady:body.modelReady,version:text(body.version,100),lastSeenAt:this.iso()});});return {ok:true};
+    await this.store.transaction(async tx=>{const current=await tx.get(ref('assistantWorkers',worker.id));if(current?.enabled!==true||!Array.isArray(current.allowedOwnerUids))fail(403,'worker_disabled','Worker pairing is disabled.');tx.set(ref('assistantWorkerHealth',worker.id),{schemaVersion:1,state:body.state,modelReady:body.modelReady,version:text(body.version,100),lastSeenAt:this.iso()});});return {ok:true};
   }
   async expireOne(id,ownerUid=null) {
     await this.store.transaction(async tx=>{
       const j=await tx.get(ref('assistantJobs',id));if(!j || (ownerUid!==null&&j.ownerUid!==ownerUid) || !['running','validating'].includes(j.state) || Date.parse(j.leaseUntil || '')>this.now().getTime())return;
       tx.set(ref('assistantJobs',id),{...j,state:'failed',phase:'worker_disconnected',error:'The local worker stopped responding. Retry explicitly to continue.',retryable:true,updatedAt:this.iso(),leaseId:null,leaseUntil:null});
+      this.notifyContent(tx,j.ownerUid);
     });
   }
   async expireConversationJobs(uid,cid){const jobs=await this.store.list('assistantJobs',[['conversationId','==',cid]],100);for(const j of jobs)if(j.ownerUid===uid && ['running','validating'].includes(j.state))await this.expireOne(j.id);}
@@ -233,9 +240,9 @@ export class AssistantService {
           const config=await tx.get('assistantConfig/pilot'),profile=await tx.get(ref('users',j.ownerUid)),c=await tx.get(ref('assistantConversations',j.conversationId)),currentWorker=await tx.get(ref('assistantWorkers',worker.id));
           if(!config?.allowedOwnerUids?.includes(j.ownerUid) || profile?.role!=='admin' || !c || c.ownerUid!==j.ownerUid || currentWorker?.enabled!==true || !currentWorker.allowedOwnerUids?.includes(j.ownerUid)) return null;
           const slot=jobSlot(j);
-          if(j.resumedFromCurriculumJobId&&c.latestUserMessageId&&c.latestUserMessageId!==j.requestMessageId){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded_by_new_message',updatedAt:this.iso()});return null;}
-          if(j.kind!=='turn' && (c[slot.id]!==j.id || (c[slot.revision]||0)!==j.requestRevision)){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded',updatedAt:this.iso()});return null;}
-          const next={...j,state:'running',phase:j.kind==='turn'?'local_conversation':'codex_starting',assignedWorkerId:worker.id,leaseId:this.id(),leaseUntil:new Date(this.now().getTime()+120000).toISOString(),startedAt:this.iso(),updatedAt:this.iso()};tx.set(ref('assistantJobs',j.id),next);return next;
+          if(j.resumedFromCurriculumJobId&&c.latestUserMessageId&&c.latestUserMessageId!==j.requestMessageId){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded_by_new_message',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return null;}
+          if(j.kind!=='turn' && (c[slot.id]!==j.id || (c[slot.revision]||0)!==j.requestRevision)){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return null;}
+          const next={...j,state:'running',phase:j.kind==='turn'?'local_conversation':'codex_starting',assignedWorkerId:worker.id,leaseId:this.id(),leaseUntil:new Date(this.now().getTime()+120000).toISOString(),startedAt:this.iso(),updatedAt:this.iso()};tx.set(ref('assistantJobs',j.id),next);this.notifyContent(tx,j.ownerUid);return next;
         });
         if(job)return {job:await this.workerJob(job)};
       }
@@ -292,11 +299,13 @@ export class AssistantService {
     return {job:j,conversation:c};
   }
   async renew(worker,id,body) {
-    return this.store.transaction(async tx=>{const active=await this.leased(tx,worker,id,body.leaseId);if(!active)return {active:false};const {job}=active;tx.set(ref('assistantJobs',id),{...job,leaseUntil:new Date(this.now().getTime()+120000).toISOString(),updatedAt:this.iso(),elapsedSeconds:Math.max(0,Math.floor((this.now().getTime()-Date.parse(job.startedAt))/1000)),...(body.phase?{phase:text(body.phase,100)}:{})});return {active:true};});
+    return this.store.transaction(async tx=>{const active=await this.leased(tx,worker,id,body.leaseId);if(!active)return {active:false};const {job}=active;tx.set(ref('assistantJobs',id),{...job,leaseUntil:new Date(this.now().getTime()+120000).toISOString(),updatedAt:this.iso(),elapsedSeconds:Math.max(0,Math.floor((this.now().getTime()-Date.parse(job.startedAt))/1000)),...(body.phase?{phase:text(body.phase,100)}:{})});if(body.phase&&body.phase!==job.phase)this.notifyContent(tx,job.ownerUid);return {active:true};});
   }
   async event(worker,id,body) {
     if(body.state && !['running','validating'].includes(body.state))fail(400,'invalid_transition','Only running and validating progress events are accepted.');
-    return this.store.transaction(async tx=>{const active=await this.leased(tx,worker,id,body.leaseId);if(!active)return {active:false};const {job}=active;const now=this.iso(),eid=this.id();tx.set(ref('assistantJobs',id),{...job,updatedAt:now,...(body.phase?{phase:text(body.phase,100)}:{}),...(body.state?{state:body.state}:{})});tx.create(`assistantJobs/${id}/events/${eid}`,{id:eid,createdAt:now,phase:body.phase || job.phase,state:body.state || job.state,metrics:bounded(body.metrics),...(body.reply?{reply:text(body.reply,4000)}:{})});return {active:true};});
+    return this.store.transaction(async tx=>{const active=await this.leased(tx,worker,id,body.leaseId);if(!active)return {active:false};const {job}=active;const changed=(body.phase&&body.phase!==job.phase)||(body.state&&body.state!==job.state);
+      if(!changed&&!body.reply&&(!body.metrics||Object.keys(body.metrics).length===0))return {active:true};
+      const now=this.iso(),eid=this.id();tx.set(ref('assistantJobs',id),{...job,updatedAt:now,...(body.phase?{phase:text(body.phase,100)}:{}),...(body.state?{state:body.state}:{})});tx.create(`assistantJobs/${id}/events/${eid}`,{id:eid,createdAt:now,phase:body.phase || job.phase,state:body.state || job.state,metrics:bounded(body.metrics),...(body.reply?{reply:text(body.reply,4000)}:{})});if(changed||body.reply)this.notifyContent(tx,job.ownerUid);return {active:true};});
   }
   async delegate(worker,id,body) {
     if(!['generate_paper','revise_paper','check_curriculum'].includes(body.operation))fail(400,'unsupported_operation','This capability is unavailable.');
@@ -385,11 +394,12 @@ export class AssistantService {
       if(checkedCurriculum){curriculumId=this.id();tx.create(ref('assistantCurricula',curriculumId),{id:curriculumId,ownerUid:job.ownerUid,conversationId:c.id,curriculum:checkedCurriculum,jobId:id,createdAt:now});final.phase='curriculum_checked';}
       if(paper){tx.create(ref('assistantPapers',paper.id),paper);tx.create(`assistantPapers/${paper.id}/artifacts/student`,artifactStudent);tx.create(`assistantPapers/${paper.id}/artifacts/answers`,artifactAnswers);}
       if(resumeTurn&&checkedCurriculum){tx.create(ref('assistantJobs',resumeTurn.id),resumeTurn);this.notifyDispatch(tx,job.ownerUid);}
+      else this.notifyContent(tx,job.ownerUid);
       tx.create(messagePath(c.id,mid),message);tx.set(ref('assistantJobs',id),final);tx.set(ref('assistantConversations',c.id),{...c,...(taskBrief&&(!c.taskBrief?.lastMessageAt||taskBrief.lastMessageAt>=c.taskBrief.lastMessageAt)?{taskBrief}:{}),updatedAt:now,...(paper?{latestPaperId:paper.id,title:paperConversationTitle(paper),titleSource:'generated-paper'}:{}),...(curriculumId?{latestCurriculumId:curriculumId}:{}),...(resumeTurn&&checkedCurriculum?{pendingResumeTurnId:resumeTurn.id}:{}),...(mergedMemory?{memory:mergedMemory}: {})});
       return {active:true,...(paper?{paperId:paper.id}:{})};
     });
   }
   async failed(worker,id,body) {
-    return this.store.transaction(async tx=>{const active=await this.leased(tx,worker,id,body.leaseId);if(!active)return {active:false};tx.set(ref('assistantJobs',id),{...active.job,state:'failed',phase:'failed',error:text(body.error,2000),retryable:body.retryable!==false,updatedAt:this.iso(),leaseId:null,leaseUntil:null});return {active:true};});
+    return this.store.transaction(async tx=>{const active=await this.leased(tx,worker,id,body.leaseId);if(!active)return {active:false};tx.set(ref('assistantJobs',id),{...active.job,state:'failed',phase:'failed',error:text(body.error,2000),retryable:body.retryable!==false,updatedAt:this.iso(),leaseId:null,leaseUntil:null});this.notifyContent(tx,active.job.ownerUid);return {active:true};});
   }
 }

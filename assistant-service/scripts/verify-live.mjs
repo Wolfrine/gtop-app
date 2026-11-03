@@ -14,3 +14,21 @@ const login=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:sign
 const idToken=(await login.json()).idToken;
 const session=await fetch(gateway+'/session',{headers:{Authorization:'Bearer '+idToken},signal:AbortSignal.timeout(30000)});assert(session.ok);const data=await session.json();assert.equal(data.user.uid,uid);assert.equal(data.capabilities.identity,'GTOP assistant');assert(Array.isArray(data.capabilities.actions));assert(data.capabilities.boards.some(b=>b.name==='CBSE'&&b.classes.includes(5)&&b.classes.includes(12)));assert(!JSON.stringify(data).includes('bootstrapSecret'));
 console.log('Live assistant gateway verified: anonymous denial, existing invited admin access and capabilities. No paper/chat fixture written.');
+assert.equal(data.notifications?.schemaVersion,1);
+assert.equal(data.notifications.contentPath,'assistantUiNotifications/'+uid);
+assert.equal(data.notifications.freshnessMs,90000);
+const status=await fetch(gateway+'/service/status',{headers:{Authorization:'Bearer '+idToken},signal:AbortSignal.timeout(30000)});
+if(data.service){assert(status.ok);assert.equal((await status.json()).service.workerId,data.service.workerId);}
+const documents='https://firestore.googleapis.com/v1/projects/gtop-app/databases/(default)/documents/';
+const direct=(path,token=idToken)=>fetch(documents+path,{headers:token?{Authorization:'Bearer '+token}:{},signal:AbortSignal.timeout(30000)});
+const own=await direct(data.notifications.contentPath);assert([200,404].includes(own.status),'Owner notification get must be permitted, including an absent initial marker.');
+const other=config.allowedOwnerUids.find(value=>value!==uid)||'unrelated-notification-owner';
+assert.equal((await direct('assistantUiNotifications/'+other)).status,403);
+assert.equal((await direct(data.notifications.contentPath,null)).status,403);
+assert.equal((await direct('assistantJobs/turn-dispatch-acceptance-20261102')).status,403);
+if(data.notifications.presencePath){
+  const presence=await direct(data.notifications.presencePath);assert([200,404].includes(presence.status));
+  if(presence.ok){const fields=Object.keys((await presence.json()).fields||{}).sort();assert.deepEqual(fields,['lastSeenAt','modelReady','schemaVersion','state','version']);}
+  assert.equal((await direct(data.notifications.presencePath,null)).status,403);
+}
+console.log('Live owner-only notification/presence metadata and narrow status verified; anonymous, cross-owner and direct job access denied. Read-only smoke created no job or paper.');

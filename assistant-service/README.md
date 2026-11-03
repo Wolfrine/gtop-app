@@ -17,15 +17,23 @@ only its SHA-256 is provisioned in `assistantWorkers/{workerId}`. Bootstrap toke
 signing uses the existing runtime identity; signing failure does not grant IAM.
 
 New data uses `assistantConversations`, `assistantJobs`, `assistantPapers`,
-`assistantFeedback`, `assistantConfig`, and `assistantWorkers`. Direct clients cannot
-read or write these namespaces under the canonical rules. All access passes through
-the gateway. User responses exclude bootstrap hashes, worker assignments, leases,
+`assistantFeedback`, `assistantConfig`, and stable `assistantWorkers` pairing.
+Direct clients cannot read or write these payload namespaces. `assistantUiNotifications`
+permits exact invited-owner metadata reads; `assistantWorkerHealth` permits exact
+paired invited-admin telemetry reads. Neither permits client writes or queries.
+Health contains no pairing secret, assignment, conversation or job payload. Gateway
+user responses exclude bootstrap hashes, worker assignments, leases,
 private metrics and local-model proposals. Worker payloads reconstruct root/current
 messages and their UTF-8 hashes from persisted user text. Model-written permission
 or original-request fields are never accepted.
 
 Jobs are claimed atomically for 120 seconds and renewed every 30 seconds by the
-controller. Expired in-flight jobs fail recoverably and need an explicit user retry.
+controller. Worker health publishes every 40 seconds under the unchanged 90-second
+freshness bound; starter liveness retains its existing 90-second contract. Health
+writes never change the pairing document used by dispatch security rules. Missing
+health falls back to legacy pairing telemetry only during rolling migration;
+existing malformed health fails closed. Expired in-flight jobs fail recoverably
+and need an explicit user retry.
 Cancellation, superseding requests and revoked owner access invalidate delivery.
 Publication validates attempted marks, chapter coverage, source metadata and
 revision containment; both HTML artifacts and the revision are committed atomically.
@@ -59,8 +67,8 @@ logic, real emulator endpoints/rules, existing shared-rule regressions and the
 independent frontend. It then uses existing
 protected Firebase environments and the existing Actions identity to deploy only
 `gtopAssistantGateway`, verify its runtime/release and access, and promote only
-`gtop-question-papers` Hosting. It deploys only the reviewed `assistantWorker`
-identity exclusion in shared Firestore/Realtime Database rules, preserving normal
+`gtop-question-papers` Hosting. It deploys the reviewed `assistantWorker`
+identity exclusion and exact owner metadata reads in shared rules, preserving normal
 human permissions, with unrelated live rule drift blocked. Existing server-only
 Storage policies are read and preserved. It does not deploy core Hosting, old
 functions, indexes, migrations, or scheduler configuration. The site and private pilot/worker

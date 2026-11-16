@@ -6,6 +6,7 @@ import {researchCurriculum,curriculumResearchSchema} from './domain/research.mjs
 import {buildTaskBrief,missingTaskField,selectedCurriculum} from './domain/task-brief.mjs';
 import {ServiceControl,serviceWorkerId} from './service-control.mjs';
 import {withWorkerHealth,workerFreshnessMs} from './presence.mjs';
+import {proposalResponse,researchKey,pendingPaperTurns,confirmationText} from './domain/paper-proposal.mjs';
 
 export class HttpError extends Error { constructor(status, code, message) { super(message); this.status = status; this.code = code; } }
 const fail = (status, code, message) => { throw new HttpError(status, code, message); };
@@ -171,14 +172,50 @@ export class AssistantService {
     return this.store.transaction(async tx => {
       const [c, previous] = await Promise.all([tx.get(ref('assistantConversations',cid)),tx.get(messagePath(cid,mid))]);
       if (!c || c.ownerUid!==uid) fail(404,'not_found','Conversation unavailable.');
-      if (previous) { if(previous.text!==original) fail(409,'idempotency_conflict','Message identifier was already used for different text.'); return {message:previous,job:publicJob(await tx.get(ref('assistantJobs',jid)))}; }
+      if (previous) { if(previous.text!==original) fail(409,'idempotency_conflict','Message identifier was already used for different text.'); return {message:previous,job:publicJob(await tx.get(ref('assistantJobs',previous.jobId||jid)))}; }
       const continuation=c.pendingResumeTurnId?await tx.get(ref('assistantJobs',c.pendingResumeTurnId)):null;
       const when = this.iso();
       const message = {id:mid,conversationId:cid,role:'user',text:original,createdAt:when,jobId:jid};
-      const job = {id:jid,kind:'turn',ownerUid:uid,conversationId:cid,state:'queued',phase:'waiting_for_local_assistant',createdAt:when,updatedAt:when,requestMessageId:mid,requestRevision:c.requestRevision || 0};
-      tx.create(messagePath(cid,mid),message); tx.create(ref('assistantJobs',jid),job);this.notifyDispatch(tx,uid);
+      let job = {id:jid,kind:'turn',ownerUid:uid,conversationId:cid,state:'queued',phase:'waiting_for_local_assistant',createdAt:when,updatedAt:when,requestMessageId:mid,requestRevision:c.requestRevision || 0};
+      let paperProposal=c.paperProposal,revision=c.requestRevision||0,taskBrief=c.taskBrief;
+      const response=proposalResponse(original);
+      const paper=c.activePaperJobId?await tx.get(ref('assistantJobs',c.activePaperJobId)):null;
+      const research=c.activeCurriculumJobId?await tx.get(ref('assistantJobs',c.activeCurriculumJobId)):null;
+      const running=[paper,research].some(j=>j&&activeStates.has(j.state));
+      if(response==='accept'&&paperProposal?.status==='consumed'){
+        const existing=await tx.get(ref('assistantJobs',paperProposal.generationJobId));
+        if(!existing||existing.ownerUid!==uid||existing.conversationId!==cid)fail(409,'proposal_job_missing','The saved generation task is unavailable.');
+        message.jobId=existing.id;job=existing;
+      }else if(paperProposal?.status==='pending'){
+        if(response==='accept'&&!running){
+          const [profile,config,...sources]=await Promise.all([tx.get(ref('users',uid)),tx.get('assistantConfig/pilot'),...paperProposal.sourceMessageIds.map(id=>tx.get(messagePath(cid,id)))]);
+          if(profile?.role!=='admin'||!config?.allowedOwnerUids?.includes(uid))fail(403,'pilot_access_required','Paper creation requires invited administrator access.');
+          if(paperProposal.ownerUid!==uid||paperProposal.conversationId!==cid||!paperProposal.curriculumSnapshot||sources.some((m,i)=>!m||m.role!=='user'||m.conversationId!==cid||hash(m.text)!==paperProposal.sourceHashes[i]))fail(409,'invalid_paper_proposal','The saved proposal evidence is unavailable. Please revise the request.');
+          revision++;
+          job={...job,kind:'paper',operation:'generate_paper',phase:'waiting_for_codex',requestRevision:revision,rootRequestMessageId:paperProposal.rootRequestMessageId,requirements:paperProposal.requirements,curriculumSnapshot:paperProposal.curriculumSnapshot,interpretation:paperProposal.interpretation,proposedActions:['generate_paper'],confirmedProposalId:paperProposal.id};
+          paperProposal={...paperProposal,status:'consumed',consumedAt:when,consumedByMessageId:mid,generationJobId:jid};
+        }else if(response==='decline'){
+          paperProposal={...paperProposal,status:'declined',resolvedAt:when};
+          taskBrief=taskBrief?{...taskBrief,creationPaused:true,creationRequestId:null}:taskBrief;
+          job.operation='proposal_declined';
+        }else if(response==='ambiguous'||response==='accept')job.operation=running?'proposal_wait':'proposal_response';
+        else paperProposal={...paperProposal,status:'superseded',resolvedAt:when};
+      }
+      // A correction/cancel invalidates the accepted work before stale delivery.
+      // Questions, social acknowledgements and duplicate yes do not start work.
+      if(paperProposal?.status==='consumed'&&response==='ambiguous')job.operation='proposal_status';
+      if(paperProposal?.status==='consumed'&&response==='revision')paperProposal={...paperProposal,status:'superseded',resolvedAt:when};
+      if(response==='decline'&&(paperProposal||taskBrief?.creationRequestId||running)){
+        if(paperProposal)paperProposal={...paperProposal,status:'declined',resolvedAt:when};
+        taskBrief=taskBrief?{...taskBrief,creationPaused:true,creationRequestId:null}:taskBrief;
+        job.operation='proposal_declined';
+      }
+      if((paperProposal?.status==='superseded'&&response==='revision')||job.operation==='proposal_declined'){
+        for(const active of [paper,research])if(active&&activeStates.has(active.state))tx.set(ref('assistantJobs',active.id),{...active,state:'cancelled',phase:'superseded_by_user',leaseId:null,leaseUntil:null,updatedAt:when});
+      }
+      tx.create(messagePath(cid,mid),message); if(job.id===jid)tx.create(ref('assistantJobs',jid),job);this.notifyDispatch(tx,uid);
       if(continuation&&activeStates.has(continuation.state))tx.set(ref('assistantJobs',continuation.id),{...continuation,state:'cancelled',phase:'superseded_by_new_message',leaseId:null,leaseUntil:null,updatedAt:when});
-      tx.set(ref('assistantConversations',cid),{...c,latestUserMessageId:mid,pendingResumeTurnId:null,title:c.title==='New paper conversation'?original.replace(/\s+/g,' ').slice(0,80):c.title,rootRequestId:c.rootRequestId || mid,updatedAt:when});
+      tx.set(ref('assistantConversations',cid),{...c,...(paperProposal?{paperProposal}:{}),...(taskBrief?{taskBrief}:{}),requestRevision:revision,...(job.kind==='paper'&&job.id===jid?{activePaperJobId:jid}:{}),latestUserMessageId:mid,pendingResumeTurnId:null,title:c.title==='New paper conversation'?original.replace(/\s+/g,' ').slice(0,80):c.title,rootRequestId:c.rootRequestId || mid,updatedAt:when});
       return {message,job:publicJob(job)};
     });
   }
@@ -186,7 +223,10 @@ export class AssistantService {
     return this.store.transaction(async tx => {
       const j = await tx.get(ref('assistantJobs',jid)); if(!j || j.ownerUid!==uid) fail(404,'not_found','Task unavailable.');
       if(!activeStates.has(j.state)) return {job:publicJob(j)};
-      const next = {...j,state:'cancelled',phase:'cancelled_by_user',updatedAt:this.iso(),leaseId:null,leaseUntil:null}; tx.set(ref('assistantJobs',jid),next);this.notifyContent(tx,uid); return {job:publicJob(next)};
+      const c=await tx.get(ref('assistantConversations',j.conversationId));
+      const next = {...j,state:'cancelled',phase:'cancelled_by_user',updatedAt:this.iso(),leaseId:null,leaseUntil:null};
+      if(c?.ownerUid===uid){const proposal=c.paperProposal;tx.set(ref('assistantConversations',c.id),{...c,...(proposal&&[proposal.generationJobId,proposal.sourceJobId].includes(jid)?{paperProposal:{...proposal,status:'declined',resolvedAt:this.iso()}}:{}),...(c.taskBrief?{taskBrief:{...c.taskBrief,creationPaused:true,creationRequestId:null}}:{}),updatedAt:this.iso()});}
+      tx.set(ref('assistantJobs',jid),next);this.notifyContent(tx,uid); return {job:publicJob(next)};
     });
   }
   async retry(uid,jid) {
@@ -202,7 +242,7 @@ export class AssistantService {
       if(j.kind!=='turn' && active && active.id!==jid && activeStates.has(active.state)) fail(409,'newer_task_active','A newer paper task is active.');
       const id=this.id(), now=this.iso(), next={...j,id,state:'queued',phase:'retry_queued',createdAt:now,updatedAt:now,leaseId:null,leaseUntil:null,assignedWorkerId:null,startedAt:null,error:null,retryOf:jid,retryJobId:null};
       tx.create(ref('assistantJobs',id),next); tx.set(ref('assistantJobs',jid),{...j,retryJobId:id});this.notifyDispatch(tx,uid);
-      if(j.kind!=='turn') tx.set(ref('assistantConversations',c.id),{...c,[slot.id]:id,updatedAt:now});
+      if(j.kind!=='turn') tx.set(ref('assistantConversations',c.id),{...c,[slot.id]:id,...(j.confirmedProposalId&&c.paperProposal?.id===j.confirmedProposalId?{paperProposal:{...c.paperProposal,generationJobId:id}}:{}),updatedAt:now});
       return {job:publicJob(next)};
     });
   }
@@ -240,7 +280,7 @@ export class AssistantService {
           const config=await tx.get('assistantConfig/pilot'),profile=await tx.get(ref('users',j.ownerUid)),c=await tx.get(ref('assistantConversations',j.conversationId)),currentWorker=await tx.get(ref('assistantWorkers',worker.id));
           if(!config?.allowedOwnerUids?.includes(j.ownerUid) || profile?.role!=='admin' || !c || c.ownerUid!==j.ownerUid || currentWorker?.enabled!==true || !currentWorker.allowedOwnerUids?.includes(j.ownerUid)) return null;
           const slot=jobSlot(j);
-          if(j.resumedFromCurriculumJobId&&c.latestUserMessageId&&c.latestUserMessageId!==j.requestMessageId){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded_by_new_message',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return null;}
+          if(j.kind==='turn'&&c.latestUserMessageId&&c.latestUserMessageId!==j.requestMessageId){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded_by_new_message',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return null;}
           if(j.kind!=='turn' && (c[slot.id]!==j.id || (c[slot.revision]||0)!==j.requestRevision)){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return null;}
           const next={...j,state:'running',phase:j.kind==='turn'?'local_conversation':'codex_starting',assignedWorkerId:worker.id,leaseId:this.id(),leaseUntil:new Date(this.now().getTime()+120000).toISOString(),startedAt:this.iso(),updatedAt:this.iso()};tx.set(ref('assistantJobs',j.id),next);this.notifyContent(tx,j.ownerUid);return next;
         });
@@ -257,8 +297,8 @@ export class AssistantService {
     const root=await this.store.get(messagePath(c.id,job.rootRequestMessageId || latest?.rootRequestMessageId || c.rootRequestId));
     if(!request || !root)fail(409,'missing_original_request','Original conversation messages are unavailable.');
     // A bounded recent window must not erase the user evidence behind a brief.
-    const sourceIds=[...new Set([c.taskBrief?.creationRequestId,c.taskBrief?.lastMessageId,...Object.values(c.taskBrief?.sources||{}).map(s=>s.messageId)].filter(Boolean))];
-    if(sourceIds.length>30)fail(409,'brief_source_bound','Saved requirements need review before continuing.');
+    const sourceIds=[...new Set([c.taskBrief?.creationRequestId,c.taskBrief?.lastMessageId,...Object.values(c.taskBrief?.sources||{}).map(s=>s.messageId),...(job.confirmedProposalId?c.paperProposal?.sourceMessageIds||[]:[])].filter(Boolean))];
+    if(sourceIds.length>160)fail(409,'brief_source_bound','Saved requirements need review before continuing.');
     const evidence=await Promise.all(sourceIds.filter(id=>!recent.some(m=>m.id===id)).map(id=>this.store.get(messagePath(c.id,safeId(id)))));
     if(evidence.some(m=>!m||m.role!=='user'||m.conversationId!==c.id))fail(409,'missing_requirement_evidence','Saved requirement evidence is unavailable. Please restate the paper requirements.');
     const all=[...new Map([root,...evidence,...recent,request].map(m=>[m.id,m])).values()].sort((a,b)=>a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
@@ -267,7 +307,10 @@ export class AssistantService {
     const checked=c.latestCurriculumId?await this.store.get(ref('assistantCurricula',c.latestCurriculumId)):null;
     const selected=checked?.ownerUid===c.ownerUid&&checked.conversationId===c.id?checked.curriculum:null;
     const pinned=job.curriculumSnapshot||base?.curriculumSnapshot||selected||latest?.curriculumSnapshot||null;
-    return clean({...publicJob(job),operation:job.operation,retryOf:job.retryOf,leaseId:job.leaseId,request:{...original(request),createdAt:request.createdAt},rootRequest:original(root),history:all.filter(m=>m.createdAt<=request.createdAt),profile:{displayName:typeof ownerProfile?.displayName==='string'?ownerProfile.displayName:'',preferences:c.memory?.preferences || []},context:{latestPaperId:c.latestPaperId || null,latestPaper:latest || null,activeRequirements:active?.requirements || latest?.requirements || null,taskBrief:c.taskBrief||null,curriculum:pinned},controllerFacts:{permissions:{routinePaperWork:true,development:false,deployment:false,destructiveOperations:false,bankWrites:false},activePaperJob:publicJob(active),activeCurriculumJob:publicJob(researchActive),availableData:{bankConnector:false,curriculum:pinned}},requirements:job.requirements,curriculumSnapshot:job.curriculumSnapshot,interpretation:job.interpretation,proposedActions:job.proposedActions,basePaper:base,targetQuestionNumber:job.targetQuestionNumber});
+    const history=all.filter(m=>m.createdAt<=request.createdAt);
+    const brief=buildTaskBrief({request,history,context:{taskBrief:c.taskBrief,latestPaper:latest}});
+    const confirmationRequired=!!brief.creationRequestId&&!brief.creationPaused&&!activeStates.has(active?.state)&&(pendingPaperTurns({history,taskBrief:brief,context:{latestPaper:latest}})>=3||job.operation==='confirm_paper'||!!job.resumedFromCurriculumJobId);
+    return clean({...publicJob(job),operation:job.operation,retryOf:job.retryOf,leaseId:job.leaseId,request:{...original(request),createdAt:request.createdAt},rootRequest:original(root),history,profile:{displayName:typeof ownerProfile?.displayName==='string'?ownerProfile.displayName:'',preferences:c.memory?.preferences || []},context:{latestPaperId:c.latestPaperId || null,latestPaper:latest || null,activeRequirements:active?.requirements || latest?.requirements || null,taskBrief:c.taskBrief||null,curriculum:pinned,researchOutcomes:c.researchOutcomes||[],paperProposal:c.paperProposal||null},controllerFacts:{confirmationRequired,permissions:{routinePaperWork:true,development:false,deployment:false,destructiveOperations:false,bankWrites:false},activePaperJob:publicJob(active),activeCurriculumJob:publicJob(researchActive),availableData:{bankConnector:false,curriculum:pinned}},requirements:job.requirements,curriculumSnapshot:job.curriculumSnapshot,interpretation:job.interpretation,proposedActions:job.proposedActions,basePaper:base,targetQuestionNumber:job.targetQuestionNumber});
   }
   async turnBrief(worker,id,body){
     const job=await this.store.get(ref('assistantJobs',id));
@@ -295,6 +338,7 @@ export class AssistantService {
     const [config,profile,currentWorker]=await Promise.all([tx.get('assistantConfig/pilot'),tx.get(ref('users',j.ownerUid)),tx.get(ref('assistantWorkers',worker.id))]);
     if(!config?.allowedOwnerUids?.includes(j.ownerUid) || profile?.role!=='admin' || !c || c.ownerUid!==j.ownerUid || currentWorker?.enabled!==true || !currentWorker.allowedOwnerUids?.includes(j.ownerUid))return null;
     const slot=jobSlot(j);
+    if(j.kind==='turn'&&c.latestUserMessageId&&c.latestUserMessageId!==j.requestMessageId)return null;
     if(j.kind!=='turn' && (c?.[slot.id]!==j.id || (c[slot.revision]||0)!==j.requestRevision))return null;
     return {job:j,conversation:c};
   }
@@ -316,6 +360,8 @@ export class AssistantService {
     if(body.operation==='check_curriculum')try{validateCurriculumScope(requirements);}catch(e){fail(400,'invalid_requirements',e.message);}
     const requestedJob=await this.store.get(ref('assistantJobs',id));
     if(!requestedJob||!worker.allowedOwnerUids.includes(requestedJob.ownerUid))fail(404,'not_found','Task unavailable.');
+    const input=await this.workerJob(requestedJob);
+    if(body.operation==='generate_paper'&&input.controllerFacts.confirmationRequired)fail(400,'confirmation_required','This pending request needs its saved concrete confirmation before generation.');
     let curriculumSnapshot=null;
     if(body.operation!=='check_curriculum'){
       try{const base=body.basePaperId?await this.store.get(ref('assistantPapers',body.basePaperId)):null;
@@ -329,6 +375,11 @@ export class AssistantService {
       if(job.kind!=='turn')fail(409,'invalid_transition','Only conversation turns can delegate.');
       const slot=jobSlot({kind:body.operation==='check_curriculum'?'curriculum':'paper'});
       const old=c[slot.id]?await tx.get(ref('assistantJobs',c[slot.id])):null;
+      if(body.operation==='check_curriculum'){
+        const cached=(c.researchOutcomes||[]).find(x=>x.key===researchKey(requirements)&&Date.parse(x.expiresAt)>this.now().getTime());
+        if(cached)fail(409,'research_cached','This exact curriculum/format check is cached. Continue to confirmation using its verified coverage and stated limitations.');
+        if(old&&activeStates.has(old.state)&&researchKey(old.requirements)===researchKey(requirements))fail(409,'research_active','The same curriculum check is already active.');
+      }
       const [currentRequest,olderRequest]=old?await Promise.all([tx.get(messagePath(c.id,job.requestMessageId)),tx.get(messagePath(c.id,old.requestMessageId))]):[];
       if(old && currentRequest?.createdAt<olderRequest?.createdAt)fail(409,'superseded_task','A newer user paper request is already active.');
       let base=null;if(body.operation==='revise_paper'){base=body.basePaperId?await tx.get(ref('assistantPapers',body.basePaperId)):null;if(!base || base.ownerUid!==job.ownerUid || base.conversationId!==job.conversationId)fail(400,'invalid_base_paper','Choose an existing paper from this conversation.');if(body.targetQuestionNumber!==null && body.targetQuestionNumber!==undefined && (!Number.isInteger(body.targetQuestionNumber)||body.targetQuestionNumber<1))fail(400,'invalid_question','Choose a valid question to revise, or a whole-paper revision.');}
@@ -346,28 +397,37 @@ export class AssistantService {
   }
   async complete(worker,id,body) {
     const taskBrief=await this.turnBrief(worker,id,body);
+    let proposalRequirements=null,proposalCurriculum=null;
+    if(body.paperProposal){
+      if(!taskBrief?.creationRequestId||taskBrief.creationPaused||missingTaskField(taskBrief))fail(400,'incomplete_paper_proposal','A concrete confirmation needs the saved paper scope first.');
+      proposalRequirements=this.domain.validateRequirements({...domain.defaults,...taskBrief.requirements});
+      const requestedJob=await this.store.get(ref('assistantJobs',id));
+      try{proposalCurriculum=await this.resolveCurriculum(proposalRequirements,requestedJob.conversationId,worker);}
+      catch(e){if(e.code!=='curriculum_unavailable'||proposalRequirements.format!=='board')throw e;proposalRequirements={...proposalRequirements,format:'practice'};proposalCurriculum=await this.resolveCurriculum(proposalRequirements,requestedJob.conversationId,worker);}
+      if(proposalRequirements.format==='board'&&!taskBrief.sources.durationMinutes)proposalRequirements.durationMinutes=proposalCurriculum.paperPattern.durationMinutes;
+    }
     return this.store.transaction(async tx=>{
       const active=await this.leased(tx,worker,id,body.leaseId);if(!active)return {active:false};const {job,conversation:c}=active;
       const now=this.iso(),mid=this.id();let paper=null,artifactStudent=null,artifactAnswers=null;
       // Read latest messages before any write: a later pause/correction must
       // prevent continuation even when its conversation turn is still queued.
       let resumeInput=null,resumeTurn=null;
-      if(job.operation==='check_curriculum'&&job.resumePaperAfterCheck&&body.researchUnavailable!==true){
+      if(job.operation==='check_curriculum'&&job.resumePaperAfterCheck){
         const recent=await this.store.list(`assistantConversations/${c.id}/messages`,[],100,{orderBy:['createdAt','desc']});
         const latestUser=recent.find(m=>m.role==='user');
-        if(latestUser?.id===job.requestMessageId){
+        if(latestUser&&(!c.latestUserMessageId||latestUser.id===c.latestUserMessageId)){
           resumeInput={request:{...latestUser,sha256Utf8:hash(latestUser.text)},history:recent.reverse(),context:{taskBrief:c.taskBrief},catalogue:{}};
           const brief=buildTaskBrief(resumeInput);
           if(brief.creationRequestId&&!brief.creationPaused&&!missingTaskField(brief)){
             const rid='resume-'+job.id;
             resumeTurn=await tx.get(ref('assistantJobs',rid));
-            if(!resumeTurn)resumeTurn={id:rid,kind:'turn',ownerUid:job.ownerUid,conversationId:c.id,state:'queued',phase:'waiting_for_codex',createdAt:now,updatedAt:now,requestMessageId:job.requestMessageId,requestRevision:c.requestRevision||0,resumedFromCurriculumJobId:job.id};else resumeTurn=null;
+            if(!resumeTurn)resumeTurn={id:rid,kind:'turn',operation:'confirm_paper',ownerUid:job.ownerUid,conversationId:c.id,state:'queued',phase:'waiting_for_confirmation',createdAt:now,updatedAt:now,requestMessageId:latestUser.id,requestRevision:c.requestRevision||0,resumedFromCurriculumJobId:job.id};else resumeTurn=null;
           }
         }
       }
       let checkedCurriculum=null;
       if(job.operation==='check_curriculum'){
-        if(body.researchUnavailable!==true){try{domain.assertSchema(body.research,curriculumResearchSchema);checkedCurriculum=researchCurriculum(body.research,job.requirements,body.sourceProofs);}catch(e){fail(400,'invalid_curriculum_check',e.message);}}
+        if(body.researchUnavailable!==true){try{domain.assertSchema(body.research,curriculumResearchSchema);checkedCurriculum=researchCurriculum(body.research,job.requirements,body.sourceProofs,{allowUnverifiedPattern:true});}catch(e){fail(400,'invalid_curriculum_check',e.message);}}
         if(body.paper)fail(400,'invalid_transition','Curriculum checks cannot publish papers.');
       }else if(job.kind==='paper'){
         if(!body.paper)fail(400,'paper_required','Paper output is required.');
@@ -382,7 +442,21 @@ export class AssistantService {
         }catch(error){fail(400,'invalid_paper',error.message);}
         artifactStudent=encodeArtifact(artifactStudent,now);artifactAnswers=encodeArtifact(artifactAnswers,now);
       }else if(body.paper)fail(400,'invalid_transition','Conversation turns cannot publish papers.');
-      const reply=body.reply?text(body.reply,12000):(paper?'Your paper and separate worked answers are ready for your review.':'');
+      let paperProposal=null;
+      if(body.paperProposal){
+        if(job.kind!=='turn'||c.latestUserMessageId!==job.requestMessageId)fail(409,'stale_paper_proposal','The request changed before confirmation.');
+        const input=await this.workerJob(job);
+        const sources=input.history.filter(m=>m.role==='user');
+        if(!sources.length||sources.length>160)fail(409,'proposal_source_bound','The saved request needs review before confirmation.');
+        const evidence=await Promise.all(sources.map(m=>tx.get(messagePath(c.id,m.id))));
+        if(evidence.some(m=>!m||m.role!=='user'||m.conversationId!==c.id))fail(409,'missing_requirement_evidence','The proposal needs saved user evidence.');
+        const activePaper=c.activePaperJobId?await tx.get(ref('assistantJobs',c.activePaperJobId)):null;
+        const activeResearch=c.activeCurriculumJobId?await tx.get(ref('assistantJobs',c.activeCurriculumJobId)):null;
+        if([activePaper,activeResearch].some(j=>j&&activeStates.has(j.state)))fail(409,'paper_work_active','Wait for the active task before preparing another proposal.');
+        if(c.paperProposal?.status==='pending')fail(409,'proposal_already_pending','The saved proposal is already awaiting a response.');
+        paperProposal={id:hash(`${c.id}:${job.requestMessageId}:${JSON.stringify(proposalRequirements)}`).slice(0,40),status:'pending',ownerUid:job.ownerUid,conversationId:c.id,requirements:proposalRequirements,curriculumSnapshot:bounded(proposalCurriculum,180000),rootRequestMessageId:taskBrief.creationRequestId,sourceMessageIds:evidence.map(m=>m.id),sourceHashes:evidence.map(m=>hash(m.text)),interpretation:text(body.paperProposal.interpretation,4000),confirmationText:confirmationText(proposalRequirements,proposalCurriculum),createdAt:now,sourceJobId:id};
+      }
+      const reply=paperProposal?paperProposal.confirmationText:body.reply?text(body.reply,12000):(paper?'Your paper and separate worked answers are ready for your review.':'');
       if(!reply)fail(400,'reply_required','A conversational reply is required.');
       const message={id:mid,conversationId:c.id,role:'assistant',text:reply,createdAt:now,jobId:id,...(taskBrief?.pendingClarification?{clarificationField:taskBrief.pendingClarification.field}:{}),...(paper?{paperId:paper.id}:{})};
       const memory=body.memoryPatch?bounded(body.memoryPatch,4000):null;
@@ -390,12 +464,15 @@ export class AssistantService {
       if(memory && (Object.keys(memory).some(key=>key!=='preferences') || !Array.isArray(memory.preferences) || memory.preferences.length>12 || memory.preferences.some(p=>Object.keys(p || {}).some(key=>!['value','sourceMessageId'].includes(key)) || typeof p?.value!=='string' || p.sourceMessageId!==job.requestMessageId || p.value.length>300 || !original?.text.includes(p.value))))fail(400,'invalid_memory','Memory must quote explicit preferences from the current user message.');
       const mergedMemory=memory?{preferences:[...new Map([...(c.memory?.preferences || []),...memory.preferences].map(preference=>[preference.value.toLowerCase(),preference])).values()].slice(-12)}:null;
       const final={...job,state:'completed',phase:paper?'paper_ready_for_teacher_review':'reply_ready',updatedAt:now,leaseId:null,leaseUntil:null,metrics:bounded(body.metrics),...(paper?{paperId:paper.id}:{})};
+      if(paperProposal)final.phase='awaiting_paper_confirmation';
+      if(job.operation==='check_curriculum'&&body.researchUnavailable===true)final.phase='curriculum_unavailable';
       let curriculumId=null;
       if(checkedCurriculum){curriculumId=this.id();tx.create(ref('assistantCurricula',curriculumId),{id:curriculumId,ownerUid:job.ownerUid,conversationId:c.id,curriculum:checkedCurriculum,jobId:id,createdAt:now});final.phase='curriculum_checked';}
       if(paper){tx.create(ref('assistantPapers',paper.id),paper);tx.create(`assistantPapers/${paper.id}/artifacts/student`,artifactStudent);tx.create(`assistantPapers/${paper.id}/artifacts/answers`,artifactAnswers);}
-      if(resumeTurn&&checkedCurriculum){tx.create(ref('assistantJobs',resumeTurn.id),resumeTurn);this.notifyDispatch(tx,job.ownerUid);}
+      if(resumeTurn){tx.create(ref('assistantJobs',resumeTurn.id),resumeTurn);this.notifyDispatch(tx,job.ownerUid);}
       else this.notifyContent(tx,job.ownerUid);
-      tx.create(messagePath(c.id,mid),message);tx.set(ref('assistantJobs',id),final);tx.set(ref('assistantConversations',c.id),{...c,...(taskBrief&&(!c.taskBrief?.lastMessageAt||taskBrief.lastMessageAt>=c.taskBrief.lastMessageAt)?{taskBrief}:{}),updatedAt:now,...(paper?{latestPaperId:paper.id,title:paperConversationTitle(paper),titleSource:'generated-paper'}:{}),...(curriculumId?{latestCurriculumId:curriculumId}:{}),...(resumeTurn&&checkedCurriculum?{pendingResumeTurnId:resumeTurn.id}:{}),...(mergedMemory?{memory:mergedMemory}: {})});
+      const researchOutcome=job.operation==='check_curriculum'?{key:researchKey(job.requirements),status:checkedCurriculum?(checkedCurriculum.paperPattern?'pattern_verified':'syllabus_verified'):'unavailable',curriculumId,jobId:id,checkedAt:now,expiresAt:new Date(this.now().getTime()+86400000).toISOString(),limitations:bounded(body.research?.limitations||[reply],8000)}:null;
+      tx.create(messagePath(c.id,mid),message);tx.set(ref('assistantJobs',id),final);tx.set(ref('assistantConversations',c.id),{...c,...(paperProposal?{paperProposal}:{}),...(researchOutcome?{researchOutcomes:[...(c.researchOutcomes||[]).filter(x=>x.key!==researchOutcome.key),researchOutcome].slice(-8)}:{}),...(taskBrief&&(!c.taskBrief?.lastMessageAt||taskBrief.lastMessageAt>=c.taskBrief.lastMessageAt)?{taskBrief}:{}),updatedAt:now,...(paper?{latestPaperId:paper.id,title:paperConversationTitle(paper),titleSource:'generated-paper'}:{}),...(curriculumId?{latestCurriculumId:curriculumId}:{}),...(resumeTurn?{pendingResumeTurnId:resumeTurn.id}:{}),...(mergedMemory?{memory:mergedMemory}: {})});
       return {active:true,...(paper?{paperId:paper.id}:{})};
     });
   }

@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 const string={type:'string'};
 export const patternSchema=object({title:string,academicYear:string,marks:{type:'integer'},durationMinutes:{type:'integer'},sourceUrl:string,sections:{type:'array',items:object({title:string,questionCount:{type:'integer'},attemptCount:{type:'integer'},attemptedMarks:{type:'integer'}})}});
 export const curriculumResearchSchema=object({status:{type:'string',enum:['found','needs_clarification','unavailable']},reply:string,board:string,standard:string,subject:string,academicYear:string,examYear:string,programme:string,level:string,subjectCode:string,edition:string,title:string,complete:{type:'boolean'},chapters:{type:'array',items:object({id:string,title:string,focus:string})},sources:{type:'array',items:object({url:string,title:string,applicableYear:string,locator:string})},paperPattern:{anyOf:[{type:'null'},patternSchema]},limitations:{type:'array',items:string}});
-export function validateResearchCandidate(result,requirements){
+export function validateResearchCandidate(result,requirements,{allowUnverifiedPattern=false}={}){
   validateCurriculumScope(requirements);
   if(result.status!=='found'||result.complete!==true)throw Error(result.reply||'The official curriculum is incomplete or needs clarification.');
   if(!sameScope(result,requirements))throw Error('Online curriculum scope or programme/level/code/cohort/edition changed. Please confirm the exact scope first.');
@@ -23,7 +23,7 @@ export function validateResearchCandidate(result,requirements){
     const key=s=>s.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
     if(!(requirements.selectedChapters||[]).every(name=>result.chapters.some(c=>key(c.title)===key(name))))throw Error('Checked curriculum must cover every selected chapter without widening scope.');
   }
-  if(requirements.format==='board'){
+  if(requirements.format==='board'&&(!allowUnverifiedPattern||result.paperPattern)){
     const p=result.paperPattern;
     if(!p||p.academicYear!==requirements.academicYear||p.marks!==requirements.marks||!result.sources.some(s=>s.url===p.sourceUrl)||!p.sections?.length||p.sections.length>12)throw Error('An applicable official paper pattern matching the requested marks is required.');
     officialUrl(p.sourceUrl,requirements.board);
@@ -31,12 +31,12 @@ export function validateResearchCandidate(result,requirements){
   }
   return result;
 }
-export function researchCurriculum(result,requirements,proofs=[]){
-  validateResearchCandidate(result,requirements);
+export function researchCurriculum(result,requirements,proofs=[],options={}){
+  validateResearchCandidate(result,requirements,options);
   if(!Array.isArray(proofs)||proofs.length!==result.sources.length)throw Error('Official source retrieval proofs are missing.');
   for(const s of result.sources){const p=proofs.find(p=>p.url===s.url);if(!p||!/^[a-f0-9]{64}$/.test(p.sha256)||p.bytes<=0||p.bytes>12_000_000||!Number.isFinite(Date.parse(p.checkedAt)))throw Error('Official source retrieval was not verified by the controller.');officialUrl(p.finalUrl,requirements.board);}
   const id='official-'+createHash('sha256').update(JSON.stringify({result,proofs:proofs.map(p=>({url:p.url,sha256:p.sha256}))})).digest('hex').slice(0,28);
-  return {id,...Object.fromEntries(scopeKeys.map(k=>[k,result[k]||''])),title:result.title,url:result.sources[0].url,chapters:result.chapters,sources:result.sources,...(result.paperPattern?{paperPattern:result.paperPattern}:{}),provenance:{kind:'official-online-check',yearVerified:true,coverage:requirements.scope==='selected_chapters'?'selected_chapters':'full_syllabus',checkedAt:proofs[0].checkedAt,sourceProofs:proofs,centralCatalogueApproval:false},notice:'Custom practice paper based on the selected official curriculum checked on '+proofs[0].checkedAt.slice(0,10)+'. Not an official examination paper. Teacher review is required.'};
+  return {id,...Object.fromEntries(scopeKeys.map(k=>[k,result[k]||''])),title:result.title,url:result.sources[0].url,chapters:result.chapters,sources:result.sources,...(result.paperPattern?{paperPattern:result.paperPattern}:{}),limitations:result.limitations,provenance:{kind:'official-online-check',yearVerified:true,patternVerified:!!result.paperPattern,coverage:requirements.scope==='selected_chapters'?'selected_chapters':'full_syllabus',checkedAt:proofs[0].checkedAt,sourceProofs:proofs,centralCatalogueApproval:false},notice:'Custom practice paper based on the selected official curriculum checked on '+proofs[0].checkedAt.slice(0,10)+'. Not an official examination paper. Teacher review is required.'};
 }
 export async function retrieveOfficialSource(source,board,fetcher=fetch){
   let url=officialUrl(source.url,board);

@@ -1,5 +1,36 @@
 # Private pilot contract v1
 
+## Saved paper confirmation (controller and worker release together)
+
+Clear complete initial requests retain direct delegation. An undelivered paper
+request reaching three user turns, or a pending prerequisite research result,
+uses Codex interpretation of the saved root and corrections to prepare one
+concrete confirmation. Server-only conversation `paperProposal` stores the exact
+requirements, curriculum snapshot, original/source message IDs and UTF-8 hashes,
+interpretation, confirmation text, status and eventual generation job ID.
+
+The message endpoint consumes a pending proposal transactionally only for an
+unambiguous affirmative. It creates a `kind:paper`, `operation:generate_paper`
+job directly, preserving the root and corrected requirements. Duplicate message
+IDs and repeated affirmation reuse the same task. Ambiguous replies remain
+pending; revisions supersede the proposal, and cancellation fences active work.
+Role/owner, active slots, source evidence, leases and revision checks still apply.
+
+Official syllabus coverage and exact sectional format are separate facts. Only
+retrieved, independently reviewed syllabus candidates activate. Missing exact
+format can produce an explicitly confirmed board-aligned practice proposal;
+it never becomes an official board-issued paper or silently widens chapter scope.
+Curriculum outcomes, including unavailable results, resume pending work toward
+confirmation using the latest saved corrections. Identical scope/marks/format
+research coalesces while active and is cached for 24 hours (last eight outcomes).
+Research permits four official web actions and two minutes for discovery, then
+two direct actions and two minutes for independent review; local evidence records
+any enforced limit. A failed check is `curriculum_unavailable`, not checked success.
+
+This protocol requires the matching worker before gateway promotion. The existing
+start-only launcher is not a transactional updater: an owned live worker/lock
+must not be displaced or the dirty installation overwritten to install it.
+
 Parent owns `assistant-service/domain/**` (runtime JSON validation, paper schemas,
 renderer and shared TypeScript types). Backend owns the rest of assistant-service,
 Firebase/deployment configuration. UI owns question-papers/**. Controller owns

@@ -16,7 +16,8 @@ function require(test,message){if(!test)throw Error(message);}
 const cleanText=(v,max=12000)=>typeof v==='string'&&v.trim().length>0&&v.length<=max;
 export function validateRequirements(input){
   require(input&&typeof input==='object'&&!Array.isArray(input),'Paper requirements are missing.');
-  const allowed=new Set([...Object.keys(defaults),...scopeKeys,'selectedChapters','format']);require(Object.keys(input).every(k=>allowed.has(k)),'Unknown paper requirement.');
+  const allowed=new Set([...Object.keys(defaults),...scopeKeys,'selectedChapters','format','questionStyle','markAllocation']);require(Object.keys(input).every(k=>allowed.has(k)),'Unknown paper requirement.');
+  for(const key of ['questionStyle','markAllocation'])if(input[key]!==undefined)require(cleanText(input[key],key==='questionStyle'?200:1000),'Invalid '+key+'.');
   const r={...defaults,...input};
   Object.assign(r,validateScope(r));require(['full_syllabus','selected_chapters'].includes(r.scope),'Choose full syllabus or selected chapters.');
   if(r.scope==='selected_chapters')require(Array.isArray(r.selectedChapters)&&r.selectedChapters.length>0&&r.selectedChapters.length<=30&&r.selectedChapters.every(c=>cleanText(c,200)),'Selected chapter names are required.');

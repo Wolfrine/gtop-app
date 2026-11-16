@@ -37,6 +37,13 @@ export function buildTaskBrief(job,selection=null){
   const r=brief.requirements;
   if(r.selectedChapters)r.selectedChapters=cleanNames(r.selectedChapters);
   const set=(field,value,m,quote=m.text)=>{r[field]=value;brief.sources[field]={messageId:m.id,quote:quote.slice(0,300)};};
+  // Recover assessment instructions from original user evidence in older briefs.
+  // They are never chapter names and must survive later mark/scope corrections.
+  for(const m of messages){
+    const style=m.text.match(/\b(?:competency|competence|case|application|skill|concept|inquiry)[ -]+based(?:\s+(?:questions?|assessment))?/i);
+    if(style&&!requirementDiscussion(m.text))set('questionStyle',style[0],m,style[0]);
+    if(/\b(?:mark allocation|marks distribution|\d+\s*[x×*]\s*\d+|\d+\s+(?:questions?|mcqs?).{0,25}\d+\s*marks?\s*each)\b/i.test(m.text)&&!requirementDiscussion(m.text))set('markAllocation',m.text.slice(0,1000),m);
+  }
   for(const m of fresh){
     const text=m.text;
     if(prohibitedCreation(text)||/^\s*(?:wait|hold on|not now|later|pause|रुको|अभी नहीं|abhi nahi)\b/i.test(text)){brief.creationRequestId=null;brief.creationPaused=true;}
@@ -53,7 +60,7 @@ export function buildTaskBrief(job,selection=null){
     if(marks)set('marks',Number(marks[1]),m,marks[0]);
     else if(/^\s*\d{2,3}[.!\s]*$/.test(text)&&brief.pendingClarification?.field==='marks')set('marks',Number(text.replace(/\D/g,'')),m);
     if(/(?:exam|board|official)\s+(?:paper\s+)?(?:pattern|format)|\b(?:ICSE|ISC|CBSE|IGCSE)\s+(?:exam\s+)?(?:pattern|format)/i.test(text))set('format','board',m);
-    if(/custom practice (?:paper|format)|practice format (?:is fine|works)|all numbered questions (?:required|compulsory)/i.test(text))set('format','practice',m);
+    if(/custom practice (?:paper|format)|practice format (?:is fine|works)|all numbered questions (?:required|compulsory)|^\s*(?:make|create|use) (?:a )?practice paper[.!]?\s*$/i.test(text))set('format','practice',m);
     if(creationIntent(text)&&!capabilityQuestion(text)&&!prohibitedCreation(text)&&!/(?:only|just).{0,20}(?:discuss|explain|plan)|(?:if|suppose|hypothetically).{0,35}(?:create|make)/i.test(text)){
       const previousRoot=messages.find(x=>x.id===brief.creationRequestId);
       const completed=job.context?.latestPaper;
@@ -82,6 +89,7 @@ export function buildTaskBrief(job,selection=null){
       }else{
         const names=inlineChapters(text);
         if(names.length&&names.length<=30){set('selectedChapters',names,m);set('scope','selected_chapters',m);}
+        else if(/\b(?:different|other|new)\s+chapters?\b/i.test(text)){set('selectedChapters',[],m);set('scope','selected_chapters',m);}
       }
     }
     if(r.selectedChapters?.length){const kept=r.selectedChapters.filter(name=>!excluded(text,name));if(kept.length!==r.selectedChapters.length){set('selectedChapters',kept,m);set('scope','selected_chapters',m);}}

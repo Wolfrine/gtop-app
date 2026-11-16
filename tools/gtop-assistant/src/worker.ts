@@ -168,8 +168,15 @@ export class Worker {
     }
     await this.api.post(`/worker/jobs/${job.id}/event`,{leaseId:job.leaseId,phase:'codex_preparing_confirmation',state:'running'});
     const result=await codex(this.config,'Interpret the ORIGINAL root request and all relevant user corrections in the preserved handoff. Produce one concise concrete interpretation for the confirmation, retaining board, class, subject, corrected marks, chapter-only scope, competency/case-based style, requested mark allocation, language and worked answers. Assistant claims are not source verification. Do not research, generate a paper, change requirements, or ask again for known information. A chapter selection must quote its saved user message exactly; otherwise selection=null. The controller will save the exact requirements and source IDs and render one explicit I will create ... Shall I go ahead? confirmation with verified format and limitations.\nHANDOFF:\n'+JSON.stringify({...handoff(job),sourcedTaskBrief:job.taskBrief}),confirmationSchema,path.join(dir,'codex-confirmation'),signal,async()=>{});
-    const selection=result.value.selection;
-    if(selection)job.taskBrief=buildTaskBrief(job,selection);
+    let selection=result.value.selection;
+    if(selection)try{job.taskBrief=buildTaskBrief(job,selection);}catch(e:any){
+      await record(dir,'confirmation-selection-rejected.json',{reason:e.message,retainedSourcedBrief:true});
+      if(missingTaskField(job.taskBrief))throw e;
+      // A model's expanded canonical title is not a quote from the user.
+      // Retain the already complete user-sourced scope; the gateway resolves
+      // its unique canonical title independently before saving the proposal.
+      selection=null;
+    }
     const field=missingTaskField(job.taskBrief);
     if(field){await this.api.post(`/worker/jobs/${job.id}/complete`,{leaseId:job.leaseId,reply:'Your paper request is saved. Please specify the missing '+field+' so I can prepare one concrete confirmation.',clarificationField:field,...(selection?{selection}:{}),metrics:result.metrics});return;}
     const delivered=await this.api.post(`/worker/jobs/${job.id}/complete`,{leaseId:job.leaseId,paperProposal:{interpretation:result.value.interpretation},...(selection?{selection}:{}),metrics:{engine:'codex-confirmation',...result.metrics}});

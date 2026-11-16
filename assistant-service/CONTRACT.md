@@ -27,9 +27,16 @@ Research permits four official web actions and two minutes for discovery, then
 two direct actions and two minutes for independent review; local evidence records
 any enforced limit. A failed check is `curriculum_unavailable`, not checked success.
 
-This protocol requires the matching worker before gateway promotion. The existing
-start-only launcher is not a transactional updater: an owned live worker/lock
-must not be displaced or the dirty installation overwritten to install it.
+Selected chapters prefer exact titles, then one unique whole-word focus match
+within the scoped curriculum. Ambiguous focus fails closed. Stored user evidence
+keeps its original wording; queued paper requirements and question validation use
+the matched canonical chapter titles.
+
+Release this protocol with its matching worker. Follow the documented idle-cutover
+precedent in `docs/ai-assistant/FIRESTORE_RUNTIME_RCA_2026-11-02.md`: stage and back
+up the reviewed source, preserve unrelated dirty work, verify an empty active
+queue and exact native PID/executable/start time, stop only the idle owned worker,
+and restart through the existing native launcher with a scoped rollback ready.
 
 Parent owns `assistant-service/domain/**` (runtime JSON validation, paper schemas,
 renderer and shared TypeScript types). Backend owns the rest of assistant-service,

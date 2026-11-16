@@ -22,6 +22,7 @@ import {workerFreshnessMs} from '../../../assistant-service/presence.mjs';
 // A missed publication plus 10s network margin fits the unchanged 90s window.
 // Job lease renewal/cancellation remains on its independent 30s timer.
 export const healthHeartbeatMs=workerFreshnessMs/2-5000;
+const workerVersion='harness-11-paper-confirmation';
 
 export const phases=['local_conversation','codex_generating','structure_validation','codex_reviewing','codex_correcting','preparing_documents'];
 const confirmationSchema=object({interpretation:{type:'string'},selection:{anyOf:[{type:'null'},object({chapters:{type:'array',items:{type:'string'}},sourceMessageId:{type:'string'},quote:{type:'string'}})]}});
@@ -40,14 +41,14 @@ export class Worker {
     await record(this.config.dataDirectory,'worker-health.json',{schemaVersion:1,pid:process.pid,checkedAt:new Date().toISOString(),
       endpoint:this.config.ollama,runnerContractId:this.config.runner?.contractId,healthIntervalMs:healthHeartbeatMs,freshnessMs:workerFreshnessMs,...health});
     this.counters.heartbeats++;
-    await this.api.post('/worker/heartbeat',{state:!this.available||!this.listenerReady?'offline':this.turnBusy||this.paperBusy?'busy':'ready',modelReady:this.ready,version:'harness-10-stable-presence'});
+    await this.api.post('/worker/heartbeat',{state:!this.available||!this.listenerReady?'offline':this.turnBusy||this.paperBusy?'busy':'ready',modelReady:this.ready,version:workerVersion});
     await record(this.config.dataDirectory,'transport.json',{...this.counters,checkedAt:new Date().toISOString(),listenerReady:this.listenerReady,turnBusy:this.turnBusy,paperBusy:this.paperBusy});
   }
   async start(signal:AbortSignal){
     try{await waitForRuntime(this.config,signal);}catch(error){await record(this.config.dataDirectory,'worker-health.json',{schemaVersion:1,pid:process.pid,checkedAt:new Date().toISOString(),available:false,errorCode:'startup_preflight_failed'});throw error;}
     await this.heartbeat();let maintaining=false;
     const timer=setInterval(()=>{if(maintaining)return;maintaining=true;void this.heartbeat().catch(e=>{this.available=false;console.error(e.message);}).finally(()=>{maintaining=false;});},healthHeartbeatMs);
-    try{await Promise.all([this.listen(signal),this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.ready=false;this.available=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:'harness-10-stable-presence'}).catch(()=>{});}
+    try{await Promise.all([this.listen(signal),this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.ready=false;this.available=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:workerVersion}).catch(()=>{});}
   }
   async listen(signal:AbortSignal){
     let failures=0;

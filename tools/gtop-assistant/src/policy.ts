@@ -1,7 +1,7 @@
 import {createHash} from 'node:crypto';
 import {defaults,validateRequirements,curriculum} from '../../../assistant-service/domain/index.mjs';
 import {capabilityFacts,scopeFromHistory,capabilityQuestion,latestRequest,extractScope,sameScope,missingScopeReply,replyLanguage} from '../../../assistant-service/domain/catalogue.mjs';
-import {buildTaskBrief,missingTaskField,clarificationText,requirementDiscussion,creationIntent as hasCreationIntent} from '../../../assistant-service/domain/task-brief.mjs';
+import {buildTaskBrief,missingTaskField,clarificationText,requirementDiscussion,selectedCurriculum,creationIntent as hasCreationIntent} from '../../../assistant-service/domain/task-brief.mjs';
 
 export const hash=(v:string)=>createHash('sha256').update(v,'utf8').digest('hex');
 export function verifyOriginals(job:any){for(const original of [job.request,job.rootRequest])if(!original || hash(original.text)!==original.sha256Utf8)throw Error('Original request integrity check failed.');}
@@ -94,7 +94,7 @@ export function verifiedRequirements(job:any,proposal:any){
   }
   if(proposal.action==='revise_paper'&&proposal.targetQuestionNumber!=null&&r.marks!==(job.context?.activeRequirements?.marks ?? r.marks))throw Error('Changing a single question cannot change the paper total. Please request a whole-paper revision.');
   if(proposal.action==='revise_paper'&&job.context?.latestPaper?.curriculumSnapshot&&!sameScope(r,job.context.latestPaper.curriculumSnapshot))throw Error('Please create a new paper when changing programme, level, subject code, exam year or textbook edition.');
-  if(proposal.action==='revise_paper'&&job.context?.latestPaper?.requirements){const base=job.context.latestPaper.requirements;if(base.scope!==r.scope||JSON.stringify(base.selectedChapters||[])!==JSON.stringify(r.selectedChapters||[]))throw Error('Please create a new paper when changing the selected chapters or syllabus coverage.');}
+  if(proposal.action==='revise_paper'&&job.context?.latestPaper?.requirements){const base=job.context.latestPaper.requirements,pinned=job.context.latestPaper.curriculumSnapshot;const titles=(requirements:any)=>requirements.scope==='selected_chapters'&&pinned?selectedCurriculum(pinned,requirements).chapters.map((c:any)=>c.title):requirements.selectedChapters||[];if(base.scope!==r.scope||JSON.stringify(titles(base))!==JSON.stringify(titles(r)))throw Error('Please create a new paper when changing the selected chapters or syllabus coverage.');}
   return validateRequirements(r);
 }
 // A parser miss must never turn an explicit original total into a defaulted

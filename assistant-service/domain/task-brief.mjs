@@ -132,7 +132,18 @@ export function clarificationText(field,language='en'){
 export function selectedCurriculum(pinned,requirements){
   if(requirements.scope!=='selected_chapters')return pinned;
   const requested=requirements.selectedChapters||[];
-  const chosen=requested.map(name=>pinned.chapters.find(c=>normalized(c.title)===normalized(name)));
+  const chosen=requested.map(name=>{
+    const focus=normalized(name);
+    const exact=pinned.chapters.filter(c=>normalized(c.title)===focus);
+    if(exact.length===1)return exact[0];
+    if(exact.length>1)throw Error('Ambiguous saved chapter title: '+name+'. Please use an independently reviewed curriculum.');
+    // A short focus is an alias only when the complete whole-word phrase
+    // identifies exactly one chapter in this already scoped curriculum.
+    if(!focus||/^(?:the|a|an|and|or|of|in|to|for|with|chapter|chapters|unit|units)$/u.test(focus))return null;
+    const matches=pinned.chapters.filter(c=>(' '+normalized(c.title)+' ').includes(' '+focus+' '));
+    if(matches.length>1)throw Error('Ambiguous chapter focus: '+name+'. Please specify the complete chapter title.');
+    return matches[0]||null;
+  });
   if(chosen.some(c=>!c))throw Error('These selected chapters are not in the pinned curriculum: '+requested.filter((_,i)=>!chosen[i]).join(', ')+'. Please use the saved chapter titles or request an official curriculum check.');
-  return {...pinned,chapters:[...new Map(chosen.map(c=>[c.id||c.title,c])).values()],selection:{kind:'selected_chapters',requested}};
+  return {...pinned,chapters:[...new Map(chosen.map(c=>[c.id||c.title,c])).values()],selection:{kind:'selected_chapters',requested,canonicalTitles:chosen.map(c=>c.title)}};
 }

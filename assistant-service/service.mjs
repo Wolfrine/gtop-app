@@ -370,6 +370,7 @@ export class AssistantService {
       }catch(e){fail(400,'curriculum_unavailable',e.message);}
     }
     if(curriculumSnapshot?.chapters?.length>requirements.marks)fail(400,'infeasible_marks',`This chapter list has ${curriculumSnapshot.chapters.length} chapters. Covering each with at least one attempted mark needs at least that many marks. Please increase marks or choose a smaller reviewed curriculum. `);
+    if(curriculumSnapshot&&requirements.scope==='selected_chapters')requirements={...requirements,selectedChapters:curriculumSnapshot.chapters.map(c=>c.title)};
     const result=await this.store.transaction(async tx=>{
       const active=await this.leased(tx,worker,id,body.leaseId);if(!active)fail(409,'stale_lease','Task was cancelled or its lease expired.');const {job,conversation:c}=active;
       if(job.kind!=='turn')fail(409,'invalid_transition','Only conversation turns can delegate.');
@@ -405,6 +406,7 @@ export class AssistantService {
       try{proposalCurriculum=await this.resolveCurriculum(proposalRequirements,requestedJob.conversationId,worker);}
       catch(e){if(e.code!=='curriculum_unavailable'||proposalRequirements.format!=='board')throw e;proposalRequirements={...proposalRequirements,format:'practice'};proposalCurriculum=await this.resolveCurriculum(proposalRequirements,requestedJob.conversationId,worker);}
       if(proposalRequirements.format==='board'&&!taskBrief.sources.durationMinutes)proposalRequirements.durationMinutes=proposalCurriculum.paperPattern.durationMinutes;
+      if(proposalRequirements.scope==='selected_chapters')proposalRequirements={...proposalRequirements,selectedChapters:proposalCurriculum.chapters.map(c=>c.title)};
     }
     return this.store.transaction(async tx=>{
       const active=await this.leased(tx,worker,id,body.leaseId);if(!active)return {active:false};const {job,conversation:c}=active;

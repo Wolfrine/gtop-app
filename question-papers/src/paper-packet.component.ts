@@ -119,7 +119,10 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   get expectedCount() { return this.packet?.expectedStudents ?? this.expected; }
   get allPdfs() { return this.sources.length > 1 && this.sources.every(source => isScanPdf(source.file)); }
   get separateFiles() { return this.sources.length > 1 && this.sources.slice(1).every(source => source.starts); }
-  get hasLocalChanges() { return this.dirty || !!this.sources.length || this.correcting; }
+  get hasLocalChanges() {
+    return this.dirty || this.correcting || this.sources.some(s=>!s.cameraKey&&s.missingSize===undefined) ||
+      (this.cameraCount>0&&(!this.cameraSaved||this.cameraSaving>0));
+  }
   get book() { return this.books.find(book => book.key === this.selectedKey); }
   get needsReview() { return this.books.filter(book => !book.held && !book.withdrawn && (book.needsReview || !book.label.trim() || isAnonymous(book.label.trim()))); }
   get heldCount(){return this.books.filter(book=>book.held&&!book.withdrawn).length;}
@@ -354,10 +357,10 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     const stage=this.staged??={id:crypto.randomUUID(),revision:0,owner,known:new Set<string>(),writes:Promise.resolve()};
-    const sources=this.sources.map(s=>({key:s.cameraKey||'',name:s.file.name,size:s.missingSize??s.file.size,modified:s.file.lastModified,pages:s.pages,starts:s.starts,rotations:[...s.rotations]}));
+    const sources=this.sources.map(s=>({key:s.cameraKey||'',veryDark:!!s.veryDark,name:s.file.name,size:s.missingSize??s.file.size,modified:s.file.lastModified,pages:s.pages,starts:s.starts,rotations:[...s.rotations]}));
     const manifest:CameraDraft={id:stage.id,owner,revision:0,updated:0,expires:0,packetId:this.openedId,
       paperId:this.paperId,createId:this.createId,defaultLabel:this.defaultLabel,label:this.label,expected:this.expected,sources};
-    this.cameraSaving++;
+    this.cameraSaving++;this.changed();
     const pending=stage.writes.then(async()=>{
       if(this.api.user?.uid!==owner)return;
       manifest.revision=stage.revision;
@@ -368,7 +371,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     stage.writes=pending.catch(()=>{});
     try{await pending;if(!this.destroyed && this.staged===stage){this.cameraUnavailable=false;this.cameraSaved=true;}}
     catch{if(!this.destroyed && this.staged===stage){this.cameraUnavailable=true;this.cameraSaved=false;}}
-    finally{if(!this.destroyed){this.cameraSaving--;this.paint();}}
+    finally{if(!this.destroyed){this.cameraSaving--;this.changed();this.paint();}}
   }
   private async eraseActiveCamera(){
     const stage=this.staged;if(!stage)return;
@@ -404,7 +407,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
       this.staged={id:draft.id,revision:manifest.revision,owner,known:new Set(files.keys()),writes:Promise.resolve()};
       this.sources=manifest.sources.map(s=>({
         file:files.get(s.key)??new File([],s.name,{lastModified:s.modified}),
-        ...(s.key?{cameraKey:s.key}:{missingSize:s.size}),pages:s.pages,starts:s.starts,rotations:new Map(s.rotations)
+        ...(s.key?{cameraKey:s.key}:{missingSize:s.size}),veryDark:s.veryDark,pages:s.pages,starts:s.starts,rotations:new Map(s.rotations)
       }));
       this.label=manifest.label;this.expected=manifest.expected;this.createId=manifest.createId;this.defaultLabel=manifest.defaultLabel;
       if(!this.packet&&manifest.paperId)this.linkedPaper.emit(manifest.paperId);

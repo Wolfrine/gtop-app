@@ -1,4 +1,5 @@
 import {ChangeDetectorRef,Component,EventEmitter,HostListener,Input,OnDestroy,OnInit,Output,inject} from '@angular/core';
+import {DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {AssistantApi} from './api.service';
 import {scanFiles,scanBase64,type Scan} from './checking-intake';
@@ -9,7 +10,7 @@ type Question=Variant&{number:number|null;label:string;marks:number|null;sourceP
 type Section={title:string;instructions:string;attemptCount:number|null;questions:Question[]};
 type Paper={title:string;marks:number|null;instructions:string[];sections:Section[]};
 type Status='uploading'|'queued'|'running'|'review'|'ready'|'failed';
-type Summary={id:string;title:string;state:Status;questionPages:number;pageCount:number;updatedAt:string;marks:number|null};
+type Summary={id:string;title:string;referenceRevision:number;state:Status;questionPages:number;pageCount:number;updatedAt:string;marks:number|null};
 type RecordView=Omit<Summary,'marks'>&{version:number;paper:Paper|null;issues:string[];error:string|null;uploaded:number[]};
 type Group='exam'|'scheme';
 const base='/checking/references';
@@ -20,12 +21,12 @@ const newSection=(number:number):Section=>({title:'Section '+number,instructions
 const emptyPaper=(title:string):Paper=>({title,marks:null,instructions:[],sections:[]});
 
 @Component({
-  selector:'gtop-external-exam',standalone:true,imports:[FormsModule],
+  selector:'gtop-external-exam',standalone:true,imports:[FormsModule,DatePipe],
   templateUrl:'./external-exam.html',styleUrl:'./external-exam.css'
 })
 export class ExternalExamComponent implements OnInit,OnDestroy {
   @Input() referenceId='';
-  @Output() ready=new EventEmitter<string>();
+  @Output() ready=new EventEmitter<{id:string;title:string;marks?:number}>();
   @Output() closed=new EventEmitter<void>();
   private api=inject(AssistantApi);
   private cd=inject(ChangeDetectorRef);

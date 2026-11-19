@@ -34,7 +34,7 @@ export class ExternalReference {
   }
   view(record){
     const {id,title,state,pageCount,questionPages,createdAt,updatedAt,version,paper,issues,error,uploaded}=record;
-    return {id,title,state,pageCount,questionPages,createdAt,updatedAt,version,paper:paper??null,
+    return {id,title,state,pageCount,questionPages,createdAt,updatedAt,version,referenceRevision:record.referenceRevision??1,paper:paper??null,
       issues:issues??[],error:error??null,uploaded:(uploaded||[]).map(p=>p.index)};
   }
   async list(uid,cursor){
@@ -47,9 +47,9 @@ export class ExternalReference {
       }catch{this.fail(400,'invalid_cursor','Reload the question paper list.');}
     }
     const rows=await this.store.list(collection(uid),[],pageSize+1,{orderBy:['createdAt','desc'],orderById:true,cursorValues,
-      select:['id','title','state','createdAt','updatedAt','questionPages','pageCount','paper.marks']});
+      select:['id','title','state','createdAt','updatedAt','questionPages','pageCount','paper.marks','referenceRevision']});
     const references=rows.slice(0,pageSize).map(r=>({id:r.id,title:r.title,state:r.state,questionPages:r.questionPages,
-      pageCount:r.pageCount,marks:r.paper?.marks??null,updatedAt:r.updatedAt}));
+      pageCount:r.pageCount,marks:r.paper?.marks??null,updatedAt:r.updatedAt,referenceRevision:r.referenceRevision??1}));
     const last=rows[pageSize-1];
     return {references,nextCursor:rows.length>pageSize?Buffer.from(JSON.stringify([last.createdAt,last.id])).toString('base64url'):null};
   }
@@ -129,7 +129,7 @@ export class ExternalReference {
       if(revisedPath){
         if(saved.state!=='ready')this.fail(409,'reference_changed','Complete the current review first.');
         tx.create(revisedPath,{...ready,id:body.revisionId,createdAt:now,version:1,sourceId:saved.sourceId||saved.id,
-          revisionOf:saved.id,sourceVersion:saved.version});
+          revisionOf:saved.id,sourceVersion:saved.version,referenceRevision:(saved.referenceRevision??1)+1});
       }else tx.set(path,ready);
       this.checking.service.notifyContent(tx,uid);
       return {id:revisedPath?body.revisionId:saved.id};

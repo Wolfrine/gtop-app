@@ -1,5 +1,5 @@
 // Capture drafts live on the current browser until upload, explicit removal or expiry.
-export type CameraSource = {key:string; name:string;size:number;modified:number;pages:number;starts:boolean;rotations:[number,number][]};
+export type CameraSource = {veryDark?:boolean;key:string; name:string;size:number;modified:number;pages:number;starts:boolean;rotations:[number,number][]};
 export type CameraDraft = {
   id:string;owner:string;revision:number;expires:number;updated:number;packetId:string;paperId:string;createId:string;defaultLabel:string;
   label:string;expected:number|null;sources:CameraSource[];
@@ -22,7 +22,11 @@ function database():Promise<IDBDatabase>{
   return connection;
 }
 function read<T>(r:IDBRequest<T>):Promise<T>{return new Promise((resolve,reject)=>{r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
-function committed(t:IDBTransaction){return new Promise<void>((resolve,reject)=>{t.oncomplete=()=>resolve();t.onabort=t.onerror=()=>reject(t.error||Error('Device storage is unavailable.'));});}
+function committed(t:IDBTransaction){
+  const result=new Promise<void>((resolve,reject)=>{t.oncomplete=()=>resolve();t.onabort=t.onerror=()=>reject(t.error||Error('Device storage is unavailable.'));});
+  // An individual read can reject before its transaction's abort event is delivered.
+  void result.catch(()=>{});return result;
+}
 function remove(t:IDBTransaction,d:CameraDraft){
   t.objectStore('photos').delete(IDBKeyRange.bound([d.owner,d.id,''],[d.owner,d.id,'\uffff']));
   t.objectStore('drafts').delete(d.id);

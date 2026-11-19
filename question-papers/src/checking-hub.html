@@ -40,7 +40,7 @@
       </section>
     }
     @if (picker === 'import') {
-      <gtop-external-exam (ready)="chooseReference($event)" (closed)="picker=null" />
+      <gtop-external-exam (ready)="chooseReference($event.id,$event.title,$event.marks)" (closed)="picker=null" />
     }
   </div>
 </main>

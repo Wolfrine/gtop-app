@@ -44,7 +44,7 @@
       <h3>Previously uploaded</h3>
       <div class="history">
         @for(item of references;track item.id){<button type="button" [disabled]="processing||loading" (click)="open(item.id)">
-          <span>{{item.title}}<small>{{item.questionPages}} question-paper {{item.questionPages===1?'page':'pages'}} @if(item.marks){· {{item.marks}} marks}</small></span>
+          <span>{{item.title}}<small>Rev {{item.referenceRevision || 1}} · {{item.updatedAt | date:'d MMM, HH:mm'}} · {{item.questionPages}} question-paper {{item.questionPages===1?'page':'pages'}} @if(item.marks){· {{item.marks}} marks}</small></span>
           <span>{{captions[item.state]}} ›</span>
         </button>}
         @if(cursor){<button type="button" (click)="history(true)">Load older papers</button>}
@@ -67,7 +67,7 @@
     @if(doc.paper&&!editing){
       <section class="entry">
         <div class="paper-meta"><h3>{{doc.state==='review'?'Check the highlighted items':'Marking reference'}}</h3>
-          <small>{{questionCount}} questions · {{doc.paper.marks??'—'}} marks</small></div>
+          <small>Rev {{doc.referenceRevision || 1}} · {{questionCount}} {{questionCount===1?'question':'questions'}} · {{doc.paper.marks??'—'}} marks</small></div>
         @if(doc.issues.length){<ul class="notice">@for(note of doc.issues;track $index){<li>{{note}}</li>}</ul>}
         @if(doc.paper.instructions.length){<p>{{doc.paper.instructions.join(' ')}}</p>}
         @for(s of doc.paper.sections;track $index){
@@ -86,7 +86,7 @@
           }
         }
         <div class="actions">
-          @if(doc.state==='ready'){<button type="button" class="primary" (click)="ready.emit(doc.id)">Check answer sheets</button><button type="button" (click)="edit()">Correct as a new revision</button>}
+          @if(doc.state==='ready'){<button type="button" class="primary" (click)="ready.emit({id:doc.id,title:(doc.paper.title || doc.title) + ' · Rev ' + (doc.referenceRevision || 1),marks:doc.paper.marks ?? undefined})">Check answer sheets</button><button type="button" (click)="edit()">Correct as a new revision</button>}
           @else {<button type="button" class="primary" (click)="edit()">Review reference</button>}
         </div>
       </section>

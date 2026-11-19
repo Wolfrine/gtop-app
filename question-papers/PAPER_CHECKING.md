@@ -4,7 +4,7 @@ Open **Check answer sheets** from a paper in the library, a completed conversati
 
 The grader reads the saved questions and marking points. The review indicates when the saved scheme is incomplete. Each numbered question has a single allocation, including questions with an OR alternative. An answer can link to several pages. Unreadable, uncertain and missing answers need a teacher decision before finalization. Teachers can change an assessment, overwrite its explanation, and place or remove a marker on a page. Printing includes the marked scans and the full marking notes.
 
-The gateway authorizes each scan and result against the signed-in teacher. It never places scan content in the paper library or client-readable notification documents. Firestore's default deny covers the new private collections. The site sends grading images to the service selected on the local host. Use anonymized sheets where possible.
+The gateway authorizes each scan and result against the signed-in teacher. It verifies each saved page against its upload fingerprint before serving it. It never places scan content in the paper library or client-readable notification documents. Firestore's default deny covers the new private collections. The site sends grading images to the service selected on the local host. Use anonymized sheets where possible.
 
 ## Local checking process
 

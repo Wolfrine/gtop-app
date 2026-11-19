@@ -110,7 +110,8 @@ export class PaperChecking {
     if(typeof jpeg!=='string'||jpeg.length>Math.ceil(maxPageBytes/3)*4||! /^[A-Za-z0-9+/]+={0,2}$/.test(jpeg))
       this.fail(400,'invalid_image','This scan page is too large or is not a JPEG.');
     const bytes=Buffer.from(jpeg,'base64'),size=jpegDimensions(bytes);
-    if(bytes.length>maxPageBytes||!size||Math.min(size.width,size.height)<64||Math.max(size.width,size.height)>2600)
+    if(jpeg!==bytes.toString('base64')||bytes.length>maxPageBytes||!size||
+      Math.min(size.width,size.height)<64||Math.max(size.width,size.height)>2600)
       this.fail(400,'invalid_image','This scan page has invalid image dimensions.');
     return this.store.transaction(async tx=>{
       const sheet=await tx.get(path);
@@ -132,8 +133,12 @@ export class PaperChecking {
   async page(path,sheet,index){
     this.pageIndex(sheet,index);
     const page=await this.store.get(pagePath(path,index));
-    if(!page)this.notFound();
-    return Buffer.from(page.jpeg,'base64');
+    const descriptor=sheet.uploaded.find(item=>item.index===index);
+    if(!page||!descriptor)this.notFound();
+    const bytes=Buffer.from(page.jpeg,'base64');
+    if(digest(bytes.toString('base64'))!==descriptor.sha)
+      this.fail(409,'scan_integrity','The saved scan could not be verified. Upload the original page in a new sheet.');
+    return bytes;
   }
   async enqueue(uid,paperId,path,body){
     return this.store.transaction(async tx=>{

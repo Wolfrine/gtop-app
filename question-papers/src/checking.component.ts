@@ -194,7 +194,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   readonly statuses = Object.keys(this.captions) as Result[];
   readonly symbols: Record<Result, string> = {
     correct: '✓',
-    partial: '½',
+    partial: '◐',
     wrong: '×',
     missing: '–',
     unreadable: '?',
@@ -859,7 +859,21 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     this.remarkNumber = answer.number;
   }
   brief(explanation: string, limit = 130) {
-    return explanation.length > limit ? explanation.slice(0, limit - 1).trimEnd() + '…' : explanation;
+    if (explanation.length <= limit) return explanation;
+    const sentences = explanation.trim().split(/(?<=[.!?])\s+/);
+    let complete = '';
+    for (const sentence of sentences) {
+      const next = complete ? complete + ' ' + sentence : sentence;
+      if (next.length > limit) {
+        if (complete) break;
+        continue;
+      }
+      complete = next;
+    }
+    if (complete) return complete;
+    const text = explanation.slice(0, limit - 1);
+    const end = text.lastIndexOf(' ');
+    return (end > 0 ? text.slice(0, end) : text).trimEnd() + '…';
   }
   openGroup(marks: { answer: Answer; anchor: MappingPoint }[]) {
     if (marks.length === 1) this.inspect(marks[0].answer, this.pageNumber);

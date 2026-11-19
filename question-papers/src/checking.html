@@ -954,12 +954,12 @@
           <aside>
             @for (g of printMarks(p); track g.marks[0].answer.number) {
               @let a = g.marks[0].answer;
-              ><span [style.top.%]="g.center * 100"
+              <span [style.top.%]="g.center * 100"
                 >Q{{ a.number }} · {{ a.awarded ?? '?' }}/{{ a.max }}
                 @if (g.marks.length > 1) {
                   +{{ g.marks.length - 1 }}
                 }
-                <small>{{ brief(a.explanation, 46) }}</small></span
+                <small>{{ brief(a.explanation, 76) }}</small></span
               >
             }
           </aside>

@@ -22,7 +22,7 @@ import {workerFreshnessMs} from '../../../assistant-service/presence.mjs';
 // A missed publication plus 10s network margin fits the unchanged 90s window.
 // Job lease renewal/cancellation remains on its independent 30s timer.
 export const healthHeartbeatMs=workerFreshnessMs/2-5000;
-const workerVersion='harness-11-paper-confirmation';
+const workerVersion='harness-12-windows-recovery';
 
 export const phases=['local_conversation','codex_generating','structure_validation','codex_reviewing','codex_correcting','preparing_documents'];
 const confirmationSchema=object({interpretation:{type:'string'},selection:{anyOf:[{type:'null'},object({chapters:{type:'array',items:{type:'string'}},sourceMessageId:{type:'string'},quote:{type:'string'}})]}});

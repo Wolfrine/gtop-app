@@ -6,7 +6,8 @@
     [attr.aria-expanded]="opened"
     [disabled]="busy || loading"
   >
-    <span>Return results</span><span aria-hidden="true">{{opened ? '−' : '+'}}</span>
+    <span class="return-heading"><strong>Return marked work</strong><small>{{ scopePacketId ? 'Class copies and marks register' : 'Copies and marks register for this paper' }}</small></span>
+    <span class="return-open">{{ opened ? 'Close' : 'Open' }} <b aria-hidden="true">{{ opened ? '−' : '→' }}</b></span>
   </button>
   @if (opened) {
   <div class="panel">
@@ -14,7 +15,7 @@
     <p role="status">Loading the class register…</p>
     } @else if (entries.length) {
     <div class="summary">
-      <p><strong>{{finalCount}} of {{chosen.length}} finalized</strong>@if (unavailableCount) { <span> · {{unavailableCount}} held or withdrawn</span>}</p>
+      <p><strong>{{finalCount}} approved {{ finalCount === 1 ? 'copy' : 'copies' }}</strong><span> · {{chosen.length}} selected for the register</span>@if (unavailableCount) { <span> · {{unavailableCount}} held or withdrawn</span> }</p>
       <button
         class="link"
         type="button"
@@ -51,7 +52,7 @@
             [disabled]="busy"
             #item
           />
-          <span>{{row.label}}</span><small>{{status(row)}}</small></label
+          <span>{{row.label}}@if (!scopePacketId && row.packetLabel) { <small>{{row.packetLabel}}</small> }</span><small>{{status(row)}}</small></label
         >
         } @if (!visible.length) {
         <p>No matching sheets.</p>
@@ -63,18 +64,16 @@
     }
     <div class="actions">
       <button type="button" class="primary" [disabled]="busy || !finalCount" (click)="download('zip')">
-        Download marked copies <small>ZIP</small>
+        <span>Download individual copies <small>ZIP · One labelled PDF per sheet</small></span>
       </button>
       <button type="button" [disabled]="busy || !finalCount" (click)="download('print')">
-        Print class set <small>PDF</small>
+        <span>Print a class set <small>PDF · Each learner starts on a fresh sheet</small></span>
       </button>
       <button type="button" [disabled]="busy || !chosen.length" (click)="download('csv')">
-        Download marks register <small>CSV</small>
+        <span>Download marks register <small>CSV · Scores and current status</small></span>
       </button>
     </div>
-    <p class="hint">
-      The ZIP contains individual copies. The class PDF starts each student on a fresh sheet for double-sided printing.
-    </p>
+    @if (!finalCount && chosen.length) { <p class="hint">Approve a sheet to include its marked copy in a download.</p> }
     } @else if (!error) {
     <p>No answer sheets yet.</p>
     } @if (progress) {

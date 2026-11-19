@@ -24,8 +24,7 @@ try{
       // Auth, model or external requests; no submission action is exercised.
       await page.route('**/*',route=>{
         const url=new URL(route.request().url());
-        const publicFont=route.request().method()==='GET'&&((url.hostname==='fonts.googleapis.com'&&route.request().resourceType()==='stylesheet')||(url.hostname==='fonts.gstatic.com'&&route.request().resourceType()==='font'));
-        if(!publicFont&&(url.origin!==base.origin||/^\/(?:api(?:\/|$)|assistant-config\.json$|session(?:\/|$)|service(?:\/|$)|conversations(?:\/|$))/.test(url.pathname))){
+        if(url.origin!==base.origin||/^\/(?:api(?:\/|$)|assistant-config\.json$|session(?:\/|$)|service(?:\/|$)|conversations(?:\/|$))/.test(url.pathname)){
           forbidden.push(url.origin+url.pathname);return route.abort();
         }
         return route.continue();

@@ -39,3 +39,9 @@ small,.manifest-header p,.upload-summary p,.privacy { color:var(--muted); font-s
   .batch-actions { align-items:stretch; }
   .upload-summary { flex-basis:100%; }
 }
+.batch { color: #293e31; }
+h2,h3 { font-family: Georgia, serif; color: #203f31; letter-spacing: -.035em; }
+.file-picker { background: #f8f6ed; border-color: #a7b49e; }
+.file-picker input::file-selector-button { background: #e8eddf; border-color: #c2cbb8; }
+.manifest li { background: #fffdf8; }
+.button.primary { background: #244b34; color: white; }

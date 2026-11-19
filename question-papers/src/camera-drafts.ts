@@ -2,7 +2,7 @@
 export type CameraSource = {veryDark?:boolean;key:string; name:string;size:number;modified:number;pages:number;starts:boolean;rotations:[number,number][]};
 export type CameraDraft = {
   id:string;owner:string;revision:number;expires:number;updated:number;packetId:string;paperId:string;createId:string;defaultLabel:string;
-  label:string;expected:number|null;sources:CameraSource[];
+  label:string;expected:number|null;single?:boolean;sources:CameraSource[];
 };
 const duration=24*60*60*1000;
 let connection:Promise<IDBDatabase>|undefined;

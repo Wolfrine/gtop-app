@@ -46,6 +46,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='POST' && path==='/conversations')output=await service.createConversation(uid,body);
         else if(method==='POST' && path==='/feedback')output=await service.feedback(uid,body);
         else if(method==='POST' && path==='/admin/library')output=await service.adminLibrary(uid,body);
+        else if(method==='GET' && path==='/checking/work')output=await service.checking.recentWork(uid);
         else if(method==='GET' && /^\/admin\/conversations\/[^/]+$/.test(path))output=await service.adminConversation(uid,path.split('/').at(-1));
         else if(method==='GET' && /^\/(admin\/)?conversations\/[^/]+\/revision$/.test(path))output=await service.conversationRevision(uid,path.split('/').at(-2),path.startsWith('/admin/'));
         else {let m;

@@ -61,6 +61,7 @@ function workspace(){
   },{document,Date:time.Date,setTimeout:time.set,clearTimeout:time.clear});
   const ui=new PaperWorkspace();
   ui.session={user:{uid:'owner',displayName:'Owner',email:'owner@example.invalid',libraryAccess:true},worker:{state:'ready',modelReady:false,lastSeenAt:new Date(time.now).toISOString()},service:{workerId:'sachit-windows',state:'ready',starter:{state:'online',lastSeenAt:new Date(time.now).toISOString()},worker:{state:'ready',modelReady:false,lastSeenAt:new Date(time.now).toISOString()},request:null,canStart:false},notifications:config,capabilities:{},defaults:{}};
+  ui.view='chat';
   ui.detail={conversation:{id:'conversation',ownerUid:'owner',title:'Existing',updatedAt:'unchanged'},messages:[],jobs:[],papers:[]};
   return {ui,api,time,w,calls,document,respond(fn){response=fn;},async connect(){ui.startEvents();w.content().next({fromCache:false,data:null});w.presence().next({fromCache:false,data:health(time.now)});await flush();calls.length=0;}};
 }
@@ -196,4 +197,53 @@ test('manual session capability removal cannot revive availability from an older
 
 test('configuration grants only exact owner and fixed health paths',()=>{
   const {validNotifications,freshHealth}=compile('owner-events.ts');assert.equal(validNotifications(config,'owner'),true);assert.equal(validNotifications(config,'other'),false);assert.equal(validNotifications({...config,presencePath:'assistantWorkers/sachit-windows'},'owner'),false);assert.equal(freshHealth(health(Date.now()+10000)),false);
+});
+
+test('the teaching desk offers each teacher action against its originating record',async()=>{
+  const c=workspace();
+  c.ui.view='home';
+  c.respond(path=>{
+    if(path==='/conversations')return {conversations:[{id:'request',title:'Algebra paper',updatedAt:'2026-11-19'}]};
+    if(path==='/checking/packets')return {packets:[{id:'stack',label:'Class 9',state:'uploading',pageCount:3,updatedAt:'2026-11-19'}]};
+    if(path==='/checking/work')return {sheets:[{id:'book',label:'Roll 2',paperId:'paper',packetId:'class',state:'review',pending:1,updatedAt:'2026-11-19'}]};
+    throw Error('Unexpected request '+path);
+  });
+  await c.ui.reloadDesk();
+  const routes=[];
+  c.ui.openConversation=id=>routes.push(['request',id]);
+  c.ui.openCheckingHome=(reference,packet)=>routes.push(['stack',packet]);
+  c.ui.openChecking=(paper,packet,sheet)=>routes.push(['sheet',paper,packet,sheet]);
+  assert.equal(c.ui.shownWork[0].description,'1 question to review');
+  for(const item of c.ui.shownWork)c.ui.resumeWork(item);
+  assert.deepEqual(routes,[['sheet','paper','class','book'],['stack','stack'],['request','request']]);
+  c.ui.ngOnDestroy();
+});
+
+test('signing out clears local briefs and late worklist responses cannot repopulate the desk',async()=>{
+  const c=workspace(),pending=deferred();
+  c.ui.view='chat';c.ui.detail=undefined;c.ui.draft='Draft from the first account';
+  c.ui.openHome(false);
+  await flush();
+  assert.equal(c.ui.workItems[0].kind,'draft');
+  c.respond(()=>pending.promise);
+  const listing=c.ui.reloadDesk();
+  c.ui.resetAccount();
+  pending.resolve({conversations:[{id:'old'}],sheets:[{id:'old'}],packets:[{id:'old'}]});
+  await listing;
+  assert.equal(c.ui.workItems.length,0);
+  assert.equal(c.ui.draft,'');
+  assert.equal(c.ui.workError,'');
+  c.ui.ngOnDestroy();
+});
+
+test('a refreshed session without library access drops shared documents and archive results',()=>{
+  const c=workspace();
+  c.ui.view='library';
+  c.ui.libraryPages.papers={items:[{id:'shared',ownerUid:'another teacher'}],nextCursor:null,loaded:true};
+  c.ui.document={adminView:true,safe:'private preview'};
+  c.ui.acceptSession({...c.ui.session,user:{...c.ui.user,libraryAccess:false}});
+  assert.equal(c.ui.document,undefined);
+  assert.equal(c.ui.libraryPage.items.length,0);
+  assert.equal(c.ui.user.libraryAccess,false);
+  c.ui.ngOnDestroy();
 });

@@ -7,7 +7,7 @@
       "name": "gt-papers-shell",
       "installMode": "prefetch",
       "updateMode": "prefetch",
-      "resources": {"files": ["/index.html", "/*.css", "/*.js", "/manifest.webmanifest", "/assistant-config.json", "/icons/gt-papers-32.png", "/icons/gt-papers-180.png", "/icons/gt-papers-192.png", "/icons/gt-papers-512.png", "/media/*.woff2"]}
+      "resources": {"files": ["/index.html", "/*.css", "/*.js", "/manifest.webmanifest", "/desk-stationery.webp", "/assistant-config.json", "/icons/gt-papers-32.png", "/icons/gt-papers-180.png", "/icons/gt-papers-192.png", "/icons/gt-papers-512.png", "/media/*.woff2", "/fonts/*.woff2"]}
     }
   ],
   "dataGroups": [],

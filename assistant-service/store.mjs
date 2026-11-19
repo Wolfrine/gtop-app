@@ -18,6 +18,23 @@ export class FirestoreStore {
     const result = await query.limit(limit).get();
     return result.docs.map(d => options.includeId?{...d.data(),id:d.id}:d.data());
   }
+  async recentSheetWork(ownerPath,states,fields,limit){
+    // Legacy sheets store the owner and paper only in the path. All supported
+    // paper IDs are ASCII letters, digits, '-' or '_', between these two bounds.
+    const parent=ownerPath+'/papers/';
+    const result=await this.db.collectionGroup('sheets')
+      .where('__name__','>',this.db.doc(parent+'!'))
+      .where('__name__','<',this.db.doc(parent+'~'))
+      .where('state','in',states)
+      .where('updatedAt','>','')
+      .orderBy('updatedAt','desc').orderBy('__name__','desc')
+      .limit(limit).select(...fields).get();
+    return result.docs.flatMap(doc=>{
+      const [paperId,collection,id,...rest]=doc.ref.path.slice(parent.length).split('/');
+      if(!doc.ref.path.startsWith(parent)||collection!=='sheets'||!id||rest.length)return [];
+      return [{...doc.data(),paperId,id}];
+    });
+  }
   transaction(fn) {
     return this.db.runTransaction(tx => fn({
       get: async path => { const d = await tx.get(this.db.doc(path)); return d.exists ? d.data() : null; },
@@ -39,6 +56,14 @@ export class MemoryStore {
   constructor(seed = {}) { this.docs = new Map(Object.entries(structuredClone(seed))); this.tail = Promise.resolve(); }
   async get(path) { return structuredClone(this.docs.get(path) ?? null); }
   async getSelected(paths,_fields){return Promise.all(paths.map(path=>this.get(path)));}
+  async recentSheetWork(ownerPath,states,_fields,limit){
+    const parent=ownerPath+'/papers/';
+    return [...this.docs].flatMap(([path,sheet])=>{
+      if(!path.startsWith(parent)||!states.includes(sheet.state)||!sheet.updatedAt)return [];
+      const [paperId,collection,id,...rest]=path.slice(parent.length).split('/');
+      return collection==='sheets'&&id&&!rest.length?[{...sheet,paperId,id,path}]:[];
+    }).sort((a,b)=>a.updatedAt>b.updatedAt?-1:a.updatedAt<b.updatedAt?1:a.path>b.path?-1:1).slice(0,limit);
+  }
   async list(path, filters = [], limit = 200, options = {}) {
     const matches=(value,[field,op,arg])=>{
       if(op==='==')return value[field]===arg;

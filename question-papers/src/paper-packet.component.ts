@@ -43,6 +43,8 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   @Input() packetId = '';
   @Input() referenceTitle = '';
   @Input() referenceChoice = 0;
+  @Input() libraryAccess = false;
+  @Output() needPrinted = new EventEmitter<void>();
   @Output() linkedPaper = new EventEmitter<string>();
   @Output() packetChange = new EventEmitter<string>();
   @Output() needPaper = new EventEmitter<string>();
@@ -60,6 +62,10 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   cameraSaved=false;
   cameraUnavailable=false;
   private openedId = '';
+  single = false;
+  historyOpen = false;
+  private historyLoaded = false;
+  dragDepth = 0;
   private createId = '';
   private defaultLabel = '';
   private pendingReference = '';
@@ -108,12 +114,30 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   progress = '';
   error = '';
   notice = '';
+  @ViewChild('bookDetail') private bookDetail?:ElementRef<HTMLElement>;
   @ViewChild('bookList') private bookList?:ElementRef<HTMLElement>;
   @ViewChild(PacketCorrectionComponent) correction?:PacketCorrectionComponent;
   correcting=false;
   readonly pageLimit = maxStackPages;
   readonly bookLimit = maxCheckingPages;
 
+  get stage() { return this.submitted ? 3 : this.reviewing || this.processing || this.packet?.state === 'failed' ? 2 : 1; }
+  get uploadLabel() {
+    if (this.incompleteUpload) return 'Finish uploading';
+    return this.single ? 'Review this answer book' : this.allPdfs && this.separateFiles ? 'Review student books' : 'Find student books';
+  }
+  chooseSize(single:boolean) {
+    if (this.sourcesLocked || this.busy) return;
+    this.single=single;
+    if(single) this.toggleFileStarts(false);
+    else void this.saveCamera();
+  }
+  showHistory() {
+    if (this.hasOpenStack) this.home();
+    if (this.hasOpenStack) return;
+    this.historyOpen=true;
+    if (!this.historyLoaded && !this.loadingList) void this.loadRecent();
+  }
   get hasOpenStack() { return !!this.openedId; }
   get pageTotal() { return this.sources.reduce((n, source) => n + source.pages, 0); }
   get expectedCount() { return this.packet?.expectedStudents ?? this.expected; }
@@ -170,7 +194,6 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
       this.pendingReference = this.referenceChoice > 0 ? this.paperId : '';
       void this.open(this.packetId, false);
     }
-    else void this.loadRecent();
     const uid = this.api.user?.uid;
     if (uid) {
       try {
@@ -249,7 +272,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   stateLabel(state: PacketState) {
-    return {uploading:'Upload incomplete',queued:'Waiting to organize',running:'Finding books',review:'Review book boundaries',completed:'Sent for marking',failed:'Needs attention'}[state];
+    return {uploading:'Upload incomplete',queued:'Waiting to organize',running:'Finding books',review:'Match student books',completed:'Sent for marking',failed:'Needs attention'}[state];
   }
   async loadRecent(more = false) {
     if (this.destroyed || (more && (!this.cursor || this.loadingList))) return;
@@ -264,6 +287,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
       const ids = new Set(old.map(p => p.id));
       this.recent = [...old,...result.packets.filter(p => !ids.has(p.id))];
       this.cursor = result.nextCursor ?? '';
+      this.historyLoaded = true;
     } catch (e) { if (n === this.listRequest && !this.destroyed) this.error = this.describe(e); }
     finally { if (n === this.listRequest) { this.loadingList = false; this.ready = true; this.paint(); } }
   }
@@ -273,7 +297,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     this.processingRefresh = true;
     try {
       if (this.processing && this.openedId) await this.open(this.openedId, false, true);
-      else if (!this.openedId && this.recent.some(p => ['queued','running'].includes(p.state))) await this.loadRecent();
+      else if (this.historyOpen && !this.openedId && this.recent.some(p => ['queued','running'].includes(p.state))) await this.loadRecent();
     } finally {
       this.processingRefresh=false;
       if(this.freshAfterWork&&!this.busy){this.freshAfterWork=false;void this.refreshOnChange();}
@@ -283,6 +307,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     if (this.busy || this.destroyed) return;
     if (id !== this.openedId && this.hasLocalChanges && !window.confirm('Leave these unsaved changes?')) return;
     const changing = id !== this.openedId;
+    this.historyOpen=false;
     if (changing) {
       if (publish) this.pendingReference='';
       this.resetForm(); this.packet = undefined; this.openedId = id;
@@ -314,7 +339,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   home(publish = true) {
     if (this.busy || (publish && this.hasLocalChanges && !window.confirm('Leave these unsaved changes?'))) return;
     this.openedId=''; this.pendingReference=''; this.packet=undefined; this.loadingDetail=false; this.detailRequest++;
-    this.resetForm(); if (publish) { this.packetChange.emit(''); this.linkedPaper.emit(''); } void this.loadRecent();
+    this.resetForm(); this.single=false; this.setScanLocation(0); if (publish) { this.packetChange.emit(''); this.linkedPaper.emit(''); } this.historyLoaded=false;
   }
   private resetForm() {
     this.staged=undefined;this.cameraSaved=false;void this.listCameraDrafts();this.correcting=false;this.correction?.reset();this.closeSource(); this.releaseImages(); this.sources=[];this.savedDuringUpload=0; this.createId=''; this.defaultLabel=''; this.books=[];
@@ -324,6 +349,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   }
   private apply(packet: Packet) {
     this.packet=packet; this.openedId=packet.id;
+    if (packet.state==='uploading') this.single=packet.expectedStudents===1;
     const fingerprints=new Map<string,number[]>();
     for(const {index,sha} of packet.uploaded){const pages=fingerprints.get(sha)??[];pages.push(index);fingerprints.set(sha,pages);}
     this.matchingScans=Array.from(fingerprints.values()).filter(pages=>pages.length>1);
@@ -359,7 +385,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     const stage=this.staged??={id:crypto.randomUUID(),revision:0,owner,known:new Set<string>(),writes:Promise.resolve()};
     const sources=this.sources.map(s=>({key:s.cameraKey||'',veryDark:!!s.veryDark,name:s.file.name,size:s.missingSize??s.file.size,modified:s.file.lastModified,pages:s.pages,starts:s.starts,rotations:[...s.rotations]}));
     const manifest:CameraDraft={id:stage.id,owner,revision:0,updated:0,expires:0,packetId:this.openedId,
-      paperId:this.paperId,createId:this.createId,defaultLabel:this.defaultLabel,label:this.label,expected:this.expected,sources};
+      paperId:this.paperId,createId:this.createId,defaultLabel:this.defaultLabel,label:this.label,expected:this.expected,single:this.single,sources};
     this.cameraSaving++;this.changed();
     const pending=stage.writes.then(async()=>{
       if(this.api.user?.uid!==owner)return;
@@ -409,7 +435,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
         file:files.get(s.key)??new File([],s.name,{lastModified:s.modified}),
         ...(s.key?{cameraKey:s.key}:{missingSize:s.size}),veryDark:s.veryDark,pages:s.pages,starts:s.starts,rotations:new Map(s.rotations)
       }));
-      this.label=manifest.label;this.expected=manifest.expected;this.createId=manifest.createId;this.defaultLabel=manifest.defaultLabel;
+      this.label=manifest.label;this.expected=manifest.expected;this.single=manifest.single??false;this.createId=manifest.createId;this.defaultLabel=manifest.defaultLabel;
       if(!this.packet&&manifest.paperId)this.linkedPaper.emit(manifest.paperId);
       this.cameraSaved=true;this.cameraUnavailable=false;this.changed();
     });
@@ -418,6 +444,18 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   async add(event: Event, camera=false) {
     const input=event.target as HTMLInputElement, files=Array.from(input.files??[]);
     input.value='';
+    await this.addFiles(files,camera);
+  }
+  drag(event:DragEvent,delta:number) {
+    if (!event.dataTransfer?.types.includes('Files')) return;
+    event.preventDefault();
+    this.dragDepth=Math.max(0,this.dragDepth+delta);
+  }
+  async drop(event:DragEvent) {
+    event.preventDefault();this.dragDepth=0;
+    await this.addFiles(Array.from(event.dataTransfer?.files||[]));
+  }
+  private async addFiles(files:File[],camera=false) {
     if (!files.length || this.busy) return;
     await this.work(async () => {
       const errors:string[]=[];let duplicates=0;let darkCapture=false;
@@ -486,17 +524,19 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   }
   async upload() {
     if (this.busy || this.missingSources || !this.sources.length || (this.packet && this.pageTotal!==this.packet.pageCount)) return;
-    if (this.expected!==null && (!Number.isInteger(this.expected)||this.expected<1||this.expected>180)) { this.error='Enter the number of students present, between 1 and 180.'; return; }
+    if(this.single && this.pageTotal>this.bookLimit){this.error='One answer book can contain up to '+this.bookLimit+' pages.';return;}
+    if (!this.single && this.expected!==null && (!Number.isInteger(this.expected)||this.expected<1||this.expected>180)) { this.error='Enter the number of students present, between 1 and 180.'; return; }
+    const directGroups=this.knownBooks();
     this.closeSource();this.savedDuringUpload=this.packet?.uploaded.length??0;
     await this.work(async () => {
       if (!this.packet) {
         let start=1;
         const knownStarts=this.sources.flatMap((source,i)=>{ const index=start;start+=source.pages;return i===0||source.starts?[index]:[]; });
         this.createId ||= crypto.randomUUID();
-        this.defaultLabel ||= 'Class stack · '+new Date().toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+        this.defaultLabel ||= (this.single?'Answer book · ':'Class stack · ')+new Date().toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
         if(this.staged)await this.saveCamera();
         const {packet}=await this.api.request<{packet:Packet}>(base,'POST',{
-          id:this.createId,pageCount:this.pageTotal,expectedStudents:this.expected,
+          id:this.createId,pageCount:this.pageTotal,expectedStudents:this.single?1:this.expected,
           label:this.label.trim()||this.defaultLabel,...(this.paperId?{paperId:this.paperId}:{}),knownStarts
         });
         if (this.destroyed) return;
@@ -509,10 +549,30 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
       if (saved.size && !contiguous) await this.uploadPages(packet,saved,true);
       await this.uploadPages(packet,saved,false);
       if (this.destroyed) return;
-      await this.eraseActiveCamera();this.sources=[]; this.changed();
-      this.progress='Starting book organization…'; this.paint();
-      await this.api.request(this.path(packet.id)+'/organize','POST',{});
-      await this.readCurrent();
+      this.progress=directGroups ? 'Saving the book list…' : 'Finding where each book starts…'; this.paint();
+      if (directGroups) {
+        await this.readCurrent();
+        const current=this.packet!;
+        const {packet:updated}=await this.api.request<{packet:Packet}>(this.path(current.id)+'/save','POST',{
+          version:current.version,groups:directGroups
+        });
+        if (!this.destroyed) this.apply(updated);
+      } else {
+        await this.api.request(this.path(packet.id)+'/organize','POST',{});
+        await this.readCurrent();
+      }
+      await this.eraseActiveCamera();this.sources=[];this.changed();
+    });
+  }
+  private knownBooks():Book[]|undefined {
+    if (this.single) return [{label:'',pages:Array.from({length:this.pageTotal},(_,i)=>i+1),needsReview:true,
+      reason:'Read the cover and enter the student’s roll number or book label.'}];
+    if (!this.allPdfs || !this.separateFiles) return;
+    let first=1;
+    return this.sources.map(source=>{
+      const pages=Array.from({length:source.pages},(_,i)=>first+i);first+=source.pages;
+      return {label:source.file.name.replace(/\.pdf$/i,'').slice(0,100),pages,needsReview:true,
+        reason:'The label comes from the filename. Check it against the cover.'};
     });
   }
   private async uploadPages(packet:Packet,saved:Map<number,string>,verifyOnly:boolean) {
@@ -572,14 +632,26 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     const remaining=Array.from({length:this.packet!.pageCount},(_,i)=>i+1).filter(p=>!assigned.has(p));
     if (remaining.length) this.books.push({key:this.nextKey++,label:'',pages:remaining,reason:'Identify this book or move these pages to the correct book.',needsReview:true});
     this.countConfirmed=false;
-    const focus=this.needsReview[0]??this.books.find(b=>!b.withdrawn&&b.held)??this.books.find(b=>!b.withdrawn);
-    if (focus) this.selectBook(focus);
+    const url=new URL(location.href);
+    let requested=url.searchParams.get('packet')===this.openedId?Number(url.searchParams.get('scan')):0;
+    if (!requested && this.api.user?.uid) {
+      try { requested=Number(sessionStorage.getItem(this.scanCursorKey)); } catch { /* Private browsing can disable storage. */ }
+    }
+    const restored=requested?this.books.find(book=>!book.withdrawn && book.pages.includes(requested)):undefined;
+    const focus=restored??this.needsReview[0]??this.books.find(b=>!b.withdrawn&&b.held)??this.books.find(b=>!b.withdrawn);
+    if (focus) this.selectBook(focus,restored?requested:undefined);
   }
-  selectBook(book:DraftBook) {
+  reviewNext() {
+    const book=this.needsReview[0];
+    if (!book) return;
+    this.selectBook(book);
+    requestAnimationFrame(()=>this.bookDetail?.nativeElement.scrollIntoView({block:'nearest'}));
+  }
+  selectBook(book:DraftBook,page?:number) {
     this.selectedKey=book.key; this.resetMove();
     this.keepCurrentBookVisible();
 
-    if (book.pages.length) void this.showPage(book.pages[0]);
+    if (book.pages.length) void this.showPage(page??book.pages[0]);
   }
   @HostListener('window:resize')
   keepCurrentBookVisible() {
@@ -594,9 +666,21 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
       else if(row.top<bounds.top)list.scrollTop+=row.top-bounds.top;
     });
   }
+  private get scanCursorKey() {return 'gtop:scan:'+this.api.user?.uid+':'+this.openedId;}
+  private setScanLocation(index:number) {
+    const url=new URL(location.href);
+    if (index) {
+      url.searchParams.set('scan',String(index));
+      if (this.api.user?.uid) {
+        try { sessionStorage.setItem(this.scanCursorKey,String(index)); } catch { /* URL still preserves the selection. */ }
+      }
+    } else url.searchParams.delete('scan');
+    history.replaceState(history.state,'',url);
+  }
   async showPage(index:number) {
     const id=this.openedId;
     if (!id) return;
+    this.setScanLocation(index);
     this.selectedPage=index; this.zoomed=false; this.imageError=''; this.imageUrl='';
     const n=++this.previewRequest;
     if (this.imagePacket!==id) { this.releaseImages(); this.imagePacket=id; }

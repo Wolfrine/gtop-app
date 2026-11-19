@@ -1,14 +1,14 @@
 <section class="batch" aria-labelledby="batch-title">
   <header>
-    <h2 id="batch-title">Upload a class</h2>
-    <p>Choose one scanned PDF per student. Each PDF becomes a separate answer sheet.</p>
+    <h2 id="batch-title">Separate answer books</h2>
+    <p>Choose one PDF for each learner and check the sheet labels before uploading.</p>
   </header>
 
   <div class="file-picker">
     <label for="batch-files">{{sheets.length ? 'Add more PDFs' : 'Choose class PDFs'}}</label>
     <input id="batch-files" type="file" accept="application/pdf,.pdf" multiple
       (change)="selectFiles($event)" [disabled]="busy">
-    <small>Up to {{maxPages}} pages and 64 MB per PDF. Use a sheet label that avoids student names.</small>
+    <small>Up to {{maxPages}} pages and 64 MB per PDF. Use a roll number or sheet label.</small>
   </div>
   @if (recoverable && !sheets.length) {
     <p class="tip">To resume an earlier upload in this tab, select the same PDFs. Sheets already sent will be recognized.</p>
@@ -18,7 +18,7 @@
   <div class="batch-actions" role="group" aria-label="Class upload actions">
     @if (sheets.length) {
       <div class="upload-summary">
-        <strong aria-live="polite">{{sent}} of {{sheets.length}} sent to checker</strong>
+        <strong aria-live="polite">{{sent}} of {{sheets.length}} sent for checking</strong>
         <p>
           @if (unsavedFiles) { Keep this tab open until the pages are saved. }
           @else if (sent) { The checker continues after you leave. }
@@ -31,7 +31,7 @@
         {{sending ? 'Uploading…' : 'Upload and check '+candidates.length+' '+(candidates.length === 1 ? 'sheet' : 'sheets')}}
       </button>
     }
-    <button type="button" class="button secondary" (click)="close()" [disabled]="busy">Back to answer sheets</button>
+    <button type="button" class="button secondary" (click)="close()" [disabled]="busy">Back to register</button>
   </div>
 
   @if (sheets.length || inspecting) {
@@ -68,7 +68,7 @@
                 <small>{{row.saved}} of {{row.pages}} pages saved</small>
               }
               @case ('uploading') { <span>{{row.detail}}</span> }
-              @case ('sent') { <span class="sent">✓ Sent to checker</span> }
+              @case ('sent') { <span class="sent">✓ Sent for checking</span> }
               @case ('ready') { <span>Ready to upload</span> }
             }
             @if (row.state === 'failed') {

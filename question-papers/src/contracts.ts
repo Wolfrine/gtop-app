@@ -11,14 +11,25 @@ export interface ConversationDetail {conversation:Conversation;messages:Message[
 export type LibraryKind='papers'|'conversations';
 export interface LibraryItem extends LibraryMetadata {id:string;title:string;createdAt:string;updatedAt?:string;conversationId?:string;revision?:number;marks?:number;jobId?:string;status?:string;latestPaperId?:string}
 export interface LibraryPage {items:LibraryItem[];nextCursor:string|null}
-export interface LibraryFilters {board:string;standard:string;subject:string;text:string}
+export interface LibraryFilters {board:string;standard:string;subject:string;text:string;year?:string}
 export interface Transport {request<T>(path:string,method?:string,body?:unknown):Promise<T>;artifact(id:string,kind:'student'|'answers'):Promise<string>;adminArtifact?(id:string,kind:'student'|'answers'):Promise<string>}
 
 export function libraryMatches(item:LibraryItem,filters:LibraryFilters):boolean {
   const normal=(value:unknown)=>String(value ?? '').normalize('NFKC').trim().toLocaleLowerCase();
-  for(const key of ['board','standard','subject'] as const)if(filters[key]&&normal(item[key])!==normal(filters[key]))return false;
-  const query=normal(filters.text);
-  return !query||normal([item.title,item.creatorName,item.board,item.standard,item.subject,item.academicYear].filter(Boolean).join(' ')).includes(query);
+  const date = item.updatedAt || item.createdAt || '';
+  if (filters.year && date.slice(0, 4) !== filters.year) return false;
+  const searchable = (value: unknown) => normal(value)
+    .replace(/\b(?:standard|grade|std)\.?\s*(?=\d)/g, 'class ')
+    .replace(/\bclass\s*(?=\d)/g, 'class ')
+    .replace(/\bmaths?\b/g, 'mathematics');
+  const standard=(value:unknown)=>searchable(value).replace(/^class\s+/,'');
+  if (filters.board && normal(filters.board)!==normal(item.board)) return false;
+  if (filters.standard && standard(filters.standard)!==standard(item.standard)) return false;
+  if (filters.subject && searchable(filters.subject)!==searchable(item.subject)) return false;
+  const words = searchable(filters.text).split(/\s+/).filter(Boolean);
+  const context = searchable([item.title, item.creatorName, item.board, item.standard && 'Class ' + item.standard,
+    item.subject, item.academicYear, date.slice(0, 10), item.marks && item.marks + ' marks'].filter(Boolean).join(' '));
+  return words.every(word => context.includes(word));
 }
 export function mergeLibraryItems(current:LibraryItem[],incoming:LibraryItem[]):LibraryItem[]{return Array.from(new Map([...current,...incoming].map(item=>[item.id,item])).values());}
 export function conversationReadOnly(detail:ConversationDetail|undefined,uid:string|undefined):boolean{return detail?.readOnly===true||!!(detail?.conversation.ownerUid&&detail.conversation.ownerUid!==uid);}

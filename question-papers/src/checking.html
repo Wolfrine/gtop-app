@@ -8,7 +8,7 @@
         [disabled]="busy"
         aria-label="Back to all answer sheets"
       >
-        ‹ <span>All sheets</span>
+        ‹ <span>Register</span>
       </button>
       <div class="heading">
         <h1>{{ sheet!.label }}</h1>
@@ -45,14 +45,14 @@
       </details>
     } @else {
       <button class="back" type="button" (click)="composing ? list() : leave()" [disabled]="busy">
-        ‹ <span>{{ composing ? 'All sheets' : 'Papers' }}</span>
+        ‹ <span>{{ composing ? 'Register' : 'Back' }}</span>
       </button>
       <div class="heading">
-        <h1>{{ composing ? (resuming ? 'Resume upload' : 'Add sheets') : 'Answer sheets' }}</h1>
+        <h1>{{ composing ? (resuming ? 'Resume upload' : 'Add answer sheets') : (scopePacketId ? (classLabel || 'Class register') : 'Marking register') }}</h1>
         <p>
           {{ rubric?.title }}
           @if (rubric?.marks) {
-            · {{ rubric?.marks }} marks
+            · {{ rubric?.marks }} {{ rubric?.marks === 1 ? 'mark' : 'marks' }}
           }
         </p>
       </div>
@@ -82,7 +82,7 @@
             (click)="intakeMode(false)"
             [disabled]="busy || frozen"
           >
-            One answer sheet
+            One answer book
           </button>
           <button
             type="button"
@@ -90,7 +90,7 @@
             (click)="intakeMode(true)"
             [disabled]="busy || frozen"
           >
-            Class PDFs
+            One PDF per learner
           </button>
         </nav>
       }
@@ -105,13 +105,13 @@
       } @else {
         <form (ngSubmit)="submit()" class="form intake-form">
           <label
-            >Sheet label<input
+            >Roll number or sheet label<input
               name="label"
               [(ngModel)]="label"
               [disabled]="busy || frozen"
               maxlength="100"
               required
-              placeholder="e.g. Sheet 07"
+              placeholder="e.g. Roll 07"
           /></label>
           <label class="file-drop"
             ><strong>Add photos or a scanned PDF</strong
@@ -199,8 +199,7 @@
             ></textarea>
           </label>
           <p class="help">
-            Use a sheet label without a student name. The configured OpenAI service receives these scans for
-            marking.
+            Use a roll number or sheet label. Scanned pages go to the configured OpenAI service for marking.
           </p>
           <div class="actions">
             <button class="action primary" type="submit" [disabled]="busy || !label.trim() || !photos.length">
@@ -220,16 +219,16 @@
             >{{
               current.grade
                 ? pending
-                  ? 'Needs attention'
+                  ? 'Review needed'
                   : current.state === 'final' && !dirty
-                    ? 'Finalized'
-                    : 'Ready to finalize'
+                    ? 'Approved'
+                    : 'Ready for approval'
                 : stateLabel(current)
             }}</span
           >
           @if (current.grade) {
             <span class="detail-text"
-              >{{ pending ? pending + ' pending' : answers.length + ' questions' }}
+              >{{ pending ? pending + ' pending' : answers.length + (answers.length === 1 ? ' question' : ' questions') }}
               @if (dirty) {
                 · Unsaved
               }
@@ -239,18 +238,18 @@
         @if (current.grade) {
           <div class="actions">
             @if (canEdit) {
-              @if (dirty) {
+              @if (dirty && !editingAnswer) {
                 <button class="action" type="button" (click)="save(false)" [disabled]="busy">
                   Save corrections
                 </button>
               }
               @if (!pending) {
                 <button class="action primary" type="button" (click)="save(true)" [disabled]="busy">
-                  Finalize marks
+                  Approve final marks
                 </button>
-              } @else if (issues.length) {
+              } @else if (issues.length > 1) {
                 <button class="action" type="button" (click)="nextIssue()" [disabled]="busy">
-                  Next issue ›
+                  Next flagged answer →
                 </button>
               }
             } @else {
@@ -309,18 +308,27 @@
           </div>
         </div>
       }
+      @if (current.grade && issues.length) {
+        <nav class="flag-rail" aria-label="Flagged answers">
+          <strong>Needs a decision</strong>
+          @for (flag of issues; track flag.number) {
+            <button type="button" [attr.aria-pressed]="selected === flag.number" (click)="inspect(flag)">Q{{ flag.number }}</button>
+          }
+        </nav>
+      }
       @if (current.grade) {
         <nav class="phone-tabs mode-tabs" aria-label="Marking view">
           <button type="button" [attr.aria-pressed]="pane === 'scan'" (click)="switchPane('scan')">
-            Scan · p{{ pageNumber }}</button
+            Handwriting · p{{ pageNumber }}</button
           ><button type="button" [attr.aria-pressed]="pane === 'review'" (click)="switchPane('review')">
-            Review · Q{{ selected }}
+            Marks · Q{{ selected }}
           </button>
         </nav>
       }
       <div
         class="split"
         [class.single]="!current.grade"
+        [class.short-page]="page && page!.width > 1.8 * page!.height"
         [class.show-review]="pane === 'review' && current.grade"
       >
         <section class="scan card" aria-label="Scanned handwriting">
@@ -404,6 +412,7 @@
           }
           <div
             class="scan-window"
+            [style.--page-ratio]="page ? page!.width / page!.height : 1"
             id="scan-focus"
             tabindex="0"
             role="region"
@@ -416,7 +425,7 @@
                   class="stage"
                   #scanStage
                   [class.fit-width-mode]="fit === 'width'"
-                  [class.has-marks]="annotations(shown.index).length"
+                  [class.has-marks]="!originalScan && annotations(shown.index).length"
                   [style.--ratio]="shown.width / shown.height"
                   [style.--zoom]="zoom"
                 >
@@ -445,7 +454,7 @@
                           "
                           (click)="$event.stopPropagation(); openRemark(pin)"
                         >
-                          {{ symbols[pin.status] }} {{ pin.awarded ?? '?' }}/{{ pin.max }}
+                          {{ pin.awarded === null ? 'Review' : symbols[pin.status] + ' ' + pin.awarded + '/' + pin.max }}
                         </button>
                         @if (remarkKey === pin.key) {
                           <div
@@ -491,7 +500,7 @@
                       }
                     }
                   </div>
-                  <aside class="margin" aria-label="Page marks" [style.visibility]="originalScan ? 'hidden' : null">
+                  <aside class="margin" aria-label="Page marks" [hidden]="originalScan">
                     @for (group of screenMarks(shown.index); track group.marks[0].key) {
                       @let mark = group.marks[0];
                       <button
@@ -513,9 +522,7 @@
                             +{{ group.marks.length - 1 }}
                           }</b
                         ><span
-                          >{{ symbols[mark.status] }} {{ mark.awarded === null ? '?' : mark.awarded }}/{{
-                            mark.max
-                          }}</span
+                          >{{ mark.awarded === null ? 'Review' : symbols[mark.status] + ' ' + mark.awarded + '/' + mark.max }}</span
                         >
                       </button>
                     }
@@ -532,11 +539,11 @@
         @if (current.grade) {
           <aside class="inspector card" aria-label="Question review">
             <div class="inspector-top">
-              <h2 id="review-focus" tabindex="-1">Question review</h2>
+              <h2 id="review-focus" tabindex="-1">Marking notes</h2>
               <label
                 ><span class="sr">Question filter</span
                 ><select [ngModel]="focusList" (ngModelChange)="setFocusList($event)">
-                  <option value="issues">Issues ({{ issues.length }})</option>
+                  <option value="issues">Flagged ({{ issues.length }})</option>
                   <option value="all">All ({{ answers.length }})</option>
                 </select></label
               >
@@ -633,56 +640,131 @@
                     </p>
                   }
                 }
-                @if (variant; as v) {
-                  <section class="criterion">
-                    <h4>{{ a.choice ? 'Question · Option ' + a.choice : 'Question' }}</h4>
-                    <div
-                      class="math-copy"
-                      [innerHTML]="format(v.question)"
-                      [assistantMath]="v.question"
-                    ></div>
-                    @if (v.options?.length) {
-                      <ol type="A">
-                        @for (option of v.options; track $index) {
-                          <li>{{ option }}</li>
-                        }
-                      </ol>
+                <div class="anchors">
+                  @for (anchor of a.anchors; track anchor.page) {
+                    <button class="link" type="button" (click)="showOriginalEvidence(a, anchor.page)">
+                      Handwriting · p{{ anchor.page }}
+                    </button>
+                  }
+                  @if (!a.anchors.length) {
+                    <button class="link" type="button" (click)="showOriginalEvidence(a, pageNumber)">
+                      Open handwriting · p{{ pageNumber }}
+                    </button>
+                  }
+                </div>
+                @if (!editingAnswer || !canEdit) { <section class="reason">
+                  <h4>Reason for the mark</h4>
+                  <p>{{ a.explanation || 'No reason recorded.' }}</p>
+                </section> }
+                @if (canEdit) {
+                  <div class="actions decision-tools">
+                    @if (a.status === 'missing' && a.awarded === null) {
+                      <button
+                        class="action primary"
+                        type="button"
+                        [disabled]="busy"
+                        (click)="confirmMissingAnswer(a); selectAfterResolution()"
+                      >
+                        Confirm unattempted · 0
+                      </button>
                     }
-                    <h4>Marking points</h4>
-                    @if (v.markingPoints?.length) {
-                      <ul>
-                        @for (point of v.markingPoints; track $index) {
-                          <li>
-                            <div class="math-copy" [innerHTML]="format(point)" [assistantMath]="point"></div>
-                          </li>
+                    @if (!editingAnswer) { <button
+                      class="action"
+                      type="button"
+                      [disabled]="busy"
+                      (click)="editingAnswer = true"
+                      [attr.aria-expanded]="editingAnswer"
+                    >
+                      Edit mark and reason
+                    </button> }
+                  </div>
+                }
+                @if (canEdit && editingAnswer) {
+                  <div class="form edit-form">
+                    @if (!a.steps?.length) {
+                    <label
+                      >Assessment<select
+                        [ngModel]="a.status"
+                        (ngModelChange)="setStatus(a, $event)"
+                        [disabled]="busy"
+                      >
+                        @for (state of statuses; track state) {
+                          <option [value]="state">{{ captions[state] }}</option>
                         }
-                      </ul>
-                    } @else if (v.answer) {
-                      <div class="math-copy" [innerHTML]="format(v.answer)" [assistantMath]="v.answer"></div>
-                    } @else if (
-                      v.correctIndex !== null && v.correctIndex !== undefined && v.options?.[v.correctIndex]
-                    ) {
-                      <p>{{ v.options?.[v.correctIndex] }}</p>
-                    } @else {
-                      <p class="help">Use the question wording. No saved marking points.</p>
+                      </select></label
+                    >
+                    @if (a.status === 'partial') {
+                      <label
+                        >Marks out of {{ a.max
+                        }}<input
+                          type="number"
+                          min="0.01"
+                          [max]="a.max"
+                          step="0.01"
+                          [(ngModel)]="a.awarded"
+                          (ngModelChange)="markChanged()"
+                          [disabled]="busy"
+                      /></label>
                     }
-                    @if (question?.alternative) {
-                      <details class="alternate">
-                        <summary>
-                          {{ a.choice === 'B' ? 'View main question' : 'View OR alternative' }}
-                        </summary>
-                        @if (otherVariant; as other) {
-                          <div [innerHTML]="format(other.question)" [assistantMath]="other.question"></div>
-                          @for (point of other.markingPoints; track $index) {
-                            <p>{{ point }}</p>
-                          }
-                          @if (!other.markingPoints?.length && other.answer) {
-                            <p>{{ other.answer }}</p>
-                          }
-                        }
-                      </details>
                     }
-                  </section>
+                    @if (a.optional && a.status !== 'missing') {
+                      <label
+                        >Alternative assessed<select
+                          [ngModel]="a.choice"
+                          (ngModelChange)="changeChoice(a, $event)"
+                          [disabled]="busy"
+                        >
+                          <option [ngValue]="null">Choose A or B</option>
+                          <option value="A">A · Main question</option>
+                          <option value="B">B · OR alternative</option>
+                        </select></label
+                      >
+                    }
+                    <label
+                      >Reason for the mark<textarea
+                        rows="3"
+                        maxlength="600"
+                        [(ngModel)]="a.explanation"
+                        (ngModelChange)="markChanged()"
+                        [disabled]="busy"
+                      ></textarea>
+                    </label>
+                    @if (a.steps?.length) {
+                      <button type="button" class="link" [disabled]="busy" (click)="replaceSteps(a)">Replace method marks with one question score</button>
+                    } @else if (a.status !== 'missing' && (!a.optional || a.choice)) {
+                      <button type="button" class="link" (click)="addStep(a)" [disabled]="busy">Mark the individual steps</button>
+                    }
+                    <details class="fold extra"><summary>Transcript and page references</summary>
+                    <label
+                      >Transcribed evidence <small>Correct or clear the excerpt</small
+                      ><textarea
+                        rows="2"
+                        maxlength="350"
+                        [(ngModel)]="a.evidence"
+                        (ngModelChange)="markChanged()"
+                        [disabled]="busy"
+                      ></textarea>
+                    </label>
+                    @if (!a.steps?.length) {
+                    <div class="actions">
+                      @for (ref of a.anchors; track ref.page) {
+                        <button class="link" type="button" (click)="detach(a, ref.page)" [disabled]="busy">
+                          Remove p{{ ref.page }} reference
+                        </button>
+                      }
+                      @if (page) {
+                        <button class="action" type="button" (click)="beginPlacement()" [disabled]="busy || originalScan">
+                          Place reference · p{{ pageNumber }}
+                        </button>
+                      }
+                    </div>
+                    }
+                    </details>
+                    <div class="editor-actions">
+                      @if (dirty) { <button class="action primary" type="button" (click)="save(false)" [disabled]="busy">Save corrections</button> }
+                      <button class="link" type="button" (click)="editingAnswer = false" [disabled]="busy">Close editor</button>
+                    </div>
+                  </div>
                 }
                 @if (a.steps?.length) {
                   <section class="method-breakdown" aria-label="Method marks">
@@ -745,131 +827,61 @@
                     }
                   </section>
                 }
-                <section class="reason">
-                  <h4>Marking rationale</h4>
-                  <p>{{ a.explanation }}</p>
-                </section>
-                @if (a.evidence) {
-                  <section class="transcript">
-                    <h4>Transcribed evidence</h4>
-                    <blockquote>{{ a.evidence }}</blockquote>
-                  </section>
-                }
-                <div class="anchors">
-                  @for (anchor of a.anchors; track anchor.page) {
-                    <button class="link" type="button" (click)="showEvidence(a, anchor.page)">
-                      View evidence · p{{ anchor.page }} ↗
-                    </button>
-                  }
-                  @if (!a.anchors.length) {
-                    <button class="link" type="button" (click)="switchPane('scan')">
-                      Inspect scan · p{{ pageNumber }} ↗
-                    </button>
-                  }
-                </div>
-                @if (canEdit) {
-                  <div class="actions">
-                    @if (a.status === 'missing' && a.awarded === null) {
-                      <button
-                        class="action primary"
-                        type="button"
-                        [disabled]="busy"
-                        (click)="confirmMissingAnswer(a); selectAfterResolution()"
-                      >
-                        Confirm unattempted · 0
-                      </button>
-                    }
-                    <button
-                      class="action"
-                      type="button"
-                      [disabled]="busy"
-                      (click)="editingAnswer = !editingAnswer"
-                      [attr.aria-expanded]="editingAnswer"
-                    >
-                      {{ editingAnswer ? 'Close editor' : 'Edit assessment' }}
-                    </button>
-                  </div>
-                }
-                @if (canEdit && editingAnswer) {
-                  <div class="form edit-form">
-                    @if (a.steps?.length) {
-                      <button type="button" class="link" [disabled]="busy" (click)="replaceSteps(a)">Replace method marks with one question score</button>
-                    } @else {
-                    @if (a.status !== 'missing' && (!a.optional || a.choice)) {
-                      <button type="button" class="link" (click)="addStep(a)" [disabled]="busy">Mark the individual steps</button>
-                    }
-                    <label
-                      >Assessment<select
-                        [ngModel]="a.status"
-                        (ngModelChange)="setStatus(a, $event)"
-                        [disabled]="busy"
-                      >
-                        @for (state of statuses; track state) {
-                          <option [value]="state">{{ captions[state] }}</option>
+                @if (variant; as v) {
+                  <details class="criterion fold"><summary>Question and marking scheme</summary>
+                    <h4>{{ a.choice ? 'Question · Option ' + a.choice : 'Question' }}</h4>
+                    <div
+                      class="math-copy"
+                      [innerHTML]="format(v.question)"
+                      [assistantMath]="v.question"
+                    ></div>
+                    @if (v.options?.length) {
+                      <ol type="A">
+                        @for (option of v.options; track $index) {
+                          <li>{{ option }}</li>
                         }
-                      </select></label
-                    >
-                    @if (a.status === 'partial') {
-                      <label
-                        >Marks out of {{ a.max
-                        }}<input
-                          type="number"
-                          min="0.01"
-                          [max]="a.max"
-                          step="0.01"
-                          [(ngModel)]="a.awarded"
-                          (ngModelChange)="markChanged()"
-                          [disabled]="busy"
-                      /></label>
+                      </ol>
                     }
+                    <h4>Marking points</h4>
+                    @if (v.markingPoints?.length) {
+                      <ul>
+                        @for (point of v.markingPoints; track $index) {
+                          <li>
+                            <div class="math-copy" [innerHTML]="format(point)" [assistantMath]="point"></div>
+                          </li>
+                        }
+                      </ul>
+                    } @else if (v.answer) {
+                      <div class="math-copy" [innerHTML]="format(v.answer)" [assistantMath]="v.answer"></div>
+                    } @else if (
+                      v.correctIndex !== null && v.correctIndex !== undefined && v.options?.[v.correctIndex]
+                    ) {
+                      <p>{{ v.options?.[v.correctIndex] }}</p>
+                    } @else {
+                      <p class="help">Use the question wording. No saved marking points.</p>
                     }
-                    @if (a.optional && a.status !== 'missing') {
-                      <label
-                        >Alternative assessed<select
-                          [ngModel]="a.choice"
-                          (ngModelChange)="changeChoice(a, $event)"
-                          [disabled]="busy"
-                        >
-                          <option [ngValue]="null">Choose A or B</option>
-                          <option value="A">A · Main question</option>
-                          <option value="B">B · OR alternative</option>
-                        </select></label
-                      >
+                    @if (question?.alternative) {
+                      <details class="alternate">
+                        <summary>
+                          {{ a.choice === 'B' ? 'View main question' : 'View OR alternative' }}
+                        </summary>
+                        @if (otherVariant; as other) {
+                          <div [innerHTML]="format(other.question)" [assistantMath]="other.question"></div>
+                          @for (point of other.markingPoints; track $index) {
+                            <p>{{ point }}</p>
+                          }
+                          @if (!other.markingPoints?.length && other.answer) {
+                            <p>{{ other.answer }}</p>
+                          }
+                        }
+                      </details>
                     }
-                    <label
-                      >Marking rationale<textarea
-                        rows="3"
-                        maxlength="600"
-                        [(ngModel)]="a.explanation"
-                        (ngModelChange)="markChanged()"
-                        [disabled]="busy"
-                      ></textarea>
-                    </label>
-                    <label
-                      >Transcribed evidence <small>Correct or clear the excerpt</small
-                      ><textarea
-                        rows="2"
-                        maxlength="350"
-                        [(ngModel)]="a.evidence"
-                        (ngModelChange)="markChanged()"
-                        [disabled]="busy"
-                      ></textarea>
-                    </label>
-                    @if (!a.steps?.length) {
-                    <div class="actions">
-                      @for (ref of a.anchors; track ref.page) {
-                        <button class="link" type="button" (click)="detach(a, ref.page)" [disabled]="busy">
-                          Remove p{{ ref.page }} reference
-                        </button>
-                      }
-                      @if (page) {
-                        <button class="action" type="button" (click)="beginPlacement()" [disabled]="busy || originalScan">
-                          Place reference · p{{ pageNumber }}
-                        </button>
-                      }
-                    </div>
-                    }
-                  </div>
+                  </details>
+                }
+                @if (a.evidence && !editingAnswer) {
+                  <details class="transcript fold"><summary>Transcribed working</summary>
+                    <blockquote>{{ a.evidence }}</blockquote>
+                  </details>
                 }
               </article>
             }
@@ -913,101 +925,64 @@
                 }
               </section>
             }
-            <footer class="inspector-foot">
-              {{
-                rubric?.hasScheme ? 'Saved marking scheme' : 'Question wording and available marking points'
-              }}
-              ·
-              {{
-                current.engine === 'codex-cli'
-                  ? 'Codex CLI'
-                  : current.engine === 'openai-api'
-                    ? 'OpenAI API'
-                    : 'Teacher marking'
-              }}
-            </footer>
+
           </aside>
         }
       </div>
     </section>
   } @else {
-    <section class="register card" aria-labelledby="register-title">
+    <section class="register" aria-labelledby="register-title">
       <div class="register-top">
         <div>
-          <h2 id="register-title">{{ scopePacketId ? (classLabel || 'Class results') : 'Answer sheets for this paper' }}</h2>
-          <p>{{ scopePacketId ? 'Review flagged answers, finalize marks and return the checked copies.' : 'Open a checked sheet or add answer books for marking.' }}</p>
+          <h2 id="register-title">Answer sheets</h2>
+          @if (sheets.length) { <p>{{ sheets.length }}{{ cursor ? '+' : '' }} {{ sheets.length === 1 && !cursor ? 'sheet' : 'sheets' }} · {{ scopePacketId ? 'This class' : 'All uploads for this paper' }}</p> }
         </div>
-        @if (scopePacketId && onManageClass) {
-          <button class="action" type="button" [disabled]="busy" (click)="onManageClass(scopePacketId)">Manage scans</button>
-        } @else if (!scopePacketId) {
-          <div class="register-actions">
-            @if (onScanClass) {
-              <button class="action primary" (click)="onScanClass(paperId)" type="button" [disabled]="!rubric || busy">Scan a class</button>
-            }
-            <button class="action" (click)="start()" type="button" [disabled]="!rubric || busy">Add individual sheets</button>
-          </div>
-        }
+        <div class="register-actions">
+          @if (scopePacketId && onManageClass) {
+            <button class="action" type="button" [disabled]="busy" (click)="onManageClass(scopePacketId)">Manage class scans</button>
+          } @else if (!scopePacketId) {
+            @if (onScanClass) { <button class="action" type="button" (click)="onScanClass(paperId)" [disabled]="!rubric || busy">Scan a class</button> }
+            <button class="action" type="button" (click)="start()" [disabled]="!rubric || busy">Add answer sheets</button>
+          }
+        </div>
       </div>
-      @if (rubric && (sheets.length || scopePacketId)) {
-        <gtop-class-return [classLabel]="classLabel" [paperId]="paperId" [initialSheets]="sheets" [nextCursor]="cursor"
-          [scopePacketId]="scopePacketId" [paperTitle]="rubric.title" [paperMaximum]="rubric.marks" />
-      }
+    @if (rubric && (sheets.length || scopePacketId)) {
+      <gtop-class-return [classLabel]="classLabel" [paperId]="paperId" [initialSheets]="sheets" [nextCursor]="cursor"
+        [scopePacketId]="scopePacketId" [paperTitle]="rubric.title" [paperMaximum]="rubric.marks" />
+    }
       @if (sheets.length) {
-        <div class="filters">
-          <label
-            ><span>Find a sheet</span
-            ><input type="search" [(ngModel)]="search" placeholder="Search sheet labels" /></label
-          ><label
-            ><span>Status</span
-            ><select [(ngModel)]="filter">
-              @for (f of filters; track f) {
-                <option [value]="f">{{ f }}</option>
-              }
-              @if (scopePacketId) { <option value="Withdrawn">Withdrawn</option> }
-            </select></label
-          >
+        <div class="register-filters">
+          <nav class="status-tabs" aria-label="Filter sheets by status">
+            @for (f of registerFilters; track f) {
+              <button type="button" (click)="filter = f" [attr.aria-pressed]="filter === f">{{ filterTitle(f) }} <span>{{ countSheets(f) }}</span></button>
+            }
+          </nav>
+          <input type="search" aria-label="Find a roll or sheet" [(ngModel)]="search" placeholder="Find a roll or sheet">
         </div>
       }
       @if (readySheets.length > 1) {
         <div class="bulk-ready">
-          <button class="link" type="button" [disabled]="busy" (click)="finalizeVisible()">
-            Finalize {{ readySheets.length }} ready sheets
-          </button>
+          <button class="link" type="button" [disabled]="busy" (click)="finalizeVisible()">Approve {{ readySheets.length }} ready sheets</button>
         </div>
       }
-      @if (loading) {
-        <p class="empty" role="status">Loading answer sheets…</p>
-      }
+      @if (loading) { <p class="empty" role="status">Loading answer sheets…</p> }
       @if (!loading && !error && !visibleSheets.length) {
-        <p class="empty">
-          {{ sheets.length ? 'No matching sheets in the loaded results.' : 'No answer sheets yet.' }}
-        </p>
+        <p class="empty">{{ sheets.length ? 'No sheets match this view.' : 'No answer sheets yet.' }}</p>
+      }
+      @if (visibleSheets.length) {
+        <div class="sheet-row table-cap" aria-hidden="true"><span>Roll or sheet</span><span>Status</span><span>Marks</span><span>Next action</span></div>
       }
       @for (item of visibleSheets; track item.id) {
         <button class="sheet-row" type="button" (click)="open(item.id)" [disabled]="busy || item.state === 'withdrawn'">
-          <span class="identity"
-            ><strong>{{ item.label }}</strong
-            ><small
-              >{{ item.pageCount }} {{ item.pageCount === 1 ? 'page' : 'pages' }}
-              @if (item.updatedAt) { · {{ item.updatedAt | date: 'mediumDate' }} }</small
-            ></span
-          ><span class="state" [class.attention]="bucket(item) === 'Needs attention'">{{
-            stateLabel(item)
-          }}</span
-          ><span class="row-score">
-            @if (item.awarded !== null) {
-              <strong>{{ item.awarded }} / {{ item.max ?? rubric?.marks }}</strong
-              ><small>{{ item.pending ? 'Provisional' : item.state === 'final' ? 'Final' : 'Draft' }}</small>
-            }</span
-          >@if (item.state !== 'withdrawn') { <b aria-hidden="true">›</b> }
+          <span class="identity"><strong>{{ item.label }}</strong><small>{{ item.packetLabel && !scopePacketId ? item.packetLabel + ' · ' : '' }}{{ item.pageCount }} {{ item.pageCount === 1 ? 'page' : 'pages' }}</small></span>
+          <span class="state" [class.attention]="bucket(item) === 'Needs attention'">{{ stateLabel(item) }}</span>
+          <span class="row-score">@if (item.awarded != null) { <strong>{{ item.awarded }} / {{ item.max ?? rubric?.marks }}</strong><small>{{ item.state === 'final' ? 'Final' : 'Provisional' }}</small> } @else { — }</span>
+          <span class="row-action">@if (item.state !== 'withdrawn') { {{ rowAction(item) }} <b aria-hidden="true">→</b> }</span>
         </button>
       }
-      @if (cursor) {
-        <button class="action load-more" type="button" [disabled]="moreBusy" (click)="loadMore()">
-          {{ moreBusy ? 'Loading…' : 'Load older sheets' }}
-        </button>
-      }
+      @if (cursor) { <button class="action load-more" type="button" [disabled]="moreBusy" (click)="loadMore()">{{ moreBusy ? 'Loading…' : 'Load older sheets' }}</button> }
     </section>
+
   }
 </div>
 @if (sheet?.grade && !printApproved) {

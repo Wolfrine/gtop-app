@@ -21,6 +21,21 @@ const publicJob = job => job && clean(Object.fromEntries(['id','kind','ownerUid'
 const publicConversation = c => c && clean(Object.fromEntries(['id','title','status','updatedAt','activePaperJobId','activeCurriculumJobId','latestPaperId'].filter(key => c[key] !== undefined).map(key => [key,c[key]])));
 const summary = p => clean(Object.fromEntries(['id','title','revision','marks','createdAt','jobId','conversationId','ownerUid','board','standard','subject','academicYear'].filter(k=>p[k]!==undefined).map(k=>[k,p[k]])));
 const paperConversationTitle=p=>p.board&&p.standard&&p.subject?`${p.board} Class ${p.standard} ${p.subject} · ${p.marks} marks`.slice(0,120):String(p.title||'Question paper').replace(/\s+/g,' ').slice(0,120);
+const libraryCursorPrefix='date.';
+function libraryOrder(kind,cursor){
+  const field=kind==='papers'?'createdAt':'updatedAt';
+  if(cursor===undefined||cursor===null||cursor==='')return {orderBy:[field,'desc'],orderById:true};
+  // A page already open before rollout must finish in its original ID order.
+  if(typeof cursor==='string'&&!cursor.startsWith(libraryCursorPrefix))return {orderBy:['__name__','asc'],startAfter:safeId(cursor)};
+  try{
+    if(typeof cursor!=='string'||cursor.length>400)throw Error();
+    const values=JSON.parse(Buffer.from(cursor.slice(libraryCursorPrefix.length),'base64url').toString());
+    if(!Array.isArray(values)||values.length!==3)throw Error();
+    const [cursorKind,date,id]=values;
+    if(cursorKind!==kind||typeof date!=='string'||date.length>40||!Number.isFinite(Date.parse(date)))throw Error();
+    return {orderBy:[field,'desc'],orderById:true,cursorValues:[date,safeId(id)]};
+  }catch{fail(400,'invalid_library_cursor','Reload the library to continue.');}
+}
 const ref = (collection,id) => `${collection}/${safeId(id)}`;
 const messagePath = (cid,id) => `assistantConversations/${safeId(cid)}/messages/${safeId(id)}`;
 const bounded = (value, max = 24000) => { const s = JSON.stringify(value ?? null); if (Buffer.byteLength(s) > max) fail(400,'payload_too_large','Payload is too large.'); return clean(value ?? {}); };
@@ -121,19 +136,30 @@ export class AssistantService {
   async adminLibrary(uid,body={}) {
     await this.user({uid});
     if(!['papers','conversations'].includes(body.kind))fail(400,'invalid_library_kind','Choose papers or conversations.');
-    const cursor=body.cursor?safeId(body.cursor):null;
+    const order=libraryOrder(body.kind,body.cursor);
     const collection=body.kind==='papers'?'assistantPapers':'assistantConversations';
     const fields=body.kind==='papers'?['id','title','revision','marks','createdAt','jobId','conversationId','ownerUid','board','standard','subject','academicYear']:['id','title','status','createdAt','updatedAt','ownerUid','latestPaperId'];
-    const rows=await this.store.list(collection,[],51,{includeId:true,orderBy:['__name__','asc'],...(cursor?{startAfter:cursor}:{}),select:fields});
-    const page=rows.slice(0,50),names=new Map();
-    for(const owner of new Set(page.map(x=>x.ownerUid))){const profile=owner?await this.store.get(ref('users',owner)):null;names.set(owner,String(profile?.displayName||profile?.name||'GTOP administrator').slice(0,120));}
-    const items=await Promise.all(page.map(async row=>{
-      if(body.kind==='papers')return {...summary(row),creatorName:names.get(row.ownerUid)};
-      const latest=row.latestPaperId?await this.store.get(ref('assistantPapers',row.latestPaperId)):null;
+    const rows=await this.store.list(collection,[],51,{includeId:true,...order,select:fields});
+    const page=rows.slice(0,50);
+    const owners=[...new Set(page.map(row=>row.ownerUid).filter(Boolean))];
+    const paperIds=body.kind==='conversations'?[...new Set(page.map(row=>row.latestPaperId).filter(Boolean))]:[];
+    const [profiles,papers]=await Promise.all([
+      this.store.getSelected(owners.map(id=>ref('users',id)),['name','displayName']),
+      this.store.getSelected(paperIds.map(id=>ref('assistantPapers',id)),['title','ownerUid','conversationId','board','standard','subject','academicYear','marks'])
+    ]);
+    const names=new Map(owners.map((id,i)=>[id,String(profiles[i]?.displayName||profiles[i]?.name||'GTOP administrator').slice(0,120)]));
+    const latestPapers=new Map(paperIds.map((id,i)=>[id,papers[i]]));
+    const items=page.map(row=>{
+      const creatorName=names.get(row.ownerUid)||'GTOP administrator';
+      if(body.kind==='papers')return {...summary(row),creatorName};
+      const latest=latestPapers.get(row.latestPaperId);
       const paper=latest?.ownerUid===row.ownerUid&&latest.conversationId===row.id?latest:null;
-      return {...publicConversation(row),createdAt:row.createdAt,ownerUid:row.ownerUid,creatorName:names.get(row.ownerUid),...(paper?{title:paperConversationTitle(paper),board:paper.board,standard:paper.standard,subject:paper.subject,academicYear:paper.academicYear}:{})};
-    }));
-    return {items,nextCursor:rows.length>50?page.at(-1).id:null};
+      return {...publicConversation(row),createdAt:row.createdAt,ownerUid:row.ownerUid,creatorName,...(paper?{title:paperConversationTitle(paper),board:paper.board,standard:paper.standard,subject:paper.subject,academicYear:paper.academicYear}:{})};
+    });
+    const last=page.at(-1);
+    const nextCursor=rows.length<=50?null:order.startAfter?last.id:
+      libraryCursorPrefix+Buffer.from(JSON.stringify([body.kind,last[order.orderBy[0]],last.id])).toString('base64url');
+    return {items,nextCursor};
   }
   async adminConversation(uid,id) {
     await this.user({uid});const c=await this.store.get(ref('assistantConversations',id));if(!c)fail(404,'not_found','Conversation unavailable.');

@@ -58,6 +58,8 @@ customToken. Existing runtime service account signs it; do not add IAM silently.
 - Session additionally includes `notifications:{schemaVersion:1,contentPath:'assistantUiNotifications/'+uid,presencePath:'assistantWorkerHealth/sachit-windows'|null,freshnessMs:90000}`.
 - GET /service/status => {service}; invited user authorization and the existing sanitized service shape, without conversation/history reads.
 - GET /conversations => {conversations:[{id,title,status,updatedAt,activePaperJobId?,latestPaperId?}]}
+- GET /checking/work returns up to 20 of the signed-in teacher's most recently updated uploading, failed or review sheets. Each summary contains `id`, `paperId`, `label`, `state`, `updatedAt`, `pageCount`, `pending`, and optional `packetId` and `packetLabel`. Open the sheet with `?check=<paperId>&sheet=<id>`.
+- POST /admin/library accepts `{kind:'papers'|'conversations', cursor?}` and returns `{items,nextCursor}`. Papers sort by creation time and conversations by update time, newest first. Pass the returned cursor unchanged. Saved raw-ID cursors finish their original traversal.
 - POST /conversations {clientRequestId?} => {conversation}
 - GET /conversations/:id => {conversation,messages,jobs,papers}
 - GET /conversations/:id/revision => {updatedAt}; invited-admin equivalent under /admin/conversations/:id/revision.

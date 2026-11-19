@@ -5,10 +5,13 @@ import actualQ6 from './fixtures/actual-local-q6-reply.json';
 export function getDevTransport():{transport:Transport;scenario:string}|null {
   const scenario=new URLSearchParams(location.search).get('fixture');
   if(!['localhost','127.0.0.1','[::1]'].includes(location.hostname) || !scenario)return null;
-  if(!['empty','working','replying','ready','offline','error','long','clarify','revisions','retry-chain','formatting','math','hindi','library','library-empty','library-error','library-loading','service-offline','service-starting','service-failed','service-starter-offline','service-idle'].includes(scenario))return null;
+  if(!['desk','desk-empty','desk-personal','desk-error','empty','working','replying','ready','offline','error','long','clarify','revisions','retry-chain','formatting','math','hindi','library','library-empty','library-error','library-loading','service-offline','service-starting','service-failed','service-starter-offline','service-idle'].includes(scenario))return null;
   return {transport:new FixtureTransport(scenario),scenario};
 }
 class FixtureTransport implements Transport {
+  readonly user={uid:'preview-only'};
+  watchMarker(){return ()=>{};}
+  async checkingImage(){throw Error('This preview does not contain a scanned page.');}
   private stamp=new Date().toISOString();
   private conversation:Conversation={id:'preview-conversation',title:'Class 12 Chemistry · full syllabus',status:'active',updatedAt:this.stamp};
   private messages:Message[]=[];
@@ -16,7 +19,7 @@ class FixtureTransport implements Transport {
   private papers:PaperSummary[]=[];
   private serviceStartedAt=0;
   constructor(private scenario:string) {
-    if(scenario==='empty')return;
+    if(['empty','desk-empty'].includes(scenario))return;
     this.messages=[this.message('user','Create a full-syllabus Class 12 Chemistry practice paper for 80 marks. Include internal choices and separate worked answers.'),this.message('assistant',scenario==='clarify'?'I can help with that. Would you like the worked answers in English, Hindi or Hinglish?':'I’ll prepare an 80-mark Growth Tutorials practice paper covering all 10 chapters, with internal choices and separate worked answers in English. This is a custom practice paper; the official CBSE theory paper is 70 marks.')];
     if(scenario==='formatting')this.messages=[this.message('user','Keep **my original wording** and <b>literal markup</b> unchanged.'),this.message('assistant','**Your paper details**\nI can help you refine these requirements.\n\n* **Class:** 12 Chemistry\n* **Marks:** 80\n- Answers in हिन्दी or Hinglish are available.\n\nLiteral untrusted text stays visible:\n<img src=x onerror="alert(1)">\n<script>alert(2)</script>\n[unsafe link](javascript:alert(3))')];
     if(scenario==='math')this.messages=[this.message('user',actualQ6.request.text),this.message('assistant',actualQ6.text),this.message('assistant',String.raw`**Additional synthetic rendering checks**
@@ -57,7 +60,26 @@ Literal HTML stays inert: <img src=x onerror="alert(1)">` )];
   async request<T>(path:string,method='GET',body:any={}):Promise<T> {
     await new Promise(resolve=>setTimeout(resolve,130));
     let result:unknown;
-    if(path==='/admin/library'){
+    const packet={id:'fixture-stack',label:'Class 9 · Algebra test',state:'uploading',pageCount:12,processedPages:0,expectedStudents:6,
+      updatedAt:this.stamp,createdAt:this.stamp,version:1,paperId:null,uploaded:[],groups:[]};
+    const sheet={id:'fixture-sheet',label:'Roll 08 · Linear equations',paperId:'fixture-paper',state:'review',pageCount:1,pending:2,
+      updatedAt:this.stamp,version:1,awarded:null,notes:'',uploaded:[],grade:{answers:[1,2].map(number=>({
+        number,max:3,optional:false,status:'uncertain',awarded:null,choice:null,explanation:'Please confirm the final step.',evidence:'',anchors:[]
+      })),awarded:0,max:6,pending:2}};
+    const rubric={title:'Class 8 · Linear equations',hasScheme:true,marks:6,questions:[
+      {number:1,max:3,question:'Solve 2x + 3 = 11.',answer:'x = 4',alternative:null},
+      {number:2,max:3,question:'Solve 3y − 4 = 11.',answer:'y = 5',alternative:null}
+    ]};
+    if(this.scenario==='desk-error' && path==='/checking/work')throw Error('Could not load recent sheets.');
+    if(path==='/checking/packets'&&method==='GET')result={packets:this.scenario.startsWith('desk')&&!['desk-empty','desk-error'].includes(this.scenario)?[packet]:[]};
+    else if(path==='/checking/work')result={sheets:this.scenario==='desk'?[sheet]:[]};
+    else if(path==='/checking/packets/fixture-stack'&&method==='GET')result={packet};
+    else if(path==='/papers/fixture-paper/checking'&&method==='GET')result={sheets:[sheet],rubric};
+    else if(path==='/papers/fixture-paper/checking/fixture-sheet'&&method==='GET')result={sheet,rubric};
+    else if(path.includes('/checking/rubric-info'))result={rubric};
+    else if(path.startsWith('/checking/references')&&method==='GET')result={references:[],nextCursor:null};
+    else if(path.startsWith('/checking/')||path.includes('/checking'))throw Error('This action needs an authenticated workspace.');
+    else if(path==='/admin/library'){
       if(this.scenario==='library-loading')await new Promise(resolve=>setTimeout(resolve,3500));
       if(this.scenario==='library-error')throw Error('The library could not be loaded. Please try again.');
       const items=this.scenario==='library-empty'?[]:this.libraryItems(body.kind);result={items:body.cursor?items.slice(3):items.slice(0,3),nextCursor:!body.cursor&&items.length>3?'preview-page-2':null};
@@ -69,9 +91,9 @@ Literal HTML stays inert: <img src=x onerror="alert(1)">` )];
       const paper=this.libraryItems('papers').find(paper=>paper.conversationId===id)!;
       result={conversation:{...this.conversation,...item},messages:own?this.messages:[{...this.message('user','Create a 50-mark Class 5 Mathematics paper on fractions, with separate answers.'),conversationId:id},{...this.message('assistant','Your practice paper and separate answers are ready. Please review them before sharing with students.'),conversationId:id}],jobs:[],papers:[paper],readOnly:!own,creatorName:item.creatorName};
     }
-    else if(path==='/session')result={user:{uid:'preview-only',displayName:'Aparna',email:'preview@example.invalid',libraryAccess:true},worker:this.service().worker,service:this.service(),capabilities:[],defaults:{}};
+    else if(path==='/session')result={user:{uid:'preview-only',displayName:'Aparna',email:'preview@example.invalid',libraryAccess:this.scenario!=='desk-personal'},worker:this.service().worker,service:this.service(),capabilities:[],defaults:{}};
     else if(path==='/service/start'&&method==='POST'){this.serviceStartedAt=Date.now();result={service:this.service()};}
-    else if(path==='/conversations' && method==='GET')result={conversations:this.scenario==='empty'?[]:[this.conversation]};
+    else if(path==='/conversations' && method==='GET')result={conversations:['empty','desk-empty'].includes(this.scenario)?[]:[this.conversation]};
     else if(path==='/conversations' && method==='POST'){this.messages=[];this.jobs=[];this.papers=[];this.conversation={...this.conversation,id:crypto.randomUUID(),title:'New conversation'};result={conversation:this.conversation};}
     else if(path.endsWith('/messages')){const message=this.message('user',body.text);this.messages.push(message);const job={...this.job('queued','queued'),kind:'turn' as const};this.jobs=[...this.jobs,job];result={message,job};}
     else if(path.endsWith('/cancel')){this.jobs=this.jobs.map(j=>({...j,state:'cancelled'}));result={job:this.jobs[0]};}

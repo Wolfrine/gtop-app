@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, HostListener, Input, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AssistantApi } from './api.service';
 import { LibraryItem, LibraryPage, mergeLibraryItems } from './contracts';
@@ -28,6 +28,7 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
   referenceChoice = 0;
   paperTitle = '';
   paperMarks?: number;
+  printedId = '';
   paperError = '';
   picker: Picker = null;
   papers: LibraryItem[] = [];
@@ -39,11 +40,16 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
   busy = false;
   hasLocalFiles = false;
 
-  ngOnInit() {
+  ngOnInit() { this.readLocation(); }
+  @HostListener('window:popstate') readLocation() {
     const params = new URL(location.href).searchParams;
+    if (params.get('check') || params.get('checking') !== 'class') return;
     this.packetId = params.get('packet') || '';
+    const printed = params.get('printed');
+    this.printedId = printed && printed !== 'new' ? printed : '';
+    this.picker = printed ? 'import' : null;
     const reference = params.get('reference');
-    if (reference) void this.setReference(reference);
+    if ((reference || '') !== this.paperId) void this.setReference(reference || '');
   }
   ngOnDestroy() { this.destroyed = true; }
   private setUrl(key: string, value: string) {
@@ -59,7 +65,7 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
   }
   chooseReference(id: string, title = '', marks?: number) {
     this.referenceChoice++;
-    this.picker = null;
+    this.dismissPicker();
     void this.setReference(id, title, marks);
   }
   async setReference(id: string, title = '', marks?: number) {
@@ -94,9 +100,15 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
   }
   choosePaper(packetId?: string) {
     if (packetId) this.rememberPacket(packetId);
-    this.picker = this.libraryAccess ? 'library' : 'import';
+    if (!this.libraryAccess) { this.choosePrinted(); return; }
+    this.picker = 'library';
     if (this.picker === 'library' && !this.libraryLoaded) void this.loadPapers();
   }
+  choosePrinted() {
+    this.printedId = ''; this.picker = 'import'; this.rememberPrinted('');
+  }
+  rememberPrinted(id:string) { this.printedId = id; this.setUrl('printed', id || 'new'); }
+  dismissPicker() { this.picker = null; this.printedId = ''; this.setUrl('printed', ''); }
   async loadPapers() {
     if (this.loading || (this.libraryLoaded && !this.nextCursor)) return;
     this.loading = true; this.libraryError = '';
@@ -111,9 +123,15 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
       this.libraryError = error instanceof Error ? error.message : 'Could not load the paper library.';
     } finally { this.loading = false; }
   }
+  @HostListener('window:gtop-checking-may-leave', ['$event'])
+  protectHistory(event:Event) {
+    if (this.busy || this.externalExam?.processing ||
+        ((this.hasLocalFiles || this.externalExam?.dirty) && !window.confirm('Leave these unsaved changes?'))) event.preventDefault();
+  }
   close() {
     if (this.busy) return;
     if (this.externalExam) { this.externalExam.close(); return; }
+    if (this.picker) { this.dismissPicker(); return; }
     if (this.hasLocalFiles && !window.confirm('Leave these scans? Pages still on this device will need to be selected again.')) return;
     this.onClose();
   }

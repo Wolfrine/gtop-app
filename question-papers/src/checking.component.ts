@@ -278,13 +278,35 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   get visibleAnswers() {
     return this.focusList === 'issues' ? this.issues : this.answers;
   }
+  get registerFilters(): Filter[] {
+    return this.scopePacketId || this.sheets.some(row => row.state === 'withdrawn')
+      ? [...this.filters, 'Withdrawn'] : this.filters;
+  }
+  filterTitle(filter: Filter) {
+    return ({ 'All sheets': 'All', 'Needs attention': 'To review', Ready: 'For approval',
+      'In progress': 'Processing', Finalized: 'Approved', Withdrawn: 'Withdrawn' })[filter];
+  }
+  countSheets(filter: Filter) {
+    return filter === 'All sheets' ? this.sheets.length : this.sheets.filter(row => this.bucket(row) === filter).length;
+  }
+  rowAction(row: Summary) {
+    switch (row.state) {
+      case 'held': return 'Check identity';
+      case 'uploading': return 'Finish upload';
+      case 'failed': return 'Review error';
+      case 'withdrawn': return 'Withdrawn';
+      case 'queued': case 'running': return 'View sheet';
+      case 'final': return 'View marked copy';
+      case 'review': return row.pending === 0 ? 'Check and approve' : 'Review marks';
+    }
+  }
   get visibleSheets() {
     const query = this.search.trim().toLocaleLowerCase();
     return this.sheets.filter(
       (item) =>
         (this.filter === 'All sheets' || this.bucket(item) === this.filter) &&
-        item.label.toLocaleLowerCase().includes(query),
-    );
+        [item.label, item.packetLabel].some(value => value?.toLocaleLowerCase().includes(query)),
+    ).sort((a, b) => this.priority(a) - this.priority(b));
   }
   get readySheets() {
     return this.visibleSheets.filter((item) => item.state === 'review' && item.pending === 0);
@@ -295,11 +317,15 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   url(index: number) {
     return this.displayUrls.get(index) || '';
   }
+  private priority(item: Summary) {
+    const index = this.filters.indexOf(this.bucket(item));
+    return index < 0 ? this.filters.length : index;
+  }
   bucket(item: Summary): Filter {
     if (item.state === 'withdrawn') return 'Withdrawn';
     if (item.state === 'held') return 'Needs attention';
     if (item.state === 'final') return 'Finalized';
-    if (item.state === 'failed' || item.state === 'uploading' || (item.state === 'review' && !!item.pending))
+    if (item.state === 'failed' || item.state === 'uploading' || (item.state === 'review' && item.pending !== 0))
       return 'Needs attention';
     return item.state === 'review' ? 'Ready' : 'In progress';
   }
@@ -309,7 +335,12 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     if (item.state === 'failed') return 'Checking failed';
     if (item.state === 'queued') return 'Queued';
     if (item.state === 'running') return 'Checking';
-    if (item.state === 'review' && item.pending === undefined) return 'Awaiting review';
+    if (item.state === 'final') return 'Approved';
+    if (item.state === 'review') {
+      if (item.pending == null) return 'Awaiting review';
+      if (item.pending === 0) return 'Ready for approval';
+      return item.pending + (item.pending === 1 ? ' decision' : ' decisions');
+    }
     return this.bucket(item);
   }
   resultLabel(answer: Answer) {
@@ -408,8 +439,30 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   private describe(error: unknown) {
     return error instanceof Error ? error.message : 'Something went wrong. Try again.';
   }
+  @HostListener('window:gtop-checking-may-leave', ['$event'])
+  guardHistory(event: Event) {
+    if (this.busy || (this.hasUnsaved && !window.confirm('Discard unsaved changes and leave this answer book?')))
+      event.preventDefault();
+  }
+  @HostListener('window:beforeunload', ['$event'])
+  protectEdits(event: BeforeUnloadEvent) {
+    if (!this.busy && !this.hasUnsaved) return;
+    event.preventDefault();
+    event.returnValue = '';
+  }
+
+  @HostListener('window:popstate')
+  restoreSelection() {
+    const params = new URL(location.href).searchParams;
+    if (this.dead || this.dirty || this.busy || params.get('check') !== this.paperId) return;
+    const id = params.get('sheet');
+    if (id && id !== this.sheet?.id) void this.open(id, false);
+    else if (id && this.sheet) this.selectNumber(Number(params.get('q')));
+    else if (this.sheet) this.list();
+  }
   private changeUrl(sheetId?: string) {
     const url = new URL(location.href);
+    if (url.searchParams.get('sheet') !== sheetId) url.searchParams.delete('q');
     if (sheetId) url.searchParams.set('sheet', sheetId);
     else url.searchParams.delete('sheet');
     history.replaceState(history.state, '', url);
@@ -515,13 +568,18 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       this.rubric = rubric;
       this.sections = rubric.sections || [];
       if (!unchanged) {
-        this.answers = structuredClone(sheet.grade?.answers || []);
+        this.answers = structuredClone(sheet.grade?.answers || []).map(answer => ({ ...answer, anchors: answer.anchors || [] }));
         this.selections = structuredClone(sheet.grade?.sectionSelections || []);
         this.recalculate();
         this.focusList = this.issues.length ? 'issues' : 'all';
         if (!this.selected) {
-          const answer = this.issues[0] ?? this.answers[0];
-          if (answer) this.choose(answer);
+          const query = new URL(location.href).searchParams;
+          const requested = query.get('sheet') === id ? this.answerByNumber(Number(query.get('q'))) : undefined;
+          const answer = requested ?? this.issues[0] ?? this.answers[0];
+          if (answer) {
+            if (requested && !this.needsDecision(answer)) this.focusList = 'all';
+            this.choose(answer);
+          }
         }
       }
       this.paint();
@@ -824,9 +882,14 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     this.focusedStep = null;
     this.placingStep = null;
     this.selected = answer.number;
-    this.pageNumber = page ?? answer.anchors[0]?.page ?? this.pageNumber;
+    this.pageNumber = page ?? answer.anchors[0]?.page ?? answer.steps?.find(step => step.anchor)?.anchor?.page ?? this.pageNumber;
+    const url = new URL(location.href);
+    if (url.searchParams.get('sheet') === this.sheet?.id) {
+      url.searchParams.set('q', String(answer.number));
+      history.replaceState(history.state, '', url);
+    }
     this.placing = false;
-    this.editingAnswer = false;
+    this.editingAnswer = this.canEdit && this.needsDecision(answer);
     this.groupedNumbers = [];
   }
   switchPane(pane: 'review' | 'scan') {
@@ -845,6 +908,10 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     this.choose(answer, page);
     this.switchPane('review');
   }
+  showOriginalEvidence(answer: Answer, page: number) {
+    this.showEvidence(answer, page);
+    this.originalScan = true;
+  }
   showEvidence(answer: Answer, page: number) {
     this.choose(answer, page);
     this.switchPane('scan');
@@ -858,6 +925,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     const anchor = answer.steps?.[index]?.anchor;
     if (!anchor) return;
     this.showEvidence(answer, anchor.page);
+    this.originalScan = false;
     this.focusedStep = index;
     this.remarkKey = answer.number + '/' + index;
   }

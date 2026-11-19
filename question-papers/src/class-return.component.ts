@@ -77,7 +77,11 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
   }
   get filtered() {
     const q = this.filter.trim().toLocaleLowerCase();
-    return q ? this.entries.filter((row) => row.label.toLocaleLowerCase().includes(q)) : this.entries;
+    return q
+      ? this.entries.filter((row) =>
+          [row.label, row.packetLabel].some(value => value?.toLocaleLowerCase().includes(q)),
+        )
+      : this.entries;
   }
   get visible() {
     return this.filtered.slice(0, this.displayLimit);
@@ -354,7 +358,7 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
       }
       const returning = rows.filter((row) => row.state === 'final');
       if (!returning.length)
-        throw Error('Finalize at least one selected sheet to download its marked copy.');
+        throw Error('Approve at least one selected sheet to download its marked copy.');
       const { markedCopy } = await import('./class-return-pdf');
       const printSet =
         kind === 'print'

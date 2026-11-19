@@ -62,6 +62,15 @@ export class PaperChecking {
       return values;
     }catch{this.fail(400,'invalid_cursor','Reload the scan list.');}
   }
+  async recentWork(uid){
+    const fields=['label','state','updatedAt','pageCount','grade.pending','gradeRevision','gradingRevision','packetId','packetLabel'];
+    const rows=await this.store.recentSheetWork(quota(this.id(uid)),['uploading','review','failed'],fields,20);
+    return {sheets:rows.map(row=>({
+      id:row.id,paperId:row.paperId,label:row.label,state:row.state,updatedAt:row.updatedAt,pageCount:row.pageCount,
+      pending:currentSheetGrade(row)?.pending??null,
+      ...(row.packetId?{packetId:row.packetId}:{}),...(row.packetLabel?{packetLabel:row.packetLabel}:{})
+    }))};
+  }
   async teacher(method,parts,uid,body){
     const [paperId,sheetId,action,pageIndex]=parts;
     this.id(paperId);
@@ -138,6 +147,7 @@ export class PaperChecking {
         createdAt:now,updatedAt:now,queueId:digest(uid,paperId,id)};
       tx.create(path,sheet);
       tx.set(quota(uid),{...usage,active:usage.active||0,day:day(now),drafts:drafts+1});
+      this.service.notifyContent(tx,uid);
       return {id};
     });
   }

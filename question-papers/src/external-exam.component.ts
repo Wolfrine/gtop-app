@@ -27,6 +27,7 @@ const emptyPaper=(title:string):Paper=>({title,marks:null,instructions:[],sectio
 export class ExternalExamComponent implements OnInit,OnDestroy {
   @Input() referenceId='';
   @Output() ready=new EventEmitter<{id:string;title:string;marks?:number}>();
+  @Output() recordChange=new EventEmitter<string>();
   @Output() closed=new EventEmitter<void>();
   private api=inject(AssistantApi);
   private cd=inject(ChangeDetectorRef);
@@ -44,6 +45,8 @@ export class ExternalExamComponent implements OnInit,OnDestroy {
   processing=false;
   loading=false;
   title='';
+  showScheme=false;
+  showHistory=false;
   exam:Scan[]=[];
   scheme:Scan[]=[];
   references:Summary[]=[];
@@ -91,7 +94,7 @@ export class ExternalExamComponent implements OnInit,OnDestroy {
   list(){
     if(!this.canLeave())return;
     this.openVersion++;this.loading=false;this.current=undefined;this.editing=false;this.draft=undefined;this.clearLocal();this.dropSource();
-    this.newReferenceId='';this.revisionId='';this.title='';this.error='';this.statusMessage='';void this.history();
+    this.showHistory=true;this.showScheme=false;this.recordChange.emit('');this.newReferenceId='';this.revisionId='';this.title='';this.error='';this.statusMessage='';void this.history();
   }
   async refresh(){if(this.current&&!this.editing&&!this.processing)await this.open(this.current.id,false);}
   async open(id:string,checkChanges=true){
@@ -102,7 +105,7 @@ export class ExternalExamComponent implements OnInit,OnDestroy {
       const {reference}=await this.api.request<{reference:RecordView}>(base+'/'+id);
       if(this.disposed||seq!==this.openVersion)return;
       if(this.current?.id!==id||!this.selecting){this.clearLocal();this.dropSource();}
-      this.current=reference;this.newReferenceId=id;this.title=reference.title;
+      this.current=reference;this.showScheme=reference.questionPages<reference.pageCount;this.recordChange.emit(id);this.newReferenceId=id;this.title=reference.title;
       this.editing=false;this.draft=undefined;this.reviewed=false;this.revisionId='';
     }catch(error){if(seq===this.openVersion)this.error=shortError(error);}
     finally{
@@ -145,6 +148,7 @@ export class ExternalExamComponent implements OnInit,OnDestroy {
     const id=this.newReferenceId,path=base+'/'+id;
     try{
       await this.api.request(base,'POST',{id,title:this.title.trim()||'Uploaded question paper',questionPages:this.exam.length,pageCount:this.total});
+      this.recordChange.emit(id);
       for(const [i,page] of [...this.exam,...this.scheme].entries()){
         if(this.disposed)return;
         this.statusMessage='Saving page '+(i+1)+' of '+this.total+'…';this.paint();

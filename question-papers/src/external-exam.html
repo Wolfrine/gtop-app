@@ -1,16 +1,20 @@
 <section class="external-exam" aria-labelledby="ext-title">
   <header class="external-head">
-    <button type="button" class="text-action" (click)="current?list():close()" [disabled]="processing">‹ {{current?'Uploaded papers':'Check papers'}}</button>
-    <h2 id="ext-title">{{current ? current.title : 'Upload a question paper'}}</h2>
+    @if(current){<button type="button" class="text-action" (click)="list()" [disabled]="processing">← Uploaded papers</button>}
+    <h2 id="ext-title">{{current ? current.title : 'Use a printed paper'}}</h2>
   </header>
   @if(error){<p role="alert" class="error">{{error}}</p>}
   @if(loading&&!current){<p role="status">Opening paper…</p>}
   @if(selecting&&!loading){
     @if(current){<p class="notice">Resume by selecting the same {{current.questionPages}} question pages and {{current.pageCount-current.questionPages}} marking-scheme pages in their original order.</p>}
     <div class="entry">
+      <p>Upload the exam your students sat. Review the questions and marks before using it for checking.</p>
       @for(group of ['exam','scheme'];track group){
         @let pages=group==='exam'?exam:scheme;
         <div class="file-group">
+          @if(group==='scheme' && !showScheme && !scheme.length){
+            <button type="button" class="text-action" (click)="showScheme=true">＋ Attach a marking scheme <small>Optional</small></button>
+          } @else {
           <label class="file-control">
             <strong>{{group==='exam'?'Question paper':'Marking scheme'}} @if(group==='scheme'){<small>Optional</small>}</strong>
             <span>{{group==='exam'?'Choose a PDF or photos in page order.':'Attach the teacher’s key or worked answers.'}}</span>
@@ -29,6 +33,7 @@
               }
             </ol>
           }
+          }
         </div>
       }
       @if(total){<label>Exam title<input [(ngModel)]="title" maxlength="240" [disabled]="processing||!!current"></label>}
@@ -41,14 +46,14 @@
   @if(!current){
     @if(historyError){<div role="alert" class="error">{{historyError}} <button type="button" (click)="history()">Retry</button></div>}
     @if(references.length){
-      <h3>Previously uploaded</h3>
+      <details [open]="showHistory"><summary class="history-toggle">Previously uploaded papers ({{references.length}}{{cursor?'＋':''}})</summary>
       <div class="history">
         @for(item of references;track item.id){<button type="button" [disabled]="processing||loading" (click)="open(item.id)">
           <span>{{item.title}}<small>Rev {{item.referenceRevision || 1}} · {{item.updatedAt | date:'d MMM, HH:mm'}} · {{item.questionPages}} question-paper {{item.questionPages===1?'page':'pages'}} @if(item.marks){· {{item.marks}} marks}</small></span>
           <span>{{captions[item.state]}} ›</span>
         </button>}
         @if(cursor){<button type="button" (click)="history(true)">Load older papers</button>}
-      </div>
+      </div></details>
     }
   }
   @if(current;as doc){
@@ -66,7 +71,7 @@
     }
     @if(doc.paper&&!editing){
       <section class="entry">
-        <div class="paper-meta"><h3>{{doc.state==='review'?'Check the highlighted items':'Marking reference'}}</h3>
+        <div class="paper-meta"><h3>{{doc.state==='review'?'Review the questions and marks':'Marking reference'}}</h3>
           <small>Rev {{doc.referenceRevision || 1}} · {{questionCount}} {{questionCount===1?'question':'questions'}} · {{doc.paper.marks??'—'}} marks</small></div>
         @if(doc.issues.length){<ul class="notice">@for(note of doc.issues;track $index){<li>{{note}}</li>}</ul>}
         @if(doc.paper.instructions.length){<p>{{doc.paper.instructions.join(' ')}}</p>}
@@ -86,8 +91,8 @@
           }
         }
         <div class="actions">
-          @if(doc.state==='ready'){<button type="button" class="primary" (click)="ready.emit({id:doc.id,title:(doc.paper.title || doc.title) + ' · Rev ' + (doc.referenceRevision || 1),marks:doc.paper.marks ?? undefined})">Check answer sheets</button><button type="button" (click)="edit()">Correct as a new revision</button>}
-          @else {<button type="button" class="primary" (click)="edit()">Review reference</button>}
+          @if(doc.state==='ready'){<button type="button" class="primary" (click)="ready.emit({id:doc.id,title:(doc.paper.title || doc.title) + ' · Rev ' + (doc.referenceRevision || 1),marks:doc.paper.marks ?? undefined})">Use this paper</button><button type="button" (click)="edit()">Correct as a new revision</button>}
+          @else {<button type="button" class="primary" (click)="edit()">Review questions and marks</button>}
         </div>
       </section>
     }

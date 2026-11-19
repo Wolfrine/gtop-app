@@ -390,6 +390,11 @@
                 ↔
               </button>
             </div>
+            @if (current.grade) {
+              <button class="scan-view-toggle" type="button" aria-controls="scan-focus" (click)="toggleOriginalScan()">
+                {{ originalScan ? 'Show marks' : 'Show original' }}
+              </button>
+            }
           </div>
           @if (placing) {
             <div class="placing-note">
@@ -422,7 +427,7 @@
                       [height]="shown.height"
                       [alt]="'Original handwriting, page ' + shown.index"
                     />
-                    @if (!placing) {
+                    @if (!placing && !originalScan) {
                       @for (pin of marksOnScan(shown.index); track pin.key) {
                         <button
                           type="button"
@@ -473,7 +478,7 @@
                         [style.left.%]="crosshair.x * 100"
                         [style.top.%]="crosshair.y * 100"
                       ></i>
-                    } @else {
+                    } @else if (!originalScan) {
                       @for (mark of annotations(shown.index); track mark.key) {
                         @if (mark.answer.number === selected && (focusedStep === null || mark.stepIndex === focusedStep)) {
                           <i
@@ -486,7 +491,7 @@
                       }
                     }
                   </div>
-                  <aside class="margin" aria-label="Page marks">
+                  <aside class="margin" aria-label="Page marks" [style.visibility]="originalScan ? 'hidden' : null">
                     @for (group of screenMarks(shown.index); track group.marks[0].key) {
                       @let mark = group.marks[0];
                       <button
@@ -712,7 +717,7 @@
                                   [attr.aria-label]="'Remark for '+step.criterion"></textarea>
                               </label>
                               <label>Scan marker
-                                <select #targetPage (change)="pickStepPage(si, targetPage)" [disabled]="busy"
+                                <select #targetPage (change)="pickStepPage(si, targetPage)" [disabled]="busy || originalScan"
                                   [attr.aria-label]="'Place scan marker for '+step.criterion">
                                   <option value="">{{ step.anchor ? 'Move from page '+step.anchor.page : 'Place on a page' }}</option>
                                   @for (item of pageItems; track item.index) {<option [value]="item.index">Page {{ item.index }}</option>}
@@ -858,7 +863,7 @@
                         </button>
                       }
                       @if (page) {
-                        <button class="action" type="button" (click)="beginPlacement()" [disabled]="busy">
+                        <button class="action" type="button" (click)="beginPlacement()" [disabled]="busy || originalScan">
                           Place reference · p{{ pageNumber }}
                         </button>
                       }
@@ -1026,10 +1031,9 @@
         <div class="print-stage" [style.width]="'min(100%, ' + ((244 * p.width) / p.height + 37) + 'mm)'">
           <div class="printed-scan">
             <img [src]="url(p.index)" alt="" [width]="p.width" [height]="p.height" />
-            @for (pin of printInk(p); track pin.key) {
-              <b class="print-ink" [style.left.%]="pin.left" [style.top.%]="pin.top"
-                >Q{{ pin.answer.number }}@if (pin.stepIndex !== null) {·{{ pin.stepIndex + 1 }}} {{ symbols[pin.status] }} {{ pin.awarded ?? '?' }}/{{ pin.max }}</b
-              >
+            @for (badge of printBadges.get(p.index); track badge.key) {
+              <b class="print-ink" [style.left.%]="badge.left" [style.top.%]="badge.top"
+                [style.width.%]="badge.width" [style.height.%]="badge.height">{{ badge.text }}</b>
             }
           </div>
           <aside>

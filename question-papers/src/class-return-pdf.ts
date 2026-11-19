@@ -1,11 +1,6 @@
 import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from 'pdf-lib';
-import {
-  marginGroups,
-  positionedMarks,
-  marksOnPage,
-  type MappingPoint,
-  type MarkStatus,
-} from './checking-scan';
+import { marginGroups, marksOnPage, type MappingPoint, type MarkStatus } from './checking-scan';
+import { inkAwareMarks, scanBlobInk, type InkMap } from './checking-ink';
 import type { ReturnAnswer, ReturnDetail } from './class-return-data';
 
 const pageWidth = 595.28,
@@ -213,14 +208,35 @@ async function annotate(
   w: number,
   h: number,
   notesX: number,
+  inkMap: InkMap | null,
 ) {
   const marks = pins.map((pin) => ({ answer: pin, anchor: pin.anchor }));
-  const positions = positionedMarks(marks, w, h, 53, 11);
+  const labelFor = (pin: Pin) => pin.id + '  ' + pin.score.replace(/ /g, '');
+  const positions = inkAwareMarks(
+    marks,
+    w,
+    h,
+    ({ answer }) => ({
+      width: text.width(labelFor(answer), 7.2, true) + 15,
+      height: 10.7,
+    }),
+    inkMap,
+    { width: 8, height: 8 },
+  );
+  const marginOnly = new Set<Pin>();
   for (const position of positions) {
     const pin = position.answer,
       px = x + (w * position.left) / 100,
       py = top + (h * position.top) / 100;
-    const label = pin.id + '  ' + pin.score.replace(/ /g, '');
+    if (position.placement === 'margin') {
+      marginOnly.add(pin);
+      continue;
+    }
+    if (position.placement === 'symbol') {
+      markSymbol(p, pin.status, px + 0.7, py + 0.5);
+      continue;
+    }
+    const label = labelFor(pin);
     const labelWidth = text.width(label, 7.2, true) + 15;
     p.drawRectangle({
       x: px,
@@ -235,7 +251,13 @@ async function annotate(
     markSymbol(p, pin.status, px + 2.2, py + 2);
     await text.write(p, label, px + 11, py + 1, 7.2, true, markColors[pin.status]);
   }
-  const groups = marginGroups(marks, h, 32);
+  // Short crops often have ample gutter space below the image. Use that space before grouping marks.
+  const notesHeight = Math.max(h, Math.min(pageHeight - top - margin, marks.length * 32));
+  const notes = marks.map((mark) => ({
+    ...mark,
+    anchor: { ...mark.anchor, y: (mark.anchor.y * h) / notesHeight },
+  }));
+  const groups = marginGroups(notes, notesHeight, 32);
   const gutterWidth = pageWidth - margin - notesX;
   for (const [i, group] of groups.entries()) {
     const pin = group.marks[0].answer;
@@ -245,7 +267,7 @@ async function annotate(
         2 * (1 - group.center),
         i ? group.center - groups[i - 1].center : 1,
         i + 1 < groups.length ? groups[i + 1].center - group.center : 1,
-      ) * h;
+      ) * notesHeight;
     const maxLines = Math.min(10, Math.max(0, Math.floor((share - 11) / 8.3)));
     const heading =
       pin.id + '  ' + pin.score + (group.marks.length > 1 ? '  +' + (group.marks.length - 1) : '');
@@ -262,8 +284,18 @@ async function annotate(
       if (caption.length)
         caption[caption.length - 1] = text.short(caption[caption.length - 1] + '…', gutterWidth, 7.1);
     }
-    const start = top + group.center * h - (10 + caption.length * 8.3) / 2;
-    await text.write(p, heading, notesX, start, 8, true, markColors[pin.status]);
+    const start = top + group.center * notesHeight - (10 + caption.length * 8.3) / 2;
+    for (const { answer } of group.marks) {
+      if (!marginOnly.has(answer)) continue;
+      p.drawLine({
+        start: { x: x + w + 0.7, y: pageHeight - top - answer.anchor.y * h },
+        end: { x: notesX - 1, y: pageHeight - start - 5 },
+        color: markColors[answer.status],
+        thickness: 0.55,
+      });
+    }
+    markSymbol(p, pin.status, notesX, start + 1.2);
+    await text.write(p, heading, notesX + 9, start, 8, true, markColors[pin.status]);
     for (const [j, value] of caption.entries())
       await text.write(p, value, notesX, start + 10 + j * 8.3, 7.1);
   }
@@ -296,7 +328,8 @@ export async function markedCopy(
   );
   for (const scan of pages) {
     checkActive();
-    const image = await doc.embedJpg(await (await getPage(scan.index)).arrayBuffer());
+    const scanBlob = await getPage(scan.index);
+    const image = await doc.embedJpg(await scanBlob.arrayBuffer());
     checkActive();
     if (image.width !== scan.width || image.height !== scan.height)
       throw Error('A saved scan changed. Refresh the sheet before downloading.');
@@ -311,7 +344,11 @@ export async function markedCopy(
       h = scan.height * ratio,
       x = margin + (available - w) / 2;
     p.drawImage(image, { x, y: pageHeight - top - h, width: w, height: h });
-    if (pins.length) await annotate(p, text, pins, x, top, w, h, margin + available + 8);
+    if (pins.length) {
+      const ink = await scanBlobInk(scanBlob);
+      checkActive();
+      await annotate(p, text, pins, x, top, w, h, margin + available + 8, ink);
+    }
   }
   let page = doc.addPage([pageWidth, pageHeight]),
     y = detail.classLabel ? 106 : 91;

@@ -16,6 +16,7 @@ import { formatAssistantText } from './presentation.mjs';
 import { AssistantApi } from './api.service';
 import { PaperCheckingBatchComponent } from './checking-batch.component';
 import { ClassReturnComponent } from './class-return.component';
+import { inkAwareMarks, scanInk } from './checking-ink';
 import { maxCheckingPages, rotateScan, scanBase64, scanFiles, type Scan } from './checking-intake';
 import { marginGroups, marksOnPage, positionedMarks, scoreStatus, type MappingPoint, type MarkStatus,
   type MethodStep, type ScanMark } from './checking-scan';
@@ -23,6 +24,7 @@ import { summarizeGrades } from '../../assistant-service/domain/checking.mjs';
 
 type State = 'uploading' | 'queued' | 'running' | 'failed' | 'review' | 'final' | 'withdrawn' | 'held';
 type Result = MarkStatus;
+type PrintBadge = { key: string; left: number; top: number; width: number; height: number; text: string };
 type Answer = {
   number: number;
   max: number;
@@ -175,6 +177,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   zoom = 1;
   fit: 'page' | 'width' = 'page';
   placing = false;
+  originalScan = false;
   crosshair = { x: 0.5, y: 0.5 };
   editing = false;
   editingAnswer = false;
@@ -193,6 +196,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   busy = false;
   printing = false;
   printApproved = false;
+  printBadges = new Map<number, PrintBadge[]>();
   error = '';
   message = '';
   confirmingMissing = false;
@@ -491,6 +495,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       }
       if (!same) {
         this.releaseImages();
+        this.originalScan = false;
         this.selected = 0;
         this.pageNumber = 1;
         this.editing = false;
@@ -904,9 +909,37 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   marksOnScan(index: number) {
     return positionedMarks(this.annotations(index), this.scanWidth, this.stageHeight, 47, 20);
   }
-  printInk(page: Page) {
-    const width = Math.min(153, (244 * page.width) / page.height);
-    return positionedMarks(this.annotations(page.index), width, (width * page.height) / page.width, 18, 4);
+  toggleOriginalScan() {
+    this.originalScan = !this.originalScan;
+    this.placing = false;
+    this.placingStep = null;
+    this.remarkKey = '';
+  }
+  private preparePrintBadges(images: HTMLImageElement[]) {
+    const context = document.createElement('canvas').getContext('2d');
+    if (!context) return;
+    context.font = '700 7pt Arial, sans-serif';
+    const pages = this.pageItems;
+    images.forEach((image, i) => {
+      const page = pages[i];
+      const marks = this.annotations(page.index);
+      if (!marks.length) return;
+      const width = Math.min(153, (244 * page.width) / page.height) * 96 / 25.4;
+      const height = width * page.height / page.width;
+      const labels = marks.map(mark => {
+        const step = mark.stepIndex === null ? '' : '·' + (mark.stepIndex + 1);
+        const caption = 'Q' + mark.answer.number + step + ' ' + this.symbols[mark.status] + ' ' + (mark.awarded ?? '?') + '/' + mark.max;
+        return { ...mark, caption, width: Math.ceil(context.measureText(caption).width) + 6, height: 16 };
+      });
+      const symbol = { width: 13, height: 16 };
+      const placements = inkAwareMarks(labels, width, height, mark => mark, scanInk(image), symbol);
+      this.printBadges.set(page.index, placements.filter(mark => mark.placement !== 'margin').map(mark => ({
+        key: mark.key, left: mark.left, top: mark.top,
+        width: 100 * (mark.placement === 'symbol' ? symbol.width : mark.width) / width,
+        height: 100 * mark.height / height,
+        text: mark.placement === 'symbol' ? this.symbols[mark.status] : mark.caption,
+      })));
+    });
   }
   printMarks(page: Page) {
     const height = Math.min(244, (153 * page.height) / page.width);
@@ -993,6 +1026,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     event.preventDefault();
   }
   beginPlacement(stepIndex: number | null = null, page = this.pageNumber) {
+    if (this.originalScan) return;
     this.pageNumber = page;
     this.placingStep = stepIndex;
     this.placing = true;
@@ -1008,7 +1042,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     this.placeAt((event.clientX - box.left) / box.width, (event.clientY - box.top) / box.height);
   }
   private placeAt(x: number, y: number) {
-    if (!this.placing || !this.answer || !this.canEdit) return;
+    if (this.originalScan || !this.placing || !this.answer || !this.canEdit) return;
     const point = { page: this.pageNumber, x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) };
     const step = this.placingStep === null ? undefined : this.answer.steps?.[this.placingStep];
     if (step) this.moveStep(this.answer, step, point);
@@ -1183,6 +1217,8 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       );
       if (images.length !== sheet.pageCount) throw Error('The scanned pages are not ready to print.');
       await Promise.all(images.map((photo) => photo.decode()));
+      if (this.dead || this.epoch !== epoch) return;
+      this.preparePrintBadges(images);
       const latest = this.scopePacketId
         ? (await this.api.request<Index>('/checking/packets/' + encodeURIComponent(this.scopePacketId) + '/results')).sheets.find(row => row.id === sheet.id)
         : (await this.api.request<Detail>(this.base + '/' + encodeURIComponent(sheet.id))).sheet;
@@ -1211,6 +1247,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       }
     } finally {
       this.printApproved = false;
+      this.printBadges.clear();
       this.printing = false;
       this.paint();
     }

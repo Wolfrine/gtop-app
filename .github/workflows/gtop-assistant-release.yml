@@ -23,18 +23,22 @@ jobs:
       hosting_required: ${{ steps.scope.outputs.hosting_required }}
     permissions:
       contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - name: Fetch the exact push comparison base before classifying deployment
+      - name: Find the previous successful main release for deployment scope
         if: github.event_name == 'push'
         env:
-          RELEASE_BEFORE: '${{ github.event.before }}'
+          GH_TOKEN: ${{ github.token }}
         run: |
-          [[ "$RELEASE_BEFORE" =~ ^[a-f0-9]{40}$ ]] || exit 1
-          if [[ "$RELEASE_BEFORE" != "0000000000000000000000000000000000000000" ]]; then
-            git fetch --no-tags --depth=1 origin "$RELEASE_BEFORE"
+          # A failed run can leave both Hosting and the gateway several commits behind main.
+          previous="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/gtop-assistant-release.yml/runs?branch=main&status=success&per_page=1" --jq '.workflow_runs[0].head_sha // empty' || true)"
+          if [[ "$previous" =~ ^[a-f0-9]{40}$ ]] && git fetch --no-tags --depth=1 origin "$previous"; then
+            echo "RELEASE_BEFORE=$previous" >> "$GITHUB_ENV"
+          else
+            echo "No verified previous release. Using full deployment scope."
           fi
       - uses: actions/setup-node@v4
         with:
@@ -60,8 +64,6 @@ jobs:
         working-directory: tools/gtop-assistant
       - name: Classify cloud deployment scope without skipping required verification
         id: scope
-        env:
-          RELEASE_BEFORE: '${{ github.event.before }}'
         run: node --import ./node_modules/tsx/dist/loader.mjs src/release-scope.ts
         working-directory: tools/gtop-assistant
       - name: Exercise actual Auth, Firestore, function endpoints and shared default-deny rules

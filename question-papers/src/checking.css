@@ -283,9 +283,19 @@ h4 {
 }
 .scan-tools {
   justify-content: space-between;
+  flex-wrap: wrap;
   padding: 4px 8px;
   border-bottom: 1px solid var(--panel-line);
   gap: 0;
+}
+.scan-view-toggle {
+  padding: 0 9px;
+  min-height: 40px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #fff;
+  font-size: 13px;
 }
 .icon,
 .fit-width,
@@ -1168,6 +1178,10 @@ h4 {
   }
   .print-ink {
     position: absolute;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
     z-index: 1;
     font:
       700 7pt/1.1 Arial,
@@ -1176,7 +1190,6 @@ h4 {
     background: #fff;
     border: 0.2mm solid #333;
     border-radius: 0.7mm;
-    padding: 0.25mm 0.55mm;
     white-space: nowrap;
   }
   .print-stage aside span {

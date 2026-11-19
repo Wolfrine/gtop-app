@@ -13,6 +13,7 @@ export class AssistantApi implements Transport {
   private database?:Firestore;
   private firestore?:typeof import('firebase/firestore');
   private authEpoch=0;
+  private cameraCleanup:Promise<void>=Promise.resolve();
   private observers=new Set<(user:User|null)=>void>();
   user:User|null=null;
   async initialize():Promise<void> {
@@ -50,7 +51,7 @@ export class AssistantApi implements Transport {
     const previous=this.user?.uid,changed=user?.uid!==previous;this.user=user;
     if(changed){
       this.authEpoch++;
-      if(previous)void clearCameraDraft(previous).catch(()=>{});
+      if(previous)this.cameraCleanup=this.cameraCleanup.then(()=>clearCameraDraft(previous)).catch(()=>{});
       for(const observer of this.observers)observer(user);
     }
   }
@@ -64,9 +65,8 @@ export class AssistantApi implements Transport {
   async login():Promise<void> {const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await signInWithRedirect(this.auth!,provider);}
   async loginEmail(email:string,password:string):Promise<void> {const result=await signInWithEmailAndPassword(this.auth!,email,password);this.setUser(result.user);}
   async logout():Promise<void> {
-    const owner=this.user?.uid;
     await signOut(this.auth!);this.setUser(null);
-    if(owner)await clearCameraDraft(owner).catch(()=>{});
+    await this.cameraCleanup;
   }
   private async authorized(path:string,method='GET',body?:unknown):Promise<Response> {
     const user=this.user,epoch=this.authEpoch;

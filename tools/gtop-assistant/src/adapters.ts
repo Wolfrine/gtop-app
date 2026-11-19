@@ -12,13 +12,17 @@ import {listenForDispatch} from './dispatch.js';
 export interface Config {gateway:string;workerId:string;secretProtected?:string;emulatorSecret?:string;firebaseApiKey:string;authEmulator?:string;ollama:string;model:string;codexExecutable:string;codexModel:string;dataDirectory:string;runnerContractVersion?:number;runner?:Runner;codexReasoningEffort?:'low'|'medium'|'high'|'xhigh';}
 export const delay=(ms:number,signal?:AbortSignal)=>new Promise<void>((resolve,reject)=>{if(signal?.aborted)return reject(signal.reason);const stop=()=>{clearTimeout(timer);signal?.removeEventListener('abort',stop);reject(signal?.reason);};const timer=setTimeout(()=>{signal?.removeEventListener('abort',stop);resolve();},ms);signal?.addEventListener('abort',stop,{once:true});});
 export async function record(dir:string,name:string,value:unknown){await mkdir(dir,{recursive:true});await writeFile(path.join(dir,name),typeof value==='string'?value:JSON.stringify(value,null,2),'utf8');}
-export async function readConfig(file:string):Promise<Config>{
+export async function readGatewayConfig(file:string):Promise<Config>{
   const c=JSON.parse((await readFile(file,'utf8')).replace(/^\uFEFF/,''));
   const u=new URL(c.gateway);const local=['127.0.0.1','localhost'].includes(u.hostname);
   if(!local && (u.protocol!=='https:' || !['gtop-question-papers.web.app','us-central1-gtop-app.cloudfunctions.net'].includes(u.hostname)))throw Error('Gateway must be the fixed pilot endpoint.');
   if(c.authEmulator&&!local)throw Error('Auth emulator requires an explicit loopback gateway.');
   if(c.emulatorSecret&&!local)throw Error('Plaintext secrets are allowed only with the isolated emulator.');
   if(typeof c.dataDirectory!=='string'||!path.isAbsolute(c.dataDirectory))throw Error('Private log directory must be an absolute path.');
+  return c;
+}
+export async function readConfig(file:string):Promise<Config>{
+  const c=await readGatewayConfig(file);
   c.runner=await prepareRunner(c,path.resolve(file));
   c.codexExecutable=await c.runner.resolveCodex();
   return c;

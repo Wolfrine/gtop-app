@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { mkdir, realpath } from 'node:fs/promises';
-import { Gateway, delay, readConfig, record, resolveJobCodex } from './adapters.js';
+import { Gateway, delay, readGatewayConfig, record } from './adapters.js';
+import { resolveDesktopCodex } from './runner.js';
 import { DispatchWake } from './dispatch.js';
 import { acquireWorkerLock } from './singleton.js';
 import { checkingConfig, gradeScans } from './checking-model.mjs';
@@ -19,7 +20,7 @@ if(!pairing||!operations||!path.isAbsolute(operations))throw Error('Pass the exi
 await mkdir(operations,{recursive:true});
 const root=await realpath(operations);
 if(process.platform==='win32'&&!/^H:\\/i.test(root))throw Error('Keep the checking runtime on H:.');
-const config=await readConfig(pairing);
+const config=await readGatewayConfig(pairing);
 const model=checkingConfig();
 const gateway=new Gateway(config);
 const wake=new DispatchWake(),lane='checking';
@@ -104,7 +105,7 @@ async function grade(job:GradingJob){
       const {jpeg}=await gateway.post(endpoint+'/pages/'+index,{lease:job.lease},signal);
       images.push(Buffer.from(jpeg,'base64'));
     }
-    const executable=model.engine==='codex-cli'?await resolveJobCodex(config):undefined;
+    const executable=model.engine==='codex-cli'?await resolveDesktopCodex():undefined;
     const result=await gradeScans(model,job.rubric,job.notes,images,{executable,root,signal});
     const completed=await gateway.post(endpoint+'/complete',{...result,engine:model.engine,lease:job.lease},signal);
     if(!completed.active)throw Error('lease_lost');

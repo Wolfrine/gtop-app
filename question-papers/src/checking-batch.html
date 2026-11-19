@@ -1,0 +1,89 @@
+<section class="batch" aria-labelledby="batch-title">
+  <header>
+    <h2 id="batch-title">Upload a class</h2>
+    <p>Choose one scanned PDF per student. Each PDF becomes a separate answer sheet.</p>
+  </header>
+
+  <div class="file-picker">
+    <label for="batch-files">{{sheets.length ? 'Add more PDFs' : 'Choose class PDFs'}}</label>
+    <input id="batch-files" type="file" accept="application/pdf,.pdf" multiple
+      (change)="selectFiles($event)" [disabled]="busy">
+    <small>Up to {{maxPages}} pages and 64 MB per PDF. Use a sheet label that avoids student names.</small>
+  </div>
+  @if (recoverable && !sheets.length) {
+    <p class="tip">To resume an earlier upload in this tab, select the same PDFs. Sheets already sent will be recognized.</p>
+  }
+  @if (notice) { <p role="status" class="tip">{{notice}}</p> }
+
+  <div class="batch-actions" role="group" aria-label="Class upload actions">
+    @if (sheets.length) {
+      <div class="upload-summary">
+        <strong aria-live="polite">{{sent}} of {{sheets.length}} sent to checker</strong>
+        <p>
+          @if (unsavedFiles) { Keep this tab open until the pages are saved. }
+          @else if (sent) { The checker continues after you leave. }
+          @else if (candidates.length) { Saved pages can also be queued from the answer sheet list. }
+        </p>
+      </div>
+    }
+    @if (candidates.length || sending) {
+      <button type="button" class="button primary" (click)="send()" [disabled]="busy || hasBlankLabels">
+        {{sending ? 'Uploading…' : 'Upload and check '+candidates.length+' '+(candidates.length === 1 ? 'sheet' : 'sheets')}}
+      </button>
+    }
+    <button type="button" class="button secondary" (click)="close()" [disabled]="busy">Back to answer sheets</button>
+  </div>
+
+  @if (sheets.length || inspecting) {
+    <div class="manifest-header">
+      <h3>Upload list</h3>
+      <div class="manifest-meta">
+        <p>{{sheets.length}} {{sheets.length === 1 ? 'file' : 'files'}} · {{totalPages}} {{totalPages === 1 ? 'page' : 'pages'}}</p>
+        @if (issues.length) {
+          <button type="button" class="text-button" (click)="issuesOnly = !issuesOnly" [attr.aria-pressed]="issuesOnly">
+            {{issuesOnly ? 'Show all files' : 'Show '+issues.length+' needing attention'}}
+          </button>
+        }
+      </div>
+    </div>
+    @if (inspecting) { <p role="status" class="tip">{{inspectionProgress}}</p> }
+    <ol class="manifest">
+      @for (row of visibleSheets; track row.id) {
+        <li [class.needs-attention]="row.state === 'failed' || row.state === 'invalid'">
+          <div class="file-info">
+            <strong>{{row.name}}</strong>
+            @if (row.pages) { <small>{{row.pages}} {{row.pages === 1 ? 'page' : 'pages'}}</small> }
+          </div>
+          @if (row.state !== 'invalid') {
+            <label class="sheet-label">Sheet label
+              <input [(ngModel)]="row.label" maxlength="100" [disabled]="busy || row.started"
+                [attr.aria-label]="'Sheet label for '+row.name" required>
+            </label>
+          }
+          <div class="row-state">
+            @switch (row.state) {
+              @case ('invalid') { <span class="issue">{{row.detail}}</span> }
+              @case ('failed') {
+                <span class="issue">{{row.detail}}</span>
+                <small>{{row.saved}} of {{row.pages}} pages saved</small>
+              }
+              @case ('uploading') { <span>{{row.detail}}</span> }
+              @case ('sent') { <span class="sent">✓ Sent to checker</span> }
+              @case ('ready') { <span>Ready to upload</span> }
+            }
+            @if (row.state === 'failed') {
+              <button class="text-button" type="button" (click)="send([row])" [disabled]="busy || !row.label.trim()"
+                [attr.aria-label]="'Retry '+row.label">Retry</button>
+            }
+            @if (!row.started && row.state !== 'uploading') {
+              <button class="text-button" type="button" (click)="remove(row)" [disabled]="busy"
+                [attr.aria-label]="'Remove '+row.name">Remove</button>
+            }
+          </div>
+        </li>
+      }
+    </ol>
+  }
+
+  <small class="privacy">Scans and results are private to your account. Checking sends the scanned pages to the configured OpenAI service.</small>
+</section>

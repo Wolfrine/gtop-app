@@ -3,7 +3,7 @@ import {mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {gradingPrompt,gradingSchema} from '../../../assistant-service/domain/checking.mjs';
 
-const modelDeadline=4*60_000;
+import {checkingModelBudgetMs,maxCheckingPages} from '../../../assistant-service/domain/checking-limits.mjs';
 export function checkingConfig(env=process.env) {
   const engine=env.GTOP_CHECKING_ENGINE||'codex-cli';
   if(!['codex-cli','openai-api'].includes(engine))throw Error('Unsupported GTOP checking engine.');
@@ -17,10 +17,10 @@ export function checkingConfig(env=process.env) {
 }
 
 export async function gradeScans(config,rubric,notes,images,{executable,root,signal}={}){
-  if(!images.length||images.length>12||images.some(image=>image.length>400000))
+  if(!images.length||images.length>maxCheckingPages||images.some(image=>image.length>400000))
     throw Error('image_bounds');
   const prompt=gradingPrompt(rubric,images.length,notes);
-  const deadline=AbortSignal.timeout(modelDeadline);
+  const deadline=AbortSignal.timeout(checkingModelBudgetMs(images.length,rubric.questions.length));
   const stop=signal?AbortSignal.any([signal,deadline]):deadline;
   if(config.engine==='openai-api')return requestApi(config,prompt,images,stop);
   const dir=await mkdtemp(path.join(root,'checking-'));

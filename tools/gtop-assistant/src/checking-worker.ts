@@ -78,7 +78,7 @@ async function work(){
         await wake.wait(lane,stop.signal);
         if(!status.connected)continue;
         status.claims++;
-        const {job,nextWake}=await gateway.post('/worker/checking/claim',{},stop.signal) as {job:GradingJob|null;nextWake:string|null};
+        const {job,nextWake}=await gateway.post('/worker/checking/claim',{engine:model.engine},stop.signal) as {job:GradingJob|null;nextWake:string|null};
         failures=0;
         clearTimeout(next);
         if(nextWake)next=setTimeout(()=>wake.wake(lane),Math.max(500,Date.parse(nextWake)-Date.now()+500));

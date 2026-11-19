@@ -1,225 +1,997 @@
-<div class="checking-shell">
-  <header class="checking-header">
-    <button class="checking-back" type="button" (click)="leave()" [disabled]="busy">← Back to papers</button>
-    <div class="checking-title">
-      <h1>Check answer sheets</h1>
-      @if(rubric){<p>{{rubric.title}} · {{max}} marks</p>}
-    </div>
-    <button class="checking-action" type="button" (click)="refresh()" [disabled]="busy||dirty">Refresh</button>
-  </header>
-
-  @if(error){<p role="alert" class="checking-notice error">{{error}}</p>}
-  @if(message){<p role="status" class="checking-notice">{{message}}</p>}
-
-  @if(composing){
-    <section class="checking-intake" aria-labelledby="intake-title">
-      <h2 id="intake-title">{{resuming?'Resume upload':'Add an answer sheet'}}</h2>
-      <p>Use one sheet per submission. Add up to 12 ordered photos or pages from a scanned PDF.</p>
-      <form (ngSubmit)="submit()" class="checking-form">
-        <label>Sheet label
-          <input name="label" [(ngModel)]="label" [disabled]="busy||frozen" maxlength="100" required placeholder="For example, Sheet 07">
-        </label>
-        <label>Marking notes <span>(optional)</span>
-          <textarea name="notes" [(ngModel)]="notes" [disabled]="busy||frozen" maxlength="1600" rows="2" placeholder="Any instructions for this sheet"></textarea>
-        </label>
-        <label class="checking-file">Add photos or a PDF
-          <input type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,.heic,.heif,application/pdf,.pdf" multiple (change)="addFiles($event)" [disabled]="busy||photos.length>=12">
-        </label>
-        @if(photos.length){
-          <ol class="checking-upload-pages" aria-label="Upload order">
-            @for(photo of photos;track photo.url;let i=$index){
-              <li>
-                <img [src]="photo.url" alt="">
-                <div class="checking-page-name"><strong>Page {{i+1}}</strong><small>{{photo.name}}</small></div>
-                <div class="checking-mini-actions">
-                  <button type="button" [disabled]="busy||i===0" (click)="move(i,-1)" [attr.aria-label]="'Move page '+(i+1)+' earlier'">↑</button>
-                  <button type="button" [disabled]="busy||i===photos.length-1" (click)="move(i,1)" [attr.aria-label]="'Move page '+(i+1)+' later'">↓</button>
-                  <button type="button" [disabled]="busy" (click)="remove(i)" [attr.aria-label]="'Remove page '+(i+1)">×</button>
-                </div>
-              </li>
-            }
-          </ol>
-        }
-        <p class="checking-help">Scan pages and results are private to your account. Grading sends the scan to the configured OpenAI service. Use a sheet label that avoids student names.</p>
-        <div class="checking-actions">
-          <button class="checking-action primary" type="submit" [disabled]="busy||!label.trim()||!photos.length">Upload and check</button>
-          <button class="checking-action" type="button" (click)="cancelIntake()" [disabled]="busy">Cancel</button>
+<div class="desk-shell">
+  <header class="desk-header">
+    @if (sheet && !composing; as current) {
+      <button
+        class="back"
+        type="button"
+        (click)="list()"
+        [disabled]="busy"
+        aria-label="Back to all answer sheets"
+      >
+        ‹ <span>All sheets</span>
+      </button>
+      <div class="heading">
+        <h1>{{ sheet!.label }}</h1>
+        <p [title]="rubric?.title || ''">{{ rubric?.title }}</p>
+      </div>
+      @if (sheet!.grade) {
+        <div class="score">
+          <strong
+            >{{ foundTotal }} <small>/ {{ max }}</small></strong
+          ><span>{{
+            pending ? 'Provisional' : sheet!.state === 'final' && !dirty ? 'Final score' : 'Draft score'
+          }}</span>
         </div>
-      </form>
-    </section>
-  } @else if(sheet;as current){
-    <section class="checking-sheet" aria-labelledby="sheet-title">
-      <div class="checking-sheet-header">
+      }
+      <details #menu class="menu">
+        <summary aria-label="Sheet actions" title="Sheet actions">•••</summary>
         <div>
-          <button class="checking-back" type="button" (click)="list()" [disabled]="busy">← All sheets</button>
-          <h2 id="sheet-title">{{current.label}}</h2>
-          <p class="checking-status" [attr.data-state]="current.state">{{statusText[current.state]}} · {{current.pageCount}} {{current.pageCount===1?'page':'pages'}}</p>
+          <button type="button" (click)="refresh(); menu.open = false" [disabled]="busy || dirty">
+            Refresh sheet
+          </button>
+          @if (sheet!.grade) {
+            <button
+              type="button"
+              (click)="print(); menu.open = false"
+              [disabled]="busy || dirty || !imagesReady || printing"
+            >
+              Print / Save PDF
+            </button>
+          }
+          <button type="button" class="danger" (click)="deleteSheet(); menu.open = false" [disabled]="busy">
+            Delete sheet
+          </button>
         </div>
-        @if(current.grade){
-          <div class="checking-score"><strong>{{foundTotal}} <span>/ {{max}}</span></strong><small>{{pending?pending+' to resolve':current.state==='final'&&!dirty?'Final score':'Draft score'}}</small></div>
+      </details>
+    } @else {
+      <button class="back" type="button" (click)="composing ? list() : leave()" [disabled]="busy">
+        ‹ <span>{{ composing ? 'All sheets' : 'Papers' }}</span>
+      </button>
+      <div class="heading">
+        <h1>{{ composing ? (resuming ? 'Resume upload' : 'Add sheets') : 'Answer sheets' }}</h1>
+        <p>
+          {{ rubric?.title }}
+          @if (rubric?.marks) {
+            · {{ rubric?.marks }} marks
+          }
+        </p>
+      </div>
+      @if (!composing) {
+        <button class="action" type="button" (click)="refresh()" [disabled]="busy || loading">Refresh</button>
+      }
+    }
+  </header>
+  @if (error) {
+    <div class="notice error" role="alert">
+      {{ error }}
+      @if (conflict) {
+        <button class="link" type="button" (click)="reloadConflict()">Load latest sheet</button>
+      }
+    </div>
+  }
+  @if (message) {
+    <div class="notice" role="status">{{ message }}</div>
+  }
+  @if (composing) {
+    <section class="intake card">
+      @if (!resuming) {
+        <nav aria-label="Upload mode" class="mode-tabs">
+          <button
+            type="button"
+            [attr.aria-pressed]="!batch"
+            (click)="intakeMode(false)"
+            [disabled]="busy || frozen"
+          >
+            One answer sheet
+          </button>
+          <button
+            type="button"
+            [attr.aria-pressed]="batch"
+            (click)="intakeMode(true)"
+            [disabled]="busy || frozen"
+          >
+            Class PDFs
+          </button>
+        </nav>
+      }
+      @if (batch) {
+        <gtop-checking-batch
+          [paperId]="paperId"
+          [firstSheetNumber]="sheets.length + 1"
+          (closed)="closeBatch()"
+          (uploadingChange)="busy = $event"
+          (selectionChange)="batchSelection = $event"
+        />
+      } @else {
+        <form (ngSubmit)="submit()" class="form intake-form">
+          <label
+            >Sheet label<input
+              name="label"
+              [(ngModel)]="label"
+              [disabled]="busy || frozen"
+              maxlength="100"
+              required
+              placeholder="e.g. Sheet 07"
+          /></label>
+          <label class="file-drop"
+            ><strong>Add photos or a scanned PDF</strong
+            ><span>Up to {{ pageLimit }} pages from one answer sheet, in reading order.</span>
+            <input
+              aria-label="Add photos or a scanned PDF"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,.heic,.heif,application/pdf,.pdf"
+              multiple
+              (change)="addFiles($event)"
+              [disabled]="
+                busy || (frozen && !resuming) || photos.length >= (resuming ? sheet!.pageCount : pageLimit)
+              "
+            />
+          </label>
+          @if (photos[photoIndex]; as photo) {
+            <div class="intake-proof">
+              <div class="toolrow">
+                <label
+                  >Preview page
+                  <select
+                    [ngModel]="photoIndex"
+                    name="previewPage"
+                    (ngModelChange)="photoIndex = $event; previewZoom = false"
+                    [disabled]="busy"
+                  >
+                    @for (p of photos; track p.url; let i = $index) {
+                      <option [ngValue]="i">{{ i + 1 }} / {{ photos.length }}</option>
+                    }
+                  </select></label
+                ><button class="link" type="button" (click)="previewZoom = !previewZoom">
+                  {{ previewZoom ? 'Fit preview' : 'Zoom in' }}
+                </button>
+              </div>
+              <div
+                class="proof-image"
+                [class.zoomed]="previewZoom"
+                tabindex="0"
+                aria-label="Selected page preview"
+              >
+                <img [src]="photo.url" [alt]="'Upload preview page ' + (photoIndex + 1)" />
+              </div>
+              <div class="proof-actions">
+                <small>{{ photo.name }}</small
+                ><button
+                  type="button"
+                  class="link"
+                  (click)="rotate()"
+                  [disabled]="busy || (frozen && !resuming)"
+                >
+                  Rotate 90°</button
+                ><button
+                  type="button"
+                  class="link"
+                  (click)="move(photoIndex, -1)"
+                  [disabled]="busy || (frozen && !resuming) || photoIndex === 0"
+                >
+                  Earlier</button
+                ><button
+                  type="button"
+                  class="link"
+                  (click)="move(photoIndex, 1)"
+                  [disabled]="busy || (frozen && !resuming) || photoIndex === photos.length - 1"
+                >
+                  Later</button
+                ><button
+                  type="button"
+                  class="link danger"
+                  (click)="remove(photoIndex)"
+                  [disabled]="busy || (frozen && !resuming)"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          }
+          <label
+            >Marking instructions <small>Optional</small
+            ><textarea
+              name="notes"
+              [(ngModel)]="notes"
+              [disabled]="busy || frozen"
+              maxlength="1600"
+              rows="2"
+            ></textarea>
+          </label>
+          <p class="help">
+            Use a sheet label without a student name. The configured OpenAI service receives these scans for
+            marking.
+          </p>
+          <div class="actions">
+            <button class="action primary" type="submit" [disabled]="busy || !label.trim() || !photos.length">
+              {{ frozen ? 'Retry upload' : 'Upload and check' }}</button
+            ><button class="action" type="button" (click)="cancelIntake()" [disabled]="busy">Cancel</button>
+          </div>
+        </form>
+      }
+    </section>
+  } @else if (sheet; as current) {
+    <section class="sheet" aria-label="Marking desk">
+      <div class="workbar">
+        <div class="work-status">
+          <span
+            class="state"
+            [class.attention]="pending > 0 || current.state === 'failed' || current.state === 'uploading'"
+            >{{
+              current.grade
+                ? pending
+                  ? 'Needs attention'
+                  : current.state === 'final' && !dirty
+                    ? 'Finalized'
+                    : 'Ready to finalize'
+                : stateLabel(current)
+            }}</span
+          >
+          @if (current.grade) {
+            <span class="detail-text"
+              >{{ pending ? pending + ' pending' : answers.length + ' questions' }}
+              @if (dirty) {
+                · Unsaved
+              }
+            </span>
+          }
+        </div>
+        @if (current.grade) {
+          <div class="actions">
+            @if (canEdit) {
+              @if (dirty) {
+                <button class="action" type="button" (click)="save(false)" [disabled]="busy">
+                  Save corrections
+                </button>
+              }
+              @if (!pending) {
+                <button class="action primary" type="button" (click)="save(true)" [disabled]="busy">
+                  Finalize marks
+                </button>
+              } @else if (issues.length) {
+                <button class="action" type="button" (click)="nextIssue()" [disabled]="busy">
+                  Next issue ›
+                </button>
+              }
+            } @else {
+              <button
+                class="action"
+                type="button"
+                (click)="editing = true; editingAnswer = true; switchPane('review')"
+                [disabled]="busy"
+              >
+                Edit marks
+              </button>
+            }
+            <button
+              class="action print-button"
+              type="button"
+              (click)="print()"
+              [disabled]="!imagesReady || dirty || printing || busy"
+            >
+              Print / Save PDF
+            </button>
+          </div>
         }
       </div>
-      @if(active){
-        <p class="checking-notice" role="status">{{current.state==='queued'?'Saved and waiting for the local checker. You can return to this sheet later.':'The local checker is reading the scanned pages. You can return to this sheet later.'}}</p>
-      }
-      @if(current.state==='failed'){
-        <p class="checking-notice error">{{current.error}}</p>
-        <div class="checking-actions">
-          <button class="checking-action primary" type="button" (click)="queue()" [disabled]="busy">Retry checking</button>
-          <button class="checking-action" type="button" (click)="queue('manual')" [disabled]="busy">Mark manually</button>
-        </div>
-      }
-      @if(current.state==='uploading'){
-        <p class="checking-notice">Saved {{current.uploaded.length}} of {{current.pageCount}} pages.</p>
-        @if(current.uploaded.length===current.pageCount){
-          <button class="checking-action primary" type="button" (click)="queue()" [disabled]="busy">Queue checking</button>
-        }@else{
-          <button class="checking-action primary" type="button" (click)="start(true)" [disabled]="busy">Resume with the same pages</button>
-        }
-      }
-      @if(current.grade){
-        <div class="checking-review-bar">
-          <p>{{rubric?.hasScheme?'Saved marking scheme':'Questions used as the rubric'}} · {{current.engine==='codex-cli'?'Codex CLI':current.engine==='openai-api'?'OpenAI API':'Teacher marking'}} @if(pending){ <span> · Resolve flagged answers before finalizing.</span> }</p>
-          <div class="checking-actions">
-            @if(!canEdit){
-              <button class="checking-action" type="button" (click)="editing=true" [disabled]="busy">Edit marks</button>
-            }@else{
-              <button class="checking-action" type="button" (click)="save(false)" [disabled]="busy||!dirty">Save corrections</button>
-              <button class="checking-action primary" type="button" (click)="save(true)" [disabled]="busy||pending>0">Finalize marks</button>
+      @if (active || current.state === 'failed' || current.state === 'uploading') {
+        <div class="notice workflow">
+          <p>
+            {{
+              current.state === 'queued'
+                ? 'Waiting for the checker. You can return to this sheet later.'
+                : current.state === 'running'
+                  ? 'The checker is reading these pages.'
+                  : current.state === 'failed'
+                    ? current.error
+                    : 'Saved ' + current.uploaded.length + ' of ' + current.pageCount + ' pages.'
+            }}
+          </p>
+          <div class="actions">
+            @if (
+              current.state === 'failed' ||
+              (current.state === 'uploading' && current.uploaded.length === current.pageCount)
+            ) {
+              <button class="action primary" type="button" (click)="queue()" [disabled]="busy">
+                {{ current.state === 'failed' ? 'Retry checking' : 'Queue checking' }}
+              </button>
             }
-            <button class="checking-action" type="button" (click)="print()" [disabled]="!imagesReady||dirty||printing||busy">Print / Save PDF</button>
+            @if (current.uploaded.length === current.pageCount) {
+              <button class="action" type="button" (click)="markManually()" [disabled]="busy">
+                Mark manually
+              </button>
+            }
+            @if (current.state === 'uploading' && current.uploaded.length < current.pageCount) {
+              <button class="action primary" type="button" (click)="start(true)" [disabled]="busy">
+                Resume upload
+              </button>
+            }
           </div>
         </div>
       }
-      <div class="checking-split" [class.single]="!current.grade">
-        <section class="checking-scan" aria-label="Scanned answer pages">
-          <nav class="checking-pagination" aria-label="Scan pages">
-            @for(page of pageItems;track page.index){
-              <button type="button" class="checking-action" [attr.aria-current]="page.index===pageNumber?'page':null" (click)="setPage(page.index)">Page {{page.index}}</button>
-            }
-          </nav>
-          @if(placing){<p class="checking-placing">Choose a spot near the answer on this page. <button class="checking-back" type="button" (click)="placing=false">Cancel</button></p>}
-          @if(page;as shown){
-            @if(url(shown.index)){
-              <figure class="checking-page" [class.placing]="placing" (click)="place($event)">
-                <img [src]="url(shown.index)" [alt]="'Answer sheet page '+shown.index" [width]="shown.width" [height]="shown.height">
-                @for(note of annotations(shown.index);track note.answer.number){
-                  <button class="checking-pin" type="button" [attr.data-status]="note.answer.status" [class.selected]="selected===note.answer.number" [class.right]="note.anchor.x>.78"
-                    [style.left.%]="note.anchor.x*100" [style.top.%]="note.anchor.y*100"
-                    [attr.title]="note.answer.explanation"
-                    [attr.aria-label]="'Question '+note.answer.number+' '+captions[note.answer.status]+'. '+note.answer.explanation"
-                    (click)="$event.stopPropagation();choose(note.answer,shown.index)">
-                    <span aria-hidden="true">{{marker[note.answer.status]}}</span> Q{{note.answer.number}} · {{note.answer.awarded===null?'?':note.answer.awarded}}/{{note.answer.max}}
-                  </button>
-                  @if(selected===note.answer.number&&!placing){
-                    <div class="checking-comment" [style.left.%]="mathPosition(note.anchor.x)" [style.top.%]="note.anchor.y*100" [class.above]="note.anchor.y>.8">{{note.answer.explanation}}</div>
-                  }
+      @if (current.grade) {
+        <nav class="phone-tabs mode-tabs" aria-label="Marking view">
+          <button type="button" [attr.aria-pressed]="pane === 'scan'" (click)="switchPane('scan')">
+            Scan · p{{ pageNumber }}</button
+          ><button type="button" [attr.aria-pressed]="pane === 'review'" (click)="switchPane('review')">
+            Review · Q{{ selected }}
+          </button>
+        </nav>
+      }
+      <div
+        class="split"
+        [class.single]="!current.grade"
+        [class.show-review]="pane === 'review' && current.grade"
+      >
+        <section class="scan card" aria-label="Scanned handwriting">
+          <div class="scan-tools">
+            <div class="page-nav">
+              <button
+                type="button"
+                class="icon"
+                (click)="pageStep(-1)"
+                [disabled]="pageItems[0]?.index === pageNumber || !page"
+                aria-label="Previous page"
+              >
+                ‹
+              </button>
+              <select
+                aria-label="Scan page"
+                [ngModel]="pageNumber"
+                (ngModelChange)="setPage($event)"
+                [disabled]="pageItems.length < 2"
+              >
+                @for (p of pageItems; track p.index) {
+                  <option [ngValue]="p.index">Page {{ p.index }} / {{ current.pageCount }}</option>
                 }
-              </figure>
-            }@else{<p>Loading this scan…</p>}
-          }
-        </section>
-        @if(current.grade){
-          <section class="checking-answers" aria-labelledby="answer-title">
-            <h3 id="answer-title">Question review</h3>
-            <div class="checking-question-list">
-              @for(answer of answers;track answer.number){
-                <button type="button" class="checking-question" (click)="choose(answer)" [attr.aria-pressed]="selected===answer.number" [attr.data-status]="answer.status">
-                  <strong>Q{{answer.number}}</strong><span>{{captions[answer.status]}}</span><span>{{answer.awarded===null?'–':answer.awarded}} / {{answer.max}}</span>
-                </button>
-              }
+              </select>
+              <button
+                type="button"
+                class="icon"
+                (click)="pageStep(1)"
+                [disabled]="pageItems[pageItems.length - 1]?.index === pageNumber || !page"
+                aria-label="Next page"
+              >
+                ›
+              </button>
             </div>
-            @if(answer;as selectedAnswer){
-              <div class="checking-answer-detail">
-                <h4>Question {{selectedAnswer.number}} <span>{{captions[selectedAnswer.status]}}</span></h4>
-                @if(question;as q){
-                  <details><summary>Saved question{{q.alternative?' and alternative':''}}</summary><p>{{q.question}}</p>@if(q.alternative){<p>OR {{q.alternative}}</p>}</details>
-                }
-                @if(selectedAnswer.evidence){<blockquote>{{selectedAnswer.evidence}}</blockquote>}
-                @if(canEdit){
-                  <div class="checking-form checking-edit">
-                    <label>Assessment
-                      <select [ngModel]="selectedAnswer.status" (ngModelChange)="setStatus(selectedAnswer,$event)" [disabled]="busy">
-                        @for(state of statuses;track state){<option [value]="state">{{captions[state]}}</option>}
-                      </select>
-                    </label>
-                    @if(selectedAnswer.status==='partial'){
-                      <label>Marks out of {{selectedAnswer.max}}
-                        <input type="number" min="0" [max]="selectedAnswer.max" step="0.01" [(ngModel)]="selectedAnswer.awarded" (ngModelChange)="dirty=true" [disabled]="busy">
-                      </label>
+            <div class="zoom-tools">
+              <button
+                type="button"
+                class="icon"
+                aria-label="Zoom out"
+                (click)="zoomBy(-0.25)"
+                [disabled]="zoom <= 0.75"
+              >
+                −</button
+              ><button
+                type="button"
+                class="fit-reset"
+                (click)="setFit('page')"
+                title="Reset zoom to fit the page"
+                aria-label="Reset zoom to fit page"
+              >
+                {{ zoom === 1 && fit === 'page' ? 'Fit' : zoom * 100 + '%' }}</button
+              ><button
+                type="button"
+                class="icon"
+                aria-label="Zoom in"
+                (click)="zoomBy(0.25)"
+                [disabled]="zoom >= 4"
+              >
+                +</button
+              ><button
+                type="button"
+                class="fit-width"
+                (click)="setFit('width')"
+                title="Fit to width"
+                aria-label="Fit to width"
+              >
+                ↔
+              </button>
+            </div>
+          </div>
+          @if (placing) {
+            <div class="placing-note">
+              Place the reference beside the writing, or use the arrows and Enter.
+              <button class="link" type="button" (click)="placing = false">Cancel</button>
+            </div>
+          }
+          <div
+            class="scan-window"
+            id="scan-focus"
+            tabindex="0"
+            role="region"
+            aria-label="Scan viewer"
+            (keydown)="onViewerKey($event)"
+          >
+            @if (page; as shown) {
+              @if (url(shown.index)) {
+                <div
+                  class="stage"
+                  #scanStage
+                  [class.fit-width-mode]="fit === 'width'"
+                  [class.has-marks]="annotations(shown.index).length"
+                  [style.--ratio]="shown.width / shown.height"
+                  [style.--zoom]="zoom"
+                >
+                  <div class="scan-image" [class.placing]="placing" (click)="place($event)">
+                    <img
+                      [src]="url(shown.index)"
+                      [width]="shown.width"
+                      [height]="shown.height"
+                      [alt]="'Original handwriting, page ' + shown.index"
+                    />
+                    @if (!placing) {
+                      @for (pin of marksOnScan(shown.index); track pin.answer.number) {
+                        <button
+                          type="button"
+                          class="ink-mark"
+                          [attr.data-status]="pin.answer.status"
+                          [class.active]="remarkNumber === pin.answer.number"
+                          [style.left.%]="pin.left"
+                          [style.top.%]="pin.top"
+                          [attr.aria-expanded]="remarkNumber === pin.answer.number"
+                          [attr.aria-label]="
+                            'Show marking remark for question ' +
+                            pin.answer.number +
+                            ', ' +
+                            resultLabel(pin.answer)
+                          "
+                          (click)="$event.stopPropagation(); openRemark(pin.answer)"
+                        >
+                          {{ symbols[pin.answer.status] }} {{ pin.answer.awarded ?? '?' }}/{{
+                            pin.answer.max
+                          }}
+                        </button>
+                        @if (remarkNumber === pin.answer.number) {
+                          <div
+                            class="scan-remark"
+                            [class.above]="pin.anchor.y > 0.65"
+                            [style.--anchor-x]="pin.anchor.x * 100 + '%'"
+                            [style.--anchor-y]="pin.top + '%'"
+                          >
+                            <div>
+                              <strong>Q{{ pin.answer.number }} · {{ resultLabel(pin.answer) }}</strong
+                              ><button
+                                type="button"
+                                aria-label="Dismiss marking remark"
+                                (click)="remarkNumber = 0"
+                              >
+                                ×
+                              </button>
+                            </div>
+                            <p>{{ brief(pin.answer.explanation) }}</p>
+                            <button class="link" type="button" (click)="inspect(pin.answer, shown.index)">
+                              Review question ›
+                            </button>
+                          </div>
+                        }
+                      }
                     }
-                    @if(selectedAnswer.optional&&selectedAnswer.status!=='missing'){
-                      <label>Alternative assessed
-                        <select [(ngModel)]="selectedAnswer.choice" (ngModelChange)="dirty=true" [disabled]="busy"><option [ngValue]="null">Choose A or B</option><option value="A">A · Main question</option><option value="B">B · OR alternative</option></select>
-                      </label>
+                    @if (placing) {
+                      <i
+                        class="scan-target"
+                        [style.left.%]="crosshair.x * 100"
+                        [style.top.%]="crosshair.y * 100"
+                      ></i>
+                    } @else {
+                      @for (mark of answer?.anchors; track mark.page) {
+                        @if (mark.page === shown.index) {
+                          <i
+                            class="scan-target"
+                            [style.left.%]="mark.x * 100"
+                            [style.top.%]="mark.y * 100"
+                            aria-hidden="true"
+                          ></i>
+                        }
+                      }
                     }
-                    <label>Marking explanation
-                      <textarea rows="3" maxlength="600" [(ngModel)]="selectedAnswer.explanation" (ngModelChange)="dirty=true" [disabled]="busy"></textarea>
-                    </label>
                   </div>
-                }@else{
-                  @if(selectedAnswer.choice){<p>Alternative {{selectedAnswer.choice}}</p>}
-                  <p>{{selectedAnswer.explanation}}</p>
-                }
-                <div class="checking-actions checking-evidence">
-                  @for(anchor of selectedAnswer.anchors;track anchor.page){
-                    <span>
-                      <button type="button" class="checking-action" (click)="choose(selectedAnswer,anchor.page)">Page {{anchor.page}} evidence</button>
-                      @if(canEdit){<button class="checking-back" type="button" (click)="detach(selectedAnswer,anchor.page)" [disabled]="busy" [attr.aria-label]="'Remove evidence marker from page '+anchor.page">×</button>}
-                    </span>
+                  <aside class="margin" aria-label="Page marks">
+                    @for (group of screenMarks(shown.index); track group.marks[0].answer.number) {
+                      @let mark = group.marks[0].answer;
+                      <button
+                        class="margin-button"
+                        [attr.data-status]="mark.status"
+                        [class.selected]="mark.number === selected"
+                        type="button"
+                        [style.top.%]="group.center * 100"
+                        (click)="openGroup(group.marks)"
+                        [attr.aria-label]="
+                          group.marks.length > 1
+                            ? 'Review ' + group.marks.length + ' nearby questions'
+                            : 'Review question ' + mark.number + ', ' + resultLabel(mark)
+                        "
+                      >
+                        <b
+                          >Q{{ mark.number }}
+                          @if (group.marks.length > 1) {
+                            +{{ group.marks.length - 1 }}
+                          }</b
+                        ><span
+                          >{{ symbols[mark.status] }} {{ mark.awarded === null ? '?' : mark.awarded }}/{{
+                            mark.max
+                          }}</span
+                        >
+                      </button>
+                    }
+                  </aside>
+                </div>
+              } @else {
+                <p class="scan-loading" role="status">Loading page {{ shown.index }}…</p>
+              }
+            } @else {
+              <p class="scan-loading">Scans appear here as pages are saved.</p>
+            }
+          </div>
+        </section>
+        @if (current.grade) {
+          <aside class="inspector card" aria-label="Question review">
+            <div class="inspector-top">
+              <h2 id="review-focus" tabindex="-1">Question review</h2>
+              <label
+                ><span class="sr">Question filter</span
+                ><select [ngModel]="focusList" (ngModelChange)="setFocusList($event)">
+                  <option value="issues">Issues ({{ issues.length }})</option>
+                  <option value="all">All ({{ answers.length }})</option>
+                </select></label
+              >
+            </div>
+            @for (s of preview?.sections; track s.id) {
+              @if (s.selectionRequired || s.missingToConfirm) {
+                <section class="decision">
+                  <h3>{{ s.title }}</h3>
+                  @if (s.selectionRequired) {
+                    @if (s.instructions) {
+                      <p>{{ s.instructions }}</p>
+                    }
+                    @if (rubric?.instructions?.length) {
+                      <details class="alternate">
+                        <summary>Paper instructions</summary>
+                        @for (rule of rubric?.instructions; track $index) {
+                          <p>{{ rule }}</p>
+                        }
+                      </details>
+                    }
+                    <p>{{ s.attemptedNumbers.length }} attempted. Select {{ s.attemptCount }} to count.</p>
+                    <div class="choices">
+                      @for (n of s.attemptedNumbers; track n) {
+                        <label
+                          ><input
+                            type="checkbox"
+                            [checked]="hasSelection(s.id, n)"
+                            (change)="toggleSelection(s, n, $any($event.target).checked)"
+                            [disabled]="!canEdit || busy"
+                          />
+                          Q{{ n }}</label
+                        >
+                      }
+                    </div>
                   }
-                  @if(canEdit&&page){<button type="button" class="checking-back" (click)="placing=!placing" [disabled]="busy">{{placing?'Cancel marker placement':'Place marker on page '+pageNumber}}</button>}
+                  @if (s.missingToConfirm) {
+                    <p>
+                      Check {{ s.missingToConfirm }} more unattempted
+                      {{ s.missingToConfirm === 1 ? 'answer' : 'answers' }} to complete this section.
+                    </p>
+                  }
+                </section>
+              }
+            }
+            @if (groupedNumbers.length) {
+              <div class="group-select">
+                <strong>Nearby answers on page {{ pageNumber }}</strong>
+                <div class="chips">
+                  @for (n of groupedNumbers; track n) {
+                    @if (answerByNumber(n); as candidate) {
+                      <button (click)="inspect(candidate, pageNumber)" type="button">
+                        Q{{ n }} · {{ candidate.awarded ?? '?' }}/{{ candidate.max }}
+                      </button>
+                    }
+                  }
                 </div>
               </div>
             }
-          </section>
+            <div class="question-picker">
+              <label for="question-jump">Question</label
+              ><select id="question-jump" [ngModel]="selected" (ngModelChange)="selectNumber($event)">
+                @if (answer && !visibleAnswers.includes(answer!)) {
+                  <option [ngValue]="selected">Q{{ selected }} · {{ resultLabel(answer!) }}</option>
+                }
+                @for (a of visibleAnswers; track a.number) {
+                  <option [ngValue]="a.number">
+                    Q{{ a.number }} · {{ resultLabel(a) }} · {{ a.awarded ?? 'Pending' }} / {{ a.max }}
+                  </option>
+                }
+              </select>
+            </div>
+            @if (answer; as a) {
+              <article class="answer-body">
+                <div class="answer-head">
+                  <div>
+                    <span class="q-label">Question {{ a.number }}</span>
+                    <h3 class="verdict" [attr.data-status]="a.status">{{ resultLabel(a) }}</h3>
+                  </div>
+                  <div class="answer-marks">
+                    {{ a.awarded ?? '—' }} <small>/ {{ a.max }}</small>
+                  </div>
+                </div>
+                @if (section; as s) {
+                  @if (s.attemptCount < s.questionNumbers.length) {
+                    <p class="section-rule">
+                      {{ s.title }} · Count {{ s.attemptCount }} of {{ s.questionNumbers.length }} ·
+                      {{
+                        counted(a.number) === false
+                          ? 'Excluded'
+                          : counted(a.number) === null
+                            ? 'Choice pending'
+                            : 'Counted'
+                      }}
+                    </p>
+                  }
+                }
+                @if (variant; as v) {
+                  <section class="criterion">
+                    <h4>{{ a.choice ? 'Question · Option ' + a.choice : 'Question' }}</h4>
+                    <div
+                      class="math-copy"
+                      [innerHTML]="format(v.question)"
+                      [assistantMath]="v.question"
+                    ></div>
+                    @if (v.options?.length) {
+                      <ol type="A">
+                        @for (option of v.options; track $index) {
+                          <li>{{ option }}</li>
+                        }
+                      </ol>
+                    }
+                    <h4>Marking points</h4>
+                    @if (v.markingPoints?.length) {
+                      <ul>
+                        @for (point of v.markingPoints; track $index) {
+                          <li>
+                            <div class="math-copy" [innerHTML]="format(point)" [assistantMath]="point"></div>
+                          </li>
+                        }
+                      </ul>
+                    } @else if (v.answer) {
+                      <div class="math-copy" [innerHTML]="format(v.answer)" [assistantMath]="v.answer"></div>
+                    } @else if (
+                      v.correctIndex !== null && v.correctIndex !== undefined && v.options?.[v.correctIndex]
+                    ) {
+                      <p>{{ v.options?.[v.correctIndex] }}</p>
+                    } @else {
+                      <p class="help">Use the question wording. No saved marking points.</p>
+                    }
+                    @if (question?.alternative) {
+                      <details class="alternate">
+                        <summary>
+                          {{ a.choice === 'B' ? 'View main question' : 'View OR alternative' }}
+                        </summary>
+                        @if (otherVariant; as other) {
+                          <div [innerHTML]="format(other.question)" [assistantMath]="other.question"></div>
+                          @for (point of other.markingPoints; track $index) {
+                            <p>{{ point }}</p>
+                          }
+                          @if (!other.markingPoints?.length && other.answer) {
+                            <p>{{ other.answer }}</p>
+                          }
+                        }
+                      </details>
+                    }
+                  </section>
+                }
+                <section class="reason">
+                  <h4>Marking rationale</h4>
+                  <p>{{ a.explanation }}</p>
+                </section>
+                @if (a.evidence) {
+                  <section class="transcript">
+                    <h4>Transcribed evidence</h4>
+                    <blockquote>{{ a.evidence }}</blockquote>
+                  </section>
+                }
+                <div class="anchors">
+                  @for (anchor of a.anchors; track anchor.page) {
+                    <button class="link" type="button" (click)="showEvidence(a, anchor.page)">
+                      View evidence · p{{ anchor.page }} ↗
+                    </button>
+                  }
+                  @if (!a.anchors.length) {
+                    <button class="link" type="button" (click)="switchPane('scan')">
+                      Inspect scan · p{{ pageNumber }} ↗
+                    </button>
+                  }
+                </div>
+                @if (canEdit) {
+                  <div class="actions">
+                    @if (a.status === 'missing' && a.awarded === null) {
+                      <button
+                        class="action primary"
+                        type="button"
+                        [disabled]="busy"
+                        (click)="confirmMissingAnswer(a); selectAfterResolution()"
+                      >
+                        Confirm unattempted · 0
+                      </button>
+                    }
+                    <button
+                      class="action"
+                      type="button"
+                      [disabled]="busy"
+                      (click)="editingAnswer = !editingAnswer"
+                      [attr.aria-expanded]="editingAnswer"
+                    >
+                      {{ editingAnswer ? 'Close editor' : 'Edit assessment' }}
+                    </button>
+                  </div>
+                }
+                @if (canEdit && editingAnswer) {
+                  <div class="form edit-form">
+                    <label
+                      >Assessment<select
+                        [ngModel]="a.status"
+                        (ngModelChange)="setStatus(a, $event)"
+                        [disabled]="busy"
+                      >
+                        @for (state of statuses; track state) {
+                          <option [value]="state">{{ captions[state] }}</option>
+                        }
+                      </select></label
+                    >
+                    @if (a.status === 'partial') {
+                      <label
+                        >Marks out of {{ a.max
+                        }}<input
+                          type="number"
+                          min="0.01"
+                          [max]="a.max"
+                          step="0.01"
+                          [(ngModel)]="a.awarded"
+                          (ngModelChange)="markChanged()"
+                          [disabled]="busy"
+                      /></label>
+                    }
+                    @if (a.optional && a.status !== 'missing') {
+                      <label
+                        >Alternative assessed<select
+                          [(ngModel)]="a.choice"
+                          (ngModelChange)="markChanged()"
+                          [disabled]="busy"
+                        >
+                          <option [ngValue]="null">Choose A or B</option>
+                          <option value="A">A · Main question</option>
+                          <option value="B">B · OR alternative</option>
+                        </select></label
+                      >
+                    }
+                    <label
+                      >Marking rationale<textarea
+                        rows="3"
+                        maxlength="600"
+                        [(ngModel)]="a.explanation"
+                        (ngModelChange)="markChanged()"
+                        [disabled]="busy"
+                      ></textarea>
+                    </label>
+                    <label
+                      >Transcribed evidence <small>Correct or clear the excerpt</small
+                      ><textarea
+                        rows="2"
+                        maxlength="350"
+                        [(ngModel)]="a.evidence"
+                        (ngModelChange)="markChanged()"
+                        [disabled]="busy"
+                      ></textarea>
+                    </label>
+                    <div class="actions">
+                      @for (ref of a.anchors; track ref.page) {
+                        <button class="link" type="button" (click)="detach(a, ref.page)" [disabled]="busy">
+                          Remove p{{ ref.page }} reference
+                        </button>
+                      }
+                      @if (page) {
+                        <button class="action" type="button" (click)="beginPlacement()" [disabled]="busy">
+                          Place reference · p{{ pageNumber }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </article>
+            }
+            @if (canEdit && missing.length > 1) {
+              <section class="bulk-missing">
+                @if (!confirmingMissing) {
+                  <button
+                    type="button"
+                    class="link"
+                    (click)="confirmingMissing = true; confirmedPages = false"
+                  >
+                    Review {{ missing.length }} missing answers together
+                  </button>
+                } @else {
+                  <h4>Confirm unattempted answers</h4>
+                  <p>
+                    @for (a of missing; track a.number; let last = $last) {
+                      Q{{ a.number }}{{ last ? '' : ', ' }}
+                    }
+                  </p>
+                  <label class="check-line"
+                    ><input type="checkbox" [(ngModel)]="confirmedPages" [disabled]="busy" />I checked all
+                    {{ current.pageCount }} pages. Each listed answer is unattempted.</label
+                  >
+                  <div class="actions">
+                    <button
+                      class="action"
+                      type="button"
+                      (click)="confirmListed()"
+                      [disabled]="busy || !confirmedPages"
+                    >
+                      Mark {{ missing.length }} as zero</button
+                    ><button
+                      class="link"
+                      type="button"
+                      (click)="confirmingMissing = false; confirmedPages = false"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                }
+              </section>
+            }
+            <footer class="inspector-foot">
+              {{
+                rubric?.hasScheme ? 'Saved marking scheme' : 'Question wording and available marking points'
+              }}
+              ·
+              {{
+                current.engine === 'codex-cli'
+                  ? 'Codex CLI'
+                  : current.engine === 'openai-api'
+                    ? 'OpenAI API'
+                    : 'Teacher marking'
+              }}
+            </footer>
+          </aside>
         }
       </div>
     </section>
   } @else {
-    <section class="checking-sheet-list" aria-labelledby="sheets-title">
-      <div class="checking-sheet-header">
-        <div><h2 id="sheets-title">Answer sheets</h2><p>Keep each submission and its review with this paper revision.</p></div>
-        <button class="checking-action primary" type="button" (click)="start()" [disabled]="!rubric||busy">Add answer sheet</button>
+    <section class="register card" aria-labelledby="register-title">
+      <div class="register-top">
+        <div>
+          <h2 id="register-title">Sheet register</h2>
+          <p>Scans and marking for this paper revision.</p>
+        </div>
+        <button class="action primary" (click)="start()" type="button" [disabled]="!rubric || busy">
+          Add sheets
+        </button>
       </div>
-      @if(loading){<p role="status">Loading answer sheets…</p>}
-      @if(!loading&&!error&&!sheets.length){<p class="checking-empty">No answer sheets yet.</p>}
-      @for(item of sheets;track item.id){
-        <button type="button" class="checking-row" (click)="open(item.id)">
-          <span><strong>{{item.label}}</strong><small>{{item.pageCount}} {{item.pageCount===1?'page':'pages'}} · {{item.updatedAt|date:'mediumDate'}}</small></span>
-          <span class="checking-status" [attr.data-state]="item.state">{{statusText[item.state]}}</span>
-          <span>{{item.awarded===null?'':item.awarded+' / '+max}} <b aria-hidden="true">›</b></span>
+      @if (sheets.length) {
+        <div class="filters">
+          <label
+            ><span>Find a sheet</span
+            ><input type="search" [(ngModel)]="search" placeholder="Search sheet labels" /></label
+          ><label
+            ><span>Status</span
+            ><select [(ngModel)]="filter">
+              @for (f of filters; track f) {
+                <option [value]="f">{{ f }}</option>
+              }
+            </select></label
+          >
+        </div>
+      }
+      @if (readySheets.length > 1) {
+        <div class="bulk-ready">
+          <button class="link" type="button" [disabled]="busy" (click)="finalizeVisible()">
+            Finalize {{ readySheets.length }} ready sheets
+          </button>
+        </div>
+      }
+      @if (loading) {
+        <p class="empty" role="status">Loading answer sheets…</p>
+      }
+      @if (!loading && !error && !visibleSheets.length) {
+        <p class="empty">
+          {{ sheets.length ? 'No matching sheets in the loaded results.' : 'No answer sheets yet.' }}
+        </p>
+      }
+      @for (item of visibleSheets; track item.id) {
+        <button class="sheet-row" type="button" (click)="open(item.id)" [disabled]="busy">
+          <span class="identity"
+            ><strong>{{ item.label }}</strong
+            ><small
+              >{{ item.pageCount }} {{ item.pageCount === 1 ? 'page' : 'pages' }} ·
+              {{ item.updatedAt | date: 'mediumDate' }}</small
+            ></span
+          ><span class="state" [class.attention]="bucket(item) === 'Needs attention'">{{
+            stateLabel(item)
+          }}</span
+          ><span class="row-score">
+            @if (item.awarded !== null) {
+              <strong>{{ item.awarded }} / {{ item.max ?? rubric?.marks }}</strong
+              ><small>{{ item.pending ? 'Provisional' : item.state === 'final' ? 'Final' : 'Draft' }}</small>
+            }</span
+          ><b aria-hidden="true">›</b>
+        </button>
+      }
+      @if (cursor) {
+        <button class="action load-more" type="button" [disabled]="moreBusy" (click)="loadMore()">
+          {{ moreBusy ? 'Loading…' : 'Load older sheets' }}
         </button>
       }
     </section>
   }
 </div>
-
-@if((printing||imagesReady)&&sheet?.grade){
+@if ((imagesReady || printing) && sheet?.grade) {
   <div class="checking-print" aria-hidden="true">
-    @for(page of pageItems;track page.index){
-      <section class="checking-print-page">
-        <header><strong>{{rubric?.title}}</strong><span>{{sheet?.label}} · Page {{page.index}} / {{sheet?.pageCount}}</span>
-          <span>{{sheet?.state==='final'?'Final':'Draft'}} · {{foundTotal}} / {{max}}{{pending?' · '+pending+' pending':''}}</span></header>
-        <div class="checking-print-scan" [style.width]="'min(100%, '+(249*page.width/page.height)+'mm)'">
-          <img [src]="url(page.index)" alt="" [width]="page.width" [height]="page.height">
-          @for(note of annotations(page.index);track note.answer.number){
-            <div class="checking-pin" [attr.data-status]="note.answer.status" [class.right]="note.anchor.x>.78" [style.left.%]="note.anchor.x*100" [style.top.%]="note.anchor.y*100">
-              {{marker[note.answer.status]}} Q{{note.answer.number}} · {{note.answer.awarded===null?'?':note.answer.awarded}}/{{note.answer.max}}
-              <span>{{note.answer.explanation}}</span>
-            </div>
-          }
+    @for (p of pageItems; track p.index) {
+      <section class="print-page">
+        <header>
+          <strong>{{ rubric?.title }}</strong
+          ><span>{{ sheet?.label }} · Page {{ p.index }} / {{ sheet?.pageCount }}</span
+          ><b
+            >{{ pending ? 'Provisional' : sheet?.state === 'final' ? 'Final' : 'Draft' }} · {{ foundTotal }} /
+            {{ max }}
+            @if (pending) {
+              · {{ pending }} pending
+            }
+          </b>
+        </header>
+        <div class="print-stage" [style.width]="'min(100%, ' + ((244 * p.width) / p.height + 37) + 'mm)'">
+          <div class="printed-scan">
+            <img [src]="url(p.index)" alt="" [width]="p.width" [height]="p.height" />
+            @for (pin of printInk(p); track pin.answer.number) {
+              <b class="print-ink" [style.left.%]="pin.left" [style.top.%]="pin.top"
+                >Q{{ pin.answer.number }} {{ symbols[pin.answer.status] }} {{ pin.answer.awarded ?? '?' }}/{{
+                  pin.answer.max
+                }}</b
+              >
+            }
+          </div>
+          <aside>
+            @for (g of printMarks(p); track g.marks[0].answer.number) {
+              @let a = g.marks[0].answer;
+              ><span [style.top.%]="g.center * 100"
+                >Q{{ a.number }} · {{ a.awarded ?? '?' }}/{{ a.max }}
+                @if (g.marks.length > 1) {
+                  +{{ g.marks.length - 1 }}
+                }
+                <small>{{ brief(a.explanation, 46) }}</small></span
+              >
+            }
+          </aside>
         </div>
       </section>
     }
-    <section class="checking-print-comments">
+    <section class="print-notes">
       <h2>Marking notes</h2>
-      @for(answer of answers;track answer.number){
-        <div><strong>Q{{answer.number}} · {{captions[answer.status]}} · {{answer.awarded===null?'Pending':answer.awarded}} / {{answer.max}}</strong>
-          @if(answer.choice){ <span> · Alternative {{answer.choice}}</span> }
-          @for(anchor of answer.anchors;track anchor.page){ <span> · p. {{anchor.page}}</span> }
-          <p>{{answer.explanation}} @if(answer.evidence){<span> Evidence: {{answer.evidence}}</span>}</p>
-        </div>
+      <p>
+        {{ sheet?.label }} · {{ rubric?.title }} ·
+        {{ pending ? 'Provisional' : sheet?.state === 'final' ? 'Final' : 'Draft' }} · {{ foundTotal }} /
+        {{ max }}
+      </p>
+      @for (a of answers; track a.number) {
+        <article>
+          <h3>
+            Q{{ a.number }} · {{ resultLabel(a) }} · {{ a.awarded ?? 'Pending' }} / {{ a.max }}
+            @if (a.choice) {
+              · Option {{ a.choice }}
+            }
+            @if (counted(a.number) === false) {
+              · Excluded
+            }
+            @for (anchor of a.anchors; track anchor.page) {
+              · p{{ anchor.page }}
+            }
+          </h3>
+          <p>{{ a.explanation }}</p>
+          @if (a.evidence) {
+            <p>Evidence: {{ a.evidence }}</p>
+          }
+        </article>
       }
     </section>
   </div>

@@ -7,7 +7,8 @@ import {pathToFileURL} from 'node:url';
 // deployment of byte-for-byte unchanged gateway and Hosting sources.
 export function cloudReleasePlan(files:string[]){
   if(files.length>0&&files.every(file=>/^(?:assistant-service\/|question-papers\/|tools\/gtop-assistant\/|docs\/|design\/|\.github\/workflows\/gtop-assistant-release\.yml$)/.test(file))){
-    return {backend:files.some(file=>file.startsWith('assistant-service/')),hosting:files.some(file=>file.startsWith('question-papers/')||file==='assistant-service/domain/exam-copy.mjs')};
+    const sharedWithPapers=new Set(['assistant-service/domain/exam-copy.mjs','assistant-service/domain/checking.mjs','assistant-service/domain/checking-limits.mjs']);
+    return {backend:files.some(file=>file.startsWith('assistant-service/')),hosting:files.some(file=>file.startsWith('question-papers/')||sharedWithPapers.has(file))};
   }
   return {backend:true,hosting:true};
 }

@@ -461,7 +461,7 @@
                                 ×
                               </button>
                             </div>
-                            <p>{{ brief(pin.answer.explanation) }}</p>
+                            <p>{{ brief(pin.answer) }}</p>
                             <button class="link" type="button" (click)="inspect(pin.answer, shown.index)">
                               Review question ›
                             </button>
@@ -959,7 +959,7 @@
                 @if (g.marks.length > 1) {
                   +{{ g.marks.length - 1 }}
                 }
-                <small>{{ brief(a.explanation, 76) }}</small></span
+                <small>{{ g.caption }}</small></span
               >
             }
           </aside>

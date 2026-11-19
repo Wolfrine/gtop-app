@@ -848,7 +848,18 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   }
   printMarks(page: Page) {
     const height = Math.min(244, (153 * page.height) / page.width);
-    return marginGroups(this.annotations(page.index), height, 13);
+    const groups = marginGroups(this.annotations(page.index), height, 13);
+    return groups.map((group, index) => {
+      // Each centered caption can use its share of the gap to either neighboring mark.
+      const space = Math.min(
+        2 * group.center,
+        2 * (1 - group.center),
+        index > 0 ? group.center - groups[index - 1].center : 1,
+        index + 1 < groups.length ? groups[index + 1].center - group.center : 1,
+      ) * height;
+      const lines = Math.max(1, Math.floor((space - 5) / 3.1));
+      return { ...group, caption: this.brief(group.marks[0].answer, Math.min(260, lines * 21)) };
+    });
   }
   openRemark(answer: Answer) {
     if (this.remarkNumber === answer.number) {
@@ -858,9 +869,17 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     this.choose(answer, this.pageNumber);
     this.remarkNumber = answer.number;
   }
-  brief(explanation: string, limit = 130) {
+  brief(answer: Answer, limit = 175) {
+    const explanation = answer.explanation.trim();
     if (explanation.length <= limit) return explanation;
-    const sentences = explanation.trim().split(/(?<=[.!?])\s+/);
+    const sentences = explanation.split(/(?<=[.!?।])\s+/);
+    // When space is tight, keep the concluding marking decision alongside the work.
+    if (answer.status !== 'correct' && sentences.length > 1) {
+      const decision = sentences[sentences.length - 1];
+      const summary = sentences[0] + ' ' + decision;
+      if (summary.length <= limit) return summary;
+      if (decision.length <= limit) return decision;
+    }
     let complete = '';
     for (const sentence of sentences) {
       const next = complete ? complete + ' ' + sentence : sentence;

@@ -1,6 +1,8 @@
+import { maxCheckingPages } from '../../assistant-service/domain/checking-limits.mjs';
+
+export { maxCheckingPages };
 export type Scan = { name: string; blob: Blob; url: string };
 
-export const maxCheckingPages = 32;
 const edgeLimit = 2200;
 const byteLimit = 400_000;
 const fileLimit = 64 * 1024 * 1024;

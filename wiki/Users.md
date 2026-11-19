@@ -18,6 +18,8 @@ Admins manage MCQs, syllabus combinations, user roles, logs, live quiz hosting, 
 
 The admin/teacher role is a core part of GTOP because student experience quality depends on trustworthy MCQ content and well-maintained curriculum structure.
 
+In the separate GT Papers workspace, a teacher or administrator can arrive with a paper brief, a stack of handwritten scripts or a request for yesterday’s paper. Support each starting point and let staff resume interrupted work with its original context. A teacher can inspect the writing, decide a disputed mark and return an individual copy. Only the teacher and pupil can establish whether that feedback was understood.
+
 ## Institute Admin
 
 Institute Admin is a planned role. Current documentation mentions redirect intent, but there is no dedicated product workflow yet.
@@ -29,3 +31,5 @@ This role should remain an [[OpenQuestions]] item until there is a clear product
 - `raw/2026-06-02-gtop-existing-docs-baseline.md`
 - `raw/2026-06-03-gtop-ai-meeting-notes-question-bank-pulse.md`
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
+
+- `raw/2026-11-20-tuition-work-and-paper-handback.md`

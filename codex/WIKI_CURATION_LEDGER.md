@@ -332,3 +332,7 @@ Use it to answer:
 - Durable lesson: assessment styles are not chapters; internal source details should not burden teachers. Resolved prerequisites continue the requested paper. Readiness and handoffs do not prove printable delivery.
 - Evidence boundary: two real journeys motivated this repair; broader curriculum reliability and teacher acceptance remain unproven.
 - Project Manager Handoff: specific defects, protected release and original-conversation recovery belong to QndHjDJw0x3wzzG5szwW and `docs/ai-assistant/PAPER_FAILURE_RCA_2026-10-28.md`. No execution checklist added to the wiki.
+
+### 2026-11-20 - Tuition work and paper handback
+
+Processed `raw/2026-11-20-tuition-work-and-paper-handback.md` into Users. Captured independent starting materials, interrupted work, teacher judgment and the handback boundary. The operating-map and release verification belong with delivery.

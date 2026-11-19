@@ -1,7 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {ClassIntake} from './checking-intake.mjs';
 import {ExternalReference} from './external-reference.mjs';
-import {day,digest,maxActive,maxDrafts,orderedKey,pagePath,queue,queueField,quota,sheets,sheetFields,sheetSummary} from './checking-storage.mjs';
+import {currentSheetGrade,day,digest,maxActive,maxDrafts,orderedKey,packets,pagePath,queue,queueField,quota,sheets,sheetFields,sheetSummary} from './checking-storage.mjs';
 import {gradingRubric,validateGrades,summarizeGrades} from './domain/checking.mjs';
 import {maxCheckingPages,checkingLeaseMs} from './domain/checking-limits.mjs';
 
@@ -80,7 +80,7 @@ export class PaperChecking {
         nextCursor:rows.length>historySize?Buffer.from(JSON.stringify([page.at(-1).createdAt,page.at(-1).id])).toString('base64url'):null};
     }
     if(sheetId==='finalize-ready'&&!action&&method==='POST'){
-      return this.finalizeReady(uid,collection,await this.rubric(paperId,uid),body.sheets);
+      return this.finalizeReady(uid,collection,paperId,body.sheets);
     }
     if(!sheetId&&method==='POST'){
       await this.rubric(paperId,uid);
@@ -89,13 +89,19 @@ export class PaperChecking {
     const path=collection+'/'+this.id(sheetId);
     if(!action&&method==='GET'){
       let sheet=await this.store.get(path);
-      if(!sheet)this.notFound();
+      if(!sheet||sheet.state==='deleting')this.notFound();
       if(sheet.state==='running'&&sheet.leaseUntil<=this.now()){
         await this.expire(queue(sheet.queueId));
         sheet=await this.store.get(path);
+        if(!sheet||sheet.state==='deleting')this.notFound();
       }
-      const rubric=await this.rubric(paperId,uid);
-      const {lease,leaseUntil,queueId,modelGrade,scanSource,...visible}=sheet;
+      const rubric=await this.rubric(sheet.gradingPaperId??paperId,uid);
+      const {lease,leaseUntil,queueId,modelGrade,scanSource,retiredSources,...visible}=sheet;
+      if(sheet.packetId&&!sheet.packetLabel){
+        const [packet]=await this.store.getSelected([packets(uid)+'/'+this.id(sheet.packetId)],['label','paperId','scanSource']);
+        visible.packetLabel=(packet?.paperId===paperId&&packet.scanSource===sheet.scanSource&&packet.label)||sheet.packetId;
+      }
+      if(visible.grade&&!currentSheetGrade(sheet))delete visible.grade;
       if(visible.grade&&!visible.grade.sections)visible.grade={...visible.grade,...summarizeGrades(visible.grade.answers,rubric.sections)};
       return {sheet:visible,rubric:{...rubric,questions:rubric.questions.map(({alternative,...q})=>({
         ...q,alternative:alternative?.question||null,alternativeRubric:alternative
@@ -103,14 +109,14 @@ export class PaperChecking {
     }
     if(action==='pages'&&method==='GET'){
       const sheet=await this.store.get(path);
-      if(!sheet)this.notFound();
+      if(!sheet||sheet.state==='deleting')this.notFound();
       return this.page(path,sheet,Number(pageIndex));
     }
     if(action==='pages'&&method==='POST')return this.upload(path,Number(pageIndex),body);
     if(action==='delete'&&method==='POST')return this.remove(uid,path,body.version);
     if(action==='queue'&&method==='POST')return this.enqueue(uid,paperId,path,body);
-    if(action==='review'&&method==='POST')return this.review(uid,path,await this.rubric(paperId,uid),body);
-    if(action==='manual'&&method==='POST')return this.manual(uid,path,await this.rubric(paperId,uid),body);
+    if(action==='review'&&method==='POST')return this.review(uid,path,paperId,body);
+    if(action==='manual'&&method==='POST')return this.manual(uid,path,paperId,body);
     this.notFound();
   }
   async create(uid,paperId,collection,body){
@@ -140,7 +146,7 @@ export class PaperChecking {
     const uid=path.split('/')[1];
     return pagePath(quota(uid)+'/scanSources/'+this.id(record.scanSource),index);
   }
-  async upload(path,index,body){
+  scan(body){
     const {jpeg}=body;
     if(typeof jpeg!=='string'||jpeg.length>Math.ceil(maxPageBytes/3)*4||! /^[A-Za-z0-9+/]+={0,2}$/.test(jpeg))
       this.fail(400,'invalid_image','This scan page is too large or is not a JPEG.');
@@ -148,12 +154,15 @@ export class PaperChecking {
     if(jpeg!==bytes.toString('base64')||bytes.length>maxPageBytes||!size||
         Math.min(size.width,size.height)<64||Math.max(size.width,size.height)>2600)
       this.fail(400,'invalid_image','This scan page has invalid image dimensions.');
+    return {bytes,size,sha:digest(jpeg)};
+  }
+  async upload(path,index,body){
+    const {bytes,size,sha}=this.scan(body);
     return this.store.transaction(async tx=>{
       const sheet=await tx.get(path);
-      if(!sheet)this.notFound();
+      if(!sheet||sheet.state==='deleting')this.notFound();
       this.pageIndex(sheet,index);
       const prior=sheet.uploaded.find(item=>item.index===index);
-      const sha=digest(jpeg);
       if(prior?.sha===sha)return {ok:true};
       if(sheet.state!=='uploading'||prior)
         this.fail(409,'page_conflict','This page is already saved. To change the scan order, start another sheet.');
@@ -189,13 +198,13 @@ export class PaperChecking {
       if((usage.active||0)>=maxActive)
         this.fail(429,'grading_limit','Your '+maxActive+'-sheet checking queue is full. Your uploaded pages are saved.');
       tx.set(path,{...sheet,state:'queued',version:sheet.version+1,error:null,updatedAt:now});
-      tx.set(queue(sheet.queueId),{id:sheet.queueId,path,uid,paperId,state:'queued',queuedAt:now,...(kind==='grading'?{}:{kind}),[queueField(kind)]:orderedKey(uid,now,sheet.queueId)});
+      tx.set(queue(sheet.queueId),{id:sheet.queueId,path,uid,paperId:sheet.gradingPaperId??paperId,state:'queued',queuedAt:now,...(kind==='grading'?{}:{kind}),[queueField(kind)]:orderedKey(uid,now,sheet.queueId)});
       tx.set(quota(uid),{...usage,active:(usage.active||0)+1});
       this.service.notifyDispatch(tx,uid);
       return {state:'queued'};
     });
   }
-  async manual(uid,path,rubric,body){
+  async manual(uid,path,paperId,body){
     return this.store.transaction(async tx=>{
       const sheet=await tx.get(path);
       if(!sheet)this.notFound();
@@ -203,6 +212,7 @@ export class PaperChecking {
       const completeDraft=sheet.state==='uploading'&&sheet.uploaded?.length===sheet.pageCount;
       if((!inQueue&&!completeDraft&&sheet.state!=='failed')||sheet.version!==body.version)
         this.fail(409,'sheet_changed','Reopen the latest sheet before editing.');
+      const rubric=await this.rubric(sheet.gradingPaperId??paperId,uid,tx);
       const answers=rubric.questions.map(q=>({number:q.number,status:'uncertain',awarded:null,
         choice:null,evidence:'',explanation:'Teacher review required.',anchors:[]}));
       const grade=validateGrades({answers},rubric,sheet.pageCount);
@@ -211,29 +221,30 @@ export class PaperChecking {
         tx.delete(queue(sheet.queueId));
         tx.set(quota(uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
       }
-      tx.set(path,{...sheet,state:'review',grade,lease:null,leaseUntil:null,error:null,updatedAt:this.now(),version:sheet.version+1});
+      tx.set(path,{...sheet,state:'review',grade,gradeRevision:sheet.gradingRevision??1,lease:null,leaseUntil:null,error:null,updatedAt:this.now(),version:sheet.version+1});
       this.service.notifyContent(tx,uid);
       return {ok:true};
     });
   }
-  async review(uid,path,rubric,body){
+  async review(uid,path,paperId,body){
     return this.store.transaction(async tx=>{
       const sheet=await tx.get(path);
       if(!sheet)this.notFound();
       if(!['review','final'].includes(sheet.state)||sheet.version!==body.version)
         this.fail(409,'sheet_changed','This sheet has changed. Reopen the latest saved review.');
+      const rubric=await this.rubric(sheet.gradingPaperId??paperId,uid,tx);
       let grade;
       try{grade=validateGrades(body,rubric,sheet.pageCount,{final:body.final===true});}
       catch(error){this.fail(400,'invalid_review',error.message);}
       const now=this.now(),state=body.final===true?'final':'review';
-      const saved={...sheet,grade,state,version:sheet.version+1,updatedAt:now,reviewedAt:now,
+      const saved={...sheet,grade,gradeRevision:sheet.gradingRevision??1,state,version:sheet.version+1,updatedAt:now,reviewedAt:now,
         finalizedAt:state==='final'?now:null};
       tx.set(path,saved);
       this.service.notifyContent(tx,uid);
       return {grade,state,version:saved.version,finalizedAt:saved.finalizedAt};
     });
   }
-  async finalizeReady(uid,collection,rubric,entries){
+  async finalizeReady(uid,collection,paperId,entries){
     if(!Array.isArray(entries)||!entries.length||entries.length>60||
         entries.some(e=>!e||!Number.isSafeInteger(e.version)||e.version<0)||
         new Set(entries.map(e=>e.id)).size!==entries.length)
@@ -249,13 +260,16 @@ export class PaperChecking {
         if(teacher?.role!=='admin'||!pilot?.allowedOwnerUids?.includes(uid))
           this.fail(403,'pilot_access_required','Your checking access has changed.');
         const docs=await Promise.all(group.map(e=>tx.get(collection+'/'+e.id)));
+        const paperIds=[...new Set(docs.filter(sheet=>sheet?.state==='review').map(sheet=>sheet.gradingPaperId??paperId))];
+        const rubrics=new Map(await Promise.all(paperIds.map(async id=>[id,await this.rubric(id,uid,tx)])));
         let saved=false;
         const now=this.now();
         const statuses=group.map(({id,version},n)=>{
           const sheet=docs[n];
           if(sheet?.state==='final')return {id,status:'alreadyFinal'};
           if(!sheet||sheet.version!==version)return {id,status:'changed'};
-          if(sheet.state!=='review'||!sheet.grade)return {id,status:'blocked'};
+          if(sheet.state!=='review'||!currentSheetGrade(sheet))return {id,status:'blocked'};
+          const rubric=rubrics.get(sheet.gradingPaperId??paperId);
           let grade;
           try{grade=validateGrades(sheet.grade,rubric,sheet.pageCount,{final:true});}
           catch{return {id,status:'blocked'};}
@@ -282,6 +296,7 @@ export class PaperChecking {
         tx.set(quota(uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
       tx.delete(queue(sheet.queueId));
       tx.delete(path+'/grading/original');
+      tx.delete(path+'/grading/before-correction');
       tx.set(path,{...sheet,state:'deleting',lease:null,leaseUntil:null,deleting:0,version:sheet.version+1});
       this.service.notifyContent(tx,uid);
       return true;
@@ -297,10 +312,11 @@ export class PaperChecking {
       done=await this.store.transaction(async tx=>{
         const record=await tx.get(path);
         if(!record||record.state!=='deleting')return true;
-        const next=record.uploaded.slice(record.deleting,record.deleting+8);
+        const pages=[...record.uploaded,...(record.retiredSources||[])];
+        const next=pages.slice(record.deleting,record.deleting+8);
         for(const info of next)tx.delete(this.imagePath(path,record,info.sourceIndex??info.index));
         const cursor=record.deleting+next.length;
-        if(cursor<record.uploaded.length){tx.set(path,{...record,deleting:cursor});return false;}
+        if(cursor<pages.length){tx.set(path,{...record,deleting:cursor});return false;}
         tx.delete(path);
         this.service.notifyContent(tx,uid);
         return true;
@@ -459,7 +475,11 @@ export class PaperChecking {
       if(!expired&&!await this.authorizedWorker(tx,row.workerId,row.uid))return {active:false};
       tx.delete(path);
       const {modelGrade,...visiblePatch}=patch;
-      if(modelGrade)tx.set(row.path+'/grading/original',{grade:modelGrade,engine:patch.engine,createdAt:this.now()});
+      if(modelGrade){
+        visiblePatch.gradeRevision=sheet.gradingRevision??1;
+        tx.set(row.path+'/grading/original',{grade:modelGrade,gradingRevision:visiblePatch.gradeRevision,
+          gradingPaperId:row.paperId,engine:patch.engine,createdAt:this.now()});
+      }
       tx.set(row.path,{...sheet,...visiblePatch,lease:null,leaseUntil:null,updatedAt:this.now(),version:sheet.version+1});
       tx.set(quota(row.uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
       this.service.notifyContent(tx,row.uid);

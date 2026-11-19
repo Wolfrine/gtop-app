@@ -10,8 +10,14 @@ export const digest=(...values)=>createHash('sha256').update(JSON.stringify(valu
 export const day=now=>now.slice(0,10);
 export const orderedKey=(uid,time,id)=>uid+'/'+time+'/'+id;
 export const queueField=kind=>kind==='class-intake'?'intakeOrderKey':kind==='external-exam'?'referenceOrderKey':'orderKey';
-export const sheetFields=['id','label','state','createdAt','updatedAt','pageCount','version','grade.awarded','grade.max','grade.pending','packetId'];
-export const sheetSummary=({id,label,state,createdAt,updatedAt,pageCount,version,grade,packetId},max)=>({
-  id,label,state,createdAt,updatedAt,pageCount,version,awarded:grade?.awarded??null,pending:grade?.pending??null,max:grade?.max??max,
-  ...(packetId?{packetId}:{})
-});
+export const currentSheetGrade=sheet=>(sheet.state==='review'||sheet.state==='final')&&
+  (sheet.gradeRevision??1)===(sheet.gradingRevision??1)?sheet.grade:null;
+export const sheetFields=['id','label','state','createdAt','updatedAt','pageCount','version','grade.awarded','grade.max','grade.pending',
+  'gradeRevision','gradingRevision','gradingPaperId','gradingMax','packetId','packetLabel'];
+export function sheetSummary(sheet,max){
+  const {id,label,state,createdAt,updatedAt,pageCount,version,packetId,packetLabel,gradingRevision,gradingPaperId,gradingMax}=sheet;
+  const grade=currentSheetGrade(sheet);
+  return {id,label,state,createdAt,updatedAt,pageCount,version,awarded:grade?.awarded??null,pending:grade?.pending??null,
+    max:grade?.max??gradingMax??max,...(packetId?{packetId}:{}),...(packetLabel?{packetLabel}:{}),
+    ...(gradingPaperId?{gradingPaperId,gradingRevision}:{})};
+}

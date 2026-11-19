@@ -21,6 +21,12 @@ export class FirestoreStore {
   transaction(fn) {
     return this.db.runTransaction(tx => fn({
       get: async path => { const d = await tx.get(this.db.doc(path)); return d.exists ? d.data() : null; },
+      getSelected: async (paths,fields) => {
+        if(!paths.length)return [];
+        const docs=await tx.getAll(...paths.map(path=>this.db.doc(path)),{fieldMask:fields});
+        return docs.map(doc=>doc.exists?doc.data():null);
+      },
+      update: (path, fields) => tx.update(this.db.doc(path), fields),
       set: (path, data) => tx.set(this.db.doc(path), data),
       create: (path, data) => tx.create(this.db.doc(path), data),
       delete: path => tx.delete(this.db.doc(path))
@@ -75,6 +81,11 @@ export class MemoryStore {
       const writes = new Map();
       const result = await fn({
         get: path => this.get(path),
+        getSelected: (paths,fields) => this.getSelected(paths,fields),
+        update: (path, fields) => {
+          if(!this.docs.has(path))throw Error('Document unavailable');
+          writes.set(path,{...structuredClone(this.docs.get(path)),...structuredClone(fields)});
+        },
         set: (path, value) => writes.set(path, structuredClone(value)),
         create: (path, value) => { if (this.docs.has(path) || writes.has(path)) throw Error('Document already exists'); writes.set(path, structuredClone(value)); },
         delete: path => writes.set(path, undefined)

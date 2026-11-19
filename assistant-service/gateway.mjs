@@ -49,7 +49,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='GET' && /^\/admin\/conversations\/[^/]+$/.test(path))output=await service.adminConversation(uid,path.split('/').at(-1));
         else if(method==='GET' && /^\/(admin\/)?conversations\/[^/]+\/revision$/.test(path))output=await service.conversationRevision(uid,path.split('/').at(-2),path.startsWith('/admin/'));
         else {let m;
-          const intake=path.match(/^\/checking\/(packets|references)(?:\/([A-Za-z0-9_-]+)(?:\/(organize|save|confirm|delete|results|reference|queue|review|pages\/(\d+)))?)?$/);
+          const intake=path.match(/^\/checking\/(packets|references)(?:\/([A-Za-z0-9_-]+)(?:\/(organize|manual|correct|recheck|save|confirm|delete|results|reference|queue|review|pages\/(\d+)))?)?$/);
           if(intake){
             const [,kind,id,action,index]=intake;
             const handler=kind==='packets'?service.checking.packets:service.checking.references;

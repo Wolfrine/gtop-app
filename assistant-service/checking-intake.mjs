@@ -1,12 +1,14 @@
 import {randomUUID} from 'node:crypto';
-import {intakeChunkSize,suggestIntakeGroups,validateIntakePages} from './domain/checking-intake.mjs';
+import {recheckClass} from './checking-rekey.mjs';
+import {correctPacket} from './checking-correction.mjs';
+import {isAnonymous,intakeChunkSize,suggestIntakeGroups,validateIntakePages} from './domain/checking-intake.mjs';
 import {maxCheckingPages} from './domain/checking-limits.mjs';
 import {day,digest,maxActive,maxDrafts,orderedKey,packets,queue,quota,sheets,sheetFields,sheetSummary} from './checking-storage.mjs';
 
 const maxPages=200,historySize=40;
 const summaryFields=['id','label','pageCount','expectedStudents','paperId','state','version','processedPages','createdAt','updatedAt','groupCount','error'];
 const visible=record=>{
-  const {lease,leaseUntil,queueId,readings,deleting,scanSource,...packet}=record;
+  const {lease,leaseUntil,queueId,readings,deleting,scanSource,lastCorrection,lastRecheck,...packet}=record;
   return packet;
 };
 
@@ -35,6 +37,9 @@ export class ClassIntake {
     }
     if(action==='results'&&method==='GET')return this.results(uid,path);
     if(method!=='POST')this.checking.notFound();
+    if(action==='correct')return correctPacket(this,uid,path,body);
+    if(action==='recheck')return recheckClass(this,uid,path,body);
+    if(action==='manual')return this.manual(uid,path,body.version);
     if(action==='reference')return this.attach(uid,path,body);
     if(action==='organize'){
       await this.checking.enqueue(uid,null,path,body,'class-intake');
@@ -112,26 +117,51 @@ export class ClassIntake {
       return {active:true};
     });
   }
+  async manual(uid,path,version){
+    return this.store.transaction(async tx=>{
+      const record=await tx.get(path);
+      if(!record||record.state==='deleting')this.checking.notFound();
+      if(record.state==='review')return {packet:visible(record)};
+      if(record.version!==version||!['uploading','queued','running','failed'].includes(record.state))
+        this.fail(409,'packet_changed','Reopen the current class scan before grouping it.');
+      if(record.uploaded.length!==record.pageCount)this.fail(409,'upload_incomplete','Finish uploading the class scan first.');
+      const waiting=['queued','running'].includes(record.state);
+      const usage=waiting?await tx.get(quota(uid)):null;
+      const groups=record.readings?.length?suggestIntakeGroups(record.readings,{knownStarts:record.knownStarts}):[];
+      const packet={...record,state:'review',lease:null,leaseUntil:null,readings:[],groups,groupCount:groups.length,
+        version:record.version+1,updatedAt:this.checking.now(),error:null};
+      if(waiting){
+        tx.delete(queue(record.queueId));
+        tx.set(quota(uid),{...usage,active:Math.max(0,(usage?.active||0)-1)});
+      }
+      tx.set(path,packet);
+      this.checking.service.notifyDispatch(tx,uid);
+      return {packet:visible(packet)};
+    });
+  }
+  visible(record){return visible(record);}
   groups(raw,pageCount,final){
     if(!Array.isArray(raw)||!raw.length||raw.length>maxActive)this.fail(400,'invalid_booklets','Add at least one answer book.');
     const assigned=new Set(),labels=new Set();
     const groups=raw.map((g,i)=>{
       if(!g||typeof g!=='object'||!Array.isArray(g.pages)||g.pages.length>pageCount)
         this.fail(400,'invalid_booklet','Check the pages assigned to book '+(i+1)+'.');
+      if(g.held!==undefined&&typeof g.held!=='boolean')this.fail(400,'booklet_identity','Choose whether to hold the book for identification.');
       if(final&&(!g.pages.length||g.pages.length>maxCheckingPages))
         this.fail(400,'booklet_size','Each book needs 1–'+maxCheckingPages+' pages before checking.');
-      if(final&&g.needsReview===true)
+      if(final&&!g.held&&g.needsReview===true)
         this.fail(400,'booklet_review','Confirm the identity and pages of book '+(i+1)+' before starting checking.');
-      const label=this.checking.text(g.label??'',100,final);
+      const label=this.checking.text(g.label||(g.held===true?'Unidentified copy '+String(i+1).padStart(2,'0'):''),100,final);
       const key=label.normalize('NFKC').toLocaleLowerCase();
-      if(final&&labels.has(key))this.fail(400,'duplicate_label','Give each student a distinct label, such as a roll number.');
-      labels.add(key);
+      if(final&&!g.held&&isAnonymous(label))this.fail(400,'booklet_identity','Enter the student identifier or hold this book for identification.');
+      if(final&&!g.held&&labels.has(key))this.fail(400,'duplicate_label','Give each student a distinct label, such as a roll number.');
+      if(!g.held)labels.add(key);
       for(const n of g.pages){
         if(!Number.isInteger(n)||n<1||n>pageCount||assigned.has(n))
           this.fail(400,'page_assignment','Assign each scan page to exactly one book.');
         assigned.add(n);
       }
-      return {label,pages:[...g.pages],needsReview:!final&&g.needsReview===true,
+      return {label,pages:[...g.pages],...(g.held===true?{held:true}:{}),needsReview:!final&&g.needsReview===true,
         reason:final?'':this.checking.text(g.reason??'',600)};
     });
     if(final&&assigned.size!==pageCount)this.fail(400,'missing_pages','Assign all '+pageCount+' pages before starting checking.');
@@ -160,7 +190,7 @@ export class ClassIntake {
         const replay=this.groups(body.groups,packet.pageCount,true);
         const sameBooks=replay.length===packet.groups.length&&replay.every((group,i)=>{
           const original=packet.groups[i];
-          return original.label===group.label&&original.pages.length===group.pages.length&&
+          return original.label===group.label&&!!original.held===!!group.held&&original.pages.length===group.pages.length&&
             original.pages.every((page,j)=>page===group.pages[j]);
         });
         if((body.paperId??packet.paperId)!==packet.paperId||!sameBooks)
@@ -176,18 +206,19 @@ export class ClassIntake {
       if(paperId)await this.checking.rubric(paperId,uid,tx);
       if(final){
         const usage=await tx.get(quota(uid))||{},drafts=usage.day===day(now)?usage.drafts||0:0;
-        if((usage.active||0)+groups.length>maxActive||drafts+groups.length>maxDrafts)
+        const ready=groups.filter(g=>!g.held).length;
+        if((usage.active||0)+ready>maxActive||drafts+groups.length>maxDrafts)
           this.fail(429,'grading_limit','The checking queue is full. This class scan is saved; try again later.');
         const byIndex=new Map(packet.uploaded.map(p=>[p.index,p]));
         for(const [i,group] of groups.entries()){
           const id='book-'+digest(uid,packet.scanSource,i).slice(0,40),source=sheets(uid,paperId)+'/'+id,queueId=digest(uid,paperId,id);
-          const uploaded=group.pages.map((n,j)=>({...byIndex.get(n),index:j+1,sourceIndex:n}));
-          tx.create(source,{id,label:group.label,packetId:packet.id,scanSource:packet.scanSource,pageCount:uploaded.length,uploaded,notes:'',state:'queued',
+          const uploaded=group.pages.map((n,j)=>({...byIndex.get(n),index:j+1,sourceIndex:byIndex.get(n).sourceIndex??n}));
+          tx.create(source,{id,label:group.label,packetId:packet.id,packetLabel:packet.label,scanSource:packet.scanSource,pageCount:uploaded.length,uploaded,notes:'',state:group.held?'held':'queued',
             version:1,createdAt:now,updatedAt:now,queueId});
-          tx.create(queue(queueId),{id:queueId,path:source,uid,paperId,state:'queued',queuedAt:now,orderKey:orderedKey(uid,now,queueId)});
+          if(!group.held)tx.create(queue(queueId),{id:queueId,path:source,uid,paperId,state:'queued',queuedAt:now,orderKey:orderedKey(uid,now,queueId)});
           group.sheetId=id;
         }
-        tx.set(quota(uid),{...usage,day:day(now),drafts:drafts+groups.length,active:(usage.active||0)+groups.length});
+        tx.set(quota(uid),{...usage,day:day(now),drafts:drafts+groups.length,active:(usage.active||0)+ready});
         this.checking.service.notifyDispatch(tx,uid);
       }else this.checking.service.notifyContent(tx,uid);
       const next={...packet,readings:[],paperId,state:final?'completed':'review',groups,groupCount:groups.length,
@@ -197,13 +228,23 @@ export class ClassIntake {
     });
   }
   async results(uid,path){
-    const packet=await this.store.get(path);
-    if(!packet||packet.state!=='completed')this.checking.notFound();
-    const {title,marks,hasScheme}=await this.checking.rubric(packet.paperId,uid);
-    const paths=packet.groups.map(g=>sheets(uid,packet.paperId)+'/'+g.sheetId);
-    const records=await this.store.getSelected(paths,sheetFields);
-    return {paperId:packet.paperId,sheets:records.filter(s=>s?.packetId===packet.id).map(s=>sheetSummary(s,marks)),
-      rubric:{title,marks,hasScheme},nextCursor:null};
+    return this.store.transaction(async tx=>{
+      const packet=await tx.get(path);
+      if(!packet||packet.state!=='completed')this.checking.notFound();
+      const gradingPaperId=packet.gradingPaperId??packet.paperId;
+      const {title,marks,hasScheme}=await this.checking.rubric(gradingPaperId,uid,tx);
+      const paths=packet.groups.map(g=>sheets(uid,packet.paperId)+'/'+g.sheetId);
+      const records=await tx.getSelected(paths,sheetFields);
+      const byId=new Map(records.filter(s=>s?.packetId===packet.id).map(s=>[s.id,s]));
+      const register=packet.groups.map(group=>{
+        const sheet=byId.get(group.sheetId);
+        if(sheet&&!group.withdrawn&&sheet.state!=='deleting'&&sheet.state!=='withdrawn')return sheetSummary(sheet,marks);
+        return {id:group.sheetId,packetId:packet.id,label:group.label,pageCount:group.pages.length,
+          state:'withdrawn',version:sheet?.state==='withdrawn'?sheet.version:-1,awarded:null,pending:null,max:marks};
+      });
+      return {paperId:packet.paperId,gradingPaperId,gradingRevision:packet.gradingRevision??1,packetLabel:packet.label,version:packet.version,sheets:register,
+        rubric:{title,marks,hasScheme},nextCursor:null};
+    });
   }
   async remove(uid,path,version){
     const result=await this.store.transaction(async tx=>{

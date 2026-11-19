@@ -1,6 +1,7 @@
 import {maxCheckingPages} from './checking-limits.mjs';
 
 export const intakeChunkSize = 8;
+export const isAnonymous=label=>/^(?:(?:copy|book|booklet|sheet)\s*[-#]?\s*\d+|(?:unknown|unidentified|anonymous|unlabelled|unlabeled)(?:\s+(?:student|copy|book|booklet|sheet))?(?:\s*[-#]?\s*\d+)?)$/iu.test(label);
 
 const boundaries = ['start', 'continue', 'uncertain', 'blank'];
 const readingFields = {

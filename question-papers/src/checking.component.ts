@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, NgZone, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { Component, Input, NgZone, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AssistantApi } from './api.service';
 import { scanBase64, scanFiles, type Scan } from './checking-intake';
@@ -23,7 +23,7 @@ type Detail={sheet:Sheet;rubric:Rubric&{questions:Question[]}};
 })
 export class PaperCheckingComponent implements OnInit, OnDestroy {
   @Input({required:true}) paperId='';
-  @Output() close=new EventEmitter<void>();
+  @Input({required:true}) onClose:()=>void=()=>{};
   private api=inject(AssistantApi);
   private zone=inject(NgZone);
   private releaseMarker?:()=>void;
@@ -164,7 +164,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     void this.refresh();
   }
   leave(){
-    if(!this.dirty||window.confirm('Close checking and discard unsaved changes?'))this.close.emit();
+    if(!this.dirty||window.confirm('Close checking and discard unsaved changes?'))this.onClose();
   }
   start(resume=false){
     this.disposePhotos();

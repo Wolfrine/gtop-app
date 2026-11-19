@@ -51,7 +51,10 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else {let m;
           if((m=path.match(/^\/papers\/([A-Za-z0-9_-]+)\/checking(?:\/([A-Za-z0-9_-]+)(?:\/(?:(pages)\/(\d+)|(queue|review|manual)))?)?$/))){
             output=await service.checking.teacher(method,[m[1],m[2],m[3]||m[5],m[4]],uid,body);
-            if(Buffer.isBuffer(output))responseHeaders['Content-Type']='image/jpeg';
+            if(Buffer.isBuffer(output)){
+              responseHeaders['Content-Type']='image/jpeg';
+              responseHeaders['Cross-Origin-Resource-Policy']='same-origin';
+            }
           }
           else if(method==='GET' && (m=path.match(/^\/conversations\/([^/]+)$/)))output=await service.conversation(uid,m[1]);
           else if(method==='POST' && (m=path.match(/^\/conversations\/([^/]+)\/messages$/)))output=await service.submit(uid,m[1],body);

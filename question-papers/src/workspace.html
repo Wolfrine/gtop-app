@@ -1,4 +1,7 @@
-<gtop-paper-checking *ngIf="checkingOpen" [paperId]="checkingPaperId" (close)="closeChecking()"></gtop-paper-checking>
+<ng-container *ngIf="checkingOpen">
+  <ng-container *ngComponentOutlet="checkingComponent || null; inputs: checkingInputs"></ng-container>
+  <main *ngIf="!checkingComponent" class="access-page" role="status">Opening answer sheets…</main>
+</ng-container>
 <div class="workspace" [hidden]="checkingOpen" [class.with-document]="document" [class.drawer-open]="drawer">
   <div *ngIf="fixture" class="preview-banner">Local visual preview · synthetic data · {{fixture}} state</div>
   <header class="app-header">

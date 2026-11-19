@@ -34,9 +34,10 @@ export class ReturnArchive {
     file.push(pdf, true);
     await this.flush();
   }
-  async finish() {
+  async finish(checkActive: () => void) {
     this.zip.end();
     await this.flush();
+    checkActive();
     if (this.writer) {
       await this.writer.close();
       return;

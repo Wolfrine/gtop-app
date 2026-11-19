@@ -5,7 +5,7 @@
   </header>
   <div class="home-body">
     <section [hidden]="picker !== null" aria-label="Class answer books">
-      <gtop-paper-packet [paperId]="paperId" [packetId]="packetId" [referenceChoice]="referenceChoice" (packetChange)="rememberPacket($event)" (linkedPaper)="setReference($event)"
+      <gtop-paper-packet #packetDesk [referenceTitle]="paperTitle" [paperId]="paperId" [packetId]="packetId" [referenceChoice]="referenceChoice" (packetChange)="rememberPacket($event)" (linkedPaper)="setReference($event)"
         (needPaper)="choosePaper($event)" (busyChange)="busy=$event" (selectionChange)="hasLocalFiles=$event"
         (queued)="onResults($event.paperId, $event.packetId)" />
       <div class="reference">
@@ -13,7 +13,7 @@
           @if (paperId) { <strong>{{ paperTitle || 'Loading paper…' }}</strong> @if (paperMarks) { <small>{{ paperMarks }} marks</small> } }
           @else { <strong>Choose a saved paper or upload your own</strong> }
         </div>
-        <button class="action" type="button" [disabled]="busy" (click)="choosePaper()">{{ paperId ? 'Change paper' : 'Choose paper' }}</button>
+        <button class="action" type="button" [disabled]="busy" (click)="choosePaper()">{{ packetDesk.packet?.state === 'completed' ? 'Recheck with a corrected paper' : paperId ? 'Change paper' : 'Choose paper' }}</button>
       </div>
       @if (paperError) { <p class="error" role="alert">{{ paperError }}</p> }
       @if (paperId && !packetId && !busy && !hasLocalFiles) {

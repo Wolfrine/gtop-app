@@ -46,7 +46,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   feedbackMessage='';feedbackText='';feedbackPaperId='';feedbackOpen=false;newRequestId='';private sendId='';private sendText='';private documentRequest=0;private timer?:ReturnType<typeof setTimeout>;private destroyed=false;private openingId='';
   get user(){return this.session?.user;}
   get checkingOpen(){return (!!this.checkingPaperId||this.checkingHome)&&!!this.user&&this.contentAuthorized&&!this.fixture;}
-  get checkingInputs(){return {paperId:this.checkingPaperId,scopePacketId:this.checkingPacketId,onClose:this.returnFromChecking,onScanClass:this.scanForPaper};}
+  get checkingInputs(){return {paperId:this.checkingPaperId,scopePacketId:this.checkingPacketId,onClose:this.returnFromChecking,onScanClass:this.scanForPaper,onManageClass:this.managePacket};}
   get hubInputs(){return {libraryAccess:!!this.user?.libraryAccess,onClose:this.returnToWorkspace,onResults:this.viewCheckedClass};}
   get worker(){return this.serviceStale?{label:'Assistant status unavailable',detail:'Could not check the assistant. Check your connection and refresh status.',tone:'offline'}:servicePresentation(this.session?.service,this.session?.worker);}
   get canStartService(){return !!this.session?.service?.canStart&&!this.serviceStarting&&!this.serviceStale;}
@@ -79,6 +79,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     history.replaceState(history.state,'',url);
     void this.loadCheckingComponent();
   }
+  private readonly managePacket=(packetId:string)=>this.openCheckingHome('',packetId);
   private readonly scanForPaper=(paperId:string)=>this.openCheckingHome(paperId);
   openCheckingHome(reference='',packet=''){
     if(!this.user||!this.contentAuthorized||this.fixture)return;

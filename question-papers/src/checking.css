@@ -777,6 +777,7 @@ h4 {
   overflow-wrap: anywhere;
 }
 .checking-print,
+.print-instruction,
 .sr {
   display: none;
 }
@@ -983,12 +984,15 @@ h4 {
   .desk-shell {
     display: none !important;
   }
-  .checking-print {
+  .checking-print.approved {
     display: block;
     font:
       10pt Arial,
       sans-serif;
     color: #111;
+  }
+  .print-instruction {
+    display: block;
   }
   .print-page {
     break-after: page;

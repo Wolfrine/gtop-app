@@ -12,7 +12,7 @@
       </button>
       <div class="heading">
         <h1>{{ sheet!.label }}</h1>
-        <p [title]="rubric?.title || ''">{{ rubric?.title }}</p>
+        <p [title]="rubric?.title || ''">{{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ rubric?.title }}</p>
       </div>
       @if (sheet!.grade) {
         <div class="score">
@@ -929,10 +929,12 @@
     <section class="register card" aria-labelledby="register-title">
       <div class="register-top">
         <div>
-          <h2 id="register-title">{{ scopePacketId ? 'Class results' : 'Answer sheets for this paper' }}</h2>
+          <h2 id="register-title">{{ scopePacketId ? (classLabel || 'Class results') : 'Answer sheets for this paper' }}</h2>
           <p>{{ scopePacketId ? 'Review flagged answers, finalize marks and return the checked copies.' : 'Open a checked sheet or add answer books for marking.' }}</p>
         </div>
-        @if (!scopePacketId) {
+        @if (scopePacketId && onManageClass) {
+          <button class="action" type="button" [disabled]="busy" (click)="onManageClass(scopePacketId)">Manage scans</button>
+        } @else if (!scopePacketId) {
           <div class="register-actions">
             @if (onScanClass) {
               <button class="action primary" (click)="onScanClass(paperId)" type="button" [disabled]="!rubric || busy">Scan a class</button>
@@ -942,7 +944,7 @@
         }
       </div>
       @if (rubric && (sheets.length || scopePacketId)) {
-        <gtop-class-return [paperId]="paperId" [initialSheets]="sheets" [nextCursor]="cursor"
+        <gtop-class-return [classLabel]="classLabel" [paperId]="paperId" [initialSheets]="sheets" [nextCursor]="cursor"
           [scopePacketId]="scopePacketId" [paperTitle]="rubric.title" [paperMaximum]="rubric.marks" />
       }
       @if (sheets.length) {
@@ -956,6 +958,7 @@
               @for (f of filters; track f) {
                 <option [value]="f">{{ f }}</option>
               }
+              @if (scopePacketId) { <option value="Withdrawn">Withdrawn</option> }
             </select></label
           >
         </div>
@@ -976,12 +979,12 @@
         </p>
       }
       @for (item of visibleSheets; track item.id) {
-        <button class="sheet-row" type="button" (click)="open(item.id)" [disabled]="busy">
+        <button class="sheet-row" type="button" (click)="open(item.id)" [disabled]="busy || item.state === 'withdrawn'">
           <span class="identity"
             ><strong>{{ item.label }}</strong
             ><small
-              >{{ item.pageCount }} {{ item.pageCount === 1 ? 'page' : 'pages' }} ·
-              {{ item.updatedAt | date: 'mediumDate' }}</small
+              >{{ item.pageCount }} {{ item.pageCount === 1 ? 'page' : 'pages' }}
+              @if (item.updatedAt) { · {{ item.updatedAt | date: 'mediumDate' }} }</small
             ></span
           ><span class="state" [class.attention]="bucket(item) === 'Needs attention'">{{
             stateLabel(item)
@@ -991,7 +994,7 @@
               <strong>{{ item.awarded }} / {{ item.max ?? rubric?.marks }}</strong
               ><small>{{ item.pending ? 'Provisional' : item.state === 'final' ? 'Final' : 'Draft' }}</small>
             }</span
-          ><b aria-hidden="true">›</b>
+          >@if (item.state !== 'withdrawn') { <b aria-hidden="true">›</b> }
         </button>
       }
       @if (cursor) {
@@ -1002,13 +1005,16 @@
     </section>
   }
 </div>
-@if ((imagesReady || printing) && sheet?.grade) {
-  <div class="checking-print" aria-hidden="true">
+@if (sheet?.grade && !printApproved) {
+  <p class="print-instruction">Use Print / Save PDF on the marking desk to print the latest saved copy.</p>
+}
+@if (printing && sheet?.grade) {
+  <div class="checking-print" [class.approved]="printApproved" aria-hidden="true">
     @for (p of pageItems; track p.index) {
       <section class="print-page">
         <header>
           <strong>{{ rubric?.title }}</strong
-          ><span>{{ sheet?.label }} · Page {{ p.index }} / {{ sheet?.pageCount }}</span
+          ><span>{{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ sheet?.label }} · Page {{ p.index }} / {{ sheet?.pageCount }}</span
           ><b
             >{{ pending ? 'Provisional' : sheet?.state === 'final' ? 'Final' : 'Draft' }} · {{ foundTotal }} /
             {{ max }}
@@ -1044,7 +1050,7 @@
     <section class="print-notes">
       <h2>Marking notes</h2>
       <p>
-        {{ sheet?.label }} · {{ rubric?.title }} ·
+        {{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ sheet?.label }} · {{ rubric?.title }} ·
         {{ pending ? 'Provisional' : sheet?.state === 'final' ? 'Final' : 'Draft' }} · {{ foundTotal }} /
         {{ max }}
       </p>

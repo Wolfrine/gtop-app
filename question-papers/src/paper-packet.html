@@ -13,11 +13,18 @@
 
   @if (intakeOpen) {
     <section class="intake" aria-label="Scan answer books">
+      @for(draft of availableCameraDrafts;track draft.id){
+        <div class="camera-restore"><div><strong>{{cameraPages(draft)}} saved camera {{cameraPages(draft)===1?'photo':'photos'}}</strong>
+          <small>{{draft.label||'Unfinished class scan'}} · {{draft.updated|date:'short'}}</small></div>
+          <button type="button" class="action" [disabled]="busy" (click)="restoreCamera(draft)">Restore camera draft</button>
+          <button type="button" class="inline" [disabled]="busy" (click)="discardCamera(draft)">Clear saved photos</button>
+        </div>
+      }
       <div class="intake-head">
         <div class="stack-icon" aria-hidden="true"><span></span><span></span><b>✓</b></div>
         <div>
-          <h2>{{packet ? 'Finish this upload' : 'Scan answer books'}}</h2>
-          <p>{{packet ? (packet.label+' · '+packet.uploaded.length+' of '+packet.pageCount+' pages saved') : 'Add the whole class scan, individual PDFs, or photos in the order you collected the books.'}}</p>
+          <h2>{{packet ? (busy?'Saving your stack':'Finish this upload') : 'Scan answer books'}}</h2>
+          <p>{{packet ? (packet.label+' · '+(busy?savedDuringUpload:packet.uploaded.length)+' of '+packet.pageCount+' pages saved') : 'Add the whole class scan, individual PDFs, or photos in the order you collected the books.'}}</p>
         </div>
       </div>
       @if (!packet || incompleteUpload) {
@@ -32,13 +39,18 @@
             </label>
             <label class="pick secondary" [class.disabled]="busy">
               Take a photo
-              <input type="file" accept="image/*" capture="environment" aria-label="Take a photo" (change)="add($event)" [disabled]="busy">
+              <input type="file" accept="image/*" capture="environment" aria-label="Take a photo" (change)="add($event,true)" [disabled]="busy">
             </label>
           </div>
+          @if(cameraUnavailable){<small class="camera-warning">Camera recovery is unavailable on this browser. For a lasting copy, use your phone’s camera app, then choose its saved photos here.</small>}
+          @else{<small>Camera drafts stay on this device for 24 hours. Uploading or signing out clears them.</small>}
           <small>Up to {{pageLimit}} pages in a stack. Keep extra sheets behind their answer book.</small>
         </div>
       }
       @if (sources.length) {
+        @if(cameraCount){<div class="camera-save"><span role="status">{{cameraSaving?'Saving camera draft…':cameraSaved?cameraCount+' camera '+(cameraCount===1?'photo':'photos')+' saved on this device.':'Camera photos are in this tab only.'}}</span>
+          <button type="button" class="inline" (click)="discardCamera()" [disabled]="busy||!!cameraSaving">Clear camera photos</button></div>}
+        @if(missingSources){<p class="hint">Choose the {{missingSources}} original {{missingSources===1?'file':'files'}} marked “Reselect”. Your camera photos and page order have been restored.</p>}
         <div class="chosen">
           <div class="section-line"><h3>Selected scans</h3><span>{{sources.length}} {{sources.length===1?'file':'files'}} · {{pageTotal}} {{pageTotal===1?'page':'pages'}}</span></div>
           @if (allPdfs && !sourcesLocked) {
@@ -49,15 +61,15 @@
             <ol>
               @for (source of sources; track source; let i=$index) {
                 <li>
-                  <div class="file-info"><strong>{{source.file.name}}</strong><small>{{source.pages}} {{source.pages===1?'page':'pages'}}</small></div>
+                  <div class="file-info"><strong>{{source.file.name}}</strong><small>@if(source.missingSize!==undefined){Reselect · }{{source.pages}} {{source.pages===1?'page':'pages'}}{{source.veryDark?' · Check lighting':''}}</small></div>
                   <div class="tools">
-                    <button type="button" (click)="inspectSource(source)" [disabled]="busy">Preview</button>
+                    <button type="button" (click)="inspectSource(source)" [disabled]="busy||source.missingSize!==undefined">Preview</button>
                     <button type="button" (click)="reorderSource(source,-1)" [disabled]="busy||i===0" [attr.aria-label]="'Move '+source.file.name+' earlier'">↑</button>
                     <button type="button" (click)="reorderSource(source,1)" [disabled]="busy||i===sources.length-1" [attr.aria-label]="'Move '+source.file.name+' later'">↓</button>
                     <button type="button" (click)="removeSource(source)" [disabled]="busy" [attr.aria-label]="'Remove '+source.file.name">Remove</button>
                   </div>
                   @if (i>0 && !sourcesLocked) {
-                    <label class="source-start"><input type="checkbox" [(ngModel)]="source.starts" [disabled]="busy"> A new book starts here</label>
+                    <label class="source-start"><input type="checkbox" [(ngModel)]="source.starts" (ngModelChange)="saveCamera()" [disabled]="busy"> A new book starts here</label>
                   }
                 </li>
               }
@@ -73,22 +85,22 @@
               <button type="button" (click)="inspectSource(source,sourceIndex+1)" [disabled]="sourceIndex>=source.pages" aria-label="Next source page">›</button>
               <button type="button" (click)="turnSource()" [disabled]="readingPreview">Rotate 90°</button>
             </div>
-            @if (sourcePreview; as scan) { <img [src]="scan.url" [alt]="'Source page '+sourceIndex"> }
+            @if (sourcePreview; as scan) { @if(scan.veryDark){ <p class="reason">This page looks very dark. Check that the handwriting is readable.</p> } <img [src]="scan.url" [alt]="'Source page '+sourceIndex"> }
             @else if (readingPreview) { <p role="status">Opening page…</p> }
           </section>
         }
         @if (!packet) {
           <div class="fields">
             <label>Students present <small>Optional</small>
-              <input type="number" inputmode="numeric" min="1" max="180" step="1" [(ngModel)]="expected" placeholder="e.g. 10" [disabled]="busy">
+              <input type="number" inputmode="numeric" min="1" max="180" step="1" [(ngModel)]="expected" (ngModelChange)="saveCamera()" placeholder="e.g. 10" [disabled]="busy">
             </label>
-            <label>Stack name <small>Optional</small>
-              <input type="text" maxlength="100" [(ngModel)]="label" placeholder="e.g. Class 10 · Friday test" [disabled]="busy">
+            <label>Class or section <small>Optional · printed on student copies</small>
+              <input type="text" maxlength="100" [(ngModel)]="label" (ngModelChange)="saveCamera()" placeholder="e.g. Class 10 · Friday test" [disabled]="busy">
             </label>
           </div>
         }
         <div class="primary-row">
-          <button class="action primary" type="button" (click)="upload()" [disabled]="busy||!pageTotal||(packet&&packet.pageCount!==pageTotal)">
+          <button class="action primary" type="button" (click)="upload()" [disabled]="busy||!!missingSources||!pageTotal||(packet&&packet.pageCount!==pageTotal)">
             {{packet?'Resume upload':'Find student books'}} @if (!busy) { <span aria-hidden="true">→</span> }
           </button>
           <small>Keep this tab open while pages upload. You can leave once they’re saved.</small>
@@ -109,6 +121,7 @@
       <p>{{packet.label}} · {{packet.pageCount}} pages saved @if (packet.expectedStudents) { · {{packet.expectedStudents}} students present }</p>
       @if (packet.processedPages) { <progress [max]="packet.pageCount" [value]="packet.processedPages"></progress><small>{{packet.processedPages}} / {{packet.pageCount}} pages read</small> }
       <p class="hint">You can close this page. Reopen the stack here to check its book boundaries.</p>
+      <button type="button" class="inline" (click)="switchToManual()" [disabled]="busy">Group pages myself</button>
     </section>
   }
   @if (packet?.state==='failed' && !manual && !loadingDetail) {
@@ -120,47 +133,57 @@
       </div>
     </section>
   }
-  @if (reviewing && packet && !loadingDetail) {
+  @if ((reviewing || submitted) && packet && !loadingDetail) {
     <section class="review" aria-label="Review student books">
       <div class="review-head">
-        <div><h2>{{books.length}} {{books.length===1?'book':'books'}} in this stack</h2><p>{{packet.label}} · {{packet.pageCount}} pages @if(expectedCount){ · {{expectedCount}} students present }</p></div>
-        <button type="button" class="action primary" (click)="grade()" [disabled]="busy||!!submitProblem">
-          {{busy?'Saving…':attachedPaper?'Check '+books.length+' '+(books.length===1?'book':'books'):'Choose question paper'}} <span aria-hidden="true">→</span>
-        </button>
+        <div><h2>{{submitted?(markingCount+' '+(markingCount===1?'book':'books')+' sent for marking'):(books.length+' '+(books.length===1?'book':'books')+' in this stack')}}</h2><p>{{packet.label}} · {{packet.pageCount}} pages @if(expectedCount){ · {{expectedCount}} students present }</p></div>
+        @if(submitted) {
+          <button class="action primary" type="button" [disabled]="busy||correcting" (click)="openResults()">View class results →</button>
+        } @else {
+          <button class="action primary" type="button" (click)="grade()" [disabled]="busy||correcting||!!submitProblem">{{gradeLabel}} <span aria-hidden="true">→</span></button>
+        }
       </div>
-      @if (needsReview.length) {
-        <div class="attention-line"><strong>{{needsReview.length}} {{needsReview.length===1?'book needs':'books need'}} a closer look</strong><button class="inline" type="button" (click)="selectBook(needsReview[0])">Review first ›</button></div>
+      @if(heldCount){<p class="attention-line">{{heldCount}} {{heldCount===1?'book is':'books are'}} held for identification. {{markingCount}} {{markingCount===1?'book':'books'}} {{submitted?'sent':'ready to send'}} for marking.</p>}
+      @if (!submitted && needsReview.length) {
+        <div class="attention-line"><strong>{{needsReview.length}} {{needsReview.length===1?'book needs':'books need'}} a closer look</strong><button class="inline" type="button" (click)="selectBook(needsReview[0])" [disabled]="busy||correcting">Review first ›</button></div>
       }
-      @if (countMismatch) {
+      @if (!submitted && countMismatch) {
         <div class="attention-line count"><span>Attendance says {{expectedCount}}. This stack contains {{books.length}} books.</span><label><input type="checkbox" [(ngModel)]="countConfirmed"> I checked the count.</label></div>
       }
+      @if (!submitted && matchingScans.length) {
+        <details class="matches"><summary>Matching scan images ({{matchingScans.length}} {{matchingScans.length===1?'set':'sets'}})</summary>
+          <p>Check whether these are repeated answers or blank backs. All source pages are saved.</p>
+          @for (pages of matchingScans;track pages[0]) {<div class="tools">@for(n of pages;track n){<button type="button" (click)="inspectMatchingPage(n)" [disabled]="busy||correcting">Scan {{n}}</button>}</div>}
+        </details>
+      }
       <div class="review-body">
-        <div class="book-list" aria-label="Books in scan order">
+        <div #bookList class="book-list" aria-label="Books in scan order">
           @for (b of books; track b.key; let i=$index) {
-            <button type="button" class="book-row" [class.active]="b.key===selectedKey" [attr.aria-pressed]="b.key===selectedKey" (click)="selectBook(b)">
+            <button type="button" class="book-row" [class.active]="b.key===selectedKey" [attr.aria-pressed]="b.key===selectedKey" (click)="selectBook(b)" [disabled]="busy||correcting||!!b.withdrawn">
               <span class="book-no">{{i+1}}</span>
               <span class="book-name"><strong>{{b.label||'Identify book'}}</strong><small>{{b.pages.length}} {{b.pages.length===1?'page':'pages'}} · scan {{pageRange(b.pages)}}</small></span>
-              @if (b.needsReview) { <span class="flag" aria-label="Review needed">?</span> }
+              @if (b.withdrawn){<span class="held-tag">Withdrawn</span>} @else if (b.held) { <span class="held-tag">Held</span> } @else if (b.needsReview) { <span class="flag" aria-label="Review needed">?</span> }
             </button>
           }
         </div>
         @if (book; as b) {
           <section class="book-detail" aria-label="Selected book">
-            <div class="detail-head">
+            @if (!submitted) {<div class="detail-head">
               <label>Roll number or book label
-                <input type="text" [ngModel]="b.label" (ngModelChange)="editLabel(b,$event)" placeholder="e.g. Roll 24" maxlength="100" [disabled]="busy">
+                <input type="text" [ngModel]="b.label" (ngModelChange)="editLabel(b,$event)" placeholder="e.g. Roll 24" maxlength="100" [disabled]="busy||correcting||!!b.held">
               </label>
-              @if (b.needsReview) { <button type="button" class="action" (click)="confirmBook()" [disabled]="busy||!b.label.trim()">Confirm this book</button> }
-            </div>
-            @if (b.needsReview) { <p class="reason">{{b.reason||'Check the identity and page boundaries for this book.'}}</p> }
+              @if (b.needsReview && !b.held) { <button type="button" class="action" (click)="confirmBook()" [disabled]="busy||correcting||!b.label.trim()">Confirm this book</button> }
+              <button type="button" class="inline" (click)="holdBook(b)" [disabled]="busy||correcting">{{b.held?'Identify this book':'Hold for identification'}}</button>
+            </div>} @else {<h3>{{b.label}}</h3>}
+            @if (!submitted && b.needsReview && !b.held) { <p class="reason">{{b.reason||'Check the identity and page boundaries for this book.'}}</p> }
             <div class="scan-toolbar">
               <div class="tools">
-                <button type="button" aria-label="Previous page in book" (click)="previousPage(-1)" [disabled]="selectedPage===b.pages[0]">‹</button>
+                <button type="button" aria-label="Previous page in book" (click)="previousPage(-1)" [disabled]="correcting||selectedPage===b.pages[0]">‹</button>
                 <label class="sr" for="stack-scan-page">Page in book</label>
-                <select id="stack-scan-page" [ngModel]="selectedPage" (ngModelChange)="showPage($event)">
+                <select id="stack-scan-page" [disabled]="correcting" [ngModel]="selectedPage" (ngModelChange)="showPage($event)">
                   @for (p of b.pages; track p; let i=$index) { <option [ngValue]="p">Page {{i+1}} / {{b.pages.length}} · scan {{p}}</option> }
                 </select>
-                <button type="button" aria-label="Next page in book" (click)="previousPage(1)" [disabled]="selectedPage===b.pages[b.pages.length-1]">›</button>
+                <button type="button" aria-label="Next page in book" (click)="previousPage(1)" [disabled]="correcting||selectedPage===b.pages[b.pages.length-1]">›</button>
               </div>
               <button class="inline" type="button" (click)="zoomed=!zoomed">{{zoomed?'Fit page':'Zoom in'}}</button>
             </div>
@@ -169,7 +192,7 @@
               @else if (imageError) { <p>{{imageError}} <button class="inline" (click)="showPage(selectedPage)">Retry page</button></p> }
               @else { <p role="status">Loading scan…</p> }
             </div>
-            <div class="edit-tools">
+            @if (!submitted && !correcting) {<div class="edit-tools">
               <button class="inline" type="button" (click)="splitHere()" [disabled]="busy||selectedPage===b.pages[0]">New book from this page</button>
               <button class="inline" type="button" (click)="toggleMove()" [disabled]="busy">{{moving?'Cancel move':'Move pages…'}}</button>
               <details><summary>Page order</summary><div class="tools">
@@ -191,19 +214,17 @@
                   <button type="button" class="action" [disabled]="busy||!selectedPages.size||!moveTarget" (click)="movePages()">Move {{selectedPages.size}} {{selectedPages.size===1?'page':'pages'}}</button>
                 </div>
               </div>
-            }
+            }}
+            <gtop-packet-correction [page]="selectedPage" [groupIndex]="books.indexOf(b)" [bookId]="b.sheetId||''" [bookLabel]="b.label"
+              [submitted]="submitted" [held]="!!b.held" [busy]="busy" [canAppend]="b.pages.length<bookLimit&&packet.pageCount<pageLimit"
+              [lastPage]="b.pages.length===1" [canMove]="b.pages.length>0&&books.length>1" [destinations]="books" (selection)="setCorrectionPending($event)" (apply)="applyCorrection($event)"/>
           </section>
         }
       </div>
       <footer class="review-foot">
-        @if (canSave) { <button class="action" type="button" (click)="saveDraft()" [disabled]="busy">Save for later</button> }
-        @if (submitProblem) { <small>{{submitProblem}}</small> }
+        @if (!submitted && !correcting && canSave) { <button class="action" type="button" (click)="saveDraft()" [disabled]="busy">Save for later</button> }
+        @if (!submitted && submitProblem) { <small>{{submitProblem}}</small> }
       </footer>
-    </section>
-  }
-  @if (packet?.state==='completed' && !loadingDetail) {
-    <section class="state-card"><h2>{{packet!.groups.length}} books sent for marking</h2><p>{{packet!.label}} · {{packet!.pageCount}} pages</p>
-      <div class="primary-row"><button type="button" class="action primary" (click)="openResults()">View class results →</button></div>
     </section>
   }
   @if (!packet && !loadingDetail && !sources.length && !busy) {

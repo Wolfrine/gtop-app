@@ -1,10 +1,12 @@
 # Checking answer sheets
 
-1. Open **Check papers** in GT Papers. Keep each student’s extra sheets with their answer book. Scan the class as one PDF, select photos in order, or take photos in the app. The optional **Students present** count lets you compare the physical count with the books found.
+1. Open **Check papers** in GT Papers. Keep each student’s extra sheets with their answer book. Scan the class as one PDF, select photos in order, or take photos in the app. The optional **Students present** count lets you compare the physical count with the books found. On a supported device, camera photos can be resumed for 24 hours by the same signed-in teacher. Use the saved draft’s remove action on a shared device. If device storage is unavailable, keep the tab open until upload finishes.
 2. Select **Find student books**. Keep the page open until the upload finishes. The checker reads labels and groups pages in the background. Open the saved stack to resolve unclear labels, split or move pages, and check any attendance discrepancy. Each stack accepts up to 200 pages and each student book up to 32.
 3. Choose the exam once. Select the GT paper revision used in class, or upload the actual question paper and an optional marking scheme. Review any uncertain question text, marks or choices before using an imported paper. Start checking the class together.
 4. Open **View class results**. Review flagged handwriting and missing answers against the original pages. A method mark can be corrected and moved to the relevant working. Finalize reviewed sheets and use the group finalization action for ready sheets.
-5. Under **Return results**, download one ZIP with a separate marked PDF for each finalized book. The marks register is a separate teacher-only CSV and includes pending sheets. Print the copies or return each PDF to the named student using your usual channel.
+5. Under **Return results**, download one ZIP with a separate marked PDF for each finalized book. The marks register is a separate teacher-only CSV and includes pending sheets. For physical handback, **Print class set** prepares one printable PDF. For digital return, give each student their own PDF from the ZIP. The class or section name appears on each student copy. Held and withdrawn books appear in the register and are excluded from the ZIP.
+
+Use **Manage scans** for a late page, a clearer photo, or to identify a held book. For a wrong shared key, choose **Recheck with a corrected paper**. This reopens the class against the selected revision. Return updated copies to anyone who received earlier marks.
 
 For already separated scripts, **Check answer sheets** on a saved paper still accepts individual page photos or one PDF per student. Teachers can reopen a finalized result to correct it. Download a fresh copy after finalizing again.
 

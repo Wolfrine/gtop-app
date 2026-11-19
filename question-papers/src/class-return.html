@@ -14,7 +14,7 @@
     <p role="status">Loading the class register…</p>
     } @else if (entries.length) {
     <div class="summary">
-      <p><strong>{{finalCount}} of {{chosen.length}} finalized</strong></p>
+      <p><strong>{{finalCount}} of {{chosen.length}} finalized</strong>@if (unavailableCount) { <span> · {{unavailableCount}} held or withdrawn</span>}</p>
       <button
         class="link"
         type="button"
@@ -65,12 +65,15 @@
       <button type="button" class="primary" [disabled]="busy || !finalCount" (click)="download('zip')">
         Download marked copies <small>ZIP</small>
       </button>
+      <button type="button" [disabled]="busy || !finalCount" (click)="download('print')">
+        Print class set <small>PDF</small>
+      </button>
       <button type="button" [disabled]="busy || !chosen.length" (click)="download('csv')">
         Download marks register <small>CSV</small>
       </button>
     </div>
     <p class="hint">
-      Each finalized sheet has its own PDF. The register lists every selected sheet and its status.
+      The ZIP contains individual copies. The class PDF starts each student on a fresh sheet for double-sided printing.
     </p>
     } @else if (!error) {
     <p>No answer sheets yet.</p>
@@ -79,8 +82,7 @@
     } @if (busy) { <button class="link" type="button" (click)="cancel()">Cancel download</button> } @if
     (error) {
     <p class="error" role="alert">{{error}}</p>
-    } @if (downloadUrl && !busy) {
-    <a class="link" [href]="downloadUrl" [attr.download]="downloadName">Save {{downloadName}}</a> }
+    }
   </div>
   }
 </section>

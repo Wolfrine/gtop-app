@@ -173,22 +173,33 @@ async function header(p: PDFPage, text: PdfText, detail: ReturnDetail, section: 
     15,
     true,
   );
+  const extra = detail.classLabel ? 15 : 0;
+  if (detail.classLabel)
+    await text.write(
+      p,
+      text.short(detail.classLabel, pageWidth - margin * 2, 9),
+      margin,
+      margin + 23,
+      9,
+      false,
+      muted,
+    );
   const total = `Final  ${numericScore(score.awarded, score.max)}`;
   const totalWidth = text.width(total, 10, true);
-  await text.write(p, total, pageWidth - margin - totalWidth, margin + 24, 10, true);
+  await text.write(p, total, pageWidth - margin - totalWidth, margin + 24 + extra, 10, true);
   const rest = pageWidth - 2 * margin - totalWidth - 16;
   await text.write(
     p,
     text.short(detail.sheet.label, rest - text.width('  ·  ' + section, 10), 10) + '  ·  ' + section,
     margin,
-    margin + 24,
+    margin + 24 + extra,
     10,
     false,
     muted,
   );
   p.drawLine({
-    start: { x: margin, y: pageHeight - 74 },
-    end: { x: pageWidth - margin, y: pageHeight - 74 },
+    start: { x: margin, y: pageHeight - 74 - extra },
+    end: { x: pageWidth - margin, y: pageHeight - 74 - extra },
     color: lineColour,
     thickness: 0.6,
   });
@@ -293,7 +304,7 @@ export async function markedCopy(
     await header(p, text, detail, `Page ${scan.index} / ${pages.length}`);
     const pins = pagePins(grade.answers, scan.index),
       gutter = pins.length ? 111 : 0,
-      top = 88;
+      top = detail.classLabel ? 103 : 88;
     const available = pageWidth - margin * 2 - gutter;
     const ratio = Math.min(available / scan.width, (pageHeight - top - margin) / scan.height);
     const w = scan.width * ratio,
@@ -303,13 +314,13 @@ export async function markedCopy(
     if (pins.length) await annotate(p, text, pins, x, top, w, h, margin + available + 8);
   }
   let page = doc.addPage([pageWidth, pageHeight]),
-    y = 91;
+    y = detail.classLabel ? 106 : 91;
   await header(page, text, detail, 'Marking notes');
   const next = async () => {
     checkActive();
     page = doc.addPage([pageWidth, pageHeight]);
     await header(page, text, detail, 'Marking notes');
-    y = 91;
+    y = detail.classLabel ? 106 : 91;
   };
   const paragraph = async (s: string, size: number, bold = false, indent = 0, color = ink) => {
     for (const value of text.wrap(s, pageWidth - margin * 2 - indent, size, bold)) {

@@ -1,0 +1,39 @@
+@if (!op) {
+  <div class="edit-tools corrections">
+    @if (submitted && held) { <button class="action" type="button" (click)="start('identify')" [disabled]="busy">Identify and check book</button> }
+    <details>
+      <summary>Correct a scan</summary>
+      <div class="edit-tools">
+        <button type="button" class="inline" [disabled]="busy" (click)="start('replace')">Retake scan {{page}}</button>
+        <button type="button" class="inline" [disabled]="busy||!canAppend" (click)="start('append')">Add missing page</button>
+        @if(submitted) { <button type="button" class="inline" [disabled]="busy||!canMove" (click)="start('move')">Move scan {{page}} to another book</button> }
+      </div>
+    </details>
+  </div>
+} @else {
+  <section class="correct-panel">
+    <div class="section-line"><strong>{{op==='identify'?'Identify held book':op==='move'?'Move scan '+correctionPage:op==='replace'?'Retake scan '+correctionPage:'Add a missing page'}} · {{bookLabel||'Selected book'}}</strong>
+      <button type="button" class="inline" (click)="reset()" [disabled]="busy">Cancel correction</button>
+    </div>
+    @if(error){<p class="feedback error" role="alert">{{error}}</p>}
+    @if(op==='identify'){
+      <label class="field-label">Student name or roll number<input type="text" maxlength="100" [(ngModel)]="identity" [disabled]="busy"></label>
+    } @else if(op==='move'){
+      @if(lastPage){<p class="hint">Moving the only page withdraws this empty book from the class register.</p>}
+      <label class="field-label">Receiving student book<select [(ngModel)]="target" [disabled]="busy"><option value="">Choose book</option>
+        @for(other of destinations;track other.sheetId){@if(other.sheetId&&!other.withdrawn&&other.sheetId!==bookId){<option [value]="other.sheetId">{{other.label}}</option>}}
+      </select></label>
+    } @else {
+      <div class="picker-actions">
+        <label class="pick secondary">Choose page<input type="file" aria-label="Choose correction page" accept="application/pdf,.pdf,image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,.heic,.heif" (change)="pick($event)" [disabled]="busy||reading"></label>
+        <label class="pick secondary">Take a photo<input type="file" aria-label="Take a correction photo" capture="environment" accept="image/*" (change)="pick($event)" [disabled]="busy||reading"></label>
+      </div>
+      @if(reading){<p role="status">Reading page…</p>}
+      @if(preview;as scan){ <div class="source-preview"><img [src]="scan.url" alt="New scan preview"><button class="inline" type="button" (click)="rotate()" [disabled]="busy||reading">Rotate new scan 90°</button></div> }
+    }
+    @if(submitted && !held && op!=='identify'){<p class="hint">Affected student books will be marked again.</p>}
+    <button type="button" class="action primary" (click)="submit()" [disabled]="busy||reading||(op==='identify'?!identity.trim():op==='move'?!target:!preview)">
+      {{op==='identify'?'Start checking this book':op==='move'?'Move page':op==='replace'?'Save replacement':'Add page to book'}}
+    </button>
+  </section>
+}

@@ -1,7 +1,7 @@
 import { maxCheckingPages } from '../../assistant-service/domain/checking-limits.mjs';
 
 export { maxCheckingPages };
-export type Scan = { name: string; blob: Blob; url: string };
+export type Scan = { name: string; blob: Blob; url: string; veryDark?:boolean };
 
 const edgeLimit = 2200;
 const byteLimit = 400_000;
@@ -22,10 +22,25 @@ function frame(width: number, height: number) {
   return {canvas, context};
 }
 
+// A dark desk border alone should never trigger a retake suggestion.
+function veryDarkCentre(canvas:HTMLCanvasElement):boolean {
+  const sample=document.createElement('canvas');
+  sample.width=24;sample.height=24;
+  const context=sample.getContext('2d',{willReadFrequently:true});
+  if(!context)return false;
+  context.drawImage(canvas,canvas.width*.1,canvas.height*.1,canvas.width*.8,canvas.height*.8,0,0,24,24);
+  const pixels=context.getImageData(0,0,24,24).data;
+  let dark=0;
+  for(let i=0;i<pixels.length;i+=4){
+    if(.2126*pixels[i]+.7152*pixels[i+1]+.0722*pixels[i+2]<72)dark++;
+  }
+  return dark>=24*24*.85;
+}
+
 async function encode(canvas: HTMLCanvasElement, name: string): Promise<Scan> {
   for (const quality of [.92, .84, .76, .68, .60]) {
     const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
-    if (blob && blob.size <= byteLimit) return {name, blob, url: URL.createObjectURL(blob)};
+    if (blob && blob.size <= byteLimit) return {name, blob, url: URL.createObjectURL(blob), veryDark:veryDarkCentre(canvas)};
   }
   if (Math.max(canvas.width, canvas.height) > 1650) {
     const scale = 1600 / Math.max(canvas.width, canvas.height);
@@ -136,7 +151,16 @@ async function rasterPage(source: OpenPdf, index: number, name: string, turns: n
 }
 
 export async function packetFilePageCount(file: File) {
-  if (!isScanPdf(file)) { checkPhoto(file); return 1; }
+  if (!isScanPdf(file)) {
+    checkPhoto(file);
+    const url=URL.createObjectURL(file), image=new Image();
+    try {
+      image.src=url;
+      await image.decode().catch(()=>{throw Error('This device could not read the photo. Export it as JPEG or PNG, or upload a scanned PDF.');});
+      if(Math.min(image.naturalWidth,image.naturalHeight)<64)throw Error('The image is too small to read. Choose a clearer scan.');
+      return 1;
+    } finally {URL.revokeObjectURL(url);}
+  }
   const pdf = await openPdf(file, undefined, packetPdfLimit);
   try { return pdf.document.numPages; } finally { await pdf.document.destroy(); }
 }

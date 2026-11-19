@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { clearCameraDraft } from './camera-drafts';
 import { initializeApp } from 'firebase/app';
 import { getAuth, Auth, User, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, connectAuthEmulator, signInWithEmailAndPassword } from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore';
@@ -30,6 +31,7 @@ export class AssistantApi implements Transport {
     this.apiBase=apiUrl.href.replace(/\/$/,'');
     const app=initializeApp(config.firebase);
     this.auth=getAuth(app);
+    if(local && config.authEmulatorUrl)connectAuthEmulator(this.auth,config.authEmulatorUrl,{disableWarnings:true});
     // Stream loading failure keeps the authenticated gateway fallback usable.
     // Private gateway data is never persisted in Firestore's browser cache.
     try{
@@ -37,7 +39,6 @@ export class AssistantApi implements Transport {
       this.database=this.firestore.initializeFirestore(app,{localCache:this.firestore.memoryLocalCache()});
       if(local&&new URLSearchParams(location.search).has('emulator'))this.firestore.connectFirestoreEmulator(this.database,'127.0.0.1',8280);
     }catch{this.database=undefined;this.firestore=undefined;}
-    if(local && config.authEmulatorUrl)connectAuthEmulator(this.auth,config.authEmulatorUrl,{disableWarnings:true});
     await setPersistence(this.auth,browserLocalPersistence);
     // The hosted auth helper shares this app's origin, including on browsers
     // with partitioned storage. Return through Firebase's normal OAuth flow.
@@ -45,7 +46,14 @@ export class AssistantApi implements Transport {
     if(redirected)this.setUser(redirected.user);
     await new Promise<void>(resolve=>{onAuthStateChanged(this.auth!,user=>{this.setUser(user);resolve();});});
   }
-  private setUser(user:User|null){const changed=user?.uid!==this.user?.uid;this.user=user;if(changed){this.authEpoch++;for(const observer of this.observers)observer(user);}}
+  private setUser(user:User|null){
+    const previous=this.user?.uid,changed=user?.uid!==previous;this.user=user;
+    if(changed){
+      this.authEpoch++;
+      if(previous)void clearCameraDraft(previous).catch(()=>{});
+      for(const observer of this.observers)observer(user);
+    }
+  }
   observeUser(observer:(user:User|null)=>void){this.observers.add(observer);observer(this.user);return ()=>this.observers.delete(observer);}
   watchMarker(path:string,next:(snapshot:MarkerSnapshot)=>void,error:(error:unknown)=>void):()=>void {
     if(!this.database||!this.firestore||!this.user)throw Error('Notification connection unavailable');
@@ -55,7 +63,11 @@ export class AssistantApi implements Transport {
   }
   async login():Promise<void> {const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await signInWithRedirect(this.auth!,provider);}
   async loginEmail(email:string,password:string):Promise<void> {const result=await signInWithEmailAndPassword(this.auth!,email,password);this.setUser(result.user);}
-  async logout():Promise<void> {await signOut(this.auth!);this.setUser(null);}
+  async logout():Promise<void> {
+    const owner=this.user?.uid;
+    await signOut(this.auth!);this.setUser(null);
+    if(owner)await clearCameraDraft(owner).catch(()=>{});
+  }
   private async authorized(path:string,method='GET',body?:unknown):Promise<Response> {
     const user=this.user,epoch=this.authEpoch;
     if(!user)throw new Error('Unauthenticated');

@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  HostListener,
   Input,
   OnDestroy,
   OnInit,
@@ -20,7 +21,7 @@ import { marginGroups, marksOnPage, positionedMarks, scoreStatus, type MappingPo
   type MethodStep, type ScanMark } from './checking-scan';
 import { summarizeGrades } from '../../assistant-service/domain/checking.mjs';
 
-type State = 'uploading' | 'queued' | 'running' | 'failed' | 'review' | 'final';
+type State = 'uploading' | 'queued' | 'running' | 'failed' | 'review' | 'final' | 'withdrawn' | 'held';
 type Result = MarkStatus;
 type Answer = {
   number: number;
@@ -72,18 +73,19 @@ type Grade = {
   sections?: Decision[];
   sectionSelections?: Selection[];
 };
-type Page = { index: number; width: number; height: number };
+type Page = { index: number; width: number; height: number; sha?: string; sourceIndex?: number };
 type Summary = {
   id: string;
   packetId?: string;
+  packetLabel?: string;
   label: string;
   state: State;
   pageCount: number;
   awarded: number | null;
-  pending?: number;
+  pending?: number | null;
   version: number;
   max?: number;
-  updatedAt: string;
+  updatedAt?: string;
 };
 type Sheet = Summary & {
   notes: string;
@@ -102,7 +104,7 @@ type Rubric = {
 };
 type Detail = { sheet: Sheet; rubric: Rubric & { questions: Question[] } };
 type Index = { sheets: Summary[]; rubric: Rubric; nextCursor?: string | null };
-type Filter = 'All sheets' | 'Needs attention' | 'Ready' | 'In progress' | 'Finalized';
+type Filter = 'All sheets' | 'Needs attention' | 'Ready' | 'In progress' | 'Finalized' | 'Withdrawn';
 
 @Component({
   selector: 'gtop-paper-checking',
@@ -115,6 +117,8 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   @Input({ required: true }) paperId = '';
   @Input({ required: true }) onClose!: () => void;
   @Input() scopePacketId = '';
+  classLabel = '';
+  @Input() onManageClass?: (packetId: string) => void;
   @Input() onScanClass?: (paperId:string)=>void;
   readonly format = formatAssistantText;
   private api = inject(AssistantApi);
@@ -188,6 +192,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   loading = true;
   busy = false;
   printing = false;
+  printApproved = false;
   error = '';
   message = '';
   confirmingMissing = false;
@@ -211,6 +216,9 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   };
   get base() {
     return '/papers/' + encodeURIComponent(this.paperId) + '/checking';
+  }
+  get sheetClassLabel() {
+    return this.sheet?.packetLabel || this.classLabel;
   }
   get pageItems() {
     return [...(this.sheet?.uploaded || [])].sort((a, b) => a.index - b.index);
@@ -284,12 +292,15 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     return this.displayUrls.get(index) || '';
   }
   bucket(item: Summary): Filter {
+    if (item.state === 'withdrawn') return 'Withdrawn';
+    if (item.state === 'held') return 'Needs attention';
     if (item.state === 'final') return 'Finalized';
     if (item.state === 'failed' || item.state === 'uploading' || (item.state === 'review' && !!item.pending))
       return 'Needs attention';
     return item.state === 'review' ? 'Ready' : 'In progress';
   }
   stateLabel(item: Summary) {
+    if (item.state === 'held') return 'Identity on hold';
     if (item.state === 'uploading') return 'Upload incomplete';
     if (item.state === 'failed') return 'Checking failed';
     if (item.state === 'queued') return 'Queued';
@@ -406,12 +417,14 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       const path = this.scopePacketId
         ? '/checking/packets/' + encodeURIComponent(this.scopePacketId) + '/results'
         : this.base;
-      const { sheets, rubric, nextCursor, paperId } = await this.api.request<Index & {paperId?: string}>(path);
+      const { sheets, rubric, nextCursor, paperId, packetLabel } = await this.api.request<Index & {paperId?:string;packetLabel?:string}>(path);
       if (this.dead || request !== this.listEpoch) return;
       if (this.scopePacketId && paperId !== this.paperId) throw new Error('This class belongs to a different question paper. Open it from Check papers.');
       this.sheets = sheets;
+      this.classLabel = packetLabel || '';
       this.cursor = nextCursor ?? null;
-      this.rubric = rubric;
+      // A class may have been re-marked against a different paper from the paper-wide register.
+      if (!this.sheet) this.rubric = rubric;
       this.paint();
       if (this.sheet && !this.dirty && !this.composing && !this.opening)
         await this.open(this.sheet.id, false);
@@ -441,9 +454,16 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     }
   }
   async open(id: string, changeUrl = true) {
-    if (this.scopePacketId && !this.sheets.some(item => item.id === id)) {
-      this.changeUrl();
-      this.message = 'That sheet is outside this class. Choose a sheet from the class results.';
+    const entry = this.sheets.find(item => item.id === id);
+    if (entry?.state === 'held' && entry.packetId && this.onManageClass) {
+      if (this.sheet?.id === id) this.list();
+      this.onManageClass(entry.packetId);
+      return;
+    }
+    if (entry?.state === 'withdrawn' || (this.scopePacketId && !entry)) {
+      if (this.sheet?.id === id) this.list();
+      else this.changeUrl();
+      this.message = entry ? 'This book was withdrawn from marking.' : 'That sheet is outside this class. Choose a sheet from the class results.';
       this.paint();
       return;
     }
@@ -455,8 +475,20 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     try {
       const { sheet, rubric } = await this.api.request<Detail>(this.base + '/' + encodeURIComponent(id));
       if (this.epoch !== generation || this.dead) return;
+      if (sheet.state === 'held' && sheet.packetId && this.onManageClass) {
+        this.onManageClass(sheet.packetId);
+        return;
+      }
       const same = this.sheet?.id === id;
       const unchanged = same && this.sheet?.version === sheet.version && this.sheet?.state === sheet.state;
+      if (same && !unchanged) {
+        const previous = this.sheet!.uploaded;
+        if (previous.length !== sheet.uploaded.length || previous.some((p, i) =>
+          p.index !== sheet.uploaded[i].index || p.sha !== sheet.uploaded[i].sha || p.sourceIndex !== sheet.uploaded[i].sourceIndex)) {
+          this.releaseImages();
+          this.pageNumber = 1;
+        }
+      }
       if (!same) {
         this.releaseImages();
         this.selected = 0;
@@ -1128,20 +1160,57 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       this.paint();
     }
   }
+  @HostListener('window:keydown', ['$event'])
+  printKey(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p' && this.sheet?.grade) {
+      event.preventDefault();
+      void this.print();
+    }
+  }
   async print() {
-    if (!this.imagesReady || this.dirty || this.busy) return;
+    const sheet = this.sheet, epoch = this.epoch, uid = this.api.user?.uid;
+    if (!uid || !sheet?.grade || !['final', 'review'].includes(sheet.state) ||
+        !this.imagesReady || this.dirty || this.busy || this.printing) return;
     this.printing = true;
+    this.error = '';
+    this.message = '';
     this.paint();
-    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     try {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      if (this.dead || this.epoch !== epoch) return;
       const images = Array.from(
         this.host.nativeElement.querySelectorAll<HTMLImageElement>('.checking-print img'),
       );
+      if (images.length !== sheet.pageCount) throw Error('The scanned pages are not ready to print.');
       await Promise.all(images.map((photo) => photo.decode()));
+      const latest = this.scopePacketId
+        ? (await this.api.request<Index>('/checking/packets/' + encodeURIComponent(this.scopePacketId) + '/results')).sheets.find(row => row.id === sheet.id)
+        : (await this.api.request<Detail>(this.base + '/' + encodeURIComponent(sheet.id))).sheet;
+      if (this.dead || this.epoch !== epoch || this.api.user?.uid !== uid || this.dirty || this.busy ||
+          this.sheet?.version !== sheet.version) return;
+      if (!latest || latest.state === 'withdrawn') {
+        this.list();
+        this.message = 'This book was withdrawn. Its marked copy is unavailable.';
+        return;
+      }
+      if (latest.state !== sheet.state || latest.version !== sheet.version) {
+        await this.open(sheet.id, false);
+        this.message = 'This book changed. Review the latest sheet before printing.';
+        return;
+      }
+      this.printApproved = true;
+      this.change.detectChanges();
       window.print();
-    } catch {
-      this.error = 'The scanned pages are not ready to print. Refresh the sheet and try again.';
+    } catch (error) {
+      if (this.dead || this.epoch !== epoch) return;
+      if ((error as {status?: number}).status === 404) {
+        this.list();
+        this.message = 'This book is no longer available to print.';
+      } else {
+        this.error = 'Could not verify this copy for printing. ' + this.describe(error);
+      }
     } finally {
+      this.printApproved = false;
       this.printing = false;
       this.paint();
     }

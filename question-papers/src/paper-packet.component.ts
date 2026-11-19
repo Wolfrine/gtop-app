@@ -1,16 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { PacketCorrectionComponent, type ScanCorrection } from './packet-correction.component';
+import { isAnonymous } from '../../assistant-service/domain/checking-intake.mjs';
 import { AssistantApi } from './api.service';
+import { cameraDrafts, clearCameraDraft, loadCameraDraft, storeCameraDraft, type CameraDraft } from './camera-drafts';
 import { isScanPdf, maxCheckingPages, packetFilePageCount, previewPacketPage, readScanPages, scanBase64, type Scan } from './checking-intake';
 
 type PacketState = 'uploading' | 'queued' | 'running' | 'review' | 'completed' | 'failed';
-type Source = { file: File; pages: number; starts: boolean; rotations: Map<number, number> };
-type Book = { label: string; pages: number[]; needsReview: boolean; reason: string; sheetId?: string };
+type Source = { veryDark?:boolean; cameraKey?:string;missingSize?:number;file: File; pages: number; starts: boolean; rotations: Map<number, number> };
+type Book = { label: string; pages: number[]; needsReview: boolean; reason: string; held?:boolean; withdrawn?:boolean; sheetId?: string };
 type DraftBook = Book & { key: number };
 type StoredPage = { index: number; sha: string; width: number; height: number };
 type PacketSummary = {
-  id: string; label: string; pageCount: number; expectedStudents: number | null; paperId: string | null;
+  id: string; label: string; pageCount: number; expectedStudents: number | null; paperId: string | null; gradingPaperId?: string; gradingRevision?: number;
   state: PacketState; version: number; processedPages: number; updatedAt: string; createdAt: string;
 };
 type Packet = PacketSummary & { uploaded: StoredPage[]; groups: Book[]; error?: string };
@@ -19,19 +22,31 @@ export type QueuedPacket = { packetId: string; paperId: string; sheetIds: string
 const base = '/checking/packets';
 const maxStackPages = 200;
 
+async function sameSource(left:File,right:File) {
+  if (left.name!==right.name || left.size!==right.size) return false;
+  if (left===right) return true;
+  for (let offset=0;offset<left.size;offset+=1024*1024) {
+    const end=offset+1024*1024;
+    const [a,b]=await Promise.all([left.slice(offset,end).arrayBuffer(),right.slice(offset,end).arrayBuffer()]);
+    const bytes=new Uint8Array(b);
+    if(!new Uint8Array(a).every((value,i)=>value===bytes[i]))return false;
+  }
+  return true;
+}
+
 @Component({
-  selector: 'gtop-paper-packet', standalone: true, imports: [CommonModule, FormsModule],
+  selector: 'gtop-paper-packet', standalone: true, imports: [CommonModule, FormsModule, PacketCorrectionComponent],
   templateUrl: './paper-packet.html', styleUrl: './paper-packet.css'
 })
 export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   @Input() paperId = '';
   @Input() packetId = '';
+  @Input() referenceTitle = '';
   @Input() referenceChoice = 0;
   @Output() linkedPaper = new EventEmitter<string>();
   @Output() packetChange = new EventEmitter<string>();
   @Output() needPaper = new EventEmitter<string>();
   @Output() queued = new EventEmitter<QueuedPacket>();
-  @Output() closed = new EventEmitter<void>();
   @Output() busyChange = new EventEmitter<boolean>();
   @Output() selectionChange = new EventEmitter<boolean>();
 
@@ -39,10 +54,16 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   private cd = inject(ChangeDetectorRef);
   private destroyed = false;
   private initialized = false;
+  private staged?:{id:string;revision:number;owner:string;known:Set<string>;writes:Promise<void>};
+  localDrafts:CameraDraft[]=[];
+  cameraSaving=0;
+  cameraSaved=false;
+  cameraUnavailable=false;
   private openedId = '';
   private createId = '';
   private defaultLabel = '';
   private pendingReference = '';
+  private recheckRequest?: {packetId:string; paperId:string; version:number; requestId:string};
   private listRequest = 0;
   private detailRequest = 0;
   private previewRequest = 0;
@@ -62,9 +83,11 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   loadingList = false;
   loadingDetail = false;
   ready = false;
+  savedDuringUpload=0;
   packet?: Packet;
   sources: Source[] = [];
   books: DraftBook[] = [];
+  matchingScans:number[][]=[];
   selectedKey = 0;
   selectedPage = 0;
   imageUrl = '';
@@ -85,6 +108,9 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   progress = '';
   error = '';
   notice = '';
+  @ViewChild('bookList') private bookList?:ElementRef<HTMLElement>;
+  @ViewChild(PacketCorrectionComponent) correction?:PacketCorrectionComponent;
+  correcting=false;
   readonly pageLimit = maxStackPages;
   readonly bookLimit = maxCheckingPages;
 
@@ -93,12 +119,21 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   get expectedCount() { return this.packet?.expectedStudents ?? this.expected; }
   get allPdfs() { return this.sources.length > 1 && this.sources.every(source => isScanPdf(source.file)); }
   get separateFiles() { return this.sources.length > 1 && this.sources.slice(1).every(source => source.starts); }
-  get hasLocalChanges() { return this.dirty || !!this.sources.length; }
+  get hasLocalChanges() { return this.dirty || !!this.sources.length || this.correcting; }
   get book() { return this.books.find(book => book.key === this.selectedKey); }
-  get needsReview() { return this.books.filter(book => book.needsReview); }
+  get needsReview() { return this.books.filter(book => !book.held && !book.withdrawn && (book.needsReview || !book.label.trim() || isAnonymous(book.label.trim()))); }
+  get heldCount(){return this.books.filter(book=>book.held&&!book.withdrawn).length;}
+  get markingCount(){return this.books.filter(book=>!book.held&&!book.withdrawn).length;}
+  get submitted(){return this.packet?.state==='completed';}
+  get gradeLabel(){
+    if(this.busy)return 'Saving…';
+    if(!this.attachedPaper)return 'Choose question paper';
+    if(!this.markingCount)return 'Save held books';
+    return 'Check '+this.markingCount+' '+(this.markingCount===1?'book':'books');
+  }
   get reviewing() { return !!this.packet && (this.packet.state === 'review' || this.manual); }
   get processing() { return this.packet?.state === 'queued' || this.packet?.state === 'running'; }
-  get attachedPaper() { return this.packet?.paperId || this.paperId || ''; }
+  get attachedPaper() { return this.packet?.gradingPaperId || this.packet?.paperId || this.paperId || ''; }
   get sourcesLocked() { return !!this.packet && this.packet.state === 'uploading'; }
   get incompleteUpload() { return !!this.packet && this.packet.state === 'uploading' && this.packet.uploaded.length < this.packet.pageCount; }
   get intakeOpen() { return !this.openedId || (!this.loadingDetail && this.packet?.state === 'uploading' && !this.manual); }
@@ -108,8 +143,11 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     const seenPages = new Set<number>(), labels = new Set<string>();
     for (const book of this.books) {
       const label = book.label.trim().normalize('NFKC').toLocaleLowerCase();
-      if (!label || labels.has(label)) return 'Give every book a different roll number or label.';
-      labels.add(label);
+      if (!book.held) {
+        if (!label || isAnonymous(label)) return 'Identify or hold the unnamed books before checking.';
+        if (labels.has(label)) return 'Give every book a different roll number or label.';
+        labels.add(label);
+      }
       if (!book.pages.length || book.pages.length > this.bookLimit)
         return 'Each book needs between 1 and '+this.bookLimit+' pages.';
       for (const page of book.pages) {
@@ -124,7 +162,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
-    this.initialized = true;
+    this.initialized = true;void this.listCameraDrafts();
     if (this.packetId) {
       this.pendingReference = this.referenceChoice > 0 ? this.paperId : '';
       void this.open(this.packetId, false);
@@ -144,12 +182,12 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   ngOnChanges(changes: SimpleChanges) {
+    if(changes['paperId']&&this.staged)void this.saveCamera();
     if (this.initialized && changes['packetId'] && this.packetId !== this.openedId) {
       if (this.packetId) {
-      this.pendingReference = this.referenceChoice > 0 ? this.paperId : '';
-      void this.open(this.packetId, false);
-    }
-      else this.home(false);
+        this.pendingReference=this.referenceChoice>0?this.paperId:'';
+        void this.open(this.packetId,false);
+      } else this.home(false);
     }
     if (this.initialized && changes['referenceChoice'] && this.referenceChoice > 0 && this.paperId && this.openedId) {
       this.pendingReference = this.paperId;
@@ -160,21 +198,40 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.packet || !this.pendingReference || this.busy || this.loadingDetail || this.destroyed) return;
     const paperId=this.pendingReference, packet=this.packet;
     this.pendingReference='';
-    if (paperId===packet.paperId) return;
-    if (packet.state==='completed' || (packet.paperId && !window.confirm('Use the newly selected question paper to mark this stack?'))) {
-      this.linkedPaper.emit(packet.paperId||'');
-      if (packet.state==='completed') this.notice='This class was already sent with its selected paper.';
-      return;
+    const previous = packet.gradingPaperId || packet.paperId || '';
+    if (paperId===previous) return;
+    const recheck = packet.state==='completed';
+    if (recheck || previous) {
+      const selected=this.referenceTitle ? '“'+this.referenceTitle+'”' : 'the newly selected question paper';
+      const message = recheck
+        ? 'Recheck this class using '+selected+'? Previous marks, including finalized marks, will be removed from current results. Held and withdrawn books will stay out of marking. Return fresh copies if you already handed out results.'
+        : 'Use '+selected+' to mark this stack?';
+      if (!window.confirm(message)) { this.linkedPaper.emit(previous); return; }
     }
     await this.work(async()=>{
       try {
-        const {packet:updated}=await this.api.request<{packet:Packet}>(this.path(packet.id)+'/reference','POST',{version:packet.version,paperId});
+        let updated:Packet;
+        if (recheck) {
+          const prior=this.recheckRequest;
+          if (!prior || prior.packetId!==packet.id || prior.paperId!==paperId || prior.version!==packet.version)
+            this.recheckRequest={packetId:packet.id,paperId,version:packet.version,requestId:crypto.randomUUID()};
+          const result=await this.api.request<{packet:Packet; recheck:{queued:number;held:number;withdrawn:number}}>(
+            this.path(packet.id)+'/recheck','POST',{version:packet.version,paperId,requestId:this.recheckRequest!.requestId});
+          updated=result.packet;
+          this.notice=result.recheck.queued+' books queued for checking against the corrected paper.';
+          this.recheckRequest=undefined;
+        } else {
+          ({packet:updated}=await this.api.request<{packet:Packet}>(this.path(packet.id)+'/reference','POST',{version:packet.version,paperId}));
+        }
         if (!this.destroyed && this.openedId===packet.id) {
           this.packet=updated;
           if(!this.dirty && updated.state==='review' && packet.state!=='review')this.setBooks(updated.groups);
-          this.linkedPaper.emit(updated.paperId||'');
+          this.linkedPaper.emit(updated.gradingPaperId||updated.paperId||'');
         }
-      } catch(e) {this.linkedPaper.emit(packet.paperId||'');throw e;}
+      } catch(e) {
+        this.linkedPaper.emit(previous);
+        throw e;
+      }
     });
   }
   ngOnDestroy() {
@@ -208,12 +265,16 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     finally { if (n === this.listRequest) { this.loadingList = false; this.ready = true; this.paint(); } }
   }
   private async refreshOnChange() {
-    if (this.processingRefresh || this.busy || this.destroyed) return;
+    if(this.destroyed)return;
+    if(this.busy||this.processingRefresh){this.freshAfterWork=true;return;}
     this.processingRefresh = true;
     try {
       if (this.processing && this.openedId) await this.open(this.openedId, false, true);
       else if (!this.openedId && this.recent.some(p => ['queued','running'].includes(p.state))) await this.loadRecent();
-    } finally { this.processingRefresh = false; }
+    } finally {
+      this.processingRefresh=false;
+      if(this.freshAfterWork&&!this.busy){this.freshAfterWork=false;void this.refreshOnChange();}
+    }
   }
   async open(id: string, publish = true, quiet = false) {
     if (this.busy || this.destroyed) return;
@@ -230,7 +291,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
       const {packet} = await this.api.request<{packet:Packet}>(this.path(id));
       if (this.destroyed || n !== this.detailRequest || id !== this.openedId) return;
       this.apply(packet);
-      if (changing && !this.pendingReference) this.linkedPaper.emit(packet.paperId||'');
+      if (changing && !this.pendingReference) this.linkedPaper.emit(packet.gradingPaperId||packet.paperId||'');
     } catch (e) {
       if (n === this.detailRequest && id === this.openedId && !this.destroyed) this.error = this.describe(e);
     } finally {
@@ -253,35 +314,136 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     this.resetForm(); if (publish) { this.packetChange.emit(''); this.linkedPaper.emit(''); } void this.loadRecent();
   }
   private resetForm() {
-    this.closeSource(); this.releaseImages(); this.sources=[]; this.createId=''; this.defaultLabel=''; this.books=[];
+    this.staged=undefined;this.cameraSaved=false;void this.listCameraDrafts();this.correcting=false;this.correction?.reset();this.closeSource(); this.releaseImages(); this.sources=[];this.savedDuringUpload=0; this.createId=''; this.defaultLabel=''; this.books=[];
     this.selectedKey=0; this.selectedPage=0; this.dirty=false; this.manual=false;
     this.countConfirmed=false; this.expected=null; this.label=''; this.notice=''; this.error='';
     this.resetMove(); this.changed();
   }
   private apply(packet: Packet) {
     this.packet=packet; this.openedId=packet.id;
+    const fingerprints=new Map<string,number[]>();
+    for(const {index,sha} of packet.uploaded){const pages=fingerprints.get(sha)??[];pages.push(index);fingerprints.set(sha,pages);}
+    this.matchingScans=Array.from(fingerprints.values()).filter(pages=>pages.length>1);
     this.recent = [packet, ...this.recent.filter(p=>p.id!==packet.id)];
     if (packet.state === 'review' && !this.dirty) this.setBooks(packet.groups);
-    if (packet.state === 'completed') { this.dirty=false; this.manual=false; this.changed(); }
+    if (packet.state === 'completed') {
+      this.dirty=false;this.manual=false;this.setBooks(packet.groups);this.changed();
+    }
     this.paint();
   }
 
-  async add(event: Event) {
+  get missingSources(){return this.sources.filter(s=>s.missingSize!==undefined).length;}
+  get cameraCount(){return this.sources.filter(s=>s.cameraKey).length;}
+  get availableCameraDrafts(){
+    return this.sources.length?[]:this.localDrafts.filter(d=>!this.openedId||d.packetId===this.openedId);
+  }
+  cameraPages(draft:CameraDraft){return draft.sources.filter(s=>s.key).length;}
+  private async listCameraDrafts(){
+    const owner=this.api.user?.uid;if(!owner){this.cameraUnavailable=true;return;}
+    try {
+      const drafts=await cameraDrafts(owner);
+      if(!this.destroyed&&this.api.user?.uid===owner){this.localDrafts=drafts;this.cameraUnavailable=false;}
+    }catch{if(!this.destroyed)this.cameraUnavailable=true;}
+    this.paint();
+  }
+  async saveCamera(){
+    const owner=this.api.user?.uid;if(!owner||this.destroyed)return;
+    const cameras=this.sources.filter(s=>!!s.cameraKey);
+    if(!cameras.length){
+      if(this.staged)await this.eraseActiveCamera();
+      return;
+    }
+    const stage=this.staged??={id:crypto.randomUUID(),revision:0,owner,known:new Set<string>(),writes:Promise.resolve()};
+    const sources=this.sources.map(s=>({key:s.cameraKey||'',name:s.file.name,size:s.missingSize??s.file.size,modified:s.file.lastModified,pages:s.pages,starts:s.starts,rotations:[...s.rotations]}));
+    const manifest:CameraDraft={id:stage.id,owner,revision:0,updated:0,expires:0,packetId:this.openedId,
+      paperId:this.paperId,createId:this.createId,defaultLabel:this.defaultLabel,label:this.label,expected:this.expected,sources};
+    this.cameraSaving++;
+    const pending=stage.writes.then(async()=>{
+      if(this.api.user?.uid!==owner)return;
+      manifest.revision=stage.revision;
+      const images=cameras.filter(s=>!stage.known.has(s.cameraKey!)).map(s=>({key:s.cameraKey!,blob:s.file}));
+      stage.revision=await storeCameraDraft(manifest,images);
+      for(const i of images)stage.known.add(i.key);
+    });
+    stage.writes=pending.catch(()=>{});
+    try{await pending;if(!this.destroyed && this.staged===stage){this.cameraUnavailable=false;this.cameraSaved=true;}}
+    catch{if(!this.destroyed && this.staged===stage){this.cameraUnavailable=true;this.cameraSaved=false;}}
+    finally{if(!this.destroyed){this.cameraSaving--;this.paint();}}
+  }
+  private async eraseActiveCamera(){
+    const stage=this.staged;if(!stage)return;
+    this.staged=undefined;this.cameraSaved=false;
+    try{
+      await stage.writes;await clearCameraDraft(stage.owner,stage.id);
+      this.localDrafts=this.localDrafts.filter(d=>d.id!==stage.id);
+    }catch{this.cameraUnavailable=true;}
+  }
+  async discardCamera(draft?:CameraDraft){
+    const owner=this.api.user?.uid;if(!owner||this.busy)return;
+    if(!window.confirm('Remove these camera photos saved on this device?'))return;
+    await this.work(async()=>{
+      if(draft){
+        await clearCameraDraft(owner,draft.id);this.localDrafts=this.localDrafts.filter(d=>d.id!==draft.id);
+      }else{
+        await this.eraseActiveCamera();
+        if(this.sourceView?.cameraKey)this.closeSource();
+        this.sources=this.sources.filter(s=>!s.cameraKey);this.changed();
+      }
+    });
+  }
+  async restoreCamera(draft:CameraDraft){
+    const owner=this.api.user?.uid;if(!owner||this.busy||this.sources.length)return;
+    if(draft.packetId&&draft.packetId!==this.openedId)await this.open(draft.packetId);
+    if(draft.packetId&&this.packet?.id!==draft.packetId)return;
+    await this.work(async()=>{
+      const {manifest,files}=await loadCameraDraft(owner,draft.id);
+      if(this.destroyed||this.api.user?.uid!==owner)return;
+      if(this.packet&&this.packet.state!=='uploading'){
+        await clearCameraDraft(owner,draft.id);this.localDrafts=this.localDrafts.filter(d=>d.id!==draft.id);return;
+      }
+      this.staged={id:draft.id,revision:manifest.revision,owner,known:new Set(files.keys()),writes:Promise.resolve()};
+      this.sources=manifest.sources.map(s=>({
+        file:files.get(s.key)??new File([],s.name,{lastModified:s.modified}),
+        ...(s.key?{cameraKey:s.key}:{missingSize:s.size}),pages:s.pages,starts:s.starts,rotations:new Map(s.rotations)
+      }));
+      this.label=manifest.label;this.expected=manifest.expected;this.createId=manifest.createId;this.defaultLabel=manifest.defaultLabel;
+      if(!this.packet&&manifest.paperId)this.linkedPaper.emit(manifest.paperId);
+      this.cameraSaved=true;this.cameraUnavailable=false;this.changed();
+    });
+  }
+
+  async add(event: Event, camera=false) {
     const input=event.target as HTMLInputElement, files=Array.from(input.files??[]);
     input.value='';
     if (!files.length || this.busy) return;
     await this.work(async () => {
-      const errors:string[]=[];
-      for (const [i,file] of files.entries()) {
+      const errors:string[]=[];let duplicates=0;let darkCapture=false;
+      for (const [i,original] of files.entries()) {
+        let file=original;let veryDark=false;
         this.progress='Reading file '+(i+1)+' of '+files.length+'…'; this.paint();
         try {
           const pages=await packetFilePageCount(file);
+          if(camera){
+            const scan=await previewPacketPage(file,1,0);
+            try{veryDark=!!scan.veryDark;file=new File([scan.blob],original.name,{type:'image/jpeg',lastModified:original.lastModified});}
+            finally{URL.revokeObjectURL(scan.url);}
+          }
+          if(this.destroyed)return;
+          const missing=this.sources.find(s=>s.missingSize===file.size&&s.file.name===file.name&&s.pages===pages);
+          if(missing){missing.file=file;delete missing.missingSize;continue;}
+          let duplicate=false;
+          if(!camera)for (const existing of this.sources) { if(await sameSource(existing.file,file)){duplicate=true;break;} }
+          if (duplicate) {duplicates++;continue;}
           if (this.destroyed) return;
           const limit=this.packet?.pageCount??this.pageLimit;
           if (!pages || this.pageTotal+pages>limit) throw Error('This would exceed '+limit+' pages in the stack.');
-          this.sources.push({file,pages,starts:false,rotations:new Map()});
+          darkCapture ||= veryDark;
+          this.sources.push({file,pages,veryDark,starts:false,rotations:new Map(),...(camera?{cameraKey:crypto.randomUUID()}:{})});
         } catch(e) { errors.push(file.name+' — '+this.describe(e)); }
       }
+      await this.saveCamera();
+      if (duplicates) this.notice=duplicates+(duplicates===1?' file is':' files are')+' already in this stack.';
+      if (darkCapture) this.notice='This photo looks very dark. Preview it and retake it in better light if the writing is hard to read.';
       if (errors.length) this.error=errors.slice(0,3).join(' ')+(errors.length>3?' '+(errors.length-3)+' other files could not be added.':'');
       this.changed();
     });
@@ -289,15 +451,15 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   reorderSource(source:Source,step:number) {
     const i=this.sources.indexOf(source), j=i+step;
     if (this.busy || i<0 || j<0 || j>=this.sources.length) return;
-    [this.sources[i],this.sources[j]]=[this.sources[j],this.sources[i]];
+    [this.sources[i],this.sources[j]]=[this.sources[j],this.sources[i]];void this.saveCamera();
   }
   removeSource(source:Source) {
     if (this.busy) return;
     this.sources=this.sources.filter(s=>s!==source);
     if (this.sourceView===source) this.closeSource();
-    this.changed();
+    this.changed();void this.saveCamera();
   }
-  toggleFileStarts(enabled:boolean) { this.sources.forEach((source,i)=>source.starts=i>0&&enabled); }
+  toggleFileStarts(enabled:boolean) { this.sources.forEach((source,i)=>source.starts=i>0&&enabled);void this.saveCamera(); }
   async inspectSource(source:Source,index=1) {
     this.closeSource();
     this.sourceView=source; this.sourceIndex=index; this.readingPreview=true;
@@ -312,7 +474,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   turnSource() {
     if (!this.sourceView || this.readingPreview) return;
     this.sourceView.rotations.set(this.sourceIndex,((this.sourceView.rotations.get(this.sourceIndex)??0)+1)%4);
-    void this.inspectSource(this.sourceView,this.sourceIndex);
+    void this.saveCamera();void this.inspectSource(this.sourceView,this.sourceIndex);
   }
   closeSource() {
     this.sourceRequest++;
@@ -320,30 +482,31 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     this.sourcePreview=undefined; this.sourceView=undefined; this.readingPreview=false;
   }
   async upload() {
-    if (this.busy || !this.sources.length || (this.packet && this.pageTotal!==this.packet.pageCount)) return;
+    if (this.busy || this.missingSources || !this.sources.length || (this.packet && this.pageTotal!==this.packet.pageCount)) return;
     if (this.expected!==null && (!Number.isInteger(this.expected)||this.expected<1||this.expected>180)) { this.error='Enter the number of students present, between 1 and 180.'; return; }
-    this.closeSource();
+    this.closeSource();this.savedDuringUpload=this.packet?.uploaded.length??0;
     await this.work(async () => {
       if (!this.packet) {
         let start=1;
         const knownStarts=this.sources.flatMap((source,i)=>{ const index=start;start+=source.pages;return i===0||source.starts?[index]:[]; });
         this.createId ||= crypto.randomUUID();
         this.defaultLabel ||= 'Class stack · '+new Date().toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+        if(this.staged)await this.saveCamera();
         const {packet}=await this.api.request<{packet:Packet}>(base,'POST',{
           id:this.createId,pageCount:this.pageTotal,expectedStudents:this.expected,
           label:this.label.trim()||this.defaultLabel,...(this.paperId?{paperId:this.paperId}:{}),knownStarts
         });
         if (this.destroyed) return;
-        this.apply(packet); this.packetChange.emit(packet.id);
+        this.apply(packet); this.packetChange.emit(packet.id);if(this.staged)await this.saveCamera();
       }
       const packet=this.packet!;
-      if (packet.state!=='uploading') {this.sources=[];this.changed();return;}
+      if (packet.state!=='uploading') {await this.eraseActiveCamera();this.sources=[];this.changed();return;}
       const saved=new Map(packet.uploaded.map(p=>[p.index,p.sha]));
       const contiguous=packet.uploaded.every(p=>p.index<=saved.size);
       if (saved.size && !contiguous) await this.uploadPages(packet,saved,true);
       await this.uploadPages(packet,saved,false);
       if (this.destroyed) return;
-      this.sources=[]; this.changed();
+      await this.eraseActiveCamera();this.sources=[]; this.changed();
       this.progress='Starting book organization…'; this.paint();
       await this.api.request(this.path(packet.id)+'/organize','POST',{});
       await this.readCurrent();
@@ -365,6 +528,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
             if (hash!==prior) throw Error('Page '+i+' differs from the saved scan. Select the original files in their original order and orientation, or start a new stack.');
           } else if (!verifyOnly) {
             await this.api.request(this.path(packet.id)+'/pages/'+i,'POST',{jpeg});
+            this.savedDuringUpload++;this.paint();
           }
         } finally { URL.revokeObjectURL(scan.url); }
       }
@@ -384,6 +548,14 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     const {packet}=await this.api.request<{packet:Packet}>(this.path(id));
     if (!this.destroyed && this.openedId===id) this.apply(packet);
   }
+  async switchToManual() {
+    const packet=this.packet;
+    if(!packet||!this.processing||this.busy)return;
+    await this.work(async()=>{
+      const {packet:updated}=await this.api.request<{packet:Packet}>(this.path(packet.id)+'/manual','POST',{version:packet.version});
+      if(!this.destroyed&&this.openedId===packet.id)this.apply(updated);
+    });
+  }
   manualGrouping() {
     if (!this.packet || this.busy || this.packet.uploaded.length!==this.packet.pageCount) return;
     this.manual=true;
@@ -397,12 +569,27 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     const remaining=Array.from({length:this.packet!.pageCount},(_,i)=>i+1).filter(p=>!assigned.has(p));
     if (remaining.length) this.books.push({key:this.nextKey++,label:'',pages:remaining,reason:'Identify this book or move these pages to the correct book.',needsReview:true});
     this.countConfirmed=false;
-    const focus=this.needsReview[0]??this.books[0];
+    const focus=this.needsReview[0]??this.books.find(b=>!b.withdrawn&&b.held)??this.books.find(b=>!b.withdrawn);
     if (focus) this.selectBook(focus);
   }
   selectBook(book:DraftBook) {
     this.selectedKey=book.key; this.resetMove();
+    this.keepCurrentBookVisible();
+
     if (book.pages.length) void this.showPage(book.pages[0]);
+  }
+  @HostListener('window:resize')
+  keepCurrentBookVisible() {
+    if(!this.books.length)return;
+    requestAnimationFrame(()=>{
+      const list=this.bookList?.nativeElement, active=list?.querySelector<HTMLElement>('.book-row.active');
+      if(this.destroyed||!list||!active)return;
+      const bounds=list.getBoundingClientRect(), row=active.getBoundingClientRect();
+      if(row.right>bounds.right)list.scrollLeft+=row.right-bounds.right;
+      else if(row.left<bounds.left)list.scrollLeft+=row.left-bounds.left;
+      if(row.bottom>bounds.bottom)list.scrollTop+=row.bottom-bounds.bottom;
+      else if(row.top<bounds.top)list.scrollTop+=row.top-bounds.top;
+    });
   }
   async showPage(index:number) {
     const id=this.openedId;
@@ -427,6 +614,10 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     for (const url of this.imageCache.values()) URL.revokeObjectURL(url);
     this.imageCache.clear(); this.imageUrl=''; this.imagePacket='';
   }
+  inspectMatchingPage(index:number) {
+    const owner=this.books.find(b=>b.pages.includes(index));
+    if(owner){this.selectBook(owner);void this.showPage(index);}
+  }
   previousPage(step:number) {
     const book=this.book;
     if (!book) return;
@@ -434,15 +625,42 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     if (j>=0 && j<book.pages.length) void this.showPage(book.pages[j]);
   }
   editLabel(book:DraftBook,label:string) {
-    book.label=label; this.edit();
+    book.label=label;if(!label.trim()||isAnonymous(label.trim()))book.needsReview=true;this.edit();
   }
   confirmBook() {
     const book=this.book;
     if (!book?.label.trim()) { this.error='Enter a roll number or a distinctive book label first.';return; }
-    if (this.books.some(b=>b.key!==book.key&&b.label.trim().toLowerCase()===book.label.trim().toLowerCase())) {this.error='Another book already has this label.';return;}
+    if (isAnonymous(book.label.trim())) {this.error='Enter a student name or roll number, or hold this book for identification.';return;}
+    if (this.books.some(b=>!b.held&&b.key!==book.key&&b.label.trim().normalize('NFKC').toLocaleLowerCase()===book.label.trim().normalize('NFKC').toLocaleLowerCase())) {this.error='Another book already has this label.';return;}
     if (book.pages.length>this.bookLimit) {this.error='Split this book into booklets of up to '+this.bookLimit+' pages before checking.';return;}
     book.needsReview=false;book.reason='';this.edit();
     const next=this.needsReview[0];if(next)this.selectBook(next);
+  }
+  holdBook(book:DraftBook) {
+    book.held=!book.held;book.needsReview=!book.held;
+    this.edit();
+    const next=this.needsReview[0];if(book.held&&next)this.selectBook(next);
+  }
+  setCorrectionPending(active:boolean){this.correcting=active;this.changed();}
+  async applyCorrection(request:ScanCorrection) {
+    const selected=this.book,initial=this.packet;
+    if(!initial||!selected||this.busy)return;
+    const groupIndex=this.books.indexOf(selected);
+    await this.work(async()=>{
+      if(this.dirty||this.manual)await this.persistDraft();
+      if(this.destroyed||this.openedId!==initial.id)return;
+      const {packet:updated}=await this.api.request<{packet:Packet}>(this.path(initial.id)+'/correct','POST',{...request,version:this.packet!.version});
+      if(this.destroyed||this.openedId!==initial.id)return;
+      this.correcting=false;this.correction?.reset();this.releaseImages();this.apply(updated);
+      const dest=request.op==='move'?request.targetBookId:selected.sheetId;
+      const focus=dest?this.books.find(b=>b.sheetId===dest):this.books[groupIndex];
+      if(focus) {
+        this.selectBook(focus);
+        const page=request.op==='append'?updated.pageCount:request.page;
+        if(page&&focus.pages.includes(page))void this.showPage(page);
+      }
+      this.notice=request.op==='identify'?'Student identified. This book is queued for marking.':request.op==='move'?'Page moved to its student book.':request.op==='replace'?'Replacement scan saved.':'Missing page added to the book.';
+    });
   }
   splitHere() {
     const book=this.book,j=book?.pages.indexOf(this.selectedPage)??-1;
@@ -490,7 +708,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     return ranges.join(', ');
   }
   private edit() {this.dirty=true;this.error='';this.notice='';this.changed();}
-  private payload() {return this.books.map(b=>({label:b.label.trim(),pages:b.pages,needsReview:b.needsReview,reason:b.reason}));}
+  private payload() {return this.books.map(b=>({label:b.label.trim(),pages:b.pages,needsReview:b.needsReview,reason:b.reason,...(b.held?{held:true}:{})}));}
   async deleteStack() {
     const packet=this.packet;
     if (!packet || this.busy || packet.state==='completed') return;
@@ -517,7 +735,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     this.changed();
   }
   async grade() {
-    if (!this.packet || this.busy || this.submitProblem) return;
+    if (!this.packet || this.submitted || this.busy || this.correcting || this.submitProblem) return;
     if (!this.attachedPaper) {
       await this.work(async()=>{
         if (this.dirty||this.manual) await this.persistDraft();
@@ -535,7 +753,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   }
   openResults() {
     const packet=this.packet;
-    if(packet?.paperId)this.queued.emit({packetId:packet.id,paperId:packet.paperId,sheetIds:packet.groups.flatMap(b=>b.sheetId?[b.sheetId]:[])});
+    if(packet?.state==='completed'&&packet.paperId)this.queued.emit({packetId:packet.id,paperId:packet.paperId,sheetIds:packet.groups.flatMap(b=>b.sheetId?[b.sheetId]:[])});
   }
   get canSave() { return this.dirty; }
   private path(id:string) { return base+'/'+encodeURIComponent(id); }

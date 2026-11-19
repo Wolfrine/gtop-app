@@ -1227,7 +1227,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   }
   async save(final: boolean) {
     if (!this.sheet || this.busy || !this.canEdit || (final && this.pending)) return;
-    const { id, version } = this.sheet;
+    const { id, version, state } = this.sheet;
     this.busy = true;
     this.error = '';
     this.message = '';
@@ -1254,7 +1254,8 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       this.confirmingMissing = false;
       this.confirmedPages = false;
       this.selectAfterResolution();
-      this.message = final ? 'Marks finalized.' : 'Corrections saved.';
+      if (state === 'final') this.message = final ? 'Approved marks saved.' : 'Reopened for review.';
+      else this.message = final ? 'Marks finalized.' : 'Review draft saved.';
     } catch (error) {
       this.handleReviewError(error);
     } finally {

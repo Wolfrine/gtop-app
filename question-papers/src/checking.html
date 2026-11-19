@@ -38,6 +38,9 @@
               Print / Save PDF
             </button>
           }
+          @if (sheet!.state === 'final' && editing && dirty && !pending) {
+            <button type="button" (click)="menu.open = false; save(false)" [disabled]="busy">Reopen for review</button>
+          }
           <button type="button" class="danger" (click)="deleteSheet(); menu.open = false" [disabled]="busy">
             Delete sheet
           </button>
@@ -238,12 +241,12 @@
         @if (current.grade) {
           <div class="actions">
             @if (canEdit) {
-              @if (dirty && !editingAnswer) {
+              @if (dirty && !editingAnswer && (current.state !== 'final' || pending)) {
                 <button class="action" type="button" (click)="save(false)" [disabled]="busy">
-                  Save corrections
+                  {{ current.state === 'final' ? 'Reopen for review' : 'Save review draft' }}
                 </button>
               }
-              @if (!pending) {
+              @if (!pending && !(current.state === 'final' && editingAnswer && dirty)) {
                 <button class="action primary" type="button" (click)="save(true)" [disabled]="busy">
                   {{ current.state === 'final' ? 'Save approved marks' : 'Approve final marks' }}
                 </button>
@@ -761,7 +764,11 @@
                     }
                     </details>
                     <div class="editor-actions">
-                      @if (dirty) { <button class="action primary" type="button" (click)="save(false)" [disabled]="busy">Save corrections</button> }
+                      @if (dirty) {
+                        <button class="action primary" type="button" (click)="save(current.state === 'final' && !pending)" [disabled]="busy">
+                          {{ current.state === 'final' ? (pending ? 'Reopen for review' : 'Save approved marks') : 'Save review draft' }}
+                        </button>
+                      }
                       <button class="link" type="button" (click)="editingAnswer = false" [disabled]="busy">Close editor</button>
                     </div>
                   </div>

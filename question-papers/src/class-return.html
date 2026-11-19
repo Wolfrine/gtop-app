@@ -1,0 +1,86 @@
+<section class="returns" aria-label="Return checked copies">
+  <button
+    class="disclosure"
+    type="button"
+    (click)="toggle()"
+    [attr.aria-expanded]="opened"
+    [disabled]="busy || loading"
+  >
+    <span>Return results</span><span aria-hidden="true">{{opened ? '−' : '+'}}</span>
+  </button>
+  @if (opened) {
+  <div class="panel">
+    @if (loading) {
+    <p role="status">Loading the class register…</p>
+    } @else if (entries.length) {
+    <div class="summary">
+      <p><strong>{{finalCount}} of {{chosen.length}} finalized</strong></p>
+      <button
+        class="link"
+        type="button"
+        (click)="choosing = !choosing"
+        [disabled]="busy"
+        [attr.aria-expanded]="choosing"
+      >
+        {{choosing ? 'Hide selection' : 'Choose sheets'}}
+      </button>
+    </div>
+    @if (choosing) {
+    <div class="selector">
+      <label
+        >Find a roll or sheet
+        <input type="search" [value]="filter" (input)="search(searchField.value)" #searchField
+      /></label>
+      <label class="choice all"
+        ><input
+          type="checkbox"
+          [checked]="allFiltered"
+          [disabled]="busy || !filtered.length"
+          (change)="chooseFiltered(selectAll.checked)"
+          #selectAll
+        />
+        {{filter ? 'Select all matches' : 'Select all sheets'}} ({{filtered.length}})</label
+      >
+      <div class="choices">
+        @for (row of visible; track row.id) {
+        <label class="choice"
+          ><input
+            type="checkbox"
+            [checked]="isSelected(row.id)"
+            (change)="choose(row.id, item.checked)"
+            [disabled]="busy"
+            #item
+          />
+          <span>{{row.label}}</span><small>{{status(row)}}</small></label
+        >
+        } @if (!visible.length) {
+        <p>No matching sheets.</p>
+        }
+      </div>
+      @if (filtered.length > displayLimit) {
+      <button type="button" class="link" (click)="displayLimit = displayLimit + 40">Show more</button> }
+    </div>
+    }
+    <div class="actions">
+      <button type="button" class="primary" [disabled]="busy || !finalCount" (click)="download('zip')">
+        Download marked copies <small>ZIP</small>
+      </button>
+      <button type="button" [disabled]="busy || !chosen.length" (click)="download('csv')">
+        Download marks register <small>CSV</small>
+      </button>
+    </div>
+    <p class="hint">
+      Each finalized sheet has its own PDF. The register lists every selected sheet and its status.
+    </p>
+    } @else if (!error) {
+    <p>No answer sheets yet.</p>
+    } @if (progress) {
+    <p class="feedback" role="status">{{progress}}</p>
+    } @if (busy) { <button class="link" type="button" (click)="cancel()">Cancel download</button> } @if
+    (error) {
+    <p class="error" role="alert">{{error}}</p>
+    } @if (downloadUrl && !busy) {
+    <a class="link" [href]="downloadUrl" [attr.download]="downloadName">Save {{downloadName}}</a> }
+  </div>
+  }
+</section>

@@ -1,12 +1,12 @@
 # Checking answer sheets
 
-Open **Check answer sheets** on the paper and revision used for the exam.
+1. Open **Check papers** in GT Papers. Keep each student’s extra sheets with their answer book. Scan the class as one PDF, select photos in order, or take photos in the app. The optional **Students present** count lets you compare the physical count with the books found.
+2. Select **Find student books**. Keep the page open until the upload finishes. The checker reads labels and groups pages in the background. Open the saved stack to resolve unclear labels, split or move pages, and check any attendance discrepancy. Each stack accepts up to 200 pages and each student book up to 32.
+3. Choose the exam once. Select the GT paper revision used in class, or upload the actual question paper and an optional marking scheme. Review any uncertain question text, marks or choices before using an imported paper. Start checking the class together.
+4. Open **View class results**. Review flagged handwriting and missing answers against the original pages. A method mark can be corrected and moved to the relevant working. Finalize reviewed sheets and use the group finalization action for ready sheets.
+5. Under **Return results**, download one ZIP with a separate marked PDF for each finalized book. The marks register is a separate teacher-only CSV and includes pending sheets. Print the copies or return each PDF to the named student using your usual channel.
 
-- For one student, add page photos or a scanned PDF. Check the page order and orientation before uploading. The preview, model and printed copy use the same normalized scan, including visible PDF ink.
-- For a class, select one PDF per student. Check the sheet labels in the upload list. Keep the tab open until the uploads finish. Queued scripts continue checking after you leave. Each script accepts up to 32 pages.
-- Open a result to see the relevant answer on the original page, its score, and the reason. Follow the page references for answers continued elsewhere. Use the marking scheme to review an alternative method. A missing answer stays unresolved until the teacher confirms the copy is complete.
-- Use the attention filter to find unresolved scripts. Correct the score, evidence text, explanation or marker as needed. For a choose-N section with extra attempts, select the answers to count. Finalize the sheet and use **Print / Save PDF** for the marked pages and complete notes.
-- Use the sheet’s delete control to remove its scans, marks and any queued work.
+For already separated scripts, **Check answer sheets** on a saved paper still accepts individual page photos or one PDF per student. Teachers can reopen a finalized result to correct it. Download a fresh copy after finalizing again.
 
 The gateway authorizes each scan and result against the signed-in teacher. It verifies each saved page against its upload fingerprint before serving it. It never places scan content in the paper library or client-readable notification documents. Firestore's default deny covers the new private collections. The site sends grading images to the service selected on the local host. Use anonymized sheets where possible.
 

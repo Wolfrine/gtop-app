@@ -423,28 +423,26 @@
                       [alt]="'Original handwriting, page ' + shown.index"
                     />
                     @if (!placing) {
-                      @for (pin of marksOnScan(shown.index); track pin.answer.number) {
+                      @for (pin of marksOnScan(shown.index); track pin.key) {
                         <button
                           type="button"
                           class="ink-mark"
-                          [attr.data-status]="pin.answer.status"
-                          [class.active]="remarkNumber === pin.answer.number"
+                          [attr.data-status]="pin.status"
+                          [class.active]="remarkKey === pin.key"
                           [style.left.%]="pin.left"
                           [style.top.%]="pin.top"
-                          [attr.aria-expanded]="remarkNumber === pin.answer.number"
+                          [attr.aria-expanded]="remarkKey === pin.key"
                           [attr.aria-label]="
                             'Show marking remark for question ' +
                             pin.answer.number +
                             ', ' +
-                            resultLabel(pin.answer)
+                            (pin.title || resultLabel(pin.answer))
                           "
-                          (click)="$event.stopPropagation(); openRemark(pin.answer)"
+                          (click)="$event.stopPropagation(); openRemark(pin)"
                         >
-                          {{ symbols[pin.answer.status] }} {{ pin.answer.awarded ?? '?' }}/{{
-                            pin.answer.max
-                          }}
+                          {{ symbols[pin.status] }} {{ pin.awarded ?? '?' }}/{{ pin.max }}
                         </button>
-                        @if (remarkNumber === pin.answer.number) {
+                        @if (remarkKey === pin.key) {
                           <div
                             class="scan-remark"
                             [class.above]="pin.anchor.y > 0.65"
@@ -452,16 +450,16 @@
                             [style.--anchor-y]="pin.top + '%'"
                           >
                             <div>
-                              <strong>Q{{ pin.answer.number }} · {{ resultLabel(pin.answer) }}</strong
+                              <strong>Q{{ pin.answer.number }} · {{ pin.title || resultLabel(pin.answer) }}</strong
                               ><button
                                 type="button"
                                 aria-label="Dismiss marking remark"
-                                (click)="remarkNumber = 0"
+                                (click)="remarkKey = ''"
                               >
                                 ×
                               </button>
                             </div>
-                            <p>{{ brief(pin.answer) }}</p>
+                            <p>{{ brief(pin.comment, pin.status) }}</p>
                             <button class="link" type="button" (click)="inspect(pin.answer, shown.index)">
                               Review question ›
                             </button>
@@ -476,12 +474,12 @@
                         [style.top.%]="crosshair.y * 100"
                       ></i>
                     } @else {
-                      @for (mark of answer?.anchors; track mark.page) {
-                        @if (mark.page === shown.index) {
+                      @for (mark of annotations(shown.index); track mark.key) {
+                        @if (mark.answer.number === selected && (focusedStep === null || mark.stepIndex === focusedStep)) {
                           <i
                             class="scan-target"
-                            [style.left.%]="mark.x * 100"
-                            [style.top.%]="mark.y * 100"
+                            [style.left.%]="mark.anchor.x * 100"
+                            [style.top.%]="mark.anchor.y * 100"
                             aria-hidden="true"
                           ></i>
                         }
@@ -489,23 +487,23 @@
                     }
                   </div>
                   <aside class="margin" aria-label="Page marks">
-                    @for (group of screenMarks(shown.index); track group.marks[0].answer.number) {
-                      @let mark = group.marks[0].answer;
+                    @for (group of screenMarks(shown.index); track group.marks[0].key) {
+                      @let mark = group.marks[0];
                       <button
                         class="margin-button"
                         [attr.data-status]="mark.status"
-                        [class.selected]="mark.number === selected"
+                        [class.selected]="mark.answer.number === selected"
                         type="button"
                         [style.top.%]="group.center * 100"
                         (click)="openGroup(group.marks)"
                         [attr.aria-label]="
                           group.marks.length > 1
-                            ? 'Review ' + group.marks.length + ' nearby questions'
-                            : 'Review question ' + mark.number + ', ' + resultLabel(mark)
+                            ? 'Review ' + group.marks.length + ' nearby marks'
+                            : 'Review question ' + mark.answer.number + ', ' + (mark.title || resultLabel(mark.answer))
                         "
                       >
                         <b
-                          >Q{{ mark.number }}
+                          >Q{{ mark.answer.number }}@if (mark.stepIndex !== null) {·{{ mark.stepIndex + 1 }}}
                           @if (group.marks.length > 1) {
                             +{{ group.marks.length - 1 }}
                           }</b
@@ -681,6 +679,67 @@
                     }
                   </section>
                 }
+                @if (a.steps?.length) {
+                  <section class="method-breakdown" aria-label="Method marks">
+                    <h4>Method marks</h4>
+                    <ol>
+                      @for (step of a.steps; track $index; let si = $index) {
+                        <li>
+                          <div class="step-heading">
+                            <strong>{{ step.criterion }}</strong>
+                            <span [attr.data-status]="scoreStatus(step.awarded, step.max)">
+                              {{ symbols[scoreStatus(step.awarded, step.max)] }} {{ step.awarded ?? '?' }}/{{ step.max }}
+                            </span>
+                          </div>
+                          @if (editingAnswer && canEdit) {
+                            <div class="step-edit">
+                              <label>Criterion
+                                <input maxlength="90" [(ngModel)]="step.criterion" (ngModelChange)="markChanged()"
+                                  [disabled]="busy" [attr.aria-label]="'Criterion for step '+(si + 1)" />
+                              </label>
+                              <label>Available marks
+                                <input type="number" min="0.01" [max]="a.max" step="0.01" [(ngModel)]="step.max"
+                                  (ngModelChange)="reassessSteps(a)" [disabled]="busy" [attr.aria-label]="'Maximum for step '+(si + 1)" />
+                              </label>
+                              <label>Marks out of {{ step.max }}
+                                <input type="number" min="0" [max]="step.max" step="0.01"
+                                  [ngModel]="step.awarded" (ngModelChange)="stepAwardChanged(a, step, $event)"
+                                  [disabled]="busy" [attr.aria-label]="'Marks for '+step.criterion" />
+                              </label>
+                              <label>Step remark
+                                <textarea rows="2" maxlength="180" [(ngModel)]="step.comment"
+                                  (ngModelChange)="markChanged()" [disabled]="busy"
+                                  [attr.aria-label]="'Remark for '+step.criterion"></textarea>
+                              </label>
+                              <label>Scan marker
+                                <select #targetPage (change)="pickStepPage(si, targetPage)" [disabled]="busy"
+                                  [attr.aria-label]="'Place scan marker for '+step.criterion">
+                                  <option value="">{{ step.anchor ? 'Move from page '+step.anchor.page : 'Place on a page' }}</option>
+                                  @for (item of pageItems; track item.index) {<option [value]="item.index">Page {{ item.index }}</option>}
+                                </select>
+                              </label>
+                              @if (step.anchor && !(step.awarded && step.awarded > 0)) {
+                                <button type="button" class="link" (click)="moveStep(a, step, null)" [disabled]="busy">Remove marker</button>
+                              }
+                              @if ((a.steps?.length ?? 0) > 1) {
+                                <button type="button" class="link" (click)="removeStep(a, si)" [disabled]="busy">Remove step</button>
+                              }
+                            </div>
+                          } @else {
+                            <p>{{ step.comment }}</p>
+                            @if (step.anchor) {
+                              <button type="button" class="link" (click)="showStep(a, si)">View step · p{{ step.anchor.page }} ↗</button>
+                            }
+                          }
+                        </li>
+                      }
+                    </ol>
+                    @if (editingAnswer && canEdit && a.steps; as entries) {
+                      <p>Allocated {{ allocated(entries) }} / {{ a.max }} marks</p>
+                      <button type="button" class="action" (click)="addStep(a)" [disabled]="busy || entries.length >= 30">Add a marking step</button>
+                    }
+                  </section>
+                }
                 <section class="reason">
                   <h4>Marking rationale</h4>
                   <p>{{ a.explanation }}</p>
@@ -728,6 +787,12 @@
                 }
                 @if (canEdit && editingAnswer) {
                   <div class="form edit-form">
+                    @if (a.steps?.length) {
+                      <button type="button" class="link" [disabled]="busy" (click)="replaceSteps(a)">Replace method marks with one question score</button>
+                    } @else {
+                    @if (a.status !== 'missing' && (!a.optional || a.choice)) {
+                      <button type="button" class="link" (click)="addStep(a)" [disabled]="busy">Mark the individual steps</button>
+                    }
                     <label
                       >Assessment<select
                         [ngModel]="a.status"
@@ -752,11 +817,12 @@
                           [disabled]="busy"
                       /></label>
                     }
+                    }
                     @if (a.optional && a.status !== 'missing') {
                       <label
                         >Alternative assessed<select
-                          [(ngModel)]="a.choice"
-                          (ngModelChange)="markChanged()"
+                          [ngModel]="a.choice"
+                          (ngModelChange)="changeChoice(a, $event)"
                           [disabled]="busy"
                         >
                           <option [ngValue]="null">Choose A or B</option>
@@ -784,6 +850,7 @@
                         [disabled]="busy"
                       ></textarea>
                     </label>
+                    @if (!a.steps?.length) {
                     <div class="actions">
                       @for (ref of a.anchors; track ref.page) {
                         <button class="link" type="button" (click)="detach(a, ref.page)" [disabled]="busy">
@@ -796,6 +863,7 @@
                         </button>
                       }
                     </div>
+                    }
                   </div>
                 }
               </article>
@@ -861,13 +929,22 @@
     <section class="register card" aria-labelledby="register-title">
       <div class="register-top">
         <div>
-          <h2 id="register-title">Sheet register</h2>
-          <p>Scans and marking for this paper revision.</p>
+          <h2 id="register-title">{{ scopePacketId ? 'Class results' : 'Answer sheets for this paper' }}</h2>
+          <p>{{ scopePacketId ? 'Review flagged answers, finalize marks and return the checked copies.' : 'Open a checked sheet or add answer books for marking.' }}</p>
         </div>
-        <button class="action primary" (click)="start()" type="button" [disabled]="!rubric || busy">
-          Add sheets
-        </button>
+        @if (!scopePacketId) {
+          <div class="register-actions">
+            @if (onScanClass) {
+              <button class="action primary" (click)="onScanClass(paperId)" type="button" [disabled]="!rubric || busy">Scan a class</button>
+            }
+            <button class="action" (click)="start()" type="button" [disabled]="!rubric || busy">Add individual sheets</button>
+          </div>
+        }
       </div>
+      @if (rubric && (sheets.length || scopePacketId)) {
+        <gtop-class-return [paperId]="paperId" [initialSheets]="sheets" [nextCursor]="cursor"
+          [scopePacketId]="scopePacketId" [paperTitle]="rubric.title" [paperMaximum]="rubric.marks" />
+      }
       @if (sheets.length) {
         <div class="filters">
           <label
@@ -943,19 +1020,17 @@
         <div class="print-stage" [style.width]="'min(100%, ' + ((244 * p.width) / p.height + 37) + 'mm)'">
           <div class="printed-scan">
             <img [src]="url(p.index)" alt="" [width]="p.width" [height]="p.height" />
-            @for (pin of printInk(p); track pin.answer.number) {
+            @for (pin of printInk(p); track pin.key) {
               <b class="print-ink" [style.left.%]="pin.left" [style.top.%]="pin.top"
-                >Q{{ pin.answer.number }} {{ symbols[pin.answer.status] }} {{ pin.answer.awarded ?? '?' }}/{{
-                  pin.answer.max
-                }}</b
+                >Q{{ pin.answer.number }}@if (pin.stepIndex !== null) {·{{ pin.stepIndex + 1 }}} {{ symbols[pin.status] }} {{ pin.awarded ?? '?' }}/{{ pin.max }}</b
               >
             }
           </div>
           <aside>
-            @for (g of printMarks(p); track g.marks[0].answer.number) {
-              @let a = g.marks[0].answer;
+            @for (g of printMarks(p); track g.marks[0].key) {
+              @let mark = g.marks[0];
               <span [style.top.%]="g.center * 100"
-                >Q{{ a.number }} · {{ a.awarded ?? '?' }}/{{ a.max }}
+                >Q{{ mark.answer.number }}@if (mark.stepIndex !== null) {·{{ mark.stepIndex + 1 }}} · {{ mark.awarded ?? '?' }}/{{ mark.max }}
                 @if (g.marks.length > 1) {
                   +{{ g.marks.length - 1 }}
                 }
@@ -988,6 +1063,16 @@
             }
           </h3>
           <p>{{ a.explanation }}</p>
+          @if (a.steps?.length) {
+            <ol class="method-print">
+              @for (step of a.steps; track $index) {
+                <li><strong>{{ step.criterion }} · {{ step.awarded ?? 'Pending' }}/{{ step.max }}</strong>
+                  @if (step.anchor) { · p{{ step.anchor.page }} }
+                  <p>{{ step.comment }}</p>
+                </li>
+              }
+            </ol>
+          }
           @if (a.evidence) {
             <p>Evidence: {{ a.evidence }}</p>
           }

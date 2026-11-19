@@ -1,0 +1,155 @@
+:host {
+  display: block;
+  margin: 0.75rem 0;
+}
+.returns {
+  border: 1px solid #c8d6cf;
+  border-radius: 9px;
+  background: #f8fbf8;
+  color: #1c3128;
+}
+.disclosure {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  background: transparent;
+  border: 0;
+  font-weight: 650;
+  text-align: left;
+}
+.panel {
+  padding: 0 0.9rem 0.85rem;
+}
+button,
+input,
+a {
+  font: inherit;
+}
+button,
+a {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+button {
+  color: inherit;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid #345e4a;
+  outline-offset: 2px;
+}
+p {
+  margin: 0.35rem 0;
+  line-height: 1.4;
+}
+.summary,
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.actions {
+  justify-content: flex-start;
+  margin-top: 0.6rem;
+}
+.actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 42px;
+  border: 1px solid #aebeb6;
+  border-radius: 6px;
+  background: white;
+  padding: 0.52rem 0.85rem;
+  font-weight: 600;
+}
+.actions .primary {
+  background: #234a38;
+  color: white;
+  border-color: #234a38;
+}
+.actions small {
+  font-size: 0.67rem;
+  font-weight: 650;
+  letter-spacing: 0.035em;
+}
+.link {
+  display: inline-block;
+  font-size: 0.86rem;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  color: #265e43;
+  background: transparent;
+  border: 0;
+  padding: 0.35rem 0;
+}
+.hint,
+.feedback,
+.summary p,
+.selector {
+  font-size: 0.87rem;
+}
+.hint {
+  color: #48594f;
+  margin-top: 0.5rem;
+}
+.error {
+  color: #8c3032;
+}
+.selector {
+  margin-top: 0.6rem;
+  background: white;
+  border: 1px solid #c7d4cc;
+  border-radius: 6px;
+  padding: 0.65rem 0.8rem;
+}
+.selector input[type='search'] {
+  display: block;
+  width: 100%;
+  margin: 0.3rem 0;
+  border: 1px solid #aabbb0;
+  border-radius: 4px;
+  padding: 0.5rem;
+  color: inherit;
+}
+.choices {
+  max-height: 13rem;
+  overflow: auto;
+}
+.choice {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  gap: 0.55rem;
+  cursor: pointer;
+}
+.choice span {
+  overflow-wrap: anywhere;
+}
+.choice small {
+  margin-left: auto;
+  color: #53675a;
+}
+.all {
+  font-weight: 600;
+  border-bottom: 1px solid #dfebe3;
+}
+@media (max-width: 540px) {
+  .actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+@media print {
+  :host {
+    display: none;
+  }
+}

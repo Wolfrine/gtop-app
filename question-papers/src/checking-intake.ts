@@ -6,6 +6,7 @@ export type Scan = { name: string; blob: Blob; url: string };
 const edgeLimit = 2200;
 const byteLimit = 400_000;
 const fileLimit = 64 * 1024 * 1024;
+const packetPdfLimit = 256 * 1024 * 1024;
 const acceptedImages = /\.(jpe?g|png|webp|avif|heic|heif)$/i;
 
 function frame(width: number, height: number) {
@@ -39,12 +40,12 @@ async function encode(canvas: HTMLCanvasElement, name: string): Promise<Scan> {
   throw Error('This page is too large to save legibly. Crop out the background and try again.');
 }
 
-function checkSize(file: File) {
-  if (file.size > fileLimit) throw Error('Choose a file up to 64 MB.');
+function checkSize(file: File, limit = fileLimit) {
+  if (file.size > limit) throw Error('Choose a file up to '+(limit / (1024 * 1024))+' MB.');
 }
 
-async function openPdf(file: File, bytes?: ArrayBuffer) {
-  checkSize(file);
+async function openPdf(file: File, bytes?: ArrayBuffer, limit = fileLimit) {
+  checkSize(file, limit);
   const pdf = await import('pdfjs-dist');
   pdf.GlobalWorkerOptions.workerSrc = '/pdf-engine/pdf.worker.min.mjs';
   const task = pdf.getDocument({
@@ -72,7 +73,7 @@ export async function scanPdfPageCount(file: File, bytes?: ArrayBuffer): Promise
   }
 }
 
-async function convertPhoto(blob: Blob, name: string, rotate = false): Promise<Scan> {
+async function convertPhoto(blob: Blob, name: string, turns = 0): Promise<Scan> {
   const sourceUrl = URL.createObjectURL(blob);
   const image = new Image();
   image.src = sourceUrl;
@@ -80,17 +81,15 @@ async function convertPhoto(blob: Blob, name: string, rotate = false): Promise<S
     await image.decode().catch(() => {
       throw Error('This device could not read the photo. Export it as JPEG or PNG, or upload a scanned PDF.');
     });
-    const {canvas, context} = rotate
+    const {canvas, context} = turns % 2
       ? frame(image.naturalHeight, image.naturalWidth)
       : frame(image.naturalWidth, image.naturalHeight);
     try {
-      if (rotate) {
-        context.translate(canvas.width, 0);
-        context.rotate(Math.PI / 2);
-        context.drawImage(image, 0, 0, canvas.height, canvas.width);
-      } else {
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      }
+      const width = turns % 2 ? canvas.height : canvas.width;
+      const height = turns % 2 ? canvas.width : canvas.height;
+      context.translate(canvas.width / 2, canvas.height / 2);
+      context.rotate(turns * Math.PI / 2);
+      context.drawImage(image, -width / 2, -height / 2, width, height);
       return await encode(canvas, name);
     } finally {
       canvas.width = 0;
@@ -101,47 +100,80 @@ async function convertPhoto(blob: Blob, name: string, rotate = false): Promise<S
 }
 
 export function rotateScan(page: Scan): Promise<Scan> {
-  return convertPhoto(page.blob, page.name, true);
+  return convertPhoto(page.blob, page.name, 1);
+}
+
+export function isScanPdf(file: File) {
+  return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+}
+
+function checkPhoto(file: File) {
+  checkSize(file);
+  if (!/^image\/(jpeg|png|webp|avif|heic|heif)$/.test(file.type) && !acceptedImages.test(file.name)) {
+    throw Error('Choose a photo or scanned PDF.');
+  }
+}
+
+type OpenPdf = Awaited<ReturnType<typeof openPdf>>;
+
+async function rasterPage(source: OpenPdf, index: number, name: string, turns: number) {
+  const page = await source.document.getPage(index);
+  try {
+    const rotation = (page.rotate + 90 * turns) % 360;
+    const bounds = page.getViewport({scale: 1, rotation});
+    const viewport = page.getViewport({scale: edgeLimit / Math.max(bounds.width, bounds.height), rotation});
+    const {canvas, context} = frame(viewport.width, viewport.height);
+    try {
+      // Tablet writing may exist solely as PDF ink annotations.
+      await page.render({canvas, canvasContext: context, viewport, annotationMode: source.pdf.AnnotationMode.ENABLE}).promise;
+      return await encode(canvas, name+' · '+index);
+    } finally {
+      canvas.width = 0;
+    }
+  } finally {
+    page.cleanup();
+  }
+}
+
+export async function packetFilePageCount(file: File) {
+  if (!isScanPdf(file)) { checkPhoto(file); return 1; }
+  const pdf = await openPdf(file, undefined, packetPdfLimit);
+  try { return pdf.document.numPages; } finally { await pdf.document.destroy(); }
+}
+
+export async function previewPacketPage(file: File, index: number, turns: number) {
+  if (!isScanPdf(file)) { checkPhoto(file); return convertPhoto(file, file.name, turns); }
+  const pdf = await openPdf(file, undefined, packetPdfLimit);
+  try { return await rasterPage(pdf, index, file.name, turns); } finally { await pdf.document.destroy(); }
+}
+
+// The packet uploader consumes and releases each JPEG before rendering the next page.
+export async function* readScanPages(file: File, available: number, packet = false, rotations?: ReadonlyMap<number, number>) {
+  const checkCount = (count: number) => {
+    if (count > available) throw Error(packet ? 'This file exceeds the remaining pages in the stack.' : 'Add up to '+maxCheckingPages+' pages per answer sheet.');
+  };
+  if (!isScanPdf(file)) {
+    checkPhoto(file);
+    checkCount(1);
+    yield await convertPhoto(file, file.name, rotations?.get(1));
+    return;
+  }
+  const pdf = await openPdf(file, undefined, packet ? packetPdfLimit : fileLimit);
+  try {
+    checkCount(pdf.document.numPages);
+    for (let i = 1; i <= pdf.document.numPages; i++) {
+      yield await rasterPage(pdf, i, file.name, rotations?.get(i) ?? 0);
+    }
+  } finally {
+    await pdf.document.destroy();
+  }
 }
 
 export async function scanFiles(files: File[], available: number): Promise<Scan[]> {
   const pages: Scan[] = [];
-  const ensureSpace = (count: number) => {
-    if (pages.length + count > Math.min(maxCheckingPages, available)) {
-      throw Error('Add up to '+maxCheckingPages+' pages per answer sheet.');
-    }
-  };
   try {
     for (const file of files) {
-      checkSize(file);
-      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-        const {document, pdf} = await openPdf(file);
-        try {
-          ensureSpace(document.numPages);
-          for (let index = 1; index <= document.numPages; index++) {
-            const page = await document.getPage(index);
-            const bounds = page.getViewport({scale: 1});
-            const viewport = page.getViewport({scale: edgeLimit / Math.max(bounds.width, bounds.height)});
-            const {canvas, context} = frame(viewport.width, viewport.height);
-            try {
-              // A tablet-written answer can be an ink annotation over an otherwise blank page.
-              await page.render({canvas, canvasContext: context, viewport, annotationMode: pdf.AnnotationMode.ENABLE}).promise;
-              pages.push(await encode(canvas, file.name+' · '+index));
-            } finally {
-              canvas.width = 0;
-              page.cleanup();
-            }
-          }
-        } finally {
-          await document.destroy();
-        }
-      } else {
-        ensureSpace(1);
-        if (!/^image\/(jpeg|png|webp|avif|heic|heif)$/.test(file.type) && !acceptedImages.test(file.name)) {
-          throw Error('Choose a photo or scanned PDF.');
-        }
-        pages.push(await convertPhoto(file, file.name));
-      }
+      for await (const page of readScanPages(file, Math.min(maxCheckingPages, available) - pages.length)) pages.push(page);
     }
     return pages;
   } catch (error) {

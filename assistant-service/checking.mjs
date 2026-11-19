@@ -1,19 +1,14 @@
-import {createHash,randomUUID} from 'node:crypto';
+import {randomUUID} from 'node:crypto';
+import {ClassIntake} from './checking-intake.mjs';
+import {ExternalReference} from './external-reference.mjs';
+import {day,digest,maxActive,maxDrafts,orderedKey,pagePath,queue,queueField,quota,sheets,sheetFields,sheetSummary} from './checking-storage.mjs';
 import {gradingRubric,validateGrades,summarizeGrades} from './domain/checking.mjs';
 import {maxCheckingPages,checkingLeaseMs} from './domain/checking-limits.mjs';
 
-const maxPageBytes=400000,maxActive=180,maxDrafts=500,historySize=40;
+const maxPageBytes=400000,historySize=40;
 const paidBudgetPath='assistantCheckingControls/paidBudget';
 const lastOwnerPath=workerId=>'assistantCheckingSchedulers/'+workerId;
-const orderedKey=(uid,time,id)=>uid+'/'+time+'/'+id;
 const nextDay=now=>new Date(Date.parse(day(now)+'T00:00:00.000Z')+86400000).toISOString();
-const sheets=(uid,paper)=>['assistantCheckingOwners',uid,'papers',paper,'sheets'].join('/');
-const quota=uid=>'assistantCheckingOwners/'+uid;
-const queue=id=>'assistantCheckingQueue/'+id;
-const pagePath=(path,index)=>path+'/pages/'+index;
-const digest=(...values)=>createHash('sha256').update(JSON.stringify(values)).digest('hex');
-const day=now=>now.slice(0,10);
-
 function jpegDimensions(bytes){
   if(bytes[0]!==0xff||bytes[1]!==0xd8||bytes.at(-2)!==0xff||bytes.at(-1)!==0xd9)return null;
   let offset=2;
@@ -29,7 +24,10 @@ function jpegDimensions(bytes){
 }
 
 export class PaperChecking {
-  constructor(service,fail){this.service=service;this.store=service.store;this.fail=fail;}
+  constructor(service,fail){
+    this.service=service;this.store=service.store;this.fail=fail;
+    this.packets=new ClassIntake(this);this.references=new ExternalReference(this);
+  }
   now(){return this.service.iso();}
   id(value){
     if(typeof value!=='string'||!/^[A-Za-z0-9_-]{1,128}$/.test(value))this.fail(400,'invalid_id','Invalid identifier.');
@@ -41,43 +39,51 @@ export class PaperChecking {
     return value.trim();
   }
   notFound(){this.fail(404,'checking_unavailable','This answer sheet is unavailable.');}
-  async rubric(paperId){
-    const paper=await this.store.get('assistantPapers/'+this.id(paperId));
+  async sourcePaper(reader,paperId,uid){
+    this.id(paperId);
+    if(paperId.startsWith('ext-'))return this.references.paper(reader,paperId,uid);
+    return reader.get('assistantPapers/'+paperId);
+  }
+  async rubric(paperId,uid,reader=this.store){
+    const paper=await this.sourcePaper(reader,paperId,uid);
     if(!paper)this.fail(404,'paper_unavailable','This paper revision is unavailable.');
     const rubric=gradingRubric(paper);
     if(!rubric)this.fail(409,'rubric_unavailable','This paper revision needs saved questions with consistent mark allocations.');
     return rubric;
   }
+  readCursor(cursor){
+    if(!cursor)return undefined;
+    try{
+      if(typeof cursor!=='string'||cursor.length>300)throw Error();
+      const values=JSON.parse(Buffer.from(cursor,'base64url').toString('utf8'));
+      if(!Array.isArray(values)||values.length!==2||typeof values[0]!=='string'||
+          !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(values[0]))throw Error();
+      this.id(values[1]);
+      return values;
+    }catch{this.fail(400,'invalid_cursor','Reload the scan list.');}
+  }
   async teacher(method,parts,uid,body){
     const [paperId,sheetId,action,pageIndex]=parts;
     this.id(paperId);
     const collection=sheets(this.id(uid),paperId);
+    if(sheetId==='rubric-info'&&!action&&method==='GET'){
+      const {title,marks,hasScheme}=await this.rubric(paperId,uid);
+      return {rubric:{title,marks,hasScheme}};
+    }
     if((!sheetId&&method==='GET')||(sheetId==='history'&&!action&&method==='POST')){
-      let cursorValues;
-      if(body.cursor){
-        try{
-          if(typeof body.cursor!=='string'||body.cursor.length>300)throw Error();
-          cursorValues=JSON.parse(Buffer.from(body.cursor,'base64url').toString('utf8'));
-          if(!Array.isArray(cursorValues)||cursorValues.length!==2||typeof cursorValues[0]!=='string'||
-              !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(cursorValues[0]))throw Error();
-          this.id(cursorValues[1]);
-        }catch{this.fail(400,'invalid_cursor','Reload the answer-sheet list.');}
-      }
-      const rubric=await this.rubric(paperId);
+      const cursorValues=this.readCursor(body.cursor);
+      const rubric=await this.rubric(paperId,uid);
       const rows=await this.store.list(collection,[],historySize+1,{orderBy:['createdAt','desc'],orderById:true,cursorValues,
-        select:['id','label','state','createdAt','updatedAt','pageCount','version','grade.awarded','grade.max','grade.pending']});
+        select:sheetFields});
       const page=rows.slice(0,historySize);
-      return {sheets:page.map(({id,label,state,createdAt,updatedAt,pageCount,version,grade})=>({
-        id,label,state,createdAt,updatedAt,pageCount,version,awarded:grade?.awarded??null,
-        pending:grade?.pending??null,max:grade?.max??rubric.marks
-      })),rubric:{title:rubric.title,marks:rubric.marks,hasScheme:rubric.hasScheme},
+      return {sheets:page.map(row=>sheetSummary(row,rubric.marks)),rubric:{title:rubric.title,marks:rubric.marks,hasScheme:rubric.hasScheme},
         nextCursor:rows.length>historySize?Buffer.from(JSON.stringify([page.at(-1).createdAt,page.at(-1).id])).toString('base64url'):null};
     }
     if(sheetId==='finalize-ready'&&!action&&method==='POST'){
-      return this.finalizeReady(uid,collection,await this.rubric(paperId),body.sheets);
+      return this.finalizeReady(uid,collection,await this.rubric(paperId,uid),body.sheets);
     }
     if(!sheetId&&method==='POST'){
-      await this.rubric(paperId);
+      await this.rubric(paperId,uid);
       return this.create(uid,paperId,collection,body);
     }
     const path=collection+'/'+this.id(sheetId);
@@ -88,8 +94,8 @@ export class PaperChecking {
         await this.expire(queue(sheet.queueId));
         sheet=await this.store.get(path);
       }
-      const rubric=await this.rubric(paperId);
-      const {lease,leaseUntil,queueId,modelGrade,...visible}=sheet;
+      const rubric=await this.rubric(paperId,uid);
+      const {lease,leaseUntil,queueId,modelGrade,scanSource,...visible}=sheet;
       if(visible.grade&&!visible.grade.sections)visible.grade={...visible.grade,...summarizeGrades(visible.grade.answers,rubric.sections)};
       return {sheet:visible,rubric:{...rubric,questions:rubric.questions.map(({alternative,...q})=>({
         ...q,alternative:alternative?.question||null,alternativeRubric:alternative
@@ -103,8 +109,8 @@ export class PaperChecking {
     if(action==='pages'&&method==='POST')return this.upload(path,Number(pageIndex),body);
     if(action==='delete'&&method==='POST')return this.remove(uid,path,body.version);
     if(action==='queue'&&method==='POST')return this.enqueue(uid,paperId,path,body);
-    if(action==='review'&&method==='POST')return this.review(uid,path,await this.rubric(paperId),body);
-    if(action==='manual'&&method==='POST')return this.manual(uid,path,await this.rubric(paperId),body);
+    if(action==='review'&&method==='POST')return this.review(uid,path,await this.rubric(paperId,uid),body);
+    if(action==='manual'&&method==='POST')return this.manual(uid,path,await this.rubric(paperId,uid),body);
     this.notFound();
   }
   async create(uid,paperId,collection,body){
@@ -129,6 +135,11 @@ export class PaperChecking {
       return {id};
     });
   }
+  imagePath(path,record,index){
+    if(!record.scanSource)return pagePath(path,index);
+    const uid=path.split('/')[1];
+    return pagePath(quota(uid)+'/scanSources/'+this.id(record.scanSource),index);
+  }
   async upload(path,index,body){
     const {jpeg}=body;
     if(typeof jpeg!=='string'||jpeg.length>Math.ceil(maxPageBytes/3)*4||! /^[A-Za-z0-9+/]+={0,2}$/.test(jpeg))
@@ -146,7 +157,7 @@ export class PaperChecking {
       if(prior?.sha===sha)return {ok:true};
       if(sheet.state!=='uploading'||prior)
         this.fail(409,'page_conflict','This page is already saved. To change the scan order, start another sheet.');
-      tx.create(pagePath(path,index),{jpeg:bytes});
+      tx.create(this.imagePath(path,sheet,index),{jpeg:bytes});
       tx.set(path,{...sheet,uploaded:[...sheet.uploaded,{index,sha,...size}],version:sheet.version+1,updatedAt:this.now()});
       return {ok:true};
     });
@@ -156,19 +167,20 @@ export class PaperChecking {
   }
   async page(path,sheet,index,reader=this.store){
     this.pageIndex(sheet,index);
-    const page=await reader.get(pagePath(path,index));
     const descriptor=sheet.uploaded.find(item=>item.index===index);
+    if(!descriptor)this.notFound();
+    const page=await reader.get(this.imagePath(path,sheet,descriptor.sourceIndex??index));
     if(!page||!descriptor)this.notFound();
     const bytes=Buffer.from(page.jpeg,'base64');
     if(digest(bytes.toString('base64'))!==descriptor.sha)
       this.fail(409,'scan_integrity','The saved scan could not be verified. Upload the original page in a new sheet.');
     return bytes;
   }
-  async enqueue(uid,paperId,path,body){
+  async enqueue(uid,paperId,path,body,kind='grading'){
     return this.store.transaction(async tx=>{
       const sheet=await tx.get(path),usage=await tx.get(quota(uid))||{};
       if(!sheet)this.notFound();
-      if(['queued','running','review','final'].includes(sheet.state))return {state:sheet.state};
+      if(['queued','running','review','final','ready','completed'].includes(sheet.state))return {state:sheet.state};
       if(!['uploading','failed'].includes(sheet.state)||sheet.uploaded.length!==sheet.pageCount)
         this.fail(409,'upload_incomplete','Finish uploading all pages first.');
       if(sheet.state==='failed'&&body.version!==sheet.version)
@@ -177,7 +189,7 @@ export class PaperChecking {
       if((usage.active||0)>=maxActive)
         this.fail(429,'grading_limit','Your '+maxActive+'-sheet checking queue is full. Your uploaded pages are saved.');
       tx.set(path,{...sheet,state:'queued',version:sheet.version+1,error:null,updatedAt:now});
-      tx.set(queue(sheet.queueId),{id:sheet.queueId,path,uid,paperId,state:'queued',queuedAt:now,orderKey:orderedKey(uid,now,sheet.queueId)});
+      tx.set(queue(sheet.queueId),{id:sheet.queueId,path,uid,paperId,state:'queued',queuedAt:now,...(kind==='grading'?{}:{kind}),[queueField(kind)]:orderedKey(uid,now,sheet.queueId)});
       tx.set(quota(uid),{...usage,active:(usage.active||0)+1});
       this.service.notifyDispatch(tx,uid);
       return {state:'queued'};
@@ -260,22 +272,40 @@ export class PaperChecking {
     return out;
   }
   async remove(uid,path,version){
-    return this.store.transaction(async tx=>{
+    const clean=await this.store.transaction(async tx=>{
       const sheet=await tx.get(path);
-      if(!sheet)return {deleted:true};
+      if(!sheet)return false;
+      if(sheet.state==='deleting')return true;
       if(sheet.version!==version)this.fail(409,'sheet_changed','Reopen the latest sheet before deleting it.');
       const usage=await tx.get(quota(uid))||{};
-      // Uploads and completion also transact on the parent, so concurrent operations
-      // retry against its removal and cannot recreate its private page documents.
-      for(let i=1;i<=sheet.pageCount;i++)tx.delete(pagePath(path,i));
       if(['queued','running'].includes(sheet.state))
         tx.set(quota(uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
       tx.delete(queue(sheet.queueId));
       tx.delete(path+'/grading/original');
-      tx.delete(path);
+      tx.set(path,{...sheet,state:'deleting',lease:null,leaseUntil:null,deleting:0,version:sheet.version+1});
       this.service.notifyContent(tx,uid);
-      return {deleted:true};
+      return true;
     });
+    if(clean)await this.cleanPages(uid,path);
+    return {deleted:true};
+  }
+  async cleanPages(uid,path){
+    // Keep each delete transaction under Firestore's 10 MiB limit, including image bytes.
+    // A durable cursor and parent lock allow concurrent deletion or retries after a lost reply.
+    let done=false;
+    while(!done){
+      done=await this.store.transaction(async tx=>{
+        const record=await tx.get(path);
+        if(!record||record.state!=='deleting')return true;
+        const next=record.uploaded.slice(record.deleting,record.deleting+8);
+        for(const info of next)tx.delete(this.imagePath(path,record,info.sourceIndex??info.index));
+        const cursor=record.deleting+next.length;
+        if(cursor<record.uploaded.length){tx.set(path,{...record,deleting:cursor});return false;}
+        tx.delete(path);
+        this.service.notifyContent(tx,uid);
+        return true;
+      });
+    }
   }
   async authorizedWorker(tx,workerId,uid){
     const [pairing,profile,pilot]=await Promise.all([
@@ -286,7 +316,7 @@ export class PaperChecking {
   }
   async worker(parts,worker,body){
     const [id,action,index]=parts;
-    if(id==='claim'&&!action)return this.claim(worker,body.engine??'codex-cli');
+    if(id==='claim'&&!action)return this.claim(worker,body.engine??'codex-cli',body.capabilities);
     const key=queue(this.id(id));
     const {row,sheet,image}=await this.store.transaction(async tx=>{
       const row=await tx.get(key);
@@ -296,6 +326,10 @@ export class PaperChecking {
       const sheet=await tx.get(row.path);
       if(!sheet||sheet.lease!==row.lease)this.notFound();
       if(action==='pages'){
+        if(row.kind==='class-intake'){
+          const {firstPage,lastPage}=this.packets.job(sheet);
+          if(Number(index)<Math.max(1,firstPage-1)||Number(index)>lastPage)this.notFound();
+        }
         const bytes=await this.page(row.path,sheet,Number(index),tx);
         return {image:bytes.toString('base64')};
       }
@@ -303,13 +337,15 @@ export class PaperChecking {
     });
     if(action==='pages')return {jpeg:image};
     if(action==='complete'){
-      const rubric=await this.rubric(row.paperId);
+      const engine=body.engine;
+      if(!['codex-cli','openai-api'].includes(engine)||(row.engine&&engine!==row.engine))
+        this.fail(400,'invalid_engine','The checking engine must match its reservation.');
+      if(row.kind==='class-intake')return this.packets.complete(row,body);
+      if(row.kind==='external-exam')return this.finish(row,await this.references.complete(body,sheet));
+      const rubric=await this.rubric(row.paperId,row.uid);
       let grade;
       try{grade=validateGrades(body,rubric,sheet.pageCount,{model:true});}
       catch(error){this.fail(400,'invalid_grade',error.message);}
-      const engine=body.engine;
-      if(!['codex-cli','openai-api'].includes(engine)||(row.engine&&engine!==row.engine))
-        this.fail(400,'invalid_engine','The grading engine must match its reservation.');
       return this.finish(row,{state:'review',grade,modelGrade:grade,engine,error:null});
     }
     if(action==='fail')return this.finish(row,{state:'failed',
@@ -320,11 +356,11 @@ export class PaperChecking {
     const owner=await this.store.get(quota(uid));
     if(owner?.queueIndexVersion===2)return;
     const existing=await this.store.list('assistantCheckingQueue',[['uid','==',uid]],maxActive);
-    for(const candidate of existing.filter(r=>r.state==='queued'?!r.orderKey:!r.runningKey)){
+    for(const candidate of existing.filter(r=>r.state==='queued'?!r[queueField(r.kind)]:!r.runningKey)){
       await this.store.transaction(async tx=>{
         const row=await tx.get(queue(candidate.id));
-        if(row?.state==='queued'&&!row.orderKey)
-          tx.set(queue(row.id),{...row,orderKey:orderedKey(uid,row.queuedAt,row.id)});
+        if(row?.state==='queued'&&!row[queueField(row.kind)])
+          tx.set(queue(row.id),{...row,[queueField(row.kind)]:orderedKey(uid,row.queuedAt,row.id)});
         if(row?.state==='running'&&!row.runningKey)
           tx.set(queue(row.id),{...row,runningKey:orderedKey(uid,row.leaseUntil,row.id)});
       });
@@ -334,7 +370,7 @@ export class PaperChecking {
       if(latest?.queueIndexVersion!==2)tx.set(quota(uid),{...latest,queueIndexVersion:2});
     });
   }
-  async claim(worker,engine='codex-cli'){
+  async claim(worker,engine='codex-cli',capabilities=[]){
     if(!['codex-cli','openai-api'].includes(engine))this.fail(400,'invalid_engine','Unknown grading engine.');
     const [scheduler,pilot]=await Promise.all([this.store.get(lastOwnerPath(worker.id)),this.store.get('assistantConfig/pilot')]);
     const owners=[...new Set(worker.allowedOwnerUids.filter(uid=>pilot?.allowedOwnerUids?.includes(uid)))].sort();
@@ -356,8 +392,12 @@ export class PaperChecking {
     }));
     for(const uid of [...owners.slice(offset),...owners.slice(0,offset)]){
       // A single-field range index yields the owner's oldest pending sheet.
-      const bounds=[['orderKey','>=',uid+'/'],['orderKey','<',uid+'0']];
-      const [candidate]=await this.store.list('assistantCheckingQueue',bounds,1,{orderBy:['orderKey','asc']});
+      const fields=['orderKey'];
+      if(Array.isArray(capabilities)&&capabilities.includes('class-intake-v1'))fields.push('intakeOrderKey');
+      if(Array.isArray(capabilities)&&capabilities.includes('external-exam-v1'))fields.push('referenceOrderKey');
+      const heads=await Promise.all(fields.map(field=>this.store.list('assistantCheckingQueue',
+        [[field,'>=',uid+'/'],[field,'<',uid+'0']],1,{orderBy:[field,'asc']})));
+      const [candidate]=heads.flat().sort((a,b)=>a.queuedAt.localeCompare(b.queuedAt)||a.id.localeCompare(b.id));
       if(!candidate)continue;
       const result=await this.claimOne(worker.id,candidate,engine);
       if(result?.job)return {job:result.job,nextWake};
@@ -369,13 +409,14 @@ export class PaperChecking {
     return this.store.transaction(async tx=>{
       const row=await tx.get(queue(candidate.id));
       if(row?.state!=='queued'||!await this.authorizedWorker(tx,workerId,row.uid))return null;
+      const special=row.kind==='class-intake'||row.kind==='external-exam';
       const [sheet,usage,paper]=await Promise.all([
-        tx.get(row.path),tx.get(quota(row.uid)),tx.get('assistantPapers/'+row.paperId)
+        tx.get(row.path),tx.get(quota(row.uid)),special?null:this.sourcePaper(tx,row.paperId,row.uid)
       ]);
       if(sheet?.state!=='queued')return null;
-      const rubric=gradingRubric(paper);
+      const rubric=special?null:gradingRubric(paper);
       const now=this.now();
-      if(!rubric){
+      if(!special&&!rubric){
         tx.delete(queue(row.id));
         tx.set(row.path,{...sheet,state:'failed',version:sheet.version+1,updatedAt:now,
           error:'This paper revision is unavailable or its mark allocations are inconsistent.'});
@@ -393,12 +434,15 @@ export class PaperChecking {
         tx.set(quota(row.uid),{...usage,paidDay:today,paidAttempts:ownerUsed+1});
         tx.set(paidBudgetPath,{day:today,attempts:globalUsed+1});
       }
-      const lease=randomUUID(),leaseUntil=new Date(Date.parse(now)+checkingLeaseMs(sheet.pageCount,rubric.questions.length)).toISOString();
-      tx.set(queue(row.id),{...row,orderKey:null,runningKey:orderedKey(row.uid,leaseUntil,row.id),state:'running',workerId,lease,leaseUntil,engine});
+      const detail=row.kind==='class-intake'?this.packets.job(sheet):row.kind==='external-exam'?this.references.claimJob(sheet):{notes:sheet.notes,rubric};
+      const imageCount=row.kind==='class-intake'?detail.lastPage-Math.max(1,detail.firstPage-1)+1:sheet.pageCount;
+      const questionBudget=row.kind==='external-exam'?50:rubric?.questions.length??1;
+      const lease=randomUUID(),leaseUntil=new Date(Date.parse(now)+checkingLeaseMs(imageCount,questionBudget)).toISOString();
+      tx.set(queue(row.id),{...row,[queueField(row.kind)]:null,runningKey:orderedKey(row.uid,leaseUntil,row.id),state:'running',workerId,lease,leaseUntil,engine});
       tx.set(row.path,{...sheet,state:'running',version:sheet.version+1,lease,leaseUntil,updatedAt:now});
       tx.set(lastOwnerPath(workerId),{lastOwnerUid:row.uid});
       this.service.notifyContent(tx,row.uid);
-      return {job:{id:row.id,lease,leaseUntil,pageCount:sheet.pageCount,notes:sheet.notes,rubric}};
+      return {job:{id:row.id,lease,leaseUntil,pageCount:sheet.pageCount,...(special?{kind:row.kind}:{}),...detail}};
     });
   }
   async expire(path){

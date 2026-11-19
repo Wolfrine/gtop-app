@@ -4,16 +4,33 @@ import { Gateway, delay, readGatewayConfig, record } from './adapters.js';
 import { resolveDesktopCodex } from './runner.js';
 import { DispatchWake } from './dispatch.js';
 import { acquireWorkerLock } from './singleton.js';
-import { checkingConfig, gradeScans } from './checking-model.mjs';
+import { checkingConfig, gradeScans, organizeScans, readExternalExam } from './checking-model.mjs';
+import { intakeChunkSize } from '../../../assistant-service/domain/checking-intake.mjs';
+import { maxCheckingPages } from '../../../assistant-service/domain/checking-limits.mjs';
+import { maxExternalPages } from '../../../assistant-service/domain/external-reference.mjs';
 
-interface GradingJob {
+interface LeasedJob {
   id:string;
   lease:string;
   leaseUntil:string;
   pageCount:number;
+}
+interface GradingJob extends LeasedJob {
+  kind?:'grade';
   notes:string;
   rubric:Parameters<typeof gradeScans>[1];
 }
+interface IntakeJob extends LeasedJob {
+  kind:'class-intake';
+  firstPage:number;
+  lastPage:number;
+  knownStarts?:number[];
+}
+interface ExternalExamJob extends LeasedJob {
+  kind:'external-exam';
+  questionPages:number;
+}
+type CheckingJob=GradingJob|IntakeJob|ExternalExamJob;
 
 const [pairing,operations]=process.argv.slice(2);
 if(!pairing||!operations||!path.isAbsolute(operations))throw Error('Pass the existing worker configuration and a private operations directory.');
@@ -27,7 +44,7 @@ const wake=new DispatchWake(),lane='checking';
 const stop=new AbortController();
 for(const signal of ['SIGINT','SIGTERM'] as const)process.on(signal,()=>stop.abort());
 const status={pid:process.pid,engine:model.engine,model:model.model,startedAt:new Date().toISOString(),
-  connected:false,claims:0,graded:0,failed:0,state:'connecting'};
+  connected:false,claims:0,graded:0,organizedChunks:0,examsRead:0,failed:0,state:'connecting'};
 async function report(state:string){
   status.state=state;
   await record(root,'checking-status.json',{...status,updatedAt:new Date().toISOString()});
@@ -78,11 +95,13 @@ async function work(){
         await wake.wait(lane,stop.signal);
         if(!status.connected)continue;
         status.claims++;
-        const {job,nextWake}=await gateway.post('/worker/checking/claim',{engine:model.engine},stop.signal) as {job:GradingJob|null;nextWake:string|null};
+        const {job,nextWake}=await gateway.post('/worker/checking/claim',{
+          engine:model.engine,capabilities:['class-intake-v1','external-exam-v1'],
+        },stop.signal) as {job:CheckingJob|null;nextWake:string|null};
         failures=0;
         clearTimeout(next);
         if(nextWake)next=setTimeout(()=>wake.wake(lane),Math.max(500,Date.parse(nextWake)-Date.now()+500));
-        if(job){await grade(job);wake.wake(lane);}
+        if(job){await processJob(job);wake.wake(lane);}
         await report('idle');
       }catch{
         if(stop.signal.aborted)break;
@@ -95,24 +114,46 @@ async function work(){
   }finally{clearTimeout(next);}
 }
 
-async function grade(job:GradingJob){
+function pageRange(job:CheckingJob):[number,number]{
+  if(!Number.isSafeInteger(job.pageCount)||job.pageCount<1)throw Error('bad_job');
+  if(job.kind==='class-intake'){
+    if(!Number.isInteger(job.firstPage)||!Number.isInteger(job.lastPage)||job.firstPage<1||
+        job.lastPage<job.firstPage||job.lastPage>job.pageCount||job.lastPage-job.firstPage>=intakeChunkSize)
+      throw Error('invalid_packet_range');
+    return [Math.max(1,job.firstPage-1),job.lastPage];
+  }
+  if(job.kind==='external-exam'){
+    if(!Number.isInteger(job.questionPages)||job.questionPages<1||job.questionPages>job.pageCount||job.pageCount>maxExternalPages)
+      throw Error('invalid_exam_pages');
+  }else if(job.pageCount>maxCheckingPages||!job.rubric?.questions)throw Error('invalid_grading_job');
+  return [1,job.pageCount];
+}
+
+async function processJob(job:CheckingJob){
   const endpoint='/worker/checking/'+job.id;
   const signal=AbortSignal.any([stop.signal,AbortSignal.timeout(Math.max(1,Date.parse(job.leaseUntil)-Date.now()-10_000))]);
-  await report('grading');
+  const state=job.kind==='class-intake'?'organizing':job.kind==='external-exam'?'reading_exam':'grading';
+  await report(state);
   try{
+    const [first,last]=pageRange(job);
     const images:Buffer[]=[];
-    for(let index=1;index<=job.pageCount;index++){
+    for(let index=first;index<=last;index++){
       const {jpeg}=await gateway.post(endpoint+'/pages/'+index,{lease:job.lease},signal);
       images.push(Buffer.from(jpeg,'base64'));
     }
     const executable=model.engine==='codex-cli'?await resolveDesktopCodex():undefined;
-    const result=await gradeScans(model,job.rubric,job.notes,images,{executable,root,signal});
+    const options={executable,root,signal};
+    const result=job.kind==='class-intake'?await organizeScans(model,job,images,options):
+      job.kind==='external-exam'?await readExternalExam(model,job,images,options):
+      await gradeScans(model,job.rubric,job.notes,images,options);
     const completed=await gateway.post(endpoint+'/complete',{...result,engine:model.engine,lease:job.lease},signal);
     if(!completed.active)throw Error('lease_lost');
-    status.graded++;
+    if(job.kind==='class-intake')status.organizedChunks++;
+    else if(job.kind==='external-exam')status.examsRead++;
+    else status.graded++;
   }catch{
     status.failed++;
-    console.error('One grading attempt failed.');
+    console.error('Checking attempt failed during '+state+'.');
     await gateway.post(endpoint+'/fail',{lease:job.lease},stop.signal).catch(()=>{});
   }
 }

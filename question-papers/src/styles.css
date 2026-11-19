@@ -50,3 +50,7 @@ button{transition:background-color .15s,border-color .15s}a{color:inherit;text-d
 .brand{min-height:44px}.composer textarea{min-height:44px}.sign-out{white-space:nowrap}
 /* A quiet recovery action appears only when the assistant is unavailable. */
 .service-notice{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.service-notice>div{flex:1 1 230px;min-width:0}.service-notice strong,.service-notice>div>span{display:block}.service-notice strong{font-size:12px;margin-bottom:3px}.service-notice .button,.service-notice>.text-button{flex-shrink:0;min-height:40px;font-size:12px;white-space:nowrap}.service-notice .service-error{margin-top:5px;color:#8a482e}.service-notice>.text-button{margin-left:0}@media(max-width:700px){.service-notice{gap:6px 12px;align-items:flex-start}.service-notice>div{flex-basis:100%}.service-notice .button,.service-notice>.text-button{min-height:44px}.service-notice>.text-button{padding-left:0}}
+
+.header-check-papers{appearance:none;border:1px solid #155244;background:#195e4d;color:#fff;min-height:38px;border-radius:8px;padding:6px 14px;font:inherit;font-size:14px;font-weight:650;cursor:pointer;white-space:nowrap}
+.header-check-papers:hover,.header-check-papers:focus-visible{background:#104838}
+@media(max-width:680px){.header-check-papers{min-height:40px;padding:5px 10px;font-size:13px}.header-right:has(.header-check-papers) .private-label{display:none}}

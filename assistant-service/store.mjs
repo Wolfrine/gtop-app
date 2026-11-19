@@ -2,6 +2,11 @@
 export class FirestoreStore {
   constructor(db) { this.db = db; }
   async get(path) { const d = await this.db.doc(path).get(); return d.exists ? d.data() : null; }
+  async getSelected(paths,fields){
+    if(!paths.length)return [];
+    const documents=await this.db.getAll(...paths.map(path=>this.db.doc(path)),{fieldMask:fields});
+    return documents.map(doc=>doc.exists?doc.data():null);
+  }
   async list(path, filters = [], limit = 200, options = {}) {
     let query = this.db.collection(path);
     for (const [field, op, value] of filters) query = query.where(field, op, value);
@@ -27,6 +32,7 @@ export class FirestoreStore {
 export class MemoryStore {
   constructor(seed = {}) { this.docs = new Map(Object.entries(structuredClone(seed))); this.tail = Promise.resolve(); }
   async get(path) { return structuredClone(this.docs.get(path) ?? null); }
+  async getSelected(paths,_fields){return Promise.all(paths.map(path=>this.get(path)));}
   async list(path, filters = [], limit = 200, options = {}) {
     const matches=(value,[field,op,arg])=>{
       if(op==='==')return value[field]===arg;

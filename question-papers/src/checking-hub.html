@@ -1,0 +1,46 @@
+<main class="check-home">
+  <header class="home-head">
+    <button class="back" type="button" [disabled]="busy" (click)="close()" aria-label="Return to GT Papers">‹ <span>GT Papers</span></button>
+    <h1>Check papers</h1>
+  </header>
+  <div class="home-body">
+    <section [hidden]="picker !== null" aria-label="Class answer books">
+      <gtop-paper-packet [paperId]="paperId" [packetId]="packetId" [referenceChoice]="referenceChoice" (packetChange)="rememberPacket($event)" (linkedPaper)="setReference($event)"
+        (needPaper)="choosePaper($event)" (busyChange)="busy=$event" (selectionChange)="hasLocalFiles=$event"
+        (queued)="onResults($event.paperId, $event.packetId)" />
+      <div class="reference">
+        <div><span class="reference-label">Question paper</span>
+          @if (paperId) { <strong>{{ paperTitle || 'Loading paper…' }}</strong> @if (paperMarks) { <small>{{ paperMarks }} marks</small> } }
+          @else { <strong>Choose a saved paper or upload your own</strong> }
+        </div>
+        <button class="action" type="button" [disabled]="busy" (click)="choosePaper()">{{ paperId ? 'Change paper' : 'Choose paper' }}</button>
+      </div>
+      @if (paperError) { <p class="error" role="alert">{{ paperError }}</p> }
+      @if (paperId && !packetId && !busy && !hasLocalFiles) {
+        <button type="button" class="text-action register-link" (click)="onResults(paperId)">View other checked sheets for this paper</button>
+      }
+    </section>
+    @if (picker === 'library') {
+      <section class="picker" aria-labelledby="picker-title">
+        <button type="button" class="text-action" (click)="picker=null">‹ Back to answer books</button>
+        <div class="picker-head"><h2 id="picker-title">Choose the question paper</h2>
+          <button type="button" class="action" (click)="picker='import'">Upload a question paper</button>
+        </div>
+        <label class="search">Find a saved paper<input type="search" [(ngModel)]="search" placeholder="Title, subject or class"></label>
+        @for (paper of visiblePapers; track paper.id) {
+          <button class="paper-row" type="button" (click)="chooseReference(paper.id,paper.title,paper.marks)">
+            <span><strong>{{paper.title}}</strong><small>{{ paperContext(paper) }}</small></span>
+            <span class="meta">{{paper.marks}} marks · Rev {{paper.revision || 1}}</span>
+          </button>
+        }
+        @if (!loading && !libraryError && !visiblePapers.length) { <p>No matching papers in the loaded results.</p> }
+        @if (loading) { <p role="status">Loading papers…</p> }
+        @if (libraryError) { <p class="error" role="alert">{{ libraryError }}</p> }
+        @if (!loading && (nextCursor || libraryError)) { <button class="action" (click)="loadPapers()">{{ libraryError ? 'Try again' : 'Load older papers' }}</button> }
+      </section>
+    }
+    @if (picker === 'import') {
+      <gtop-external-exam (ready)="chooseReference($event)" (closed)="picker=null" />
+    }
+  </div>
+</main>

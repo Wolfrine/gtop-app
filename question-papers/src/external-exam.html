@@ -1,0 +1,147 @@
+<section class="external-exam" aria-labelledby="ext-title">
+  <header class="external-head">
+    <button type="button" class="text-action" (click)="current?list():close()" [disabled]="processing">‹ {{current?'Uploaded papers':'Check papers'}}</button>
+    <h2 id="ext-title">{{current ? current.title : 'Upload a question paper'}}</h2>
+  </header>
+  @if(error){<p role="alert" class="error">{{error}}</p>}
+  @if(loading&&!current){<p role="status">Opening paper…</p>}
+  @if(selecting&&!loading){
+    @if(current){<p class="notice">Resume by selecting the same {{current.questionPages}} question pages and {{current.pageCount-current.questionPages}} marking-scheme pages in their original order.</p>}
+    <div class="entry">
+      @for(group of ['exam','scheme'];track group){
+        @let pages=group==='exam'?exam:scheme;
+        <div class="file-group">
+          <label class="file-control">
+            <strong>{{group==='exam'?'Question paper':'Marking scheme'}} @if(group==='scheme'){<small>Optional</small>}</strong>
+            <span>{{group==='exam'?'Choose a PDF or photos in page order.':'Attach the teacher’s key or worked answers.'}}</span>
+            <input type="file" accept="application/pdf,.pdf,image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+              multiple [attr.aria-label]="group==='exam'?'Add question paper PDF or photos':'Add optional marking scheme PDF or photos'"
+              [disabled]="processing||total>=maxPages" (change)="pick($event,group==='exam'?'exam':'scheme')">
+          </label>
+          @if(pages.length){
+            <ol class="added">
+              @for(page of pages;track page.url;let i=$index){
+                <li><img [src]="page.url" alt=""><span>{{i+1}}. {{page.name}}</span>
+                  <button type="button" class="mini" [attr.aria-label]="'Move page '+(i+1)+' earlier'" [disabled]="processing||!i" (click)="move(group==='exam'?'exam':'scheme',i,-1)">↑</button>
+                  <button type="button" class="mini" [attr.aria-label]="'Move page '+(i+1)+' later'" [disabled]="processing||i===pages.length-1" (click)="move(group==='exam'?'exam':'scheme',i,1)">↓</button>
+                  <button type="button" class="mini" [attr.aria-label]="'Remove page '+(i+1)" [disabled]="processing" (click)="remove(group==='exam'?'exam':'scheme',i)">×</button>
+                </li>
+              }
+            </ol>
+          }
+        </div>
+      }
+      @if(total){<label>Exam title<input [(ngModel)]="title" maxlength="240" [disabled]="processing||!!current"></label>}
+      <div class="actions">
+        <button type="button" class="primary" [disabled]="!exam.length||processing" (click)="submit()">{{statusMessage||'Read question paper'}}</button>
+        <small>{{total ? total+' / '+maxPages+' pages' : 'Private to your account. Up to '+maxPages+' pages in total.'}}</small>
+      </div>
+    </div>
+  }
+  @if(!current){
+    @if(historyError){<div role="alert" class="error">{{historyError}} <button type="button" (click)="history()">Retry</button></div>}
+    @if(references.length){
+      <h3>Previously uploaded</h3>
+      <div class="history">
+        @for(item of references;track item.id){<button type="button" [disabled]="processing||loading" (click)="open(item.id)">
+          <span>{{item.title}}<small>{{item.questionPages}} question-paper {{item.questionPages===1?'page':'pages'}} @if(item.marks){· {{item.marks}} marks}</small></span>
+          <span>{{captions[item.state]}} ›</span>
+        </button>}
+        @if(cursor){<button type="button" (click)="history(true)">Load older papers</button>}
+      </div>
+    }
+  }
+  @if(current;as doc){
+    @if(waiting){
+      <section class="entry">
+        <h3>{{captions[doc.state]}}</h3>
+        <p><b>{{doc.questionPages}}</b> question-paper {{doc.questionPages===1?'page':'pages'}} and <b>{{doc.pageCount-doc.questionPages}}</b> marking-scheme pages saved. You can return to this paper while the checker reads it.</p>
+        <button type="button" (click)="refresh()" [disabled]="processing||loading">Refresh status</button>
+      </section>
+    }
+    @if(doc.state==='failed'&&!editing){
+      <section class="entry"><h3>Couldn’t read this paper</h3><p>{{doc.error||'The original pages are saved.'}}</p>
+      <div class="actions"><button type="button" class="primary" (click)="retry()" [disabled]="processing">Retry reading</button>
+      <button type="button" (click)="edit()" [disabled]="processing">Enter questions and marks</button></div></section>
+    }
+    @if(doc.paper&&!editing){
+      <section class="entry">
+        <div class="paper-meta"><h3>{{doc.state==='review'?'Check the highlighted items':'Marking reference'}}</h3>
+          <small>{{questionCount}} questions · {{doc.paper.marks??'—'}} marks</small></div>
+        @if(doc.issues.length){<ul class="notice">@for(note of doc.issues;track $index){<li>{{note}}</li>}</ul>}
+        @if(doc.paper.instructions.length){<p>{{doc.paper.instructions.join(' ')}}</p>}
+        @for(s of doc.paper.sections;track $index){
+          <h4>{{s.title}} <small>{{s.attemptCount??'?'}} of {{s.questions.length}} to attempt</small></h4>
+          @if(s.instructions){<p>{{s.instructions}}</p>}
+          @for(q of s.questions;track $index){
+            <details class="question"><summary><span>{{q.label}}. {{q.question||'Question text missing'}}</span><b>{{q.marks??'?'}} marks</b></summary>
+              <div class="details">
+                @if(q.answer){<p>{{q.answer}}</p>}
+                @if(q.markingPoints.length){<ul>@for(point of q.markingPoints;track $index){<li>{{point}}</li>}</ul>}
+                @if(q.alternative;as b){<strong>OR</strong><p>{{b.question}}</p>@if(b.answer){<p>{{b.answer}}</p>}@for(point of b.markingPoints;track $index){<p>{{point}}</p>}}
+                @if(!q.answer&&!q.markingPoints.length){<p>Checking will use the question wording.</p>}
+                @if(q.sourcePage){<button type="button" class="text-action" (click)="showPage(q.sourcePage)">View original · p{{q.sourcePage}}</button>}
+              </div>
+            </details>
+          }
+        }
+        <div class="actions">
+          @if(doc.state==='ready'){<button type="button" class="primary" (click)="ready.emit(doc.id)">Check answer sheets</button><button type="button" (click)="edit()">Correct as a new revision</button>}
+          @else {<button type="button" class="primary" (click)="edit()">Review reference</button>}
+        </div>
+      </section>
+    }
+    @if(editing&&draft;as draftPaper){
+      <section class="entry">
+        <h3>Review reference</h3>
+        @if(doc.issues.length){<ul class="notice">@for(note of doc.issues;track $index){<li>{{note}}</li>}</ul>}
+        <div class="fields"><label>Exam title<input [(ngModel)]="draftPaper.title" maxlength="240"></label>
+          <label>Total marks<input type="number" min="0.01" step="any" [(ngModel)]="draftPaper.marks"></label></div>
+        <label>Exam instructions<textarea [ngModel]="draftPaper.instructions.join('\n')" (ngModelChange)="draftPaper.instructions=lines($event)"></textarea></label>
+        @for(s of draftPaper.sections;track s;let si=$index){
+          <div class="section-edit">
+            <div class="fields"><label>Section title<input [(ngModel)]="s.title" maxlength="160"></label>
+              <label>Questions to attempt<input type="number" min="1" [max]="s.questions.length" [(ngModel)]="s.attemptCount"></label></div>
+            <label>Section instructions<textarea [(ngModel)]="s.instructions" maxlength="1400"></textarea></label>
+            @for(q of s.questions;track q;let qi=$index){
+              <details class="question" [open]="!q.marks||!q.question"><summary><span>{{q.label}}. {{q.question||'Enter question'}}</span><b>{{q.marks??'?'}} marks</b></summary>
+                <div class="details">
+                  <div class="fields compact"><label>Unique number<input type="number" min="1" [(ngModel)]="q.number"></label>
+                    <label>Printed label<input [(ngModel)]="q.label" maxlength="90"></label><label>Marks<input type="number" min="0.01" step="any" [(ngModel)]="q.marks"></label></div>
+                  <label>Question and options<textarea [(ngModel)]="q.question" maxlength="5000"></textarea></label>
+                  <label>Expected answer<textarea [(ngModel)]="q.answer" maxlength="3500"></textarea></label>
+                  <label>Marking points, one per line<textarea [ngModel]="q.markingPoints.join('\n')" (ngModelChange)="q.markingPoints=$event.split('\n')"></textarea></label>
+                  @if(q.alternative;as b){
+                    <label>OR question<textarea [(ngModel)]="b.question"></textarea></label>
+                    <label>OR answer<textarea [(ngModel)]="b.answer"></textarea></label>
+                    <label>OR marking points, one per line<textarea [ngModel]="b.markingPoints.join('\n')" (ngModelChange)="b.markingPoints=$event.split('\n')"></textarea></label>
+                  }
+                  <div class="actions"><button type="button" (click)="toggleAlternative(q)">{{q.alternative?'Remove OR option':'Add OR option'}}</button>
+                    <button type="button" (click)="removeQuestion(s,qi)">Remove question</button>
+                    @if(q.sourcePage){<button type="button" (click)="showPage(q.sourcePage)">Original p{{q.sourcePage}}</button>}
+                  </div>
+                </div>
+              </details>
+            }
+            <div class="actions"><button type="button" (click)="addQuestion(s)">Add question</button>
+              @if(!s.questions.length){<button type="button" (click)="draftPaper.sections.splice(si,1)">Remove section</button>}</div>
+          </div>
+        }
+        <button type="button" (click)="addSection()">Add section</button>
+        @if(doc.issues.length){<label class="confirm"><input type="checkbox" [(ngModel)]="reviewed"> I checked the highlighted items against the original paper.</label>}
+        <div class="actions"><button type="button" class="primary" [disabled]="processing||!!doc.issues.length&&!reviewed" (click)="save()">Save marking reference</button>
+          <button type="button" [disabled]="processing" (click)="cancelEdit()">Cancel</button></div>
+      </section>
+    }
+    @if(sourceUrl||sourceBusy||sourceError||editing){
+      <section class="original" aria-label="Original exam page"><div class="paper-meta"><h3>Original scan</h3><label>Page
+        <select [ngModel]="sourcePage" (ngModelChange)="showPage($event)">
+          @for(p of pages;track p){<option [ngValue]="p">{{p}} · {{p<=doc.questionPages?'Question paper':'Marking scheme'}}</option>}
+        </select></label></div>
+        @if(sourceBusy){<p role="status">Opening page…</p>}
+        @if(sourceError){<p class="error" role="alert">{{sourceError}}</p>}
+        @if(sourceUrl){<img [src]="sourceUrl" [alt]="'Original exam page '+sourcePage">}
+      </section>
+    }
+  }
+</section>

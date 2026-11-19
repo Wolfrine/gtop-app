@@ -1108,6 +1108,45 @@ h4 {
 .scan-remark p {
   overflow-wrap: anywhere;
 }
+.method-breakdown ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: method;
+}
+.method-breakdown li {
+  counter-increment: method;
+  border-top: 1px solid var(--line, #d6dfd8);
+  padding: 8px 0;
+}
+.step-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.step-heading strong::before {
+  content: counter(method) '. ';
+}
+.step-heading span {
+  color: var(--signal);
+  font-weight: 750;
+  white-space: nowrap;
+}
+.step-edit {
+  margin-top: 6px;
+  display: grid;
+  gap: 6px;
+}
+.step-edit label {
+  display: grid;
+  gap: 3px;
+  font-size: 12px;
+}
+.step-edit input, .step-edit textarea, .step-edit select {
+  max-width: 100%;
+  box-sizing: border-box;
+}
 .math-copy ::ng-deep p {
   margin: 0;
 }
@@ -1115,6 +1154,8 @@ h4 {
   max-width: 100%;
 }
 @media print {
+  .method-print { margin: 2mm 0; padding-left: 6mm; }
+  .method-print li { break-inside: avoid; margin: 1mm 0; font-size: 9pt; }
   .print-stage {
     grid-template-columns: minmax(0, 1fr) 37mm;
   }
@@ -1146,3 +1187,5 @@ h4 {
     margin-top: 0.4mm;
   }
 }
+
+.register-actions { display:flex; flex-wrap:wrap; gap:7px; }

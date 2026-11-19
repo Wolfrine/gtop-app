@@ -14,12 +14,14 @@ import { ChatMathDirective } from './chat-math.directive';
 import { formatAssistantText } from './presentation.mjs';
 import { AssistantApi } from './api.service';
 import { PaperCheckingBatchComponent } from './checking-batch.component';
+import { ClassReturnComponent } from './class-return.component';
 import { maxCheckingPages, rotateScan, scanBase64, scanFiles, type Scan } from './checking-intake';
-import { marginGroups, positionedMarks, type MappingPoint } from './checking-scan';
+import { marginGroups, marksOnPage, positionedMarks, scoreStatus, type MappingPoint, type MarkStatus,
+  type MethodStep, type ScanMark } from './checking-scan';
 import { summarizeGrades } from '../../assistant-service/domain/checking.mjs';
 
 type State = 'uploading' | 'queued' | 'running' | 'failed' | 'review' | 'final';
-type Result = 'correct' | 'partial' | 'wrong' | 'missing' | 'unreadable' | 'uncertain';
+type Result = MarkStatus;
 type Answer = {
   number: number;
   max: number;
@@ -30,6 +32,7 @@ type Answer = {
   explanation: string;
   evidence: string;
   anchors: MappingPoint[];
+  steps?: MethodStep[];
   counted?: boolean | null;
 };
 type Variant = {
@@ -72,6 +75,7 @@ type Grade = {
 type Page = { index: number; width: number; height: number };
 type Summary = {
   id: string;
+  packetId?: string;
   label: string;
   state: State;
   pageCount: number;
@@ -103,13 +107,15 @@ type Filter = 'All sheets' | 'Needs attention' | 'Ready' | 'In progress' | 'Fina
 @Component({
   selector: 'gtop-paper-checking',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaperCheckingBatchComponent, ChatMathDirective],
+  imports: [CommonModule, FormsModule, PaperCheckingBatchComponent, ChatMathDirective, ClassReturnComponent],
   templateUrl: './checking.html',
   styleUrl: './checking.css',
 })
 export class PaperCheckingComponent implements OnInit, OnDestroy {
   @Input({ required: true }) paperId = '';
   @Input({ required: true }) onClose!: () => void;
+  @Input() scopePacketId = '';
+  @Input() onScanClass?: (paperId:string)=>void;
   readonly format = formatAssistantText;
   private api = inject(AssistantApi);
   private change = inject(ChangeDetectorRef);
@@ -141,7 +147,10 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   }
   stageHeight = 600;
   scanWidth = 420;
-  remarkNumber = 0;
+  remarkKey = '';
+  focusedStep: number | null = null;
+  placingStep: number | null = null;
+  readonly scoreStatus = scoreStatus;
   sheets: Summary[] = [];
   cursor: string | null = null;
   moreBusy = false;
@@ -349,8 +358,11 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   }
   ngOnInit() {
     const initialSheet = new URL(location.href).searchParams.get('sheet');
-    void this.refresh();
-    if (initialSheet) void this.open(initialSheet);
+    const register = this.refresh();
+    if (initialSheet) {
+      if (this.scopePacketId) void register.then(() => { if (!this.dead && !this.error) void this.open(initialSheet); });
+      else void this.open(initialSheet);
+    }
     const uid = this.api.user?.uid;
     if (uid) {
       try {
@@ -391,8 +403,12 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     const request = ++this.listEpoch;
     this.error = '';
     try {
-      const { sheets, rubric, nextCursor } = await this.api.request<Index>(this.base);
+      const path = this.scopePacketId
+        ? '/checking/packets/' + encodeURIComponent(this.scopePacketId) + '/results'
+        : this.base;
+      const { sheets, rubric, nextCursor, paperId } = await this.api.request<Index & {paperId?: string}>(path);
       if (this.dead || request !== this.listEpoch) return;
+      if (this.scopePacketId && paperId !== this.paperId) throw new Error('This class belongs to a different question paper. Open it from Check papers.');
       this.sheets = sheets;
       this.cursor = nextCursor ?? null;
       this.rubric = rubric;
@@ -425,6 +441,12 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     }
   }
   async open(id: string, changeUrl = true) {
+    if (this.scopePacketId && !this.sheets.some(item => item.id === id)) {
+      this.changeUrl();
+      this.message = 'That sheet is outside this class. Choose a sheet from the class results.';
+      this.paint();
+      return;
+    }
     if (this.dirty && id === this.sheet?.id) return;
     const generation = ++this.epoch;
     this.opening = id;
@@ -761,7 +783,9 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     if (answer) this.choose(answer);
   }
   choose(answer: Answer, page?: number) {
-    this.remarkNumber = 0;
+    this.remarkKey = '';
+    this.focusedStep = null;
+    this.placingStep = null;
     this.selected = answer.number;
     this.pageNumber = page ?? answer.anchors[0]?.page ?? this.pageNumber;
     this.placing = false;
@@ -793,6 +817,13 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
         ?.scrollIntoView({ block: 'nearest', inline: 'nearest' }),
     );
   }
+  showStep(answer: Answer, index: number) {
+    const anchor = answer.steps?.[index]?.anchor;
+    if (!anchor) return;
+    this.showEvidence(answer, anchor.page);
+    this.focusedStep = index;
+    this.remarkKey = answer.number + '/' + index;
+  }
   setFocusList(mode: 'issues' | 'all') {
     this.focusList = mode;
     if (mode === 'issues' && this.issues.length && !this.issues.some((a) => a.number === this.selected))
@@ -814,7 +845,8 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     if (pages[index + by]) this.setPage(pages[index + by].index);
   }
   setPage(index: number) {
-    this.remarkNumber = 0;
+    this.remarkKey = '';
+    this.focusedStep = null;
     this.pageNumber = Number(index);
     this.placing = false;
     this.groupedNumbers = [];
@@ -832,9 +864,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     this.host.nativeElement.querySelector('.scan-window')?.scrollTo(0, 0);
   }
   annotations(index: number) {
-    return this.answers.flatMap((answer) =>
-      answer.anchors.filter((anchor) => anchor.page === index).map((anchor) => ({ answer, anchor })),
-    );
+    return marksOnPage(this.answers, index);
   }
   screenMarks(index: number) {
     return marginGroups(this.annotations(index), this.stageHeight, 43);
@@ -848,7 +878,8 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   }
   printMarks(page: Page) {
     const height = Math.min(244, (153 * page.height) / page.width);
-    const groups = marginGroups(this.annotations(page.index), height, 13);
+    const marks = this.annotations(page.index);
+    const groups = marginGroups(marks, height, marks.some(mark => mark.stepIndex !== null) ? 20 : 13);
     return groups.map((group, index) => {
       // Each centered caption can use its share of the gap to either neighboring mark.
       const space = Math.min(
@@ -858,23 +889,25 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
         index + 1 < groups.length ? groups[index + 1].center - group.center : 1,
       ) * height;
       const lines = Math.max(1, Math.floor((space - 5) / 3.1));
-      return { ...group, caption: this.brief(group.marks[0].answer, Math.min(260, lines * 21)) };
+      const mark = group.marks[0];
+      return { ...group, caption: this.brief(mark.comment, mark.status, Math.min(260, lines * 21)) };
     });
   }
-  openRemark(answer: Answer) {
-    if (this.remarkNumber === answer.number) {
-      this.remarkNumber = 0;
+  openRemark(pin: ScanMark<Answer>) {
+    if (this.remarkKey === pin.key) {
+      this.remarkKey = '';
       return;
     }
-    this.choose(answer, this.pageNumber);
-    this.remarkNumber = answer.number;
+    this.choose(pin.answer, this.pageNumber);
+    this.focusedStep = pin.stepIndex;
+    this.remarkKey = pin.key;
   }
-  brief(answer: Answer, limit = 175) {
-    const explanation = answer.explanation.trim();
+  brief(remark: string, status: Result, limit = 175) {
+    const explanation = remark.trim();
     if (explanation.length <= limit) return explanation;
     const sentences = explanation.split(/(?<=[.!?।])\s+/);
     // When space is tight, keep the concluding marking decision alongside the work.
-    if (answer.status !== 'correct' && sentences.length > 1) {
+    if (status !== 'correct' && sentences.length > 1) {
       const decision = sentences[sentences.length - 1];
       const summary = sentences[0] + ' ' + decision;
       if (summary.length <= limit) return summary;
@@ -894,10 +927,11 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     const end = text.lastIndexOf(' ');
     return (end > 0 ? text.slice(0, end) : text).trimEnd() + '…';
   }
-  openGroup(marks: { answer: Answer; anchor: MappingPoint }[]) {
-    if (marks.length === 1) this.inspect(marks[0].answer, this.pageNumber);
+  openGroup(marks: ScanMark<Answer>[]) {
+    const numbers = [...new Set(marks.map(mark => mark.answer.number))];
+    if (numbers.length === 1) this.inspect(marks[0].answer, this.pageNumber);
     else {
-      this.groupedNumbers = marks.map((mark) => mark.answer.number);
+      this.groupedNumbers = numbers;
       this.switchPane('review');
     }
   }
@@ -926,10 +960,14 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     else return;
     event.preventDefault();
   }
-  beginPlacement() {
+  beginPlacement(stepIndex: number | null = null, page = this.pageNumber) {
+    this.pageNumber = page;
+    this.placingStep = stepIndex;
     this.placing = true;
-    const anchor = this.answer?.anchors.find((a) => a.page === this.pageNumber);
-    this.crosshair = anchor ? { x: anchor.x, y: anchor.y } : { x: 0.5, y: 0.5 };
+    const anchor = stepIndex === null
+      ? this.answer?.anchors.find(a => a.page === page)
+      : this.answer?.steps?.[stepIndex]?.anchor;
+    this.crosshair = anchor?.page === page ? { x: anchor.x, y: anchor.y } : { x: 0.5, y: 0.5 };
     this.switchPane('scan');
   }
   place(event: MouseEvent) {
@@ -939,16 +977,88 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   }
   private placeAt(x: number, y: number) {
     if (!this.placing || !this.answer || !this.canEdit) return;
-    this.answer.anchors = [
-      ...this.answer.anchors.filter((anchor) => anchor.page !== this.pageNumber),
-      { page: this.pageNumber, x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) },
-    ];
+    const point = { page: this.pageNumber, x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) };
+    const step = this.placingStep === null ? undefined : this.answer.steps?.[this.placingStep];
+    if (step) this.moveStep(this.answer, step, point);
+    else this.answer.anchors = [...this.answer.anchors.filter(anchor => anchor.page !== this.pageNumber), point];
     this.placing = false;
+    this.focusedStep = this.placingStep;
+    this.placingStep = null;
     this.markChanged();
     this.switchPane('review');
   }
   detach(answer: Answer, index: number) {
     answer.anchors = answer.anchors.filter((anchor) => anchor.page !== index);
+    this.markChanged();
+  }
+  moveStep(answer: Answer, step: MethodStep, point: MappingPoint | null) {
+    const steppedPages = new Set(answer.steps?.map(item => item.anchor?.page));
+    const byPage = new Map(answer.anchors.filter(a => !steppedPages.has(a.page)).map(a => [a.page, a]));
+    step.anchor = point;
+    for (const step of answer.steps ?? []) if (step.anchor && !byPage.has(step.anchor.page))
+      byPage.set(step.anchor.page, step.anchor);
+    answer.anchors = [...byPage.values()];
+    this.markChanged();
+  }
+  pickStepPage(index: number, select: HTMLSelectElement) {
+    const page = Number(select.value);
+    select.value = '';
+    if (page > 0) this.beginPlacement(index, page);
+  }
+  stepAwardChanged(answer: Answer, step: MethodStep, value: number | null) {
+    if (step.awarded === value) return;
+    step.awarded = value;
+    step.comment = value === null ? 'Teacher review pending.' : 'Teacher revised this step to ' + value + '/' + step.max + '.';
+    this.reassessSteps(answer);
+  }
+  allocated(steps: MethodStep[]) {
+    return steps.reduce((sum, item) => sum + Math.round(100 * (item.max || 0)), 0) / 100;
+  }
+  reassessSteps(answer: Answer) {
+    const steps = answer.steps ?? [];
+    const undecided = this.allocated(steps) !== answer.max || steps.some(item =>
+      !Number.isFinite(item.max) || item.max <= 0 || item.awarded === null ||
+      !Number.isFinite(item.awarded) || item.awarded < 0 || item.awarded > item.max);
+    answer.awarded = undecided ? null : steps.reduce((sum, item) => sum + Math.round(100 * item.awarded!), 0) / 100;
+    answer.status = scoreStatus(answer.awarded, answer.max);
+    answer.explanation = 'Teacher revised the assessment. See the individual method marks.';
+    this.markChanged();
+  }
+  addStep(answer: Answer) {
+    const steps = answer.steps ?? [];
+    if (steps.length >= 30) return;
+    const remaining = Math.round((answer.max - this.allocated(steps)) * 100) / 100;
+    answer.steps = [...steps, { criterion: '', max: Math.max(0, remaining), awarded: null, comment: '', anchor: null }];
+    this.reassessSteps(answer);
+  }
+  removeStep(answer: Answer, index: number) {
+    const steps = answer.steps;
+    if (!steps || steps.length < 2) return;
+    this.moveStep(answer, steps[index], null);
+    steps.splice(index, 1);
+    this.reassessSteps(answer);
+  }
+  replaceSteps(answer: Answer) {
+    if (!window.confirm('Replace these individual method marks with one question score?')) return;
+    answer.steps = [];
+    answer.explanation = 'Teacher assessed the question as a whole.';
+    this.remarkKey = '';
+    this.focusedStep = null;
+    this.markChanged();
+  }
+  changeChoice(answer: Answer, value: Answer['choice']) {
+    if (answer.choice === value) return;
+    if (answer.choice) {
+      answer.steps = [];
+      answer.status = 'uncertain';
+      answer.awarded = null;
+      answer.anchors = [];
+      answer.evidence = '';
+      answer.explanation = 'Review the selected alternative.';
+      this.remarkKey = '';
+      this.focusedStep = null;
+    }
+    answer.choice = value;
     this.markChanged();
   }
   setStatus(answer: Answer, status: Result) {

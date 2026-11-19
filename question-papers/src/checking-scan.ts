@@ -1,9 +1,44 @@
 export type MappingPoint = { page: number; x: number; y: number };
-export type MarginMark<T> = { answer: T; anchor: MappingPoint };
+export type MarkStatus = 'correct' | 'partial' | 'wrong' | 'missing' | 'unreadable' | 'uncertain';
+export type MethodStep = { criterion: string; max: number; awarded: number | null; comment: string; anchor: MappingPoint | null };
+type MarkedAnswer = {
+  number: number; max: number; awarded: number | null; status: MarkStatus;
+  explanation: string; anchors: MappingPoint[]; steps?: MethodStep[];
+};
+export type ScanMark<T extends MarkedAnswer> = {
+  answer: T; anchor: MappingPoint; key: string; stepIndex: number | null; title: string;
+  awarded: number | null; max: number; status: MarkStatus; comment: string;
+};
+
+export function scoreStatus(awarded: number | null, max: number): MarkStatus {
+  if (awarded === null) return 'uncertain';
+  if (awarded === 0) return 'wrong';
+  return awarded === max ? 'correct' : 'partial';
+}
+
+export function marksOnPage<T extends MarkedAnswer>(answers: T[], page: number): ScanMark<T>[] {
+  const marks: ScanMark<T>[] = [];
+  for (const answer of answers) {
+    const onPage = (answer.steps ?? []).flatMap((step, stepIndex) =>
+      step.anchor?.page === page ? [{ step, stepIndex, anchor: step.anchor }] : []);
+    if (onPage.length) {
+      for (const { step, stepIndex, anchor } of onPage) {
+        marks.push({ answer, anchor, key: answer.number + '/' + stepIndex, stepIndex,
+          title: step.criterion, awarded: step.awarded, max: step.max,
+          status: scoreStatus(step.awarded, step.max), comment: step.comment });
+      }
+    } else {
+      const anchor = answer.anchors.find(point => point.page === page);
+      if (anchor) marks.push({ answer, anchor, key: String(answer.number), stepIndex: null, title: '',
+        awarded: answer.awarded, max: answer.max, status: answer.status, comment: answer.explanation });
+    }
+  }
+  return marks;
+}
 
 // Place references outside the scan. If the page is crowded, neighboring references
 // share one button, with all of their individual results available in the inspector.
-export function marginGroups<T>(marks: MarginMark<T>[], height: number, spacing: number) {
+export function marginGroups<T extends { anchor: MappingPoint }>(marks: T[], height: number, spacing: number) {
   if (!marks.length) return [];
   const sorted = [...marks].sort((a, b) => a.anchor.y - b.anchor.y);
   const capacity = Math.max(1, Math.floor(height / spacing));
@@ -29,8 +64,8 @@ export function marginGroups<T>(marks: MarginMark<T>[], height: number, spacing:
 
 // Keep scored marks on the actual scan while moving each small label away from
 // its reference point. Prefer open space immediately above the written line.
-export function positionedMarks<T>(
-  marks: MarginMark<T>[],
+export function positionedMarks<T extends { anchor: MappingPoint }>(
+  marks: T[],
   width: number,
   height: number,
   labelWidth: number,

@@ -1,13 +1,19 @@
 <ng-container *ngIf="checkingOpen">
-  <ng-container *ngComponentOutlet="checkingComponent || null; inputs: checkingInputs"></ng-container>
-  <main *ngIf="!checkingComponent" class="access-page" role="status">Opening answer sheets…</main>
+  <ng-container *ngIf="checkingHome; else sheetRegister">
+    <ng-container *ngComponentOutlet="checkingHubComponent || null; inputs: hubInputs"></ng-container>
+    <main *ngIf="!checkingHubComponent" class="access-page" role="status">Opening paper checking…</main>
+  </ng-container>
+  <ng-template #sheetRegister>
+    <ng-container *ngComponentOutlet="checkingComponent || null; inputs: checkingInputs"></ng-container>
+    <main *ngIf="!checkingComponent" class="access-page" role="status">Opening answer sheets…</main>
+  </ng-template>
 </ng-container>
 <div class="workspace" [hidden]="checkingOpen" [class.with-document]="document" [class.drawer-open]="drawer">
   <div *ngIf="fixture" class="preview-banner">Local visual preview · synthetic data · {{fixture}} state</div>
   <header class="app-header">
     <button *ngIf="user" class="icon-button menu-button" aria-label="Open recent conversations" [attr.aria-expanded]="drawer" (click)="toggleDrawer()"><span class="menu-glyph" aria-hidden="true"></span></button>
     <a class="brand" href="/" [attr.inert]="drawer?'':null" aria-label="GT Papers · Growth Tutorials"><img class="brand-mark" src="/icons/gt-papers-192.png" alt="" width="34" height="34"><span class="brand-name">GT Papers<small>Growth Tutorials</small></span></a>
-    <div class="header-right" [attr.inert]="drawer?'':null"><span class="private-label">Private workspace</span><gt-pwa-controls/><span *ngIf="user" class="avatar" role="img" [title]="user.displayName || user.email" [attr.aria-label]="'Signed in as '+(user.displayName || user.email)">{{initials()}}</span></div>
+    <div class="header-right" [attr.inert]="drawer?'':null"><button *ngIf="user && !fixture" class="header-check-papers" (click)="openCheckingHome()">Check papers</button><span class="private-label">Private workspace</span><gt-pwa-controls/><span *ngIf="user" class="avatar" role="img" [title]="user.displayName || user.email" [attr.aria-label]="'Signed in as '+(user.displayName || user.email)">{{initials()}}</span></div>
   </header>
 
   <main *ngIf="loading" class="access-page" aria-live="polite"><div class="access-card"><span class="loader" aria-hidden="true"></span><h1>Opening your workspace</h1><p>Connecting securely to Growth Tutorials…</p></div></main>
@@ -16,7 +22,7 @@
     <div class="access-card">
       <img class="access-mark" src="/icons/gt-papers-192.png" alt="" width="64" height="64"><div class="eyebrow">GROWTH TUTORIALS · TEACHERS</div>
       <h1>Less paperwork.<br>More teaching.</h1>
-      <p>Create, refine and print question papers through a conversation. Questions and worked answers stay separate.</p>
+      <p>Create question papers, check handwritten answer books and return marked copies to your class.</p>
       <div class="access-note">Private pilot for invited Growth Tutorials administrators.</div>
       <button class="button primary login-button" [disabled]="authenticating" (click)="login()"><span class="google-mark" aria-hidden="true">G</span>{{authenticating?'Signing in…':'Continue with Google'}}</button>
       <button class="text-button" (click)="emailForm=!emailForm">{{emailForm?'Use Google instead':'Sign in with email'}}</button>

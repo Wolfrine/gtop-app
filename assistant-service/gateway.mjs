@@ -33,6 +33,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='POST' && path==='/worker/service/poll')output=await service.serviceControl.poll(worker,body);
         else if(method==='POST' && path==='/worker/curriculum/catalogue')output=await service.curriculumCatalogue();
         else if(method==='POST' && path==='/worker/curriculum/resolve')output={curriculum:await service.resolveCurriculum(body.requirements,body.conversationId,worker)};
+        else if(method==='POST' && /^\/worker\/checking\/[A-Za-z0-9_-]+(?:\/(?:pages\/\d+|complete|fail))?$/.test(path))output=await service.checking.worker(path.split('/').slice(3),worker,body);
         else if(method==='POST' && path==='/worker/claim')output=await service.claim(worker,body);
         else if(method==='POST' && path==='/worker/dispatch')output={ownerUids:worker.allowedOwnerUids};
         else {const m=path.match(/^\/worker\/jobs\/([^/]+)\/(heartbeat|event|delegate|complete|fail)$/);if(method!=='POST'||!m)throw new HttpError(404,'not_found','Endpoint unavailable.');const fn={heartbeat:'renew',event:'event',delegate:'delegate',complete:'complete',fail:'failed'}[m[2]];output=await service[fn](worker,m[1],body);}
@@ -48,7 +49,11 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='GET' && /^\/admin\/conversations\/[^/]+$/.test(path))output=await service.adminConversation(uid,path.split('/').at(-1));
         else if(method==='GET' && /^\/(admin\/)?conversations\/[^/]+\/revision$/.test(path))output=await service.conversationRevision(uid,path.split('/').at(-2),path.startsWith('/admin/'));
         else {let m;
-          if(method==='GET' && (m=path.match(/^\/conversations\/([^/]+)$/)))output=await service.conversation(uid,m[1]);
+          if((m=path.match(/^\/papers\/([A-Za-z0-9_-]+)\/checking(?:\/([A-Za-z0-9_-]+)(?:\/(?:(pages)\/(\d+)|(queue|review|manual)))?)?$/))){
+            output=await service.checking.teacher(method,[m[1],m[2],m[3]||m[5],m[4]],uid,body);
+            if(Buffer.isBuffer(output))responseHeaders['Content-Type']='image/jpeg';
+          }
+          else if(method==='GET' && (m=path.match(/^\/conversations\/([^/]+)$/)))output=await service.conversation(uid,m[1]);
           else if(method==='POST' && (m=path.match(/^\/conversations\/([^/]+)\/messages$/)))output=await service.submit(uid,m[1],body);
           else if(method==='POST' && (m=path.match(/^\/jobs\/([^/]+)\/(cancel|retry)$/)))output=await service[m[2]](uid,m[1]);
           else if(method==='GET' && (m=path.match(/^\/papers\/([^/]+)$/)))output=await service.paper(uid,m[1]);

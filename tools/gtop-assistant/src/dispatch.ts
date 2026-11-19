@@ -1,6 +1,6 @@
 import {initializeServerApp,deleteApp} from 'firebase/app';
-import {getAuth} from 'firebase/auth';
-import {getFirestore,doc,onSnapshot,terminate} from 'firebase/firestore';
+import {connectAuthEmulator,getAuth} from 'firebase/auth';
+import {connectFirestoreEmulator,getFirestore,doc,onSnapshot,terminate} from 'firebase/firestore';
 
 export class DispatchState {
   online:Map<string,boolean>;revisions=new Map<string,string|undefined>();
@@ -16,12 +16,17 @@ export class DispatchState {
 }
 
 /** One exact marker per assigned owner. SDK reconnects retain their backoff. */
-export async function listenForDispatch({apiKey,idToken,workerId,ownerUids,changed,connection,failed}:any){
+export async function listenForDispatch({apiKey,idToken,workerId,ownerUids,changed,connection,failed,authEmulator}:any){
   if(!Array.isArray(ownerUids)||!ownerUids.length||ownerUids.length>20||ownerUids.some(uid=>! /^[a-zA-Z0-9_-]{1,128}$/.test(uid)))throw Error('Invalid dispatch assignment.');
-  const app=initializeServerApp({apiKey,projectId:'gtop-app',authDomain:'gtop-app.firebaseapp.com'},{authIdToken:idToken});
+  const projectId=authEmulator?'demo-gtop-assistant':'gtop-app';
+  const app=initializeServerApp({apiKey,projectId,authDomain:projectId+'.firebaseapp.com'},{authIdToken:idToken});
   const db=getFirestore(app),auth=getAuth(app),subscriptions:(()=>void)[]=[];
   const state=new DispatchState(ownerUids);let closed=false;
   try{
+    if(authEmulator){
+      connectAuthEmulator(auth,authEmulator,{disableWarnings:true});
+      connectFirestoreEmulator(db,'127.0.0.1',8280);
+    }
     await auth.authStateReady();
     if(auth.currentUser?.uid!==`assistant-worker-${workerId}`)throw Error('Dispatch identity mismatch.');
     for(const uid of ownerUids){subscriptions.push(onSnapshot(doc(db,`assistantDispatch/${uid}`),{includeMetadataChanges:true},snapshot=>{

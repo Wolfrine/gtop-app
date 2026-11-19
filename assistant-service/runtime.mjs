@@ -16,5 +16,5 @@ const route=createGateway(service,token=>auth.verifyIdToken(token,true),{allowLo
 export const gtopAssistantGateway=onRequest({region:'us-central1',memory:'512MiB',cpu:1,timeoutSeconds:60,maxInstances:3,concurrency:40,invoker:'public'},async(req,res)=>{
   const result=await route({method:req.method,path:req.path,headers:req.headers,body:req.body});
   for(const [key,value]of Object.entries(result.headers))res.setHeader(key,value);
-  res.status(result.status);if(result.status===204)res.end();else if(typeof result.body==='string')res.send(result.body);else res.json(result.body);
+  res.status(result.status);if(result.status===204)res.end();else if(Buffer.isBuffer(result.body)||typeof result.body==='string')res.send(result.body);else res.json(result.body);
 });

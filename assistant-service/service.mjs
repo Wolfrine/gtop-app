@@ -5,6 +5,7 @@ import {catalogueIndex,capabilityFacts,savedCurriculum,validateScope,validateCur
 import {researchCurriculum,curriculumResearchSchema} from './domain/research.mjs';
 import {buildTaskBrief,missingTaskField,selectedCurriculum} from './domain/task-brief.mjs';
 import {ServiceControl,serviceWorkerId} from './service-control.mjs';
+import {PaperChecking} from './checking.mjs';
 import {withWorkerHealth,workerFreshnessMs} from './presence.mjs';
 import {proposalResponse,researchKey,pendingPaperTurns,confirmationText} from './domain/paper-proposal.mjs';
 
@@ -40,7 +41,7 @@ function decodeArtifact(doc){
 }
 
 export class AssistantService {
-  constructor(store, {now = () => new Date(), id = randomUUID, signer = null, sleep = ms => new Promise(r => setTimeout(r,ms)), domainApi = domain} = {}) { Object.assign(this,{store,now,id,signer,sleep,domain:domainApi});this.serviceControl=new ServiceControl(this,fail); }
+  constructor(store, {now = () => new Date(), id = randomUUID, signer = null, sleep = ms => new Promise(r => setTimeout(r,ms)), domainApi = domain} = {}) { Object.assign(this,{store,now,id,signer,sleep,domain:domainApi});this.serviceControl=new ServiceControl(this,fail);this.checking=new PaperChecking(this,fail); }
   iso() { return this.now().toISOString(); }
   notifyDispatch(tx,ownerUid) {
     tx.set(ref('assistantDispatch',ownerUid),{schemaVersion:1,revision:randomUUID(),updatedAt:this.iso()});

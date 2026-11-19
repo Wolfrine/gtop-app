@@ -1,0 +1,226 @@
+<div class="checking-shell">
+  <header class="checking-header">
+    <button class="checking-back" type="button" (click)="leave()" [disabled]="busy">← Back to papers</button>
+    <div class="checking-title">
+      <h1>Check answer sheets</h1>
+      @if(rubric){<p>{{rubric.title}} · {{max}} marks</p>}
+    </div>
+    <button class="checking-action" type="button" (click)="refresh()" [disabled]="busy||dirty">Refresh</button>
+  </header>
+
+  @if(error){<p role="alert" class="checking-notice error">{{error}}</p>}
+  @if(message){<p role="status" class="checking-notice">{{message}}</p>}
+
+  @if(composing){
+    <section class="checking-intake" aria-labelledby="intake-title">
+      <h2 id="intake-title">{{resuming?'Resume upload':'Add an answer sheet'}}</h2>
+      <p>Use one sheet per submission. Add up to 12 ordered photos or pages from a scanned PDF.</p>
+      <form (ngSubmit)="submit()" class="checking-form">
+        <label>Sheet label
+          <input name="label" [(ngModel)]="label" [disabled]="busy||frozen" maxlength="100" required placeholder="For example, Sheet 07">
+        </label>
+        <label>Marking notes <span>(optional)</span>
+          <textarea name="notes" [(ngModel)]="notes" [disabled]="busy||frozen" maxlength="1600" rows="2" placeholder="Any instructions for this sheet"></textarea>
+        </label>
+        <label class="checking-file">Add photos or a PDF
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,.heic,.heif,application/pdf,.pdf" multiple (change)="addFiles($event)" [disabled]="busy||photos.length>=12">
+        </label>
+        @if(photos.length){
+          <ol class="checking-upload-pages" aria-label="Upload order">
+            @for(photo of photos;track photo.url;let i=$index){
+              <li>
+                <img [src]="photo.url" alt="">
+                <div class="checking-page-name"><strong>Page {{i+1}}</strong><small>{{photo.name}}</small></div>
+                <div class="checking-mini-actions">
+                  <button type="button" [disabled]="busy||i===0" (click)="move(i,-1)" [attr.aria-label]="'Move page '+(i+1)+' earlier'">↑</button>
+                  <button type="button" [disabled]="busy||i===photos.length-1" (click)="move(i,1)" [attr.aria-label]="'Move page '+(i+1)+' later'">↓</button>
+                  <button type="button" [disabled]="busy" (click)="remove(i)" [attr.aria-label]="'Remove page '+(i+1)">×</button>
+                </div>
+              </li>
+            }
+          </ol>
+        }
+        <p class="checking-help">Scan pages and results are private to your account. Grading sends the scan to the configured OpenAI service. Use a sheet label that avoids student names.</p>
+        <div class="checking-actions">
+          <button class="checking-action primary" type="submit" [disabled]="busy||!label.trim()||!photos.length">Upload and check</button>
+          <button class="checking-action" type="button" (click)="cancelIntake()" [disabled]="busy">Cancel</button>
+        </div>
+      </form>
+    </section>
+  } @else if(sheet;as current){
+    <section class="checking-sheet" aria-labelledby="sheet-title">
+      <div class="checking-sheet-header">
+        <div>
+          <button class="checking-back" type="button" (click)="list()" [disabled]="busy">← All sheets</button>
+          <h2 id="sheet-title">{{current.label}}</h2>
+          <p class="checking-status" [attr.data-state]="current.state">{{statusText[current.state]}} · {{current.pageCount}} {{current.pageCount===1?'page':'pages'}}</p>
+        </div>
+        @if(current.grade){
+          <div class="checking-score"><strong>{{foundTotal}} <span>/ {{max}}</span></strong><small>{{pending?pending+' to resolve':current.state==='final'&&!dirty?'Final score':'Draft score'}}</small></div>
+        }
+      </div>
+      @if(active){
+        <p class="checking-notice" role="status">{{current.state==='queued'?'Saved and waiting for the local checker. You can return to this sheet later.':'The local checker is reading the scanned pages. You can return to this sheet later.'}}</p>
+      }
+      @if(current.state==='failed'){
+        <p class="checking-notice error">{{current.error}}</p>
+        <div class="checking-actions">
+          <button class="checking-action primary" type="button" (click)="queue()" [disabled]="busy">Retry checking</button>
+          <button class="checking-action" type="button" (click)="queue('manual')" [disabled]="busy">Mark manually</button>
+        </div>
+      }
+      @if(current.state==='uploading'){
+        <p class="checking-notice">Saved {{current.uploaded.length}} of {{current.pageCount}} pages.</p>
+        @if(current.uploaded.length===current.pageCount){
+          <button class="checking-action primary" type="button" (click)="queue()" [disabled]="busy">Queue checking</button>
+        }@else{
+          <button class="checking-action primary" type="button" (click)="start(true)" [disabled]="busy">Resume with the same pages</button>
+        }
+      }
+      @if(current.grade){
+        <div class="checking-review-bar">
+          <p>{{rubric?.hasScheme?'Saved marking scheme':'Questions used as the rubric'}} · {{current.engine==='codex-cli'?'Codex CLI':current.engine==='openai-api'?'OpenAI API':'Teacher marking'}} @if(pending){ <span> · Resolve flagged answers before finalizing.</span> }</p>
+          <div class="checking-actions">
+            @if(!canEdit){
+              <button class="checking-action" type="button" (click)="editing=true" [disabled]="busy">Edit marks</button>
+            }@else{
+              <button class="checking-action" type="button" (click)="save(false)" [disabled]="busy||!dirty">Save corrections</button>
+              <button class="checking-action primary" type="button" (click)="save(true)" [disabled]="busy||pending>0">Finalize marks</button>
+            }
+            <button class="checking-action" type="button" (click)="print()" [disabled]="!imagesReady||dirty||printing||busy">Print / Save PDF</button>
+          </div>
+        </div>
+      }
+      <div class="checking-split" [class.single]="!current.grade">
+        <section class="checking-scan" aria-label="Scanned answer pages">
+          <nav class="checking-pagination" aria-label="Scan pages">
+            @for(page of pageItems;track page.index){
+              <button type="button" class="checking-action" [attr.aria-current]="page.index===pageNumber?'page':null" (click)="setPage(page.index)">Page {{page.index}}</button>
+            }
+          </nav>
+          @if(placing){<p class="checking-placing">Choose a spot near the answer on this page. <button class="checking-back" type="button" (click)="placing=false">Cancel</button></p>}
+          @if(page;as shown){
+            @if(url(shown.index)){
+              <figure class="checking-page" [class.placing]="placing" (click)="place($event)">
+                <img [src]="url(shown.index)" [alt]="'Answer sheet page '+shown.index" [width]="shown.width" [height]="shown.height">
+                @for(note of annotations(shown.index);track note.answer.number){
+                  <button class="checking-pin" type="button" [attr.data-status]="note.answer.status" [class.selected]="selected===note.answer.number" [class.right]="note.anchor.x>.78"
+                    [style.left.%]="note.anchor.x*100" [style.top.%]="note.anchor.y*100"
+                    [attr.title]="note.answer.explanation"
+                    [attr.aria-label]="'Question '+note.answer.number+' '+captions[note.answer.status]+'. '+note.answer.explanation"
+                    (click)="$event.stopPropagation();choose(note.answer,shown.index)">
+                    <span aria-hidden="true">{{marker[note.answer.status]}}</span> Q{{note.answer.number}} · {{note.answer.awarded===null?'?':note.answer.awarded}}/{{note.answer.max}}
+                  </button>
+                  @if(selected===note.answer.number&&!placing){
+                    <div class="checking-comment" [style.left.%]="mathPosition(note.anchor.x)" [style.top.%]="note.anchor.y*100" [class.above]="note.anchor.y>.8">{{note.answer.explanation}}</div>
+                  }
+                }
+              </figure>
+            }@else{<p>Loading this scan…</p>}
+          }
+        </section>
+        @if(current.grade){
+          <section class="checking-answers" aria-labelledby="answer-title">
+            <h3 id="answer-title">Question review</h3>
+            <div class="checking-question-list">
+              @for(answer of answers;track answer.number){
+                <button type="button" class="checking-question" (click)="choose(answer)" [attr.aria-pressed]="selected===answer.number" [attr.data-status]="answer.status">
+                  <strong>Q{{answer.number}}</strong><span>{{captions[answer.status]}}</span><span>{{answer.awarded===null?'–':answer.awarded}} / {{answer.max}}</span>
+                </button>
+              }
+            </div>
+            @if(answer;as selectedAnswer){
+              <div class="checking-answer-detail">
+                <h4>Question {{selectedAnswer.number}} <span>{{captions[selectedAnswer.status]}}</span></h4>
+                @if(question;as q){
+                  <details><summary>Saved question{{q.alternative?' and alternative':''}}</summary><p>{{q.question}}</p>@if(q.alternative){<p>OR {{q.alternative}}</p>}</details>
+                }
+                @if(selectedAnswer.evidence){<blockquote>{{selectedAnswer.evidence}}</blockquote>}
+                @if(canEdit){
+                  <div class="checking-form checking-edit">
+                    <label>Assessment
+                      <select [ngModel]="selectedAnswer.status" (ngModelChange)="setStatus(selectedAnswer,$event)" [disabled]="busy">
+                        @for(state of statuses;track state){<option [value]="state">{{captions[state]}}</option>}
+                      </select>
+                    </label>
+                    @if(selectedAnswer.status==='partial'){
+                      <label>Marks out of {{selectedAnswer.max}}
+                        <input type="number" min="0" [max]="selectedAnswer.max" step="0.01" [(ngModel)]="selectedAnswer.awarded" (ngModelChange)="dirty=true" [disabled]="busy">
+                      </label>
+                    }
+                    @if(selectedAnswer.optional&&selectedAnswer.status!=='missing'){
+                      <label>Alternative assessed
+                        <select [(ngModel)]="selectedAnswer.choice" (ngModelChange)="dirty=true" [disabled]="busy"><option [ngValue]="null">Choose A or B</option><option value="A">A · Main question</option><option value="B">B · OR alternative</option></select>
+                      </label>
+                    }
+                    <label>Marking explanation
+                      <textarea rows="3" maxlength="600" [(ngModel)]="selectedAnswer.explanation" (ngModelChange)="dirty=true" [disabled]="busy"></textarea>
+                    </label>
+                  </div>
+                }@else{
+                  @if(selectedAnswer.choice){<p>Alternative {{selectedAnswer.choice}}</p>}
+                  <p>{{selectedAnswer.explanation}}</p>
+                }
+                <div class="checking-actions checking-evidence">
+                  @for(anchor of selectedAnswer.anchors;track anchor.page){
+                    <span>
+                      <button type="button" class="checking-action" (click)="choose(selectedAnswer,anchor.page)">Page {{anchor.page}} evidence</button>
+                      @if(canEdit){<button class="checking-back" type="button" (click)="detach(selectedAnswer,anchor.page)" [disabled]="busy" [attr.aria-label]="'Remove evidence marker from page '+anchor.page">×</button>}
+                    </span>
+                  }
+                  @if(canEdit&&page){<button type="button" class="checking-back" (click)="placing=!placing" [disabled]="busy">{{placing?'Cancel marker placement':'Place marker on page '+pageNumber}}</button>}
+                </div>
+              </div>
+            }
+          </section>
+        }
+      </div>
+    </section>
+  } @else {
+    <section class="checking-sheet-list" aria-labelledby="sheets-title">
+      <div class="checking-sheet-header">
+        <div><h2 id="sheets-title">Answer sheets</h2><p>Keep each submission and its review with this paper revision.</p></div>
+        <button class="checking-action primary" type="button" (click)="start()" [disabled]="!rubric||busy">Add answer sheet</button>
+      </div>
+      @if(loading){<p role="status">Loading answer sheets…</p>}
+      @if(!loading&&!error&&!sheets.length){<p class="checking-empty">No answer sheets yet.</p>}
+      @for(item of sheets;track item.id){
+        <button type="button" class="checking-row" (click)="open(item.id)">
+          <span><strong>{{item.label}}</strong><small>{{item.pageCount}} {{item.pageCount===1?'page':'pages'}} · {{item.updatedAt|date:'mediumDate'}}</small></span>
+          <span class="checking-status" [attr.data-state]="item.state">{{statusText[item.state]}}</span>
+          <span>{{item.awarded===null?'':item.awarded+' / '+max}} <b aria-hidden="true">›</b></span>
+        </button>
+      }
+    </section>
+  }
+</div>
+
+@if((printing||imagesReady)&&sheet?.grade){
+  <div class="checking-print" aria-hidden="true">
+    @for(page of pageItems;track page.index){
+      <section class="checking-print-page">
+        <header><strong>{{rubric?.title}}</strong><span>{{sheet?.label}} · Page {{page.index}} / {{sheet?.pageCount}}</span>
+          <span>{{sheet?.state==='final'?'Final':'Draft'}} · {{foundTotal}} / {{max}}{{pending?' · '+pending+' pending':''}}</span></header>
+        <div class="checking-print-scan" [style.width]="'min(100%, '+(249*page.width/page.height)+'mm)'">
+          <img [src]="url(page.index)" alt="" [width]="page.width" [height]="page.height">
+          @for(note of annotations(page.index);track note.answer.number){
+            <div class="checking-pin" [attr.data-status]="note.answer.status" [class.right]="note.anchor.x>.78" [style.left.%]="note.anchor.x*100" [style.top.%]="note.anchor.y*100">
+              {{marker[note.answer.status]}} Q{{note.answer.number}} · {{note.answer.awarded===null?'?':note.answer.awarded}}/{{note.answer.max}}
+              <span>{{note.answer.explanation}}</span>
+            </div>
+          }
+        </div>
+      </section>
+    }
+    <section class="checking-print-comments">
+      <h2>Marking notes</h2>
+      @for(answer of answers;track answer.number){
+        <div><strong>Q{{answer.number}} · {{captions[answer.status]}} · {{answer.awarded===null?'Pending':answer.awarded}} / {{answer.max}}</strong>
+          @if(answer.choice){ <span> · Alternative {{answer.choice}}</span> }
+          @for(anchor of answer.anchors;track anchor.page){ <span> · p. {{anchor.page}}</span> }
+          <p>{{answer.explanation}} @if(answer.evidence){<span> Evidence: {{answer.evidence}}</span>}</p>
+        </div>
+      }
+    </section>
+  </div>
+}

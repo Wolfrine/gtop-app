@@ -44,7 +44,7 @@ export class Gateway {
   async listen(changed:()=>void,connection:(online:boolean)=>void,failed:(error:Error)=>void){
     await this.auth(true);
     const {ownerUids}=await this.post('/worker/dispatch',{});
-    return listenForDispatch({apiKey:this.config.firebaseApiKey,idToken:this.token,workerId:this.config.workerId,ownerUids,changed,connection,failed});
+    return listenForDispatch({apiKey:this.config.firebaseApiKey,idToken:this.token,workerId:this.config.workerId,ownerUids,changed,connection,failed,authEmulator:this.config.authEmulator});
   }
   async post(endpoint:string,body:any,signal?:AbortSignal):Promise<any>{await this.auth();const r=await fetch(this.config.gateway+endpoint,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+this.token},body:JSON.stringify(body),signal:signal?AbortSignal.any([signal,AbortSignal.timeout(45000)]):AbortSignal.timeout(45000)});const value=await r.json() as any;if(!r.ok){if(r.status===401)this.until=0;throw Object.assign(Error(`Gateway ${r.status}: ${value?.error?.message || value?.message || 'operation rejected'}`),{code:value?.error?.code,status:r.status});}return value;}
 }

@@ -15,7 +15,8 @@ export class FirestoreStore {
     return this.db.runTransaction(tx => fn({
       get: async path => { const d = await tx.get(this.db.doc(path)); return d.exists ? d.data() : null; },
       set: (path, data) => tx.set(this.db.doc(path), data),
-      create: (path, data) => tx.create(this.db.doc(path), data)
+      create: (path, data) => tx.create(this.db.doc(path), data),
+      delete: path => tx.delete(this.db.doc(path))
     }));
   }
 }
@@ -35,9 +36,12 @@ export class MemoryStore {
       const result = await fn({
         get: path => this.get(path),
         set: (path, value) => writes.set(path, structuredClone(value)),
-        create: (path, value) => { if (this.docs.has(path) || writes.has(path)) throw Error('Document already exists'); writes.set(path, structuredClone(value)); }
+        create: (path, value) => { if (this.docs.has(path) || writes.has(path)) throw Error('Document already exists'); writes.set(path, structuredClone(value)); },
+        delete: path => writes.set(path, undefined)
       });
-      for (const [path, value] of writes) this.docs.set(path, value);
+      for (const [path, value] of writes) {
+        if(value===undefined)this.docs.delete(path);else this.docs.set(path,value);
+      }
       return result;
     });
     this.tail = pending.catch(() => {});

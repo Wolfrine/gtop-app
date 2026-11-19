@@ -16,7 +16,12 @@
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.json",
-            "assets": [{"glob":"**/*","input":"public","output":"/"}],
+            "assets": [
+              {"glob":"**/*","input":"public","output":"/"},
+              {"glob":"pdf.worker.min.mjs","input":"node_modules/pdfjs-dist/build","output":"/pdf-engine/"},
+              {"glob":"**/*","input":"node_modules/pdfjs-dist/cmaps","output":"/pdf-engine/cmaps/"},
+              {"glob":"**/*","input":"node_modules/pdfjs-dist/standard_fonts","output":"/pdf-engine/standard_fonts/"}
+            ],
             "styles": ["node_modules/katex/dist/katex.min.css", "src/styles.css"]
           },
           "configurations": {

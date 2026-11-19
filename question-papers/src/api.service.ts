@@ -62,7 +62,7 @@ export class AssistantApi implements Transport {
     const token=await user.getIdToken();
     if(epoch!==this.authEpoch)throw Error('Account changed');
     let response:Response;
-    try{response=await fetch(this.apiBase+path,{method,signal:AbortSignal.timeout(20000),headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});}
+    try{response=await fetch(this.apiBase+path,{method,cache:'no-store',signal:AbortSignal.timeout(20000),headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});}
     catch(error){if((error as {name?:string})?.name==='TimeoutError')throw Error('This connection took longer than expected. Please try again; saved work remains available.');throw error;}
     if(epoch!==this.authEpoch)throw Error('Account changed');
     if(!response.ok){let reason='Request failed ('+response.status+')';try{const payload=await response.json();reason=payload.error?.message || payload.error || payload.message || reason;}catch{}throw Object.assign(new Error(typeof reason==='string'?reason:JSON.stringify(reason)),{status:response.status});}
@@ -70,6 +70,14 @@ export class AssistantApi implements Transport {
   }
   private async read<T>(path:string,method='GET',body?:unknown,text=false):Promise<T>{const epoch=this.authEpoch;const response=await this.authorized(path,method,body);const result=await (text?response.text():response.json());if(epoch!==this.authEpoch)throw Error('Account changed');return result as T;}
   async request<T>(path:string,method='GET',body?:unknown):Promise<T> {return this.read<T>(path,method,body);}
+  async checkingImage(path:string):Promise<Blob>{
+    const epoch=this.authEpoch;
+    const response=await this.authorized(path);
+    if(response.headers.get('Content-Type')!=='image/jpeg')throw Error('The saved scan is unavailable.');
+    const image=await response.blob();
+    if(epoch!==this.authEpoch)throw Error('Account changed');
+    return image;
+  }
   async artifact(id:string,kind:'student'|'answers'):Promise<string> {return this.read('/papers/'+encodeURIComponent(id)+'/artifact/'+kind,'GET',undefined,true);}
   async adminArtifact(id:string,kind:'student'|'answers'):Promise<string> {return this.read('/admin/papers/'+encodeURIComponent(id)+'/artifact/'+kind,'GET',undefined,true);}
 }

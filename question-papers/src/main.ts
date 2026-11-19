@@ -5,6 +5,7 @@ import { GtPwaControls } from './pwa-controls';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { PaperCheckingComponent } from './checking.component';
 import { AssistantApi } from './api.service';
 import { OwnerEvents, InvalidationQueue, WorkerHealth, validNotifications, freshHealth } from './owner-events';
 import { Conversation, ConversationDetail, Job, PaperSummary, PilotSession, Transport, LibraryKind, LibraryItem, LibraryPage, LibraryFilters, AssistantServiceStatus, libraryMatches, mergeLibraryItems, conversationReadOnly } from './contracts';
@@ -14,7 +15,7 @@ import { ChatMathDirective } from './chat-math.directive';
 import { formatAssistantText, idForRequest, pendingStates, phaseLabel, pollingDelay, readableError, visibleJobs, servicePresentation } from './presentation.mjs';
 
 @Component({
-  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls],templateUrl:'./workspace.html'
+  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls,PaperCheckingComponent],templateUrl:'./workspace.html'
 })
 export class PaperWorkspace implements OnInit,OnDestroy {
   private api=inject(AssistantApi);private sanitizer=inject(DomSanitizer);
@@ -30,12 +31,14 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   private presenceDenied=false;private capabilityPending?:Promise<void>;private eventConfig='';
   private contentDenied=false;private contentAccessAllowed=false;private contentAccessPending?:Promise<void>;private contentAccessTimer?:ReturnType<typeof setTimeout>;
   document?:{paper:PaperSummary;kind:'student'|'answers';safe:SafeHtml;adminView:boolean;readOnly:boolean};documentLoading=false;
+  checkingPaperId='';
   view:'chat'|'library'='chat';libraryKind:LibraryKind='papers';libraryLoading=false;libraryError='';libraryFiltersOpen=false;
   libraryFilters:LibraryFilters={board:'',standard:'',subject:'',text:''};
   libraryPages:Record<LibraryKind,{items:LibraryItem[];nextCursor:string|null;loaded:boolean}>={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};
   public adminConversation=false;
   feedbackMessage='';feedbackText='';feedbackPaperId='';feedbackOpen=false;newRequestId='';private sendId='';private sendText='';private documentRequest=0;private timer?:ReturnType<typeof setTimeout>;private destroyed=false;private openingId='';
   get user(){return this.session?.user;}
+  get checkingOpen(){return !!this.checkingPaperId&&!!this.user&&this.contentAuthorized&&!this.fixture;}
   get worker(){return this.serviceStale?{label:'Assistant status unavailable',detail:'Could not check the assistant. Check your connection and refresh status.',tone:'offline'}:servicePresentation(this.session?.service,this.session?.worker);}
   get canStartService(){return !!this.session?.service?.canStart&&!this.serviceStarting&&!this.serviceStale;}
   get activeJobs(){return (this.detail?.jobs||[]).filter(j=>pendingStates.has(j.state));}
@@ -54,6 +57,20 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   creatorInitials(){return (this.readOnly?(this.detail?.creatorName||this.detail?.conversation.creatorName||'Teacher'):(this.user?.displayName||'Teacher')).split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();}
   creatorLabel(){return this.readOnly?(this.detail?.creatorName||this.detail?.conversation.creatorName||'Paper creator'):'You';}
   absoluteDate(value:string|undefined){if(!value)return 'Date not recorded';const date=new Date(value);return Number.isNaN(date.getTime())?'Date not recorded':date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
+  openChecking(paperId:string){
+    if(!this.contentAuthorized||this.fixture)return;
+    this.closeDocument();this.drawer=false;this.checkingPaperId=paperId;
+    const url=new URL(location.href);
+    url.searchParams.set('check',paperId);url.searchParams.delete('sheet');
+    history.replaceState(history.state,'',url);
+  }
+  closeChecking(){
+    this.checkingPaperId='';
+    const url=new URL(location.href);
+    url.searchParams.delete('check');url.searchParams.delete('sheet');
+    history.replaceState(history.state,'',url);
+    this.view='library';if(!this.libraryPage.loaded)void this.loadLibrary();
+  }
   async openLibrary(){if(!this.user?.libraryAccess)return;this.openingId='';this.view='library';this.drawer=false;this.error='';this.closeDocument();if(!this.libraryPage.loaded)await this.loadLibrary();this.schedulePoll();}
   async switchLibrary(kind:LibraryKind){if(this.libraryLoading)return;this.libraryKind=kind;this.closeDocument();if(!this.libraryPage.loaded)await this.loadLibrary();}
   clearLibraryFilters(){this.libraryFilters={board:'',standard:'',subject:'',text:''};}
@@ -98,7 +115,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   private get contentAuthorized(){return !this.contentDenied||this.contentAccessAllowed;}
   private reportError(error:unknown){if([401,403].includes((error as {status?:number})?.status||0))this.resetAccount();this.error=readableError(error);}
   private resetAccount(){
-    this.authEpoch++;this.stopEvents();this.refreshPending=undefined;this.servicePending=undefined;this.capabilityPending=undefined;this.contentAccessPending=undefined;this.contentDenied=false;this.contentAccessAllowed=false;this.presenceDenied=false;this.session=undefined;this.detail=undefined;this.conversations=[];
+    this.authEpoch++;this.checkingPaperId='';this.stopEvents();this.refreshPending=undefined;this.servicePending=undefined;this.capabilityPending=undefined;this.contentAccessPending=undefined;this.contentDenied=false;this.contentAccessAllowed=false;this.presenceDenied=false;this.session=undefined;this.detail=undefined;this.conversations=[];
     this.serviceError='';this.serviceRequestId='';this.serviceStale=false;this.health=undefined;this.lastOverviewAt=0;this.openingId='';
     this.draft='';this.email='';this.password='';this.sendId='';this.sendText='';this.newRequestId='';this.feedbackText='';this.feedbackMessage='';this.feedbackPaperId='';this.feedbackOpen=false;
     this.loading=false;this.sending=false;this.serviceStarting=false;this.libraryLoading=false;this.libraryRefreshRequested=false;this.libraryError='';this.adminConversation=false;this.view='chat';this.drawer=false;
@@ -108,7 +125,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   async logout(){if(this.fixture)return;this.resetAccount();try{await this.api.logout();}catch(e){this.reportError(e);}}
   private async loadSession(){
     const epoch=this.authEpoch;this.loading=true;
-    try{const session=await this.transport.request<PilotSession>('/session');if(!this.current(epoch))return;this.session=session;this.serviceStale=false;await this.loadConversations();if(!this.current(epoch))return;if(this.conversations.length)await this.openConversation(this.conversations[0].id);this.startEvents();}
+    try{const session=await this.transport.request<PilotSession>('/session');if(!this.current(epoch))return;this.session=session;this.serviceStale=false;this.checkingPaperId=new URL(location.href).searchParams.get('check')||'';await this.loadConversations();if(!this.current(epoch))return;if(this.conversations.length)await this.openConversation(this.conversations[0].id);this.startEvents();}
     catch(e){if(this.current(epoch))this.reportError(e);}finally{if(this.current(epoch))this.loading=false;}
   }
   private async loadConversations(){const epoch=this.authEpoch;const result=await this.transport.request<{conversations:Conversation[]}>('/conversations');if(this.current(epoch))this.conversations=result.conversations;}
@@ -154,7 +171,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     };
     const [session,conversations,detail]=await Promise.all([overview?this.transport.request<PilotSession>('/session'):Promise.resolve(this.session!),overview||contentOnly&&!automatic?this.transport.request<{conversations:Conversation[]}>('/conversations'):Promise.resolve({conversations:this.conversations}),getDetail()]);
     if(!this.current(epoch)||!this.session)return;
-    if(overview){this.session=session;this.serviceStale=false;if(this.events?.presenceReady&&this.eventConfig===JSON.stringify(session.notifications)&&session.notifications?.presencePath&&freshHealth(this.health))this.receiveHealth(this.health);}
+    if(overview){this.session=session;this.serviceStale=false;this.checkingPaperId=new URL(location.href).searchParams.get('check')||'';if(this.events?.presenceReady&&this.eventConfig===JSON.stringify(session.notifications)&&session.notifications?.presencePath&&freshHealth(this.health))this.receiveHealth(this.health);}
     if(this.session.service?.state==='ready')this.serviceError='';this.conversations=conversations.conversations;if(this.view==='chat'&&id===this.detail?.conversation.id&&admin===this.adminConversation&&detail){this.detail=admin?{...detail,readOnly:detail.readOnly??true}:detail;if(nearBottom&&oldCount!==detail.messages.length)this.scrollMessages();}
     if(overview)this.lastOverviewAt=Date.now();
     this.configureEvents();

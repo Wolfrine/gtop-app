@@ -12,6 +12,16 @@ assert.equal((await getFirestore().doc('users/'+uid).get()).data()?.role,'admin'
 const token=await getAuth().createCustomToken(uid);
 const login=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=AIzaSyATxEIUYY7rPgJriy_0q7yjfcP-QyBMZkM',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,returnSecureToken:true}),signal:AbortSignal.timeout(30000)});assert(login.ok,'Existing Firebase token signing/authentication must work; no automatic IAM grants are permitted.');
 const idToken=(await login.json()).idToken;
+const work=await fetch(gateway+'/checking/work',{headers:{Authorization:'Bearer '+idToken},signal:AbortSignal.timeout(30000)});
+assert.equal(work.status,200,'The teaching desk must load recent sheets for an invited owner using the live Firestore index.');
+const {sheets}=await work.json();
+assert(Array.isArray(sheets)&&sheets.length<=20);
+for(const sheet of sheets){
+  assert(sheet.id&&sheet.paperId&&['uploading','review','failed'].includes(sheet.state));
+  assert(Object.keys(sheet).every(key=>['id','paperId','label','state','updatedAt','pageCount','pending','packetId','packetLabel'].includes(key)));
+}
+assert.equal((await fetch(gateway+'/checking/work',{signal:AbortSignal.timeout(30000)})).status,401);
+console.log('Live teaching desk recent work verified using existing records and read-only requests.');
 const session=await fetch(gateway+'/session',{headers:{Authorization:'Bearer '+idToken},signal:AbortSignal.timeout(30000)});assert(session.ok);const data=await session.json();assert.equal(data.user.uid,uid);assert.equal(data.capabilities.identity,'GTOP assistant');assert(Array.isArray(data.capabilities.actions));assert(data.capabilities.boards.some(b=>b.name==='CBSE'&&b.classes.includes(5)&&b.classes.includes(12)));assert(!JSON.stringify(data).includes('bootstrapSecret'));
 console.log('Live assistant gateway verified: anonymous denial, existing invited admin access and capabilities. No paper/chat fixture written.');
 assert.equal(data.notifications?.schemaVersion,1);

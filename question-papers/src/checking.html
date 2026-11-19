@@ -220,8 +220,8 @@
               current.grade
                 ? pending
                   ? 'Review needed'
-                  : current.state === 'final' && !dirty
-                    ? 'Approved'
+                  : current.state === 'final'
+                    ? (editing ? 'Editing approved marks' : 'Approved')
                     : 'Ready for approval'
                 : stateLabel(current)
             }}</span
@@ -245,7 +245,7 @@
               }
               @if (!pending) {
                 <button class="action primary" type="button" (click)="save(true)" [disabled]="busy">
-                  Approve final marks
+                  {{ current.state === 'final' ? 'Save approved marks' : 'Approve final marks' }}
                 </button>
               } @else if (issues.length > 1) {
                 <button class="action" type="button" (click)="nextIssue()" [disabled]="busy">

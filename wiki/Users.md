@@ -20,6 +20,8 @@ The admin/teacher role is a core part of GTOP because student experience quality
 
 In the separate GT Papers workspace, a teacher or administrator can arrive with a paper brief, a stack of handwritten scripts or a request for yesterday’s paper. Support each starting point and let staff resume interrupted work with its original context. A teacher can inspect the writing, decide a disputed mark and return an individual copy. Only the teacher and pupil can establish whether that feedback was understood.
 
+A student may send a scanned answer book directly to the teacher through their usual messaging channel. The teacher can select the student’s existing GTOP account after their first sign-in and check the PDF as one book. If two students share a name, the teacher must be able to tell whose account and copy they are handling. The student’s checking history gives the teacher a place to find and print an approved copy later. A class stack remains an option for books collected together.
+
 ## Institute Admin
 
 Institute Admin is a planned role. Current documentation mentions redirect intent, but there is no dedicated product workflow yet.
@@ -33,3 +35,4 @@ This role should remain an [[OpenQuestions]] item until there is a clear product
 - `raw/2026-06-04-gtop-docs-code-education-direction-synthesis.md`
 
 - `raw/2026-11-20-tuition-work-and-paper-handback.md`
+- `raw/2026-11-20-student-paper-checking.md`

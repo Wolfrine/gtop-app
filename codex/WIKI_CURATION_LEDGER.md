@@ -336,3 +336,7 @@ Use it to answer:
 ### 2026-11-20 - Tuition work and paper handback
 
 Processed `raw/2026-11-20-tuition-work-and-paper-handback.md` into Users. Captured independent starting materials, interrupted work, teacher judgment and the handback boundary. The operating-map and release verification belong with delivery.
+
+### 2026-11-20 - Individual student paper checking
+
+Processed `raw/2026-11-20-student-paper-checking.md` into `wiki/Users.md`. A teacher can link a PDF received directly from a student to that student’s existing account and retrieve the approved copy by student. Class stacks remain optional. The delivery handoff covers duplicate-name selection, individual checking and printed handback. Unrelated notes were outside this pass.

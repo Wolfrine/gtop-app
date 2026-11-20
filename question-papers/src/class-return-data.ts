@@ -12,6 +12,10 @@ export type SheetState =
 export interface RegisterEntry {
   id: string;
   label: string;
+  studentUid?: string;
+  studentLabel?: string;
+  labelFromStudent?: boolean;
+  singleStudentBook?: boolean;
   state: SheetState;
   pageCount: number;
   version: number;
@@ -44,6 +48,18 @@ export interface ReturnDetail {
   rubric: { title: string; marks: number };
 }
 
+type SheetIdentity = Pick<RegisterEntry, 'label' | 'studentUid' | 'studentLabel' | 'labelFromStudent' | 'singleStudentBook' | 'packetLabel'>;
+
+/** Account-derived labels can still hold the name used before a teacher corrected the link. */
+export function handbackIdentity(row: SheetIdentity) {
+  const name = row.studentLabel || row.label;
+  const reference = row.studentUid ? 'GT ' + row.studentUid.slice(-6) : '';
+  const sheetLabel = !row.labelFromStudent && (!row.studentUid || row.label !== name) ? row.label : '';
+  const classLabel = row.singleStudentBook ? '' : row.packetLabel || '';
+  const detail = [reference, row.studentUid && sheetLabel].filter(Boolean).join(' · ');
+  return {name, reference, sheetLabel, classLabel, detail, full: [name, detail].filter(Boolean).join(' · ')};
+}
+
 export function fileStem(input: string, fallback: string, maxBytes = 185) {
   const stem = input
     .normalize('NFC')
@@ -69,9 +85,13 @@ export function filenames(entries: RegisterEntry[]) {
   const result = new Map<string, string>();
   const used = new Set<string>();
   for (const row of entries) {
-    const base = row.packetLabel
-      ? fileStem(row.label, 'Sheet', 110) + ' — ' + fileStem(row.packetLabel, 'Class', 70)
-      : fileStem(row.label, 'Sheet');
+    const {name: student, reference, sheetLabel, classLabel} = handbackIdentity(row);
+    const distinctClass = classLabel && classLabel !== student;
+    const parts = reference
+      ? [fileStem(student, 'Student', 68), reference, ...(sheetLabel ? [fileStem(sheetLabel, 'Sheet', 45)] : [])]
+      : [fileStem(student, 'Sheet', distinctClass ? 110 : 185)];
+    if (distinctClass) parts.push(fileStem(classLabel, 'Class', reference ? 45 : 70));
+    const base = parts.join(' — ');
     let name = base + '.pdf';
     let serial = 1;
     while (used.has(name.toLowerCase())) name = base + ' (' + ++serial + ').pdf';
@@ -115,9 +135,11 @@ export function marksRegister(
   maximum: number | undefined,
   names: Map<string, string>,
 ) {
-  const includeClass = entries.some((row) => row.packetLabel);
+  const includeClass = entries.some(row => handbackIdentity(row).classLabel);
+  const includeStudent = entries.some(row => row.studentUid);
   const rows: (string | number | null | undefined)[][] = [
     [
+      ...(includeStudent ? ['Student', 'Account reference'] : []),
       'Roll / sheet label',
       'Status',
       'Final marks',
@@ -129,15 +151,17 @@ export function marksRegister(
     ],
   ];
   for (const row of entries) {
+    const identity = handbackIdentity(row);
     rows.push([
-      row.label,
+      ...(includeStudent ? [row.studentLabel ?? '', identity.reference] : []),
+      identity.sheetLabel,
       registerStatus(row),
       row.state === 'final' ? row.awarded : null,
       row.max ?? maximum,
       row.state === 'review' ? row.awarded : null,
       row.state === 'held' || row.state === 'withdrawn' ? null : row.pending,
       row.state === 'final' ? names.get(row.id) : null,
-      ...(includeClass ? [row.packetLabel] : []),
+      ...(includeClass ? [identity.classLabel] : []),
     ]);
   }
   return (
@@ -148,7 +172,7 @@ export function marksRegister(
           .map((value, column) => {
             // A quoted CSV field alone still turns 001 into 1 in Excel. Only a digit-only roll may use
             // a controlled string literal; all teacher-supplied expressions go through csvCell.
-            if (column === 0 && typeof value === 'string' && /^(?:0\d+|\d{16,})$/.test(value)) {
+            if (column === (includeStudent ? 2 : 0) && typeof value === 'string' && /^(?:0\d+|\d{16,})$/.test(value)) {
               return '"=""' + value + '"""';
             }
             return csvCell(value);

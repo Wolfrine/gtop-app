@@ -18,10 +18,50 @@ const {sheets}=await work.json();
 assert(Array.isArray(sheets)&&sheets.length<=20);
 for(const sheet of sheets){
   assert(sheet.id&&sheet.paperId&&['uploading','review','failed'].includes(sheet.state));
-  assert(Object.keys(sheet).every(key=>['id','paperId','label','state','updatedAt','pageCount','pending','packetId','packetLabel'].includes(key)));
+  assert(Object.keys(sheet).every(key=>['id','paperId','label','state','updatedAt','pageCount','pending','packetId','packetLabel','studentUid','studentLabel','labelFromStudent','singleStudentBook'].includes(key)));
 }
 assert.equal((await fetch(gateway+'/checking/work',{signal:AbortSignal.timeout(30000)})).status,401);
 console.log('Live teaching desk recent work verified using existing records and read-only requests.');
+
+const authHeaders = {Authorization: 'Bearer ' + idToken};
+const checkDirectory = async () => {
+  const sample = await getFirestore().collection('assistantStudentDirectory').limit(1).get();
+  assert(!sample.empty, 'The student directory must contain indexed GTOP profiles.');
+  const entry = sample.docs[0];
+  const profile = await fetch(gateway + '/students/' + encodeURIComponent(entry.id), {
+    headers: authHeaders, signal: AbortSignal.timeout(30000)
+  });
+  assert.equal(profile.status, 200);
+  const {student} = await profile.json();
+  assert.equal(student.uid, entry.id);
+  assert(student.displayName && student.accountHint);
+  const prefix = entry.get('prefixes').find(value => Array.from(value).length >= 2);
+  assert(prefix);
+  const searchPath = gateway + '/students/search?' + new URLSearchParams({q: prefix});
+  const search = await fetch(searchPath, {headers: authHeaders, signal: AbortSignal.timeout(30000)});
+  assert.equal(search.status, 200);
+  const page = await search.json();
+  assert(page.students.length > 0 && page.students.length <= 12);
+  assert(page.students.every(item => item.uid && item.displayName && !Object.hasOwn(item, 'email')));
+  const history = await fetch(gateway + '/checking/student-history', {
+    method: 'POST', headers: {...authHeaders, 'Content-Type': 'application/json'},
+    body: JSON.stringify({studentUid: entry.id}), signal: AbortSignal.timeout(30000)
+  });
+  assert.equal(history.status, 200);
+  const historyPage = await history.json();
+  assert(Array.isArray(historyPage.sheets) && historyPage.sheets.length <= 40);
+  assert(historyPage.sheets.every(sheet => sheet.studentUid === entry.id));
+  assert.equal((await fetch(searchPath, {signal: AbortSignal.timeout(30000)})).status, 401);
+  const anonymousHistory = await fetch(gateway + '/checking/student-history', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({studentUid: entry.id}), signal: AbortSignal.timeout(30000)
+  });
+  assert.equal(anonymousHistory.status, 401);
+  return entry.id;
+};
+const sampledStudentUid = await checkDirectory();
+console.log('Live student search, account details and private checking history verified with existing records.');
+
 const session=await fetch(gateway+'/session',{headers:{Authorization:'Bearer '+idToken},signal:AbortSignal.timeout(30000)});assert(session.ok);const data=await session.json();assert.equal(data.user.uid,uid);assert.equal(data.capabilities.identity,'GTOP assistant');assert(Array.isArray(data.capabilities.actions));assert(data.capabilities.boards.some(b=>b.name==='CBSE'&&b.classes.includes(5)&&b.classes.includes(12)));assert(!JSON.stringify(data).includes('bootstrapSecret'));
 console.log('Live assistant gateway verified: anonymous denial, existing invited admin access and capabilities. No paper/chat fixture written.');
 assert.equal(data.notifications?.schemaVersion,1);
@@ -31,6 +71,7 @@ const status=await fetch(gateway+'/service/status',{headers:{Authorization:'Bear
 if(data.service){assert(status.ok);assert.equal((await status.json()).service.workerId,data.service.workerId);}
 const documents='https://firestore.googleapis.com/v1/projects/gtop-app/databases/(default)/documents/';
 const direct=(path,token=idToken)=>fetch(documents+path,{headers:token?{Authorization:'Bearer '+token}:{},signal:AbortSignal.timeout(30000)});
+assert.equal((await direct('assistantStudentDirectory/' + sampledStudentUid)).status,403);
 const own=await direct(data.notifications.contentPath);assert([200,404].includes(own.status),'Owner notification get must be permitted, including an absent initial marker.');
 const other=config.allowedOwnerUids.find(value=>value!==uid)||'unrelated-notification-owner';
 assert.equal((await direct('assistantUiNotifications/'+other)).status,403);

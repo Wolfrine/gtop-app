@@ -4,15 +4,15 @@
       <button
         class="back"
         type="button"
-        (click)="list()"
+        (click)="fromStudentHistory ? leave() : list()"
         [disabled]="busy"
-        aria-label="Back to all answer sheets"
+        [attr.aria-label]="fromStudentHistory ? 'Back to student history' : 'Back to all answer sheets'"
       >
-        ‹ <span>Register</span>
+        ‹ <span>{{ fromStudentHistory ? 'Students' : 'Register' }}</span>
       </button>
       <div class="heading">
-        <h1>{{ sheet!.label }}</h1>
-        <p [title]="rubric?.title || ''">{{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ rubric?.title }}</p>
+        <h1>{{ identity(sheet!).name }}</h1>
+        <p [title]="rubric?.title || ''">{{ identity(sheet!).detail ? identity(sheet!).detail + ' · ' : '' }}{{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ rubric?.title }}</p>
       </div>
       @if (sheet!.grade) {
         <div class="score">
@@ -29,6 +29,12 @@
           <button type="button" (click)="refresh(); menu.open = false" [disabled]="busy || dirty">
             Refresh sheet
           </button>
+          <button type="button" (click)="linkFormOpen = true; menu.open = false" [disabled]="busy || dirty">
+            {{ sheet!.studentUid ? 'Change linked student' : 'Link to a student' }}
+          </button>
+          @if (onScanClass && sheet!.studentUid && !active && sheet!.state !== 'uploading') {
+            <button type="button" (click)="menu.open = false; onScanClass(sheet!.gradingPaperId || paperId)" [disabled]="busy || dirty || printing">Check another student</button>
+          }
           @if (sheet!.grade) {
             <button
               type="button"
@@ -107,15 +113,15 @@
         />
       } @else {
         <form (ngSubmit)="submit()" class="form intake-form">
-          <label
-            >Roll number or sheet label<input
-              name="label"
-              [(ngModel)]="label"
-              [disabled]="busy || frozen"
-              maxlength="100"
-              required
-              placeholder="e.g. Roll 07"
-          /></label>
+          @if (!frozen) {
+            <student-lookup [selected]="intakeStudent" [disabled]="busy" (selectedChange)="intakeStudent = $event; label = ''" />
+          }
+          @if (frozen && sheet?.studentLabel) { <p><strong>{{ identity(sheet!).full }}</strong></p> }
+          @if (!intakeStudent && !(frozen && sheet?.labelFromStudent)) {
+            <details [open]="frozen"><summary>Use a sheet label instead</summary>
+              <label>Sheet label<input name="label" [(ngModel)]="label" [disabled]="busy || frozen" maxlength="100" placeholder="e.g. Roll 07" /></label>
+            </details>
+          }
           <label class="file-drop"
             ><strong>Add photos or a scanned PDF</strong
             ><span>Up to {{ pageLimit }} pages from one answer sheet, in reading order.</span>
@@ -202,10 +208,10 @@
             ></textarea>
           </label>
           <p class="help">
-            Use a roll number or sheet label. Scanned pages go to the configured OpenAI service for marking.
+            Scanned pages go to the configured checking service for marking.
           </p>
           <div class="actions">
-            <button class="action primary" type="submit" [disabled]="busy || !label.trim() || !photos.length">
+            <button class="action primary" type="submit" [disabled]="busy || (!intakeStudent && !label.trim()) || !photos.length">
               {{ frozen ? 'Retry upload' : 'Upload and check' }}</button
             ><button class="action" type="button" (click)="cancelIntake()" [disabled]="busy">Cancel</button>
           </div>
@@ -214,6 +220,17 @@
     </section>
   } @else if (sheet; as current) {
     <section class="sheet" aria-label="Marking desk">
+      @if (linkFormOpen) {
+        <section class="card student-assignment" aria-label="Link this answer book to a student">
+          <h2>{{ current.studentUid ? 'Change linked student' : 'Link this answer book' }}</h2>
+          <p>{{ current.studentUid ? 'Currently linked to ' + identity(current).full : 'Original sheet label: ' + current.label }}</p>
+          <student-lookup [selected]="linkCandidate" [disabled]="busy" (selectedChange)="linkCandidate = $event" />
+          <div class="actions">
+            <button class="action primary" type="button" (click)="linkStudent()" [disabled]="busy || dirty || !linkCandidate || current.studentUid === linkCandidate.uid">Save student</button>
+            <button class="link" type="button" (click)="closeStudentLink()" [disabled]="busy">Cancel</button>
+          </div>
+        </section>
+      }
       <div class="workbar">
         <div class="work-status">
           <span
@@ -229,6 +246,9 @@
                 : stateLabel(current)
             }}</span
           >
+          @if (!current.studentUid && !linkFormOpen) {
+            <button class="link" type="button" (click)="linkFormOpen = true" [disabled]="busy || dirty">Link to student</button>
+          }
           @if (current.grade) {
             <span class="detail-text"
               >{{ pending ? pending + ' pending' : answers.length + (answers.length === 1 ? ' question' : ' questions') }}
@@ -297,6 +317,9 @@
               <button class="action primary" type="button" (click)="queue()" [disabled]="busy">
                 {{ current.state === 'failed' ? 'Retry checking' : 'Queue checking' }}
               </button>
+            }
+            @if (active && current.studentUid && onScanClass) {
+              <button class="action" type="button" (click)="onScanClass(current.gradingPaperId || paperId)" [disabled]="busy || dirty">Check another student</button>
             }
             @if (current.uploaded.length === current.pageCount) {
               <button class="action" type="button" (click)="markManually()" [disabled]="busy">
@@ -964,7 +987,7 @@
               <button type="button" (click)="filter = f" [attr.aria-pressed]="filter === f">{{ filterTitle(f) }} <span>{{ countSheets(f) }}</span></button>
             }
           </nav>
-          <input type="search" aria-label="Find a roll or sheet" [(ngModel)]="search" placeholder="Find a roll or sheet">
+          <input type="search" aria-label="Find a student or sheet" [(ngModel)]="search" placeholder="Find a student or sheet">
         </div>
       }
       @if (readySheets.length > 1) {
@@ -977,11 +1000,12 @@
         <p class="empty">{{ sheets.length ? 'No sheets match this view.' : 'No answer sheets yet.' }}</p>
       }
       @if (visibleSheets.length) {
-        <div class="sheet-row table-cap" aria-hidden="true"><span>Roll or sheet</span><span>Status</span><span>Marks</span><span>Next action</span></div>
+        <div class="sheet-row table-cap" aria-hidden="true"><span>Student or sheet</span><span>Status</span><span>Marks</span><span>Next action</span></div>
       }
       @for (item of visibleSheets; track item.id) {
         <button class="sheet-row" type="button" (click)="open(item.id)" [disabled]="busy || item.state === 'withdrawn'">
-          <span class="identity"><strong>{{ item.label }}</strong><small>{{ item.packetLabel && !scopePacketId ? item.packetLabel + ' · ' : '' }}{{ item.pageCount }} {{ item.pageCount === 1 ? 'page' : 'pages' }}</small></span>
+          @let recipient = identity(item);
+          <span class="identity"><strong>{{ recipient.name }}</strong><small>{{ recipient.detail ? recipient.detail + ' · ' : '' }}{{ recipient.classLabel && !scopePacketId ? recipient.classLabel + ' · ' : '' }}{{ item.pageCount }} {{ item.pageCount === 1 ? 'page' : 'pages' }}</small></span>
           <span class="state" [class.attention]="bucket(item) === 'Needs attention'">{{ stateLabel(item) }}</span>
           <span class="row-score">@if (item.awarded != null) { <strong>{{ item.awarded }} / {{ item.max ?? rubric?.marks }}</strong><small>{{ item.state === 'final' ? 'Final' : 'Provisional' }}</small> } @else { — }</span>
           <span class="row-action">@if (item.state !== 'withdrawn') { {{ rowAction(item) }} <b aria-hidden="true">→</b> }</span>
@@ -1001,7 +1025,7 @@
       <section class="print-page">
         <header>
           <strong>{{ rubric?.title }}</strong
-          ><span>{{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ sheet?.label }} · Page {{ p.index }} / {{ sheet?.pageCount }}</span
+          ><span>{{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ identity(sheet!).full }} · Page {{ p.index }} / {{ sheet?.pageCount }}</span
           ><b
             >{{ pending ? 'Provisional' : sheet?.state === 'final' ? 'Final' : 'Draft' }} · {{ foundTotal }} /
             {{ max }}
@@ -1036,7 +1060,7 @@
     <section class="print-notes">
       <h2>Marking notes</h2>
       <p>
-        {{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ sheet?.label }} · {{ rubric?.title }} ·
+        {{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ identity(sheet!).full }} · {{ rubric?.title }} ·
         {{ pending ? 'Provisional' : sheet?.state === 'final' ? 'Final' : 'Draft' }} · {{ foundTotal }} /
         {{ max }}
       </p>

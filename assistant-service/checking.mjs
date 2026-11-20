@@ -1,7 +1,9 @@
 import {randomUUID} from 'node:crypto';
+import {resolveStudent} from './student-directory.mjs';
+import {indexStudent,linkSheetStudent,removeStudentIndex,studentHistory} from './checking-student.mjs';
 import {ClassIntake} from './checking-intake.mjs';
 import {ExternalReference} from './external-reference.mjs';
-import {currentSheetGrade,day,digest,maxActive,maxDrafts,orderedKey,packets,pagePath,queue,queueField,quota,sheets,sheetFields,sheetSummary} from './checking-storage.mjs';
+import {currentSheetGrade,day,digest,matchesStudentLabel,maxActive,maxDrafts,orderedKey,packets,pagePath,queue,queueField,quota,sheets,sheetFields,sheetSummary} from './checking-storage.mjs';
 import {gradingRubric,validateGrades,summarizeGrades} from './domain/checking.mjs';
 import {maxCheckingPages,checkingLeaseMs} from './domain/checking-limits.mjs';
 
@@ -62,12 +64,14 @@ export class PaperChecking {
       return values;
     }catch{this.fail(400,'invalid_cursor','Reload the scan list.');}
   }
+  studentHistory(uid,body){return studentHistory(this,uid,body);}
   async recentWork(uid){
-    const fields=['label','state','updatedAt','pageCount','grade.pending','gradeRevision','gradingRevision','packetId','packetLabel'];
+    const fields=['label','state','updatedAt','pageCount','grade.pending','gradeRevision','gradingRevision','packetId','packetLabel','studentUid','studentLabel','labelFromStudent','singleStudentBook'];
     const rows=await this.store.recentSheetWork(quota(this.id(uid)),['uploading','review','failed'],fields,20);
     return {sheets:rows.map(row=>({
       id:row.id,paperId:row.paperId,label:row.label,state:row.state,updatedAt:row.updatedAt,pageCount:row.pageCount,
-      pending:currentSheetGrade(row)?.pending??null,
+      ...(row.labelFromStudent?{labelFromStudent:true}:{}),...(row.singleStudentBook?{singleStudentBook:true}:{}),
+      pending:currentSheetGrade(row)?.pending??null,...(row.studentUid?{studentUid:row.studentUid,studentLabel:row.studentLabel}:{}),
       ...(row.packetId?{packetId:row.packetId}:{}),...(row.packetLabel?{packetLabel:row.packetLabel}:{})
     }))};
   }
@@ -122,7 +126,8 @@ export class PaperChecking {
       return this.page(path,sheet,Number(pageIndex));
     }
     if(action==='pages'&&method==='POST')return this.upload(path,Number(pageIndex),body);
-    if(action==='delete'&&method==='POST')return this.remove(uid,path,body.version);
+    if(action==='student'&&method==='POST')return linkSheetStudent(this,uid,paperId,path,body);
+    if(action==='delete'&&method==='POST')return this.remove(uid,path,body.version,paperId);
     if(action==='queue'&&method==='POST')return this.enqueue(uid,paperId,path,body);
     if(action==='review'&&method==='POST')return this.review(uid,path,paperId,body);
     if(action==='manual'&&method==='POST')return this.manual(uid,path,paperId,body);
@@ -130,22 +135,26 @@ export class PaperChecking {
   }
   async create(uid,paperId,collection,body){
     const id=this.id(body.id),path=collection+'/'+id;
-    const label=this.text(body.label,100,true),notes=this.text(body.notes??'',1600);
+    const notes=this.text(body.notes??'',1600);
     const pageCount=body.pageCount;
     if(!Number.isInteger(pageCount)||pageCount<1||pageCount>maxCheckingPages)
       this.fail(400,'invalid_pages','Add between 1 and '+maxCheckingPages+' pages.');
     return this.store.transaction(async tx=>{
       const existing=await tx.get(path),usage=await tx.get(quota(uid))||{};
       if(existing){
-        if(existing.label!==label||existing.notes!==notes||existing.pageCount!==pageCount)
+        const label=this.text(body.label||existing.studentLabel,100,true);
+        if((existing.studentUid??null)!==(body.studentUid??null)||existing.label!==label||existing.notes!==notes||existing.pageCount!==pageCount)
           this.fail(409,'sheet_conflict','This upload was already started with different details.');
         return {id};
       }
+      const student=body.studentUid==null?{}:await resolveStudent(tx,body.studentUid);
+      const label=this.text(body.label||student.studentLabel,100,true);
       const now=this.now(),drafts=usage.day===day(now)?usage.drafts||0:0;
       if(drafts>=maxDrafts)this.fail(429,'draft_limit','The daily answer-sheet limit has been reached.');
-      const sheet={id,label,notes,pageCount,uploaded:[],state:'uploading',version:0,
+      const sheet={id,label,...student,...(matchesStudentLabel(label,student.studentLabel)?{labelFromStudent:true}:{}),notes,pageCount,uploaded:[],state:'uploading',version:0,
         createdAt:now,updatedAt:now,queueId:digest(uid,paperId,id)};
       tx.create(path,sheet);
+      indexStudent(tx,uid,sheet,'sheet',paperId);
       tx.set(quota(uid),{...usage,active:usage.active||0,day:day(now),drafts:drafts+1});
       this.service.notifyContent(tx,uid);
       return {id};
@@ -295,7 +304,7 @@ export class PaperChecking {
     }
     return out;
   }
-  async remove(uid,path,version){
+  async remove(uid,path,version,paperId){
     const clean=await this.store.transaction(async tx=>{
       const sheet=await tx.get(path);
       if(!sheet)return false;
@@ -307,6 +316,7 @@ export class PaperChecking {
       tx.delete(queue(sheet.queueId));
       tx.delete(path+'/grading/original');
       tx.delete(path+'/grading/before-correction');
+      removeStudentIndex(tx,uid,sheet,'sheet',paperId);
       tx.set(path,{...sheet,state:'deleting',lease:null,leaseUntil:null,deleting:0,version:sheet.version+1});
       this.service.notifyContent(tx,uid);
       return true;

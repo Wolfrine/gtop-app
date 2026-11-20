@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { PacketCorrectionComponent, type ScanCorrection } from './packet-correction.component';
 import { isAnonymous } from '../../assistant-service/domain/checking-intake.mjs';
 import { AssistantApi } from './api.service';
+import { StudentLookupComponent, getStudentAccount, type StudentAccount } from './student-lookup';
 import { cameraDrafts, clearCameraDraft, loadCameraDraft, storeCameraDraft, type CameraDraft } from './camera-drafts';
 import { isScanPdf, maxCheckingPages, packetFilePageCount, previewPacketPage, readScanPages, scanBase64, type Scan } from './checking-intake';
 
@@ -13,12 +14,12 @@ type Book = { label: string; pages: number[]; needsReview: boolean; reason: stri
 type DraftBook = Book & { key: number };
 type StoredPage = { index: number; sha: string; width: number; height: number };
 type PacketSummary = {
-  id: string; label: string; pageCount: number; expectedStudents: number | null; paperId: string | null; gradingPaperId?: string; gradingRevision?: number;
+  id: string; label: string; studentUid?: string; studentLabel?: string; pageCount: number; expectedStudents: number | null; paperId: string | null; gradingPaperId?: string; gradingRevision?: number;
   state: PacketState; version: number; processedPages: number; updatedAt: string; createdAt: string;
 };
 type Packet = PacketSummary & { uploaded: StoredPage[]; groups: Book[]; error?: string };
 type PacketList = { packets: PacketSummary[]; nextCursor?: string };
-export type QueuedPacket = { packetId: string; paperId: string; sheetIds: string[] };
+export type QueuedPacket = { packetId: string; paperId: string; sheetIds: string[]; sheetId?: string };
 const base = '/checking/packets';
 const maxStackPages = 200;
 
@@ -35,12 +36,14 @@ async function sameSource(left:File,right:File) {
 }
 
 @Component({
-  selector: 'gtop-paper-packet', standalone: true, imports: [CommonModule, FormsModule, PacketCorrectionComponent],
+  selector: 'gtop-paper-packet', standalone: true, imports: [CommonModule, FormsModule, PacketCorrectionComponent, StudentLookupComponent],
   templateUrl: './paper-packet.html', styleUrl: './paper-packet.css'
 })
 export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   @Input() paperId = '';
   @Input() packetId = '';
+  @Input() studentUid = '';
+  @Output() studentChange = new EventEmitter<string>();
   @Input() referenceTitle = '';
   @Input() referenceChoice = 0;
   @Input() libraryAccess = false;
@@ -62,7 +65,12 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   cameraSaved=false;
   cameraUnavailable=false;
   private openedId = '';
-  single = false;
+  single = true;
+  student: StudentAccount | null = null;
+  studentLoading = false;
+  studentError = '';
+  private studentRequest = 0;
+  private lookupUid = '';
   historyOpen = false;
   private historyLoaded = false;
   dragDepth = 0;
@@ -123,14 +131,51 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
 
   get stage() { return this.submitted ? 3 : this.reviewing || this.processing || this.packet?.state === 'failed' ? 2 : 1; }
   get uploadLabel() {
+    if (this.accountCheck && !this.attachedPaper) return 'Choose question paper';
+    if (this.accountCheck) return 'Send for checking';
     if (this.incompleteUpload) return 'Finish uploading';
     return this.single ? 'Review this answer book' : this.allPdfs && this.separateFiles ? 'Review student books' : 'Find student books';
   }
+  get accountCheck() { return this.packet ? !!this.packet.studentUid : this.single; }
+  get studentLabel() { return this.packet?.studentLabel || this.student?.displayName || ''; }
+
+  selectStudent(student: StudentAccount | null) {
+    if (this.packet || this.busy) return;
+    this.studentRequest++;
+    this.lookupUid = student?.uid || '';
+    this.studentLoading = false;
+    this.studentError = '';
+    if (this.student?.uid !== student?.uid) { this.createId = ''; this.defaultLabel = ''; }
+    this.student = student;
+    this.studentChange.emit(student?.uid || '');
+    void this.saveCamera();
+  }
+
+  async loadStudent(uid: string) {
+    const request = ++this.studentRequest;
+    this.lookupUid = uid;
+    this.student = null;
+    this.studentLoading = !!uid;
+    this.studentError = '';
+    if (!uid) return;
+    try {
+      const student = await getStudentAccount(this.api, uid);
+      if (request === this.studentRequest && !this.destroyed) this.student = student;
+    } catch (error) {
+      if (request === this.studentRequest && !this.destroyed)
+        this.studentError = this.describe(error);
+    } finally {
+      if (request === this.studentRequest && !this.destroyed) { this.studentLoading = false; this.paint(); }
+    }
+  }
+
   chooseSize(single:boolean) {
     if (this.sourcesLocked || this.busy) return;
+    if (single === this.single) return;
+    this.createId=''; this.defaultLabel='';
     this.single=single;
-    if(single) this.toggleFileStarts(false);
-    else void this.saveCamera();
+    if (single) this.toggleFileStarts(false);
+    else this.selectStudent(null);
   }
   showHistory() {
     if (this.hasOpenStack) this.home();
@@ -148,13 +193,14 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
       (this.cameraCount>0&&(!this.cameraSaved||this.cameraSaving>0));
   }
   get book() { return this.books.find(book => book.key === this.selectedKey); }
-  get needsReview() { return this.books.filter(book => !book.held && !book.withdrawn && (book.needsReview || !book.label.trim() || isAnonymous(book.label.trim()))); }
+  get needsReview() { return this.books.filter(book => !book.held && !book.withdrawn && (book.needsReview || !book.label.trim() || (!this.packet?.studentUid && isAnonymous(book.label.trim())))); }
   get heldCount(){return this.books.filter(book=>book.held&&!book.withdrawn).length;}
   get markingCount(){return this.books.filter(book=>!book.held&&!book.withdrawn).length;}
   get submitted(){return this.packet?.state==='completed';}
   get gradeLabel(){
     if(this.busy)return 'Saving…';
     if(!this.attachedPaper)return 'Choose question paper';
+    if(this.packet?.studentUid)return 'Send for checking';
     if(!this.markingCount)return 'Save held books';
     return 'Check '+this.markingCount+' '+(this.markingCount===1?'book':'books');
   }
@@ -171,7 +217,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     for (const book of this.books) {
       const label = book.label.trim().normalize('NFKC').toLocaleLowerCase();
       if (!book.held) {
-        if (!label || isAnonymous(label)) return 'Identify or hold the unnamed books before checking.';
+        if (!label || (!this.packet?.studentUid && isAnonymous(label))) return 'Identify or hold the unnamed books before checking.';
         if (labels.has(label)) return 'Give every book a different roll number or label.';
         labels.add(label);
       }
@@ -190,6 +236,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit() {
     this.initialized = true;void this.listCameraDrafts();
+    if (!this.packetId && this.studentUid) void this.loadStudent(this.studentUid);
     if (this.packetId) {
       this.pendingReference = this.referenceChoice > 0 ? this.paperId : '';
       void this.open(this.packetId, false);
@@ -215,6 +262,8 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
         void this.open(this.packetId,false);
       } else this.home(false);
     }
+    if (this.initialized && (changes['studentUid'] || changes['packetId']) && !this.packetId && !this.openedId &&
+        this.studentUid !== this.lookupUid) void this.loadStudent(this.studentUid);
     if (this.initialized && changes['referenceChoice'] && this.referenceChoice > 0 && this.paperId && this.openedId) {
       this.pendingReference = this.paperId;
       void this.applyReference();
@@ -339,9 +388,10 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   home(publish = true) {
     if (this.busy || (publish && this.hasLocalChanges && !window.confirm('Leave these unsaved changes?'))) return;
     this.openedId=''; this.pendingReference=''; this.packet=undefined; this.loadingDetail=false; this.detailRequest++;
-    this.resetForm(); this.single=false; this.setScanLocation(0); if (publish) { this.packetChange.emit(''); this.linkedPaper.emit(''); } this.historyLoaded=false;
+    this.resetForm(); this.single=true; this.setScanLocation(0); if (publish) { this.packetChange.emit(''); this.linkedPaper.emit(''); } this.historyLoaded=false;
   }
   private resetForm() {
+    this.studentRequest++;this.lookupUid='';this.student=null;this.studentLoading=false;this.studentError='';
     this.staged=undefined;this.cameraSaved=false;void this.listCameraDrafts();this.correcting=false;this.correction?.reset();this.closeSource(); this.releaseImages(); this.sources=[];this.savedDuringUpload=0; this.createId=''; this.defaultLabel=''; this.books=[];
     this.selectedKey=0; this.selectedPage=0; this.dirty=false; this.manual=false;
     this.countConfirmed=false; this.expected=null; this.label=''; this.notice=''; this.error='';
@@ -349,7 +399,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   }
   private apply(packet: Packet) {
     this.packet=packet; this.openedId=packet.id;
-    if (packet.state==='uploading') this.single=packet.expectedStudents===1;
+    this.single=!!packet.studentUid || (packet.state==='uploading' && packet.expectedStudents===1);
     const fingerprints=new Map<string,number[]>();
     for(const {index,sha} of packet.uploaded){const pages=fingerprints.get(sha)??[];pages.push(index);fingerprints.set(sha,pages);}
     this.matchingScans=Array.from(fingerprints.values()).filter(pages=>pages.length>1);
@@ -364,7 +414,9 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   get missingSources(){return this.sources.filter(s=>s.missingSize!==undefined).length;}
   get cameraCount(){return this.sources.filter(s=>s.cameraKey).length;}
   get availableCameraDrafts(){
-    return this.sources.length?[]:this.localDrafts.filter(d=>!this.openedId||d.packetId===this.openedId);
+    if (this.sources.length) return [];
+    return this.localDrafts.filter(draft => this.openedId ? draft.packetId === this.openedId :
+      !this.lookupUid || draft.studentUid === this.lookupUid);
   }
   cameraPages(draft:CameraDraft){return draft.sources.filter(s=>s.key).length;}
   private async listCameraDrafts(){
@@ -385,7 +437,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     const stage=this.staged??={id:crypto.randomUUID(),revision:0,owner,known:new Set<string>(),writes:Promise.resolve()};
     const sources=this.sources.map(s=>({key:s.cameraKey||'',veryDark:!!s.veryDark,name:s.file.name,size:s.missingSize??s.file.size,modified:s.file.lastModified,pages:s.pages,starts:s.starts,rotations:[...s.rotations]}));
     const manifest:CameraDraft={id:stage.id,owner,revision:0,updated:0,expires:0,packetId:this.openedId,
-      paperId:this.paperId,createId:this.createId,defaultLabel:this.defaultLabel,label:this.label,expected:this.expected,single:this.single,sources};
+      paperId:this.paperId,createId:this.createId,defaultLabel:this.defaultLabel || (this.single?this.studentLabel:''),label:this.label,expected:this.expected,single:this.single,studentUid:this.single?(this.packet ? this.packet.studentUid : this.lookupUid || undefined):undefined,sources};
     this.cameraSaving++;this.changed();
     const pending=stage.writes.then(async()=>{
       if(this.api.user?.uid!==owner)return;
@@ -435,8 +487,13 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
         file:files.get(s.key)??new File([],s.name,{lastModified:s.modified}),
         ...(s.key?{cameraKey:s.key}:{missingSize:s.size}),veryDark:s.veryDark,pages:s.pages,starts:s.starts,rotations:new Map(s.rotations)
       }));
-      this.label=manifest.label;this.expected=manifest.expected;this.single=manifest.single??false;this.createId=manifest.createId;this.defaultLabel=manifest.defaultLabel;
-      if(!this.packet&&manifest.paperId)this.linkedPaper.emit(manifest.paperId);
+      this.label=manifest.label;this.expected=manifest.expected;this.single=this.packet ? !!this.packet.studentUid || this.packet.expectedStudents===1 : manifest.single??false;this.createId=manifest.createId;this.defaultLabel=manifest.defaultLabel;
+      if(!this.packet){
+        const uid=manifest.single ? manifest.studentUid || '' : '';
+        await this.loadStudent(uid);
+        this.studentChange.emit(uid);
+        this.linkedPaper.emit(manifest.paperId || '');
+      }
       this.cameraSaved=true;this.cameraUnavailable=false;this.changed();
     });
   }
@@ -476,7 +533,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
           if(!camera)for (const existing of this.sources) { if(await sameSource(existing.file,file)){duplicate=true;break;} }
           if (duplicate) {duplicates++;continue;}
           if (this.destroyed) return;
-          const limit=this.packet?.pageCount??this.pageLimit;
+          const limit=this.packet?.pageCount??(this.single?this.bookLimit:this.pageLimit);
           if (!pages || this.pageTotal+pages>limit) throw Error('This would exceed '+limit+' pages in the stack.');
           darkCapture ||= veryDark;
           this.sources.push({file,pages,veryDark,starts:false,rotations:new Map(),...(camera?{cameraKey:crypto.randomUUID()}:{})});
@@ -524,31 +581,46 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   }
   async upload() {
     if (this.busy || this.missingSources || !this.sources.length || (this.packet && this.pageTotal!==this.packet.pageCount)) return;
+    if (!this.packet && this.single && !this.student) {this.error='Choose the student who sent these pages.';return;}
+    if (this.accountCheck && !this.attachedPaper) {this.needPaper.emit(this.openedId);return;}
     if(this.single && this.pageTotal>this.bookLimit){this.error='One answer book can contain up to '+this.bookLimit+' pages.';return;}
     if (!this.single && this.expected!==null && (!Number.isInteger(this.expected)||this.expected<1||this.expected>180)) { this.error='Enter the number of students present, between 1 and 180.'; return; }
-    const directGroups=this.knownBooks();
+    const selectedPaper=this.attachedPaper;
+    const requestedUid=this.accountCheck ? this.packet?.studentUid || this.student?.uid : undefined;
+    const directGroups=requestedUid ? undefined : this.knownBooks();
     this.closeSource();this.savedDuringUpload=this.packet?.uploaded.length??0;
     await this.work(async () => {
       if (!this.packet) {
         let start=1;
         const knownStarts=this.sources.flatMap((source,i)=>{ const index=start;start+=source.pages;return i===0||source.starts?[index]:[]; });
         this.createId ||= crypto.randomUUID();
-        this.defaultLabel ||= (this.single?'Answer book · ':'Class stack · ')+new Date().toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+        this.defaultLabel ||= this.student?.displayName || (this.single?'Answer book · ':'Class stack · ')+new Date().toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
         if(this.staged)await this.saveCamera();
         const {packet}=await this.api.request<{packet:Packet}>(base,'POST',{
           id:this.createId,pageCount:this.pageTotal,expectedStudents:this.single?1:this.expected,
-          label:this.label.trim()||this.defaultLabel,...(this.paperId?{paperId:this.paperId}:{}),knownStarts
+          label:this.label.trim()||this.defaultLabel,...(this.paperId?{paperId:this.paperId}:{}),
+          ...(requestedUid?{studentUid:requestedUid}:{}),knownStarts
         });
         if (this.destroyed) return;
+        if ((packet.studentUid || undefined) !== requestedUid)
+          throw Error('This upload could not be verified for the selected student. Reload before retrying.');
         this.apply(packet); this.packetChange.emit(packet.id);if(this.staged)await this.saveCamera();
       }
       const packet=this.packet!;
-      if (packet.state!=='uploading') {await this.eraseActiveCamera();this.sources=[];this.changed();return;}
+      if (packet.state!=='uploading') {
+        await this.eraseActiveCamera();this.sources=[];this.changed();
+        if (packet.state==='completed') this.openResults();
+        return;
+      }
       const saved=new Map(packet.uploaded.map(p=>[p.index,p.sha]));
       const contiguous=packet.uploaded.every(p=>p.index<=saved.size);
       if (saved.size && !contiguous) await this.uploadPages(packet,saved,true);
       await this.uploadPages(packet,saved,false);
       if (this.destroyed) return;
+      if (packet.studentUid) {
+        await this.submitStudentBook(selectedPaper);
+        return;
+      }
       this.progress=directGroups ? 'Saving the book list…' : 'Finding where each book starts…'; this.paint();
       if (directGroups) {
         await this.readCurrent();
@@ -564,6 +636,38 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
       await this.eraseActiveCamera();this.sources=[];this.changed();
     });
   }
+  async finishStudentUpload() {
+    if (!this.packet?.studentUid || this.busy || this.incompleteUpload) return;
+    if (!this.attachedPaper) { this.needPaper.emit(this.openedId); return; }
+    const selectedPaper=this.attachedPaper;
+    await this.work(() => this.submitStudentBook(selectedPaper));
+  }
+
+  private async submitStudentBook(selectedPaper:string) {
+    this.progress = 'Sending the answer sheet for checking…'; this.paint();
+    await this.readCurrent();
+    const packet = this.packet;
+    if (this.destroyed || !packet?.studentUid) return;
+    const currentPaper=packet.gradingPaperId || packet.paperId || '';
+    if (currentPaper !== selectedPaper) {
+      this.linkedPaper.emit(currentPaper);
+      throw Error('The question paper changed during upload. Review the current paper before sending again.');
+    }
+    if (packet.state === 'uploading') {
+      if (!packet.studentLabel) throw Error('The student account on this upload could not be verified.');
+      const group: Book = {label:packet.studentLabel, pages:Array.from({length:packet.pageCount}, (_, i) => i+1), needsReview:false, reason:''};
+      const {packet: submitted} = await this.api.request<{packet:Packet}>(this.path(packet.id)+'/confirm','POST',{
+        version:packet.version, paperId:selectedPaper, groups:[group],
+      });
+      if (this.destroyed) return;
+      this.packet=submitted;
+    }
+    await this.eraseActiveCamera();
+    this.sources=[]; this.changed();
+    if (this.packet?.state === 'review') await this.submitBooks();
+    else if (this.submitted) this.openResults();
+  }
+
   private knownBooks():Book[]|undefined {
     if (this.single) return [{label:'',pages:Array.from({length:this.pageTotal},(_,i)=>i+1),needsReview:true,
       reason:'Read the cover and enter the student’s roll number or book label.'}];
@@ -829,18 +933,23 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
         if (!this.destroyed) this.needPaper.emit(this.openedId);
       });return;
     }
-    await this.work(async()=>{
-      const packet=this.packet!;
-      await this.api.request(this.path(packet.id)+'/confirm','POST',{
-        version:packet.version,paperId:this.attachedPaper,groups:this.payload()
-      });
-      this.dirty=false;await this.readCurrent();
-      if (this.packet?.state==='completed') this.openResults();
+    await this.work(() => this.submitBooks());
+  }
+
+  private async submitBooks() {
+    const packet=this.packet!;
+    await this.api.request(this.path(packet.id)+'/confirm','POST',{
+      version:packet.version,paperId:this.attachedPaper,groups:this.payload()
     });
+    this.dirty=false;await this.readCurrent();
+    if (this.packet?.state==='completed') this.openResults();
   }
   openResults() {
     const packet=this.packet;
-    if(packet?.state==='completed'&&packet.paperId)this.queued.emit({packetId:packet.id,paperId:packet.paperId,sheetIds:packet.groups.flatMap(b=>b.sheetId?[b.sheetId]:[])});
+    if(packet?.state!=='completed'||!packet.paperId)return;
+    const sheetIds=packet.groups.flatMap(b=>b.sheetId?[b.sheetId]:[]);
+    this.queued.emit({packetId:packet.id,paperId:packet.paperId,sheetIds,
+      ...(packet.studentUid && sheetIds.length===1 ? {sheetId:sheetIds[0]} : {})});
   }
   get canSave() { return this.dirty; }
   private path(id:string) { return base+'/'+encodeURIComponent(id); }

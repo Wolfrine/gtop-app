@@ -11,6 +11,7 @@ import { AssistantApi } from './api.service';
 import {
   fileStem,
   filenames,
+  handbackIdentity,
   marksRegister,
   registerStatus,
   type RegisterEntry,
@@ -63,6 +64,7 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
   private downloadUrl = '';
   private releaseTimer?: ReturnType<typeof setTimeout>;
   readonly status = registerStatus;
+  readonly identity = handbackIdentity;
   get base() {
     return '/papers/' + encodeURIComponent(this.paperId) + '/checking';
   }
@@ -78,9 +80,10 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
   get filtered() {
     const q = this.filter.trim().toLocaleLowerCase();
     return q
-      ? this.entries.filter((row) =>
-          [row.label, row.packetLabel].some(value => value?.toLocaleLowerCase().includes(q)),
-        )
+      ? this.entries.filter(row => {
+          const recipient = this.identity(row);
+          return [recipient.full, recipient.classLabel].some(value => value.toLocaleLowerCase().includes(q));
+        })
       : this.entries;
   }
   get visible() {
@@ -165,7 +168,8 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
       this.check(epoch, uid);
       if (result.paperId && result.paperId !== this.paperId)
         throw Error('This class belongs to a different question paper.');
-      const packetLabel = result.packetLabel || this.classLabel;
+      const onlyBook = result.sheets.length === 1 ? result.sheets[0] : undefined;
+      const packetLabel = onlyBook?.singleStudentBook ? this.identity(onlyBook).full : result.packetLabel || this.classLabel;
       return { ...result, packetLabel, sheets: result.sheets.map((row) => ({ ...row, packetLabel })) };
     }
     const initial =
@@ -297,11 +301,13 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
         latest.max !== row.max ||
         latest.awarded !== row.awarded ||
         latest.label !== row.label ||
+        latest.studentUid !== row.studentUid ||
+        latest.studentLabel !== row.studentLabel ||
         latest.packetLabel !== row.packetLabel ||
         latest.pending !== row.pending ||
         currentNames.get(row.id) !== names.get(row.id)
       )
-        throw Error('Marks changed for ' + row.label + '. Download again for the latest result.');
+        throw Error('Marks changed for ' + this.identity(row).full + '. Download again for the latest result.');
     }
   }
 
@@ -373,7 +379,7 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
       this.check(epoch, uid);
       for (const [i, row] of returning.entries()) {
         this.check(epoch, uid);
-        this.progress = `Preparing ${i + 1} of ${returning.length} · ${row.label}`;
+        this.progress = `Preparing ${i + 1} of ${returning.length} · ${this.identity(row).full}`;
         this.repaint();
         const endpoint = this.base + '/' + encodeURIComponent(row.id);
         const detail = await this.api.request<ReturnDetail>(endpoint);
@@ -382,12 +388,14 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
           detail.sheet.state !== 'final' ||
           detail.sheet.version !== row.version ||
           detail.sheet.label !== row.label ||
+          detail.sheet.studentUid !== row.studentUid ||
+          detail.sheet.studentLabel !== row.studentLabel ||
           (row.max != null && detail.sheet.grade?.max !== row.max) ||
           detail.sheet.grade?.awarded !== row.awarded
         )
-          throw Error('Marks changed for ' + row.label + '. Download again for the latest result.');
+          throw Error('Marks changed for ' + this.identity(row).full + '. Download again for the latest result.');
         const pdf = await markedCopy(
-          { ...detail, classLabel: row.packetLabel },
+          { ...detail, classLabel: this.identity(row).classLabel },
           (index) => this.api.checkingImage(endpoint + '/pages/' + index),
           () => this.check(epoch, uid),
         );

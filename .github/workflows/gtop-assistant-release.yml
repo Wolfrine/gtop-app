@@ -159,7 +159,9 @@ jobs:
         run: node assistant-service/scripts/inspect-usage.mjs
       - name: Check live rule drift and deploy only worker identity restrictions
         run: node assistant-service/scripts/deploy-rules.mjs
-      - name: Deploy only new assistant gateway using existing runtime permissions
+      - name: Synchronize the private student directory using existing permissions
+        run: node assistant-service/scripts/deploy-student-directory.mjs
+      - name: Deploy assistant gateway using existing runtime permissions
         run: node assistant-service/scripts/deploy.mjs
       - name: Verify active private pilot access without production fixtures
         run: node assistant-service/scripts/verify-live.mjs

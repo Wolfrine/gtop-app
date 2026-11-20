@@ -1,13 +1,13 @@
 <div class="packet">
   <div class="page-heading">
-    <div><h1>{{historyOpen ? 'Saved answer stacks' : hasOpenStack && packet ? packet.label : 'Check answer sheets'}}</h1>
-      <p>{{historyOpen ? 'Open a stack to continue where you left off.' : hasOpenStack && packet ? (packet.pageCount+' scanned '+(packet.pageCount===1?'page':'pages')) : 'Start with the pages your students handed in.'}}</p>
+    <div><h1>{{historyOpen ? 'Saved uploads' : hasOpenStack && packet ? packet.label : 'Check answer sheets'}}</h1>
+      <p>{{historyOpen ? 'Open an upload to continue checking.' : hasOpenStack && packet ? (packet.pageCount+' scanned '+(packet.pageCount===1?'page':'pages')) : single ? 'Choose the student and attach the answer sheet they sent.' : 'Add the answer books collected from your class.'}}</p>
     </div>
     @if (!hasOpenStack && !sources.length && !busy) {
-      <button type="button" class="action quiet" (click)="historyOpen?historyOpen=false:showHistory()">{{historyOpen?'＋ New check':'Saved stacks →'}}</button>
+      <button type="button" class="action quiet" (click)="historyOpen?historyOpen=false:showHistory()">{{historyOpen?'＋ New check':'Saved uploads →'}}</button>
     }
   </div>
-  @if (!historyOpen && !loadingDetail) {
+  @if (!historyOpen && !loadingDetail && !accountCheck) {
     <ol class="stepper" aria-label="Checking progress">
       @for (step of ['Add pages','Match student books','Review marks'];track step;let i=$index) {
         <li [class.current]="stage===i+1" [class.done]="stage>i+1" [attr.aria-current]="stage===i+1?'step':null"><b>{{stage>i+1?'✓':i+1}}</b><span>{{step}}</span></li>
@@ -20,9 +20,9 @@
     </div>
   }
   @if (notice) { <p class="feedback" role="status">{{notice}}</p> }
-  @if (loadingDetail) { <p class="feedback" role="status">Opening saved stack…</p> }
+  @if (loadingDetail) { <p class="feedback" role="status">Opening saved upload…</p> }
   @if (hasOpenStack && !loadingDetail) {
-    <div class="stack-nav"><button class="backlink" type="button" [disabled]="busy" (click)="showHistory()">← Saved stacks</button>
+    <div class="stack-nav"><button class="backlink" type="button" [disabled]="busy" (click)="showHistory()">← Saved uploads</button>
     @if (packet && packet.state!=='completed') { <details><summary aria-label="Stack actions">•••</summary><button type="button" class="inline" [disabled]="busy" (click)="deleteStack()">Delete stack</button></details> }</div>
   }
 
@@ -30,31 +30,50 @@
     <section class="intake" aria-label="Scan answer books">
       @for(draft of availableCameraDrafts;track draft.id){
         <div class="camera-restore"><div><strong>{{cameraPages(draft)}} saved camera {{cameraPages(draft)===1?'photo':'photos'}}</strong>
-          <small>{{draft.label||'Unfinished class scan'}} · {{draft.updated|date:'short'}}</small></div>
+          <small>{{draft.label || draft.defaultLabel || (draft.single?'Unfinished student scan':'Unfinished class scan')}} · {{draft.updated|date:'short'}}</small></div>
           <button type="button" class="action" [disabled]="busy" (click)="restoreCamera(draft)">Restore camera draft</button>
           <button type="button" class="inline" [disabled]="busy" (click)="discardCamera(draft)">Clear saved photos</button>
         </div>
       }
       <div class="intake-workspace" [class.has-files]="sources.length>0">
         <div class="source-column">
-          <div class="intake-head"><h2>{{packet ? (busy?'Saving pages':'Finish your upload') : 'Student pages'}}</h2>
+          <div class="intake-head"><h2>{{packet ? (busy?'Saving pages':'Finish your upload') : (single?'Student answer sheet':'Class answer sheets')}}</h2>
             @if (!packet) {
               <div class="scope-picker" aria-label="Number of answer books" role="group">
-                <button type="button" [attr.aria-pressed]="!single" (click)="chooseSize(false)" [disabled]="busy">Class stack</button>
                 <button type="button" [attr.aria-pressed]="single" (click)="chooseSize(true)" [disabled]="busy">One student</button>
+                <button type="button" [attr.aria-pressed]="!single" (click)="chooseSize(false)" [disabled]="busy">Class stack</button>
               </div>
             }
           </div>
+          @if (single && !packet) {
+            <div class="student-pick">
+              @if (studentLoading) { <p role="status">Opening GTOP student…</p> }
+              @else if (studentError) {
+                <p class="feedback error" role="alert">{{studentError}}</p>
+                <button class="inline" type="button" (click)="loadStudent(studentUid)">Retry student</button>
+                <button class="inline" type="button" (click)="selectStudent(null)">Choose another student</button>
+              } @else {
+                <student-lookup [selected]="student" [disabled]="busy" (selectedChange)="selectStudent($event)" />
+              }
+            </div>
+          } @else if (packet?.studentUid) { <p class="saved-count">GTOP student <strong>{{studentLabel}}</strong></p> }
           @if (packet) { <p class="saved-count">{{busy?savedDuringUpload:packet.uploaded.length}} of {{packet.pageCount}} pages saved</p> }
           @if (sources.length) {
             <section class="staged-summary" aria-label="Selected pages">
-              <div><strong>{{sources.length}} {{sources.length===1?'file':'files'}} · {{pageTotal}} {{pageTotal===1?'page':'pages'}}</strong>
-                <small>{{single?'These pages will stay together as one answer book.':'Review the student books before sending them for marking.'}}</small>
+              <div>
+                @if (accountCheck && sources.length === 1) {
+                  <strong class="attachment-name">{{sources[0].file.name}}</strong>
+                  <small>{{pageTotal}} {{pageTotal===1?'page':'pages'}}@if (referenceTitle) { · {{referenceTitle}} }</small>
+                } @else {
+                  <strong>{{sources.length}} {{sources.length===1?'file':'files'}} · {{pageTotal}} {{pageTotal===1?'page':'pages'}}</strong>
+                  <small>{{accountCheck ? referenceTitle : single ? 'These pages will stay together as one answer book.' : 'Review the student books before sending them for marking.'}}</small>
+                }
+                @if (accountCheck && !studentLabel) { <small>Choose the student above to continue.</small> }
               </div>
           @if (!single && allPdfs && !sourcesLocked) {
             <label class="option"><input type="checkbox" [checked]="separateFiles" (change)="toggleFileStarts($any($event.target).checked)" [disabled]="busy"> Each PDF starts a separate student’s book</label>
           }
-              <button class="action primary" type="button" (click)="upload()" [disabled]="busy||!!missingSources||!pageTotal||(packet&&packet.pageCount!==pageTotal)">
+              <button class="action primary" type="button" (click)="upload()" [disabled]="busy||(!packet&&single&&!student)||!!missingSources||!pageTotal||(packet&&packet.pageCount!==pageTotal)">
                 {{uploadLabel}} <span aria-hidden="true">→</span>
               </button>
             </section>
@@ -66,14 +85,14 @@
             <div class="pick-area" [class.dragging]="dragDepth>0" (dragenter)="drag($event,1)" (dragover)="drag($event,0)" (dragleave)="drag($event,-1)" (drop)="drop($event)">
               @if(!sources.length){
               <div class="document-pile" aria-hidden="true"><i></i><i></i><b><span></span><span></span><span></span><em>✓</em></b></div>
-              <strong>{{dragDepth ? 'Drop your files here' : single ? 'Add one student’s answer book' : 'Add the class scans'}}</strong>
-              <p>{{single ? 'Choose a PDF or photos in page order.' : 'Use a combined PDF, a PDF per student, or photos in order.'}}</p>
+              <strong>{{dragDepth ? 'Drop your files here' : single ? 'Attach the student’s answer sheet' : 'Add the class scans'}}</strong>
+              <p>{{single ? 'Upload the PDF they sent, or add photos in page order.' : 'Use a combined PDF, a PDF per student, or photos in order.'}}</p>
               }
               <div class="picker-actions">
                 <label class="pick" [class.primary]="!sources.length" [class.secondary]="sources.length>0" [class.disabled]="busy">
                   <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 16V4m-5 5 5-5 5 5M4 16v4h16v-4"/></svg>
-                  {{sources.length ? 'Add more files' : 'Choose scans'}}
-                  <input type="file" multiple accept="application/pdf,.pdf,image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,.heic,.heif" aria-label="Choose scans" (change)="add($event)" [disabled]="busy">
+                  {{sources.length ? 'Add more files' : single ? 'Choose answer sheet' : 'Choose scans'}}
+                  <input type="file" multiple accept="application/pdf,.pdf,image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,.heic,.heif" [attr.aria-label]="sources.length ? 'Add more files' : single ? 'Choose answer sheet' : 'Choose scans'" (change)="add($event)" [disabled]="busy">
                 </label>
                 <label class="pick secondary" [class.disabled]="busy">
                   <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="3.5"/></svg> Take a photo
@@ -94,7 +113,7 @@
             <strong>{{referenceTitle || 'Opening paper…'}}</strong>
             <button class="paper-link" type="button" [disabled]="busy" (click)="needPaper.emit(packetId)">Change paper <span aria-hidden="true">→</span></button>
           } @else {
-            <p>Match the paper your students answered. You can also do this after uploading.</p>
+            <p>{{accountCheck ? 'Choose the paper this student answered.' : 'Match the paper your students answered. You can also do this after uploading.'}}</p>
             @if(libraryAccess){<button type="button" class="paper-link" [disabled]="busy" (click)="needPaper.emit(packetId)">Choose a saved paper <span aria-hidden="true">→</span></button>}
             <button type="button" class="paper-link" [disabled]="busy" (click)="needPrinted.emit()">Use a printed paper <span aria-hidden="true">→</span></button>
           }
@@ -139,7 +158,7 @@
             @else if (readingPreview) { <p role="status">Opening page…</p> }
           </section>
         }
-        @if (!packet) {
+        @if (!packet && !single) {
           <details class="optional-settings"><summary>Class details <small>Optional</small></summary><div class="fields">
             @if (!single) { <label>Students present <small>Optional</small>
               <input type="number" inputmode="numeric" min="1" max="180" step="1" [(ngModel)]="expected" (ngModelChange)="saveCamera()" placeholder="e.g. 10" [disabled]="busy">
@@ -153,7 +172,7 @@
 
       } @else if (packet && !incompleteUpload) {
         <div class="primary-row">
-          <button type="button" class="action primary" (click)="single?manualGrouping():organize()" [disabled]="busy">{{single?'Review this answer book':'Find student books'}} →</button>
+          <button type="button" class="action primary" (click)="packet.studentUid?finishStudentUpload():single?manualGrouping():organize()" [disabled]="busy">{{packet.studentUid?uploadLabel:single?'Review this answer book':'Find student books'}} →</button>
           @if(!single){<button type="button" class="inline" (click)="manualGrouping()" [disabled]="busy">Group pages myself</button>}
         </div>
       }
@@ -184,9 +203,9 @@
   @if ((reviewing || submitted) && packet && !loadingDetail) {
     <section class="review" aria-label="Review student books">
       <div class="review-head">
-        <div><h2>{{submitted?'Books sent for marking':'Match student books'}}</h2><p>{{books.length}} {{books.length===1?'book':'books'}} · {{packet.pageCount}} pages @if(expectedCount){ · {{expectedCount}} present }</p></div>
+        <div><h2>{{packet.studentUid?(submitted?'Answer sheet sent for checking':'Confirm answer sheet'):submitted?'Books sent for marking':'Match student books'}}</h2><p>{{books.length}} {{books.length===1?'book':'books'}} · {{packet.pageCount}} pages @if(expectedCount && !packet.studentUid){ · {{expectedCount}} present }</p></div>
         @if(submitted) {
-          <button class="action primary" type="button" [disabled]="busy||correcting" (click)="openResults()">View class results →</button>
+          <button class="action primary" type="button" [disabled]="busy||correcting" (click)="openResults()">{{packet.studentUid ? 'View student result' : 'View class results'}} →</button>
         } @else if(needsReview.length) {
           <button class="action primary" type="button" [disabled]="busy||correcting" (click)="reviewNext()">Review {{needsReview.length===1?'book':('next of '+needsReview.length+' books')}} →</button>
         } @else {
@@ -220,7 +239,7 @@
         </div>
         @if (book; as b) {
           <section #bookDetail class="book-detail" aria-label="Selected book">
-            @if (!submitted) {<div class="detail-head">
+            @if (!submitted && !packet.studentUid) {<div class="detail-head">
               <label>Roll number or book label
                 <input type="text" [ngModel]="b.label" (ngModelChange)="editLabel(b,$event)" placeholder="e.g. Roll 24" maxlength="100" [disabled]="busy||correcting||!!b.held">
               </label>
@@ -245,8 +264,8 @@
               @else { <p role="status">Loading scan…</p> }
             </div>
             @if (!submitted && !correcting) {<div class="edit-tools">
-              <button class="inline" type="button" (click)="splitHere()" [disabled]="busy||selectedPage===b.pages[0]">New book from this page</button>
-              <button class="inline" type="button" (click)="toggleMove()" [disabled]="busy">{{moving?'Cancel move':'Move pages…'}}</button>
+              @if (!packet.studentUid) {<button class="inline" type="button" (click)="splitHere()" [disabled]="busy||selectedPage===b.pages[0]">New book from this page</button>
+              <button class="inline" type="button" (click)="toggleMove()" [disabled]="busy">{{moving?'Cancel move':'Move pages…'}}</button>}
               <details><summary>Page order</summary><div class="tools">
                 <button type="button" (click)="reorderPage(-1)" [disabled]="busy||selectedPage===b.pages[0]">Move earlier</button>
                 <button type="button" (click)="reorderPage(1)" [disabled]="busy||selectedPage===b.pages[b.pages.length-1]">Move later</button>
@@ -280,12 +299,12 @@
     </section>
   }
   @if (historyOpen && !loadingDetail) {
-    <section class="recent" aria-label="Recent stacks">
-      <div class="section-line"><h2>Recent stacks</h2><button type="button" class="inline" (click)="loadRecent()" [disabled]="loadingList">Refresh</button></div>
+    <section class="recent" aria-label="Recent uploads">
+      <div class="section-line"><h2>Recent uploads</h2><button type="button" class="inline" (click)="loadRecent()" [disabled]="loadingList">Refresh</button></div>
       @if (recent.length) {
         <div class="recent-list">@for (p of recent; track p.id) {
           <button type="button" class="recent-row" (click)="openRecent(p)"><span><strong>{{p.label}}</strong><small>{{p.pageCount}} pages · {{p.createdAt|date:'mediumDate'}}</small></span>
-            <span class="recent-state" [class.warn]="p.state==='failed'||p.state==='review'">{{p.state==='completed'?'View class results':stateLabel(p.state)}} <b aria-hidden="true">›</b></span>
+            <span class="recent-state" [class.warn]="p.state==='failed'||p.state==='review'">{{p.studentUid && p.state==='review'?'Confirm answer sheet':p.state==='completed'?(p.studentUid?'View student result':'View class results'):stateLabel(p.state)}} <b aria-hidden="true">›</b></span>
           </button>
         }</div>
         @if(cursor){<button class="inline" type="button" (click)="loadRecent(true)" [disabled]="loadingList">Load older stacks</button>}

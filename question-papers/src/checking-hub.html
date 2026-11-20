@@ -5,14 +5,14 @@
       <span>GT Papers<small>Growth Tutorials</small></span>
     </div>
     <span class="mast-divider" aria-hidden="true"></span><span class="mast-title">Checking desk</span>
-    <button type="button" class="top-back" (click)="close()" [disabled]="busy">← {{picker ? 'Back to scans' : 'Teacher’s desk'}}</button>
+    <button type="button" class="top-back" (click)="close()" [disabled]="busy">← {{picker ? 'Back to scans' : 'Back'}}</button>
   </header>
   <div class="home-body">
     <section [hidden]="picker !== null" aria-label="Answer sheet checking">
-      <gtop-paper-packet #packetDesk [referenceTitle]="paperTitle" [paperId]="paperId" [packetId]="packetId" [referenceChoice]="referenceChoice" [libraryAccess]="libraryAccess"
+      <gtop-paper-packet #packetDesk [referenceTitle]="paperTitle" [paperId]="paperId" [packetId]="packetId" [studentUid]="studentUid" (studentChange)="rememberStudent($event)" [referenceChoice]="referenceChoice" [libraryAccess]="libraryAccess"
         (packetChange)="rememberPacket($event)" (linkedPaper)="setReference($event)"
         (needPaper)="choosePaper($event)" (needPrinted)="choosePrinted()" (busyChange)="busy=$event" (selectionChange)="hasLocalFiles=$event"
-        (queued)="onResults($event.paperId, $event.packetId)" />
+        (queued)="onResults($event.paperId, $event.packetId, $event.sheetId)" />
       @if (paperError) { <p class="error" role="alert">{{ paperError }}</p> }
       @if (paperId && !packetId && !busy && !hasLocalFiles) {
         <button type="button" class="text-action register-link" (click)="onResults(paperId)">Other checked sheets for this paper →</button>

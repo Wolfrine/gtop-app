@@ -1,3 +1,4 @@
+import {getStudent, searchStudents} from './student-directory.mjs';
 import {HttpError} from './service.mjs';
 const allowedOrigins=new Set(['https://gtop-question-papers.web.app','https://gtop-question-papers.firebaseapp.com','https://pti-app-2ab59.web.app','https://pti-app-2ab59.firebaseapp.com','http://localhost:4317','http://127.0.0.1:4317']);
 /** Pure HTTP boundary: authentication is injected, so checks can be exercised without cloud credentials. */
@@ -12,6 +13,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
       if(!['GET','POST'].includes(method))throw new HttpError(405,'method_not_allowed','Method is not supported.');
       if(!body || typeof body!=='object' || Array.isArray(body))throw new HttpError(400,'invalid_body','A JSON object is required.');
       if(Buffer.byteLength(JSON.stringify(body || {}))>600000)throw new HttpError(413,'payload_too_large','Request is too large.');
+      const query=new URLSearchParams(path.split('?')[1]);
       path=path.split('?')[0].replace(/^\/api(?=\/|$)/,'').replace(/\/$/,'') || '/';
       if(method==='POST' && path==='/worker/session')return {status:200,headers:responseHeaders,body:await service.bootstrap(body)};
       const bearer=(headers.authorization || headers.Authorization || '').match(/^Bearer (\S+)$/);
@@ -46,6 +48,9 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='POST' && path==='/conversations')output=await service.createConversation(uid,body);
         else if(method==='POST' && path==='/feedback')output=await service.feedback(uid,body);
         else if(method==='POST' && path==='/admin/library')output=await service.adminLibrary(uid,body);
+        else if(method==='GET' && path==='/students/search')output=await searchStudents(service.store,query.get('q'),query.get('cursor'));
+        else if(method==='GET' && /^\/students\/[A-Za-z0-9_-]+$/.test(path))output={student:await getStudent(service.store,path.split('/').at(-1))};
+        else if(method==='POST' && path==='/checking/student-history')output=await service.checking.studentHistory(uid,body);
         else if(method==='GET' && path==='/checking/work')output=await service.checking.recentWork(uid);
         else if(method==='GET' && /^\/admin\/conversations\/[^/]+$/.test(path))output=await service.adminConversation(uid,path.split('/').at(-1));
         else if(method==='GET' && /^\/(admin\/)?conversations\/[^/]+\/revision$/.test(path))output=await service.conversationRevision(uid,path.split('/').at(-2),path.startsWith('/admin/'));
@@ -59,7 +64,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
               responseHeaders['Content-Type']='image/jpeg';responseHeaders['Cross-Origin-Resource-Policy']='same-origin';
             }
           }
-          else if((m=path.match(/^\/papers\/([A-Za-z0-9_-]+)\/checking(?:\/([A-Za-z0-9_-]+)(?:\/(?:(pages)\/(\d+)|(queue|review|manual|delete)))?)?$/))){
+          else if((m=path.match(/^\/papers\/([A-Za-z0-9_-]+)\/checking(?:\/([A-Za-z0-9_-]+)(?:\/(?:(pages)\/(\d+)|(queue|review|manual|delete|student)))?)?$/))){
             output=await service.checking.teacher(method,[m[1],m[2],m[3]||m[5],m[4]],uid,body);
             if(Buffer.isBuffer(output)){
               responseHeaders['Content-Type']='image/jpeg';

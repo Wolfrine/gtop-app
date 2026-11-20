@@ -1,7 +1,8 @@
 import {randomUUID} from 'node:crypto';
+import {removeStudentIndex} from './checking-student.mjs';
 import {isAnonymous} from './domain/checking-intake.mjs';
 import {maxCheckingPages} from './domain/checking-limits.mjs';
-import {currentSheetGrade,digest,maxActive,orderedKey,queue,quota,sheets} from './checking-storage.mjs';
+import {currentSheetGrade,digest,matchesStudentLabel,maxActive,orderedKey,queue,quota,sheets} from './checking-storage.mjs';
 
 const active=state=>state==='queued'||state==='running';
 
@@ -21,6 +22,7 @@ export async function correctPacket(intake,uid,path,body){
     const groups=packet.groups.map(g=>({...g,pages:[...g.pages]}));
     const page=op==='append'?packet.pageCount+1:body.page;
     const previous=packet.uploaded.find(p=>p.index===page);
+    if(op==='append'&&packet.studentUid&&page>maxCheckingPages)checker.fail(400,'booklet_size','This student book already has '+maxCheckingPages+' pages.');
     if(op==='append'&&page>200)checker.fail(400,'packet_size','A class scan can contain up to 200 pages.');
     if((op==='replace'||op==='move')&&(!Number.isInteger(page)||!previous))
       checker.fail(400,'missing_page','Choose an uploaded page to correct.');
@@ -50,6 +52,7 @@ export async function correctPacket(intake,uid,path,body){
       const key=label.normalize('NFKC').toLocaleLowerCase();
       if(isAnonymous(label)||groups.some(g=>g!==owner&&!g.held&&!g.withdrawn&&g.label.normalize('NFKC').toLocaleLowerCase()===key))
         checker.fail(400,'booklet_identity','Enter a distinct roll number or student name.');
+      if(owner.studentUid)owner.labelFromStudent=matchesStudentLabel(label,owner.studentLabel);
       owner.label=label;delete owner.held;owner.needsReview=false;owner.reason='';
     }
     if(op==='move'){
@@ -82,7 +85,7 @@ export async function correctPacket(intake,uid,path,body){
     for(const [i,g] of affected.entries()){
       const sheet=records[i],sheetPath=sheets(uid,packet.paperId)+'/'+sheet.id;
       const state=nextState(g,sheet);
-      const next={...sheet,label:g.label,uploaded:g.pages.map((n,j)=>({...byPage.get(n),index:j+1,sourceIndex:byPage.get(n).sourceIndex??n})),
+      const next={...sheet,label:g.label,...(op==='identify'&&sheet.studentUid?{labelFromStudent:!!g.labelFromStudent}:{}),uploaded:g.pages.map((n,j)=>({...byPage.get(n),index:j+1,sourceIndex:byPage.get(n).sourceIndex??n})),
         pageCount:g.pages.length,updatedAt:now,version:sheet.version+1};
       if(op==='replace')next.retiredSources=[...(sheet.retiredSources||[]),{sourceIndex:previous.sourceIndex??page}];
       if(g.withdrawn||(!g.held&&(op!=='identify'||sheet.state==='held'))){
@@ -91,7 +94,10 @@ export async function correctPacket(intake,uid,path,body){
         delete next.grade;delete next.modelGrade;delete next.engine;delete next.finalizedAt;delete next.reviewedAt;
         Object.assign(next,{state,error:null,lease:null,leaseUntil:null});
         tx.delete(sheetPath+'/grading/original');
-        if(g.withdrawn)tx.delete(queue(sheet.queueId));
+        if(g.withdrawn){
+          tx.delete(queue(sheet.queueId));
+          removeStudentIndex(tx,uid,sheet,'sheet',packet.paperId);
+        }
         else tx.set(queue(sheet.queueId),{id:sheet.queueId,path:sheetPath,uid,paperId:sheet.gradingPaperId||packet.paperId,state:'queued',queuedAt:now,
           orderKey:orderedKey(uid,now,sheet.queueId)});
       }

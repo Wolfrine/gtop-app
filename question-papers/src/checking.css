@@ -1312,3 +1312,12 @@ h4 {
   .split.short-page .inspector, .split.short-page.show-review .scan { display: block; }
   .short-page .inspector { margin-top: 10px; }
 }
+
+.student-assignment {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  max-width: 38rem;
+}
+.student-assignment h2 { margin: 0; font-size: 1.25rem; }
+.student-assignment p { margin: .4rem 0 .8rem; overflow-wrap: anywhere; }
+.student-assignment .actions { margin-top: .8rem; }

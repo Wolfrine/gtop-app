@@ -17,12 +17,13 @@ type Picker = 'library' | 'import' | null;
 })
 export class CheckingHubComponent implements OnInit, OnDestroy {
   @Input({required:true}) onClose!: () => void;
-  @Input({required:true}) onResults!: (paperId:string, packetId?:string) => void;
+  @Input({required:true}) onResults!: (paperId:string, packetId?:string, sheetId?:string) => void;
   @Input() libraryAccess = false;
   @ViewChild(ExternalExamComponent) externalExam?: ExternalExamComponent;
   private api = inject(AssistantApi);
   private destroyed = false;
   private paperEpoch = 0;
+  studentUid = '';
   packetId = '';
   paperId = '';
   referenceChoice = 0;
@@ -45,6 +46,7 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
     const params = new URL(location.href).searchParams;
     if (params.get('check') || params.get('checking') !== 'class') return;
     this.packetId = params.get('packet') || '';
+    this.studentUid = this.packetId ? '' : params.get('studentUid') || '';
     const printed = params.get('printed');
     this.printedId = printed && printed !== 'new' ? printed : '';
     this.picker = printed ? 'import' : null;
@@ -58,7 +60,12 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
     else url.searchParams.delete(key);
     history.replaceState(history.state, '', url);
   }
+  rememberStudent(uid: string) {
+    this.studentUid = uid;
+    this.setUrl('studentUid', uid);
+  }
   rememberPacket(id: string) {
+    if ((id || this.packetId) && new URL(location.href).searchParams.get('view') !== 'students') this.rememberStudent('');
     if (id !== this.packetId) this.referenceChoice = 0;
     this.packetId = id;
     this.setUrl('packet', id);

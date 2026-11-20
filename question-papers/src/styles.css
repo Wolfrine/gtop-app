@@ -104,8 +104,9 @@ button{transition:background-color .15s,border-color .15s}a{color:inherit;text-d
 .desk-intro h1 span{color:#9a6040}
 .desk-intro p{font-size:clamp(12px,1.2vw,16px);line-height:1.5;margin:0;color:#4b5548}
 .desk-scene{position:absolute;z-index:-1;inset:0;background-color:#f3ecde;background-repeat:no-repeat;background-image:linear-gradient(90deg,#f3ecde 0%,#f3ecde 45%,#f3ecde00 66%),url('/desk-stationery.webp');background-size:100% 100%,auto 152%;background-position:center,right 65%}
-.desk-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:17px 0 clamp(27px,4vh,46px)}
-.desk-action{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:13px 5px;align-items:end;position:relative;text-align:left;padding:19px 22px 20px;border:1px solid #989f8d;border-radius:7px;background:var(--desk-white);color:var(--desk-ink);transition:background .15s,transform .15s,border-color .15s}
+.student-route{grid-column:1/-1;grid-row:2;min-width:0;min-height:0;overflow:auto}
+.desk-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:17px 0 clamp(27px,4vh,46px)}
+.desk-action{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 1fr;gap:13px 5px;align-items:end;position:relative;text-align:left;padding:19px 22px 20px;border:1px solid #989f8d;border-radius:7px;background:var(--desk-white);color:var(--desk-ink);transition:background .15s,transform .15s,border-color .15s}
 .desk-action:hover{background:#f3f0e4;border-color:var(--desk-ink);transform:translateY(-2px)}
 .desk-action>svg{width:32px;height:32px;grid-column:1/-1;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
 .desk-action strong{display:block;font:600 clamp(20px,2.3vw,31px)/1.13 var(--desk-serif);letter-spacing:-.045em}
@@ -158,6 +159,7 @@ button{transition:background-color .15s,border-color .15s}a{color:inherit;text-d
 .login-content>.text-button{padding-left:0}
 .login-content .desk-alert{font-size:13px;margin:5px 0}
 @media (max-width:1280px){.desk-shell.with-document{grid-template-columns:minmax(0,1fr)}.desk-shell.with-document>.document-panel{grid-column:1}}
+@media (min-width:701px) and (max-width:860px){.desk-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:700px){
   .workspace.desk-shell{grid-template-rows:98px minmax(0,1fr)}
   .workspace.desk-shell:has(.desk-login),.workspace.desk-shell:has(.route-wait){grid-template-rows:56px minmax(0,1fr)}
@@ -168,7 +170,7 @@ button{transition:background-color .15s,border-color .15s}a{color:inherit;text-d
   .desk-sheet{width:calc(100% - 32px);padding:18px 0 34px}
   .desk-hero{min-height:137px}.desk-intro{width:76%;padding:15px 16px}.desk-intro time{font-size:9px;letter-spacing:1px}.desk-intro h1{font-size:clamp(31px,6.6vw,46px);margin:8px 0}
   .desk-intro p{font-size:12px;max-width:224px}.desk-scene{background-size:100% 100%,auto 120%;background-position:center,right 62%}
-  .desk-actions{gap:8px;margin:12px 0 24px}
+  .desk-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0 24px}
   .desk-action{display:flex;flex-flow:column;align-items:flex-start;justify-content:space-between;gap:9px;padding:13px 10px}
   .desk-action>svg{width:25px;height:25px}.desk-action strong{font-size:clamp(16px,3.8vw,23px)}.desk-action small{display:none}.desk-action i{font-size:17px}
   .desk-work-head h2{font-size:25px}.desk-row{gap:9px;padding:12px 2px}.work-icon{flex-basis:32px;height:36px}.work-description strong{font-size:14px}.work-description small{font-size:11px}.desk-row time{display:none}.work-verb{min-width:0;gap:5px;font-size:11px;padding:5px 7px}

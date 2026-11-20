@@ -1,0 +1,63 @@
+<main class="students-page" aria-labelledby="students-heading">
+  <header>
+    <h1 id="students-heading">Students</h1>
+    <p>Find a student to see their checks or mark a new answer book.</p>
+  </header>
+  <student-lookup [disabled]="resolving" [selected]="selected" (selectedChange)="select($event)" />
+
+  @if (resolving) {
+    <p class="history-notice" role="status">Opening student account…</p>
+  }
+  @if (selected; as student) {
+    <section class="history-section" aria-labelledby="history-heading">
+      <div class="history-bar">
+        <h2 id="history-heading">Checking history</h2>
+        <button type="button" class="new-check" (click)="onCheck(student.uid)">Check a new PDF <span aria-hidden="true">→</span></button>
+      </div>
+
+      @if (rows.length) {
+        <ul aria-label="Student’s checks, newest first">
+          @for (row of rows; track recordKey(row)) {
+            @let label = bookLabel(row);
+            <li>
+              <button class="history-row" type="button" (click)="onOpen(row)">
+                <span class="record-name">
+                  <strong>{{row.paperTitle || label}}</strong>
+                  @if (row.subject || row.standard) {
+                    <small>{{row.subject}}{{row.subject && row.standard ? ' · ' : ''}}{{row.standard ? 'Class ' + row.standard : ''}}</small>
+                  } @else if (row.paperTitle && label !== row.paperTitle && label !== student.displayName) {
+                    <small>{{label}}</small>
+                  }
+                </span>
+                <span class="record-progress">
+                  <span [class.approved]="row.state === 'final'">{{status(row)}}</span>
+                  @if (row.kind === 'sheet' && row.awarded != null) {
+                    <small>{{row.awarded}}{{row.max != null ? ' / ' + row.max : ''}} marks</small>
+                  }
+                </span>
+                @if (row.createdAt) { <time [attr.datetime]="row.createdAt">{{row.createdAt | date:'d MMM y'}}</time> }
+                <span class="record-action">{{action(row)}} <span aria-hidden="true">→</span></span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+      @if (loading) {
+        <p class="history-notice" role="status">Loading checks…</p>
+      } @else if (!rows.length && !nextCursor && !error) {
+        <p class="history-notice">You haven’t checked any answer books for this student yet.</p>
+      }
+      @if (!loading && !error && nextCursor) {
+        <button type="button" class="history-more" (click)="load(nextCursor)">Load older checks</button>
+      }
+      @if (!loading && !error && rows.length) {
+        <button type="button" class="history-more" (click)="load()">Refresh history</button>
+      }
+    </section>
+  }
+  @if (error) {
+    <div class="history-error" role="alert">{{error}}
+      <button class="history-more" type="button" (click)="retry()">Try again</button>
+    </div>
+  }
+</main>

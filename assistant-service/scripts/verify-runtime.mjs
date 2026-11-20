@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 // or deployment. Development dependencies must never hide a missing runtime dep.
 process.env.GCLOUD_PROJECT='demo-gtop-assistant-runtime-check';
 process.env.FIREBASE_CONFIG=JSON.stringify({projectId:process.env.GCLOUD_PROJECT});
-const {gtopAssistantGateway}=await import('../runtime.mjs');
+const {gtopAssistantGateway,gtopAssistantIndexStudent}=await import('../runtime.mjs');
 assert.equal(typeof gtopAssistantGateway,'function');
-console.log('Production-only gateway entry point loaded without cloud access.');
+assert.equal(typeof gtopAssistantIndexStudent,'function');
+console.log('Production-only gateway and student directory entry points loaded.');

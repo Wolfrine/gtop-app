@@ -19,6 +19,7 @@
       <button [attr.aria-current]="view==='home'?'page':null" (click)="openHome()">Desk</button>
       <button [attr.aria-current]="view==='chat'?'page':null" (click)="newConversation()">Create</button>
       <button (click)="openCheckingHome()">Check</button>
+      <button [attr.aria-current]="view==='students'?'page':null" (click)="openStudents()">Students</button>
       <button [attr.aria-current]="view==='library'?'page':null" (click)="openLibrary()">Find</button>
     </nav>
     <div class="desk-tools"><gt-pwa-controls/><button *ngIf="user" class="desk-profile" aria-label="Open account and recent requests" [attr.aria-expanded]="drawer" (click)="toggleDrawer()">{{initials()}}</button></div>
@@ -58,7 +59,8 @@
         </header>
         <nav class="desk-actions" aria-label="Start work">
           <button class="desk-action create-action" (click)="newConversation()"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h12l6 6v7M20 3v7h6M8 3v25h11m4-8-5.8 6.1-1.2 4.1 4.1-1.2 8.4-8.5-3-3Z"/><path d="M12 13h9M12 17h7"/></svg><span><strong>Create a paper</strong><small>Questions &amp; worked answers</small></span><i aria-hidden="true">→</i></button>
-          <button class="desk-action check-action" (click)="openCheckingHome()"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m4 7 16-2 3 21-16 2ZM11 5l-.2-2 16 1-1 21-2.7-.1"/><path class="check-ink" d="m8.5 14.5 3.3 2.8 6.5-7m-7.7 11 5.7-.7"/></svg><span><strong>Check answer sheets</strong><small>Scan &amp; mark answer books</small></span><i aria-hidden="true">→</i></button>
+          <button class="desk-action check-action" (click)="openCheckingHome()"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m4 7 16-2 3 21-16 2ZM11 5l-.2-2 16 1-1 21-2.7-.1"/><path class="check-ink" d="m8.5 14.5 3.3 2.8 6.5-7m-7.7 11 5.7-.7"/></svg><span><strong>Check answer sheets</strong><small>Mark a student’s PDF</small></span><i aria-hidden="true">→</i></button>
+          <button class="desk-action" (click)="openStudents()"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="12" cy="10" r="4"/><path d="M4 26v-3a8 8 0 0 1 16 0v3ZM21 6a4 4 0 0 1 0 8m2 3a7 7 0 0 1 5 7v2h-5"/></svg><span><strong>Students</strong><small>Find checking history</small></span><i aria-hidden="true">→</i></button>
           <button class="desk-action find-action" (click)="openLibrary()"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 9V6h9l3 3h12v4M3 10v16h22l4-13H7L5 23"/><path d="M10 5h7l2 2h7"/></svg><span><strong>Find a paper</strong><small>{{user.libraryAccess?'Browse the paper library':'Search your paper requests'}}</small></span><i aria-hidden="true">→</i></button>
         </nav>
         <section class="desk-work" aria-labelledby="work-title">
@@ -77,6 +79,13 @@
         </section>
       </div>
     </main>
+    <ng-container *ngIf="studentsOpen">
+      <div class="student-route" [attr.inert]="drawer?'':null">
+        <ng-container *ngComponentOutlet="studentHistoryComponent || null; inputs: studentHistoryInputs; injector: checkingInjector"></ng-container>
+        <main *ngIf="!studentHistoryComponent && !error" class="route-wait" role="status"><span class="loader"></span> Opening students…</main>
+        <div *ngIf="!studentHistoryComponent && error" class="desk-alert" role="alert">{{error}} <button class="text-button" (click)="openStudents(studentHistoryInputs.selectedUid,false)">Try again</button></div>
+      </div>
+    </ng-container>
     <section *ngIf="view==='library'&&!user.libraryAccess" class="desk-personal" [attr.inert]="drawer?'':null" aria-labelledby="personal-title">
       <div class="desk-sheet"><button class="text-button" (click)="openHome()">← Desk</button><h1 id="personal-title">Your paper requests</h1>
         <label>Find a request<input type="search" [(ngModel)]="ownQuery" placeholder="Search your recent requests"></label>
@@ -202,10 +211,10 @@
 
           <section *ngIf="currentPaper as paper" class="paper-ready" aria-label="Completed paper">
             <div class="paper-ready-top"><span class="ready-check" aria-hidden="true">✓</span><div><span class="eyebrow">PAPER READY</span><h2>{{paper.title}}</h2><p>{{paper.marks}} marks <span>·</span> Revision {{paper.revision}} <span>·</span> {{relativeTime(paper.createdAt)}}</p></div></div>
-            <div class="paper-actions"><button class="button primary" [disabled]="documentLoading" (click)="showDocument(paper,'student')"><span aria-hidden="true">▤</span> View paper</button><button class="button secondary" aria-label="View worked answers" [disabled]="documentLoading" (click)="showDocument(paper,'answers')">Worked answers</button><button class="button secondary" [disabled]="documentLoading" (click)="showDocument(paper,'student',adminConversation,true)">Print</button><button *ngIf="!fixture" class="button secondary" (click)="openChecking(paper.id)">Check answer sheets</button><button *ngIf="!readOnly" class="text-button" aria-label="Request a revision" (click)="revise(paper)">Revise <span aria-hidden="true">→</span></button></div>
+            <div class="paper-actions"><button class="button primary" [disabled]="documentLoading" (click)="showDocument(paper,'student')"><span aria-hidden="true">▤</span> View paper</button><button class="button secondary" aria-label="View worked answers" [disabled]="documentLoading" (click)="showDocument(paper,'answers')">Worked answers</button><button class="button secondary" [disabled]="documentLoading" (click)="showDocument(paper,'student',adminConversation,true)">Print</button><button class="button secondary" (click)="startPaperCheck(paper)">Check answer sheets</button><button *ngIf="!readOnly" class="text-button" aria-label="Request a revision" (click)="revise(paper)">Revise <span aria-hidden="true">→</span></button></div>
             <div class="paper-footnote">Check the content before sharing with students.</div>
           </section>
-          <details *ngIf="previousPapers.length" class="revision-history"><summary>Earlier revisions <span>{{previousPapers.length}}</span></summary><div *ngFor="let previous of previousPapers"><span>Revision {{previous.revision}} <small>{{previous.marks}} marks · {{relativeTime(previous.createdAt)}}</small></span><button class="text-button" (click)="showDocument(previous,'student')">Paper</button><button class="text-button" (click)="showDocument(previous,'answers')">Answers</button><button *ngIf="!fixture" class="text-button" (click)="openChecking(previous.id)">Check answer sheets</button></div></details>
+          <details *ngIf="previousPapers.length" class="revision-history"><summary>Earlier revisions <span>{{previousPapers.length}}</span></summary><div *ngFor="let previous of previousPapers"><span>Revision {{previous.revision}} <small>{{previous.marks}} marks · {{relativeTime(previous.createdAt)}}</small></span><button class="text-button" (click)="showDocument(previous,'student')">Paper</button><button class="text-button" (click)="showDocument(previous,'answers')">Answers</button><button class="text-button" (click)="startPaperCheck(previous)">Check answer sheets</button></div></details>
           <details *ngIf="!readOnly" class="feedback-disclosure"><summary>Share feedback</summary><div class="feedback-row"><span>{{currentPaper?'How is this paper?':'How was this conversation?'}}</span><button class="feedback-button" (click)="feedback('helpful',currentPaper?.id)">Helpful</button><button class="feedback-button" (click)="feedbackPaperId=currentPaper?.id||'';feedbackOpen=true">Needs work</button></div></details>
           <form *ngIf="!readOnly&&feedbackOpen" class="feedback-form" (ngSubmit)="feedback('needs_work',feedbackPaperId||undefined)"><label for="feedback-text">What could be better?</label><textarea id="feedback-text" name="feedback" [(ngModel)]="feedbackText" maxlength="2000" rows="2"></textarea><div><button class="button secondary">Save feedback</button><button type="button" class="text-button" (click)="feedbackPaperId='';feedbackOpen=false">Cancel</button></div></form>
           <p *ngIf="!readOnly&&feedbackMessage" class="feedback-confirmation" role="status">{{feedbackMessage}}</p>
@@ -226,7 +235,7 @@
       </div><span *ngIf="documentLoading" class="preview-opening" role="status">Opening…</span></div>
       <p *ngIf="libraryError" class="author-notice" role="alert">{{libraryError}}</p>
       <div class="preview-stage"><iframe *ngFor="let current of [doc]" id="paper-frame" [title]="current.kind==='answers'?'Printable worked answers':'Printable question paper'" sandbox="allow-same-origin allow-modals" data-presentation-version="3" [srcdoc]="current.safe" (load)="prepareDocument(true)"></iframe></div>
-      <footer class="preview-footer"><button *ngIf="!fixture" class="author-link" (click)="openChecking(doc.paper.id)">Check answer sheets <span aria-hidden="true">→</span></button><button *ngIf="view==='library'&&doc.paper.conversationId" class="author-link" (click)="openLibraryConversation(doc.paper.conversationId!)">Open paper request <span aria-hidden="true">→</span></button><button *ngIf="view==='library'&&doc.paper.conversationId&&doc.paper.ownerUid===user.uid" class="author-link" (click)="reviseArchivePaper(doc.paper)">Revise latest paper <span aria-hidden="true">→</span></button><button *ngIf="view==='chat'&&!readOnly" class="author-link" (click)="revise(doc.paper)">{{doc.paper.id===currentPaper?.id?'Request a revision':'Revise latest paper'}} <span aria-hidden="true">→</span></button></footer>
+      <footer class="preview-footer"><button class="author-link" (click)="startPaperCheck(doc.paper)">Check answer sheets <span aria-hidden="true">→</span></button><button *ngIf="view==='library'&&doc.paper.conversationId" class="author-link" (click)="openLibraryConversation(doc.paper.conversationId!)">Open paper request <span aria-hidden="true">→</span></button><button *ngIf="view==='library'&&doc.paper.conversationId&&doc.paper.ownerUid===user.uid" class="author-link" (click)="reviseArchivePaper(doc.paper)">Revise latest paper <span aria-hidden="true">→</span></button><button *ngIf="view==='chat'&&!readOnly" class="author-link" (click)="revise(doc.paper)">{{doc.paper.id===currentPaper?.id?'Request a revision':'Revise latest paper'}} <span aria-hidden="true">→</span></button></footer>
     </section>
   </ng-container>
 </div>

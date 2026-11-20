@@ -1,10 +1,20 @@
 # Checking handwritten answer sheets
 
-1. From the teaching desk, open **Check answer sheets**. Keep each student’s extra sheets with their book. Choose **Class stack** for a batch or **One student** for an individual book. Add a scan PDF, choose photos in order, or take photos in the app. If you already have separate PDFs, select **Each PDF starts a separate student’s book**. The optional number present helps reconcile the pile with attendance.
-2. Choose the saved question paper used in class, or **Use a printed paper** to scan the actual paper and optional marking scheme. You can choose it before or after uploading the answer books. Resolve any uncertain questions or mark allocations on an imported paper once for the class.
-3. Upload the pages and keep the tab open until they are saved. For a mixed class stack, the checker finds the student books in the background. Return from the teaching desk, resolve unclear names or page boundaries, and send the books for marking together. Each stack holds up to 200 pages and each book up to 32. On a supported device the same signed-in teacher can also resume camera photos locally for 24 hours.
-4. Open the class register. Review flagged answers against the handwriting and the reason for each mark. You can hide the overlay to inspect the original, correct a mark, add a remark, and approve the result. Ready sheets support group approval.
-5. Open **Return marked work**. **Download individual copies** gives you a ZIP of labelled marked PDFs. **Print a class set** produces a combined PDF for physical handback. **Download marks register** gives the teacher a CSV including pending, held and withdrawn books. Share each learner’s own copy. Only approved work appears in the student downloads.
+## One student sends a PDF
+
+1. The student scans their handwritten answers into one PDF in page order and sends it to the teacher or administrator. The student needs to sign in to GTOP once for their account to appear in the picker.
+2. In GT Papers, open **Students** and enter at least two characters of their first name or surname. Use the class, board and account hint to distinguish students with the same name.
+3. Select the student, choose **Check a new PDF**, attach the answer sheet and choose the question paper. Select **Send for checking**. An individual PDF can be submitted as soon as it arrives. Keep the tab open until the pages are saved. When another student sends answers for the same test, choose **Check another student** to reuse the question paper.
+4. Return to **Students** to see that student's submissions to your staff account. Open a check to review the handwritten pages, marks and reasons, make corrections and approve it. Use the marked copy for handback. An older, unlinked sheet can be linked from its checking screen.
+
+You can also begin from **Check answer sheets** on the teaching desk, or from an existing question paper with the paper preselected. Choose **Use a printed paper** to scan a question paper and optional marking scheme. Resolve uncertain questions or mark allocations once before grading students against it.
+
+## When a whole class hands in physical books
+
+1. Choose **Class stack**. Add a combined scan or photos in order. If you have separate PDFs, choose **Each PDF starts a separate student’s book**. The optional number present helps reconcile the pile with attendance.
+2. Upload the scans. The checker proposes the individual books in the background. Resolve unclear names and page boundaries, then send the books for marking together. A stack holds up to 200 pages and a book up to 32. On supported devices, the same signed-in teacher can resume camera photos locally for 24 hours.
+3. Open the class register. Review any flagged answers against the handwriting, correct marks, add remarks and approve the results. Ready sheets support group approval.
+4. Open **Return marked work**. **Download individual copies** gives the teacher a ZIP of labelled marked PDFs. **Print a class set** produces a combined PDF. **Download marks register** gives a CSV including pending, held and withdrawn books. Only approved work appears in the student downloads.
 
 A saved stack can be reopened for a late page, a clearer photo or a book that needs identifying. If the marking key changes, reopen the class against the corrected revision and give affected learners their updated copies.
 

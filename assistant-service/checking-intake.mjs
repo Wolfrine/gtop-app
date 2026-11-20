@@ -1,12 +1,17 @@
 import {randomUUID} from 'node:crypto';
+import {resolveStudent} from './student-directory.mjs';
+import {indexStudent,removeStudentIndex} from './checking-student.mjs';
 import {recheckClass} from './checking-rekey.mjs';
 import {correctPacket} from './checking-correction.mjs';
 import {isAnonymous,intakeChunkSize,suggestIntakeGroups,validateIntakePages} from './domain/checking-intake.mjs';
 import {maxCheckingPages} from './domain/checking-limits.mjs';
-import {day,digest,maxActive,maxDrafts,orderedKey,packets,queue,quota,sheets,sheetFields,sheetSummary} from './checking-storage.mjs';
+import {day,digest,matchesStudentLabel,maxActive,maxDrafts,orderedKey,packets,queue,quota,sheets,sheetFields,sheetSummary} from './checking-storage.mjs';
 
 const maxPages=200,historySize=40;
-const summaryFields=['id','label','pageCount','expectedStudents','paperId','state','version','processedPages','createdAt','updatedAt','groupCount','error'];
+const summaryFields=['id','label','pageCount','expectedStudents','paperId','state','version','processedPages','createdAt','updatedAt','groupCount','error','studentUid','studentLabel'];
+const identity=record=>record.studentUid?{studentUid:record.studentUid,studentLabel:record.studentLabel}:{};
+const singleGroup=packet=>[{...identity(packet),label:packet.studentLabel,labelFromStudent:true,
+  pages:Array.from({length:packet.pageCount},(_,i)=>i+1),needsReview:false,reason:''}];
 const visible=record=>{
   const {lease,leaseUntil,queueId,readings,deleting,scanSource,lastCorrection,lastRecheck,...packet}=record;
   return packet;
@@ -42,6 +47,8 @@ export class ClassIntake {
     if(action==='manual')return this.manual(uid,path,body.version);
     if(action==='reference')return this.attach(uid,path,body);
     if(action==='organize'){
+      const record=await this.store.get(path);
+      if(record?.studentUid)return this.manual(uid,path,body.version??record.version);
       await this.checking.enqueue(uid,null,path,body,'class-intake');
       return {packet:visible(await this.store.get(path))};
     }
@@ -58,7 +65,10 @@ export class ClassIntake {
   async create(uid,collection,body){
     const id=this.checking.id(body.id),path=collection+'/'+id;
     const label=this.checking.text(body.label??'Class scan',100,true);
-    const expectedStudents=body.expectedStudents??null,pageCount=body.pageCount,knownStarts=body.knownStarts??[];
+    const linked=body.studentUid!=null;
+    const expectedStudents=body.expectedStudents??(linked?1:null),pageCount=body.pageCount,knownStarts=body.knownStarts??[];
+    if(linked&&(expectedStudents!==1||pageCount>maxCheckingPages))
+      this.fail(400,'booklet_size','Upload one student book of up to '+maxCheckingPages+' pages.');
     if(!Number.isInteger(pageCount)||pageCount<1||pageCount>maxPages)
       this.fail(400,'packet_size','Choose a class scan with 1–'+maxPages+' pages.');
     if(expectedStudents!==null&&(!Number.isInteger(expectedStudents)||expectedStudents<1||expectedStudents>maxActive))
@@ -66,22 +76,25 @@ export class ClassIntake {
     if(!Array.isArray(knownStarts)||knownStarts.length>pageCount||knownStarts.some(n=>!Number.isInteger(n)||n<1||n>pageCount)||new Set(knownStarts).size!==knownStarts.length)
       this.fail(400,'invalid_starts','Check the booklet starting pages.');
     const starts=[...knownStarts].sort((a,b)=>a-b);
+    if(linked&&starts.some(n=>n!==1))this.fail(400,'invalid_starts','One student book begins on page 1.');
     const paperId=body.paperId?this.checking.id(body.paperId):null;
     if(paperId)await this.checking.rubric(paperId,uid);
     return this.store.transaction(async tx=>{
       const existing=await tx.get(path);
       if(existing){
-        if(existing.label!==label||existing.pageCount!==pageCount||existing.expectedStudents!==expectedStudents||
+        if((existing.studentUid??null)!==(body.studentUid??null)||existing.label!==label||existing.pageCount!==pageCount||existing.expectedStudents!==expectedStudents||
             JSON.stringify(existing.knownStarts)!==JSON.stringify(starts)||(paperId&&existing.paperId!==paperId))
           this.fail(409,'packet_conflict','The original upload has different details. Reopen it or start a new class scan.');
         return {packet:visible(existing)};
       }
+      const student=linked?await resolveStudent(tx,body.studentUid):{};
       const usage=await tx.get(quota(uid))||{},now=this.checking.now();
       const drafts=usage.day===day(now)?usage.drafts||0:0;
       if(drafts>=maxDrafts)this.fail(429,'draft_limit','The daily checking upload limit has been reached.');
-      const packet={id,label,scanSource:randomUUID(),pageCount,expectedStudents,knownStarts:starts,paperId,uploaded:[],groups:[],groupCount:0,
+      const packet={id,label,...student,...(linked?{singleStudentBook:true,labelFromStudent:matchesStudentLabel(label,student.studentLabel)}:{}),scanSource:randomUUID(),pageCount,expectedStudents,knownStarts:starts,paperId,uploaded:[],groups:[],groupCount:0,
         state:'uploading',processedPages:0,version:0,createdAt:now,updatedAt:now,error:null,queueId:digest(uid,'class-intake',id)};
       tx.create(path,packet);
+      indexStudent(tx,uid,packet,'packet');
       tx.set(quota(uid),{...usage,day:day(now),drafts:drafts+1});
       this.checking.service.notifyContent(tx,uid);
       return {packet:visible(packet)};
@@ -102,7 +115,7 @@ export class ClassIntake {
       catch(error){this.fail(400,'invalid_intake_reading',error.message);}
       const readings=[...(packet.readings||[]),...slice],now=this.checking.now();
       const finished=lastPage===packet.pageCount;
-      const groups=finished?suggestIntakeGroups(readings,packet):[];
+      const groups=finished?(packet.studentUid?singleGroup(packet):suggestIntakeGroups(readings,packet)):[];
       const next={...packet,readings:finished?[]:readings,groups,groupCount:groups.length,processedPages:lastPage,
         state:finished?'review':'queued',updatedAt:now,version:packet.version+1,lease:null,leaseUntil:null,error:null};
       tx.set(row.path,next);
@@ -127,7 +140,8 @@ export class ClassIntake {
       if(record.uploaded.length!==record.pageCount)this.fail(409,'upload_incomplete','Finish uploading the class scan first.');
       const waiting=['queued','running'].includes(record.state);
       const usage=waiting?await tx.get(quota(uid)):null;
-      const groups=record.readings?.length?suggestIntakeGroups(record.readings,{knownStarts:record.knownStarts}):[];
+      const groups=record.studentUid?singleGroup(record):
+        record.readings?.length?suggestIntakeGroups(record.readings,{knownStarts:record.knownStarts}):[];
       const packet={...record,state:'review',lease:null,leaseUntil:null,readings:[],groups,groupCount:groups.length,
         version:record.version+1,updatedAt:this.checking.now(),error:null};
       if(waiting){
@@ -140,7 +154,10 @@ export class ClassIntake {
     });
   }
   visible(record){return visible(record);}
-  groups(raw,pageCount,final){
+  groups(raw,packet,final){
+    const {pageCount}=packet;
+    if(packet.studentUid&&(!Array.isArray(raw)||raw.length!==1||raw[0]?.held===true))
+      this.fail(400,'single_student_book','Keep all pages in the selected student’s book.');
     if(!Array.isArray(raw)||!raw.length||raw.length>maxActive)this.fail(400,'invalid_booklets','Add at least one answer book.');
     const assigned=new Set(),labels=new Set();
     const groups=raw.map((g,i)=>{
@@ -151,9 +168,9 @@ export class ClassIntake {
         this.fail(400,'booklet_size','Each book needs 1–'+maxCheckingPages+' pages before checking.');
       if(final&&!g.held&&g.needsReview===true)
         this.fail(400,'booklet_review','Confirm the identity and pages of book '+(i+1)+' before starting checking.');
-      const label=this.checking.text(g.label||(g.held===true?'Unidentified copy '+String(i+1).padStart(2,'0'):''),100,final);
+      const label=this.checking.text(g.label||packet.studentLabel||(g.held===true?'Unidentified copy '+String(i+1).padStart(2,'0'):''),100,final);
       const key=label.normalize('NFKC').toLocaleLowerCase();
-      if(final&&!g.held&&isAnonymous(label))this.fail(400,'booklet_identity','Enter the student identifier or hold this book for identification.');
+      if(final&&!packet.studentUid&&!g.held&&isAnonymous(label))this.fail(400,'booklet_identity','Enter the student identifier or hold this book for identification.');
       if(final&&!g.held&&labels.has(key))this.fail(400,'duplicate_label','Give each student a distinct label, such as a roll number.');
       if(!g.held)labels.add(key);
       for(const n of g.pages){
@@ -161,7 +178,7 @@ export class ClassIntake {
           this.fail(400,'page_assignment','Assign each scan page to exactly one book.');
         assigned.add(n);
       }
-      return {label,pages:[...g.pages],...(g.held===true?{held:true}:{}),needsReview:!final&&g.needsReview===true,
+      return {label,...identity(packet),...(matchesStudentLabel(label,packet.studentLabel)?{labelFromStudent:true}:{}),pages:[...g.pages],...(g.held===true?{held:true}:{}),needsReview:!final&&g.needsReview===true,
         reason:final?'':this.checking.text(g.reason??'',600)};
     });
     if(final&&assigned.size!==pageCount)this.fail(400,'missing_pages','Assign all '+pageCount+' pages before starting checking.');
@@ -187,7 +204,7 @@ export class ClassIntake {
       const packet=await tx.get(path);
       if(!packet)this.checking.notFound();
       if(final&&packet.state==='completed'){
-        const replay=this.groups(body.groups,packet.pageCount,true);
+        const replay=this.groups(body.groups,packet,true);
         const sameBooks=replay.length===packet.groups.length&&replay.every((group,i)=>{
           const original=packet.groups[i];
           return original.label===group.label&&!!original.held===!!group.held&&original.pages.length===group.pages.length&&
@@ -201,7 +218,7 @@ export class ClassIntake {
         this.fail(409,'packet_changed','Reopen the current class scan before saving changes.');
       if(packet.uploaded.length!==packet.pageCount)this.fail(409,'upload_incomplete','Finish uploading the scan first.');
       const paperId=body.paperId?this.checking.id(body.paperId):packet.paperId;
-      const groups=this.groups(body.groups,packet.pageCount,final),now=this.checking.now();
+      const groups=this.groups(body.groups,packet,final),now=this.checking.now();
       if(final&&!paperId)this.fail(400,'choose_paper','Choose or upload the question paper before starting checking.');
       if(paperId)await this.checking.rubric(paperId,uid,tx);
       if(final){
@@ -210,11 +227,14 @@ export class ClassIntake {
         if((usage.active||0)+ready>maxActive||drafts+groups.length>maxDrafts)
           this.fail(429,'grading_limit','The checking queue is full. This class scan is saved; try again later.');
         const byIndex=new Map(packet.uploaded.map(p=>[p.index,p]));
+        removeStudentIndex(tx,uid,packet,'packet');
         for(const [i,group] of groups.entries()){
           const id='book-'+digest(uid,packet.scanSource,i).slice(0,40),source=sheets(uid,paperId)+'/'+id,queueId=digest(uid,paperId,id);
           const uploaded=group.pages.map((n,j)=>({...byIndex.get(n),index:j+1,sourceIndex:byIndex.get(n).sourceIndex??n}));
-          tx.create(source,{id,label:group.label,packetId:packet.id,packetLabel:packet.label,scanSource:packet.scanSource,pageCount:uploaded.length,uploaded,notes:'',state:group.held?'held':'queued',
-            version:1,createdAt:now,updatedAt:now,queueId});
+          const sheet={id,label:group.label,...identity(group),...(packet.studentUid?{singleStudentBook:true}:{}),...(group.labelFromStudent?{labelFromStudent:true}:{}),packetId:packet.id,packetLabel:packet.label,scanSource:packet.scanSource,pageCount:uploaded.length,uploaded,notes:'',state:group.held?'held':'queued',
+            version:1,createdAt:now,updatedAt:now,queueId};
+          tx.create(source,sheet);
+          indexStudent(tx,uid,sheet,'sheet',paperId);
           if(!group.held)tx.create(queue(queueId),{id:queueId,path:source,uid,paperId,state:'queued',queuedAt:now,orderKey:orderedKey(uid,now,queueId)});
           group.sheetId=id;
         }
@@ -239,7 +259,7 @@ export class ClassIntake {
       const register=packet.groups.map(group=>{
         const sheet=byId.get(group.sheetId);
         if(sheet&&!group.withdrawn&&sheet.state!=='deleting'&&sheet.state!=='withdrawn')return sheetSummary(sheet,marks);
-        return {id:group.sheetId,packetId:packet.id,label:group.label,pageCount:group.pages.length,
+        return {id:group.sheetId,packetId:packet.id,label:group.label,...identity(group),...(group.labelFromStudent?{labelFromStudent:true}:{}),...(packet.studentUid?{singleStudentBook:true}:{}),pageCount:group.pages.length,
           state:'withdrawn',version:sheet?.state==='withdrawn'?sheet.version:-1,awarded:null,pending:null,max:marks};
       });
       return {paperId:packet.paperId,gradingPaperId,gradingRevision:packet.gradingRevision??1,packetLabel:packet.label,version:packet.version,sheets:register,
@@ -263,6 +283,7 @@ export class ClassIntake {
         tx.set(quota(uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
       }
       tx.delete(queue(packet.queueId));
+      removeStudentIndex(tx,uid,packet,'packet');
       tx.set(path,{...packet,state:'deleting',lease:null,leaseUntil:null,deleting:0,version:packet.version+1});
       return {done:false};
     });

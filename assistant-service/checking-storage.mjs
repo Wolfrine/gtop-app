@@ -10,14 +10,17 @@ export const digest=(...values)=>createHash('sha256').update(JSON.stringify(valu
 export const day=now=>now.slice(0,10);
 export const orderedKey=(uid,time,id)=>uid+'/'+time+'/'+id;
 export const queueField=kind=>kind==='class-intake'?'intakeOrderKey':kind==='external-exam'?'referenceOrderKey':'orderKey';
+const normalizedLabel=value=>typeof value==='string'?value.normalize('NFKC').trim().replace(/\s+/gu,' ').toLowerCase():'';
+export const matchesStudentLabel=(label,name)=>!!name&&normalizedLabel(label)===normalizedLabel(name);
 export const currentSheetGrade=sheet=>(sheet.state==='review'||sheet.state==='final')&&
   (sheet.gradeRevision??1)===(sheet.gradingRevision??1)?sheet.grade:null;
 export const sheetFields=['id','label','state','createdAt','updatedAt','pageCount','version','grade.awarded','grade.max','grade.pending',
-  'gradeRevision','gradingRevision','gradingPaperId','gradingMax','packetId','packetLabel'];
+  'gradeRevision','gradingRevision','gradingPaperId','gradingMax','packetId','packetLabel','studentUid','studentLabel','labelFromStudent','singleStudentBook'];
 export function sheetSummary(sheet,max){
-  const {id,label,state,createdAt,updatedAt,pageCount,version,packetId,packetLabel,gradingRevision,gradingPaperId,gradingMax}=sheet;
+  const {id,label,state,createdAt,updatedAt,pageCount,version,packetId,packetLabel,gradingRevision,gradingPaperId,gradingMax,studentUid,studentLabel}=sheet;
   const grade=currentSheetGrade(sheet);
   return {id,label,state,createdAt,updatedAt,pageCount,version,awarded:grade?.awarded??null,pending:grade?.pending??null,
     max:grade?.max??gradingMax??max,...(packetId?{packetId}:{}),...(packetLabel?{packetLabel}:{}),
-    ...(gradingPaperId?{gradingPaperId,gradingRevision}:{})};
+    ...(sheet.labelFromStudent?{labelFromStudent:true}:{}),...(sheet.singleStudentBook?{singleStudentBook:true}:{}),
+    ...(studentUid?{studentUid,studentLabel}:{}),...(gradingPaperId?{gradingPaperId,gradingRevision}:{})};
 }

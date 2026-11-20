@@ -29,7 +29,7 @@
     @if (choosing) {
     <div class="selector">
       <label
-        >Find a roll or sheet
+        >Find a student or sheet
         <input type="search" [value]="filter" (input)="search(searchField.value)" #searchField
       /></label>
       <label class="choice all"
@@ -44,6 +44,7 @@
       >
       <div class="choices">
         @for (row of visible; track row.id) {
+        @let recipient = identity(row);
         <label class="choice"
           ><input
             type="checkbox"
@@ -52,7 +53,7 @@
             [disabled]="busy"
             #item
           />
-          <span>{{row.label}}@if (!scopePacketId && row.packetLabel) { <small>{{row.packetLabel}}</small> }</span><small>{{status(row)}}</small></label
+          <span>{{recipient.name}}@if (recipient.detail) { <small>{{recipient.detail}}</small> }@if (!scopePacketId && recipient.classLabel) { <small>{{recipient.classLabel}}</small> }</span><small>{{status(row)}}</small></label
         >
         } @if (!visible.length) {
         <p>No matching sheets.</p>

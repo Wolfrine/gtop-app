@@ -14,8 +14,10 @@ import { FormsModule } from '@angular/forms';
 import { ChatMathDirective } from './chat-math.directive';
 import { formatAssistantText } from './presentation.mjs';
 import { AssistantApi } from './api.service';
+import { StudentLookupComponent, type StudentAccount } from './student-lookup';
 import { PaperCheckingBatchComponent } from './checking-batch.component';
 import { ClassReturnComponent } from './class-return.component';
+import { handbackIdentity } from './class-return-data';
 import { inkAwareMarks, scanInk } from './checking-ink';
 import { maxCheckingPages, rotateScan, scanBase64, scanFiles, type Scan } from './checking-intake';
 import { marginGroups, marksOnPage, positionedMarks, scoreStatus, type MappingPoint, type MarkStatus,
@@ -80,6 +82,10 @@ type Summary = {
   id: string;
   packetId?: string;
   packetLabel?: string;
+  studentUid?: string;
+  studentLabel?: string;
+  labelFromStudent?: boolean;
+  singleStudentBook?: boolean;
   label: string;
   state: State;
   pageCount: number;
@@ -90,6 +96,7 @@ type Summary = {
   updatedAt?: string;
 };
 type Sheet = Summary & {
+  gradingPaperId?: string;
   notes: string;
   uploaded: Page[];
   grade?: Grade;
@@ -111,7 +118,7 @@ type Filter = 'All sheets' | 'Needs attention' | 'Ready' | 'In progress' | 'Fina
 @Component({
   selector: 'gtop-paper-checking',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaperCheckingBatchComponent, ChatMathDirective, ClassReturnComponent],
+  imports: [CommonModule, FormsModule, PaperCheckingBatchComponent, ChatMathDirective, ClassReturnComponent, StudentLookupComponent],
   templateUrl: './checking.html',
   styleUrl: './checking.css',
 })
@@ -119,6 +126,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   @Input({ required: true }) paperId = '';
   @Input({ required: true }) onClose!: () => void;
   @Input() scopePacketId = '';
+  @Input() fromStudentHistory = false;
   classLabel = '';
   @Input() onManageClass?: (packetId: string) => void;
   @Input() onScanClass?: (paperId:string)=>void;
@@ -130,6 +138,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   private observer?: ResizeObserver;
   private epoch = 0;
   private listEpoch = 0;
+  private loadedPacketId = '';
   private dead = false;
   private opening = '';
   private revision = '';
@@ -191,6 +200,9 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   conflict = false;
   readonly pageLimit = maxCheckingPages;
   label = '';
+  intakeStudent: StudentAccount | null = null;
+  linkFormOpen = false;
+  linkCandidate: StudentAccount | null = null;
   notes = '';
   loading = true;
   busy = false;
@@ -222,8 +234,10 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     return '/papers/' + encodeURIComponent(this.paperId) + '/checking';
   }
   get sheetClassLabel() {
-    return this.sheet?.packetLabel || this.classLabel;
+    if (!this.sheet) return this.classLabel;
+    return this.sheet.singleStudentBook ? '' : this.identity(this.sheet).classLabel || this.classLabel;
   }
+  readonly identity = handbackIdentity;
   get pageItems() {
     return [...(this.sheet?.uploaded || [])].sort((a, b) => a.index - b.index);
   }
@@ -302,17 +316,17 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   }
   get visibleSheets() {
     const query = this.search.trim().toLocaleLowerCase();
-    return this.sheets.filter(
-      (item) =>
-        (this.filter === 'All sheets' || this.bucket(item) === this.filter) &&
-        [item.label, item.packetLabel].some(value => value?.toLocaleLowerCase().includes(query)),
-    ).sort((a, b) => this.priority(a) - this.priority(b));
+    return this.sheets.filter(item => {
+      const recipient = this.identity(item);
+      return (this.filter === 'All sheets' || this.bucket(item) === this.filter) &&
+        [recipient.full, recipient.classLabel].some(value => value.toLocaleLowerCase().includes(query));
+    }).sort((a, b) => this.priority(a) - this.priority(b));
   }
   get readySheets() {
     return this.visibleSheets.filter((item) => item.state === 'review' && item.pending === 0);
   }
   get hasUnsaved() {
-    return this.dirty || this.photos.length > 0 || this.batchSelection;
+    return this.dirty || this.photos.length > 0 || this.batchSelection || !!this.linkCandidate;
   }
   url(index: number) {
     return this.displayUrls.get(index) || '';
@@ -404,11 +418,8 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   }
   ngOnInit() {
     const initialSheet = new URL(location.href).searchParams.get('sheet');
-    const register = this.refresh();
-    if (initialSheet) {
-      if (this.scopePacketId) void register.then(() => { if (!this.dead && !this.error) void this.open(initialSheet); });
-      else void this.open(initialSheet);
-    }
+    void this.refresh();
+    if (initialSheet && !this.scopePacketId) void this.open(initialSheet);
     const uid = this.api.user?.uid;
     if (uid) {
       try {
@@ -478,13 +489,23 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       if (this.dead || request !== this.listEpoch) return;
       if (this.scopePacketId && paperId !== this.paperId) throw new Error('This class belongs to a different question paper. Open it from Check papers.');
       this.sheets = sheets;
-      this.classLabel = packetLabel || '';
+      this.loadedPacketId = this.scopePacketId;
+      const onlyBook = this.scopePacketId && sheets.length === 1 ? sheets[0] : undefined;
+      this.classLabel = onlyBook?.singleStudentBook ? this.identity(onlyBook).full : packetLabel || '';
       this.cursor = nextCursor ?? null;
       // A class may have been re-marked against a different paper from the paper-wide register.
       if (!this.sheet) this.rubric = rubric;
       this.paint();
-      if (this.sheet && !this.dirty && !this.composing && !this.opening)
+      if (this.sheet && !this.dirty && !this.composing && !this.opening) {
         await this.open(this.sheet.id, false);
+      } else if (this.scopePacketId && !this.sheet && !this.composing && !this.opening) {
+        // The first live notification can supersede the initial list request.
+        // Only the accepted register can resolve a sheet's packet membership.
+        const params = new URL(location.href).searchParams;
+        const id = params.get('sheet');
+        if (id && params.get('packet') === this.scopePacketId && params.get('check') === this.paperId)
+          void this.open(id, false);
+      }
     } catch (error) {
       if (!this.dead && request === this.listEpoch) this.error = this.describe(error);
     } finally {
@@ -511,6 +532,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     }
   }
   async open(id: string, changeUrl = true) {
+    if (this.scopePacketId && this.loadedPacketId !== this.scopePacketId) return;
     const entry = this.sheets.find(item => item.id === id);
     if (entry?.state === 'held' && entry.packetId && this.onManageClass) {
       if (this.sheet?.id === id) this.list();
@@ -547,6 +569,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
         }
       }
       if (!same) {
+        this.closeStudentLink();
         this.releaseImages();
         this.originalScan = false;
         this.selected = 0;
@@ -600,6 +623,37 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       this.paint();
     }
   }
+  closeStudentLink() {
+    this.linkFormOpen = false;
+    this.linkCandidate = null;
+  }
+  async linkStudent() {
+    const sheet = this.sheet, student = this.linkCandidate;
+    if (!sheet || !student || sheet.studentUid === student.uid || this.dirty || this.busy) return;
+    if (sheet.studentUid && !window.confirm(
+      'Move this answer book from ' + this.identity(sheet).full +
+      ' to ' + student.displayName + ' · GT ' + student.uid.slice(-6) + '? It will appear in the selected student’s history.'
+    )) return;
+    this.busy = true;
+    this.error = '';
+    try {
+      const linked = await this.api.request<{studentUid: string; studentLabel: string; version: number}>(
+        this.base + '/' + encodeURIComponent(sheet.id) + '/student', 'POST',
+        {studentUid: student.uid, version: sheet.version},
+      );
+      if (this.dead || this.sheet?.id !== sheet.id) return;
+      this.sheet = {...this.sheet, ...linked};
+      this.sheets = this.sheets.map(row => row.id === sheet.id ? {...row, ...linked} : row);
+      if (this.scopePacketId && this.sheet.singleStudentBook) this.classLabel = this.identity(this.sheet).full;
+      this.closeStudentLink();
+      this.message = 'Answer book linked to ' + linked.studentLabel + '.';
+    } catch (error) {
+      if (!this.dead) this.handleReviewError(error);
+    } finally {
+      this.busy = false;
+      this.paint();
+    }
+  }
   private releaseImages() {
     for (const url of this.displayUrls.values()) URL.revokeObjectURL(url);
     this.displayUrls.clear();
@@ -619,6 +673,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     this.epoch++;
     this.opening = '';
     this.sheet = undefined;
+    this.closeStudentLink();
     this.dirty = false;
     this.composing = false;
     this.batchSelection = false;
@@ -638,6 +693,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     this.batch = false;
     this.batchSelection = false;
     this.draftId = resume ? this.sheet!.id : '';
+    this.intakeStudent = null;
     this.label = resume ? this.sheet!.label : '';
     this.notes = resume ? this.sheet!.notes : '';
     this.composing = true;
@@ -734,7 +790,8 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     }
   }
   async submit() {
-    if (this.busy || !this.label.trim() || !this.photos.length) return;
+    const label = this.label.trim() || this.intakeStudent?.displayName.slice(0, 100);
+    if (this.busy || !label || !this.photos.length) return;
     if (this.resuming && this.sheet!.pageCount !== this.photos.length) {
       this.error = 'Choose the same ' + this.sheet!.pageCount + ' pages in their original order.';
       return;
@@ -746,7 +803,8 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     try {
       await this.api.request(this.base, 'POST', {
         id,
-        label: this.label,
+        label,
+        studentUid: this.resuming ? this.sheet?.studentUid : this.intakeStudent?.uid,
         notes: this.notes,
         pageCount: this.photos.length,
       });
@@ -818,7 +876,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   }
   async finalizeVisible() {
     if (this.busy) return;
-    const sheets = this.readySheets.map(({ id, version, label }) => ({ id, version, label }));
+    const sheets = this.readySheets.map(row => ({id: row.id, version: row.version, label: this.identity(row).full}));
     if (!sheets.length) return;
     if (
       !window.confirm(

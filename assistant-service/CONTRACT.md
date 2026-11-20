@@ -84,6 +84,16 @@ Unavailable-stream fallback, cross-admin read-only views, service expiry/start
 and active job lease expiry retain bounded HTTP reconciliation. Foreground return
 reconnects; no partial model text or private payload is stored in a marker.
 
+## Student-linked checking
+
+The existing staff pilot authentication applies to each endpoint. Canonical student accounts are read from `users/{uid}`. Account selection uses a server-maintained name index and revalidates the live GTOP role and display name. The picker returns a bounded set with masked account hints.
+
+- `GET /students/search?q=...&cursor=...` searches first name, surname or full-name prefixes of at least two characters. Returns `{students, hasMore, nextCursor}` with up to 12 accounts.
+- `GET /students/:uid` returns `{student}` for a currently eligible account.
+- Individual intake may include `studentUid`. The server resolves the display label and carries the identity from the answer book to its checked sheet.
+- `POST /checking/student-history` accepts `{studentUid, cursor?}` and returns `{sheets, nextCursor}`, up to 40 lightweight records scoped to the requesting staff account. Open a record separately for pages, grading details and overlays.
+- `POST /papers/:paperId/checking/:sheetId/student` accepts `{studentUid, version}` and returns the confirmed identity and current sheet version. Linking or correcting an account moves the history entry atomically.
+
 ## Worker API
 
 - POST /worker/heartbeat {state:'ready'|'loading'|'busy'|'offline',modelReady,version} => {ok:true}

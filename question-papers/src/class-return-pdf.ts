@@ -1,7 +1,7 @@
 import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from 'pdf-lib';
 import { marginGroups, marksOnPage, type MappingPoint, type MarkStatus } from './checking-scan';
 import { inkAwareMarks, scanBlobInk, type InkMap } from './checking-ink';
-import type { ReturnAnswer, ReturnDetail } from './class-return-data';
+import { handbackIdentity, type ReturnAnswer, type ReturnDetail } from './class-return-data';
 
 const pageWidth = 595.28,
   pageHeight = 841.89,
@@ -183,9 +183,12 @@ async function header(p: PDFPage, text: PdfText, detail: ReturnDetail, section: 
   const totalWidth = text.width(total, 10, true);
   await text.write(p, total, pageWidth - margin - totalWidth, margin + 24 + extra, 10, true);
   const rest = pageWidth - 2 * margin - totalWidth - 16;
+  const recipient = handbackIdentity(detail.sheet);
+  const nameAndRoll = [recipient.name, recipient.reference && recipient.sheetLabel].filter(Boolean).join(' · ');
+  const suffix = [recipient.reference, section].filter(Boolean).map(part => '  ·  ' + part).join('');
   await text.write(
     p,
-    text.short(detail.sheet.label, rest - text.width('  ·  ' + section, 10), 10) + '  ·  ' + section,
+    text.short(nameAndRoll, rest - text.width(suffix, 10), 10) + suffix,
     margin,
     margin + 24 + extra,
     10,
@@ -318,7 +321,7 @@ export async function markedCopy(
   )
     throw Error('The saved scans are incomplete.');
   const doc = await PDFDocument.create();
-  doc.setTitle(detail.rubric.title + ' — ' + sheet.label);
+  doc.setTitle(detail.rubric.title + ' — ' + handbackIdentity(sheet).full);
   doc.setAuthor('GT Papers');
   doc.setSubject('Final checked answer sheet');
   const text = new PdfText(

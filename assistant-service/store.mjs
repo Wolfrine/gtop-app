@@ -68,6 +68,7 @@ export class MemoryStore {
     const matches=(value,[field,op,arg])=>{
       if(op==='==')return value[field]===arg;
       if(op==='in')return arg.includes(value[field]);
+      if(op==='array-contains')return Array.isArray(value[field])&&value[field].includes(arg);
       if(op==='>=')return value[field]>=arg;
       if(op==='<')return value[field]<arg;
       throw Error('Unsupported query operator: '+op);

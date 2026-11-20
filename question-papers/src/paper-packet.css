@@ -69,3 +69,8 @@ button:focus-visible,summary:focus-visible,label:has(input:focus-visible),input:
 .has-files .picker-actions{justify-content:flex-start}.has-files .pick{min-height:38px;padding:6px 10px;font-size:13px}
 .chosen .order{margin:0}.chosen{margin:16px 0}
 @media(max-width:510px){.staged-summary{margin-top:10px;padding:14px}.staged-summary .action{width:100%}.staged-summary small{font-size:12px}}
+
+
+.student-pick{margin-top:16px}.student-pick .inline{margin-right:16px}
+.scope-picker button{min-height:44px}.pick:focus-within{outline:2px solid var(--p-accent);outline-offset:2px}
+.attachment-name{overflow-wrap:anywhere}

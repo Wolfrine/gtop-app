@@ -57,7 +57,7 @@ function workspace(){
     '@angular/platform-browser':{bootstrapApplication:()=>Promise.resolve(),DomSanitizer:Sanitizer},
     '@angular/core':{Component:decorator,ViewChild:decorator,HostListener:decorator,inject:token=>token===Api?api:{bypassSecurityTrustHtml:value=>value},provideZoneChangeDetection:()=>{},isDevMode:()=>true},
     '@angular/service-worker':{provideServiceWorker:()=>{}},'@angular/common':{},'@angular/forms':{},'./pwa-controls':{},'./api.service':{AssistantApi:Api},'./contracts':contracts,
-    './owner-events':events,'./dev-transport':{getDevTransport:()=>null},'./artifact-presentation.mjs':{presentArtifact:x=>x},'./chat-math.directive':{},'./presentation.mjs':presentation
+    './class-return-data':compile('class-return-data.ts'),'./owner-events':events,'./dev-transport':{getDevTransport:()=>null},'./artifact-presentation.mjs':{presentArtifact:x=>x},'./chat-math.directive':{},'./presentation.mjs':presentation
   },{document,Date:time.Date,setTimeout:time.set,clearTimeout:time.clear});
   const ui=new PaperWorkspace();
   ui.session={user:{uid:'owner',displayName:'Owner',email:'owner@example.invalid',libraryAccess:true},worker:{state:'ready',modelReady:false,lastSeenAt:new Date(time.now).toISOString()},service:{workerId:'sachit-windows',state:'ready',starter:{state:'online',lastSeenAt:new Date(time.now).toISOString()},worker:{state:'ready',modelReady:false,lastSeenAt:new Date(time.now).toISOString()},request:null,canStart:false},notifications:config,capabilities:{},defaults:{}};

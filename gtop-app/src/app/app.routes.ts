@@ -137,6 +137,7 @@ export const routes: Routes = [
                 title: 'GTOP | School Chapter Practice for Classes 5-12',
                 description: 'Practise school chapters with GTOP for Classes 5-12, CBSE and ICSE. Choose your board and class, take MCQ quizzes and review your answers.',
                 keywords: 'GTOP, Growth Tutorials, school chapter practice, Classes 5-12, CBSE, ICSE, MCQ quizzes',
+                url: 'https://gtop.growthtutorials.in/',
                 robots: 'index, follow'
             }
         }

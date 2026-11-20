@@ -35,10 +35,10 @@ function routeSeo(node: ts.ObjectLiteralExpression): SeoConfig {
     return [assignment.name.getText(source), (assignment.initializer as ts.StringLiteral).text];
   }));
 }
-const create = () => {
-  const dom = new JSDOM(html, { url: HOME });
+const create = (url = HOME) => {
+  const dom = new JSDOM(html, { url });
   const document = dom.window.document;
-  return { document, seo: new SeoService(new Title(document), new Meta(document), document) };
+  return { dom, document, seo: new SeoService(new Title(document), new Meta(document), document) };
 };
 const snapshot = (document: Document) => ({
   title: document.title,
@@ -50,6 +50,38 @@ const snapshot = (document: Document) => ({
 });
 
 describe('public home acquisition metadata', () => {
+  it.each([
+    `${HOME}?utm_source=newsletter&utm_campaign=chapter-practice#start`,
+    `${HOME}?returnUrl=%2Freports`,
+    'https://gtop-app.web.app/?utm_source=newsletter&returnUrl=%2Fquiz'
+  ])('pins home metadata to the public URL while retaining navigation parameters: %s', url => {
+    const { document, seo } = create(url);
+    const raw = snapshot(document);
+    seo.update(routeSeo(homeRoutes[0]));
+    expect(snapshot(document)).toEqual(raw);
+    expect(document.defaultView!.location.href).toBe(url);
+  });
+
+  it('restores clean home URLs after practice and signed-in route metadata with parameters', () => {
+    const { dom, document, seo } = create();
+    const home = snapshot(document);
+    for (const path of ['practice', 'dashboard', 'reports']) {
+      const route = routeObjects.find(node => (property(node, 'path') as ts.StringLiteral)?.text === path)!;
+      const privateUrl = `${HOME}${path}?fixture=isolated#section`;
+      dom.reconfigure({ url: privateUrl });
+      seo.update(routeSeo(route));
+      const privateMetadata = snapshot(document);
+      expect(privateMetadata.tags['robots']).toBe('noindex, nofollow');
+      expect(privateMetadata.canonical).toBe(privateUrl.split('#')[0]);
+      expect(privateMetadata.tags['og:url']).toBe(privateUrl.split('#')[0]);
+      const returnUrl = `${HOME}?utm_source=fixture&returnUrl=%2F${path}`;
+      dom.reconfigure({ url: returnUrl });
+      seo.update(routeSeo(homeRoutes[0]));
+      expect(snapshot(document)).toEqual(home);
+      expect(document.defaultView!.location.href).toBe(returnUrl);
+    }
+  });
+
   it('keeps raw HTML, home route and service defaults consistent', () => {
     expect(homeRoutes).toHaveLength(1);
     const { document, seo } = create();

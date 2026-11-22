@@ -525,7 +525,7 @@ export class AssistantService {
       if(stored&&isReceipt(stored)){
         const [profile,config,pairing,paper]=await Promise.all([tx.get(ref('users',stored.ownerUid)),tx.get('assistantConfig/pilot'),tx.get(ref('assistantWorkers',worker.id)),tx.get(ref('assistantPapers',stored.paperId))]);
         if(profile?.role!=='admin'||!config?.allowedOwnerUids?.includes(stored.ownerUid)||pairing?.enabled!==true||!pairing.allowedOwnerUids?.includes(stored.ownerUid)||paper?.ownerUid!==stored.ownerUid||paper.conversationId!==stored.conversationId||paper.jobId!==id)return {active:false};
-        if(stored.completionRequestSha256!==requestHash)fail(409,'completion_conflict','This task already delivered a different paper response.');
+        if(stored.completionRequestSha256!==requestHash)return {active:false};
         return {active:true,paperId:stored.paperId};
       }
       if(receiptOnly===true)return {active:false};

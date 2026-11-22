@@ -69,8 +69,9 @@ customToken. Existing runtime service account signs it; do not add IAM silently.
 - POST /feedback {conversationId,messageId?,paperId?,rating:'helpful'|'needs_work',text?} => {saved:true}
 
 Messages: {id,conversationId,role:'user'|'assistant'|'system',text,createdAt,jobId?,paperId?}.
-Jobs: {id,kind:'turn'|'paper',ownerUid,conversationId,state,phase,createdAt,
-updatedAt,startedAt?,elapsedSeconds?,error?,requestRevision?,paperId?}.
+Jobs: {id,kind:'turn'|'paper'|'curriculum',ownerUid,conversationId,state,phase,createdAt,
+updatedAt,startedAt?,elapsedSeconds?,error?,errorCode?,requestRevision?,paperId?,progress?}.
+Writing progress counts structurally validated drafts against the planned question count.
 States: queued,running,validating,review_required,completed,needs_info,failed,cancelled.
 Papers in conversation view are summaries: {id,title,revision,marks,createdAt,jobId}.
 All dates serialized ISO8601. No backend-internal tokens/leases in user responses.
@@ -111,15 +112,16 @@ The existing staff pilot authentication applies to each endpoint. Canonical stud
   do not recreate listeners. No prompts or job payloads are directly readable.
 - POST /worker/claim {kind:'turn'|'paper',waitSeconds?:20} => {job:null|WorkerJob}
   bounded outbound long-poll of worker inbox; claim atomic, leases 120s, renew every 30s.
-- POST /worker/jobs/:id/heartbeat {leaseId,phase?} => {active:boolean}
-- POST /worker/jobs/:id/event {leaseId,phase?,state?,reply?,metrics?} => {active:boolean}
+- POST /worker/jobs/:id/heartbeat {leaseId,phase?} => {active:boolean,leaseUntil?}
+- POST /worker/jobs/:id/event {leaseId,phase?,state?,reply?,metrics?,progress?:{completed,total}} => {active:boolean}
 - POST /worker/jobs/:id/delegate {leaseId,operation:'generate_paper'|'revise_paper',requirements,
-  interpretation,proposedActions,basePaperId?,targetQuestionNumber?} => {job:WorkerJob}
+  interpretation,proposedActions,basePaperId?,targetQuestionNumber?,ackOnly?} => {job:WorkerJob|Job}
   Creates paper job, copies original user/history, invalidates any older active paper job.
-- POST /worker/jobs/:id/complete {leaseId,reply?,paper?:PaperRevision,metrics?,memoryPatch?} => {active:boolean,paperId?}
-- POST /worker/jobs/:id/fail {leaseId,error,retryable?} => {active:boolean}
+- POST /worker/jobs/:id/complete {leaseId,reply?,paper?:PaperRevision,metrics?,memoryPatch?,receiptOnly?} => {active:boolean,paperId?}
+  For paper delivery, a matching worker and exact lease/request receipt can recover the same paper ID after a lost response. A receipt-only replay cannot publish.
+- POST /worker/jobs/:id/fail {leaseId,error,errorCode?,retryable?} => {active:boolean}
 
-WorkerJob contains job fields plus leaseId, request:{id,text,sha256Utf8},
+WorkerJob contains job fields plus leaseId, leaseUntil, request:{id,text,sha256Utf8},
 rootRequest:{id,text,sha256Utf8}, history:[message], profile:{}, context:{},
 controllerFacts:{permissions,activePaperJob?,availableData}, requirements?,
 interpretation?,proposedActions?,basePaper?,targetQuestionNumber?.
@@ -128,6 +130,14 @@ model-written owner/permissions/original request. Worker can touch only assigned
 owners/jobs, not general GTOP collections. Separate turn and paper claim loops allow
 local conversation while a single Codex paper is in flight. No automatic retries of
 expired in-flight paper generation; mark recoverable failure with explicit Retry.
+A server-only, short-lived paired-worker claimsPausedUntil prevents new claims
+during a planned restart. Existing heartbeats, leases and completion continue.
+
+New papers lock question number, chapter, marks and type in a controller-derived
+allocation. Codex writes and reviews bounded groups with a 15-minute limit per attempt. The worker retains admitted drafts and review results under the private H runtime, bound to the owner, request revision and
+curriculum snapshot. A retry revalidates the checkpoint and continues with the
+remaining groups. The gateway validates the assembled paper and commits the two
+printable copies with the immutable paper in one transaction.
 
 ## Paper domain
 
@@ -147,7 +157,7 @@ bank IDs, no new bank writes. Full syllabus means all 10 pinned Chemistry chapte
 Student HTML must contain no answer/marking points. Renderer escapes text and uses
 KaTeX with trust:false; no raw HTML from models. New immutable artifact IDs.
 
-Initial requirements fields: {board:'CBSE',standard:'12',subject:'Chemistry',
+The generic practice defaults are {board:'CBSE',standard:'12',subject:'Chemistry',
 academicYear:'2026-27',scope:'full_syllabus',marks:80,durationMinutes:180,
 questionLanguage:'English',answerLanguage:'English',sourcePolicy:'original',
 internalChoices:true}. Preserve explicit language/marks corrections. Bank-only is

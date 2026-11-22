@@ -1,4 +1,5 @@
 import {extractScope,academicYear,scopeKeys,capabilityQuestion} from './catalogue.mjs';
+import {unitMatches} from './curriculum.mjs';
 
 const normalized=s=>String(s).normalize('NFKC').toLowerCase().replace(/cordinate/g,'coordinate').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
 const allTopics=t=>/\ball (?:the )?(?:topics?|chapters?)\b|\bfull chapters?\b|सभी\s*(?:टॉपिक|विषय|अध्याय)|पूरे?\s*अध्याय|saare\s*(?:topics?|chapters?)/i.test(t);
@@ -7,19 +8,42 @@ export const prohibitedCreation=t=>/(?:do not|don't|not yet|never|मत|नह�
 export const requirementDiscussion=t=>!/^\s*(?:do not include|don.t include|exclude|remove|छोड़कर|हटाओ)\b/i.test(t)&&(/^\s*(?:what (?:is|are|does)|tell me about|why (?:would|should|is|do)|explain|compare|difference between|क्या.{0,25}है|समझा|फर्क|antar|samjhao)/i.test(t)||(!creationIntent(t)&&!/^\s*(?:use|choose|select|switch to|please use|रखो|चुनो)\b/i.test(t)&&(/[?？]|^\s*(?:how|what|why|which|can|could|would|should|is|are|does|do|क्या|कैसे|क्यों|कौन)\b/i.test(t)||/\b(?:versus|vs\.?|or)\b|या/.test(t))));
 // Assessment styles are instructions about questions, not chapter names.
 // Apply this to persisted briefs too, so an older parsing error is recoverable.
-const questionStyle=s=>/^(?:(?:competency|competence|case|application|skill|concept|inquiry)[ -]+based(?:\s+(?:questions?|assessment))?|(?:mcq|objective|subjective|multiple[ -]choice)(?:\s+questions?)?)$/i.test(s.trim());
+const onlyQuestionStyle=/(?:mcq|(?:objective|subjective|multiple[ -]choice)\s+questions)\s+only/i;
+const exactOnlyStyle=new RegExp(`^${onlyQuestionStyle.source}$`,'i');
+const standaloneOnlyStyle=new RegExp(`^(?:(?:please\\s+)?(?:use|include|make it)\\s+)?(${onlyQuestionStyle.source})(?:\\s+please)?$`,'i');
+const paperOnlyStyle=new RegExp(`\\b(?:paper|test|exam)\\s+(?:with|using|of)\\s+(${onlyQuestionStyle.source})(?:\\s+please)?$`,'i');
+const questionStyle=s=>exactOnlyStyle.test(s.trim())||/^(?:(?:competency|competence|case|application|skill|concept|inquiry)[ -]+based(?:\s+(?:questions?|assessment))?|(?:mcq|objective|subjective|multiple[ -]choice)(?:\s+questions?)?)$/i.test(s.trim());
+
+function explicitOnlyStyle(text){
+  for(const clause of text.split(/[,.;\n।]+/).map(part=>part.trim())){
+    const match=clause.match(standaloneOnlyStyle)||(creationIntent(clause)&&!prohibitedCreation(clause)?clause.match(paperOnlyStyle):null);
+    if(match)return match[1];
+  }
+  return null;
+}
 const cleanNames=names=>[...new Set(names.map(s=>s.trim().replace(/[.।]+$/,'')).filter(s=>s&&!questionStyle(s)))];
 const excluded=(text,name)=>{const n=normalized(text),v=normalized(name);return ['do not include ','don t include ','exclude ','except ','without ','not ','हटाओ ','छोड़कर '].some(prefix=>n.includes(prefix+v));};
+const earlierScopeReference=text=>/^(?:the\s+)?(?:details?|requirements?|scope|chapters?)\s+(?:(?:is|are|was|were)\s+(?:already\s+)?(?:there|above|given|provided|mentioned|saved)|as before)$/i.test(normalized(text));
+const scopedUnitName=text=>text.trim().match(/^(?:please use |use )?((?:the\s+)?(?:first\s+unit|unit\s+(?:vi|6)(?:\s+reproduction)?|reproduction\s+unit)(?:\s+from\s+(?:the\s+)?NCERT(?:\s+(?:textbook|book))?)?)(?:\s+only)?[.!।]?$/i)?.[1];
+
+function chapterFragments(parts,allowSolutionsChapter=false){
+  return cleanNames(parts.map(s=>s.trim()).filter(s=>
+    s.length>2&&s.length<=120&&s.split(/\s+/).length<=12&&/\p{L}/u.test(s)&&
+    !/[?!]/.test(s)&&!Object.keys(extractScope(s)).length&&!earlierScopeReference(s)&&
+    ((allowSolutionsChapter&&/^solutions?$/i.test(s))||!/\b(?:papers?|questions?|answers?|solutions?|marks?|boards?|class|standards?|grades?|patterns?|formats?|duration|hours?|minutes?|create|generate|prepare|make|please|include|exclude|without|only|all|full|yes|no|hi|hello|thanks?|codex|use|want|need|start|stop|check|verify|print|english|hindi|hinglish)\b|पेपर|प्रश्न|उत्तर|अंक|बोर्ड|बनाओ|सभी|पूरा/i.test(s))
+  ));
+}
+
+function structuredChapters(text,scope){
+  if(!text.includes('\n')||!scope.board||!scope.standard||!scope.subject)return [];
+  return chapterFragments(text.split(/\r?\n/),scope.subject==='Chemistry');
+}
 
 // Recover a plainly named focus in comma/period-separated paper requirements.
 // This records user intent only; selectedCurriculum must still verify its title.
 function inlineChapters(text){
   if(!/(?:paper|पेपर|प्रश्नपत्र)/i.test(text))return [];
-  return cleanNames(text.split(/[,.;।\n]+/).map(s=>s.trim()).filter(s=>
-    s.length>2&&s.length<=120&&s.split(/\s+/).length<=12&&/\p{L}/u.test(s)&&
-    !/[?!]/.test(s)&&!Object.keys(extractScope(s)).length&&
-    !/\b(?:papers?|questions?|answers?|solutions?|marks?|boards?|class|standards?|grades?|patterns?|formats?|duration|hours?|minutes?|create|generate|prepare|make|please|include|exclude|without|only|all|full|yes|no|hi|hello|thanks?|codex|use|want|need|start|stop|check|verify|print|english|hindi|hinglish)\b|पेपर|प्रश्न|उत्तर|अंक|बोर्ड|बनाओ|सभी|पूरा/i.test(s)
-  ));
+  return chapterFragments(text.split(/[,.;।\n]+/));
 }
 
 // The model may identify spans, but only saved USER text can establish a selection.
@@ -37,11 +61,27 @@ export function buildTaskBrief(job,selection=null){
   const r=brief.requirements;
   if(r.selectedChapters)r.selectedChapters=cleanNames(r.selectedChapters);
   const set=(field,value,m,quote=m.text)=>{r[field]=value;brief.sources[field]={messageId:m.id,quote:quote.slice(0,300)};};
+  const setChapters=(names,m,quote=m.text)=>{set('selectedChapters',names,m,quote);set('scope','selected_chapters',m,quote);};
+  // Older briefs could mistake a follow-up reference for a chapter title.
+  // Recover the actual chapter request from the same scope's saved creation message.
+  if(prior&&r.selectedChapters?.length&&r.selectedChapters.every(earlierScopeReference)){
+    delete r.selectedChapters;
+    delete brief.sources.selectedChapters;
+    delete brief.sources.scope;
+    const original=messages.find(m=>m.id===brief.creationRequestId);
+    if(original){
+      const scope=extractScope(original.text,job.catalogue||{});
+      if(['board','standard','subject'].every(key=>scope[key]===r[key])&&(!scope.academicYear||scope.academicYear===r.academicYear)){
+        const names=structuredChapters(original.text,scope);
+        if(names.length&&names.length<=30)setChapters(names,original);
+      }
+    }
+  }
   // Recover assessment instructions from original user evidence in older briefs.
   // They are never chapter names and must survive later mark/scope corrections.
   for(const m of messages){
-    const style=m.text.match(/\b(?:competency|competence|case|application|skill|concept|inquiry)[ -]+based(?:\s+(?:questions?|assessment))?/i);
-    if(style&&!requirementDiscussion(m.text))set('questionStyle',style[0],m,style[0]);
+    const style=explicitOnlyStyle(m.text)||m.text.match(/\b(?:competency|competence|case|application|skill|concept|inquiry)[ -]+based(?:\s+(?:questions?|assessment))?/i)?.[0];
+    if(style&&!requirementDiscussion(m.text))set('questionStyle',style,m,style);
     if(/\b(?:mark allocation|marks distribution|\d+\s*[x×*]\s*\d+|\d+\s+(?:questions?|mcqs?).{0,25}\d+\s*marks?\s*each)\b/i.test(m.text)&&!requirementDiscussion(m.text))set('markAllocation',m.text.slice(0,1000),m);
   }
   for(const m of fresh){
@@ -85,11 +125,14 @@ export function buildTaskBrief(job,selection=null){
         const known=job.context?.curriculum?.chapters||[];
         const whole=known.find(c=>normalized(c.title)===normalized(list));
         const names=cleanNames(whole?[list]:list.split(/[,;]/.test(list)?/\s*[,;]\s*/:/\s*(?:\band\b|और)\s*/i));
-        if(names.length&&names.length<=30){set('selectedChapters',names,m,list);set('scope','selected_chapters',m,list);}
+        if(names.length&&names.length<=30)setChapters(names,m,list);
       }else{
-        const names=inlineChapters(text);
-        if(names.length&&names.length<=30){set('selectedChapters',names,m);set('scope','selected_chapters',m);}
+        const unit=scopedUnitName(text);
+        const structured=structuredChapters(text,explicit);
+        const names=unit?[unit]:structured.length?structured:inlineChapters(text);
+        if(names.length&&names.length<=30)setChapters(names,m,unit||text);
         else if(/\b(?:different|other|new)\s+chapters?\b/i.test(text)){set('selectedChapters',[],m);set('scope','selected_chapters',m);}
+        if(structured.length&&names.length<=30&&!brief.creationRequestId&&!brief.creationPaused)brief.creationRequestId=m.id;
       }
     }
     if(r.selectedChapters?.length){const kept=r.selectedChapters.filter(name=>!excluded(text,name));if(kept.length!==r.selectedChapters.length){set('selectedChapters',kept,m);set('scope','selected_chapters',m);}}
@@ -98,7 +141,8 @@ export function buildTaskBrief(job,selection=null){
   }
   if(selection){
     const m=messages.find(m=>m.id===selection.sourceMessageId);
-    if(!m||typeof selection.quote!=='string'||!m.text.includes(selection.quote)||!Array.isArray(selection.chapters)||selection.chapters.length>30||!selection.chapters.length||!selection.chapters.every(s=>typeof s==='string'&&s.length<=200&&normalized(selection.quote).includes(normalized(s))))throw Error('Chapter selection must quote the saved user message containing every chapter.');
+    const phrase=typeof selection.quote==='string'?' '+normalized(selection.quote)+' ':'';
+    if(!m||!phrase.trim()||!m.text.includes(selection.quote)||!Array.isArray(selection.chapters)||selection.chapters.length>30||!selection.chapters.length||!selection.chapters.every(s=>typeof s==='string'&&s.length<=200&&normalized(s)&&!earlierScopeReference(s)&&phrase.includes(' '+normalized(s)+' ')))throw Error('Chapter selection must quote the saved user message containing every chapter.');
     if(requirementDiscussion(m.text)||capabilityQuestion(m.text))throw Error('A discussion of chapters is not a chapter selection.');
     if(selection.chapters.some(name=>excluded(m.text,name)))throw Error('Chapter selection includes a chapter explicitly excluded by the user.');
     // Replayed model output cannot override a more recent user correction.
@@ -106,7 +150,8 @@ export function buildTaskBrief(job,selection=null){
     const latestScopeSource=[brief.scopeChangedAtMessageId,brief.creationRequestId].map(id=>messages.findIndex(x=>x.id===id));
     if(messages.indexOf(m)<Math.max(-1,...latestScopeSource))throw Error('Chapter selection predates the current curriculum scope.');
     if(brief.sources.scope&&messages.findIndex(x=>x.id===brief.sources.scope.messageId)>messages.indexOf(m))return brief;
-    const names=cleanNames(selection.chapters);set('selectedChapters',names,m,selection.quote);set('scope','selected_chapters',m,selection.quote);
+    const names=cleanNames(selection.chapters);
+    if(names.length)setChapters(names,m,selection.quote);
   }
   // In the dedicated paper app, a complete requirement packet is an actionable
   // request even when the user omits the verb "create". Discussion and pauses stay inert.
@@ -135,15 +180,25 @@ export function selectedCurriculum(pinned,requirements){
   const chosen=requested.map(name=>{
     const focus=normalized(name);
     const exact=pinned.chapters.filter(c=>normalized(c.title)===focus);
-    if(exact.length===1)return exact[0];
+    if(exact.length===1)return exact;
     if(exact.length>1)throw Error('Ambiguous saved chapter title: '+name+'. Please use an independently reviewed curriculum.');
+    const unit=pinned.units?.find(unit=>unitMatches(focus,unit));
+    if(unit){
+      const chapters=unit.chapterIds.map(id=>pinned.chapters.find(c=>c.id===id));
+      if(chapters.some(c=>!c))throw Error('The pinned curriculum does not contain every chapter in '+unit.title+'.');
+      return chapters;
+    }
+    const alias=pinned.chapters.filter(c=>c.aliases?.some(alias=>normalized(alias)===focus));
+    if(alias.length>1)throw Error('Ambiguous chapter alias: '+name+'. Please specify the complete chapter title.');
+    if(alias.length)return alias;
     // A short focus is an alias only when the complete whole-word phrase
     // identifies exactly one chapter in this already scoped curriculum.
     if(!focus||/^(?:the|a|an|and|or|of|in|to|for|with|chapter|chapters|unit|units)$/u.test(focus))return null;
     const matches=pinned.chapters.filter(c=>(' '+normalized(c.title)+' ').includes(' '+focus+' '));
     if(matches.length>1)throw Error('Ambiguous chapter focus: '+name+'. Please specify the complete chapter title.');
-    return matches[0]||null;
+    return matches.length?matches:null;
   });
   if(chosen.some(c=>!c))throw Error('These selected chapters are not in the pinned curriculum: '+requested.filter((_,i)=>!chosen[i]).join(', ')+'. Please use the saved chapter titles or request an official curriculum check.');
-  return {...pinned,chapters:[...new Map(chosen.map(c=>[c.id||c.title,c])).values()],selection:{kind:'selected_chapters',requested,canonicalTitles:chosen.map(c=>c.title)}};
+  const chapters=[...new Map(chosen.flat().map(c=>[c.id||c.title,c])).values()];
+  return {...pinned,chapters,selection:{kind:'selected_chapters',requested,canonicalTitles:chapters.map(c=>c.title)}};
 }

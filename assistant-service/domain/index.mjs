@@ -51,21 +51,10 @@ export function validatePaper(p,requirements=null,selectedCurriculum=null){
   require(questions.length>=1&&questions.length<=100,'Paper must contain 1–100 numbered questions or question groups.');
   const chapterSet=new Set(pinned.chapters.map(c=>c.title)),seen=new Set(),stems=new Set();let total=0,choices=0;
   for(let i=0;i<p.sections.length;i++){const s=p.sections[i],n=s.attemptCount??s.questions.length;require(Number.isInteger(n)&&n>=1&&n<=s.questions.length,'Invalid section attempt count.');require(n===s.questions.length||new Set(s.questions.map(q=>q.marks)).size===1,'Optional section questions must have equal marks so every permitted path has the same total.');const marks=n===s.questions.length?s.questions.reduce((sum,q)=>sum+q.marks,0):n*s.questions[0].marks;total+=marks;if(r.format==='board')require(marks===pinned.paperPattern.sections[i].attemptedMarks,'Section marks differ from the verified board blueprint.');}
-  const checkVariant=(v,q,where)=>{
-    require(cleanText(v.question)&&cleanText(v.answer)&&Array.isArray(v.markingPoints)&&v.markingPoints.length>0&&v.markingPoints.every(x=>cleanText(x,4000)),`${where} needs a question, worked answer and marking points.`);
-    require(!/https?:\/\//i.test(v.question),'Questions may not embed remote assets or links.');
-    require(Array.isArray(v.options)&&v.options.every(o=>cleanText(o,3000)),`${where} has invalid options.`);
-    if(['mcq','assertion_reason'].includes(q.type))require(v.options.length===4&&Number.isInteger(v.correctIndex)&&v.correctIndex>=0&&v.correctIndex<4,`${where} needs four options and a valid correct index.`);
-    else require(v.options.length===0&&v.correctIndex===null,`${where} must not contain objective answer metadata.`);
-    const normalized=v.question.toLowerCase().replace(/\s+/g,' ').trim();require(!stems.has(normalized),'Duplicate question stem.');stems.add(normalized);
-  };
   for(let i=0;i<questions.length;i++){
     const q=questions[i];require(q.number===i+1,'Question numbering must be continuous.');
     require(chapterSet.has(q.chapter),'Question chapter is not in the pinned syllabus.');seen.add(q.chapter);
-    require(['mcq','assertion_reason','short_answer','long_answer','numerical','case_based'].includes(q.type),'Unsupported question type.');
-    require(Number.isInteger(q.marks)&&q.marks>=1&&q.marks<=20,'Invalid question marks.');
-    checkVariant(q,q,'Question '+q.number);
-    if(q.alternative!==null&&q.alternative!==undefined){require(r.internalChoices,'Unexpected internal choice.');checkVariant(q.alternative,q,'Question '+q.number+' alternative');choices++;}
+    if(validatePaperQuestion(q,r,{stems}))choices++;
   }
   require(total===r.marks,`Attempted marks total ${total}; ${r.marks} requested. OR alternatives do not add marks.`);
   require(seen.size===chapterSet.size,`Full selected syllabus must cover all ${chapterSet.size} chapters.`);
@@ -75,6 +64,25 @@ export function validatePaper(p,requirements=null,selectedCurriculum=null){
   // Invalid maths must fail before delivery rather than printing raw TeX.
   renderPaper({...p,curriculumSnapshot:pinned},false);renderPaper({...p,curriculumSnapshot:pinned},true);
   return {passed:true,questionCount:questions.length,attemptedMarks:total,attemptPolicy:p.sections.some(s=>s.attemptCount&&s.attemptCount<s.questions.length)?'section_choice_with_whole_question_or':'all_required_with_whole_question_or',chaptersCovered:[...seen],internalChoices:choices,sourceId:pinned.id,paperContentSha256:hash(paperContent(p)),academicApproval:false};
+}
+/** Validate question groups before assembly using the same rules as delivery. */
+export function validatePaperQuestion(q,requirements,{stems=new Set(),checkMath=false}={}){
+  require(['mcq','assertion_reason','short_answer','long_answer','numerical','case_based'].includes(q.type),'Unsupported question type.');
+  require(Number.isInteger(q.marks)&&q.marks>=1&&q.marks<=20,'Invalid question marks.');
+  const checkVariant=(v,q,where)=>{
+    require(cleanText(v.question)&&cleanText(v.answer)&&Array.isArray(v.markingPoints)&&v.markingPoints.length>0&&v.markingPoints.every(x=>cleanText(x,4000)),`${where} needs a question, worked answer and marking points.`);
+    require(!/https?:\/\//i.test(v.question),'Questions may not embed remote assets or links.');
+    require(Array.isArray(v.options)&&v.options.every(o=>cleanText(o,3000)),`${where} has invalid options.`);
+    if(['mcq','assertion_reason'].includes(q.type))require(v.options.length===4&&Number.isInteger(v.correctIndex)&&v.correctIndex>=0&&v.correctIndex<4,`${where} needs four options and a valid correct index.`);
+    else require(v.options.length===0&&v.correctIndex===null,`${where} must not contain objective answer metadata.`);
+    if(checkMath)for(const text of [v.question,v.answer,...v.options,...v.markingPoints])formatted(text);
+    const normalized=v.question.toLowerCase().replace(/\s+/g,' ').trim();require(!stems.has(normalized),'Duplicate question stem.');stems.add(normalized);
+  };
+  checkVariant(q,q,'Question '+q.number);
+  if(q.alternative===null||q.alternative===undefined)return false;
+  require(requirements.internalChoices,'Unexpected internal choice.');
+  checkVariant(q.alternative,q,'Question '+q.number+' alternative');
+  return true;
 }
 export function paperContent(p){return Object.fromEntries(['title','board','standard','subject','academicYear','scope','marks','durationMinutes','questionLanguage','answerLanguage','instructions','sections','sourceReferences'].map(k=>[k,p[k]]));}
 export function validateRevision(base,candidate,targetQuestionNumber=null,selectedCurriculum=null){

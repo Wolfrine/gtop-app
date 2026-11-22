@@ -394,7 +394,13 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   @HostListener('window:online') connectionRestored(){if(!document.hidden&&this.session){if(!this.events)void this.reconnect().finally(()=>this.startEvents());else if(this.presenceDenied||!this.session.notifications?.presencePath)void this.reconcileCapabilities(true);}}
   phase(job:Job){return phaseLabel(job,this.worker.tone==='offline');}
   assistantText(text:string){return formatAssistantText(text);}
-  jobError(job:Job){return readableError(job.error);}
+  pendingJobAction:{id:string;action:'cancel'|'retry'}|null=null;
+  jobProgress(job:Job){
+    if(job.phase==='codex_generating'&&job.progress)return job.progress.completed+' of '+job.progress.total+' questions drafted.';
+    if(!this.readOnly&&job.kind==='turn')return 'You can draft your next message below.';
+    return '';
+  }
+  jobError(job:Job){return job.errorCode&&typeof job.error==='string'?job.error:readableError(job.error);}
   async ngOnInit(){
     this.routeDepth=history.state?.gtDeskDepth||0;
     const preview=getDevTransport();
@@ -427,7 +433,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   private resetAccount(){
     this.confirmedBack=false;this.returningAfterCancel=false;this.composePage++;this.savedBrief=undefined;this.workRequest++;this.workPending=undefined;this.workPackets=[];this.workSheets=[];this.workError='';this.workLoading=false;this.ownQuery='';this.allWork=false;this.error='';this.emailForm=false;this.checkingInjector=undefined;
     this.checkingHome=false;this.checkingPacketId='';this.studentUid='';this.sheetHistoryUid='';this.workspaceUpdatesPending=false;
-    this.authEpoch++;this.checkingPaperId='';this.stopEvents();this.refreshPending=undefined;this.servicePending=undefined;this.capabilityPending=undefined;this.contentAccessPending=undefined;this.contentDenied=false;this.contentAccessAllowed=false;this.presenceDenied=false;this.session=undefined;this.detail=undefined;this.conversations=[];
+    this.authEpoch++;this.pendingJobAction=null;this.checkingPaperId='';this.stopEvents();this.refreshPending=undefined;this.servicePending=undefined;this.capabilityPending=undefined;this.contentAccessPending=undefined;this.contentDenied=false;this.contentAccessAllowed=false;this.presenceDenied=false;this.session=undefined;this.detail=undefined;this.conversations=[];
     this.serviceError='';this.serviceRequestId='';this.serviceStale=false;this.health=undefined;this.lastOverviewAt=0;this.openingId='';
     this.draft='';this.email='';this.password='';this.sendId='';this.sendText='';this.newRequestId='';this.feedbackText='';this.feedbackMessage='';this.feedbackPaperId='';this.feedbackOpen=false;
     this.loading=false;this.sending=false;this.serviceStarting=false;this.libraryLoading=false;this.libraryRefreshRequested=false;this.libraryError='';this.adminConversation=false;this.view='home';this.drawer=false;
@@ -544,7 +550,17 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   }
   composerKey(event:KeyboardEvent){if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();void this.send();}}
   useSuggestion(text:string){if(this.readOnly)return;this.draft=text;document.querySelector<HTMLTextAreaElement>('#message-input')?.focus();}
-  async jobAction(job:Job,action:'cancel'|'retry'){if(!this.contentAuthorized||this.readOnly)return;const epoch=this.authEpoch;this.error='';try{await this.transport.request('/jobs/'+encodeURIComponent(job.id)+'/'+action,'POST',{});if(this.current(epoch))await this.refresh();}catch(e){if(this.current(epoch))this.reportError(e);}}
+  async jobAction(job:Job,action:'cancel'|'retry'){
+    if(!this.contentAuthorized||this.readOnly||this.pendingJobAction)return;
+    const epoch=this.authEpoch,pending={id:job.id,action};
+    this.pendingJobAction=pending;
+    this.error='';
+    try{
+      await this.transport.request('/jobs/'+encodeURIComponent(job.id)+'/'+action,'POST',{});
+      if(this.current(epoch))await this.refresh();
+    }catch(error){if(this.current(epoch))this.reportError(error);}
+    finally{if(this.pendingJobAction===pending)this.pendingJobAction=null;}
+  }
   async refresh(automatic=false,contentOnly=false){
     if(!this.contentAuthorized)return;
     const epoch=this.authEpoch;

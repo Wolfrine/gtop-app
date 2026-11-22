@@ -26,10 +26,11 @@ export function pendingPaperTurns(job){
 }
 
 export function confirmationText(r,curriculum){
-  const chapters=r.scope==='selected_chapters'?r.selectedChapters.join(', ')+' only':'the full selected syllabus';
+  const chapters=r.scope==='selected_chapters'?'only '+r.selectedChapters.join(', '):'the full selected syllabus';
   const style=r.questionStyle||'a balanced mix of question types';
-  const format=r.format==='board'?'the verified sectional format':`${r.board}-aligned practice format; the exact official sectional blueprint is unverified`;
-  const basis=curriculum?.provenance?.kind==='official-online-check'?'official-source syllabus checked':'saved GTOP syllabus; current official coverage is not independently verified';
-  const allocation=r.markAllocation?`; requested allocation: ${r.markAllocation}`:'';
-  return `I will create ${r.board} Class ${r.standard} ${r.subject}, ${r.academicYear}, ${r.marks} marks, ${r.durationMinutes} minutes, ${chapters}, ${style}${allocation}, questions in ${r.questionLanguage} with worked answers and marking points in ${r.answerLanguage}, using ${format} (${basis}; not an official board-issued paper). Shall I go ahead?`;
+  const format=r.format==='board'?'a practice format using the verified board section counts and marks':`a ${r.board}-aligned practice format`;
+  const officialSource=['official-online-check','official-pinned-unit','official-pinned-syllabus','gtop-approved'].includes(curriculum?.provenance?.kind);
+  const basis=officialSource?'Syllabus coverage is verified against the official source.':'The saved GTOP chapter list is the basis for coverage.';
+  const allocation=r.markAllocation?` with the requested allocation (${r.markAllocation})`:'';
+  return `I will create a ${r.marks}-mark ${r.board} Class ${r.standard} ${r.subject} paper for ${r.academicYear}, covering ${chapters}. It will use ${format} with ${r.durationMinutes} minutes, ${style}${allocation}, questions in ${r.questionLanguage}, and worked answers and marking points in ${r.answerLanguage}. ${basis} Shall I go ahead?`;
 }

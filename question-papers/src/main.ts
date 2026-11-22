@@ -398,6 +398,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   jobProgress(job:Job){
     if(job.phase==='codex_generating'&&job.progress)return job.progress.completed+' of '+job.progress.total+' questions drafted.';
     if(!this.readOnly&&job.kind==='turn')return 'You can draft your next message below.';
+    if(!this.readOnly&&job.kind==='paper')return 'You can keep talking while I work.';
     return '';
   }
   jobError(job:Job){return job.errorCode&&typeof job.error==='string'?job.error:readableError(job.error);}

@@ -127,7 +127,7 @@ export async function converse(config:Config,job:any,dir:string,signal:AbortSign
   const agents=await assistantInstructions();await record(dir,'instructions.json',agents);
   const instructionText=agents.text+'\n'+instructions.text+(explain?'\n\n'+(await skill('explain-paper')).text:'');
   const body:any=localRequest(config,job,instructionText);
-  body.keep_alive=singleReply?0:60; // Keep weights warm only between a paper conversation's tool calls.
+  body.keep_alive=60; // The explicit unload below also covers malformed or interrupted responses.
   const count=await tokenCounter(config.dataDirectory);
   const defs=[['syllabus','Read the selected saved curriculum',{}],['status','Read actual execution status',{}],['ownQuestion','Read a question and its answer from the current paper',{number:{type:'integer'}}],['calculate','Calculate arithmetic accurately',{expression:{type:'string'}}],['read_skill','Load relevant versioned assistant instructions',{name:{type:'string',enum:['explain-paper','conversation']}}]] as const;
   body.tools=defs.map(([name,description,properties])=>({type:'function',function:{name,description,parameters:{type:'object',additionalProperties:false,properties,required:Object.keys(properties)}}}));
@@ -166,11 +166,9 @@ export async function converse(config:Config,job:any,dir:string,signal:AbortSign
     catch(error){if(singleReply)throw error;if(repairs++)throw Error('The local model returned an invalid response twice. Please retry.');toolsClosed=true;body.think=false;body.options.num_predict=800;body.options.temperature=0.7;body.options.top_p=0.8;body.messages.push({role:'assistant',content:String(response.message.content).slice(0,1800)},{role:'user',content:'Controller validation: invalid/truncated JSON. Return the corrected response to the original current request. Only reply and action are required; omit unused fields. Preserve the user language.'});}
   }throw Error('Local response unavailable.');}
   finally{
-    if(!singleReply){
-      const releaseStarted=Date.now();
-      try{await releaseLocalModel(config);await record(dir,'local-model-release.json',{released:true,elapsedMs:Date.now()-releaseStarted});}
-      catch(e:any){console.error('Local model cleanup: '+e.message);await record(dir,'local-model-release.json',{released:false,error:e.message,elapsedMs:Date.now()-releaseStarted});}
-    }
+    const releaseStarted=Date.now();
+    try{await releaseLocalModel(config);await record(dir,'local-model-release.json',{released:true,elapsedMs:Date.now()-releaseStarted});}
+    catch(e:any){console.error('Local model cleanup: '+e.message);await record(dir,'local-model-release.json',{released:false,error:e.message,elapsedMs:Date.now()-releaseStarted});}
   }
 }
 const disabled=['hooks','apps','plugins','shell_tool','memories','view_image','browser_use','computer_use','code_mode_host','image_generation','multi_agent','workspace_dependencies','remote_plugin','skill_search','shell_snapshot'];

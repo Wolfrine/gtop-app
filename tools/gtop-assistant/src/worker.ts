@@ -292,7 +292,7 @@ export class Worker {
   }
   async paper(job:any,dir:string,signal:AbortSignal){
     try{assertSourcedPaperTotal(job);}
-    catch(error){throw new PaperStageError('paper_scope_infeasible','The original paper total differs from the approved request.',{cause:error});}
+    catch(error){throw new PaperStageError('paper_scope_infeasible',error instanceof Error?error.message:'The original paper total was not preserved.',{cause:error});}
     let pinned;
     try{pinned=selectedCurriculum(job.curriculumSnapshot||job.context?.curriculum||curriculum,job.requirements);}
     catch(error){throw new PaperStageError('paper_scope_infeasible','The approved paper scope could not be resolved against its pinned curriculum.',{cause:error});}

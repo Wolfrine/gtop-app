@@ -124,7 +124,7 @@ export function buildTaskBrief(job,selection=null){
       if(list&&!/[?]|which|what|कौन/i.test(list)){
         const known=job.context?.curriculum?.chapters||[];
         const whole=known.find(c=>normalized(c.title)===normalized(list));
-        const names=cleanNames(whole?[list]:list.split(/[,;]/.test(list)?/\s*[,;]\s*/:/\s*(?:\band\b|और)\s*/i));
+        const names=cleanNames(whole?[list]:list.split(/[,;]/.test(list)?/\s*[,;]\s*(?:(?:and|और)\s+(?=[^,;]+$))?/i:/\s*(?:\band\b|और)\s*/i));
         if(names.length&&names.length<=30)setChapters(names,m,list);
       }else{
         const unit=scopedUnitName(text);

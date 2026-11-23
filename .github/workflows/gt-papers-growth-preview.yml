@@ -26,6 +26,9 @@ jobs:
       - name: Install existing GT Papers dependencies
         run: npm ci
         working-directory: question-papers
+      - name: Preserve current GT Papers behavior with existing regression tests
+        run: npm test
+        working-directory: question-papers
       - name: Build existing production-mode app for preview
         run: npm run build
         working-directory: question-papers

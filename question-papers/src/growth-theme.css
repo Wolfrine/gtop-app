@@ -199,7 +199,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .overview-card-arrow{right:13px;bottom:13px;font-size:17px}
   .overview-card-cta{font-size:12px}
   .desk-today{display:flex;flex-direction:column;gap:14px}
-  .desk-incoming{order:-1;grid-template-columns:minmax(0,1fr) auto;align-items:center;width:100%;padding:14px;border-radius:14px}
+  .desk-incoming{order:1;grid-template-columns:minmax(0,1fr) auto;align-items:center;width:100%;padding:14px;border-radius:14px}
   .desk-incoming h2{font-size:16px}
   .desk-incoming p{font-size:11px;line-height:1.35;margin-top:4px}
   .desk-inbox-link{min-height:40px;font-size:11px;padding:7px 10px;border-radius:9px}

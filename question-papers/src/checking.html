@@ -948,6 +948,28 @@
                 }
               </article>
             }
+            @if (current.grade) {
+              <div class="review-decision-actions" aria-label="Teacher decision">
+                @if (canEdit) {
+                  @if (!pending && !(current.state === 'final' && editingAnswer && dirty)) {
+                    <button class="action primary" type="button" (click)="save(true)" [disabled]="busy">
+                      {{current.state === 'final' ? 'Save approved marks' : 'Approve final marks'}}
+                    </button>
+                  } @else if (issues.length > 0) {
+                    <button class="action" type="button" (click)="nextIssue()" [disabled]="busy">
+                      Review next flagged answer →
+                    </button>
+                  }
+                  @if (dirty && !editingAnswer && (current.state !== 'final' || pending)) {
+                    <button class="action" type="button" (click)="save(false)" [disabled]="busy">Save review draft</button>
+                  }
+                }
+                @if (fromSubmissionInbox && current.state === 'final' && !editing && !dirty) {
+                  <p class="return-guidance">Marks approved. Release the result privately from Inbox.</p>
+                  <button class="action primary" type="button" (click)="leave()" [disabled]="busy">Return to Inbox →</button>
+                }
+              </div>
+            }
             @if (canEdit && missing.length > 1) {
               <section class="bulk-missing">
                 @if (!confirmingMissing) {

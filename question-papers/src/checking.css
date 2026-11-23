@@ -1494,3 +1494,18 @@ h4 {
   .sheet .workbar .actions .action{font-size:11px;padding-inline:8px}
   .scan-tools{flex-wrap:wrap}
 }
+@media screen{
+  /* In the accepted layout the decision follows the evidence and explanation. */
+  .sheet .workbar > .actions .action.primary{display:none}
+  .review-decision-actions{
+    display:flex;flex-wrap:wrap;gap:9px;margin:14px 14px 16px;
+    padding:13px 0 0;border-top:1px solid #dce7d9;
+  }
+  .review-decision-actions .action{min-height:45px;flex:1 1 130px}
+  .review-decision-actions .action.primary{flex-basis:100%;font-size:14px;font-weight:740}
+  .review-decision-actions .return-guidance{width:100%;max-width:none;margin:0;color:#5e7a65}
+}
+@media screen and (max-width:760px){
+  .review-decision-actions{margin:13px;padding-top:12px}
+  .review-decision-actions .action.primary{min-height:48px}
+}

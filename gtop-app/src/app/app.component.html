@@ -1,11 +1,13 @@
-<div class="shell" [class.has-navigation]="showNavigation">
+<div class="shell" [class.has-navigation]="showNavigation"
+    [class.has-mobile-navigation]="showNavigation && !mobileBack">
     @if (showNavigation) { <a class="skip-link" href="#main-content">Skip to content</a> }
     @if (showNavigation) {
         <app-side-nav [section]="section" [admin]="profile?.role === 'admin'"></app-side-nav>
     }
     <div class="shell-body">
         @if (!isLandingPage) {
-            <app-header [section]="showNavigation ? section : ''" [setup]="isSetupPage"></app-header>
+            <app-header [section]="showNavigation ? section : ''" [setup]="isSetupPage"
+                [mobileBack]="showNavigation ? mobileBack : null"></app-header>
         }
         <div class="content" id="main-content" tabindex="-1">
             <router-outlet></router-outlet>

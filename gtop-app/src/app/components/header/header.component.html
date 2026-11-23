@@ -1,6 +1,11 @@
-<header class="header" [class.with-navigation]="section">
+<header class="header" [class.with-navigation]="section" [class.has-context-back]="mobileBack">
     @if (setup) {
         <a routerLink="/" class="back" aria-label="Go back"><mat-icon>arrow_back</mat-icon></a>
+    }
+    @if (mobileBack; as back) {
+        <a class="back context-back" [routerLink]="back.path" [queryParams]="back.queryParams">
+            <mat-icon aria-hidden="true">arrow_back</mat-icon>{{ back.label }}
+        </a>
     }
     <a [routerLink]="section ? '/dashboard' : '/'" class="brand lumen-home-link">
         <span class="lumen-home-mark" aria-hidden="true"><mat-icon>menu_book</mat-icon></span>GTOP

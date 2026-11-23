@@ -8,11 +8,14 @@
     color: var(--lumen-primary); border: 0; border-radius: 100px; background: transparent; text-decoration: none;
 }
 .account { margin-left: auto; gap: 8px; padding: 0 9px; font: inherit; font-weight: 600; cursor: pointer; }
+.back.context-back { display: none; }
 .account:hover, .back:hover { background: var(--lumen-sage); }
 .account img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--lumen-primary); outline-offset: 2px; }
 @media (min-width: 800px) { .with-navigation .brand { display: none; } }
 @media (max-width: 799px) {
     .header { min-height: 55px; }
-    .section, .account span { display: none; }
+    .section, .account span, .has-context-back .brand { display: none; }
+    .back.context-back { display: inline-flex; gap: 8px; padding: 0 6px; font-weight: 650; }
+    .context-back mat-icon { flex-shrink: 0; }
 }

@@ -5,6 +5,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '../../services/auth.service';
 
+export interface HeaderBackLink {
+    label: string;
+    path: string;
+    queryParams?: Record<string, unknown>;
+}
+
 @Component({
     selector: 'app-header',
     standalone: true,
@@ -15,6 +21,7 @@ import { AuthService } from '../../services/auth.service';
 export class HeaderComponent {
     @Input() section = '';
     @Input() setup = false;
+    @Input() mobileBack: HeaderBackLink | null = null;
 
     private readonly auth = inject(AuthService);
     readonly user$ = this.auth.readyUser$;

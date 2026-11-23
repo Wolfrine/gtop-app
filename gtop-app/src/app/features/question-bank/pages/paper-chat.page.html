@@ -65,7 +65,7 @@
         }
         @if(current()?.status==='completed'&&!editing()){<button type="button" class="pr-button" (click)="edit()">Request a revision</button>}
         <section class="pr-history">
-          <button class="pr-history-toggle" type="button" [attr.aria-expanded]="historyOpen()" (click)="historyOpen.set(!historyOpen())">Activity and earlier requests <span>{{historyOpen()?'−':'+'}}</span></button>
+          <button class="pr-history-toggle" type="button" [attr.aria-expanded]="historyOpen()" (click)="historyOpen.set(!historyOpen())"><span>Activity and earlier requests</span> <span aria-hidden="true">{{historyOpen()?'−':'+'}}</span></button>
           @if(historyOpen()){
             @if(messagesLoading()||requestsLoading()){<p class="pr-helper" role="status">Loading activity…</p>}
             @else{

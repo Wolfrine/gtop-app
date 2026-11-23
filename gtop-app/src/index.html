@@ -5,6 +5,25 @@
     <meta charset="utf-8">
     <title>GTOP | School Chapter Practice for Classes 5-12</title>
     <base href="/">
+    <script>
+        // An answer-sheet invitation is a private capability. Capture it for the sign-in journey
+        // before analytics or any third-party script can see the address.
+        (() => {
+            const url = new URL(location.href);
+            if (url.pathname.replace(/\/$/, '') !== '/answer-sheets') return;
+            const fragment = new URLSearchParams(url.hash.slice(1));
+            if (!fragment.has('invite') && !url.searchParams.has('invite')) return;
+            const invite = fragment.get('invite') || url.searchParams.get('invite');
+            if (invite && /^[A-Za-z0-9_-]{8,180}$/.test(invite)) {
+                try { sessionStorage.setItem('gtop.student-paper-invite', invite); }
+                catch { window.gtopStudentPaperInvite = invite; }
+            }
+            if (fragment.has('invite')) url.hash = '';
+            url.searchParams.delete('invite');
+            url.searchParams.delete('ngsw-bypass');
+            history.replaceState(history.state, '', url.href);
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description"
         content="Practise school chapters with GTOP for Classes 5-12, CBSE and ICSE. Choose your board and class, take MCQ quizzes and review your answers.">

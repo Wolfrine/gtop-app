@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,9 @@ import { AuthService } from '../../services/auth.service';
 import { QuizService } from '../../services/quiz.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PracticeReturnCardComponent } from '../practice-invite/practice-return.component';
+import { StudentSubmissionsService } from '../../services/student-submissions.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { combineLatest, startWith, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-user-dashboard',
@@ -29,6 +32,9 @@ import { PracticeReturnCardComponent } from '../practice-invite/practice-return.
     styleUrls: ['./user-dashboard.component.scss']
 })
 export class UserDashboardComponent implements OnInit {
+    private readonly destroy = inject(DestroyRef);
+    private readonly submissions = inject(StudentSubmissionsService);
+    answerSheetsAvailable = false;
 
     // User details
     userName: string = '';
@@ -49,6 +55,10 @@ export class UserDashboardComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
+        combineLatest([this.authService.getUser(), this.submissions.eligibilityChanged.pipe(startWith(undefined))]).pipe(
+            switchMap(async ([user]) => user?.role === 'user' && await this.submissions.enabled()),
+            takeUntilDestroyed(this.destroy),
+        ).subscribe(enabled => this.answerSheetsAvailable = enabled);
         this.authService.getUser().subscribe(user => {
             if (user) {
                 this.userName = user.displayName || '';

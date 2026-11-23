@@ -4,6 +4,9 @@
     <p class="profile-context">{{ userSubjects || '—' }} <span>·</span> Standard {{ userStandard || '—' }}</p>
   </header>
   <app-practice-return-card></app-practice-return-card>
+  <a *ngIf="answerSheetsAvailable" routerLink="/answer-sheets" mat-stroked-button color="primary" class="answer-sheets-link">
+    <mat-icon>assignment</mat-icon> Submit answer sheet
+  </a>
   <div class="dashboard-grid">
     <mat-card appCard class="welcome-card">
       <img class="practice-art" src="assets/illustrations/practice-orbit.svg" alt="" aria-hidden="true">

@@ -47,6 +47,7 @@ jobs:
           const {execFileSync} = require('node:child_process');
           const {appendFileSync, existsSync} = require('node:fs');
           const {pathToFileURL} = require('node:url');
+          const {isDeepStrictEqual} = require('node:util');
           (async()=>{
           const before = process.env.RELEASE_BEFORE || '';
           let required = true;
@@ -57,6 +58,34 @@ jobs:
             // Unknown paths, missing history, and explicit dispatches retain the backend gate.
             const frontendOnly = /^(?:gtop-app\/(?:src\/|e2e\/)|docs\/|\.github\/workflows\/firebase-deploy\.yml$)/;
             required = files.some(file => !frontendOnly.test(file));
+            // PDF decoding for the student upload is a browser-only dependency.
+            const packagePaths = ['gtop-app/package.json','gtop-app/package-lock.json'];
+            const buildPath = 'gtop-app/angular.json';
+            if (required && packagePaths.every(path => files.includes(path)) &&
+                files.every(path => frontendOnly.test(path) || packagePaths.includes(path) || path === buildPath)) {
+              const read = (sha,path) => JSON.parse(execFileSync('git',['show',sha+':'+path],{encoding:'utf8'}));
+              const manifest = read(before,packagePaths[0]);
+              const previousLock = read(before,packagePaths[1]);
+              const manifestNow = read(process.env.GITHUB_SHA,packagePaths[0]);
+              const lock = read(process.env.GITHUB_SHA,packagePaths[1]);
+              const browserPdf = manifestNow.dependencies?.['pdfjs-dist'];
+              const expectedBuild = read(before,buildPath);
+              expectedBuild.projects['gtop-app'].architect.build.options.assets.push(
+                {glob:'pdf*.min.mjs',ignore:['pdf.sandbox.min.mjs'],input:'node_modules/pdfjs-dist/legacy/build',output:'answer-sheet-pdf'},
+                {glob:'*.bcmap',input:'node_modules/pdfjs-dist/cmaps',output:'answer-sheet-pdf/cmaps'},
+                {glob:'*',input:'node_modules/pdfjs-dist/standard_fonts',output:'answer-sheet-pdf/standard_fonts'}
+              );
+              const oldPackagesUnchanged = Object.entries(previousLock.packages).every(([path,value]) =>
+                path === '' || isDeepStrictEqual(value,lock.packages[path]));
+              const newPackages = Object.keys(lock.packages).filter(path => !(path in previousLock.packages));
+              const browserPdfPaths = /^node_modules\/(?:pdfjs-dist|@napi-rs\/canvas(?:-|$))/;
+              if (browserPdf === '5.4.624' && !manifest.dependencies?.['pdfjs-dist'] &&
+                  isDeepStrictEqual(manifestNow,{...manifest,dependencies:{...manifest.dependencies,'pdfjs-dist':browserPdf}}) &&
+                  isDeepStrictEqual(lock.packages[''],{...previousLock.packages[''],
+                    dependencies:{...previousLock.packages[''].dependencies,'pdfjs-dist':browserPdf}}) &&
+                  oldPackagesUnchanged && newPackages.every(path => browserPdfPaths.test(path)) &&
+                  isDeepStrictEqual(expectedBuild,read(process.env.GITHUB_SHA,buildPath))) required = false;
+            }
             if(existsSync('assistant-service/scripts/release-scope.mjs')) {
               const {assistantOnlyRelease}=await import(pathToFileURL(process.cwd()+'/assistant-service/scripts/release-scope.mjs'));
               const readAt=revision=>path=>execFileSync('git',['show',revision+':'+path],{encoding:'utf8'});

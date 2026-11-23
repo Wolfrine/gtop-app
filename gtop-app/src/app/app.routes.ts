@@ -29,6 +29,12 @@ import { invitedQuizMatch, practiceInviteGuard } from './services/practice-invit
 
 export const routes: Routes = [
     {
+        path: 'answer-sheets',
+        loadComponent: () => import('./pages/answer-sheets/answer-sheets.component').then(m => m.AnswerSheetsComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['user'], seo: { title: 'Answer sheets | GTOP', robots: 'noindex, nofollow' } }
+    },
+    {
         path: 'practice',
         loadComponent: () => import('./pages/practice-invite/practice-invite.component').then(m => m.PracticeInviteComponent),
         data: { seo: { title: 'Five-question practice | GTOP', robots: 'noindex, nofollow' } }

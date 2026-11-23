@@ -31,7 +31,10 @@
                             "src/manifest.webmanifest",
                             "src/robots.txt",
                             "src/sitemap.xml",
-                            { "glob": "**/*", "input": "node_modules/katex/dist/fonts", "output": "assets/paper-fonts" }
+                            { "glob": "**/*", "input": "node_modules/katex/dist/fonts", "output": "assets/paper-fonts" },
+                            { "glob": "pdf*.min.mjs", "ignore": ["pdf.sandbox.min.mjs"], "input": "node_modules/pdfjs-dist/legacy/build", "output": "answer-sheet-pdf" },
+                            { "glob": "*.bcmap", "input": "node_modules/pdfjs-dist/cmaps", "output": "answer-sheet-pdf/cmaps" },
+                            { "glob": "*", "input": "node_modules/pdfjs-dist/standard_fonts", "output": "answer-sheet-pdf/standard_fonts" }
                         ],
                         "styles": [
                             "src/styles.scss"

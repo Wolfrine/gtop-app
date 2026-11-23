@@ -1,0 +1,178 @@
+<main class="answer-sheets" aria-labelledby="answer-sheets-title">
+    <header class="page-head">
+        <a routerLink="/dashboard" class="back-link">‹ Dashboard</a>
+        <h1 id="answer-sheets-title">Answer sheets</h1>
+        <p>Send your handwritten work to your GT teacher and find your marked copies here.</p>
+        @if (submissions.length) { <button type="button" class="text-button history-jump" (click)="openHistory()">My submissions ↓</button> }
+    </header>
+
+    @if (error) { <p class="notice danger" role="alert">{{ error }}</p> }
+    @if (busy) { <p class="sr-only" role="status" aria-live="polite">{{ busy }}</p> }
+
+    @if (closed) {
+        <p class="panel">Your GTOP session changed. Reopen Answer sheets from your dashboard.</p>
+    } @else if (loading) {
+        <p class="panel" role="status">Loading answer sheets…</p>
+    } @else if (!eligible) {
+        <section class="panel access-card" aria-labelledby="access-heading">
+            @if (inviteCode) {
+                <h2 id="access-heading">Join paper checking</h2>
+                <p>Use this invitation to send your work from your current GTOP account.</p>
+                <button type="button" class="primary" [disabled]="!!busy" (click)="join()">{{ busy || 'Join with this account' }}</button>
+            } @else if (error) {
+                <h2 id="access-heading">Could not open answer sheets</h2>
+                <button type="button" class="secondary" (click)="load()">Try again</button>
+            } @else {
+                <h2 id="access-heading">Paper checking is by invitation</h2>
+                <p>Open the invitation from your GT teacher while signed in to GTOP.</p>
+            }
+        </section>
+    } @else {
+        <div class="workspace">
+            <section class="panel submission" aria-labelledby="submission-heading">
+                @if (editing) {
+                    <h2 id="submission-heading" #heading tabindex="-1">{{ active?.status === 'needs_rescan' ? 'Rescan needed' : active ? 'Continue your submission' : 'Submit answer sheet' }}</h2>
+
+                    @if (active?.rescan; as request) {
+                        <div class="notice warning">
+                            <strong>{{ label(request.kind) }}{{ request.page ? ' · page ' + request.page : '' }}</strong>
+                            <p>{{ request.reason }}</p>
+                            @if (request.page) {
+                                <button type="button" class="text-button" [disabled]="!!busy" (click)="changeReplacement()">{{ replaceWhole ? 'Replace only the requested page' : 'Replace the whole PDF instead' }}</button>
+                            }
+                        </div>
+                    }
+
+                    @if (!active && pendingTestCode && !test && !useOwnPaper) {
+                        @if (testError) {
+                            <p class="notice warning" role="alert">{{ testError }}</p>
+                            <div class="actions"><button type="button" class="secondary" [disabled]="!!busy" (click)="retryTest()">Retry test link</button><button type="button" class="text-button" [disabled]="!!busy" (click)="ownPaper()">Upload the question paper instead</button></div>
+                        } @else {
+                            <p role="status">Opening the shared test…</p>
+                        }
+                    } @else {
+                        @if (linked) {
+                            <div class="test-card"><span>Question paper</span><strong>{{ active?.title || test?.title }}</strong>@if (active?.subject || test?.subject) { <small>{{ active?.subject || test?.subject }}</small> }</div>
+                        } @else if (!active) {
+                            <label class="paper-title" for="paper-title">Test name <small>Optional</small></label>
+                            <input type="text" id="paper-title" placeholder="For example, Maths unit test" maxlength="100" [(ngModel)]="title" [disabled]="!!busy">
+                        }
+                        <div class="files">
+                            @for (kind of kinds; track kind) {
+                                <div class="file-card" [class.has-file]="!!fileName(kind)">
+                                    <h3>{{ label(kind) }}{{ targetPage(kind) ? ' · page ' + targetPage(kind) : '' }}</h3>
+                                    @if (fileName(kind)) {
+                                        <div class="filename" [title]="fileName(kind)">{{ fileName(kind) }}</div>
+                                        @if (files[kind]) {
+                                            <p>{{ filePages(kind) }} {{ filePages(kind) === 1 ? 'page' : 'pages' }} ready to upload</p>
+                                        } @else {
+                                            @if (saved(kind); as scan) {
+                                                <p>{{ scan.pages.length }} of {{ scan.pageCount }} pages saved</p>
+                                                @if (!complete(scan) && !active?.rescan) { <p>Choose the original PDF to finish uploading.</p> }
+                                            }
+                                        }
+                                    } @else {
+                                        <p>{{ kind === 'answer' ? 'Put your handwritten answer pages in one PDF.' : 'Include the entire question paper, including marks and instructions.' }}</p>
+                                    }
+                                    <div class="actions">
+                                        <label class="file-pick" [class.disabled]="!!busy">
+                                            <input type="file" accept="application/pdf,.pdf" [disabled]="!!busy" (change)="pick($event, kind)"
+                                                [attr.aria-label]="(fileName(kind) ? 'Choose a different ' : 'Choose ') + label(kind).toLowerCase() + ' PDF'">
+                                            {{ fileName(kind) ? 'Choose PDF' : kind === 'answer' ? 'Choose answer PDF' : 'Choose question PDF' }}
+                                        </label>
+                                        @if (files[kind]) {
+                                            <button type="button" class="text-button" [disabled]="!!busy" (click)="showPreview(kind)">Preview pages</button>
+                                            <button type="button" class="text-button" [disabled]="!!busy" (click)="removeFile(kind)">Remove</button>
+                                        } @else if (saved(kind)?.pages?.length) {
+                                            <button type="button" class="text-button" [disabled]="!!busy" (click)="showPreview(kind, saved(kind)!.pages[0].index)">View saved pages</button>
+                                        }
+                                    </div>
+                                    <small class="limit">PDF · up to {{ limit(kind) }} {{ limit(kind) === 1 ? 'page' : 'pages' }} · 64 MB</small>
+                                </div>
+                            }
+                        </div>
+                        <ng-container *ngTemplateOutlet="pagePreview"></ng-container>
+                        <div class="submit-bar">
+                            <p>Check that all pages are readable and in order.</p>
+                            <button type="button" class="primary" [disabled]="!canSend" (click)="send()">{{ busy || (active ? 'Send answer sheet' : 'Submit answer sheet') }}</button>
+                        </div>
+                    }
+                } @else {
+                  @if (active; as item) {
+                    <h2 id="submission-heading" #heading tabindex="-1">{{ item.title }}</h2>
+                    <span class="status" [attr.data-status]="item.status">{{ statusText(item) }}</span>
+                    @if (item.status === 'submitted') {
+                        <p>Your files are with GT. Checking starts after a teacher approves the submission.</p>
+                    } @else if (item.status === 'checking') {
+                        <p>Your teacher will release your marks and feedback here when ready.</p>
+                    } @else if (item.status === 'released') {
+                        @if (result; as marked) {
+                            <p class="result-score"><strong>{{ marked.sheet.grade.awarded }} / {{ marked.sheet.grade.max }}</strong> marks</p>
+                            <button type="button" class="primary" [disabled]="!!busy" (click)="download()">{{ busy || 'Download marked PDF' }}</button>
+                            @if (marked.sheet.grade.answers.length) {
+                                <details class="feedback-details">
+                                    <summary>Question feedback</summary>
+                                    <ul>
+                                        @for (answer of marked.sheet.grade.answers; track answer.number) {
+                                            <li><strong>Question {{ answer.number }} @if (answer.awarded !== null) { · {{ answer.awarded }} / {{ answer.max }} }</strong>@if (answer.counted === false) { <small> · Excluded from total</small> }<p>{{ answer.explanation }}</p></li>
+                                        }
+                                    </ul>
+                                </details>
+                            }
+                        }
+                    }
+                    <div class="receipt-files">
+                        @for (kind of kinds; track kind) {
+                            @if (saved(kind); as scan) {
+                                <button type="button" class="text-button" [disabled]="!!busy" (click)="showPreview(kind)">View {{ label(kind).toLowerCase() }} ({{ scan.pageCount }})</button>
+                            }
+                        }
+                    </div>
+                    <ng-container *ngTemplateOutlet="pagePreview"></ng-container>
+                    <div class="actions receipt-actions">
+                        <button type="button" class="secondary" [disabled]="!!busy" (click)="refresh()">Refresh status</button>
+                        <button type="button" class="text-button" [disabled]="!!busy" (click)="newSubmission()">New submission</button>
+                    </div>
+                  }
+                }
+            </section>
+
+            <aside class="panel history" aria-labelledby="submissions-heading">
+                <header><h2 id="submissions-heading" #historyHeading tabindex="-1">My submissions</h2><button type="button" class="text-button" [disabled]="!!busy" aria-label="Refresh submission history" (click)="load()">Refresh</button></header>
+                @if (submissions.length) {
+                    <ul>
+                        @for (item of submissions; track item.id) {
+                            <li><button type="button" class="history-row" [disabled]="!!busy" [attr.aria-current]="active?.id === item.id ? 'true' : null" (click)="open(item.id)">
+                                <strong>{{ item.title }}</strong>
+                                <span class="status" [attr.data-status]="item.status">{{ statusText(item) }}</span>
+                                <time [attr.datetime]="item.submittedAt || item.updatedAt">{{ item.submittedAt || item.updatedAt | date:'d MMM y' }}</time>
+                            </button></li>
+                        }
+                    </ul>
+                    @if (cursor) { <button type="button" class="secondary" [disabled]="!!busy" (click)="load(true)">Load older submissions</button> }
+                } @else {
+                    <p>Your drafts and submitted answer sheets will appear here.</p>
+                }
+            </aside>
+        </div>
+    }
+</main>
+
+<ng-template #pagePreview>
+    @if (previewLoading) { <p role="status">Opening scan preview…</p> }
+    @if (previewError) { <p class="notice danger" role="alert">{{ previewError }}</p> }
+    @if (preview; as scan) {
+        <figure class="scan-preview">
+            <figcaption><strong>{{ label(scan.kind) }} · page {{ scan.page }} of {{ scan.count }}</strong><button type="button" class="text-button" (click)="closePreview()" [disabled]="!!busy">Close preview</button></figcaption>
+            <img [src]="scan.url" [alt]="label(scan.kind) + ', page ' + scan.page">
+            <div class="preview-actions actions">
+                <button type="button" class="secondary" [disabled]="!!busy || previewLoading || scan.page <= 1" (click)="showPreview(scan.kind, scan.page - 1, scan.source)">Previous page</button>
+                <button type="button" class="secondary" [disabled]="!!busy || previewLoading || scan.page >= scan.count" (click)="showPreview(scan.kind, scan.page + 1, scan.source)">Next page</button>
+                @if (scan.source === 'local' && scan.count > 1) {
+                    <button type="button" class="text-button" [disabled]="!!busy || previewLoading || scan.page <= 1" (click)="movePage(-1)">Move earlier</button>
+                    <button type="button" class="text-button" [disabled]="!!busy || previewLoading || scan.page >= scan.count" (click)="movePage(1)">Move later</button>
+                }
+            </div>
+        </figure>
+    }
+</ng-template>

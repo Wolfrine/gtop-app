@@ -48,6 +48,7 @@ function turnArguments(config: Config, directory: string, threadId?: string) {
     'skill_search','skill_mcp_dependency_install','shell_snapshot'];
   return [
     '-c','approval_policy="never"','-c','forced_login_method="chatgpt"','-c','model_provider="openai"',
+    '-c','cli_auth_credentials_store="file"',
     '-c','model_reasoning_effort='+JSON.stringify(profile.reasoningEffort),
     '-c','windows.sandbox="elevated"','-c','project_doc_max_bytes=0',
     '-c','default_permissions="'+profileName+'"',
@@ -150,6 +151,12 @@ export class NativePapers {
     const {stdout}=await exec(executable,['--version'],{windowsHide:true,env:childEnvironment(),timeout:10_000});
     if(stdout.trim()!=='codex-cli 0.171.0')throw failure('codex_unavailable','The configured Codex CLI version has not been qualified for Papers.');
     await this.requireInstructionScope();
+    const session=await exec(executable,['-c','cli_auth_credentials_store="file"','login','status'],{
+      windowsHide:true,env:childEnvironment(),timeout:10_000,
+    }).catch(()=>null);
+    if(!session||!/\bLogged in using ChatGPT\b/i.test(session.stdout+'\n'+session.stderr)){
+      throw failure('codex_auth_required','The selected Papers Codex home cannot reuse the existing managed ChatGPT session.');
+    }
     this.ready=true;
   }
 

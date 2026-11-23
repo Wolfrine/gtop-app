@@ -21,13 +21,14 @@ disables host command and image tools, owner integrations and project
 instruction discovery. The package tool receives only the current owner's
 conversation data and has no Firebase credentials.
 
-The signed-in CLI still loads global AGENTS.md or AGENTS.override.md from its
-Codex home. The project document budget does not affect these files. The
-current Windows owner home includes private operational context. The worker
-blocks production start under that profile. A loopback Firebase emulator can
-commission the native flow with controlled educational prompts. A supported
-way to separate global instructions from the existing authentication is
-required before this host can admit production teacher messages.
+The CLI still loads global AGENTS.md or AGENTS.override.md from its Codex
+home. The project document budget does not affect these files. Use the prepared,
+owner-only Papers Codex directory on H:. Its NTFS file link points to the
+existing file-backed Windows ChatGPT credential. Codex reads and refreshes the
+original protected target. The worker keeps instructions and new native
+conversation state in the Papers directory. The launcher passes that directory
+only to the Papers process. The worker checks the active login and rejects a
+production home that carries personal global instructions.
 
 - [Codex non-interactive mode](https://learn.chatgpt.com/docs/non-interactive-mode)
 - [Codex CLI options](https://learn.chatgpt.com/docs/developer-commands#codex-exec)
@@ -36,7 +37,7 @@ required before this host can admit production teacher messages.
 ## Cutover after acceptance
 
 Run the existing Windows launcher with Config, Profile and
-NativeCodexExecutable. Use the qualified executable and keep the current
+NativeCodexExecutable and NativeCodexHome. Use the qualified executable and keep the current
 pairing in its protected location. The launch profile and worker receipts
 belong on H:.
 

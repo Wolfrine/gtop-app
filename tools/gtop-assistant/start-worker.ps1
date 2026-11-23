@@ -1,7 +1,8 @@
 param(
   [Parameter(Mandatory)][string]$Config,
   [Parameter(Mandatory)][string]$Profile,
-  [string]$NativeCodexExecutable
+  [string]$NativeCodexExecutable,
+  [string]$NativeCodexHome
 )
 $ErrorActionPreference='Stop'
 $controllerRoot=$PSScriptRoot
@@ -29,7 +30,20 @@ if($NativeCodexExecutable){
 }
 $env:TEMP=$runtimeDirectory
 $env:TMP=$runtimeDirectory
-$workerProcess=Start-Process -FilePath $nodeExecutable -ArgumentList $workerArguments -WorkingDirectory $controllerRoot -WindowStyle Hidden -RedirectStandardOutput $outPath -RedirectStandardError $errPath -PassThru
+$priorCodexHome=$env:CODEX_HOME
+try {
+  if($NativeCodexHome){
+    if(!$NativeCodexExecutable){throw 'NativeCodexHome requires the native Papers executable.'}
+    $selectedCodexHome=Get-Item -LiteralPath $NativeCodexHome
+    if(!$selectedCodexHome.PSIsContainer -or ($selectedCodexHome.Attributes -band [IO.FileAttributes]::ReparsePoint)){
+      throw 'NativeCodexHome must be a prepared local Codex directory.'
+    }
+    $env:CODEX_HOME=$selectedCodexHome.FullName
+  }
+  $workerProcess=Start-Process -FilePath $nodeExecutable -ArgumentList $workerArguments -WorkingDirectory $controllerRoot -WindowStyle Hidden -RedirectStandardOutput $outPath -RedirectStandardError $errPath -PassThru
+} finally {
+  $env:CODEX_HOME=$priorCodexHome
+}
 if($workerProcess.WaitForExit(1500)){throw ('Controller exited during startup. Inspect '+$errPath)}
 $workerProcess.PriorityClass='BelowNormal'
 @{pid=$workerProcess.Id;startedAt=(Get-Date).ToUniversalTime().ToString('o');config=$configPath;profile=$profilePath;stdout=$outPath;stderr=$errPath} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $runtimeDirectory 'process.json') -Encoding utf8

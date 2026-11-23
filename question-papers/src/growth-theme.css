@@ -1,0 +1,227 @@
+/* GT Papers / Growth Tutorials — approved Earth & Growth identity, 2026-11-23.
+   Brand uses the original sapling-to-tree artwork. All controls remain part of
+   their existing authenticated teacher flows. No decorative data is injected. */
+:root{
+  --desk-paper:#f7f5ed;--desk-white:#fffdf7;--desk-ink:#16382c;
+  --desk-muted:#667567;--desk-line:#dce4d8;--desk-accent:#165d3c;
+  --desk-tint:#eaf2e7;--desk-green:#165d3c;--desk-red:#a05b45;
+  --ink:var(--desk-ink);--text:#2b4439;--muted:var(--desk-muted);
+  --line:var(--desk-line);--blue:var(--desk-accent);--blue-hover:#104a30;
+  --soft:var(--desk-tint);background:var(--desk-paper);color:var(--desk-ink);
+}
+body{background:var(--desk-paper);color:var(--desk-ink)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{
+  outline:3px solid #d4aa64;outline-offset:3px;
+}
+.workspace.desk-shell{background:var(--desk-paper)}
+.desk-bar{
+  background:linear-gradient(100deg,#fffcf4 0%,#f4f5e9 62%,#e4efe1 100%);
+  color:var(--desk-ink);border-bottom:1px solid #dce7d9;
+  box-shadow:0 2px 16px #21462a0a;z-index:20;
+}
+.desk-wordmark{font-family:'Manrope',var(--font);font-size:22px;font-weight:800;letter-spacing:-.85px}
+.desk-wordmark small{color:#688171;font-size:10px;letter-spacing:.2px}
+.desk-book{width:43px;height:43px;border-radius:50%;object-fit:contain;filter:drop-shadow(0 2px 3px #18412822)}
+.desk-nav{gap:5px}
+.desk-nav button{font-size:13px;color:#355747;border-radius:999px;padding:0 17px}
+.desk-nav button:hover{background:#e8f0e5;color:#164d37}
+.desk-nav button[aria-current]{
+  background:#185a3e;color:#fff;box-shadow:0 2px 8px #164a352b;
+}
+.desk-tools{color:var(--desk-ink)}
+.desk-profile{background:#e8eee1;color:#28573f;border:1px solid #bed2bd}
+.desk-bar{--pwa-hover:#e4eee4;--pwa-line:#b9cfbb}
+.desk-home{
+  background:linear-gradient(180deg,#f1f5ea 0%,#f9f6ed 370px,#f8f6ee 100%);
+}
+.desk-sheet{width:min(1210px,calc(100% - clamp(34px,7.5vw,120px)));padding:clamp(24px,3vw,42px) 0 50px}
+.desk-hero{
+  display:flex;align-items:center;justify-content:space-between;gap:22px;
+  position:relative;isolation:isolate;min-height:130px;margin-bottom:22px;
+}
+.desk-hero:after{
+  content:"";position:absolute;right:0;top:-35px;width:220px;height:190px;
+  background:url('/icons/growth-logo.webp') center / contain no-repeat;
+  opacity:.095;pointer-events:none;z-index:-1;
+}
+.desk-intro{min-width:0}
+.desk-intro time{
+  color:#6e806d;font-size:11px;font-weight:750;letter-spacing:1.15px;
+}
+.desk-intro h1{
+  font-family:'Manrope',var(--font);font-size:clamp(32px,3.3vw,47px);
+  letter-spacing:-1.6px;line-height:1.15;font-weight:760;margin:9px 0 0;
+  max-width:780px;color:#173d2f;
+}
+.desk-intro h1 span{display:block;color:#1b583b}
+.desk-tagline{margin:11px 0 0;color:#6a7768;font-size:14px;line-height:1.45}
+.desk-upload-quick{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-height:45px;flex:0 0 auto;padding:9px 16px;
+  border:1px solid #b9cfb9;border-radius:999px;background:#fffdf8;
+  box-shadow:0 2px 8px #355a2914;color:#255d44;font-weight:720;
+  white-space:nowrap;
+}
+.desk-upload-quick svg,.overview-card-icon svg{
+  width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.75;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.desk-upload-quick:hover{background:#e8f1e9;border-color:#8aae9a}
+.overview-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin:0 0 25px;
+}
+.overview-card{
+  position:relative;min-width:0;display:flex;flex-direction:column;
+  align-items:flex-start;gap:9px;text-align:left;padding:20px 19px 18px;
+  min-height:174px;border:1px solid #d7e0d2;border-radius:18px;
+  background:#fffdf7;color:#1c412f;box-shadow:0 4px 17px #2b4e2711;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;
+}
+.overview-card:hover{transform:translateY(-2px);box-shadow:0 10px 22px #1c42201c;border-color:#b9d0b6}
+.overview-card-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:#eef3e9;color:#1c6b48}
+.overview-card-name{font-size:14px;font-weight:720;letter-spacing:-.15px}
+.overview-card-value{
+  margin-top:auto;font:760 clamp(30px,3vw,43px)/1 'Manrope',var(--font);
+  font-variant-numeric:tabular-nums;letter-spacing:-1.4px;
+}
+.overview-card-arrow{position:absolute;right:17px;bottom:17px;color:inherit;font-size:20px;opacity:.7}
+.overview-review{background:linear-gradient(145deg,#206a49,#0e4833);border-color:#15573c;color:#fff}
+.overview-review .overview-card-icon{color:#f9db9c;background:#ffffff1c}
+.overview-review:hover{background:linear-gradient(145deg,#297953,#124b37)}
+.overview-approved .overview-card-icon{color:#226e46;background:#e9f3e4}
+.overview-tests .overview-card-icon{color:#266249;background:#e9f0e7}
+.overview-create{background:linear-gradient(135deg,#fffaf0,#faf0db);border-color:#dbb86a}
+.overview-create .overview-card-icon{background:#f3e5ca;color:#996b29}
+.overview-card-cta{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;margin-top:auto;font-size:14px;color:#865e2b;font-weight:740;
+}
+.overview-card-cta span{font-size:19px}
+.desk-today{grid-template-columns:minmax(0,2fr) minmax(265px,.93fr);gap:17px}
+.desk-work{
+  border:1px solid #dee5da;border-radius:17px;background:#fffdf8;
+  box-shadow:0 4px 15px #2147280a;padding:20px 19px 5px;
+}
+.desk-work-head h2,.desk-incoming h2{
+  font-family:'Manrope',var(--font);font-weight:770;
+  font-size:clamp(21px,2vw,26px);letter-spacing:-.7px;color:#193c2d;
+}
+.desk-work-head .text-button{color:#246a46}
+.desk-rows{border-top:1px solid #edf0e7}
+.desk-row{
+  min-height:75px;padding:12px 8px;gap:12px;border-bottom:1px solid #ecefe7;
+  border-radius:9px;color:#233d31;
+}
+.desk-row:hover{background:#f2f6eb}
+.work-icon{background:#edf4e6;color:#28704b;border-radius:11px}
+.work-icon.marking-icon{background:#f6e9cf;color:#a2712a}
+.work-description strong{font-size:14.5px;font-weight:720}
+.work-description small,.desk-row time{color:#7c8977}
+.work-verb{border-color:#d4e2d2;border-radius:9px;color:#2d6949}
+.desk-empty{padding:20px 6px}.desk-empty strong{color:#214c34}
+.desk-incoming{
+  padding:22px;border:1px solid #d1dfc9;border-radius:17px;
+  background:linear-gradient(145deg,#edf3e6,#e3efdc);
+  box-shadow:0 4px 15px #2147280b;color:#1e4332;
+}
+.desk-incoming h2{font-size:23px}
+.desk-incoming p{color:#617b67;font-size:13px;line-height:1.55}
+.desk-inbox-link{
+  min-height:44px;border:1px solid #abc4a9;border-radius:11px;
+  color:#185c3b;background:#fffefa;font-size:13px;
+}
+.desk-inbox-link:hover{background:#f9fff5;border-color:#84ab8e}
+.desk-account{background:#fffdf7;border:1px solid #d4e2d5;border-radius:16px;box-shadow:0 20px 60px #14382829}
+.account-request:hover{background:#edf5e9}
+.login-paper{background:#fffcf5;border-color:#d1dfcf;border-radius:20px}
+.login-scene{
+  background:linear-gradient(148deg,#eaf0dc,#cfe4cf 56%,#9ac8af);
+  position:relative;
+}
+.login-scene:after{
+  content:"";position:absolute;inset:5%;background:url('/icons/growth-logo.webp') center / contain no-repeat;
+  filter:drop-shadow(0 14px 20px #153f2719);
+}
+.login-content h1{color:#174332}
+.button.primary,.author-primary{background:#185c3d;border-color:#185c3d;color:#fff}
+.button.primary:hover:not(:disabled),.author-primary:hover:not(:disabled){background:#10482f;border-color:#10482f}
+.author-page{--accent-hover:#10482f;--work-tint:#e9f2e8;--control-line:#b3c6b5}
+.archive-page,.author-page{background:#f8f6ef}
+.archive-tabs button:hover:enabled:not([aria-current]){background:#e5efe5}
+.archive-coverage{border-left-color:#8cad87;background:#eaf2e6}
+.archive-row:hover,.archive-row:focus-within,.personal-row:hover{background:#f1f5ec}
+.request-symbol{--paper-symbol-bg:#e8f0e5}
+.workspace .author-preview{background:#eeefe8}
+.example-paper-icon:after{background:#d6bd7b;border-color:#edf0df}
+.example-content blockquote{border-left-color:#a3c6a2}
+.preview-share-field input{background:#fffdf7;border-color:#b8c7b2}
+.workspace .author-preview .preview-stage iframe{background:white}
+@media(max-width:1050px){
+  .overview-grid{gap:11px}
+  .overview-card{padding:16px;min-height:158px}
+  .overview-card-name{font-size:13px}
+  .desk-today{grid-template-columns:minmax(0,1.65fr) minmax(235px,.95fr)}
+}
+@media(max-width:760px){
+  .workspace.desk-shell{grid-template-rows:61px minmax(0,1fr)}
+  .workspace.desk-shell:has(.desk-nav){
+    grid-template-rows:61px minmax(0,1fr) calc(65px + env(safe-area-inset-bottom,0px));
+  }
+  .desk-bar{padding:0 16px;gap:7px}
+  .desk-wordmark{font-size:21px;letter-spacing:-.65px;gap:8px}
+  .desk-book{width:36px;height:36px}
+  .desk-wordmark small{font-size:9px}
+  .desk-nav{
+    background:#fffcf6;border-top:1px solid #dbe4d7;gap:4px;
+    box-shadow:0 -3px 15px #284b2a0a;padding:5px 12px calc(5px + env(safe-area-inset-bottom,0px));
+  }
+  .desk-nav button{min-height:51px;border-radius:12px;padding:5px 2px;color:#45634f}
+  .desk-nav button:hover{background:#eef5eb}
+  .desk-nav button[aria-current]{background:#1b6140;color:#fff;box-shadow:0 2px 6px #16452d27}
+  .desk-sheet{width:calc(100% - 32px);padding:23px 0 38px}
+  .desk-hero{min-height:120px;align-items:flex-start;margin-bottom:18px;gap:9px}
+  .desk-hero:after{right:-17px;top:8px;width:145px;height:132px;opacity:.09}
+  .desk-intro time{font-size:10px}
+  .desk-intro h1{font-size:clamp(29px,7.6vw,37px);line-height:1.17;letter-spacing:-1.35px}
+  .desk-tagline{font-size:12px;max-width:260px;line-height:1.45}
+  .desk-upload-quick{
+    position:absolute;right:0;top:0;border-radius:11px;
+    width:44px;height:44px;padding:0;overflow:hidden;
+    font-size:0;white-space:nowrap;gap:0;
+  }
+  .desk-upload-quick svg{width:22px;height:22px;flex:none}
+  .overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-bottom:19px}
+  .overview-card{min-height:142px;border-radius:15px;padding:14px;gap:6px}
+  .overview-card-icon{width:33px;height:33px;border-radius:9px}
+  .overview-card-icon svg{width:19px;height:19px}
+  .overview-card-name{font-size:12px;font-weight:700}
+  .overview-card-value{font-size:30px}
+  .overview-card-arrow{right:13px;bottom:13px;font-size:17px}
+  .overview-card-cta{font-size:12px}
+  .desk-today{display:flex;flex-direction:column;gap:14px}
+  .desk-incoming{order:-1;grid-template-columns:minmax(0,1fr) auto;align-items:center;width:100%;padding:14px;border-radius:14px}
+  .desk-incoming h2{font-size:16px}
+  .desk-incoming p{font-size:11px;line-height:1.35;margin-top:4px}
+  .desk-inbox-link{min-height:40px;font-size:11px;padding:7px 10px;border-radius:9px}
+  .desk-work{width:100%;padding:16px 12px 5px;border-radius:14px}
+  .desk-work-head h2{font-size:20px;margin-bottom:9px}
+  .desk-row{gap:10px;padding:12px 5px;min-height:64px}
+  .work-icon{flex-basis:34px;height:36px}
+  .work-description strong{font-size:13px}
+  .work-description small{font-size:11px}
+  .work-verb{font-size:10px;border-color:#d2e2d3;padding:6px 8px}
+  .login-scene{min-height:160px}
+}
+@media(max-width:360px){
+  .desk-sheet{width:calc(100% - 23px)}
+  .desk-bar{padding-inline:10px}
+  .desk-wordmark{font-size:19px}
+  .desk-hero{min-height:128px}
+  .desk-tagline{max-width:240px}
+  .overview-card{min-height:132px;padding:12px}
+  .desk-incoming p{display:none}
+  .work-verb{border:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .overview-card{transition:none}.overview-card:hover{transform:none}
+}

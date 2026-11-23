@@ -169,6 +169,11 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   absoluteDate(value:string|undefined){if(!value)return 'Date not recorded';const date=new Date(value);return Number.isNaN(date.getTime())?'Date not recorded':date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
   readonly todayLabel=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
   readonly todayIso=new Date().toLocaleDateString('en-CA');
+  get greeting(){const hour=new Date().getHours();return hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';}
+  get teacherName(){return this.user?.displayName?.trim() || 'Teacher';}
+  get reviewCount(){return this.workSheets.filter(item=>item.state==='review'||(item.pending??0)>0).length;}
+  get approvedCount(){return this.workSheets.filter(item=>item.state==='final').length;}
+  get savedTestCount(){return this.conversations.filter(item=>!!item.latestPaperId).length;}
   ownQuery=''; allWork=false; workLoading=false; workError='';
   workPackets:DeskPacket[]=[]; workSheets:DeskSheet[]=[];
   private workRequest=0;

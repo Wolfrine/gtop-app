@@ -1,0 +1,40 @@
+name: GT Papers approved growth design preview
+on:
+  push:
+    branches:
+      - design/gt-papers-earthy-2026-11-23
+    paths:
+      - 'question-papers/**'
+      - '.github/workflows/gt-papers-growth-preview.yml'
+permissions:
+  contents: read
+concurrency:
+  group: gt-papers-growth-preview
+  cancel-in-progress: true
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    environment: firebase-development
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: question-papers/package-lock.json
+      - name: Install existing GT Papers dependencies
+        run: npm ci
+        working-directory: question-papers
+      - name: Build existing production-mode app for preview
+        run: npm run build
+        working-directory: question-papers
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+      - name: Deploy a separate expiring Firebase Hosting preview channel
+        run: npx --yes firebase-tools@15 hosting:channel:deploy growth-redesign --config firebase.assistant.json --project gtop-app --expires 7d --non-interactive
+      - name: Verify no production branch or default Hosting channel was targeted
+        run: |
+          test "$GITHUB_REF_NAME" = "design/gt-papers-earthy-2026-11-23"
+          echo "Preview channel only. Production Hosting unchanged."

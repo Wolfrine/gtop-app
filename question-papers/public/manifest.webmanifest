@@ -7,11 +7,11 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f5f5fc",
-  "theme_color": "#211841",
+  "background_color": "#f7f4ea",
+  "theme_color": "#18573d",
   "categories": ["education", "productivity"],
   "icons": [
-    {"src": "/icons/papers-fold-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
-    {"src": "/icons/papers-fold-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+    {"src": "/icons/growth-launcher-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/icons/growth-launcher-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
   ]
 }

@@ -268,7 +268,7 @@ export class AssistantService {
       const current=c.activeNativeTurnId?await tx.get(ref('assistantJobs',c.activeNativeTurnId)):null;
       const now=this.now().getTime();
       if(current&&activeStates.has(current.state)&&!leaseExpired(current,now))fail(409,'native_turn_active','Wait for the current Codex reply before sending another message.');
-      if(config?.nativePapersEnabled===true){
+      if(config?.nativePapersEnabled===true||c.nativePrivate===true){
         if(!original.isWellFormed())fail(400,'invalid_text','The original message must be valid Unicode.');
         const legacy=await this.activeLegacyWork(tx,c);
         if(legacy.some(j=>!leaseExpired(j,now)))fail(409,'native_turn_active','Wait for the existing paper work in this conversation before sending another message.');

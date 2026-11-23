@@ -166,6 +166,11 @@ export class NativePapers {
     // tenant's prompt. Loopback commissioning uses controlled educational text.
     const demo=this.config.authEmulator && new URL(this.config.gateway).hostname==='127.0.0.1' && new URL(this.config.authEmulator).hostname==='127.0.0.1';
     if(!demo){
+      const home=process.env.CODEX_HOME;
+      if(!home||!path.isAbsolute(home)||!path.relative(path.join(homedir(),'.codex'),home)||
+         path.relative(home,await realpath(home))) {
+        throw failure('codex_unavailable','Select the prepared isolated Papers Codex home.');
+      }
       for(const name of ['AGENTS.override.md','AGENTS.md']){
         const info=await stat(path.join(codexHome(),name)).catch((error:NodeJS.ErrnoException)=>{
           if(error.code!=='ENOENT')throw error;
@@ -244,10 +249,10 @@ export class NativePapers {
     let delivery;
     try{delivery=staged===undefined?undefined:validatePackage(staged);}
     catch{throw failure('paper_draft_invalid','The staged paper did not match the delivery contract.');}
-    const reply=delivery?'Your paper and separate worked answers are ready for your review.':result.reply;
+    const reply=result.reply;
     if(typeof reply!=='string'||!reply.trim())throw failure('codex_response_invalid','Codex returned no final reply.');
     const body={
-      leaseId:job.leaseId,reply:[...reply].slice(0,6000).join(''),
+      leaseId:job.leaseId,reply:reply.slice(0,12000).replace(/[\uD800-\uDBFF]$/,''),
       ...(delivery??{}),
       native:{threadId:attempt.threadId,turnId:result.turnId,inputSha256:job.request.sha256Utf8,
         model:result.model,reasoningEffort:result.effort,...(Number.isSafeInteger(result.durationMs)?{durationMs:result.durationMs}:{})},

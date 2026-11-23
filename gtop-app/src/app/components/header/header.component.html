@@ -1,35 +1,25 @@
-<mat-toolbar color="primary" class="header">
-    <!-- Back Button (Hidden on Dashboard) -->
-    <button *ngIf="showBackButton" mat-icon-button (click)="goBack()" aria-label="Go back">
-        <mat-icon>arrow_back_ios_new</mat-icon>
-    </button>
-
-    <!-- Hamburger Menu (Only on Dashboard) -->
-    <button *ngIf="showHamburgerMenu" mat-icon-button (click)="onMenuClick()" aria-label="Toggle navigation">
-        <mat-icon>menu</mat-icon>
-    </button>
-
-    <!-- Logo -->
-    <span class="logo"><span class="brand-emblem" aria-hidden="true"><i></i><i></i><i></i></span>GTOP<span class="brand-tagline">A little more understanding.</span></span>
-
-    <!-- Profile Picture with Mat-Menu -->
-    <span class="spacer"></span>
-
-    <button mat-icon-button class="profile-trigger" [matMenuTriggerFor]="profileMenu" *ngIf="user?.photoURL"
-        aria-label="Open profile menu">
-        <img [attr.src]="user.photoURL" alt="" class="profile-pic" />
-    </button>
-
-
-    <!-- Profile Menu -->
-    <mat-menu #profileMenu="matMenu">
-        <button mat-menu-item [routerLink]="'/profile'">
-            <mat-icon>person</mat-icon>
-            Profile
+<header class="header" [class.with-navigation]="section">
+    @if (setup) {
+        <a routerLink="/" class="back" aria-label="Go back"><mat-icon>arrow_back</mat-icon></a>
+    }
+    <a [routerLink]="section ? '/dashboard' : '/'" class="brand lumen-home-link">
+        <span class="lumen-home-mark" aria-hidden="true"><mat-icon>menu_book</mat-icon></span>GTOP
+    </a>
+    @if (section) {
+        <span class="section">{{ section }}</span>
+    }
+    @if (user$ | async; as user) {
+        <button class="account" type="button" [matMenuTriggerFor]="profileMenu" aria-label="Open profile menu">
+            @if (user.photoURL) {
+                <img [src]="user.photoURL" alt="">
+            } @else {
+                <mat-icon aria-hidden="true">account_circle</mat-icon>
+            }
+            <span>Account</span>
         </button>
-        <button mat-menu-item (click)="signOut()">
-            <mat-icon>logout</mat-icon>
-            Sign Out
-        </button>
-    </mat-menu>
-</mat-toolbar>
+        <mat-menu #profileMenu="matMenu">
+            <a mat-menu-item routerLink="/profile"><mat-icon>person</mat-icon>Profile &amp; settings</a>
+            <button mat-menu-item (click)="signOut()"><mat-icon>logout</mat-icon>Sign out</button>
+        </mat-menu>
+    }
+</header>

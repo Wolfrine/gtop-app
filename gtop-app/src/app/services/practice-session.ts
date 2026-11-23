@@ -1,3 +1,6 @@
+import { Params } from '@angular/router';
+import { questionsMatchPractice, resolvePracticeContext } from './practice-context';
+
 export interface PracticeSession {
   version: 1;
   uid: string;
@@ -36,6 +39,22 @@ export function readPracticeSession(uid: string, storage: Storage | undefined = 
     return value;
   } catch { return null; }
 }
+export function resumablePractice(profile: { uid: string; role?: string; board?: string; standard?: string }): {
+  session: PracticeSession; params: Params;
+} | null {
+  const session = readPracticeSession(profile.uid);
+  if (!session || session.source?.kind === 'invitation' || session.role !== (profile.role || 'user') ||
+      (session.completed && session.saved)) return null;
+  try {
+    const [, board, standard, subjects, chapters, count, returnTo, hubReturnPath] = JSON.parse(session.routeKey);
+    const params = { board: board || undefined, standard: standard || undefined, subjects, chapters, count,
+      returnTo: returnTo || undefined, hubReturnPath: hubReturnPath || undefined };
+    const context = resolvePracticeContext(profile, params);
+    if (context.routeKey !== session.routeKey || !questionsMatchPractice(session.questions, context)) return null;
+    return { session, params };
+  } catch { return null; }
+}
+
 export function writePracticeSession(session: PracticeSession, storage: Storage | undefined = tabStorage()): void {
   try {
     // Migrate an older tab's owner before a different account replaces the legacy pointer.

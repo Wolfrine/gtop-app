@@ -1,19 +1,15 @@
-<!-- ✅ Header remains full-width & independent -->
-<app-header (toggleSidebar)="sidenav.toggle()" *ngIf="!isLandingPage"></app-header>
-
-<mat-drawer-container class="main-container" autosize>
-
-    <!-- Side Navigation -->
-    <mat-drawer #sidenav [mode]="sidenavMode" [opened]="isDesktop" class="sidenav" *ngIf="!isLandingAndProfile">
-        <app-side-nav (itemClicked)="onNavItemClick()"></app-side-nav>
-    </mat-drawer>
-
-    <!-- Main Content -->
-    <mat-drawer-content>
-        <div class="content">
+<div class="shell" [class.has-navigation]="showNavigation">
+    @if (showNavigation) { <a class="skip-link" href="#main-content">Skip to content</a> }
+    @if (showNavigation) {
+        <app-side-nav [section]="section" [admin]="profile?.role === 'admin'"></app-side-nav>
+    }
+    <div class="shell-body">
+        @if (!isLandingPage) {
+            <app-header [section]="showNavigation ? section : ''" [setup]="isSetupPage"></app-header>
+        }
+        <div class="content" id="main-content" tabindex="-1">
             <router-outlet></router-outlet>
         </div>
         <app-footer></app-footer>
-    </mat-drawer-content>
-
-</mat-drawer-container>
+    </div>
+</div>

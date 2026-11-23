@@ -1,10 +1,29 @@
-<mat-nav-list class="sidenav" role="navigation" aria-label="Primary">
-  <div class="nav-intro" aria-hidden="true">EXPLORE &amp; LEARN</div>
-  <a mat-list-item *ngFor="let item of menuItems"
-     [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: item.route === '/admin' }" ariaCurrentWhenActive="page" (click)="itemClicked.emit()"
-     [matTooltip]="item.tooltip || ''">
-    <mat-icon matListItemIcon class="icon">{{ item.icon }}</mat-icon>
-    <span class="label">{{ item.label }}</span>
-    <span class="pill" *ngIf="item.badge">{{ item.badge }}</span>
-  </a>
-</mat-nav-list>
+<nav aria-label="Primary navigation">
+    <a routerLink="/dashboard" class="rail-brand lumen-home-link">
+        <span class="lumen-home-mark" aria-hidden="true"><mat-icon>menu_book</mat-icon></span>GTOP
+    </a>
+    <div class="destinations">
+        @for (item of destinations; track item.route) {
+            @if (!item.staff || admin) {
+                <a class="destination" [class.compact-admin]="item.staff && section === 'Admin'"
+                    [routerLink]="item.route" [attr.aria-label]="item.label"
+                    [attr.aria-current]="section === item.label ? 'page' : null">
+                    <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+                    <span class="wide-label">{{ item.label }}</span>
+                    <span class="compact-label">{{ item.shortLabel || item.label }}</span>
+                </a>
+            }
+        }
+    </div>
+    @if (admin && section === 'Admin') {
+        <div class="admin-destinations" role="group" aria-labelledby="admin-navigation-title">
+            <p id="admin-navigation-title">Admin workspace</p>
+            @for (item of adminSections; track item.key) {
+                <a class="destination" routerLink="/admin" [queryParams]="item.key ? { section: item.key } : null"
+                    routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">
+                    <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>{{ item.title }}
+                </a>
+            }
+        </div>
+    }
+</nav>

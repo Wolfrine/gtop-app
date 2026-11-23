@@ -1,89 +1,25 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatListModule } from '@angular/material/list';
+import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { RouterModule } from '@angular/router';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { AuthService } from '../../services/auth.service';
-import { StudentSubmissionsService } from '../../services/student-submissions.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { EMPTY, combineLatest, from, startWith, switchMap } from 'rxjs';
-import { Output, EventEmitter } from '@angular/core';
-
-type MenuItem = { label: string; icon: string; route: string; badge?: string; tooltip?: string };
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { adminGroups } from '../../pages/admin-dashboard/admin-groups';
 
 @Component({
     selector: 'app-side-nav',
     standalone: true,
     templateUrl: './side-nav.component.html',
-    styleUrls: ['./side-nav.component.scss'],
-    imports: [CommonModule, MatListModule, MatIconModule, MatButtonModule, MatTooltipModule, RouterModule]
+    styleUrl: './side-nav.component.scss',
+    imports: [MatIconModule, RouterLink, RouterLinkActive],
 })
-export class SideNavComponent implements OnInit {
-    @Output() itemClicked = new EventEmitter<void>();
-    role: string = 'user'; // Default role
-    menuItems: MenuItem[] = [];
-    private readonly destroy = inject(DestroyRef);
-    private readonly submissions = inject(StudentSubmissionsService);
+export class SideNavComponent {
+    @Input() section = '';
+    @Input() admin = false;
 
-    constructor(private authService: AuthService) { }
+    readonly adminSections = [{ key: '', title: 'Overview', icon: 'space_dashboard' }, ...adminGroups];
 
-    ngOnInit() {
-        // Fetch user data from AuthService (Firestore snapshot + IndexedDB cache)
-        const isDevHost = /dev-gtop-app\.web\.app$/i.test(window.location.host);
-        combineLatest([this.authService.getUser(), this.submissions.eligibilityChanged.pipe(startWith(undefined))]).pipe(
-            switchMap(([user]) => {
-                this.role = user?.role || 'user';
-                this.menuItems = this.role === 'admin' ? this.getAdminMenu() : this.getUserMenu(isDevHost);
-                return user?.role === 'user' ? from(this.submissions.enabled()) : EMPTY;
-            }),
-            takeUntilDestroyed(this.destroy),
-        ).subscribe(allowed => {
-            if (allowed) this.menuItems = this.getUserMenu(isDevHost, true);
-        });
-    }
-
-    getAdminMenu(): MenuItem[] {
-        // Dashboard first for quick access (landing route)
-        return [
-            { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', tooltip: 'Practice and review your recent attempts' },
-            { label: 'Quick Quiz', icon: 'play_arrow', route: '/quiz', tooltip: 'Launch a random solo quiz' },
-            { label: 'Learning Lab', icon: 'science', route: '/learning-lab', badge: 'NEW', tooltip: 'Learn through interactive experiments' },
-            { label: 'Quiz Runs', icon: 'groups', route: '/quiz-run', tooltip: 'Create a real-time lobby (max 5 learners)' },
-            { label: 'Live Quizzes', icon: 'event', route: '/live', tooltip: 'Review and host upcoming live quizzes' },
-            { label: 'Progress', icon: 'insights', route: '/reports', tooltip: 'Analyse learner attempts and accuracy' },
-
-            { label: 'Action Plan', icon: 'assignment_turned_in', route: '/admin/action-plan', badge: 'LIVE', tooltip: 'Coordinate priorities, owners, progress and blockers' },
-
-            { label: 'Questions & papers', icon: 'library_books', route: '/admin/question-papers', badge: 'NEW', tooltip: 'Request a paper, follow the agent and open saved papers' },
-            { label: 'Manage Syllabus', icon: 'fact_check', route: '/admin/manage-syllabus' },
-            { label: 'Add MCQs', icon: 'add', route: '/admin/add-mcq' },
-            { label: 'Syllabus review', icon: 'menu_book', route: '/syllabus-preview' },
-            { label: 'User Management', icon: 'group', route: '/admin/user-list' },
-
-            { label: 'Admin Console', icon: 'grid_view', route: '/admin', tooltip: 'Access administrative metrics and tools' },
-
-            { label: 'UI Preview', icon: 'science', route: '/dev/ui', badge: 'DEV', tooltip: 'Review shared styles and responsive layouts' },
-            { label: 'Logs', icon: 'bug_report', route: '/logs' },
-        ];
-    }
-
-    getUserMenu(isDevHost: boolean = false, studentSubmissions = false): MenuItem[] {
-        const base: MenuItem[] = [
-            // Dashboard first for parity with admin experience
-            { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-            { label: 'Quick Quiz', icon: 'play_arrow', route: '/quiz' },
-            { label: 'Learning Lab', icon: 'science', route: '/learning-lab', badge: 'NEW', tooltip: 'Learn through interactive experiments' },
-            { label: 'Live Quizzes', icon: 'bolt', route: '/live', tooltip: 'Enter a code to join' },
-            { label: 'Progress', icon: 'insights', route: '/reports' },
-        ];
-        if (studentSubmissions) {
-            base.splice(1, 0, { label: 'Answer sheets', icon: 'assignment', route: '/answer-sheets', tooltip: 'Submit scanned answers and get marked copies' });
-        }
-        if (isDevHost) {
-            base.push({ label: 'Logs', icon: 'bug_report', route: '/logs' });
-        }
-        return base;
-    }
+    readonly destinations = [
+        { label: 'Practice', icon: 'menu_book', route: '/dashboard' },
+        { label: 'Answer Sheets', shortLabel: 'Sheets', icon: 'description', route: '/answer-sheets' },
+        { label: 'Progress', icon: 'insights', route: '/reports' },
+        { label: 'Admin', icon: 'space_dashboard', route: '/admin', staff: true },
+    ];
 }

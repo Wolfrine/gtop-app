@@ -43,7 +43,8 @@
 .pr-document-pair>div+div { padding-left:24px; }
 .pr-document-pair h3 { font-weight:700; }
 .pr-footnote,.pr-draft-note,.pr-document-pair p { font-size:13px; }
-.pr-history-toggle { min-height:56px; }
+app-paper-chat-page { display:block; }
+.pr-history-toggle { position:relative; min-height:56px; }
 .pr-history article { padding:20px 0; }
 .pr-history article p { line-height:1.7; }
 .pr-text-button { min-height:44px; }

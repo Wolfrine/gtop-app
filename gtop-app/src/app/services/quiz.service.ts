@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, doc, getDoc, getDocFromServer, setDoc, runTransaction, increment } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, getCountFromServer, doc, getDoc, getDocFromServer, setDoc, runTransaction, increment } from '@angular/fire/firestore';
 import { SyllabusService, SyllabusItem } from './syllabus.service';
 import { Timestamp } from '@angular/fire/firestore';
 import { filter, firstValueFrom, timeout } from 'rxjs';
@@ -243,6 +243,12 @@ export class QuizService {
     }
 
     //*** 🚀 Future → Fetch Quiz Results
+    async countUserQuizResults(userId: string): Promise<number> {
+        const results = collection(this.firestore, 'QuizResults');
+        const owned = query(results, where('userId', '==', userId));
+        return (await getCountFromServer(owned)).data().count;
+    }
+
     async fetchUserQuizResults(userId: string): Promise<any[]> {
         try {
             const quizResultsRef = collection(this.firestore, 'QuizResults');

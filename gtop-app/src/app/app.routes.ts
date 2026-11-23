@@ -6,7 +6,7 @@ import { UserDashboardComponent } from './pages/user-dashboard/user-dashboard.co
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { McqManagementComponent } from './pages/mcq-management/mcq-management.component';
 import { AddMcqComponent } from './pages/add-mcq/add-mcq.component';
-import { AuthGuard } from './services/auth.guard';
+import { AuthGuard, personalSignInGuard } from './services/auth.guard';
 import { RoleGuard } from './services/role.guard';
 import { ManageSyllabusComponent } from './pages/manage-syllabus/manage-syllabus.component'; // ✅ Import Manage Syllabus Component
 import { QuizPageComponent } from './pages/quiz-page/quiz-page.component';
@@ -31,8 +31,8 @@ export const routes: Routes = [
     {
         path: 'answer-sheets',
         loadComponent: () => import('./pages/answer-sheets/answer-sheets.component').then(m => m.AnswerSheetsComponent),
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['user'], seo: { title: 'Answer sheets | GTOP', robots: 'noindex, nofollow' } }
+        canActivate: [personalSignInGuard],
+        data: { seo: { title: 'Answer sheets | GTOP', robots: 'noindex, nofollow' } }
     },
     {
         path: 'practice',
@@ -42,8 +42,8 @@ export const routes: Routes = [
     {
         path: 'quiz', canMatch: [invitedQuizMatch],
         loadComponent: () => import('./pages/practice-invite/invited-quiz.component').then(m => m.InvitedQuizComponent),
-        canActivate: [AuthGuard, RoleGuard, practiceInviteGuard],
-        data: { roles: ['user', 'admin'], seo: { title: 'Your five-question practice | GTOP', robots: 'noindex, nofollow' } }
+        canActivate: [AuthGuard, practiceInviteGuard],
+        data: { seo: { title: 'Your five-question practice | GTOP', robots: 'noindex, nofollow' } }
     },
     {
         path: 'admin/question-papers/legacy',
@@ -161,9 +161,8 @@ export const routes: Routes = [
     {
         path: 'profile',
         component: ProfileComponent,
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
                 title: 'GTOP Profile Overview',
                 description: 'Review and update your Growth Tutorials profile details to keep personalized quiz recommendations accurate.',
@@ -174,11 +173,10 @@ export const routes: Routes = [
     {
         path: 'dashboard',
         component: UserDashboardComponent,
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
-                title: 'GTOP Dashboard | Track Your Quiz Progress',
+                title: 'Practice | GTOP',
                 description: 'Monitor your recent quiz activity, accuracy trends, and unlock targeted practice recommendations inside the GTOP dashboard.',
                 robots: 'noindex, nofollow'
             }
@@ -278,9 +276,8 @@ export const routes: Routes = [
     {
         path: 'quiz',
         component: QuizPageComponent,
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
                 title: 'Take a GTOP Quiz',
                 description: 'Answer timed MCQs tailored to your profile and syllabus focus with instant feedback in GTOP quizzes.',
@@ -291,9 +288,8 @@ export const routes: Routes = [
     {
         path: 'quiz-summary',
         loadComponent: () => import('./pages/practice-invite/practice-summary.component').then(m => m.PracticeSummaryComponent),
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
                 title: 'GTOP Quiz Summary',
                 description: 'Review your question-level accuracy, explanations, and improvement cues after completing a GTOP quiz.',
@@ -304,9 +300,8 @@ export const routes: Routes = [
     {
         path: 'quiz-run',
         component: QuizRunLandingComponent,
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
                 title: 'GTOP Quiz Run',
                 description: 'Launch or join scheduled GTOP quiz runs to compete with peers in real time.',
@@ -317,9 +312,8 @@ export const routes: Routes = [
     {
         path: 'quiz-run/lobby/:sessionId',
         component: QuizRunLobbyComponent,
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
                 title: 'GTOP Quiz Lobby',
                 description: 'Wait for participants, sync rules, and get ready before your GTOP live quiz begins.',
@@ -331,9 +325,8 @@ export const routes: Routes = [
     {
         path: 'live',
         component: LiveLandingComponent,
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
                 title: 'GTOP Live Quiz Hub',
                 description: 'Browse scheduled GTOP live quiz sessions, join hosts, and compete head-to-head with your cohort.',
@@ -344,9 +337,8 @@ export const routes: Routes = [
     {
         path: 'live/host/:sessionId',
         component: LiveHostComponent,
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
                 title: 'Host a GTOP Live Quiz',
                 description: 'Manage participants, launch questions, and control pacing while hosting a GTOP live quiz session.',
@@ -357,9 +349,8 @@ export const routes: Routes = [
     {
         path: 'live/play/:sessionId',
         component: LivePlayerComponent,
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
                 title: 'Play GTOP Live Quiz',
                 description: 'Answer live GTOP questions in sync with classmates and track your leaderboard rank in real time.',
@@ -370,9 +361,8 @@ export const routes: Routes = [
     {
         path: 'live/summary/:sessionId',
         component: LiveSummaryComponent,
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
                 title: 'GTOP Live Quiz Summary',
                 description: 'Compare final standings and analyse responses after your GTOP live quiz concludes.',
@@ -383,9 +373,8 @@ export const routes: Routes = [
     {
         path: 'reports',
         loadComponent: () => import('./pages/reports-page/reports-page.component').then(m => m.ReportsPageComponent),
-        canActivate: [AuthGuard, RoleGuard],
+        canActivate: [AuthGuard],
         data: {
-            roles: ['user', 'admin'],
             seo: {
                 title: 'GTOP Quiz Reports',
                 description: 'Analyse historical quiz performance, accuracy by topic, and improvement streaks with GTOP reports.',

@@ -430,6 +430,70 @@ app-header .mat-mdc-icon-button { color: #172b4d; }
   -webkit-font-smoothing: antialiased;
 }
 
+.lumen-home-link {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 44px;
+  color: var(--lumen-ink); font-size: 1.06rem; font-weight: 800; letter-spacing: -.035em; text-decoration: none;
+}
+.lumen-home-mark {
+  display: grid; place-items: center; width: 25px; height: 25px;
+  border-radius: 6px; background: var(--lumen-sage); color: var(--lumen-primary);
+}
+.lumen-home-mark mat-icon { width: 17px; height: 17px; font-size: 17px; }
+.lumen-action-band {
+  --lumen-band-muted: #e1eee3;
+  box-sizing: border-box; border-radius: 13px; color: var(--lumen-chrome);
+  background: radial-gradient(ellipse at 13% 100%, #4675596b, transparent 60%), var(--lumen-primary);
+}
+.lumen-band-link {
+  box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
+  padding: 7px 13px; border-radius: 8px; background: var(--lumen-chrome);
+  color: var(--lumen-primary); font-size: .91rem; font-weight: 750; text-decoration: none;
+}
+.lumen-band-link:hover { background: var(--lumen-sage); }
+.lumen-action-band .lumen-band-link:focus-visible { outline: 2px solid var(--lumen-chrome); outline-offset: 3px; }
+
+.lumen-hero { position: relative; isolation: isolate; overflow: hidden; }
+.lumen-arch { display: none; }
+@media (min-width: 800px) {
+  .lumen-hero {
+    border: 1px solid var(--lumen-border); border-radius: 20px;
+    background: linear-gradient(123deg, #ecf1e7, #f4f6ef 64%, #e5eee2);
+  }
+  .lumen-arch {
+    box-sizing: border-box; display: block; position: absolute; z-index: -1; right: 5%; bottom: -3px;
+    width: 23%; height: 86%; border: clamp(10px, 1.25vw, 24px) solid #dce8da;
+    border-radius: 50% 50% 0 0 / 35% 35% 0 0;
+  }
+  .lumen-arch.shaded { right: 4%; bottom: 13%; height: 73%; background: #ecf1e7; border-color: #d1dfd0; box-shadow: inset 11px 10px 26px #d7e4d5; }
+  .lumen-arch.shaded::after { content: ''; position: absolute; inset: -9% -54% 17% 30%; border: 1px solid #dbe8d8; border-radius: 50%; }
+}
+.lumen-action-band { position: relative; isolation: isolate; overflow: hidden; }
+.lumen-action-band::after {
+  content: ''; position: absolute; z-index: -1; width: 220px; height: 220px; right: -54px; top: -48px;
+  border: 20px solid #fff1; border-radius: 50%;
+}
+.option-icon, .lumen-upload-icon {
+  box-sizing: content-box; flex: 0 0 auto; padding: 8px; border-radius: 9px;
+  background: var(--lumen-sage); color: var(--lumen-primary);
+}
+.lumen-sheet-launch .lumen-upload-intro {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 15px; border-radius: 12px; background: var(--lumen-sage);
+}
+.lumen-sheet-launch .lumen-upload-action {
+  display: flex; gap: 9px; align-items: center; justify-content: flex-start; margin-top: 11px; text-align: left;
+}
+.lumen-upload-action mat-icon { flex-shrink: 0; }
+.lumen-upload-action mat-icon:last-child { margin-left: auto; }
+.lumen-sheet-status {
+  display: inline-block; align-self: start; justify-self: end; border-radius: 30px; padding: 3px 8px;
+  color: var(--lumen-muted); background: var(--lumen-sage); font-size: .77rem; font-weight: 650;
+}
+.lumen-sheet-status[data-status='released'] { color: #18563f; background: #e1f0e4; }
+.lumen-sheet-status[data-status='checking'], .lumen-sheet-status[data-status='needs_rescan'] { color: #71501a; background: #f5ebd4; }
+.lumen-sheet-status[data-status='submitted'] { color: #3c5b68; background: #e4edf1; }
+@media (max-width: 599px) { .lumen-sheet-launch .lumen-upload-action { width: 100%; } }
+
 /* Reserve the known desktop rail immediately, including first-route loading. */
 mat-drawer-container:has(.pr-page, app-paper-chat-viewer-page) > mat-drawer.sidenav.mat-drawer-side.mat-drawer-opened ~ mat-drawer-content {
   margin-left: 248px !important;

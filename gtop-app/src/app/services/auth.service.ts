@@ -244,12 +244,6 @@ export class AuthService {
             void this.router.navigateByUrl(returnUrl);
             return;
         }
-        let targetRoute = '/dashboard';
-        if (role === 'admin') {
-            targetRoute = '/admin';
-        } else if (role === 'institute-admin') {
-            targetRoute = '/institute-admin';
-        }
-        this.router.navigate([targetRoute]);
+        this.router.navigate([role === 'admin' ? '/admin' : '/dashboard']);
     }
 }

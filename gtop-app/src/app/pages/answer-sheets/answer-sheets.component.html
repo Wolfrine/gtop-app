@@ -1,37 +1,32 @@
 <main class="answer-sheets" aria-labelledby="answer-sheets-title">
     <header class="page-head">
-        <a routerLink="/dashboard" class="back-link">‹ Dashboard</a>
-        <h1 id="answer-sheets-title">Answer sheets</h1>
-        <p>Send your handwritten work to your GT teacher and find your marked copies here.</p>
-        @if (submissions.length) { <button type="button" class="text-button history-jump" (click)="openHistory()">My submissions ↓</button> }
+        <h1 id="answer-sheets-title">Answer sheets.</h1>
+        <p>Save your scans, track checking, and find released feedback.</p>
+        @if (composerOpen && submissions.length) { <button type="button" class="text-button history-jump" (click)="openHistory()">My answer sheets ↓</button> }
     </header>
 
-    @if (error) { <p class="notice danger" role="alert">{{ error }}</p> }
+    @if (error) { <p class="notice danger" role="alert">{{ error }} <button type="button" class="text-button" (click)="load()" [disabled]="!!busy">Refresh sheets</button></p> }
+    @if (confirmation) { <p class="notice saved" role="status">{{ confirmation }}</p> }
     @if (busy) { <p class="sr-only" role="status" aria-live="polite">{{ busy }}</p> }
 
     @if (closed) {
         <p class="panel">Your GTOP session changed. Reopen Answer sheets from your dashboard.</p>
     } @else if (loading) {
         <p class="panel" role="status">Loading answer sheets…</p>
-    } @else if (!eligible) {
-        <section class="panel access-card" aria-labelledby="access-heading">
-            @if (inviteCode) {
-                <h2 id="access-heading">Join paper checking</h2>
-                <p>Use this invitation to send your work from your current GTOP account.</p>
-                <button type="button" class="primary" [disabled]="!!busy" (click)="join()">{{ busy || 'Join with this account' }}</button>
-            } @else if (error) {
-                <h2 id="access-heading">Could not open answer sheets</h2>
-                <button type="button" class="secondary" (click)="load()">Try again</button>
-            } @else {
-                <h2 id="access-heading">Paper checking is by invitation</h2>
-                <p>Open the invitation from your GT teacher while signed in to GTOP.</p>
-            }
-        </section>
     } @else {
-        <div class="workspace">
+        @if (inviteCode) {
+            <section class="panel access-card" aria-labelledby="access-heading">
+                <div><h2 id="access-heading">Connect to GT Papers</h2>
+                <p>Accept this checking invitation for your current account. Your drafts stay private until you send them.</p></div>
+                <button type="button" class="secondary" [disabled]="!!busy || !savesEnabled" (click)="join()">Accept invitation</button>
+            </section>
+        }
+        <div class="workspace" [class.browsing]="!composerOpen">
+            @if (composerOpen) {
             <section class="panel submission" aria-labelledby="submission-heading">
+                <button class="text-button" type="button" (click)="closeSubmission()" [disabled]="!!busy">‹ All sheets</button>
                 @if (editing) {
-                    <h2 id="submission-heading" #heading tabindex="-1">{{ active?.status === 'needs_rescan' ? 'Rescan needed' : active ? 'Continue your submission' : 'Submit answer sheet' }}</h2>
+                    <h2 id="submission-heading" #heading tabindex="-1">{{ active?.status === 'needs_rescan' ? 'Rescan needed' : active ? 'Continue your draft' : 'Add an answer sheet' }}</h2>
 
                     @if (active?.rescan; as request) {
                         <div class="notice warning">
@@ -44,7 +39,10 @@
                     }
 
                     @if (!active && pendingTestCode && !test && !useOwnPaper) {
-                        @if (testError) {
+                        @if (!sharedTestsAvailable) {
+                            <p class="notice warning">This test uses a GT Papers invitation. Open the invitation to connect your account, or upload your own scan.</p>
+                            <button type="button" class="secondary" [disabled]="!!busy" (click)="ownPaper()">Upload my own scan</button>
+                        } @else if (testError) {
                             <p class="notice warning" role="alert">{{ testError }}</p>
                             <div class="actions"><button type="button" class="secondary" [disabled]="!!busy" (click)="retryTest()">Retry test link</button><button type="button" class="text-button" [disabled]="!!busy" (click)="ownPaper()">Upload the question paper instead</button></div>
                         } @else {
@@ -72,7 +70,7 @@
                                             }
                                         }
                                     } @else {
-                                        <p>{{ kind === 'answer' ? 'Put your handwritten answer pages in one PDF.' : 'Include the entire question paper, including marks and instructions.' }}</p>
+                                        <p>{{ kind === 'answer' ? 'Put your handwritten answer pages in one PDF.' : 'Add the question paper if you plan to send your answers for checking.' }}</p>
                                     }
                                     <div class="actions">
                                         <label class="file-pick" [class.disabled]="!!busy">
@@ -93,18 +91,37 @@
                         </div>
                         <ng-container *ngTemplateOutlet="pagePreview"></ng-container>
                         <div class="submit-bar">
-                            <p>Check that all pages are readable and in order.</p>
-                            <button type="button" class="primary" [disabled]="!canSend" (click)="send()">{{ busy || (active ? 'Send answer sheet' : 'Submit answer sheet') }}</button>
+                            @if (!savesEnabled && !error) {
+                                <p>Saving and sending are paused. You can still open your saved work.</p>
+                            } @else if (checkingForDraft) {
+                                <p>Sending shares these scans with <strong>{{ currentDestination?.label || 'your assigned GT Papers reviewer' }}</strong> for staff review.</p>
+                            } @else if (checkingNeedsProfile) {
+                                <p><a routerLink="/profile-setup" [queryParams]="{ returnUrl: '/answer-sheets' }">Complete your GTOP profile</a> to send scans for checking.</p>
+                            } @else if (savesEnabled && active?.submittedAt) {
+                                <p>You can save replacement pages. Ask your assigned reviewer to restore checking access.</p>
+                            } @else if (savesEnabled) {
+                                <p>You can save this privately now. To send it for checking, open a GT Papers invitation.</p>
+                            }
+                            <div class="actions">
+                                <button type="button" [class]="checkingForDraft ? 'secondary' : 'primary'" [disabled]="!canSave"
+                                    (click)="save()">{{ active?.submittedAt ? 'Save replacement' : 'Save private draft' }}</button>
+                                @if (checkingForDraft) {
+                                    <button type="button" class="primary" [disabled]="!canSend" (click)="save(true)">{{ currentDestination?.source === 'growth_tutorials' ? 'Send to Growth Tutorials' : 'Send for checking' }}</button>
+                                }
+                                @if (active) {
+                                    <button type="button" class="text-button" [disabled]="!!busy" (click)="confirmLeaving() && newSubmission()">New answer sheet</button>
+                                }
+                            </div>
                         </div>
                     }
                 } @else {
                   @if (active; as item) {
                     <h2 id="submission-heading" #heading tabindex="-1">{{ item.title }}</h2>
-                    <span class="status" [attr.data-status]="item.status">{{ statusText(item) }}</span>
+                    <span class="status lumen-sheet-status" [attr.data-status]="item.status">{{ statusText(item) }}</span>
                     @if (item.status === 'submitted') {
-                        <p>Your files are with GT. Checking starts after a teacher approves the submission.</p>
+                        <p>{{ item.checkingRecipient || 'GT Papers' }} received your scans. Checking starts after staff approve the submission.</p>
                     } @else if (item.status === 'checking') {
-                        <p>Your teacher will release your marks and feedback here when ready.</p>
+                        <p>GT Papers staff will release your marks and feedback here when ready.</p>
                     } @else if (item.status === 'released') {
                         @if (result; as marked) {
                             <p class="result-score"><strong>{{ marked.sheet.grade.awarded }} / {{ marked.sheet.grade.max }}</strong> marks</p>
@@ -136,15 +153,35 @@
                   }
                 }
             </section>
+            } @else {
+                <section class="panel lumen-sheet-launch" aria-labelledby="upload-heading">
+                    <div class="lumen-upload-intro">
+                        <div>
+                            <h2 id="upload-heading">{{ checkingAvailable ? 'Ready to submit?' : 'Ready to upload?' }}</h2>
+                            @if (savesEnabled) {
+                                <p>{{ checkingAvailable ? 'Send your scans for review or keep a private draft.' : 'Keep an answer sheet PDF in your private drafts.' }}</p>
+                            } @else if (!error) {
+                                <p>Saving is paused. You can still open your saved work.</p>
+                            }
+                        </div>
+                        <mat-icon class="lumen-upload-icon" aria-hidden="true">upload_file</mat-icon>
+                    </div>
+                    <button class="primary lumen-upload-action" type="button" #addSheet [disabled]="!savesEnabled || !!busy" (click)="newSubmission()">
+                        <mat-icon aria-hidden="true">upload_file</mat-icon>
+                        {{ checkingAvailable ? 'Submit an answer sheet' : 'Add an answer sheet' }}
+                        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+                    </button>
+                </section>
+            }
 
             <aside class="panel history" aria-labelledby="submissions-heading">
-                <header><h2 id="submissions-heading" #historyHeading tabindex="-1">My submissions</h2><button type="button" class="text-button" [disabled]="!!busy" aria-label="Refresh submission history" (click)="load()">Refresh</button></header>
+                <header><h2 id="submissions-heading" #historyHeading tabindex="-1">My answer sheets</h2><button type="button" class="text-button" [disabled]="!!busy" aria-label="Refresh submission history" (click)="load()">Refresh</button></header>
                 @if (submissions.length) {
                     <ul>
                         @for (item of submissions; track item.id) {
                             <li><button type="button" class="history-row" [disabled]="!!busy" [attr.aria-current]="active?.id === item.id ? 'true' : null" (click)="open(item.id)">
                                 <strong>{{ item.title }}</strong>
-                                <span class="status" [attr.data-status]="item.status">{{ statusText(item) }}</span>
+                                <span class="status lumen-sheet-status" [attr.data-status]="item.status">{{ statusText(item) }}</span>
                                 <time [attr.datetime]="item.submittedAt || item.updatedAt">{{ item.submittedAt || item.updatedAt | date:'d MMM y' }}</time>
                             </button></li>
                         }

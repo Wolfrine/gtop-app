@@ -1,50 +1,76 @@
-<div class="admin-dashboard-container">
-    <h1>Admin Console</h1>
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <button mat-flat-button color="primary" class="fab-button" routerLink="/admin/add-mcq">
-            <mat-icon>add</mat-icon> Add MCQs
-        </button>
-        <button mat-stroked-button color="primary" class="fab-button" routerLink="/quiz">
-            <mat-icon>quiz</mat-icon> Quick Quiz
-        </button>
-        <a mat-stroked-button color="primary" class="fab-button" [routerLink]="['/live']" matTooltip="Host or join a live session">
-            <mat-icon>bolt</mat-icon> Live Quizzes
-        </a>
-    </div>
+<main class="admin" aria-labelledby="admin-title">
+    <header class="page-head" [class.lumen-hero]="!group()">
+        <h1 id="admin-title">Admin Console</h1>
+        @if (!group()) {
+            <div class="lumen-arch" aria-hidden="true"></div>
+            <p class="overview-title">Clarity across every classroom.</p>
+            <p class="overview-intro">Guide students, content, and daily work in one place.</p>
+        }
+    </header>
 
-    <!-- Overview Cards -->
-    <div class="quick-actions" aria-label="Question bank tools">
-        <a mat-stroked-button color="primary" class="fab-button" routerLink="/syllabus-preview"><mat-icon>menu_book</mat-icon> Syllabus review</a>
-        <a mat-flat-button color="primary" class="fab-button" routerLink="/admin/question-library"><mat-icon>library_books</mat-icon> Question bank</a>
-        <a mat-flat-button color="primary" class="fab-button" routerLink="/admin/question-papers"><mat-icon>description</mat-icon> Paper chat</a>
-        <a mat-stroked-button color="primary" class="fab-button" routerLink="/admin/question-review"><mat-icon>fact_check</mat-icon> Review new questions</a>
-    </div>
-    <div class="overview-container">
-        <mat-card appCard class="overview-card">
-            <mat-card-title>Active Users</mat-card-title>
-            <mat-card-content>{{ activeUsers }}</mat-card-content>
-        </mat-card>
-        <mat-card appCard class="overview-card">
-            <mat-card-title>Total MCQs</mat-card-title>
-            <mat-card-content>{{ totalMCQs }}</mat-card-content>
-        </mat-card>
-        <mat-card appCard class="overview-card">
-            <mat-card-title>Total Users</mat-card-title>
-            <mat-card-content>{{ totalUsers }}</mat-card-content>
-        </mat-card>
-    </div>
+    <nav class="groups" aria-label="Admin sections">
+        <a routerLink="/admin" [attr.aria-current]="!group() ? 'page' : null">Overview</a>
+        @for (item of groups; track item.key) {
+            <a routerLink="/admin" [queryParams]="{ section: item.key }"
+                [attr.aria-current]="group()?.key === item.key ? 'page' : null">{{ item.title }}</a>
+        }
+    </nav>
 
-    <!-- Recent Activity Section -->
-    <mat-card appCard class="recent-activity">
-        <h3>Recent Activity</h3>
-        <mat-list>
-            <mat-list-item *ngFor="let activity of recentActivities">
-                <mat-icon>history</mat-icon>
-                <span>{{ activity }}</span>
-            </mat-list-item>
-        </mat-list>
-    </mat-card>
-
-
-</div>
+    @if (group(); as selected) {
+        <section class="panel" [attr.aria-label]="selected.label">
+            <h2>{{ selected.title }}</h2>
+            @for (tool of selected.tools; track tool.route) {
+                <a class="tool" [routerLink]="tool.route">
+                    <span><strong>{{ tool.title }}</strong><small>{{ tool.detail }}</small></span>
+                    <mat-icon aria-hidden="true">chevron_right</mat-icon>
+                </a>
+            }
+        </section>
+    } @else {
+        <div class="overview">
+            <div class="overview-main">
+                <section class="lumen-action-band featured" aria-labelledby="review-title">
+                    <div>
+                        <h2 id="review-title">Question review</h2>
+                        <p>Review new questions before adding them to practice.</p>
+                    </div>
+                    <a class="lumen-band-link" routerLink="/admin/question-review">Open question review <mat-icon aria-hidden="true">arrow_forward</mat-icon></a>
+                </section>
+                <section aria-labelledby="manage-title">
+                    <h2 id="manage-title">Manage GTOP</h2>
+                    <div class="shortcuts">
+                        @for (item of groups; track item.key) {
+                            <a class="shortcut" routerLink="/admin" [queryParams]="{ section: item.key }">
+                                <mat-icon class="option-icon" aria-hidden="true">{{ item.icon }}</mat-icon>
+                                <span><strong>{{ item.title }}</strong><small>{{ item.summary }}</small></span>
+                                <mat-icon class="chevron" aria-hidden="true">chevron_right</mat-icon>
+                            </a>
+                        }
+                    </div>
+                    <div aria-label="Question bank tools">
+                        <a class="external" routerLink="/admin/question-papers">Paper chat</a>
+                    </div>
+                </section>
+            </div>
+            <aside class="overview-aside" aria-label="Admin overview">
+                <section class="panel">
+                    <h2>GTOP at a glance</h2>
+                    <dl>
+                        <div><dt>MCQs in the bank</dt><dd>{{ totalMCQs ?? (countUnavailable ? 'Unavailable' : 'Loading…') }}</dd></div>
+                        @if (presence.presenceLoaded()) {
+                            <div><dt>Online now</dt><dd>{{ presence.activeUsers().length }}</dd></div>
+                            <div><dt>Presence records</dt><dd>{{ presence.totalUsers() }}</dd></div>
+                        } @else {
+                            <div><dt>Presence</dt><dd>Awaiting data</dd></div>
+                        }
+                    </dl>
+                </section>
+                <section class="panel papers-panel">
+                    <h2>GT Papers</h2>
+                    <p>Use the separate staff workspace to prepare papers and check assigned answer sheets.</p>
+                    <a class="external" href="https://gtop-question-papers.web.app/">Open GT Papers <mat-icon aria-hidden="true">north_east</mat-icon></a>
+                </section>
+            </aside>
+        </div>
+    }
+</main>

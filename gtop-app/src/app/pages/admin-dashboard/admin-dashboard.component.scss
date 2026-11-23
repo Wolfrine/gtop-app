@@ -1,10 +1,48 @@
-.admin-dashboard-container { box-sizing: border-box; max-width: 1100px; margin: 0 auto; padding: 24px; display: grid; gap: 24px; }
-h1 { margin: 0; font-size: 30px; font-weight: 700; }
-.overview-container { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.overview-card { padding: 24px; gap: 8px; min-width: 0; }
-mat-card-title { font-size: 14px; font-weight: 500; color: hsl(var(--muted-foreground)); }
-mat-card-content { padding: 0; font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.recent-activity { padding: 24px; }
-.recent-activity h3 { margin: 0; font-size: 20px; }
-.quick-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-@media (max-width: 768px) { .admin-dashboard-container { padding: 16px; gap: 16px; } .overview-container { grid-template-columns: minmax(0, 1fr); } .overview-card, .recent-activity { padding: 16px; } }
+.admin { box-sizing: border-box; max-width: 1240px; margin: 0 auto; padding: clamp(24px, 4vw, 56px) clamp(16px, 3.5vw, 48px); }
+.page-head h1 { margin: 0; color: var(--lumen-muted); font-size: .92rem; font-weight: 700; }
+.page-head.lumen-hero { padding: clamp(18px, 3vw, 32px); margin-bottom: 17px; }
+.page-head .overview-title {
+    color: var(--lumen-ink); max-width: 15ch; margin: 10px 0 0;
+    font: 400 clamp(2.5rem, 4.5vw, 3.6rem)/1.03 var(--lumen-serif); letter-spacing: -.047em; text-wrap: balance;
+}
+p { margin: 10px 0 15px; color: var(--lumen-muted); line-height: 1.5; }
+.overview-intro { margin-bottom: 0; max-width: 40ch; }
+.groups { display: flex; flex-wrap: wrap; gap: 5px; margin: 21px 0; padding-bottom: 8px; border-bottom: 1px solid var(--lumen-border); }
+.groups a {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px;
+    color: var(--lumen-muted); text-decoration: none; font-size: .92rem; font-weight: 650;
+}
+.groups a[aria-current], .groups a:hover { background: var(--lumen-sage); color: var(--lumen-ink); }
+.overview, .overview-main, .overview-aside { display: grid; align-content: start; gap: 14px; min-width: 0; }
+.panel { min-width: 0; background: var(--lumen-chrome); border: 1px solid var(--lumen-border); border-radius: 13px; padding: clamp(15px, 2.6vw, 24px); }
+.featured { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 18px 20px; }
+.featured p { margin: 5px 0 0; color: var(--lumen-band-muted); }
+h2 { margin: 0 0 10px; font: 400 1.5rem/1.2 var(--lumen-serif); }
+.featured h2 { margin: 0; font-size: clamp(1.5rem, 2.2vw, 2rem); }
+.external, .tool { display: flex; align-items: center; gap: 9px; color: var(--lumen-primary); text-decoration: none; }
+.external { display: inline-flex; min-height: 44px; font-weight: 650; }
+.external:hover { text-decoration: underline; }
+.tool { min-height: 44px; justify-content: space-between; border-top: 1px solid var(--lumen-border); padding: 9px 5px; }
+.tool:hover { background: var(--lumen-sage); }
+.tool small, .shortcut small { display: block; color: var(--lumen-muted); margin-top: 3px; }
+.shortcuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr)); gap: 11px; }
+.shortcut {
+    display: flex; gap: 10px; align-items: center; min-height: 78px; padding: 10px;
+    color: var(--lumen-ink); text-decoration: none; background: var(--lumen-chrome);
+    border: 1px solid var(--lumen-border); border-radius: 12px;
+}
+.shortcut:hover, .papers-panel { background: var(--lumen-sage); }
+.chevron { margin-left: auto; flex: 0 0 auto; }
+.tool mat-icon { flex: 0 0 auto; }
+dl { margin: 0; }
+dl div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 0; border-top: 1px solid var(--lumen-border); font-size: .89rem; }
+dd { margin: 0; font-weight: 650; }
+:focus-visible { outline: 2px solid var(--lumen-primary); outline-offset: 2px; }
+@media (min-width: 800px) { .groups { display: none; } }
+@media (min-width: 1060px) {
+    .admin:has(.overview) { display: grid; grid-template-columns: minmax(0, 2.65fr) minmax(230px, 1fr); column-gap: 24px; }
+    .overview { display: contents; }
+    .admin .page-head { grid-column: 1; grid-row: 1; }
+    .overview-main { grid-column: 1; grid-row: 2; }
+    .overview-aside { grid-column: 2; grid-row: 1 / span 2; }
+}

@@ -12,6 +12,7 @@ export class ActiveUsersService {
     private db = inject(Database);
     private auth = inject(Auth);
     private user = signal<User | null>(null);
+    presenceLoaded = signal(false);
     activeUsers = signal<any[]>([]);
     activeInactiveUsers = signal<any[]>([]);
     totalUsers = signal<number>(0);
@@ -136,6 +137,7 @@ export class ActiveUsersService {
                 this.activeUsers.set([]);
                 this.activeInactiveUsers.set([]);
             }
+            this.presenceLoaded.set(true);
         });
     }
 
@@ -156,6 +158,7 @@ export class ActiveUsersService {
                 this.activeUsers.set([]);
                 this.activeInactiveUsers.set([]);
             }
+            this.presenceLoaded.set(true);
         }).catch((err) => {
             console.error('Failed to fetch active users:', err);
         });

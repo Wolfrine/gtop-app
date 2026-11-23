@@ -1,84 +1,18 @@
-.header.mat-toolbar {
-  display:flex;
-  align-items:center;
-  padding:0 24px;
-  gap:12px;
-  background:#fbfaf5;
-  color:#172b4d;
-  border-bottom:1px solid #e4e3dc;
-  height:72px;
-  font-family:Manrope,Inter,Roboto,sans-serif;
+.header {
+    min-height: 64px; display: flex; align-items: center; gap: 12px;
+    padding: 0 clamp(16px, 4vw, 44px); background: var(--lumen-chrome); border-bottom: 1px solid var(--lumen-border);
 }
-.logo {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-size:23px;
-  font-weight:800;
-  letter-spacing:-.05em;
+.section { color: var(--lumen-ink); font-size: .94rem; font-weight: 650; }
+.account, .back {
+    display: inline-flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center;
+    color: var(--lumen-primary); border: 0; border-radius: 100px; background: transparent; text-decoration: none;
 }
-.brand-emblem {
-  width:27px;
-  height:28px;
-  display:flex;
-  align-items:flex-end;
-  gap:3px;
-  transform:rotate(-10deg);
-}
-.brand-emblem i {
-  display:block;
-  width:7px;
-  height:17px;
-  background:#3153cd;
-  border-radius:2px;
-}
-.brand-emblem i:nth-child(2) {
-  height:25px;
-  background:#e1b465;
-}
-.brand-emblem i:nth-child(3) {
-  height:21px;
-  background:#338678;
-}
-.brand-tagline {
-  font-size:11px;
-  font-weight:600;
-  letter-spacing:0;
-  color:#768194;
-  margin-left:14px;
-  padding-left:18px;
-  border-left:1px solid #d9dcd9;
-}
-.spacer {
-  flex-grow:1;
-}
-.profile-trigger {
-  padding:6px;
-  border:1px solid #e0e1db;
-}
-.profile-pic {
-  display:block;
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  object-fit:cover;
-}
-button:focus-visible {
-  outline-color:#3153cd;
-}
-@media(max-width:768px) {
-  .header.mat-toolbar {
-    padding:0 12px;
-    gap:7px;
-    height:64px;
-  }
-  .brand-tagline {
-    display:none;
-  }
-  .logo {
-    font-size:21px;
-  }
-  .brand-emblem {
-    transform:scale(.88) rotate(-10deg);
-  }
+.account { margin-left: auto; gap: 8px; padding: 0 9px; font: inherit; font-weight: 600; cursor: pointer; }
+.account:hover, .back:hover { background: var(--lumen-sage); }
+.account img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--lumen-primary); outline-offset: 2px; }
+@media (min-width: 800px) { .with-navigation .brand { display: none; } }
+@media (max-width: 799px) {
+    .header { min-height: 55px; }
+    .section, .account span { display: none; }
 }

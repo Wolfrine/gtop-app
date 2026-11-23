@@ -1,13 +1,10 @@
-import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
-import { CommonModule } from '@angular/common';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { SideNavComponent } from './components/side-nav/side-nav.component';
-import { LoggingService } from './services/logging.service';
 import { AdminUsageService } from './services/admin-usage.service';
 import { SeoService } from './services/seo.service';
 
@@ -19,54 +16,37 @@ import { SeoService } from './services/seo.service';
         RouterOutlet,
         HeaderComponent,
         FooterComponent,
-        CommonModule,
-        MatSidenavModule,
         SideNavComponent
     ],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
-    @ViewChild('sidenav') sidenav!: any;
+    isLandingPage = true;
+    isSetupPage = false;
+    section = 'Practice';
+    profile: { role?: string } | null = null;
 
-    title = "GTOP - APP"
-    isLandingPage = false;
-    isLandingAndProfile = false;
-    isDesktop: boolean = window.innerWidth > 768;
-    sidenavMode: 'side' | 'over' = this.isDesktop ? 'side' : 'over';
+    get showNavigation(): boolean {
+        return !this.isLandingPage && !this.isSetupPage && !!this.profile;
+    }
 
     constructor(
         private authService: AuthService,
         private router: Router,
         private activatedRoute: ActivatedRoute,
-        private loggingService: LoggingService,
         private seoService: SeoService,
         private usage: AdminUsageService
     ) {
-        this.router.events.subscribe((event) => {
-            // 🚀 SCROLL TO TOP on every route change
+        this.authService.readyUser$.subscribe(profile => this.profile = profile);
+        this.router.events.subscribe(event => {
+            if (!(event instanceof NavigationEnd)) return;
             window.scrollTo({ top: 0 });
-
-            if (event instanceof NavigationEnd) {
-                const deepestChild = this.getDeepestChild(this.activatedRoute);
-                const seoData = deepestChild.snapshot.data['seo'];
-                this.seoService.update(seoData);
-
-                const pathname = event.urlAfterRedirects.split(/[?#]/)[0];
-                if (pathname === '/') {
-                    this.isLandingPage = true;
-                    this.isLandingAndProfile = true;
-                }
-                else if (pathname === '/profile-setup') {
-                    this.isLandingPage = false;
-                    this.isLandingAndProfile = true;
-                }
-                else {
-                    this.isLandingPage = false;
-                    this.isLandingAndProfile = false;
-                }
-
-            }
+            this.seoService.update(this.getDeepestChild(this.activatedRoute).snapshot.data['seo']);
+            const [path] = event.urlAfterRedirects.split(/[?#]/);
+            this.isLandingPage = path === '/';
+            this.isSetupPage = path === '/profile-setup';
+            this.section = this.sectionFor(path);
         });
     }
 
@@ -75,27 +55,13 @@ export class AppComponent implements OnInit {
         this.usage.start();
     }
 
-    @HostListener('window:resize', ['$event'])
-    onResize(event: any) {
-        this.isDesktop = event.target.innerWidth > 768;
-        this.sidenavMode = this.isDesktop ? 'side' : 'over';
-
-        if (!this.isDesktop && this.sidenav) {
-            this.sidenav.close(); // Close menu on small screens
-        }
-    }
-
-    toggleSidebar() {
-        if (this.sidenav) {
-            this.sidenav.toggle();
-        }
-    }
-
-    onNavItemClick() {
-        // Only auto-close in over mode (i.e. mobile/tablet)
-        if (this.sidenavMode === 'over' && this.sidenav) {
-            this.sidenav.close();
-        }
+    private sectionFor(path: string): string {
+        if (path === '/answer-sheets') return 'Answer Sheets';
+        if (path === '/reports' || path === '/quiz-summary') return 'Progress';
+        if (path === '/profile') return 'Account';
+        if (path === '/admin' || path.startsWith('/admin/') ||
+            ['/logs', '/syllabus-preview', '/dev/ui', '/learning-lab/results', '/learning-lab/plants/results'].includes(path)) return 'Admin';
+        return 'Practice';
     }
 
     private getDeepestChild(route: ActivatedRoute): ActivatedRoute {

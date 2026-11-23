@@ -1,7 +1,17 @@
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { Injectable, inject } from '@angular/core';
+import { ActivatedRouteSnapshot, CanActivate, CanActivateFn, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { Auth } from '@angular/fire/auth';
 import { AuthService } from './auth.service';
 import { Observable, map, take } from 'rxjs';
+
+export const personalSignInGuard: CanActivateFn = async (_route, state) => {
+    const auth = inject(Auth);
+    const router = inject(Router);
+    await auth.authStateReady();
+    return (auth.currentUser && !auth.currentUser.isAnonymous)
+        ? true
+        : router.createUrlTree(['/'], { queryParams: { returnUrl: state.url } });
+};
 
 @Injectable({
     providedIn: 'root',

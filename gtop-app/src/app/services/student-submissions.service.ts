@@ -1,9 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
-import { Subject } from 'rxjs';
 
 export type ScanKind = 'answer' | 'question';
 export type SubmissionStatus = 'draft' | 'submitted' | 'needs_rescan' | 'checking' | 'released';
+
+export interface CheckingDestination {
+    source: 'growth_tutorials' | 'assigned';
+    label: string;
+    confirmation: string;
+}
 
 export interface SavedScan {
     name: string;
@@ -26,10 +31,18 @@ export interface StudentSubmission {
     updatedAt: string;
     submittedAt?: string;
     sheetState?: string;
+    mayResend?: boolean;
+    checkingDestination?: CheckingDestination | null;
+    checkingRecipient?: string;
 }
 
 export interface SubmissionPage {
     eligible: boolean;
+    savesEnabled?: boolean;
+    checkingAvailable?: boolean;
+    checkingDestination?: CheckingDestination | null;
+    sharedTestsAvailable?: boolean;
+    checkingNeedsProfile?: boolean;
     submissions: StudentSubmission[];
     nextCursor: string | null;
 }
@@ -52,6 +65,10 @@ export interface SubmissionResult {
     };
 }
 
+export const submissionStatusLabels: Record<SubmissionStatus, string> = {
+    draft: 'Draft', submitted: 'Submitted', needs_rescan: 'Rescan needed', checking: 'Checking', released: 'Results ready',
+};
+
 function gatewayOrigin(): string {
     if (['localhost', '127.0.0.1'].includes(location.hostname)) {
         try {
@@ -66,30 +83,16 @@ function gatewayOrigin(): string {
 @Injectable({ providedIn: 'root' })
 export class StudentSubmissionsService {
     private readonly auth = inject(Auth);
-    private eligibility?: { uid: string; expires: number; request: Promise<boolean> };
-    readonly eligibilityChanged = new Subject<void>();
-
-    async enabled(): Promise<boolean> {
-        const user = this.auth.currentUser;
-        if (!user || user.isAnonymous) return false;
-        if (this.eligibility?.uid === user.uid && this.eligibility.expires > Date.now()) return this.eligibility.request;
-        const entry = {
-            uid: user.uid, expires: Date.now() + 120_000,
-            request: this.json<{ eligible: boolean }>('?eligibility=1').then(page => page.eligible).catch(() => false),
-        };
-        this.eligibility = entry;
-        return entry.request;
+    preview(signal: AbortSignal): Promise<{ submissions: StudentSubmission[] }> {
+        return this.json('?preview=1', undefined, signal);
     }
 
     list(cursor?: string, signal?: AbortSignal): Promise<SubmissionPage> {
         return this.json(cursor ? '?cursor=' + encodeURIComponent(cursor) : '', undefined, signal);
     }
 
-    async join(code: string, signal?: AbortSignal): Promise<{ testCode?: string }> {
-        const result = await this.json<{ testCode?: string }>('/enroll', { code }, signal);
-        this.eligibility = undefined;
-        this.eligibilityChanged.next();
-        return result;
+    join(code: string, signal?: AbortSignal): Promise<{ testCode?: string }> {
+        return this.json('/enroll', { code }, signal);
     }
 
     test(code: string, signal?: AbortSignal): Promise<SubmissionTest> {

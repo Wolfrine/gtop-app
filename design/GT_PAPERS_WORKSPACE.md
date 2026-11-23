@@ -22,7 +22,7 @@ The image illustrates the desired hierarchy, proportions, mood and materials, **
 2. **Create:** keep the existing conversational paper authoring, editable requests, immutable validated paper and worked answers, and print/share features; style in the same paper-and-sage system.
 3. **Review:** student/test context first, handwriting large enough to inspect, current/suggested marks, rationale, marking scheme and teacher decision. On desktop: answer-book queue → scan → review. On phone: image and decision in a continuous readable flow.
 4. **Return:** approval of marks and student release are distinct. Approved work must return only through the existing authorized private handback.
-5. **Navigation:** Home, Papers, **Check**, Inbox and Students are distinct, always-text-labeled destinations on mobile and desktop. **Check** is for the teacher independently scanning/uploading a collected paper or class stack (with AI suggestions or manual marking); **Inbox** is for GTOP student-submitted work and private handback. Keep a fully labeled **Check papers — Upload your scans or PDFs** action on the home screen, including narrow phones. Do not rely on an icon-only shortcut, and do not invent decorative Reports or unimplemented pages.
+5. **Navigation:** Home, Papers, **Check**, Inbox and Students are distinct, always-text-labeled destinations in the **same persistent desktop header and mobile bottom navigation**, including while a teacher checks a paper or class. **Check** is for independent teacher-scanned/uploaded work (with AI or manual marking); **Inbox** is for GTOP student submissions and private handback. Render checking within the existing shell, not as a full-screen alternate app. Keep local Back controls and the existing unsaved-work leave guard for tab switching/sign-out. Keep the fully labeled **Check papers — Upload your scans or PDFs** home action on narrow phones. Do not add decorative Reports or unimplemented destinations.
 
 ## Implementation and evidence
 
@@ -30,3 +30,10 @@ The image illustrates the desired hierarchy, proportions, mood and materials, **
 - Desktop and phone reference is the approved image, not a new direction. Inspect rendered UI against matched states; preserve useful existing navigation and content.
 - Verify teacher actions from create through independently initiated scan/upload and GTOP submissions, handwritten review, mark correction, approval and private return; loading/error/empty/long-content states and responsive constraints.
 - A successful build does **not** establish actual visual or educational acceptance. Unseen authenticated states remain unverified.
+
+## Checking-shell integration — 23 November 2026
+
+- The desktop header and mobile safe-area bottom navigation remain persistent throughout manual intake, class stacks, scanned handwriting, marking and reviews. Exactly one global GT Papers brand header is shown; each checking screen retains contextual heading/Back.
+- The checking component lives inside the shared workspace content row; only this row scrolls. The existing cancelable `gtop-checking-may-leave` event guards switching tabs, clicking the logo, or signing out when work is busy or unsaved. Clicking the active Check tab is a no-op.
+- Print styles release the shared shell's height and overflow constraints so marked A4 documents remain printable.
+- This is a navigation/presentation-only change. Authentication, paper data, checking worker, teacher approval and private handback stay unchanged. Production release is not equivalent to signed-in staff acceptance.

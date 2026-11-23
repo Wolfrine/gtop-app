@@ -1,39 +1,42 @@
 <div *ngIf="fixture" class="preview-banner">Local visual preview · synthetic data · {{fixture}} state</div>
-<ng-container *ngIf="checkingOpen">
-  <ng-container *ngIf="checkingHome; else sheetRegister">
-    <ng-container *ngComponentOutlet="checkingHubComponent || null; inputs: hubInputs; injector: checkingInjector"></ng-container>
-    <main *ngIf="!checkingHubComponent" class="route-wait" role="status"><span class="loader"></span> Opening paper checking…</main>
-  </ng-container>
-  <ng-template #sheetRegister>
-    <ng-container *ngComponentOutlet="checkingComponent || null; inputs: checkingInputs; injector: checkingInjector"></ng-container>
-    <main *ngIf="!checkingComponent" class="route-wait" role="status"><span class="loader"></span> Opening answer books…</main>
-  </ng-template>
-</ng-container>
-<div class="workspace desk-shell" [hidden]="checkingOpen" [class.with-document]="document" [class.drawer-open]="drawer">
+<div class="workspace desk-shell" [class.checking-active]="checkingOpen" [class.with-document]="document && !checkingOpen" [class.drawer-open]="drawer">
   <header class="desk-bar" [attr.inert]="drawer?'':null">
-    <button class="desk-wordmark" type="button" (click)="user && openHome()" aria-label="GT Papers home">
+    <button class="desk-wordmark" type="button" (click)="user && navigateFromShell('home')" aria-label="GT Papers home">
       <img class="desk-book" src="/icons/growth-logo.webp" width="36" height="36" alt="">
       <span>GT Papers<small>Growth Tutorials</small></span>
     </button>
     <nav *ngIf="user" class="desk-nav" aria-label="Workspace navigation">
-      <button type="button" [attr.aria-current]="view==='home'?'page':null" (click)="openHome()">
+      <button type="button" [attr.aria-current]="!checkingOpen&&view==='home'?'page':null" (click)="navigateFromShell('home')">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3ZM9 20v-7h6v7"/></svg><span>Home</span>
       </button>
-      <button type="button" [attr.aria-current]="view==='library'||view==='chat'?'page':null" (click)="openLibrary()">
+      <button type="button" [attr.aria-current]="!checkingOpen&&(view==='library'||view==='chat')?'page':null" (click)="navigateFromShell('papers')">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6ZM14 3v5h5M9 12h7m-7 4h7"/></svg><span>Papers</span>
       </button>
-      <button type="button" [attr.aria-current]="checkingOpen?'page':null" (click)="openCheckingHome()" aria-label="Check papers you collected in class">
+      <button type="button" [attr.aria-current]="checkingOpen?'page':null" (click)="navigateFromShell('check')" aria-label="Check papers you collected in class">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6ZM14 3v5h5M9 12h7m-7 4h7M9 16l2 2 4-4"/></svg><span>Check</span>
       </button>
-      <button type="button" [attr.aria-current]="view==='submissions'?'page':null" (click)="openSubmissions()">
+      <button type="button" [attr.aria-current]="!checkingOpen&&view==='submissions'?'page':null" (click)="navigateFromShell('inbox')">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 12 3-7h12l3 7v7H3Zm0 0h5l2 3h4l2-3h5"/></svg><span>Inbox</span>
       </button>
-      <button type="button" [attr.aria-current]="view==='students'?'page':null" (click)="openStudents()">
+      <button type="button" [attr.aria-current]="!checkingOpen&&view==='students'?'page':null" (click)="navigateFromShell('students')">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 19v-2a6 6 0 0 1 12 0v2ZM16 5a3 3 0 0 1 0 6m2 2a5 5 0 0 1 3 5v1h-3"/></svg><span>Students</span>
       </button>
     </nav>
     <div class="desk-tools"><gt-pwa-controls/><button *ngIf="user" class="desk-profile" aria-label="Open account and recent requests" [attr.aria-expanded]="drawer" (click)="toggleDrawer()">{{initials()}}</button></div>
   </header>
+
+  <section *ngIf="checkingOpen" class="checking-route" aria-label="Check Papers" [attr.inert]="drawer?'':null">
+    <ng-container *ngIf="checkingOpen">
+      <ng-container *ngIf="checkingHome; else sheetRegister">
+        <ng-container *ngComponentOutlet="checkingHubComponent || null; inputs: hubInputs; injector: checkingInjector"></ng-container>
+        <main *ngIf="!checkingHubComponent" class="route-wait" role="status"><span class="loader"></span> Opening paper checking…</main>
+      </ng-container>
+      <ng-template #sheetRegister>
+        <ng-container *ngComponentOutlet="checkingComponent || null; inputs: checkingInputs; injector: checkingInjector"></ng-container>
+        <main *ngIf="!checkingComponent" class="route-wait" role="status"><span class="loader"></span> Opening answer books…</main>
+      </ng-template>
+    </ng-container>
+  </section>
 
   <main *ngIf="loading" class="route-wait" aria-live="polite"><span class="loader"></span> Opening your desk…</main>
   <main *ngIf="!loading && !user" class="desk-login">
@@ -58,10 +61,10 @@
         <h2>Recent requests</h2>
         <nav aria-label="Recent requests"><button *ngFor="let conversation of conversations" class="account-request" (click)="openConversation(conversation.id)">{{conversation.title || 'Paper request'}}<small>{{relativeTime(conversation.updatedAt)}}</small></button></nav>
         <p *ngIf="!conversations.length">No recent paper requests.</p>
-        <button class="sign-out text-button" (click)="logout()">Sign out</button>
+        <button class="sign-out text-button" (click)="logoutFromShell()">Sign out</button>
       </aside>
     </ng-container>
-    <main *ngIf="view==='home'" class="desk-home" [attr.inert]="drawer?'':null">
+    <main *ngIf="view==='home'&&!checkingOpen" class="desk-home" [attr.inert]="drawer?'':null">
       <div class="desk-sheet">
         <header class="desk-hero">
           <div class="desk-intro">
@@ -137,7 +140,7 @@
         <div *ngIf="!studentSubmissionsComponent && error" class="desk-alert" role="alert">{{error}} <button class="text-button" (click)="openSubmissions(studentSubmissionsInputs.selectedId,false)">Try again</button></div>
       </div>
     </ng-container>
-    <section *ngIf="view==='library'&&!user.libraryAccess" class="library-panel archive-page" [attr.inert]="drawer?'':null" aria-labelledby="personal-title">
+    <section *ngIf="view==='library'&&!checkingOpen&&!user.libraryAccess" class="library-panel archive-page" [attr.inert]="drawer?'':null" aria-labelledby="personal-title">
       <div class="archive-scroll">
         <div class="author-shell archive-shell">
           <header class="archive-heading-row">
@@ -165,7 +168,7 @@
       </div>
     </section>
 
-    <section *ngIf="view==='library'&&user.libraryAccess" class="library-panel archive-page" [attr.inert]="drawer?'':null" aria-labelledby="archive-heading">
+    <section *ngIf="view==='library'&&!checkingOpen&&user.libraryAccess" class="library-panel archive-page" [attr.inert]="drawer?'':null" aria-labelledby="archive-heading">
       <div class="archive-scroll">
         <div class="author-shell archive-shell">
           <header class="archive-heading-row">
@@ -235,7 +238,7 @@
       </div>
     </section>
 
-    <section *ngIf="view==='chat'" class="chat-panel author-page" [attr.inert]="drawer?'':null" [class.has-messages]="detail?.messages?.length" aria-label="Paper authoring">
+    <section *ngIf="view==='chat'&&!checkingOpen" class="chat-panel author-page" [attr.inert]="drawer?'':null" [class.has-messages]="detail?.messages?.length" aria-label="Paper authoring">
       <header *ngIf="detail?.messages?.length" class="author-thread-head">
         <div class="author-thread-heading"><button class="author-back" (click)="adminConversation&&user.libraryAccess?openLibrary():openHome()">← {{adminConversation&&user.libraryAccess?'Papers':'Teaching desk'}}</button><h1>{{readyTitle}}</h1></div>
         <div class="author-thread-tools">
@@ -298,7 +301,7 @@
       <div *ngIf="!readOnly&&detail?.messages?.length" class="composer-area"><form class="composer" (ngSubmit)="send()"><label class="visually-hidden" for="message-input">Your message</label><textarea id="message-input" name="message" [(ngModel)]="draft" (keydown)="composerKey($event)" [placeholder]="currentPaper?'Ask for changes, or discuss your paper…':'Describe the paper you need…'" rows="1" maxlength="12000" [disabled]="sending"></textarea><button class="send-button" type="submit" [disabled]="!draft.trim()||sending||blockedTurn" [attr.aria-label]="sending?'Sending message':blockedTurn?'Waiting for the current reply':'Send message'"><span *ngIf="!sending" aria-hidden="true">↑</span><span *ngIf="sending" class="loader small"></span></button></form><div class="composer-caption"><span>{{blockedTurn?'Replying · You can draft your next message':'English, हिन्दी or Hinglish'}}</span><span *ngIf="!blockedTurn" class="desktop-hint">Enter to send · Shift + Enter for a new line</span></div></div>
     </section>
 
-    <section *ngIf="document as doc" class="document-panel author-preview" [attr.inert]="drawer?'':null" aria-label="Printable document">
+    <section *ngIf="!checkingOpen&&document as doc" class="document-panel author-preview" [attr.inert]="drawer?'':null" aria-label="Printable document">
       <header class="preview-toolbar">
         <div class="preview-headline"><button class="author-back" (click)="closePreview()">← {{view==='library'?'Back to papers':'Back to request'}}</button><h2 class="preview-title" tabindex="-1">{{doc.paper.title || 'Question paper'}}</h2><div class="archive-meta preview-meta"><span>Revision {{doc.paper.revision}}</span><span *ngIf="doc.paper.marks!=null">{{doc.paper.marks}} marks</span><span>{{absoluteDate(doc.paper.createdAt)}}</span></div></div>
         <button class="author-primary preview-print" [disabled]="!previewReady||documentLoading" (click)="printDocument()">Print / Save PDF</button>

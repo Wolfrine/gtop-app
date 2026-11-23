@@ -280,6 +280,25 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.checkingHome=false;this.checkingPaperId='';this.checkingPacketId='';this.checkingSubmissionId='';
     this.resumeWorkspaceUpdates();
   }
+  // Keep the checking job and on-device scans safe when changing destinations.
+  // Both checking views already subscribe to this cancelable leave event.
+  navigateFromShell(destination:'home'|'papers'|'check'|'inbox'|'students'){
+    if(!this.user)return;
+    if(this.checkingOpen){
+      if(destination==='check')return;
+      const mayLeave=new Event('gtop-checking-may-leave',{cancelable:true});
+      if(!window.dispatchEvent(mayLeave))return;
+    }
+    if(destination==='home')this.openHome();
+    else if(destination==='papers')void this.openLibrary();
+    else if(destination==='check')this.openCheckingHome();
+    else if(destination==='inbox')void this.openSubmissions();
+    else void this.openStudents();
+  }
+  logoutFromShell(){
+    if(this.checkingOpen&&!window.dispatchEvent(new Event('gtop-checking-may-leave',{cancelable:true})))return;
+    void this.logout();
+  }
   openHome(write=true){
     if(!this.user)return;
     if(write)this.writeRoute({});

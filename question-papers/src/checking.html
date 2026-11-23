@@ -11,7 +11,6 @@
       >
         ‹ <span>{{ fromSubmissionInbox ? 'Inbox' : fromStudentHistory ? 'Students' : 'Register' }}</span>
       </button>
-      <img class="review-brand-mark" src="/icons/growth-logo.webp" width="38" height="38" alt="" />
       <div class="heading">
         <h1>{{ identity(sheet!).name }}</h1>
         <p [title]="rubric?.title || ''">{{ identity(sheet!).detail ? identity(sheet!).detail + ' · ' : '' }}{{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ rubric?.title }}</p>

@@ -23,3 +23,14 @@ button,input{font:inherit}.action{background:var(--desk-white);color:var(--ink);
   .top-back{font-size:12px;padding:6px 7px;white-space:nowrap}
   .paper-row{align-items:flex-start;flex-direction:column;gap:4px}
 }
+
+/* The global shell already carries GT Papers identity and navigation. */
+.checking-context{min-width:0;margin-right:auto}
+.checking-context h1{margin:0;color:var(--desk-ink);font:760 clamp(22px,2vw,28px)/1.16 Manrope,var(--font);letter-spacing:-.045em}
+.checking-context p{margin:4px 0 0;color:var(--desk-muted);font-size:12px;line-height:1.3}
+@media(max-width:600px){
+  .checking-context h1{font-size:21px}
+  .checking-context p{font-size:11px}
+  .masthead{gap:8px}
+  .top-back{flex:none}
+}

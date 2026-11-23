@@ -1,19 +1,32 @@
-# GT Papers workspace
+# GT Papers — approved growth identity and workspace
 
-GT Papers is a staff workspace for creating question papers, checking handwritten answers, and returning feedback. The design should make the next teaching task obvious and keep documents readable.
+**Owner decision (23 November 2026):** The earthy growth symbol and the mobile-first teacher desk/review image are the accepted visual direction for GT Papers. This replaces the prior indigo Fold identity. Do not revive the old logo, violet dashboard or education clip-art for this product.
 
-## Visual direction
+## Canonical visual reference
 
-The owner asked for modern, creative branding and rejected the first notebook-and-checkmark treatment. The second exploration compared Fold, Margin, and Signal. Fold was selected for the original angular monogram and its ability to support a quiet, light document workspace. The ImageGen monogram and folded-ribbon artwork are production assets. Dark indigo frames the app, a strong violet identifies the primary action, and a small citron line identifies the selected desktop destination. Colors used for correctness and feedback stay semantic.
+![Owner-approved mobile/desktop GT Papers design](reference/GT_PAPERS_GROWTH_APPROVED_2026.webp)
 
-## Interaction decisions
+The image illustrates the desired hierarchy, proportions, mood and materials, **not literal data, AI confidence or product capability**. Use existing GT Papers data and real teacher names, tests, marks and statuses. Some labels in the reference are illustrative.
 
-- Desk, Papers, Inbox and Students are stable destinations. Create and upload are actions on the desk, with a second create entry in Papers and a paper-linked upload in the preview. Phone navigation stays within reach at the bottom of the workspace.
-- The desk leads with those actions, recent work and one entry to the inbox. Review rows include a paper title when it is already available to the workspace.
-- Keep the paper and worked answers close to print, upload and share. On wide screens the archive or request can remain beside the document.
-- Give handwritten pages the majority of the marking layout. Approving marks and releasing a marked copy are separate decisions, with a direct return to the submission inbox between them.
-- Keep the install identity and start URL. Use the generated mark consistently in site branding and across the browser, Apple, and maskable app icon sizes.
+## Identity and material
 
-## Review
+- **Primary brand mark:** question-papers/public/icons/growth-logo.webp; transparent, owner-selected sculptural tree with leaf-vein teal-green ribbon, moss/grass, warm bark, rooted sapling and mature canopy.
+- **Launcher:** growth-launcher-192.png, growth-launcher-512.png, growth-launcher-180.png and growth-favicon-32.png, derived from the selected muted jade square. The app icon is not a new logo.
+- **Palette:** cream #f7f5ed, parchment #fffdf7, forest ink #16382c, deep green #165d3c, soft sage #eaf2e7, reserved amber #dbb86a. Warm wood/earth appears in art rather than every control.
+- **Personality:** premium, grounded, calm, uncluttered, trustworthy; never glossy neon UI, floating visual noise or a separate identity for each screen.
+- **Legibility:** DM Sans body, Manrope headings, deep contrast and minimum 44px interactive targets; respect reduced-motion settings.
 
-Baseline source was `d4c6666`. Matched fixture and emulator captures on desktop, 390px and 320px covered the desk, creation, paper archive and preview, student lookup, uploading, and marking to release. The independent visual review rated the implemented change higher for action hierarchy, identity, and phone navigation. Wide document readability and the distinct release step were preserved. The review used synthetic papers and accounts.
+## Mobile-first experience
+
+1. **Home:** date, personalized greeting, compact live-data cards for work needing review, approved sheets, saved tests and paper creation; brief existing-work list and direct entry to student submissions.
+2. **Create:** keep the existing conversational paper authoring, editable requests, immutable validated paper and worked answers, and print/share features; style in the same paper-and-sage system.
+3. **Review:** student/test context first, handwriting large enough to inspect, current/suggested marks, rationale, marking scheme and teacher decision. On desktop: answer-book queue → scan → review. On phone: image and decision in a continuous readable flow.
+4. **Return:** approval of marks and student release are distinct. Approved work must return only through the existing authorized private handback.
+5. **Navigation:** retain Home, Papers, Inbox and Students as actual destinations; do not invent decorative Reports or unimplemented pages.
+
+## Implementation and evidence
+
+- Standalone Angular app: question-papers/. Existing gateway, auth, storage, worker, student privacy and APIs are unchanged by this visual work.
+- Desktop and phone reference is the approved image, not a new direction. Inspect rendered UI against matched states; preserve useful existing navigation and content.
+- Verify teacher actions from create through scanned handwritten review, mark correction, approval and private return; loading/error/empty/long-content states and responsive constraints.
+- A successful build does **not** establish actual visual or educational acceptance. Unseen authenticated states remain unverified.

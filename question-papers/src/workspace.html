@@ -12,12 +12,12 @@
 <div class="workspace desk-shell" [hidden]="checkingOpen" [class.with-document]="document" [class.drawer-open]="drawer">
   <header class="desk-bar" [attr.inert]="drawer?'':null">
     <button class="desk-wordmark" type="button" (click)="user && openHome()" aria-label="GT Papers home">
-      <img class="desk-book" src="/icons/papers-mark.webp" width="36" height="36" alt="">
+      <img class="desk-book" src="/icons/growth-logo.webp" width="36" height="36" alt="">
       <span>GT Papers<small>Growth Tutorials</small></span>
     </button>
     <nav *ngIf="user" class="desk-nav" aria-label="Workspace navigation">
       <button type="button" [attr.aria-current]="view==='home'?'page':null" (click)="openHome()">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3ZM9 20v-7h6v7"/></svg><span>Desk</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3ZM9 20v-7h6v7"/></svg><span>Home</span>
       </button>
       <button type="button" [attr.aria-current]="view==='library'||view==='chat'?'page':null" (click)="openLibrary()">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6ZM14 3v5h5M9 12h7m-7 4h7"/></svg><span>Papers</span>
@@ -63,22 +63,41 @@
         <header class="desk-hero">
           <div class="desk-intro">
             <time [attr.datetime]="todayIso">{{todayLabel}}</time>
-            <h1>Your teaching desk<span>.</span></h1>
+            <h1>{{greeting}},<span>{{teacherName}}.</span></h1>
+            <p class="desk-tagline">A calmer way to prepare, review and return your classwork.</p>
           </div>
-        </header>
-        <nav class="desk-actions" aria-label="Start work">
-          <button class="desk-action create-action" type="button" (click)="newConversation()">
-            <span><strong>Create a paper</strong><small>Write questions and worked answers</small></span>
-            <span class="desk-action-arrow" aria-hidden="true">→</span>
+          <button class="desk-upload-quick" type="button" (click)="openCheckingHome()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+            Upload answer sheets
           </button>
-          <button class="desk-action check-action" type="button" (click)="openCheckingHome()">
-            <span><strong>Upload answer sheets</strong><small>Check files you already have</small></span>
-            <span class="desk-action-arrow" aria-hidden="true">→</span>
+        </header>
+        <nav class="overview-grid" aria-label="Your teaching work">
+          <button class="overview-card overview-review" type="button" (click)="openSubmissions()">
+            <span class="overview-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg></span>
+            <span class="overview-card-name">Needs review</span>
+            <strong class="overview-card-value" [attr.aria-label]="reviewCount+' answer sheets needing review'">{{reviewCount}}</strong>
+            <span class="overview-card-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="overview-card overview-approved" type="button" (click)="openSubmissions()">
+            <span class="overview-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg></span>
+            <span class="overview-card-name">Private returns</span>
+            <strong class="overview-card-cta">Open inbox <span aria-hidden="true">→</span></strong>
+          </button>
+          <button class="overview-card overview-tests" type="button" (click)="openLibrary()">
+            <span class="overview-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6 12 3l8 3-8 3-8-3Zm0 6 8 3 8-3M4 18l8 3 8-3"/></svg></span>
+            <span class="overview-card-name">Saved tests</span>
+            <strong class="overview-card-value" [attr.aria-label]="savedTestCount+' saved test conversations'">{{savedTestCount}}</strong>
+            <span class="overview-card-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="overview-card overview-create" type="button" (click)="newConversation()">
+            <span class="overview-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8m-4-4h8"/></svg></span>
+            <span class="overview-card-name">Create test</span>
+            <strong class="overview-card-cta">Start new <span aria-hidden="true">→</span></strong>
           </button>
         </nav>
         <div class="desk-today">
         <section class="desk-work" aria-labelledby="work-title">
-          <div class="desk-work-head"><h2 id="work-title">Continue working</h2><button *ngIf="workItems.length>4" class="text-button" (click)="allWork=!allWork">{{allWork?'Show less':'View all'}} <span aria-hidden="true">{{allWork?'↑':'→'}}</span></button></div>
+          <div class="desk-work-head"><h2 id="work-title">Needs your attention</h2><button *ngIf="workItems.length>4" class="text-button" (click)="allWork=!allWork">{{allWork?'Show less':'View all'}} <span aria-hidden="true">{{allWork?'↑':'→'}}</span></button></div>
           <p *ngIf="workLoading&&!workItems.length" class="desk-notice" role="status"><span class="loader small"></span> Loading your recent work…</p>
           <div *ngIf="workError || error" class="desk-alert" role="alert"><span>{{workError || error}}</span><button class="text-button" (click)="reloadDesk()">Try again</button></div>
           <div *ngIf="workItems.length" class="desk-rows">
@@ -93,8 +112,8 @@
         </section>
         <aside class="desk-incoming" aria-labelledby="desk-incoming-title">
           <div>
-            <h2 id="desk-incoming-title">Student submissions</h2>
-            <p>Review the answer sheets students send from GTOP.</p>
+            <h2 id="desk-incoming-title">Incoming submissions</h2>
+            <p>Review handwriting and decide which marks to approve before private return.</p>
           </div>
           <button class="button desk-inbox-link" type="button" (click)="openSubmissions()">Open inbox <span aria-hidden="true">→</span></button>
         </aside>

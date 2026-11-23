@@ -11,6 +11,7 @@
       >
         ‹ <span>{{ fromSubmissionInbox ? 'Inbox' : fromStudentHistory ? 'Students' : 'Register' }}</span>
       </button>
+      <img class="review-brand-mark" src="/icons/growth-logo.webp" width="38" height="38" alt="" />
       <div class="heading">
         <h1>{{ identity(sheet!).name }}</h1>
         <p [title]="rubric?.title || ''">{{ identity(sheet!).detail ? identity(sheet!).detail + ' · ' : '' }}{{ sheetClassLabel ? sheetClassLabel + ' · ' : '' }}{{ rubric?.title }}</p>
@@ -291,6 +292,7 @@
               </button>
             }
             @if (fromSubmissionInbox && current.state === 'final' && !editing && !dirty) {
+              <span class="return-guidance">Marks approved · release privately from Inbox</span>
               <button class="action primary" type="button" (click)="leave()" [disabled]="busy">Return to Inbox <span aria-hidden="true">→</span></button>
             }
             <button
@@ -365,6 +367,29 @@
         [class.short-page]="page && page!.width > 1.8 * page!.height"
         [class.show-review]="pane === 'review' && current.grade"
       >
+        @if (current.grade && sheets.length > 0) {
+          <aside class="review-queue card" aria-label="Answer sheets in this test">
+            <header class="review-queue-head">
+              <h2>Submissions</h2>
+              <span>{{sheets.length}} answer books</span>
+            </header>
+            <div class="review-queue-list">
+              @for (item of sheets; track item.id) {
+                <button type="button" class="review-queue-entry"
+                  [class.selected]="item.id===current.id"
+                  [disabled]="busy || dirty || item.state==='withdrawn'"
+                  [attr.aria-current]="item.id===current.id?'true':null"
+                  (click)="open(item.id)">
+                  <strong>{{identity(item).name}}</strong>
+                  <small>{{stateLabel(item)}}</small>
+                  @if (item.awarded !== null && item.awarded !== undefined) {
+                    <span class="review-queue-score">{{item.awarded}} / {{item.max ?? rubric?.marks}}</span>
+                  }
+                </button>
+              }
+            </div>
+          </aside>
+        }
         <section class="scan card" aria-label="Scanned handwriting">
           <div class="scan-tools">
             <div class="page-nav">
@@ -573,7 +598,7 @@
         @if (current.grade) {
           <aside class="inspector card" aria-label="Question review">
             <div class="inspector-top">
-              <h2 id="review-focus" tabindex="-1">Marking notes</h2>
+              <h2 id="review-focus" tabindex="-1">Review assessment</h2>
               <label
                 ><span class="sr">Question filter</span
                 ><select [ngModel]="focusList" (ngModelChange)="setFocusList($event)">
@@ -656,7 +681,7 @@
                     <span class="q-label">Question {{ a.number }}</span>
                     <h3 class="verdict" [attr.data-status]="a.status">{{ resultLabel(a) }}</h3>
                   </div>
-                  <div class="answer-marks">
+                  <div class="answer-marks" aria-label="Current mark">
                     {{ a.awarded ?? '—' }} <small>/ {{ a.max }}</small>
                   </div>
                 </div>
@@ -687,7 +712,7 @@
                   }
                 </div>
                 @if (!editingAnswer || !canEdit) { <section class="reason">
-                  <h4>Reason for the mark</h4>
+                  <h4>Reasoning for this mark</h4>
                   <p>{{ a.explanation || 'No reason recorded.' }}</p>
                 </section> }
                 @if (canEdit) {
@@ -922,6 +947,28 @@
                   </details>
                 }
               </article>
+            }
+            @if (current.grade) {
+              <div class="review-decision-actions" aria-label="Teacher decision">
+                @if (canEdit) {
+                  @if (!pending && !(current.state === 'final' && editingAnswer && dirty)) {
+                    <button class="action primary" type="button" (click)="save(true)" [disabled]="busy">
+                      {{current.state === 'final' ? 'Save approved marks' : 'Approve final marks'}}
+                    </button>
+                  } @else if (issues.length > 0) {
+                    <button class="action" type="button" (click)="nextIssue()" [disabled]="busy">
+                      Review next flagged answer →
+                    </button>
+                  }
+                  @if (dirty && !editingAnswer && (current.state !== 'final' || pending)) {
+                    <button class="action" type="button" (click)="save(false)" [disabled]="busy">Save review draft</button>
+                  }
+                }
+                @if (fromSubmissionInbox && current.state === 'final' && !editing && !dirty) {
+                  <p class="return-guidance">Marks approved. Release the result privately from Inbox.</p>
+                  <button class="action primary" type="button" (click)="leave()" [disabled]="busy">Return to Inbox →</button>
+                }
+              </div>
             }
             @if (canEdit && missing.length > 1) {
               <section class="bulk-missing">

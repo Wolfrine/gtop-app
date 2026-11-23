@@ -1,0 +1,204 @@
+<div class="pl-root" [class.pl-picker]="mode==='picker'">
+  <header class="pl-hero">
+    <div class="pl-heading">
+      <span class="pl-overline">{{mode==='picker'?'MARKING REFERENCE':'INTELLIGENT PAPER LIBRARY'}}</span>
+      <h1>{{mode==='picker'?'Choose a saved paper':'Find the right paper.'}}</h1>
+      <p>{{mode==='picker'?'Browse board, class, subject and chapters to identify the correct marking scheme.':'Browse the curriculum, revisit earlier work and find the assessment that fits.'}}</p>
+    </div>
+    <label class="pl-search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>
+      <span class="pl-sr">Find papers by title, subject or chapter</span>
+      <input type="search" maxlength="160" autocomplete="off" [ngModel]="query" (ngModelChange)="query=$event;onQueryChanged()" placeholder="Search title or chapter…"/>
+      <button *ngIf="query" type="button" aria-label="Clear search" (click)="query='';onQueryChanged()">×</button>
+    </label>
+  </header>
+
+  <nav *ngIf="mode==='library'" class="pl-quick" aria-label="Paper collections">
+    <button type="button" class="pl-quick-card" (click)="setCollection('browse')">
+      <span class="pl-quick-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 6 8-3 8 3-8 3-8-3Zm0 6 8 3 8-3M4 18l8 3 8-3"/></svg></span>
+      <span><strong>Browse curriculum</strong><small>Board · Class · Subject</small></span>
+    </button>
+    <button type="button" class="pl-quick-card" (click)="setCollection('recent')">
+      <span class="pl-quick-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a9 9 0 1 1-1 5M3 3v6h6M12 7v5l4 2"/></svg></span>
+      <span><strong>Recent papers</strong><small>Latest assessments</small></span>
+    </button>
+    <button type="button" class="pl-quick-card" [class.active]="ownerScope==='mine'" (click)="setCollection('mine')">
+      <span class="pl-quick-icon amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5zM15 3v5h4M8 13h8M8 17h6"/></svg></span>
+      <span><strong>My papers</strong><small>Your own creations</small></span>
+    </button>
+    <button type="button" class="pl-quick-card" [class.active]="!latestRevisionOnly" (click)="setCollection('revisions')">
+      <span class="pl-quick-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v13H3zM7 3h14v3M7 10h10M7 14h7"/></svg></span>
+      <span><strong>All revisions</strong><small>Earlier versions</small></span>
+    </button>
+  </nav>
+
+  <div class="pl-mobile-path">
+    <div class="pl-mobile-path-head">
+      <strong>Curriculum path</strong>
+      <button type="button" [attr.aria-expanded]="showCurriculum" (click)="showCurriculum=!showCurriculum">{{showCurriculum?'Done':'Change'}} <span aria-hidden="true">›</span></button>
+    </div>
+    <div class="pl-mobile-chips">
+      <span *ngIf="!pathSelected" class="pl-path-chip">All curricula</span>
+      <ng-container *ngFor="let stage of stages">
+        <button *ngIf="filters[stage.key]" class="pl-path-chip" type="button" (click)="chooseBreadcrumb(stage.key)">{{labelFor(stage.key)}}</button>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="pl-layout">
+    <aside class="pl-curriculum pl-surface" [class.expanded]="showCurriculum" aria-label="Explore curriculum">
+      <div class="pl-curriculum-heading">
+        <h2>Explore curriculum</h2>
+        <p>One paper can appear under several chapters.</p>
+      </div>
+      <div *ngFor="let stage of stages" class="pl-facet-section">
+        <h3>{{stage.title}}</h3>
+        <div class="pl-facet-options">
+          <button *ngFor="let option of facets[stage.level]" type="button" class="pl-facet"
+            [class.active]="filters[stage.key]===option.key"
+            [attr.aria-pressed]="filters[stage.key]===option.key"
+            (click)="selectFacet(stage.key,option.key)">
+            <span>{{option.label}}</span><span class="pl-facet-arrow" aria-hidden="true">›</span>
+          </button>
+          <p *ngIf="!facets[stage.level].length && !facetLoading" class="pl-facet-empty">
+            {{stage.level==='board'?'No classified boards yet.':stage.level==='standard'&&!filters.boardKey?'Choose a board first.':stage.level==='subject'&&!filters.standardKey?'Choose a class first.':stage.level==='chapter'&&!filters.subjectKey?'Choose a subject first.':'No available categories.'}}
+          </p>
+        </div>
+      </div>
+      <p *ngIf="facetLoading" class="pl-muted" role="status">Loading curriculum…</p>
+      <p *ngIf="facetError" class="pl-error" role="alert">{{facetError}} <button type="button" (click)="refreshAll()">Retry</button></p>
+      <p *ngIf="facetPartial" class="pl-muted">More categories may exist. Refine your curriculum path.</p>
+      <button type="button" class="pl-clear" (click)="resetBrowse()">Clear curriculum path</button>
+    </aside>
+
+    <section class="pl-results pl-surface" aria-label="Papers matching the curriculum">
+      <div class="pl-breadcrumbs">
+        <button type="button" (click)="resetBrowse()">Library</button>
+        <ng-container *ngFor="let stage of stages">
+          <ng-container *ngIf="filters[stage.key]">
+            <span aria-hidden="true">›</span>
+            <button type="button" (click)="chooseBreadcrumb(stage.key)">{{labelFor(stage.key)}}</button>
+          </ng-container>
+        </ng-container>
+      </div>
+      <div class="pl-results-heading">
+        <div><h2>{{activeTitle}}</h2><p>Relevant chapter memberships include multi-chapter assessments.</p></div>
+        <span class="pl-order">Newest first</span>
+      </div>
+
+      <div class="pl-toolbar">
+        <span class="pl-result-count" role="status">{{resultLabel}}</span>
+        <label class="pl-revisions"><input type="checkbox" [(ngModel)]="latestRevisionOnly" (change)="onAdvancedChange()"/> Latest revisions</label>
+        <details class="pl-more-filters">
+          <summary>Options <span aria-hidden="true">⌄</span></summary>
+          <div class="pl-extra-options">
+            <label>Academic year
+              <input type="text" maxlength="7" [(ngModel)]="academicYear" (change)="onAdvancedChange()" placeholder="2026-27"/>
+            </label>
+            <label>Paper format
+              <select [(ngModel)]="format" (change)="onAdvancedChange()">
+                <option value="">Any format</option><option value="practice">Practice</option><option value="board">Board format</option>
+              </select>
+            </label>
+            <label>Ownership
+              <select [(ngModel)]="ownerScope" (change)="onAdvancedChange()">
+                <option value="accessible">All accessible</option><option value="mine">My papers</option>
+              </select>
+            </label>
+          </div>
+        </details>
+      </div>
+
+      <p *ngIf="indexCoverage==='building'" class="pl-info" role="status">The paper index is being updated. Some older records may not yet appear.</p>
+      <p *ngIf="openError" class="pl-error" role="alert">Could not open the selected paper: {{openError}}</p>
+      <p *ngIf="error" class="pl-error" role="alert">Could not retrieve papers: {{error}} <button type="button" (click)="searchPapers(true)">Try again</button></p>
+
+      <div class="pl-paper-list" [attr.aria-busy]="loading">
+        <button *ngFor="let paper of items;trackBy:trackByPaper" type="button" class="pl-paper"
+          [class.selected]="selected?.paperId===paper.paperId" (click)="selectPaper(paper)"
+          [attr.aria-label]="'Preview '+paper.title">
+          <span class="pl-document-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h10l4 4v14H5zM15 3v5h4M8 12h8M8 16h8"/></svg></span>
+          <span class="pl-paper-text">
+            <strong>{{paper.title}}</strong>
+            <small>{{paper.board.raw}} · Class {{paper.standard.raw}} · {{paper.subject.raw}}</small>
+            <span class="pl-paper-tags">
+              <span class="pl-tag">{{paper.marks}} marks</span>
+              <span class="pl-tag" *ngFor="let ch of paper.chapterBreakdown | slice:0:2">{{ch.title}}</span>
+              <span *ngIf="paper.chapterBreakdown.length>2" class="pl-tag">+{{paper.chapterBreakdown.length-2}} chapters</span>
+              <span *ngIf="paper.classificationStatus==='needs_review'" class="pl-tag warning">Classification needs review</span>
+            </span>
+          </span>
+          <span class="pl-paper-tail"><span class="pl-rev">Rev {{paper.revision}}</span><span>Preview <span aria-hidden="true">›</span></span></span>
+        </button>
+      </div>
+      <p *ngIf="loading" role="status" class="pl-state">Finding papers…</p>
+      <div *ngIf="loaded&&!loading&&!error&&!items.length" class="pl-empty">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h12l4 4v14H4zM8 12h8M8 16h5"/></svg>
+        <h3>{{isPartial?'No matches in the records searched':'No matching papers'}}</h3>
+        <p>Try another class, subject or chapter. Only papers accessible to you are shown.</p>
+        <button type="button" (click)="resetBrowse()">Browse all curricula</button>
+      </div>
+      <div class="pl-list-footer" *ngIf="nextCursor||isPartial">
+        <p *ngIf="isPartial" class="pl-muted">Results may be incomplete until more records are searched.</p>
+        <button *ngIf="nextCursor" type="button" class="pl-load-more" [disabled]="loading" (click)="searchPapers(false)">{{loading?'Loading…':'Load more papers'}} <span aria-hidden="true">→</span></button>
+      </div>
+    </section>
+
+    <aside class="pl-preview pl-surface" [class.open]="selected!==null" aria-label="Selected paper preview">
+      <header class="pl-preview-header">
+        <h2>Paper preview</h2>
+        <button *ngIf="selected" class="pl-preview-close" type="button" aria-label="Close preview" (click)="dismissPreview()">×</button>
+        <span *ngIf="!selected" class="pl-readonly">READ ONLY</span>
+      </header>
+      <ng-container *ngIf="selected as paper;else previewEmpty">
+        <div class="pl-preview-details">
+          <h3>{{paper.title}}</h3>
+          <div class="pl-paper-tags"><span class="pl-tag">{{paper.board.raw}} · Class {{paper.standard.raw}}</span><span class="pl-tag">{{paper.marks}} marks</span><span class="pl-tag">Revision {{paper.revision}}</span></div>
+          <p *ngIf="paper.chapterBreakdown.length>0" class="pl-chapter-note">{{paper.chapterBreakdown.length}} {{paper.chapterBreakdown.length===1?'chapter':'chapters'}} · {{paper.questionCount}} questions</p>
+          <p *ngIf="paper.parentPaperId" class="pl-chapter-note">Earlier revisions can be found with “Latest revisions” switched off.</p>
+        </div>
+        <ng-container *ngIf="mode==='library'">
+          <div class="pl-preview-switch" aria-label="Document type">
+            <button type="button" [attr.aria-pressed]="previewKind==='student'" (click)="loadPreview('student')">Question paper</button>
+            <button type="button" [attr.aria-pressed]="previewKind==='answers'" (click)="loadPreview('answers')">Worked answers</button>
+          </div>
+          <div class="pl-actual-preview">
+            <div *ngIf="previewLoading" class="pl-preview-status" role="status">Opening the original saved {{previewKind==='student'?'question paper':'worked answers'}}…</div>
+            <div *ngIf="previewError" class="pl-error" role="alert">{{previewError}} <button type="button" (click)="loadPreview(previewKind)">Retry</button></div>
+            <iframe *ngIf="previewHtml" [srcdoc]="previewHtml" title="Original saved paper preview" sandbox="allow-same-origin" loading="lazy"></iframe>
+          </div>
+        </ng-container>
+        <div *ngIf="mode==='picker'" class="pl-pick-description">
+          <p>Use this saved question paper as the reference for checking handwritten answer sheets.</p>
+          <p class="pl-muted">You can still scan a separate printed paper from the checking desk.</p>
+        </div>
+        <div class="pl-preview-actions">
+          <button *ngIf="mode==='picker'" type="button" class="pl-action primary" (click)="pickSelected()">Use for checking <span aria-hidden="true">→</span></button>
+          <ng-container *ngIf="mode==='library'">
+            <button type="button" class="pl-action primary" (click)="openSelected()">Open paper <span aria-hidden="true">→</span></button>
+            <div class="pl-secondary-actions">
+              <button type="button" class="pl-action secondary" (click)="openSelected('answers')">Worked answers</button>
+              <button type="button" class="pl-action secondary" (click)="checkSelected()">Check sheets</button>
+            </div>
+            <button type="button" class="pl-print" (click)="openSelected('student',true)">Print / Save PDF</button>
+          </ng-container>
+        </div>
+      </ng-container>
+      <ng-template #previewEmpty>
+        <div class="pl-preview-empty">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5zM15 3v5h4M8 12h8M8 16h5"/></svg>
+          <strong>Select a paper</strong>
+          <p>Review its curriculum context and {{mode==='picker'?'choose it as the marking reference.':'open the original question paper or worked answers.'}}</p>
+        </div>
+      </ng-template>
+    </aside>
+  </div>
+
+  <div *ngIf="selected" class="pl-mobile-backdrop" (click)="dismissPreview()" aria-hidden="true"></div>
+
+  <footer *ngIf="mode==='library'" class="pl-library-footer">
+    <button type="button" (click)="classicArchive.emit()">Previous archive</button>
+    <button type="button" (click)="openRequests.emit()">View paper requests</button>
+    <button type="button" (click)="createPaper.emit()">Create a paper <span aria-hidden="true">→</span></button>
+  </footer>
+</div>

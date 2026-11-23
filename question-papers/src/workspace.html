@@ -168,7 +168,18 @@
       </div>
     </section>
 
-    <section *ngIf="view==='library'&&!checkingOpen&&user.libraryAccess" class="library-panel archive-page" [attr.inert]="drawer?'':null" aria-labelledby="archive-heading">
+    <section *ngIf="view==='library'&&!checkingOpen&&user.libraryAccess&&libraryKind==='papers'&&!legacyLibraryMode"
+      class="library-panel archive-page" [attr.inert]="drawer?'':null" aria-label="Intelligent paper library">
+      <div class="archive-scroll">
+        <gtop-paper-library mode="library" [transport]="transport" [openError]="libraryError"
+          (openPaper)="openCatalogueDocument($event)"
+          (createPaper)="newConversation()"
+          (openRequests)="switchLibrary('conversations')"
+          (checkPaper)="openCatalogueChecking($event)"
+          (classicArchive)="openClassicPaperArchive()"></gtop-paper-library>
+      </div>
+    </section>
+    <section *ngIf="view==='library'&&!checkingOpen&&user.libraryAccess&&(libraryKind==='conversations'||legacyLibraryMode)" class="library-panel archive-page" [attr.inert]="drawer?'':null" aria-labelledby="archive-heading">
       <div class="archive-scroll">
         <div class="author-shell archive-shell">
           <header class="archive-heading-row">

@@ -10,6 +10,8 @@ if(!getApps().length)initializeApp({credential:applicationDefault(),projectId:'g
 const db=getFirestore(),store=new FirestoreStore(db);
 const marker=(await db.doc(catalogueMigrationPath).get()).data();
 if(!marker?.completed)throw Error('Generated-paper catalogue backfill incomplete.');
+const facetMigration=(await db.doc('assistantCatalogueMigrations/facetsV1').get()).data();
+if(!facetMigration?.completed)throw Error('Curriculum facet backfill incomplete.');
 const sample=await db.collection('assistantPapers').orderBy('__name__').limit(30)
   .select('ownerUid','board','standard','subject','sections','createdAt').get();
 if(sample.empty)throw Error('No original generated papers available for catalogue verification.');
@@ -36,6 +38,9 @@ store.list=async(...args)=>{const rows=await baseList(...args);if(args[0]==='pap
   indexQueries++;indexDocumentsRead+=rows.length;
 }return rows;};
 const service=new AssistantService(store);
+const options=await service.adminLibraryFacets(uid,{filters:{ownerScope:'mine'}});
+if(options.level!=='board'||!options.options.some(row=>row.key===catalogueKey(paper.board)))
+  throw Error('An invited teacher cannot browse the board of an existing owned paper.');
 const start=Date.now();
 const result=await service.adminLibrarySearch(uid,{kind:'papers',
   filters:{boardKey:catalogueKey(paper.board),standardKey:catalogueKey(paper.standard),
@@ -51,4 +56,5 @@ if(accessible.items.some(item=>restricted.get(item.paperId)?.nativePrivate&&item
   throw Error('A private paper was returned to another owner.');
 console.log(JSON.stringify({paperCatalogueVerified:true,originalsCompared:sample.size,
   indexedSearchResults:result.items.length,latencyMs,indexQueries,indexDocumentsRead,
-  accessibleResults:accessible.items.length,coverage:result.indexCoverage}));
+  accessibleResults:accessible.items.length,facetBoardOptions:options.options.length,
+  facetBackfillComplete:facetMigration.completed,coverage:result.indexCoverage}));

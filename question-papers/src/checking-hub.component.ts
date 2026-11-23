@@ -5,13 +5,14 @@ import { AssistantApi } from './api.service';
 import { LibraryItem, LibraryPage, mergeLibraryItems } from './contracts';
 import { ExternalExamComponent } from './external-exam.component';
 import { PaperPacketComponent } from './paper-packet.component';
+import { PaperLibraryComponent, type CataloguePaper } from './paper-library.component';
 
 type Picker = 'library' | 'import' | null;
 
 @Component({
   selector: 'gtop-checking-hub',
   standalone: true,
-  imports: [CommonModule, FormsModule, ExternalExamComponent, PaperPacketComponent],
+  imports: [CommonModule, FormsModule, ExternalExamComponent, PaperPacketComponent, PaperLibraryComponent],
   templateUrl: './checking-hub.html',
   styleUrl: './checking-hub.css',
 })
@@ -32,6 +33,7 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
   printedId = '';
   paperError = '';
   picker: Picker = null;
+  legacyPicker = false;
   papers: LibraryItem[] = [];
   nextCursor: string | null = null;
   libraryLoaded = false;
@@ -108,9 +110,10 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
   choosePaper(packetId?: string) {
     if (packetId) this.rememberPacket(packetId);
     if (!this.libraryAccess) { this.choosePrinted(); return; }
-    this.picker = 'library';
-    if (this.picker === 'library' && !this.libraryLoaded) void this.loadPapers();
+    this.picker = 'library';this.legacyPicker=false;
   }
+  chooseIndexedPaper(paper:CataloguePaper){this.chooseReference(paper.paperId,paper.title,paper.marks);}
+  toggleLegacyPicker(){this.legacyPicker=!this.legacyPicker;if(this.legacyPicker&&!this.libraryLoaded)void this.loadPapers();}
   choosePrinted() {
     this.printedId = ''; this.picker = 'import'; this.rememberPrinted('');
   }

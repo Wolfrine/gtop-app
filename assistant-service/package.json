@@ -7,7 +7,7 @@
     "node": "22"
   },
   "scripts": {
-    "check": "node --check runtime.mjs && node --check gateway.mjs && node --check service.mjs && node --check service-control.mjs && node --check store.mjs && node --check paper-catalogue.mjs && node --check scripts/backfill-paper-catalogue.mjs && node --check scripts/verify-paper-catalogue.mjs && node --check scripts/deploy.mjs"
+    "check": "node --check runtime.mjs && node --check gateway.mjs && node --check service.mjs && node --check service-control.mjs && node --check store.mjs && node --check paper-catalogue.mjs && node --check paper-library-facets.mjs && node --check scripts/backfill-paper-facets.mjs && node --check scripts/backfill-paper-catalogue.mjs && node --check scripts/verify-paper-catalogue.mjs && node --check scripts/deploy.mjs"
   },
   "dependencies": {
     "@grpc/grpc-js": "1.13.7",

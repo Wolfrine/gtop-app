@@ -2,6 +2,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener, Injector, inject, provideZoneChangeDetection, isDevMode, type Type } from '@angular/core';
 import { provideServiceWorker } from '@angular/service-worker';
 import { GtPwaControls } from './pwa-controls';
+import { PaperLibraryComponent, type CataloguePaper } from './paper-library.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -20,7 +21,7 @@ interface DeskSheet {id:string; paperId:string; label:string; studentUid?:string
 interface DeskItem {kind:'request'|'packet'|'sheet'|'draft'; id:string; title:string; description:string; action:string; updatedAt:string; paperId?:string; packetId?:string}
 
 @Component({
-  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls],templateUrl:'./workspace.html'
+  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls,PaperLibraryComponent],templateUrl:'./workspace.html'
 })
 export class PaperWorkspace implements OnInit,OnDestroy {
   private api=inject(AssistantApi);private sanitizer=inject(DomSanitizer);
@@ -105,6 +106,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   get blockedTurn(){return (this.detail?.jobs||[]).some(j=>j.kind==='turn'&&pendingStates.has(j.state));}
   get readyTitle(){return this.detail?.conversation.title || 'New conversation';}
   get readOnly(){return conversationReadOnly(this.detail,this.user?.uid);}
+  legacyLibraryMode=false;
   libraryPageNumber = 1;
   readonly libraryPageSize = 12;
   private archiveSearch?: {items: LibraryItem[]; filters: string; matches: LibraryItem[]};
@@ -384,18 +386,34 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     }
   }
   closeChecking(){this.returnFromCheck();}
+  openCatalogueDocument(event:{paper:CataloguePaper;kind:'student'|'answers';print:boolean}){
+    const item=event.paper;
+    const paper:PaperSummary={
+      id:item.paperId,title:item.title,revision:item.revision,marks:item.marks,
+      createdAt:item.createdAt,ownerUid:item.ownerUid,conversationId:item.sourceConversationId,
+      board:item.board.raw,standard:item.standard.raw,subject:item.subject.raw,
+      academicYear:item.academicYear,jobId:''
+    };
+    void this.showDocument(paper,event.kind,true,event.print);
+  }
+  openCatalogueChecking(paper:CataloguePaper){this.openCheckingHome(paper.paperId);}
+  async openClassicPaperArchive(){
+    this.libraryKind='papers';this.legacyLibraryMode=true;
+    if(!this.libraryPages.papers.loaded)await this.loadLibrary();
+  }
   async openLibrary(write=true){
     if(!this.user||!this.contentAuthorized)return;
+    if(write){this.libraryKind='papers';this.legacyLibraryMode=false;}
     this.prepareNavigation();if(write)this.writeRoute({view:'library'});
     this.openingId='';this.view='library';this.drawer=false;this.error='';this.closeDocument();
-    if(this.user.libraryAccess){if(!this.libraryPage.loaded)await this.loadLibrary();}
+    if(this.user.libraryAccess){if((this.legacyLibraryMode||this.libraryKind==='conversations')&&!this.libraryPage.loaded)await this.loadLibrary();}
     else{const epoch=this.authEpoch;try{await this.loadConversations();}catch(e){if(this.current(epoch))this.reportError(e);}}
     this.schedulePoll();
   }
   async switchLibrary(kind:LibraryKind){
     if(this.libraryLoading || kind===this.libraryKind)return;
-    this.libraryKind=kind;this.archiveFilterChanged();this.libraryError='';this.closeDocument();
-    if(!this.libraryPage.loaded)await this.loadLibrary();
+    this.libraryKind=kind;this.legacyLibraryMode=false;this.archiveFilterChanged();this.libraryError='';this.closeDocument();
+    if(kind==='conversations'&&!this.libraryPage.loaded)await this.loadLibrary();
   }
   clearLibraryFilters(){this.libraryFilters={board:'',standard:'',subject:'',text:'',year:''};this.archiveFilterChanged();}
   async loadLibrary(refresh=true){

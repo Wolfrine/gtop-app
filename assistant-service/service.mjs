@@ -11,6 +11,7 @@ import {withWorkerHealth,workerFreshnessMs} from './presence.mjs';
 import {proposalResponse,researchKey,pendingPaperTurns,confirmationText} from './domain/paper-proposal.mjs';
 import {NativePaperError, nativePaper, workerPaper} from './native-papers.mjs';
 import {stagePaperCatalogue,normaliseCatalogueSearch,decodeCatalogueCursor,encodeCatalogueCursor,publicCatalogueItem,catalogueMigrationPath} from './paper-catalogue.mjs';
+import {paperFacetOptionsPath,paperFacetScopeFromFilters} from './paper-library-facets.mjs';
 
 export class HttpError extends Error { constructor(status, code, message) { super(message); this.status = status; this.code = code; } }
 const fail = (status, code, message) => { throw new HttpError(status, code, message); };
@@ -211,6 +212,27 @@ export class AssistantService {
     const nextCursor=rows.length<=50?null:legacyOrder?last.id:
       libraryCursorPrefix+Buffer.from(JSON.stringify([body.kind,last[order.orderBy[0]],last.id])).toString('base64url');
     return {items,nextCursor};
+  }
+  // Show only authorized, derived curriculum options. No source-paper scans,
+  // count leaks, model inferences, or repeated whole-library reads.
+  async adminLibraryFacets(uid,body={}){
+    await this.user({uid});
+    let normalized;
+    try{normalized=normaliseCatalogueSearch({kind:'papers',filters:body.filters||{},latestRevisionOnly:true});}
+    catch(error){fail(400,'invalid_catalogue_scope',String(error.message||error));}
+    const {path,level}=paperFacetScopeFromFilters(normalized.filters);
+    const folders=[
+      paperFacetOptionsPath(path,{visibility:'owner',ownerUid:uid}),
+      ...(normalized.filters.ownerScope==='mine'?[]:[paperFacetOptionsPath(path,{visibility:'shared'})])
+    ];
+    const pages=await Promise.all(folders.map(folder=>this.store.list(folder,[],151,{orderBy:['__name__','asc'],includeId:true})));
+    const options=new Map();
+    for(const page of pages)for(const item of page){
+      if(item.kind!==level||!item.key||!item.label)continue;
+      if(!options.has(item.key))options.set(item.key,{key:item.key,label:item.label});
+    }
+    const sorted=[...options.values()].sort((a,b)=>a.label.localeCompare(b.label,undefined,{numeric:true}));
+    return {level,options:sorted,partial:pages.some(page=>page.length>=151),scopePath:path};
   }
   // Authorized indexed discovery. Original papers, solutions and the existing
   // chronological library endpoint are not modified.

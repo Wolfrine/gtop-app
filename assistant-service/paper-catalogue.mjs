@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {writePaperCatalogueFacets} from './paper-library-facets.mjs';
 
 // A derived, private, versioned view; never a replacement for assistantPapers.
 export const catalogueSchemaVersion=1;
@@ -138,6 +139,7 @@ export async function stagePaperCatalogue(tx,paper,now=new Date().toISOString())
     existing?.familyId===entry.familyId&&existing?.isFamilyLatest===entry.isFamilyLatest&&
     existing?.indexSchemaVersion===catalogueSchemaVersion;
   if(!unchanged)tx.set(entryPath,entry);
+  writePaperCatalogueFacets(tx,entry);
   if(latest&&family?.latestPaperId&&family.latestPaperId!==paper.id&&oldLatest)
     tx.set('paperCatalogue/'+family.latestPaperId,notLatest(oldLatest));
   if(latest&&(family?.latestPaperId!==paper.id||family?.latestCreatedAt!==paper.createdAt))

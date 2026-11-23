@@ -34,3 +34,18 @@ button,input{font:inherit}.action{background:var(--desk-white);color:var(--ink);
   .masthead{gap:8px}
   .top-back{flex:none}
 }
+
+/* Phase 2: the manual marking picker is the same curriculum library, not a parallel list. */
+.picker.pl-chooser{max-width:none;width:100%;padding:0;background:transparent;border:0;box-shadow:none;margin:0}
+.pl-chooser>.picker-head{padding:13px clamp(14px,2.5vw,32px);background:#fffcf7;border:1px solid var(--desk-line);border-radius:15px;gap:18px}
+.pl-chooser .picker-head h2{font:760 20px/1.25 'Manrope',var(--font);color:#173c2d}
+.pl-chooser .picker-head p{font-size:12px;color:#6b806f;margin-top:5px;line-height:1.45}
+.pl-picker-footer{display:flex;justify-content:flex-end;padding:8px clamp(12px,3vw,32px)}
+.pl-picker-footer .text-action{font-size:12px}
+.pl-legacy-picker{max-width:900px;margin:16px auto;background:#fffdf8;border:1px solid var(--desk-line);border-radius:12px;padding:18px}
+@media(max-width:760px){
+  .pl-chooser>.picker-head{display:flex;flex-wrap:wrap;gap:8px;padding:12px}
+  .pl-chooser .picker-head h2{font-size:17px}
+  .pl-chooser .picker-head .action{width:100%;min-height:43px}
+  .pl-picker-footer{padding:7px 13px 25px}
+}

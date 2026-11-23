@@ -130,6 +130,16 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   readonly bookLimit = maxCheckingPages;
 
   get stage() { return this.submitted ? 3 : this.reviewing || this.processing || this.packet?.state === 'failed' ? 2 : 1; }
+  get intakeSteps() {
+    return this.accountCheck
+      ? ['Student & scan', 'Question paper', 'Send for checking']
+      : ['Add scans', 'Match answer books', 'Review marks'];
+  }
+  get intakeStage() {
+    if (!this.accountCheck || this.submitted) return this.stage;
+    if (!this.studentLabel || !this.sources.length) return 1;
+    return this.attachedPaper ? 3 : 2;
+  }
   get uploadLabel() {
     if (this.accountCheck && !this.attachedPaper) return 'Choose question paper';
     if (this.accountCheck) return 'Send for checking';

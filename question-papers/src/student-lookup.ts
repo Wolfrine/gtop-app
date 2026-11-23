@@ -51,17 +51,17 @@ export async function getStudentAccount(api: AssistantApi, uid: string): Promise
     }
   `,
   styles: [`
-    :host{display:block;min-width:0;color:#284633;font:inherit}
+    :host{display:block;min-width:0;color:var(--desk-ink);font:inherit}
     label{display:grid;gap:6px;font-size:14px;font-weight:650}
-    input{box-sizing:border-box;width:100%;min-height:44px;padding:8px 12px;border:1px solid #aab8a3;border-radius:6px;background:#fffef9;color:#203629;font:inherit;font-weight:400;font-size:16px}
+    input{box-sizing:border-box;width:100%;min-height:44px;padding:8px 12px;border:1px solid var(--desk-line);border-radius:6px;background:var(--desk-white);color:var(--desk-ink);font:inherit;font-weight:400;font-size:16px}
     button{font:inherit;cursor:pointer}button:disabled{cursor:default}
-    button:focus-visible,input:focus-visible{outline:2px solid #365e41;outline-offset:2px}
-    p,small{margin:6px 0;color:#53614f;font-size:13px;font-weight:400;line-height:1.45}small{display:block;margin:2px 0 0;overflow-wrap:anywhere}
-    .results{margin-top:5px;border:1px solid #c9d2c1;border-radius:6px;overflow:auto;max-height:19rem}
+    button:focus-visible,input:focus-visible{outline:2px solid var(--desk-green);outline-offset:2px}
+    p,small{margin:6px 0;color:var(--desk-muted);font-size:13px;font-weight:400;line-height:1.45}small{display:block;margin:2px 0 0;overflow-wrap:anywhere}
+    .results{margin-top:5px;border:1px solid var(--desk-line);border-radius:6px;overflow:auto;max-height:19rem}
     .result,.selected{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;text-align:left;box-sizing:border-box;color:inherit}
-    .result{border:0;min-height:46px;background:#fffef9}.result+.result{border-top:1px solid #dde2d6}.result:hover,.result:focus-visible{background:#eef3e6}.result:focus-visible{outline-offset:-2px}
-    .selected{background:#eef3e7;border:1px solid #c4d0bb;border-radius:6px}.selected div,.result span{min-width:0}.selected strong,.result strong{overflow-wrap:anywhere}
-    .change{padding:0 4px;min-height:44px;color:#31583c;border:0;background:transparent;font-size:13px;font-weight:650}.selected .change{flex:0 0 auto}
+    .result{border:0;min-height:46px;background:var(--desk-white)}.result+.result{border-top:1px solid var(--desk-line)}.result:hover,.result:focus-visible{background:var(--soft)}.result:focus-visible{outline-offset:-2px}
+    .selected{background:var(--soft);border:1px solid var(--desk-line);border-radius:6px}.selected div,.result span{min-width:0}.selected strong,.result strong{overflow-wrap:anywhere}
+    .change{padding:0 4px;min-height:44px;color:var(--desk-green);border:0;background:transparent;font-size:13px;font-weight:650}.selected .change{flex:0 0 auto}
   `],
 })
 export class StudentLookupComponent implements OnChanges, OnDestroy {

@@ -12,16 +12,22 @@
 <div class="workspace desk-shell" [hidden]="checkingOpen" [class.with-document]="document" [class.drawer-open]="drawer">
   <header class="desk-bar" [attr.inert]="drawer?'':null">
     <button class="desk-wordmark" type="button" (click)="user && openHome()" aria-label="GT Papers home">
-      <span class="desk-book" aria-hidden="true"><svg viewBox="0 0 36 32" fill="none"><path d="M3 5.8c4.8-.7 9.8.2 14.9 3.1 4.7-3 10.1-4.1 15.1-3.1V24c-4.6-.9-10 .2-15.1 3.3C13.4 24.7 8.2 23.5 3 24Z"/><path d="M17.9 9v18M6.8 11c2.4 0 4.9.6 7.5 1.7m-7.5 2.4c2.7 0 5.1.7 7.5 1.8m7.6-4.2c2.1-1 4.5-1.6 7.2-1.7m-7.2 5.9c2.3-1 4.6-1.7 7.2-1.8"/></svg></span>
+      <img class="desk-book" src="/icons/papers-mark.webp" width="36" height="36" alt="">
       <span>GT Papers<small>Growth Tutorials</small></span>
     </button>
     <nav *ngIf="user" class="desk-nav" aria-label="Workspace navigation">
-      <button [attr.aria-current]="view==='home'?'page':null" (click)="openHome()">Desk</button>
-      <button [attr.aria-current]="view==='chat'?'page':null" (click)="newConversation()">Create</button>
-      <button (click)="openCheckingHome()">Check</button>
-      <button [attr.aria-current]="view==='submissions'?'page':null" (click)="openSubmissions()">Inbox</button>
-      <button [attr.aria-current]="view==='students'?'page':null" (click)="openStudents()">Students</button>
-      <button [attr.aria-current]="view==='library'?'page':null" (click)="openLibrary()">Find</button>
+      <button type="button" [attr.aria-current]="view==='home'?'page':null" (click)="openHome()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3ZM9 20v-7h6v7"/></svg><span>Desk</span>
+      </button>
+      <button type="button" [attr.aria-current]="view==='library'||view==='chat'?'page':null" (click)="openLibrary()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6ZM14 3v5h5M9 12h7m-7 4h7"/></svg><span>Papers</span>
+      </button>
+      <button type="button" [attr.aria-current]="view==='submissions'?'page':null" (click)="openSubmissions()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 12 3-7h12l3 7v7H3Zm0 0h5l2 3h4l2-3h5"/></svg><span>Inbox</span>
+      </button>
+      <button type="button" [attr.aria-current]="view==='students'?'page':null" (click)="openStudents()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 19v-2a6 6 0 0 1 12 0v2ZM16 5a3 3 0 0 1 0 6m2 2a5 5 0 0 1 3 5v1h-3"/></svg><span>Students</span>
+      </button>
     </nav>
     <div class="desk-tools"><gt-pwa-controls/><button *ngIf="user" class="desk-profile" aria-label="Open account and recent requests" [attr.aria-expanded]="drawer" (click)="toggleDrawer()">{{initials()}}</button></div>
   </header>
@@ -55,20 +61,22 @@
     <main *ngIf="view==='home'" class="desk-home" [attr.inert]="drawer?'':null">
       <div class="desk-sheet">
         <header class="desk-hero">
-          <div class="desk-intro"><time [attr.datetime]="todayIso">{{todayLabel}}</time><h1>Your teaching desk<span>.</span></h1><p>Question papers, answer books and worked answers.</p></div>
-          <div class="desk-scene" aria-hidden="true"></div>
+          <div class="desk-intro">
+            <time [attr.datetime]="todayIso">{{todayLabel}}</time>
+            <h1>Your teaching desk<span>.</span></h1>
+          </div>
         </header>
         <nav class="desk-actions" aria-label="Start work">
-          <button class="desk-action create-action" (click)="newConversation()"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 3h12l6 6v7M20 3v7h6M8 3v25h11m4-8-5.8 6.1-1.2 4.1 4.1-1.2 8.4-8.5-3-3Z"/><path d="M12 13h9M12 17h7"/></svg><span><strong>Create a paper</strong><small>Questions &amp; worked answers</small></span><i aria-hidden="true">→</i></button>
-          <button class="desk-action check-action" (click)="openCheckingHome()"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m4 7 16-2 3 21-16 2ZM11 5l-.2-2 16 1-1 21-2.7-.1"/><path class="check-ink" d="m8.5 14.5 3.3 2.8 6.5-7m-7.7 11 5.7-.7"/></svg><span><strong>Check answer sheets</strong><small>Mark a student’s PDF</small></span><i aria-hidden="true">→</i></button>
-          <button class="desk-action" (click)="openStudents()"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="12" cy="10" r="4"/><path d="M4 26v-3a8 8 0 0 1 16 0v3ZM21 6a4 4 0 0 1 0 8m2 3a7 7 0 0 1 5 7v2h-5"/></svg><span><strong>Students</strong><small>Find checking history</small></span><i aria-hidden="true">→</i></button>
-          <button class="desk-action find-action" (click)="openLibrary()"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 9V6h9l3 3h12v4M3 10v16h22l4-13H7L5 23"/><path d="M10 5h7l2 2h7"/></svg><span><strong>Find a paper</strong><small>{{user.libraryAccess?'Browse the paper library':'Search your paper requests'}}</small></span><i aria-hidden="true">→</i></button>
+          <button class="desk-action create-action" type="button" (click)="newConversation()">
+            <span><strong>Create a paper</strong><small>Write questions and worked answers</small></span>
+            <span class="desk-action-arrow" aria-hidden="true">→</span>
+          </button>
+          <button class="desk-action check-action" type="button" (click)="openCheckingHome()">
+            <span><strong>Upload answer sheets</strong><small>Check files you already have</small></span>
+            <span class="desk-action-arrow" aria-hidden="true">→</span>
+          </button>
         </nav>
-        <button class="desk-inbox" type="button" (click)="openSubmissions()">
-          <span class="work-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10h5l2 4h4l2-4h5v9H3Z M3 10l2-6h14l2 6"/></svg></span>
-          <span><strong>Student submissions</strong><small>Approve answer sheets sent from GTOP</small></span>
-          <span aria-hidden="true">→</span>
-        </button>
+        <div class="desk-today">
         <section class="desk-work" aria-labelledby="work-title">
           <div class="desk-work-head"><h2 id="work-title">Continue working</h2><button *ngIf="workItems.length>4" class="text-button" (click)="allWork=!allWork">{{allWork?'Show less':'View all'}} <span aria-hidden="true">{{allWork?'↑':'→'}}</span></button></div>
           <p *ngIf="workLoading&&!workItems.length" class="desk-notice" role="status"><span class="loader small"></span> Loading your recent work…</p>
@@ -83,6 +91,14 @@
           </div>
           <div *ngIf="!workLoading&&!workError&&!error&&!workItems.length" class="desk-empty"><strong>Your desk is clear.</strong><p>Start a paper or scan an answer book to pick it up here.</p></div>
         </section>
+        <aside class="desk-incoming" aria-labelledby="desk-incoming-title">
+          <div>
+            <h2 id="desk-incoming-title">Student submissions</h2>
+            <p>Review the answer sheets students send from GTOP.</p>
+          </div>
+          <button class="button desk-inbox-link" type="button" (click)="openSubmissions()">Open inbox <span aria-hidden="true">→</span></button>
+        </aside>
+        </div>
       </div>
     </main>
     <ng-container *ngIf="studentsOpen">
@@ -99,22 +115,40 @@
         <div *ngIf="!studentSubmissionsComponent && error" class="desk-alert" role="alert">{{error}} <button class="text-button" (click)="openSubmissions(studentSubmissionsInputs.selectedId,false)">Try again</button></div>
       </div>
     </ng-container>
-    <section *ngIf="view==='library'&&!user.libraryAccess" class="desk-personal" [attr.inert]="drawer?'':null" aria-labelledby="personal-title">
-      <div class="desk-sheet"><button class="text-button" (click)="openHome()">← Desk</button><h1 id="personal-title">Your paper requests</h1>
-        <label>Find a request<input type="search" [(ngModel)]="ownQuery" placeholder="Search your recent requests"></label>
-        <div class="desk-alert" *ngIf="error" role="alert">{{error}} <button class="text-button" (click)="reloadDesk()">Try again</button></div>
-        <button *ngFor="let item of ownRequests" class="account-request" (click)="openConversation(item.id)">{{item.title||'Paper request'}}<small>{{relativeTime(item.updatedAt)}}</small></button>
-        <p *ngIf="!ownRequests.length && !error">{{ownQuery?'No matching requests.':'Your paper requests will appear here.'}}</p>
+    <section *ngIf="view==='library'&&!user.libraryAccess" class="library-panel archive-page" [attr.inert]="drawer?'':null" aria-labelledby="personal-title">
+      <div class="archive-scroll">
+        <div class="author-shell archive-shell">
+          <header class="archive-heading-row">
+            <div><h1 class="author-title" id="personal-title">Your paper requests</h1><p>Continue a previous request or start a paper.</p></div>
+            <button class="author-primary archive-create" (click)="newConversation()"><span aria-hidden="true">＋</span> Create a paper</button>
+          </header>
+          <div class="archive-tools personal-tools">
+            <label class="archive-search"><span class="archive-glass" aria-hidden="true"></span><span class="visually-hidden">Find a request</span><input type="search" [(ngModel)]="ownQuery" placeholder="Search your recent requests"></label>
+          </div>
+          <div class="author-notice" *ngIf="error" role="alert"><span>{{error}}</span><button class="author-link" (click)="reloadDesk()">Try again</button></div>
+          <div *ngIf="ownRequests.length" class="archive-ledger personal-ledger" role="list" aria-label="Recent paper requests">
+            <div *ngFor="let item of ownRequests" role="listitem">
+              <button class="personal-row" (click)="openConversation(item.id)">
+                <span class="archive-paper-symbol request-symbol" aria-hidden="true"><i></i></span>
+                <span class="personal-row-text"><strong>{{item.title||'Paper request'}}</strong><small>{{relativeTime(item.updatedAt)}}</small></span>
+                <span class="archive-row-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
+          </div>
+          <div *ngIf="!ownRequests.length && !error" class="archive-empty">
+            <h2>{{ownQuery?'No matching requests':'Your requests will appear here'}}</h2>
+            <button class="author-quiet" (click)="ownQuery?ownQuery='':newConversation()">{{ownQuery?'Clear search':'Create a paper'}}</button>
+          </div>
+        </div>
       </div>
     </section>
 
     <section *ngIf="view==='library'&&user.libraryAccess" class="library-panel archive-page" [attr.inert]="drawer?'':null" aria-labelledby="archive-heading">
       <div class="archive-scroll">
         <div class="author-shell archive-shell">
-          <button class="author-back" (click)="openHome()"><span aria-hidden="true">←</span> Teaching desk</button>
           <header class="archive-heading-row">
-            <div><h1 class="author-title" id="archive-heading">Find a paper</h1><p>Open a saved paper, print a copy or find its worked answers.</p></div>
-            <button class="author-quiet" (click)="newConversation()"><span aria-hidden="true">＋</span> Create a paper</button>
+            <div><h1 class="author-title" id="archive-heading">Papers</h1><p>Find saved papers, worked answers and earlier requests.</p></div>
+            <button class="author-primary archive-create" (click)="newConversation()"><span aria-hidden="true">＋</span> Create a paper</button>
           </header>
           <nav class="archive-tabs" aria-label="Archive collections">
             <button [attr.aria-current]="libraryKind==='papers'?'page':null" [disabled]="libraryLoading" (click)="switchLibrary('papers')">Question papers</button>
@@ -140,22 +174,18 @@
             <span class="archive-order">Newest first</span><button class="author-link archive-refresh" [disabled]="libraryLoading" (click)="loadLibrary()">Refresh</button>
           </div>
           <div *ngIf="libraryError" class="author-notice" role="alert"><span>{{libraryError}}</span><button class="author-link" [disabled]="libraryLoading" (click)="archiveEarlierError?loadOlderArchive():loadLibrary()">Try again</button></div>
-          <div *ngIf="libraryPage.loaded&&(libraryPage.nextCursor||libraryHasFilters)" class="archive-coverage">
-            <div role="status"><span *ngIf="archiveProgress">{{archiveProgress}} </span>{{archiveCoverage}}</div>
-            <button *ngIf="libraryPage.nextCursor" class="author-quiet" [disabled]="libraryLoading" (click)="loadOlderArchive()">{{libraryHasFilters?'Search older '+archiveNoun:'Load older '+archiveNoun}} <span aria-hidden="true">→</span></button>
-          </div>
-          <div class="archive-ledger" *ngIf="libraryKind==='papers'">
-            <article class="archive-row" *ngFor="let paper of libraryPapers;trackBy:archiveTrack">
+          <div class="archive-ledger" *ngIf="libraryKind==='papers'&&libraryPapers.length" role="list" aria-label="Saved papers">
+            <article class="archive-row" role="listitem" *ngFor="let paper of libraryPapers;trackBy:archiveTrack">
               <div class="archive-paper-symbol" aria-hidden="true"><i></i></div>
-              <div class="archive-record"><h2><button [disabled]="documentLoading" (click)="showDocument(paper,'student',true)">{{paper.title || 'Untitled paper'}}</button></h2>
+              <div class="archive-record"><h2><button [disabled]="documentLoading" (click)="showDocument(paper,'student',true)">{{paper.title || 'Untitled paper'}} <span class="archive-title-arrow" aria-hidden="true">→</span></button></h2>
                 <div class="archive-meta"><span *ngIf="paper.board">{{paper.board}}</span><span *ngIf="paper.standard">Class {{paper.standard}}</span><span *ngIf="paper.subject">{{paper.subject}}</span><span *ngIf="paper.marks!=null">{{paper.marks}} marks</span><span *ngIf="paper.revision>1">Revision {{paper.revision}}</span></div>
               </div>
               <div class="archive-date"><time [attr.datetime]="paper.createdAt">{{absoluteDate(paper.createdAt)}}</time><small *ngIf="paper.creatorName">{{paper.creatorName}}</small></div>
-              <div class="archive-actions"><button class="author-link" [attr.aria-label]="'View answers for '+paper.title" [disabled]="documentLoading" (click)="showDocument(paper,'answers',true)">Answers</button><button class="author-quiet" [attr.aria-label]="'Print '+paper.title" [disabled]="documentLoading" (click)="showDocument(paper,'student',true,true)">Print</button></div>
+              <div class="archive-actions"><button class="author-link" [attr.aria-label]="'View answers for '+paper.title" [disabled]="documentLoading" (click)="showDocument(paper,'answers',true)">Worked answers</button><button class="author-quiet" [attr.aria-label]="'Print '+paper.title" [disabled]="documentLoading" (click)="showDocument(paper,'student',true,true)">Print</button></div>
             </article>
           </div>
-          <div class="archive-ledger" *ngIf="libraryKind==='conversations'">
-            <article class="archive-row" *ngFor="let item of visibleArchiveItems;trackBy:archiveTrack">
+          <div class="archive-ledger" *ngIf="libraryKind==='conversations'&&visibleArchiveItems.length" role="list" aria-label="Paper requests">
+            <article class="archive-row" role="listitem" *ngFor="let item of visibleArchiveItems;trackBy:archiveTrack">
               <div class="archive-paper-symbol request-symbol" aria-hidden="true"><i></i></div>
               <div class="archive-record"><h2><button (click)="openLibraryConversation(item.id)">{{item.title || 'Untitled paper request'}}</button></h2>
                 <div class="archive-meta"><span *ngIf="item.standard">Class {{item.standard}}</span><span *ngIf="item.subject">{{item.subject}}</span><span>{{item.ownerUid===user.uid?'Your request':'Read only'}}</span></div>
@@ -170,6 +200,10 @@
             <p>{{libraryHasFilters?(libraryPage.nextCursor?'Search older records or try another title, class or teacher.':'Try another title, class or teacher.'):libraryKind==='papers'?'Your completed papers and their worked answers will appear here.':'Start a request to plan a paper or ask for a revision.'}}</p>
             <button class="author-quiet" (click)="libraryHasFilters?clearLibraryFilters():newConversation()">{{libraryHasFilters?'Clear filters':'Create a paper'}}</button>
           </div>
+          <div *ngIf="libraryPage.loaded&&(libraryPage.nextCursor||libraryHasFilters)" class="archive-coverage">
+            <div role="status"><span *ngIf="archiveProgress">{{archiveProgress}} </span>{{archiveCoverage}}</div>
+            <button *ngIf="libraryPage.nextCursor" class="author-quiet" [disabled]="libraryLoading" (click)="loadOlderArchive()">{{libraryHasFilters?'Search older '+archiveNoun:'Load older '+archiveNoun}} <span aria-hidden="true">→</span></button>
+          </div>
           <nav *ngIf="archivePageCount>1" class="archive-pager" aria-label="Archive pages">
             <button class="author-quiet" [disabled]="libraryLoading||archivePage===1" (click)="moveLibraryPage(-1)"><span aria-hidden="true">←</span> Previous</button>
             <span>Page {{archivePage}} of {{archivePageCount}}</span>
@@ -181,8 +215,11 @@
 
     <section *ngIf="view==='chat'" class="chat-panel author-page" [attr.inert]="drawer?'':null" [class.has-messages]="detail?.messages?.length" aria-label="Paper authoring">
       <header *ngIf="detail?.messages?.length" class="author-thread-head">
-        <div><button class="author-back" (click)="adminConversation&&user.libraryAccess?openLibrary():openHome()">← {{adminConversation&&user.libraryAccess?'Find a paper':'Teaching desk'}}</button><h1>{{readyTitle}}</h1></div>
-        <span *ngIf="!readOnly" class="availability author-availability" [class.waiting]="worker.tone!=='online'"><i></i>{{worker.label}}</span>
+        <div class="author-thread-heading"><button class="author-back" (click)="adminConversation&&user.libraryAccess?openLibrary():openHome()">← {{adminConversation&&user.libraryAccess?'Papers':'Teaching desk'}}</button><h1>{{readyTitle}}</h1></div>
+        <div class="author-thread-tools">
+          <span *ngIf="!readOnly" class="availability author-availability" [class.waiting]="worker.tone!=='online'"><i aria-hidden="true"></i>{{worker.label}}</span>
+          <button *ngIf="currentPaper as paper" class="author-quiet thread-open-paper" [attr.aria-expanded]="document?.paper?.id===paper.id" [disabled]="documentLoading" (click)="document?.paper?.id===paper.id?closePreview():showDocument(paper,'student')">{{document?.paper?.id===paper.id?'Close paper':'Open paper'}}</button>
+        </div>
       </header>
       <div *ngIf="readOnly" class="author-notice" role="status"><span>Read-only request from {{detail?.creatorName||detail?.conversation?.creatorName||'another teacher'}}.</span></div>
       <div *ngIf="!readOnly&&worker.tone!=='online'" class="author-notice" role="status"><div><strong>{{worker.label}}</strong><span>{{worker.detail}}</span><span *ngIf="serviceError" role="alert">{{serviceError}}</span></div><button *ngIf="session?.service?.canStart" class="author-quiet" [disabled]="!canStartService" (click)="startService()">{{serviceStarting?'Requesting…':'Start assistant'}}</button><button class="author-link" [disabled]="serviceStarting" (click)="reconnect()">Refresh status</button></div>
@@ -191,21 +228,23 @@
         <div *ngIf="readingRequest" class="author-shell request-loading"><button class="author-back" (click)="adminConversation?openLibrary():openHome()">← {{adminConversation?'Back to archive':'Teaching desk'}}</button><p *ngIf="!error" role="status"><span class="loader small" aria-hidden="true"></span> Opening paper request…</p></div>
         <div *ngIf="readOnly&&!detail?.messages?.length" class="author-shell"><button class="author-back" (click)="openLibrary()">← Back to archive</button><p>This request has no messages.</p></div>
         <div *ngIf="!readingRequest&&!detail?.messages?.length&&!readOnly" class="author-shell new-paper">
-          <button class="author-back" (click)="openHome()"><span aria-hidden="true">←</span> Teaching desk</button>
-          <h1 class="author-title" tabindex="-1">Create a question paper</h1>
-          <p class="author-intro">Describe what your class needs. You’ll receive a question paper and a separate set of worked answers.</p>
+          <header class="new-paper-heading">
+            <h1 class="author-title" tabindex="-1">Create a paper</h1>
+            <p class="author-intro">Describe what your class needs. GT Papers prepares the question paper and separate worked answers.</p>
+          </header>
           <div class="author-worktable">
             <form class="brief-form" (ngSubmit)="send()">
-              <label for="message-input">Your paper brief</label>
+              <label for="message-input">What should the paper cover?</label>
               <p id="brief-help">Include the class, subject, topic and marks. Add the board or question pattern if you have one.</p>
               <textarea id="message-input" aria-describedby="brief-help" name="message" [(ngModel)]="draft" rows="5" maxlength="12000" required [disabled]="sending" placeholder="What paper would you like to make?"></textarea>
               <div class="brief-submit"><span>English, हिन्दी or Hinglish</span><button class="author-primary" type="submit" [disabled]="!draft.trim()||sending||blockedTurn">{{sending?'Sending…':'Create paper'}} <span aria-hidden="true">→</span></button></div>
             </form>
             <aside class="brief-example" aria-label="Example paper brief">
-              <div class="example-art" aria-hidden="true"></div>
-              <div class="example-content"><h2>Example brief</h2>
-                <p>Make a 30-mark CBSE Class 8 Maths paper on linear equations. Include two word problems and show the working in the answers.</p>
-                <button class="author-link" [disabled]="sending" (click)="useSuggestion('Make a 30-mark CBSE Class 8 Maths paper on linear equations. Include two word problems and show the working in the answers.')">Use this example</button>
+              <div class="example-content">
+                <span class="example-paper-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z M14 3v5h4 M10 12h5 M10 16h5"/></svg></span>
+                <h2>Example brief</h2>
+                <blockquote>Make a 30-mark CBSE Class 8 Maths paper on linear equations. Include two word problems and show the working in the answers.</blockquote>
+                <button class="author-quiet" [disabled]="sending" (click)="useSuggestion('Make a 30-mark CBSE Class 8 Maths paper on linear equations. Include two word problems and show the working in the answers.')">Use this example</button>
               </div>
             </aside>
           </div>
@@ -239,17 +278,27 @@
 
     <section *ngIf="document as doc" class="document-panel author-preview" [attr.inert]="drawer?'':null" aria-label="Printable document">
       <header class="preview-toolbar">
-        <div class="preview-headline"><button class="author-back" (click)="closePreview()">← {{view==='library'?'Back to archive':'Back to request'}}</button><h2 class="preview-title" tabindex="-1">{{doc.paper.title || 'Question paper'}}</h2><div class="archive-meta"><span *ngIf="doc.paper.marks!=null">{{doc.paper.marks}} marks</span><span>Revision {{doc.paper.revision}}</span><span>{{absoluteDate(doc.paper.createdAt)}}</span></div></div>
+        <div class="preview-headline"><button class="author-back" (click)="closePreview()">← {{view==='library'?'Back to papers':'Back to request'}}</button><h2 class="preview-title" tabindex="-1">{{doc.paper.title || 'Question paper'}}</h2><div class="archive-meta preview-meta"><span>Revision {{doc.paper.revision}}</span><span *ngIf="doc.paper.marks!=null">{{doc.paper.marks}} marks</span><span>{{absoluteDate(doc.paper.createdAt)}}</span></div></div>
         <button class="author-primary preview-print" [disabled]="!previewReady||documentLoading" (click)="printDocument()">Print / Save PDF</button>
       </header>
       <div class="preview-controls"><div class="preview-switch" aria-label="Document type">
         <button [attr.aria-pressed]="doc.kind==='student'" [disabled]="documentLoading" (click)="doc.kind!=='student'&&showDocument(doc.paper,'student',doc.adminView)">Question paper</button>
         <button [attr.aria-pressed]="doc.kind==='answers'" [disabled]="documentLoading" (click)="doc.kind!=='answers'&&showDocument(doc.paper,'answers',doc.adminView)">Worked answers</button>
       </div><span *ngIf="documentLoading" class="preview-opening" role="status">Opening…</span></div>
+      <nav class="preview-paper-actions" aria-label="Paper actions">
+        <button class="author-quiet" (click)="startPaperCheck(doc.paper)">Check answer sheets <span aria-hidden="true">→</span></button>
+        <button class="author-quiet" type="button" (click)="getStudentLink()" [disabled]="previewLinkBusy" [attr.aria-expanded]="!!previewStudentLink">{{previewLinkBusy && !previewStudentLink ? 'Getting link…' : 'Share test link'}}</button>
+        <details *ngIf="(view==='library'&&doc.paper.conversationId)||(view==='chat'&&!readOnly)" class="preview-more">
+          <summary class="author-quiet">More<span class="archive-chevron" aria-hidden="true"></span></summary>
+          <div>
+            <button *ngIf="view==='library'&&doc.paper.conversationId" class="author-link" (click)="openLibraryConversation(doc.paper.conversationId!)">Open paper request <span aria-hidden="true">→</span></button>
+            <button *ngIf="view==='library'&&doc.paper.conversationId&&doc.paper.ownerUid===user.uid" class="author-link" (click)="reviseArchivePaper(doc.paper)">Revise latest paper <span aria-hidden="true">→</span></button>
+            <button *ngIf="view==='chat'&&!readOnly" class="author-link" (click)="revise(doc.paper)">{{doc.paper.id===currentPaper?.id?'Request a revision':'Revise latest paper'}} <span aria-hidden="true">→</span></button>
+          </div>
+        </details>
+      </nav>
       <p *ngIf="libraryError" class="author-notice" role="alert">{{libraryError}}</p>
-      <div class="preview-stage"><iframe *ngFor="let current of [doc]" id="paper-frame" [title]="current.kind==='answers'?'Printable worked answers':'Printable question paper'" sandbox="allow-same-origin allow-modals" data-presentation-version="3" [srcdoc]="current.safe" (load)="prepareDocument(true)"></iframe></div>
-      <footer class="preview-footer"><button class="author-link" (click)="startPaperCheck(doc.paper)">Check answer sheets <span aria-hidden="true">→</span></button><button class="author-link" type="button" (click)="getStudentLink()" [disabled]="previewLinkBusy">{{previewLinkBusy && !previewStudentLink ? 'Getting link…' : 'Get student link'}}</button><button *ngIf="view==='library'&&doc.paper.conversationId" class="author-link" (click)="openLibraryConversation(doc.paper.conversationId!)">Open paper request <span aria-hidden="true">→</span></button><button *ngIf="view==='library'&&doc.paper.conversationId&&doc.paper.ownerUid===user.uid" class="author-link" (click)="reviseArchivePaper(doc.paper)">Revise latest paper <span aria-hidden="true">→</span></button><button *ngIf="view==='chat'&&!readOnly" class="author-link" (click)="revise(doc.paper)">{{doc.paper.id===currentPaper?.id?'Request a revision':'Revise latest paper'}} <span aria-hidden="true">→</span></button></footer>
-      <div *ngIf="previewStudentLink || previewLinkError" class="preview-share">
+      <div *ngIf="previewStudentLink || previewLinkError" class="preview-share" [attr.aria-live]="previewLinkError?'off':'polite'">
         <ng-container *ngIf="previewStudentLink">
           <div class="preview-share-field">
             <label>{{previewLinkMode==='invite'?'Test link with GTOP access':'Student test link'}}<input type="text" #studentLink [value]="previewStudentLink" readonly (focus)="studentLink.select()"></label>
@@ -267,6 +316,7 @@
         </ng-container>
         <p *ngIf="previewLinkError" role="alert">{{previewLinkError}}</p>
       </div>
+      <div class="preview-stage"><iframe *ngFor="let current of [doc]" id="paper-frame" [title]="current.kind==='answers'?'Printable worked answers':'Printable question paper'" sandbox="allow-same-origin allow-modals" data-presentation-version="3" [srcdoc]="current.safe" (load)="prepareDocument(true)"></iframe></div>
     </section>
   </ng-container>
 </div>

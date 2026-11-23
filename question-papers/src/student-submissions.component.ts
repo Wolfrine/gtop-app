@@ -170,7 +170,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     if (row.status === 'checking') {
       switch (this.markState(row)) {
         case 'final': return 'Ready to release';
-        case 'review': return 'Review marks';
+        case 'review': return 'Ready for review';
         case 'running': return 'Marking';
         case 'failed': return 'Checking needs attention';
         default: return 'Queued for checking';

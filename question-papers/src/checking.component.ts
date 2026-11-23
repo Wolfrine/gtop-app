@@ -1314,8 +1314,13 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       this.confirmingMissing = false;
       this.confirmedPages = false;
       this.selectAfterResolution();
-      if (state === 'final') this.message = final ? 'Approved marks saved.' : 'Reopened for review.';
-      else this.message = final ? 'Marks finalized.' : 'Review draft saved.';
+      if (final && this.fromSubmissionInbox) {
+        this.message = 'Marks approved. Return to Inbox to release the marked copy.';
+      } else if (state === 'final') {
+        this.message = final ? 'Approved marks saved.' : 'Reopened for review.';
+      } else {
+        this.message = final ? 'Marks finalized.' : 'Review draft saved.';
+      }
     } catch (error) {
       this.handleReviewError(error);
     } finally {

@@ -2,7 +2,7 @@
   <header class="inbox-top" [class.compact-hide]="selectedId">
     <div>
       <h1 id="inbox-heading">Student submissions</h1>
-      <p>Approve answer sheets sent from GTOP and return checked copies.</p>
+      <p>Review answer sheets from GTOP and send marked copies back to students.</p>
     </div>
     @if (enabled) {
       <button class="quiet" type="button" (click)="toggleInvitations()" [attr.aria-expanded]="showInvitations" aria-controls="invitations">
@@ -60,7 +60,7 @@
               <button type="button" [attr.aria-pressed]="filter === label" (click)="trackFilter(label)" [disabled]="mutationBusy">{{filterLabels[label]}}</button>
             }
           </nav>
-          <button class="link refresh" type="button" (click)="refresh()" [disabled]="listBusy || mutationBusy">Refresh</button>
+          <button class="quiet refresh" type="button" (click)="refresh()" [disabled]="listBusy || mutationBusy" aria-label="Refresh submissions" title="Refresh submissions"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" aria-hidden="true"><path d="M20 5v5h-5M4 19v-5h5M5 10a7 7 0 0 1 12-3l3 3M4 14l3 3a7 7 0 0 0 12-3"/></svg></button>
         </div>
         @if (listError) {
           <div class="notice error" role="alert">{{listError}} <button type="button" class="link" (click)="refresh()">Try again</button></div>
@@ -95,7 +95,7 @@
                   <button class="open-row" type="button" (click)="choose(row.id)" [disabled]="mutationBusy" [attr.aria-current]="selectedId === row.id ? 'true' : null">
                     <strong>{{row.studentLabel}}</strong>
                     <small>GT {{row.studentUid.slice(-6)}} · {{row.answer.pageCount}} {{row.answer.pageCount === 1 ? 'page' : 'pages'}} · {{(row.submittedAt || row.updatedAt) | date:'d MMM, h:mm a'}}</small>
-                    <em [class.ready]="canApprove(row) || markState(row) === 'final'">{{status(row)}}</em>
+                    <em [class.ready]="canApprove(row) || markState(row) === 'final'" [class.attention]="row.status === 'needs_rescan' || markState(row) === 'failed' || row.referenceState === 'failed'">{{status(row)}}</em>
                     <span class="arrow" aria-hidden="true">→</span>
                   </button>
                 </li>
@@ -111,18 +111,18 @@
       @if (selectedId) {
         @if (detailBusy && !selected) {
           <section class="detail">
-            <button type="button" class="link back" (click)="choose('')">← Back to submissions</button>
+            <button type="button" class="quiet back" (click)="choose('')">← Back to submissions</button>
             <p class="notice" role="status">Opening submission…</p>
           </section>
         } @else if (selected; as row) {
           <section class="detail" aria-labelledby="submission-review">
-            <button type="button" class="link back" (click)="choose('')" [disabled]="mutationBusy || !!referenceEditor">← Back to submissions</button>
+            <button type="button" class="quiet back" (click)="choose('')" [disabled]="mutationBusy || !!referenceEditor">← Back to submissions</button>
             <div class="detail-head">
               <div>
                 <h2 id="submission-review" #reviewHeading tabindex="-1">{{row.studentLabel}}</h2>
                 <p>{{row.paperTitle || row.title || 'Uploaded question paper'}} · GT {{row.studentUid.slice(-6)}}</p>
               </div>
-              <span class="status" [class.ready]="canApprove(row) || markState(row) === 'final'">{{status(row)}}</span>
+              <span class="status" [class.ready]="canApprove(row) || markState(row) === 'final'" [class.attention]="row.status === 'needs_rescan' || markState(row) === 'failed' || row.referenceState === 'failed'">{{status(row)}}</span>
             </div>
 
             @if (referenceEditor) {
@@ -240,7 +240,7 @@
             }
           </section>
         } @else {
-          <section class="detail"><button type="button" class="link back" (click)="choose('')">← Back to submissions</button><p class="notice">Could not open this submission. <button type="button" class="link" (click)="refresh()">Try again</button></p></section>
+          <section class="detail"><button type="button" class="quiet back" (click)="choose('')">← Back to submissions</button><p class="notice">Could not open this submission. <button type="button" class="link" (click)="refresh()">Try again</button></p></section>
         }
       }
     </div>

@@ -1,13 +1,13 @@
 :host{display:block;min-width:0;min-height:0;overflow:auto;grid-column:1/-1;grid-row:2;background:var(--desk-paper);color:var(--desk-ink)}
 .students-page{width:min(920px,calc(100% - 64px));margin:0 auto;padding:clamp(28px,5vw,62px) 0 48px}
 .students-page h1,.students-page h2,.record-name strong{font-family:var(--desk-serif);letter-spacing:-.035em}
-.students-page h1{margin:0;font-size:clamp(38px,4.4vw,58px);font-weight:500;line-height:1.08}
+.students-page h1{margin:0;font-size:clamp(38px,4.4vw,58px);font-weight:800;line-height:1.08}
 .students-page header p{margin:10px 0 24px;color:var(--desk-muted);font-size:15px;line-height:1.5}
 .history-section{margin:30px 0}
 .history-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--desk-line)}
 .history-bar h2{margin:0;font-size:clamp(23px,3vw,32px);font-weight:600}
 .new-check,.history-more{cursor:pointer;font:600 14px/1.25 var(--font);border-radius:5px}
-.new-check{display:inline-flex;align-items:center;gap:12px;border:1px solid var(--desk-ink);color:var(--desk-white);background:var(--desk-ink);min-height:42px;padding:9px 14px}
+.new-check{display:inline-flex;align-items:center;gap:12px;border:1px solid var(--desk-accent);color:var(--desk-white);background:var(--desk-accent);min-height:44px;padding:9px 14px}
 .history-section ul{margin:0;padding:0;list-style:none}
 .history-row{display:grid;width:100%;grid-template-columns:minmax(0,1.8fr) minmax(110px,1fr) 96px 96px;align-items:center;gap:16px;min-height:70px;padding:13px 5px;background:transparent;border:0;border-bottom:1px solid var(--desk-line);text-align:left;color:inherit;cursor:pointer}
 .history-row:hover,.history-row:focus-visible{background:var(--desk-white)}

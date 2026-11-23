@@ -3,12 +3,13 @@
     @if (sheet && !composing; as current) {
       <button
         class="back"
+        [class.inbox-back]="fromSubmissionInbox"
         type="button"
         (click)="fromStudentHistory || fromSubmissionInbox ? leave() : list()"
         [disabled]="busy"
         [attr.aria-label]="fromSubmissionInbox ? 'Back to submissions' : fromStudentHistory ? 'Back to student history' : 'Back to all answer sheets'"
       >
-        ‹ <span>{{ fromSubmissionInbox ? 'Submissions' : fromStudentHistory ? 'Students' : 'Register' }}</span>
+        ‹ <span>{{ fromSubmissionInbox ? 'Inbox' : fromStudentHistory ? 'Students' : 'Register' }}</span>
       </button>
       <div class="heading">
         <h1>{{ identity(sheet!).name }}</h1>
@@ -288,6 +289,9 @@
               >
                 Edit marks
               </button>
+            }
+            @if (fromSubmissionInbox && current.state === 'final' && !editing && !dirty) {
+              <button class="action primary" type="button" (click)="leave()" [disabled]="busy">Return to Inbox <span aria-hidden="true">→</span></button>
             }
             <button
               class="action print-button"

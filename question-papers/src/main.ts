@@ -206,11 +206,17 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       return {kind:'packet',id:item.id,title:item.studentLabel||item.label||'Class answer books',description:[item.pageCount+' '+(item.pageCount===1?'page':'pages'),state].join(' · '),action,updatedAt:item.updatedAt,
         paperId:item.state==='completed'?(item.paperId||undefined):undefined};
     });
+    const paperTitles=new Map(this.libraryPages.papers.items.map(item=>[item.id,item.title]));
+    for(const conversation of this.conversations){
+      if(conversation.latestPaperId&&conversation.title&&!paperTitles.has(conversation.latestPaperId)){
+        paperTitles.set(conversation.latestPaperId,conversation.title);
+      }
+    }
     const sheets:DeskItem[]=this.workSheets.map(item=>{
       const identity=handbackIdentity(item);
       const status=item.state==='review'?(item.pending?item.pending+' '+(item.pending===1?'question':'questions')+' to review':'Review marks'):item.state==='uploading'?'Upload incomplete':'Checking needs attention';
       return {kind:'sheet',id:item.id,paperId:item.paperId,packetId:item.studentUid?undefined:item.packetId,title:identity.name||'Answer book',
-        description:[identity.reference,identity.classLabel,status].filter(Boolean).join(' · '),
+        description:[paperTitles.get(item.paperId),identity.reference,identity.classLabel,status].filter(Boolean).join(' · '),
         action:item.state==='review'?'Review':item.state==='uploading'?'Resume':'Open',updatedAt:item.updatedAt};
     });
     const priority=(item:DeskItem)=>item.kind==='sheet'?0:item.kind==='packet'&&item.action!=='Results'?1:2;

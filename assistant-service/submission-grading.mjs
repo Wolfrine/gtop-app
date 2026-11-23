@@ -305,7 +305,8 @@ export async function releaseSubmission(checker, uid, id, body) {
     }
     const {title: paperTitle} = await checker.rubric(sheet.gradingPaperId || record.paperId, uid, tx);
     const now = checker.now();
-    const feedback = grade.answers.map(({number, status, awarded, max, explanation}) => ({number, status, awarded, max, explanation}));
+    const feedback = grade.answers.map(({number, status, awarded, max, explanation, counted}) =>
+      ({number, status, awarded, max, explanation, counted: counted !== false}));
     tx.update(path, {status: 'released', paperTitle, publishedSheetVersion: stage.sheetVersion,
       releasedAt: now, updatedAt: now, version: record.version + 1,
       result: {...stage, generation: prepared.generation, awarded: grade.awarded, max: grade.max, answers: feedback}});

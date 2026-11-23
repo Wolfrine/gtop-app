@@ -22,10 +22,38 @@ complete paper through its application tool. The worker exposes neither the
 Firebase pairing nor operator integrations to the turn. The Codex home is
 dedicated to Papers. The worker rejects unexpected MCP connectors at startup.
 
-OpenAI classifies standalone Codex app-server as experimental and does not
-support it for production workloads. The pilot flag stays off pending
-production approval of that release dependency and commissioning of the
-dedicated runtime.
+## Authentication and isolation
+
+Run the standard worker as the Windows owner who is already signed in through
+the Codex CLI. Omit `NativeCodexExecutable` in this mode. Codex manages
+authentication through the owner's existing `CODEX_HOME`. The standard
+worker's `codex exec --ignore-user-config` invocation skips the user
+configuration. [Codex authentication](https://learn.chatgpt.com/docs/auth)
+
+Windows Codex CLI 0.171.0 completed two turns with `exec` and
+`exec resume <thread-id> -` using this login. The second process recovered the
+first turn's context. Both native input hashes matched the original UTF-8
+text, including whitespace, CRLF and Unicode. The native records confirmed
+read-only permissions and an approval policy of never. This was a native CLI
+run. End-to-end Papers delivery through that thread remains unverified.
+[Non-interactive Codex](https://learn.chatgpt.com/docs/non-interactive-mode)
+
+The 0.171 standalone app-server rejects `--ignore-user-config`. It loads
+owner settings from the same Codex home as the authentication and local
+thread records. The empty `mcp_servers` override retains inherited entries,
+and the startup MCP inventory can initialize configured connectors. Keep
+shared-home pilot admission off until a supported configuration can exclude
+owner integrations before starting a thread. An already provisioned pilot
+uses its isolated home and saved thread IDs.
+[App Server](https://learn.chatgpt.com/docs/app-server)
+[Configuration merge in Codex 0.171](https://github.com/openai/codex/blob/rust-v0.171.0/codex-rs/config/src/merge.rs)
+[MCP discovery in Codex 0.171](https://github.com/openai/codex/blob/rust-v0.171.0/codex-rs/codex-mcp/src/mcp/mod.rs#L572)
+
+For a single-login cutover, keep the redesign's Firebase owner, conversation and
+worker binding, original input hash and delivery lease. Qualify a native
+runtime that preserves the thread, input and tool scope before enabling new
+admissions. Native thread IDs already bound to an isolated Codex home must
+continue to resolve there.
 
 ## Runtime and cutover
 
@@ -34,9 +62,11 @@ default is schema version 1, revision 1, model gpt-6.2-sol and reasoning effort
 xhigh. Change the model through that profile and restart the worker after
 draining. The native thread must confirm the selected model and effort.
 
-1. Provision a private Codex home named codex-home beside the profile. Sign in
-   through the official Codex CLI against that home. Keep the existing Firebase
-   pairing file in its protected location.
+For an already provisioned, explicitly approved isolated pilot:
+
+1. Verify the existing private codex-home beside the worker data directory and
+   the existing Firebase pairing. The worker requires an active managed ChatGPT
+   session in that isolated home.
 2. Verify the exact Windows Codex executable, authenticated native execution,
    thread continuity and isolation, interruption, and authenticated publication.
    Keep commissioning receipts on H:.

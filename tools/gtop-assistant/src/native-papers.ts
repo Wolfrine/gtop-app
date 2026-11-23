@@ -1,5 +1,5 @@
 import {createHash} from 'node:crypto';
-import {mkdir, realpath, writeFile} from 'node:fs/promises';
+import {mkdir, realpath, stat, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {paperSchema, assertSchema} from '../../../assistant-service/domain/schemas.mjs';
 import {NativeCodex} from './native-codex.js';
@@ -142,12 +142,18 @@ export class NativePapers {
     const root = this.config.dataDirectory;
     const cwd = path.join(root, 'native-host');
     const temp = path.join(root, 'native-temp');
-    await Promise.all([this.home, cwd, temp, this.workspaceRoot].map(ensureDirectory));
-    const server = new NativeCodex(executable, nativeArguments, cwd, nativeEnvironment(this.home, temp));
+    // App-server 0.171 loads user integrations from CODEX_HOME. Preserve the
+    // existing isolated store for already commissioned pilot threads.
+    const home = await realpath(this.home).catch(() => undefined);
+    if (!home || path.relative(this.home, home) || !(await stat(home).catch(() => undefined))?.isDirectory()) {
+      throw failure('codex_unavailable', 'The native Papers pilot requires an existing isolated Codex runtime.');
+    }
+    await Promise.all([cwd, temp, this.workspaceRoot].map(ensureDirectory));
+    const server = new NativeCodex(executable, nativeArguments, cwd, nativeEnvironment(home, temp));
     try {
       await server.initialize();
       const account = await server.call('account/read', {refreshToken: false});
-      if (account.account?.type !== 'chatgpt') throw failure('codex_auth_required', 'Sign in to the dedicated GT Papers Codex home.');
+      if (account.account?.type !== 'chatgpt') throw failure('codex_auth_required', 'The isolated Codex runtime has no active managed ChatGPT session.');
       const connectors = await server.call('mcpServerStatus/list', {limit: 1, detail: 'toolsAndAuthOnly'});
       if (!Array.isArray(connectors.data) || connectors.data.length) {
         throw failure('codex_unavailable', 'The dedicated Papers runtime has an unexpected MCP connector.');

@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { firestoreRuleSource } from '../../assistant-service/scripts/release-scope.mjs';
 
 assert(process.env.ACCESS_TOKEN, 'The existing Firebase workflow authentication is required');
 async function readRules(path) {
@@ -14,17 +15,16 @@ async function readRules(path) {
 }
 const release = await readRules('projects/gtop-app/releases/cloud.firestore');
 const ruleset = await readRules(release.rulesetName);
-const source = ruleset.source.files.find(file => file.name === 'firestore.rules');
-assert(source?.content, 'Active Firestore rule source is missing');
+const source = firestoreRuleSource(ruleset);
 // Keep the actual rules with the private CI evidence so any required backend
 // deployment can be reviewed against the live source before its protected gate.
 await mkdir('test-results/active-backend', { recursive: true });
-await writeFile('test-results/active-backend/firestore.rules', source.content);
+await writeFile('test-results/active-backend/firestore.rules', source);
 await writeFile('test-results/active-backend/release.json', JSON.stringify({ rulesetName: release.rulesetName }, null, 2));
 const directory = await mkdtemp(join(tmpdir(), 'gtop-active-rules-'));
 try {
   const file = join(directory, 'firestore.rules');
-  await writeFile(file, source.content);
+  await writeFile(file, source);
   const { ACCESS_TOKEN: omitted, ...testEnvironment } = process.env;
   const chatChecks = process.env.GITHUB_REF_NAME === 'main' || process.env.GTOP_VERIFY_PAPER_CHAT === '1' ? ' src/app/features/question-bank/core/paper-chat.rules.test.ts' : '';
   const result = spawnSync('npx', ['--yes', 'firebase-tools@15', 'emulators:exec', '--only', 'firestore', '--project', 'demo-paper-access', 'vitest run src/app/features/question-bank/core/paper-access.rules.test.ts src/app/features/question-bank/core/curriculum.rules.test.ts' + chatChecks], {

@@ -6,7 +6,7 @@ import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import {
     ScanKind, SavedScan, StudentSubmission, StudentSubmissionsService, SubmissionResult, SubmissionTest,
 } from '../../services/student-submissions.service';
-import { ScannedPdf, encodeScan, openScan, scanPage } from './answer-sheet-scanner';
+import { ScannedPdf, encodeScan, openScan, releaseScan, scanPage } from './answer-sheet-scanner';
 
 type Preview = { kind: ScanKind; page: number; count: number; source: 'local' | 'saved'; url: string };
 const caps: Record<ScanKind, number> = { answer: 32, question: 24 };
@@ -236,7 +236,7 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
         return this.run('Preparing ' + this.label(kind).toLowerCase() + '…', async () => {
             const replacement = await openScan(file, this.limit(kind));
             if (this.closed) {
-                await replacement.document.destroy();
+                await releaseScan(replacement);
                 return;
             }
             this.removeFile(kind);
@@ -248,7 +248,7 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
     removeFile(kind: ScanKind): void {
         const current = this.files[kind];
         if (this.preview?.kind === kind) this.closePreview();
-        if (current) void current.document.destroy().catch(() => {});
+        if (current) void releaseScan(current).catch(() => {});
         delete this.files[kind];
     }
 

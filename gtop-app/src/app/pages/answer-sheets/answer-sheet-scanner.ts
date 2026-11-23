@@ -6,15 +6,51 @@ const maxPageBytes = 400_000;
 
 export interface ScannedPdf {
     name: string;
-    document: PDFDocumentProxy;
+    file: File;
     order: number[];
 }
 
-export async function openScan(file: File, limit: number): Promise<ScannedPdf> {
+// PDF.js 5.4 shares the pages mapper across documents in one module instance.
+// Only one document can be open here, including during concurrent preview clicks.
+let active: { file: File; document: PDFDocumentProxy } | undefined;
+let pending: Promise<unknown> = Promise.resolve();
+
+function serial<T>(work: () => Promise<T>): Promise<T> {
+    const result = pending.then(work);
+    pending = result.catch(() => {});
+    return result;
+}
+
+async function closeActive(): Promise<void> {
+    const prior = active;
+    active = undefined;
+    if (prior) await prior.document.destroy();
+}
+
+export function releaseScan(source: ScannedPdf): Promise<void> {
+    return serial(async () => {
+        if (source.file === active?.file) await closeActive();
+    });
+}
+
+export function openScan(file: File, limit: number): Promise<ScannedPdf> {
+    return serial(async () => {
+        const document = await openDocument(file);
+        if (!document.numPages || document.numPages > limit) {
+            await closeActive();
+            throw Error(limit === 1 ? 'Choose a PDF containing just the replacement page.' : 'Choose a PDF with up to ' + limit + ' pages.');
+        }
+        return { name: file.name, file, order: Array.from({ length: document.numPages }, (_, i) => i + 1) };
+    });
+}
+
+async function openDocument(file: File): Promise<PDFDocumentProxy> {
+    if (active?.file === file) return active.document;
     if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') {
         throw Error('Choose a scanned PDF.');
     }
     if (!file.size || file.size > maxPdfSize) throw Error('Choose a PDF up to 64 MB.');
+    await closeActive();
     const bytes = await file.arrayBuffer();
     // Keep the PDF engine out of the PWA's prefetched app chunks. Load it only
     // when a student selects a PDF, from the same pinned package as the worker.
@@ -41,15 +77,20 @@ export async function openScan(file: File, limit: number): Promise<ScannedPdf> {
         }
         throw Error('This PDF could not be opened. Scan or export it again.');
     }
-    if (!document.numPages || document.numPages > limit) {
-        await document.destroy();
-        throw Error(limit === 1 ? 'Choose a PDF containing just the replacement page.' : 'Choose a PDF with up to ' + limit + ' pages.');
-    }
-    return { name: file.name, document, order: Array.from({ length: document.numPages }, (_, i) => i + 1) };
+    active = { file, document };
+    return document;
 }
 
-export async function scanPage(source: ScannedPdf, index: number, preview = false): Promise<Blob> {
-    const page = await source.document.getPage(source.order[index - 1]);
+export function scanPage(source: ScannedPdf, index: number, preview = false): Promise<Blob> {
+    const inputPage = source.order[index - 1];
+    return serial(async () => {
+        const document = await openDocument(source.file);
+        return drawPage(document, inputPage, index, preview);
+    });
+}
+
+async function drawPage(pdf: PDFDocumentProxy, inputPage: number, index: number, preview: boolean): Promise<Blob> {
+    const page = await pdf.getPage(inputPage);
     const canvas = document.createElement('canvas');
     try {
         const bounds = page.getViewport({ scale: 1 });

@@ -340,3 +340,7 @@ Processed `raw/2026-11-20-tuition-work-and-paper-handback.md` into Users. Captur
 ### 2026-11-20 - Individual student paper checking
 
 Processed `raw/2026-11-20-student-paper-checking.md` into `wiki/Users.md`. A teacher can link a PDF received directly from a student to that student’s existing account and retrieve the approved copy by student. Class stacks remain optional. The delivery handoff covers duplicate-name selection, individual checking and printed handback. Unrelated notes were outside this pass.
+
+### 2026-11-23 - Student-submitted handwritten answer sheets
+
+Processed `raw/2026-11-23-student-submitted-answer-sheets.md` into `wiki/Users.md`. Captured the student upload path, teacher approval, and private handback. Implementation and teacher workload verification are tracked in the GTOP Action Plan.

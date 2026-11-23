@@ -12,6 +12,8 @@ The student experience should prioritize fast practice entry, clear feedback, an
 
 Current [[Product Direction]] assumes students must use GTOP repeatedly, not only once for a demo. Personalized feedback, topic diagnosis, and [[Student Pulse]] all become weaker when usage is scattered. A serious exam-preparation student, such as a NEET Biology learner, is the kind of user whose repeated practice can make the product's analytics valuable.
 
+Eligible GT students can submit a scanned answer book from GTOP and receive their marked copy privately after teacher release. A shared test link identifies the paper. For a test from school or another source, the student supplies the question paper with their answers. When staff need a clearer or missing page, the student can correct that submission directly.
+
 ## Admin or Teacher
 
 Admins manage MCQs, syllabus combinations, user roles, logs, live quiz hosting, and content health. The admin experience should prioritize [[Question Bank Quality]], visibility into learner activity, and efficient maintenance of question and syllabus metadata.
@@ -21,6 +23,8 @@ The admin/teacher role is a core part of GTOP because student experience quality
 In the separate GT Papers workspace, a teacher or administrator can arrive with a paper brief, a stack of handwritten scripts or a request for yesterday’s paper. Support each starting point and let staff resume interrupted work with its original context. A teacher can inspect the writing, decide a disputed mark and return an individual copy. Only the teacher and pupil can establish whether that feedback was understood.
 
 A student may send a scanned answer book directly to the teacher through their usual messaging channel. The teacher can select the student’s existing GTOP account after their first sign-in and check the PDF as one book. If two students share a name, the teacher must be able to tell whose account and copy they are handling. The student’s checking history gives the teacher a place to find and print an approved copy later. A class stack remains an option for books collected together.
+
+The GT Papers inbox lets staff approve ready student uploads without saving the PDFs locally or selecting each account. Staff confirm the exact question paper and marking scheme once for submissions to that version. This frees teachers to resolve scan and grading exceptions and decide what feedback students should receive.
 
 ## Institute Admin
 
@@ -36,3 +40,4 @@ This role should remain an [[OpenQuestions]] item until there is a clear product
 
 - `raw/2026-11-20-tuition-work-and-paper-handback.md`
 - `raw/2026-11-20-student-paper-checking.md`
+- `raw/2026-11-23-student-submitted-answer-sheets.md`

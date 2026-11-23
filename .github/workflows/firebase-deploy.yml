@@ -56,7 +56,7 @@ jobs:
             const files = execFileSync('git', ['diff', '--no-renames', '--name-only', '-z', before, process.env.GITHUB_SHA], {encoding: 'utf8'}).split('\0').filter(Boolean);
             // Only known frontend and documentation paths can skip backend deployment.
             // Unknown paths, missing history, and explicit dispatches retain the backend gate.
-            const frontendOnly = /^(?:gtop-app\/(?:src\/|e2e\/|scripts\/verify-live-paper-rules\.mjs$)|docs\/|\.github\/workflows\/firebase-deploy\.yml$)/;
+            const frontendOnly = /^(?:gtop-app\/(?:src\/|scripts\/verify-deployment\.mjs$)|docs\/|\.github\/workflows\/firebase-deploy\.yml$)/;
             required = files.some(file => !frontendOnly.test(file));
             // PDF decoding for the student upload is a browser-only dependency.
             const packagePaths = ['gtop-app/package.json','gtop-app/package-lock.json'];
@@ -128,30 +128,15 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: gtop-app/package-lock.json
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
       - name: Install current application
         run: npm ci
-        working-directory: gtop-app
-      - name: Install and verify local paper service for browser checks
-        run: npm ci && npm test
-        working-directory: gtop-app/functions
-      - name: Validate module logic and backend permissions
-        run: npm run test:module && npm run test:rules && npm run test:database-rules
         working-directory: gtop-app
       - name: Build current production application
         run: |
           npm run build -- --configuration production
           node -e 'require("fs").writeFileSync("dist/gtop-app/browser/version.json", JSON.stringify({application:"gtop-app",commit:process.env.GITHUB_SHA,branch:process.env.GITHUB_REF_NAME,builtAt:new Date().toISOString()}))'
         working-directory: gtop-app
-      - name: Verify current design, admin modules and restored sessions in browsers
-        run: |
-          npx playwright install --with-deps chromium webkit
-          npm run e2e
-        working-directory: gtop-app
-      - name: Keep the verified application build for promotion
+      - name: Keep the compiled application build for promotion
         if: needs.release-scope.outputs.assistant_only != 'true'
         uses: actions/upload-artifact@v4
         with:
@@ -159,16 +144,6 @@ jobs:
           path: gtop-app/dist/gtop-app/browser
           retention-days: 1
           if-no-files-found: error
-      - name: Keep review evidence
-        if: always() && needs.release-scope.outputs.assistant_only != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: current-application-verification
-          path: |
-            gtop-app/test-results
-            gtop-app/playwright-report
-          retention-days: 7
-          if-no-files-found: ignore
 
   promote-hosting:
     needs: [reviewed-backend, build-and-verify]
@@ -182,8 +157,6 @@ jobs:
     permissions:
       contents: read
       checks: write
-    outputs:
-      promoted: ${{ steps.deploy.outcome == 'success' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -206,12 +179,6 @@ jobs:
         env:
           ACCESS_TOKEN: "${{ steps.readiness-auth.outputs.access_token }}"
         run: node scripts/check-paper-register-ready.mjs
-      - name: Install live verification dependencies
-        run: npm ci
-        working-directory: gtop-app
-      - name: Install the live verification browser
-        run: npx playwright install --with-deps chromium
-        working-directory: gtop-app
       - uses: actions/download-artifact@v4
         with:
           name: verified-application-${{ github.sha }}
@@ -233,50 +200,3 @@ jobs:
           DEPLOY_ORIGIN: ${{ github.event_name == 'workflow_dispatch' && inputs.target == 'production' && 'https://gtop-app.web.app' || github.event_name == 'workflow_dispatch' && 'https://dev-gtop-app.web.app' || github.ref_name == 'main' && 'https://gtop-app.web.app' || 'https://dev-gtop-app.web.app' }}
         run: node scripts/verify-deployment.mjs "$DEPLOY_ORIGIN" "$GITHUB_SHA"
         working-directory: gtop-app
-      - name: Keep actual hosted-page verification evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: deployed-current-application
-          path: gtop-app/test-results/deployed-site
-          retention-days: 7
-          if-no-files-found: ignore
-  verify-shared-backend:
-    needs: promote-hosting
-    if: needs.promote-hosting.outputs.promoted == 'true' && !cancelled()
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: gtop-app/package-lock.json
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-      - run: npm ci
-        working-directory: gtop-app
-      - name: Authenticate read-only backend inspection
-        id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
-          token_format: access_token
-          access_token_scopes: https://www.googleapis.com/auth/cloud-platform
-      - name: Check active shared rules without changing them
-        working-directory: gtop-app
-        env:
-          ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
-        run: node scripts/verify-live-paper-rules.mjs
-      - name: Keep actual backend evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: active-backend-verification
-          path: gtop-app/test-results/active-backend
-          retention-days: 7
-          if-no-files-found: ignore

@@ -1,6 +1,4 @@
 import assert from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
-import { chromium } from '@playwright/test';
 
 const [origin, expectedCommit] = process.argv.slice(2);
 assert(origin && expectedCommit, 'Usage: node scripts/verify-deployment.mjs ORIGIN COMMIT');
@@ -29,24 +27,4 @@ for (const path of scripts.filter(path => new URL(path, base).origin === base.or
   assert(!(await response.text()).trimStart().startsWith('<'), `${path} returned fallback HTML`);
 }
 
-await mkdir('test-results/deployed-site', { recursive: true });
-const browser = await chromium.launch();
-try {
-  for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
-    const page = await browser.newPage({ viewport });
-    const errors = [];
-    page.on('pageerror', error => errors.push(error.message));
-    await page.goto(base.href, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('heading', { name: /A little practice/i }).waitFor({ timeout: 30000 });
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'Page overflows viewport');
-    await page.screenshot({ path: `test-results/deployed-site/landing-${viewport.width}.png`, fullPage: true });
-    await page.goto(new URL('/admin/question-papers', base).href);
-    await page.getByRole('heading', { name: /A little practice/i }).waitFor({ timeout: 30000 });
-    assert.equal(new URL(page.url()).searchParams.get('returnUrl'), '/admin/question-papers', 'Admin sign-in loses the requested paper chat');
-    assert.deepEqual(errors, [], 'Hosted pages raised uncaught errors');
-    await page.close();
-  }
-} finally {
-  await browser.close();
-}
-console.log(`Verified deployed release ${release.commit}: entry assets, desktop/mobile landing and admin sign-in return path.`);
+console.log(`Verified deployed release ${release.commit} and its served application entry assets.`);

@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
 const PUBLIC_ORIGIN = 'https://gtop.growthtutorials.in';
-const DEFAULT_IMAGE_PATH = '/assets/icons/icon-512-512.png';
+const DEFAULT_IMAGE_PATH = '/assets/brand/growth-launcher-512.png';
 
 export interface SeoConfig {
     title?: string;

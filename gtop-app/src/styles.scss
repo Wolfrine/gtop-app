@@ -435,10 +435,9 @@ app-header .mat-mdc-icon-button { color: #172b4d; }
   color: var(--lumen-ink); font-size: 1.06rem; font-weight: 800; letter-spacing: -.035em; text-decoration: none;
 }
 .lumen-home-mark {
-  display: grid; place-items: center; width: 25px; height: 25px;
-  border-radius: 6px; background: var(--lumen-sage); color: var(--lumen-primary);
+  display: block; width: 42px; height: 42px; flex: none;
+  object-fit: contain; filter: drop-shadow(0 2px 3px rgba(24, 65, 40, .14));
 }
-.lumen-home-mark mat-icon { width: 17px; height: 17px; font-size: 17px; }
 .lumen-action-band {
   --lumen-band-muted: #e1eee3;
   box-sizing: border-box; border-radius: 13px; color: var(--lumen-chrome);

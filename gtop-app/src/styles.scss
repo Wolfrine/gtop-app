@@ -494,6 +494,14 @@ app-header .mat-mdc-icon-button { color: #172b4d; }
 .lumen-sheet-status[data-status='submitted'] { color: #3c5b68; background: #e4edf1; }
 @media (max-width: 599px) { .lumen-sheet-launch .lumen-upload-action { width: 100%; } }
 
+@media (max-width: 799px) {
+  html:has(app-root .has-navigation) {
+    --lumen-mobile-nav-item: 3.4375rem;
+    --lumen-mobile-nav-space: calc(var(--lumen-mobile-nav-item) + 9px + env(safe-area-inset-bottom, 0px));
+    scroll-padding-block-end: calc(var(--lumen-mobile-nav-space) + 4px);
+  }
+}
+
 /* Reserve the known desktop rail immediately, including first-route loading. */
 mat-drawer-container:has(.pr-page, app-paper-chat-viewer-page) > mat-drawer.sidenav.mat-drawer-side.mat-drawer-opened ~ mat-drawer-content {
   margin-left: 248px !important;

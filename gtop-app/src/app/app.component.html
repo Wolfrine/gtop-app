@@ -1,3 +1,9 @@
+@if (updateAvailable()) {
+    <aside class="lumen-app-update" aria-label="GTOP update" role="status">
+        <span>{{ updateFailed() ? 'Could not install the update. Reconnect and try again.' : 'A new GTOP version is ready.' }}</span>
+        <button type="button" (click)="updateApp()" [disabled]="updating()">{{ updating() ? 'Updating…' : 'Update now' }}</button>
+    </aside>
+}
 <div class="shell" [class.has-navigation]="showNavigation"
     [class.has-mobile-navigation]="showNavigation && !mobileBack">
     @if (showNavigation) { <a class="skip-link" href="#main-content">Skip to content</a> }

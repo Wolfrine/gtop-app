@@ -25,3 +25,42 @@
 @media (max-width: 799px) {
     app-side-nav { display: none; }
 }
+
+.lumen-app-update {
+    position: fixed;
+    z-index: 1200;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 12px 10px 16px;
+    border: 1px solid #c9d9cf;
+    border-radius: 14px;
+    background: #fbfcf8;
+    color: #182c26;
+    box-shadow: 0 9px 32px rgba(24, 44, 38, .15);
+    font: 500 14px/1.4 system-ui, sans-serif;
+}
+.lumen-app-update button {
+    min-height: 40px;
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: 9px;
+    padding: 8px 14px;
+    background: #20543f;
+    color: #fff;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+}
+.lumen-app-update button:disabled { opacity: .65; cursor: wait; }
+@media (max-width: 440px) {
+    .lumen-app-update { gap: 10px; padding: 10px; font-size: 13px; }
+    .lumen-app-update button { padding-inline: 10px; }
+}

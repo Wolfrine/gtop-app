@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { SwUpdate } from '@angular/service-worker';
+import { Subscription } from 'rxjs';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router, RouterOutlet } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { FooterComponent } from './components/footer/footer.component';
@@ -22,7 +24,16 @@ import { parsePracticeScope, practiceParams, practiceReturns } from './services/
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
+    readonly updateAvailable = signal(false);
+    readonly updating = signal(false);
+    readonly updateFailed = signal(false);
+    private versionSubscription?: Subscription;
+    private lastVersionCheck = 0;
+    private readonly onVisibilityChange = () => {
+        if (!document.hidden) this.checkForAppUpdate();
+    };
+
     isLandingPage = true;
     isSetupPage = false;
     section = 'Practice';
@@ -38,7 +49,8 @@ export class AppComponent implements OnInit {
         private router: Router,
         private activatedRoute: ActivatedRoute,
         private seoService: SeoService,
-        private usage: AdminUsageService
+        private usage: AdminUsageService,
+        private readonly swUpdate: SwUpdate
     ) {
         this.authService.readyUser$.subscribe(profile => this.profile = profile);
         this.router.events.subscribe(event => {
@@ -57,6 +69,45 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         this.authService.initGoogleOneTap();
         this.usage.start();
+        if (!this.swUpdate.isEnabled) return;
+
+        this.versionSubscription = this.swUpdate.versionUpdates.subscribe(event => {
+            if (event.type === 'VERSION_READY') {
+                this.updateAvailable.set(true);
+                this.updateFailed.set(false);
+            } else if (event.type === 'VERSION_INSTALLATION_FAILED' && this.updateAvailable()) {
+                this.updateFailed.set(true);
+            }
+        });
+        // Wait until the PWA worker is registered, then check the actual hosted release.
+        // Visibility checks are event-driven, without Firestore listeners or polling.
+        void navigator.serviceWorker.ready.then(() => this.checkForAppUpdate()).catch(() => undefined);
+        document.addEventListener('visibilitychange', this.onVisibilityChange);
+    }
+
+    ngOnDestroy() {
+        this.versionSubscription?.unsubscribe();
+        document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    }
+
+    private checkForAppUpdate(): void {
+        if (!this.swUpdate.isEnabled || Date.now() - this.lastVersionCheck < 60_000) return;
+        this.lastVersionCheck = Date.now();
+        void this.swUpdate.checkForUpdate().catch(() => undefined);
+    }
+
+    async updateApp(): Promise<void> {
+        if (!this.updateAvailable() || this.updating()) return;
+        this.updating.set(true);
+        this.updateFailed.set(false);
+        try {
+            const activated = await this.swUpdate.activateUpdate();
+            if (!activated) throw new Error('No new version was activated');
+            window.location.reload();
+        } catch {
+            this.updating.set(false);
+            this.updateFailed.set(true);
+        }
     }
 
     // The main destinations need the bottom bar. Task routes return to a known parent,

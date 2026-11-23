@@ -4,18 +4,6 @@
     </p>
     <p>
         All rights reserved.
-        <a href="#">Privacy Policy</a> |
-        <a href="#" (click)="hardRefresh()">Reload v{{ version }}</a>
+        <a href="#">Privacy Policy</a>
     </p>
-
-    <!-- Update Modal -->
-    <div class="update-modal-overlay" *ngIf="showUpdatePrompt()">
-        <div class="update-modal">
-            <h3>🔄 New Version Available</h3>
-            <p>A newer version of GTOP (v{{ firestoreVersion() }}) is available.</p>
-            <button (click)="hardRefresh()">Update Now</button>
-            <button (click)="hideForSession()" class="secondary">Hide for Now</button>
-        </div>
-    </div>
-
 </footer>

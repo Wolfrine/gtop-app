@@ -1,5 +1,7 @@
 # Checking handwritten answer sheets
 
+Students with an invitation can send their own scans from GTOP. Open **Inbox** in GT Papers to review those uploads. See [Student answer-sheet submissions](../docs/ai-assistant/STUDENT_SUBMISSIONS.md) for invitations, scan corrections, checking and release.
+
 ## One student sends a PDF
 
 1. The student scans their handwritten answers into one PDF in page order and sends it to the teacher or administrator. The student needs to sign in to GTOP once for their account to appear in the picker.

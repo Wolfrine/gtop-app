@@ -1,12 +1,16 @@
 import {getStudent, searchStudents} from './student-directory.mjs';
 import {HttpError} from './service.mjs';
+import {allowsStudentOrigin} from './student-submission-origins.mjs';
+import {hasStudentSubmissionRoute, studentSubmissionRoute} from './student-submission-routes.mjs';
 const allowedOrigins=new Set(['https://gtop-question-papers.web.app','https://gtop-question-papers.firebaseapp.com','https://pti-app-2ab59.web.app','https://pti-app-2ab59.firebaseapp.com','http://localhost:4317','http://127.0.0.1:4317']);
 /** Pure HTTP boundary: authentication is injected, so checks can be exercised without cloud credentials. */
 export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,verifyHostIdToken=null}={}) {
   return async ({method,path,headers={},body={}})=>{
     const responseHeaders={'Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff','Content-Type':'application/json; charset=utf-8'};
     const origin=headers.origin || headers.Origin;
-    if(origin && allowedOrigins.has(origin) && (allowLocalOrigins || !origin.startsWith('http://'))) {responseHeaders['Access-Control-Allow-Origin']=origin;responseHeaders.Vary='Origin';responseHeaders['Access-Control-Allow-Headers']='Authorization, Content-Type';responseHeaders['Access-Control-Allow-Methods']='GET, POST, OPTIONS';}
+    const allowed = origin && ((allowedOrigins.has(origin) && (allowLocalOrigins || !origin.startsWith('http://'))) ||
+      allowsStudentOrigin(origin,path,allowLocalOrigins));
+    if(allowed) {responseHeaders['Access-Control-Allow-Origin']=origin;responseHeaders.Vary='Origin';responseHeaders['Access-Control-Allow-Headers']='Authorization, Content-Type';responseHeaders['Access-Control-Allow-Methods']='GET, POST, OPTIONS';}
     try {
       if(origin && !responseHeaders['Access-Control-Allow-Origin'])throw new HttpError(403,'origin_denied','Origin is not allowed.');
       if(method==='OPTIONS')return {status:204,headers:responseHeaders,body:null};
@@ -28,7 +32,9 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
       }
       let claims;try{claims=await verifyIdToken(bearer[1]);}catch{throw new HttpError(401,'invalid_token','Sign in again to continue.');}
       let output;
-      if(path.startsWith('/worker/')) {
+      if(hasStudentSubmissionRoute(path)) {
+        output=await studentSubmissionRoute(service,claims,method,path,query,body,responseHeaders);
+      } else if(path.startsWith('/worker/')) {
         // These maintenance transactions read/revalidate the pairing themselves.
         const worker=['/worker/heartbeat','/worker/service/poll'].includes(path)?service.workerIdentity(claims):await service.worker(claims);
         if(method==='POST' && path==='/worker/heartbeat')output=await service.heartbeat(worker,body);

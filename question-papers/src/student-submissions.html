@@ -1,0 +1,248 @@
+<main class="inbox" aria-labelledby="inbox-heading">
+  <header class="inbox-top" [class.compact-hide]="selectedId">
+    <div>
+      <h1 id="inbox-heading">Student submissions</h1>
+      <p>Approve answer sheets sent from GTOP and return checked copies.</p>
+    </div>
+    @if (enabled) {
+      <button class="quiet" type="button" (click)="toggleInvitations()" [attr.aria-expanded]="showInvitations" aria-controls="invitations">
+        {{showInvitations ? 'Close invitations' : 'Invite students'}}
+      </button>
+    }
+  </header>
+  @if (!enabled) {
+    <p class="notice">This account does not have a student submission inbox enabled.</p>
+  } @else {
+    @if (showInvitations) {
+      <section class="invitations" id="invitations" aria-labelledby="invitation-heading">
+        <h2 id="invitation-heading">Invite students to submit work</h2>
+        <p>Share this link with your students. Each signs in to GTOP once and can then send answer sheets to this inbox.</p>
+        <div class="invite-actions">
+          <label>Number of students
+            <input type="number" min="1" max="30" inputmode="numeric" [(ngModel)]="invitationUses" [disabled]="invitationBusy">
+          </label>
+          <button class="primary" type="button" (click)="createInvitation()" [disabled]="invitationBusy || invitationUses < 1 || invitationUses > 30">Create invitation link</button>
+        </div>
+        @if (invitationLink) {
+          <div class="share-link">
+            <label>Invitation link<input type="text" #inviteLink [value]="invitationLink" readonly (focus)="inviteLink.select()"></label>
+            <button class="quiet" type="button" (click)="copyInvite(inviteLink)">Copy link</button>
+          </div>
+        }
+        @if (invitationError) { <p role="alert" class="notice error">{{invitationError}}</p> }
+        @if (invitationBusy) { <p role="status">Saving invitation…</p> }
+        @if (invitations.length) {
+          <details class="invite-log">
+            <summary>Manage recent invitations</summary>
+            <ul>
+              @for (invite of invitations; track invite.id) {
+                <li>
+                  <span>{{invite.used || 0}} / {{invite.uses}} used · {{invite.expiresAt | date:'d MMM'}}</span>
+                  @if (inviteActive(invite)) {
+                    <button class="link" type="button" (click)="revokeInvitation(invite)" [disabled]="invitationBusy">Close link</button>
+                  } @else { <small>{{invite.revokedAt ? 'Closed' : (invite.used || 0) >= invite.uses ? 'Filled' : 'Expired'}}</small> }
+                </li>
+              }
+            </ul>
+          </details>
+        }
+      </section>
+    }
+
+    @if (notice) { <p class="notice success" role="status">{{notice}}</p> }
+    @if (actionError) { <p class="notice error" role="alert">{{actionError}}</p> }
+
+    <div class="inbox-work" [class.has-selection]="selectedId" [class.reference-mode]="referenceEditor">
+      <section class="queue" [class.compact-hide]="selectedId" aria-label="Submission queue">
+        <div class="queue-controls">
+          <nav class="filters" aria-label="Submission status">
+            @for (label of filters; track label) {
+              <button type="button" [attr.aria-pressed]="filter === label" (click)="trackFilter(label)" [disabled]="mutationBusy">{{filterLabels[label]}}</button>
+            }
+          </nav>
+          <button class="link refresh" type="button" (click)="refresh()" [disabled]="listBusy || mutationBusy">Refresh</button>
+        </div>
+        @if (listError) {
+          <div class="notice error" role="alert">{{listError}} <button type="button" class="link" (click)="refresh()">Try again</button></div>
+        }
+        @if (listBusy && !groups.length) { <p class="notice" role="status">Loading submissions…</p> }
+        @if (!listBusy && !groups.length && !listError) {
+          <div class="empty">
+            <h2>{{cursor ? 'No matches in the loaded submissions' : filter === 'submitted' ? 'All caught up' : 'No submissions here yet'}}</h2>
+            <p>{{cursor ? 'Load older submissions to see more.' : filter === 'submitted' ? 'New answer sheets from GTOP will appear here.' : 'Submissions will appear here as their status changes.'}}</p>
+          </div>
+        }
+        @for (group of groups; track group.key) {
+          <article class="group">
+            <header>
+              <div><h2>{{group.title || 'Uploaded question paper'}}</h2><p>{{group.rows.length}} {{group.rows.length === 1 ? 'submission' : 'submissions'}}</p></div>
+              @if (group.batch && group.batch.length > 1) {
+                <div class="batch-controls">
+                  <label class="check-option"><input #groupCheck type="checkbox" [checked]="groupSelected(group).length === group.batch.length" (change)="selectGroup(group,groupCheck.checked)" [disabled]="mutationBusy"> Select all</label>
+                  <button class="quiet batch-approve" type="button" [disabled]="mutationBusy || !groupSelected(group).length" (click)="approveBatch(group)">{{groupSelected(group).length ? 'Approve ' + groupSelected(group).length : 'Approve selected'}}</button>
+                </div>
+              } @else if(group.batch[0]; as ready) {
+                <button class="quiet batch-approve" type="button" [disabled]="mutationBusy" (click)="approve(ready)">Approve &amp; check</button>
+              }
+            </header>
+            <ul>
+              @for (row of group.rows; track row.id) {
+                <li [class.active]="selectedId === row.id">
+                  @if (canSelectRow(group, row)) {
+                    <label class="row-select"><input #rowCheck type="checkbox" [checked]="selectedForApproval(row)"
+                      [attr.aria-label]="'Select ' + row.studentLabel + ', GT ' + row.studentUid.slice(-6) + ', for checking'" (change)="selectionChange(row,rowCheck.checked)" [disabled]="mutationBusy"></label>
+                  }
+                  <button class="open-row" type="button" (click)="choose(row.id)" [disabled]="mutationBusy" [attr.aria-current]="selectedId === row.id ? 'true' : null">
+                    <strong>{{row.studentLabel}}</strong>
+                    <small>GT {{row.studentUid.slice(-6)}} · {{row.answer.pageCount}} {{row.answer.pageCount === 1 ? 'page' : 'pages'}} · {{(row.submittedAt || row.updatedAt) | date:'d MMM, h:mm a'}}</small>
+                    <em [class.ready]="canApprove(row) || markState(row) === 'final'">{{status(row)}}</em>
+                    <span class="arrow" aria-hidden="true">→</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </article>
+        }
+        @if (cursor) {
+          <button type="button" class="quiet more" (click)="loadList(true)" [disabled]="listBusy || mutationBusy">{{listBusy ? 'Loading…' : 'Load older submissions'}}</button>
+        }
+      </section>
+
+      @if (selectedId) {
+        @if (detailBusy && !selected) {
+          <section class="detail">
+            <button type="button" class="link back" (click)="choose('')">← Back to submissions</button>
+            <p class="notice" role="status">Opening submission…</p>
+          </section>
+        } @else if (selected; as row) {
+          <section class="detail" aria-labelledby="submission-review">
+            <button type="button" class="link back" (click)="choose('')" [disabled]="mutationBusy || !!referenceEditor">← Back to submissions</button>
+            <div class="detail-head">
+              <div>
+                <h2 id="submission-review" #reviewHeading tabindex="-1">{{row.studentLabel}}</h2>
+                <p>{{row.paperTitle || row.title || 'Uploaded question paper'}} · GT {{row.studentUid.slice(-6)}}</p>
+              </div>
+              <span class="status" [class.ready]="canApprove(row) || markState(row) === 'final'">{{status(row)}}</span>
+            </div>
+
+            @if (referenceEditor) {
+              <section class="reference" aria-label="Verify the question paper">
+                <p>Confirm the questions and marks against the scan. Use the confirmed paper to return to this submission.</p>
+                <gtop-external-exam [referenceId]="referenceEditor" (closed)="closeReference()" (ready)="closeReference()" />
+              </section>
+            } @else {
+              @if (row.rescan && row.status === 'needs_rescan') {
+                <div class="notice">The student was asked to rescan the {{row.rescan.kind === 'answer' ? 'answer sheet' : 'question paper'}}{{row.rescan.page ? ', page ' + row.rescan.page : ''}}. {{row.rescan.reason}}</div>
+              }
+
+              @if (row.status === 'submitted' && row.question && (!canApprove(row) || row.referenceId)) {
+                <div class="reference-status">
+                  <div>
+                    <strong>Question paper</strong>
+                    <p>{{row.referenceId ? 'Open the saved reference to check its questions and marks.' : 'Prepare a marking reference from the student’s uploaded paper.'}}</p>
+                  </div>
+                  @if (row.referenceId) {
+                    <button class="quiet" type="button" (click)="referenceEditor=row.referenceId" [disabled]="mutationBusy">Review question paper</button>
+                  } @else {
+                    <div class="reference-actions">
+                      <button class="quiet" type="button" (click)="prepare(row)" [disabled]="mutationBusy">Prepare question paper</button>
+                      <button class="link" type="button" (click)="openReferencePicker()" [disabled]="mutationBusy || showReferences">Use an approved paper</button>
+                    </div>
+                  }
+                </div>
+              }
+
+              @if (showReferences) {
+                <section class="reference-picker" aria-labelledby="match-paper-title">
+                  <div class="detail-head"><h3 id="match-paper-title">Match the exact question paper</h3><button type="button" class="link" (click)="closeReferencePicker()" [disabled]="mutationBusy">Cancel</button></div>
+                  <p>Compare the student’s uploaded paper below with the approved version.</p>
+                  <label>Find an approved paper<input type="search" [(ngModel)]="referenceQuery" placeholder="Title of a previously prepared paper"></label>
+                  @if (referenceError) { <p class="notice error" role="alert">{{referenceError}}</p> }
+                  @if (referenceBusy) { <p role="status">Loading papers…</p> }
+                  @if (!referenceBusy && !referenceError && !visibleReferences.length) { <p>No matching approved papers in the loaded results.</p> }
+                  <ul>
+                    @for (reference of visibleReferences; track reference.id) {
+                      <li><button type="button" [attr.aria-pressed]="chosenReference?.id === reference.id" (click)="chosenReference=reference" [disabled]="mutationBusy">
+                        <strong>{{reference.title}}</strong><small>Revision {{reference.referenceRevision || 1}}{{reference.marks != null ? ' · ' + reference.marks + ' marks' : ''}}</small>
+                      </button></li>
+                    }
+                  </ul>
+                  @if (referenceCursor) { <button type="button" class="link" (click)="loadReferences(true)" [disabled]="referenceBusy">Load older papers</button> }
+                  @if (chosenReference; as reference) {
+                    <p>Only confirm if the questions, choices and marks match the uploaded paper.</p>
+                    <button class="primary" type="button" (click)="approve(row,reference)" [disabled]="mutationBusy">Confirm paper &amp; check</button>
+                  }
+                </section>
+              }
+
+              @if (row.error && (markState(row) === 'failed' || row.referenceState === 'failed')) {
+                <p class="notice error">{{row.error}}</p>
+              }
+
+              <div class="review-actions">
+                @if (row.status === 'submitted') {
+                  @if (canApprove(row)) {
+                    <button class="primary" type="button" (click)="approve(row)" [disabled]="mutationBusy">Approve &amp; check</button>
+                  }
+                  <button class="quiet" type="button" (click)="startRescan()" [disabled]="mutationBusy || showRescan">Request rescan</button>
+                } @else if (row.paperId && row.sheetId) {
+                  @if ((row.status === 'checking' && markState(row) === 'final') || row.updatedCopyReady) {
+                    <button class="primary" type="button" (click)="release(row)" [disabled]="mutationBusy">{{row.updatedCopyReady ? 'Release updated copy' : 'Release to student'}}</button>
+                  }
+                  <button [class]="row.status === 'checking' && markState(row) === 'review' ? 'primary' : 'quiet'" type="button" (click)="openSheet(row)" [disabled]="mutationBusy">
+                    {{markState(row) === 'review' ? 'Review marks' : 'Open marked sheet'}}
+                  </button>
+                }
+                @if (mutationBusy) { <span role="status">{{mutationProgress || 'Saving…'}}</span> }
+              </div>
+
+              @if (showRescan) {
+                <form class="rescan" (ngSubmit)="requestRescan(row)">
+                  <h3>Ask for a clearer scan</h3>
+                  <div class="fields">
+                    <label>Document
+                      <select name="scanKind" [(ngModel)]="rescanKind" (ngModelChange)="rescanPage=null">
+                        @for (kind of fileKinds; track kind.value) {
+                          @if (kind.value === 'answer' || row.question) { <option [value]="kind.value">{{kind.label}}</option> }
+                        }
+                      </select>
+                    </label>
+                    <label>Page number, if known<input name="page" type="number" min="1" [max]="rescanFileCount" inputmode="numeric" [(ngModel)]="rescanPage"></label>
+                  </div>
+                  <label>Tell the student what to fix
+                    <textarea name="reason" rows="3" maxlength="280" required placeholder="Page 2 is cropped. Include the full right margin." [(ngModel)]="rescanReason"></textarea>
+                  </label>
+                  <div class="review-actions"><button class="primary" type="submit" [disabled]="!rescanReason.trim() || mutationBusy || rescanPage != null && (rescanPage < 1 || rescanPage > rescanFileCount)">Send rescan request</button><button class="link" type="button" (click)="stopRescan()" [disabled]="mutationBusy">Cancel</button></div>
+                </form>
+              }
+
+              <section class="scan" aria-label="Uploaded scans">
+                <div class="scan-toolbar">
+                  <div class="scan-tabs" aria-label="Choose the upload to preview">
+                    <button type="button" [attr.aria-pressed]="scanKind === 'answer'" (click)="loadScan('answer')">Answer sheet</button>
+                    @if (row.question) {
+                      <button type="button" [attr.aria-pressed]="scanKind === 'question'" (click)="loadScan('question')">Question paper</button>
+                    }
+                  </div>
+                  @if (fileCount > 1) {
+                    <div class="page-turn">
+                      <button type="button" (click)="loadScan(scanKind, scanPage - 1)" [disabled]="scanPage === 1" aria-label="Previous page">‹</button>
+                      <span>{{scanPage}} / {{fileCount}}</span>
+                      <button type="button" (click)="loadScan(scanKind, scanPage + 1)" [disabled]="scanPage === fileCount" aria-label="Next page">›</button>
+                    </div>
+                  }
+                </div>
+                @if (scanFile?.name) { <p class="scan-name">{{scanFile?.name}}</p> }
+                @if (scanError) { <div class="notice error" role="alert">{{scanError}} <button type="button" class="link" (click)="loadScan(scanKind, scanPage)">Try again</button></div> }
+                @if (scanBusy) { <p class="notice" role="status">Loading scan…</p> }
+                @if (scanUrl) { <img [src]="scanUrl" [alt]="(scanKind === 'answer' ? 'Answer sheet' : 'Question paper') + ', page ' + scanPage"> }
+              </section>
+            }
+          </section>
+        } @else {
+          <section class="detail"><button type="button" class="link back" (click)="choose('')">← Back to submissions</button><p class="notice">Could not open this submission. <button type="button" class="link" (click)="refresh()">Try again</button></p></section>
+        }
+      }
+    </div>
+  }
+</main>

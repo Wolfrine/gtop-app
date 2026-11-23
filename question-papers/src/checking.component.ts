@@ -96,6 +96,7 @@ type Summary = {
   updatedAt?: string;
 };
 type Sheet = Summary & {
+  studentSubmission?: boolean;
   gradingPaperId?: string;
   notes: string;
   uploaded: Page[];
@@ -127,6 +128,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   @Input({ required: true }) onClose!: () => void;
   @Input() scopePacketId = '';
   @Input() fromStudentHistory = false;
+  @Input() fromSubmissionInbox = false;
   classLabel = '';
   @Input() onManageClass?: (packetId: string) => void;
   @Input() onScanClass?: (paperId:string)=>void;

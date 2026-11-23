@@ -62,6 +62,39 @@ const checkDirectory = async () => {
 const sampledStudentUid = await checkDirectory();
 console.log('Live student search, account details and private checking history verified with existing records.');
 
+const studentIntake = '/student-submissions';
+const staffIntake = '/staff/student-submissions';
+const learnerOrigins = ['https://gtop.growthtutorials.in','https://gtop-app.web.app'];
+for (const origin of learnerOrigins) {
+  const preflight = await fetch(gateway + studentIntake, {
+    method: 'OPTIONS', headers: {Origin: origin, 'Access-Control-Request-Method': 'POST',
+      'Access-Control-Request-Headers': 'authorization, content-type'}, signal: AbortSignal.timeout(30000)
+  });
+  assert.equal(preflight.status, 204);
+  assert.equal(preflight.headers.get('access-control-allow-origin'), origin);
+  const learnerRequest = await fetch(gateway + studentIntake, {
+    headers: {Origin: origin}, signal: AbortSignal.timeout(30000)
+  });
+  assert.equal(learnerRequest.status, 401);
+  assert.equal(learnerRequest.headers.get('access-control-allow-origin'), origin);
+  const staffPreflight = await fetch(gateway + staffIntake, {
+    method: 'OPTIONS', headers: {Origin: origin, 'Access-Control-Request-Method': 'GET'},
+    signal: AbortSignal.timeout(30000)
+  });
+  assert.equal(staffPreflight.status, 403);
+}
+const inbox = await fetch(gateway + staffIntake, {headers: authHeaders, signal: AbortSignal.timeout(30000)});
+assert.equal(inbox.status, 200, 'Invited GT Papers staff must be able to open their submissions inbox.');
+const inboxPage = await inbox.json();
+assert(Array.isArray(inboxPage.submissions) && inboxPage.submissions.length <= 25);
+const signedInAdmin = await fetch(gateway + studentIntake, {
+  headers: {...authHeaders, Origin: learnerOrigins[0]}, signal: AbortSignal.timeout(30000)
+});
+assert.equal(signedInAdmin.status, 200);
+assert.equal((await signedInAdmin.json()).eligible, false);
+console.log('Live student submission origins, private staff inbox and enrollment boundary verified without submissions.');
+
+
 const session=await fetch(gateway+'/session',{headers:{Authorization:'Bearer '+idToken},signal:AbortSignal.timeout(30000)});assert(session.ok);const data=await session.json();assert.equal(data.user.uid,uid);assert.equal(data.capabilities.identity,'GTOP assistant');assert(Array.isArray(data.capabilities.actions));assert(data.capabilities.boards.some(b=>b.name==='CBSE'&&b.classes.includes(5)&&b.classes.includes(12)));assert(!JSON.stringify(data).includes('bootstrapSecret'));
 console.log('Live assistant gateway verified: anonymous denial, existing invited admin access and capabilities. No paper/chat fixture written.');
 assert.equal(data.notifications?.schemaVersion,1);

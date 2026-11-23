@@ -4,11 +4,11 @@
       <button
         class="back"
         type="button"
-        (click)="fromStudentHistory ? leave() : list()"
+        (click)="fromStudentHistory || fromSubmissionInbox ? leave() : list()"
         [disabled]="busy"
-        [attr.aria-label]="fromStudentHistory ? 'Back to student history' : 'Back to all answer sheets'"
+        [attr.aria-label]="fromSubmissionInbox ? 'Back to submissions' : fromStudentHistory ? 'Back to student history' : 'Back to all answer sheets'"
       >
-        ‹ <span>{{ fromStudentHistory ? 'Students' : 'Register' }}</span>
+        ‹ <span>{{ fromSubmissionInbox ? 'Submissions' : fromStudentHistory ? 'Students' : 'Register' }}</span>
       </button>
       <div class="heading">
         <h1>{{ identity(sheet!).name }}</h1>
@@ -29,9 +29,11 @@
           <button type="button" (click)="refresh(); menu.open = false" [disabled]="busy || dirty">
             Refresh sheet
           </button>
-          <button type="button" (click)="linkFormOpen = true; menu.open = false" [disabled]="busy || dirty">
-            {{ sheet!.studentUid ? 'Change linked student' : 'Link to a student' }}
-          </button>
+          @if (!sheet!.studentSubmission) {
+            <button type="button" (click)="linkFormOpen = true; menu.open = false" [disabled]="busy || dirty">
+              {{ sheet!.studentUid ? 'Change linked student' : 'Link to a student' }}
+            </button>
+          }
           @if (onScanClass && sheet!.studentUid && !active && sheet!.state !== 'uploading') {
             <button type="button" (click)="menu.open = false; onScanClass(sheet!.gradingPaperId || paperId)" [disabled]="busy || dirty || printing">Check another student</button>
           }
@@ -47,9 +49,11 @@
           @if (sheet!.state === 'final' && editing && dirty && !pending) {
             <button type="button" (click)="menu.open = false; save(false)" [disabled]="busy">Reopen for review</button>
           }
-          <button type="button" class="danger" (click)="deleteSheet(); menu.open = false" [disabled]="busy">
-            Delete sheet
-          </button>
+          @if (!sheet!.studentSubmission) {
+            <button type="button" class="danger" (click)="deleteSheet(); menu.open = false" [disabled]="busy">
+              Delete sheet
+            </button>
+          }
         </div>
       </details>
     } @else {

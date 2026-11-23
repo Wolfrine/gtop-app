@@ -6,6 +6,7 @@ import {ExternalReference} from './external-reference.mjs';
 import {currentSheetGrade,day,digest,matchesStudentLabel,maxActive,maxDrafts,orderedKey,packets,pagePath,queue,queueField,quota,sheets,sheetFields,sheetSummary} from './checking-storage.mjs';
 import {gradingRubric,validateGrades,summarizeGrades} from './domain/checking.mjs';
 import {maxCheckingPages,checkingLeaseMs} from './domain/checking-limits.mjs';
+import {submissionPagePath} from './student-submission-storage.mjs';
 
 const maxPageBytes=400000,historySize=40;
 const paidBudgetPath='assistantCheckingControls/paidBudget';
@@ -109,7 +110,8 @@ export class PaperChecking {
         if(!sheet||sheet.state==='deleting')this.notFound();
       }
       const rubric=await this.rubric(sheet.gradingPaperId??paperId,uid);
-      const {lease,leaseUntil,queueId,modelGrade,scanSource,retiredSources,...visible}=sheet;
+      const {lease,leaseUntil,queueId,modelGrade,scanSource,retiredSources,submissionUploadId,submissionUploadKind,...visible}=sheet;
+      if(submissionUploadId)visible.studentSubmission=true;
       if(sheet.packetId&&!sheet.packetLabel){
         const [packet]=await this.store.getSelected([packets(uid)+'/'+this.id(sheet.packetId)],['label','paperId','scanSource']);
         visible.packetLabel=(packet?.paperId===paperId&&packet.scanSource===sheet.scanSource&&packet.label)||sheet.packetId;
@@ -197,7 +199,10 @@ export class PaperChecking {
     this.pageIndex(sheet,index);
     const descriptor=sheet.uploaded.find(item=>item.index===index);
     if(!descriptor)this.notFound();
-    const page=await reader.get(this.imagePath(path,sheet,descriptor.sourceIndex??index));
+    const imagePath=sheet.submissionUploadId
+      ? submissionPagePath(sheet.submissionUploadId,descriptor.sourceRevision,sheet.submissionUploadKind,descriptor.sourceIndex??index)
+      : this.imagePath(path,sheet,descriptor.sourceIndex??index);
+    const page=await reader.get(imagePath);
     if(!page||!descriptor)this.notFound();
     const bytes=Buffer.from(page.jpeg,'base64');
     if(digest(bytes.toString('base64'))!==descriptor.sha)
@@ -309,6 +314,7 @@ export class PaperChecking {
       const sheet=await tx.get(path);
       if(!sheet)return false;
       if(sheet.state==='deleting')return true;
+      if(sheet.submissionUploadId)this.fail(409,'student_submission_locked','The student’s original submission and review are kept together. Manage this sheet from Submissions.');
       if(sheet.version!==version)this.fail(409,'sheet_changed','Reopen the latest sheet before deleting it.');
       const usage=await tx.get(quota(uid))||{};
       if(['queued','running'].includes(sheet.state))
@@ -332,7 +338,8 @@ export class PaperChecking {
       done=await this.store.transaction(async tx=>{
         const record=await tx.get(path);
         if(!record||record.state!=='deleting')return true;
-        const pages=[...record.uploaded,...(record.retiredSources||[])];
+        // Student-uploaded originals belong to the immutable submission revision.
+        const pages=record.submissionUploadId?[]:[...record.uploaded,...(record.retiredSources||[])];
         const next=pages.slice(record.deleting,record.deleting+8);
         for(const info of next)tx.delete(this.imagePath(path,record,info.sourceIndex??info.index));
         const cursor=record.deleting+next.length;

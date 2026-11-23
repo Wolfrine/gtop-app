@@ -19,6 +19,7 @@
       <button [attr.aria-current]="view==='home'?'page':null" (click)="openHome()">Desk</button>
       <button [attr.aria-current]="view==='chat'?'page':null" (click)="newConversation()">Create</button>
       <button (click)="openCheckingHome()">Check</button>
+      <button [attr.aria-current]="view==='submissions'?'page':null" (click)="openSubmissions()">Inbox</button>
       <button [attr.aria-current]="view==='students'?'page':null" (click)="openStudents()">Students</button>
       <button [attr.aria-current]="view==='library'?'page':null" (click)="openLibrary()">Find</button>
     </nav>
@@ -63,6 +64,11 @@
           <button class="desk-action" (click)="openStudents()"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="12" cy="10" r="4"/><path d="M4 26v-3a8 8 0 0 1 16 0v3ZM21 6a4 4 0 0 1 0 8m2 3a7 7 0 0 1 5 7v2h-5"/></svg><span><strong>Students</strong><small>Find checking history</small></span><i aria-hidden="true">→</i></button>
           <button class="desk-action find-action" (click)="openLibrary()"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 9V6h9l3 3h12v4M3 10v16h22l4-13H7L5 23"/><path d="M10 5h7l2 2h7"/></svg><span><strong>Find a paper</strong><small>{{user.libraryAccess?'Browse the paper library':'Search your paper requests'}}</small></span><i aria-hidden="true">→</i></button>
         </nav>
+        <button class="desk-inbox" type="button" (click)="openSubmissions()">
+          <span class="work-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10h5l2 4h4l2-4h5v9H3Z M3 10l2-6h14l2 6"/></svg></span>
+          <span><strong>Student submissions</strong><small>Approve answer sheets sent from GTOP</small></span>
+          <span aria-hidden="true">→</span>
+        </button>
         <section class="desk-work" aria-labelledby="work-title">
           <div class="desk-work-head"><h2 id="work-title">Continue working</h2><button *ngIf="workItems.length>4" class="text-button" (click)="allWork=!allWork">{{allWork?'Show less':'View all'}} <span aria-hidden="true">{{allWork?'↑':'→'}}</span></button></div>
           <p *ngIf="workLoading&&!workItems.length" class="desk-notice" role="status"><span class="loader small"></span> Loading your recent work…</p>
@@ -84,6 +90,13 @@
         <ng-container *ngComponentOutlet="studentHistoryComponent || null; inputs: studentHistoryInputs; injector: checkingInjector"></ng-container>
         <main *ngIf="!studentHistoryComponent && !error" class="route-wait" role="status"><span class="loader"></span> Opening students…</main>
         <div *ngIf="!studentHistoryComponent && error" class="desk-alert" role="alert">{{error}} <button class="text-button" (click)="openStudents(studentHistoryInputs.selectedUid,false)">Try again</button></div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="submissionsOpen">
+      <div class="student-route" [attr.inert]="drawer?'':null">
+        <ng-container *ngComponentOutlet="studentSubmissionsComponent || null; inputs: studentSubmissionsInputs; injector: checkingInjector"></ng-container>
+        <p *ngIf="!studentSubmissionsComponent && !error" class="desk-notice" role="status">Opening student submissions…</p>
+        <div *ngIf="!studentSubmissionsComponent && error" class="desk-alert" role="alert">{{error}} <button class="text-button" (click)="openSubmissions(studentSubmissionsInputs.selectedId,false)">Try again</button></div>
       </div>
     </ng-container>
     <section *ngIf="view==='library'&&!user.libraryAccess" class="desk-personal" [attr.inert]="drawer?'':null" aria-labelledby="personal-title">
@@ -235,7 +248,25 @@
       </div><span *ngIf="documentLoading" class="preview-opening" role="status">Opening…</span></div>
       <p *ngIf="libraryError" class="author-notice" role="alert">{{libraryError}}</p>
       <div class="preview-stage"><iframe *ngFor="let current of [doc]" id="paper-frame" [title]="current.kind==='answers'?'Printable worked answers':'Printable question paper'" sandbox="allow-same-origin allow-modals" data-presentation-version="3" [srcdoc]="current.safe" (load)="prepareDocument(true)"></iframe></div>
-      <footer class="preview-footer"><button class="author-link" (click)="startPaperCheck(doc.paper)">Check answer sheets <span aria-hidden="true">→</span></button><button *ngIf="view==='library'&&doc.paper.conversationId" class="author-link" (click)="openLibraryConversation(doc.paper.conversationId!)">Open paper request <span aria-hidden="true">→</span></button><button *ngIf="view==='library'&&doc.paper.conversationId&&doc.paper.ownerUid===user.uid" class="author-link" (click)="reviseArchivePaper(doc.paper)">Revise latest paper <span aria-hidden="true">→</span></button><button *ngIf="view==='chat'&&!readOnly" class="author-link" (click)="revise(doc.paper)">{{doc.paper.id===currentPaper?.id?'Request a revision':'Revise latest paper'}} <span aria-hidden="true">→</span></button></footer>
+      <footer class="preview-footer"><button class="author-link" (click)="startPaperCheck(doc.paper)">Check answer sheets <span aria-hidden="true">→</span></button><button class="author-link" type="button" (click)="getStudentLink()" [disabled]="previewLinkBusy">{{previewLinkBusy && !previewStudentLink ? 'Getting link…' : 'Get student link'}}</button><button *ngIf="view==='library'&&doc.paper.conversationId" class="author-link" (click)="openLibraryConversation(doc.paper.conversationId!)">Open paper request <span aria-hidden="true">→</span></button><button *ngIf="view==='library'&&doc.paper.conversationId&&doc.paper.ownerUid===user.uid" class="author-link" (click)="reviseArchivePaper(doc.paper)">Revise latest paper <span aria-hidden="true">→</span></button><button *ngIf="view==='chat'&&!readOnly" class="author-link" (click)="revise(doc.paper)">{{doc.paper.id===currentPaper?.id?'Request a revision':'Revise latest paper'}} <span aria-hidden="true">→</span></button></footer>
+      <div *ngIf="previewStudentLink || previewLinkError" class="preview-share">
+        <ng-container *ngIf="previewStudentLink">
+          <div class="preview-share-field">
+            <label>{{previewLinkMode==='invite'?'Test link with GTOP access':'Student test link'}}<input type="text" #studentLink [value]="previewStudentLink" readonly (focus)="studentLink.select()"></label>
+            <button type="button" class="author-quiet" (click)="copyStudentLink(studentLink)">Copy link</button>
+          </div>
+          <p *ngIf="previewLinkNotice" role="status">{{previewLinkNotice}}</p>
+          <details>
+            <summary>Invite students to this test</summary>
+            <p>Use a combined link for students who do not have access to your submissions inbox yet.</p>
+            <div class="preview-share-field">
+              <label>Number of students<input type="number" min="1" max="30" inputmode="numeric" [(ngModel)]="previewInviteUses" [disabled]="previewLinkBusy"></label>
+              <button class="author-quiet" type="button" (click)="getStudentLink(true)" [disabled]="previewLinkBusy || previewInviteUses < 1 || previewInviteUses > 30">{{previewLinkBusy?'Creating link…':'Create invitation for this test'}}</button>
+            </div>
+          </details>
+        </ng-container>
+        <p *ngIf="previewLinkError" role="alert">{{previewLinkError}}</p>
+      </div>
     </section>
   </ng-container>
 </div>

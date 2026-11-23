@@ -53,6 +53,25 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     }else this.openChecking(paperId,packetId,sheetId);
   };
   studentHistoryComponent?:Type<unknown>;
+  studentSubmissionsComponent?:Type<unknown>;
+  private inboxSubmissionId='';
+  private checkingSubmissionId='';
+  previewStudentLink='';
+  previewLinkError='';
+  previewLinkNotice='';
+  previewLinkBusy=false;
+  previewInviteUses=10;
+  previewLinkMode:'test'|'invite'='test';
+  private linkRequest=0;
+  private readonly selectInboxSubmission=(id:string)=>{
+    this.inboxSubmissionId=id;
+    this.writeRoute({view:'submissions',submission:id},true);
+  };
+  private readonly openInboxSheet=(id:string,paperId:string,sheetId:string)=>this.openChecking(paperId,'',sheetId,true,'',id);
+  get submissionsOpen(){return this.view==='submissions'&&!this.checkingOpen&&this.contentAuthorized;}
+  get studentSubmissionsInputs(){
+    return {selectedId:this.inboxSubmissionId,onSelect:this.selectInboxSubmission,onOpenSheet:this.openInboxSheet};
+  }
   private studentUid='';
   private sheetHistoryUid='';
   private readonly selectHistoryStudent=(uid:string)=>{
@@ -68,14 +87,14 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   get studentHistoryInputs(){
     return {selectedUid:this.studentUid,onSelect:this.selectHistoryStudent,onCheck:this.startStudentCheck,onOpen:this.openStudentRecord};
   }
-  view:'home'|'chat'|'library'|'students'='home';libraryKind:LibraryKind='papers';libraryLoading=false;libraryError='';libraryFiltersOpen=false;
+  view:'home'|'chat'|'library'|'students'|'submissions'='home';libraryKind:LibraryKind='papers';libraryLoading=false;libraryError='';libraryFiltersOpen=false;
   libraryFilters:LibraryFilters={board:'',standard:'',subject:'',text:'',year:''};
   libraryPages:Record<LibraryKind,{items:LibraryItem[];nextCursor:string|null;loaded:boolean}>={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};
   public adminConversation=false;
   feedbackMessage='';feedbackText='';feedbackPaperId='';feedbackOpen=false;newRequestId='';private sendId='';private sendText='';private documentRequest=0;private timer?:ReturnType<typeof setTimeout>;private destroyed=false;private openingId='';
   get user(){return this.session?.user;}
   get checkingOpen(){return (!!this.checkingPaperId||this.checkingHome)&&!!this.user&&this.contentAuthorized;}
-  get checkingInputs(){return {paperId:this.checkingPaperId,scopePacketId:this.checkingPacketId,fromStudentHistory:!!this.sheetHistoryUid,onClose:this.returnFromChecking,onScanClass:this.scanForPaper,onManageClass:this.managePacket};}
+  get checkingInputs(){return {paperId:this.checkingPaperId,scopePacketId:this.checkingPacketId,fromStudentHistory:!!this.sheetHistoryUid,fromSubmissionInbox:!!this.checkingSubmissionId,onClose:this.returnFromChecking,onScanClass:this.scanForPaper,onManageClass:this.managePacket};}
   get hubInputs(){return {libraryAccess:!!this.user?.libraryAccess,onClose:this.returnToWorkspace,onResults:this.viewCheckedClass};}
   get worker(){return this.serviceStale?{label:'Assistant status unavailable',detail:'Could not check the assistant. Check your connection and refresh status.',tone:'offline'}:servicePresentation(this.session?.service,this.session?.worker);}
   get canStartService(){return !!this.session?.service?.canStart&&!this.serviceStarting&&!this.serviceStale;}
@@ -164,7 +183,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       else void this.openConversation(this.openingId,false);
     }else void this.reconnect();
   }
-  private readonly routeKeys=['view','request','shared','checking','check','sheet','packet','reference','scan','printed','q','page','pane','studentUid'];
+  private readonly routeKeys=['view','request','shared','checking','check','sheet','packet','reference','scan','printed','q','page','pane','studentUid','submission'];
   private readonly injector=inject(Injector);
   checkingInjector?:Injector;
   private checkedOwner='';
@@ -247,7 +266,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       if(!text.trim())this.savedBrief=undefined;
       else if(this.savedBrief?.text!==text)this.savedBrief={text,updatedAt:new Date().toISOString()};
     }
-    this.checkingHome=false;this.checkingPaperId='';this.checkingPacketId='';
+    this.checkingHome=false;this.checkingPaperId='';this.checkingPacketId='';this.checkingSubmissionId='';
     this.resumeWorkspaceUpdates();
   }
   openHome(write=true){
@@ -256,11 +275,11 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.prepareNavigation();this.openingId='';this.view='home';this.drawer=false;this.closeDocument();this.allWork=false;
     void this.reloadDesk();this.schedulePoll();
   }
-  openChecking(paperId:string,packetId='',sheet='',write=true,historyUid=''){
+  openChecking(paperId:string,packetId='',sheet='',write=true,historyUid='',submissionId=''){
     if(!this.user||!this.contentAuthorized)return;
-    if(write)this.writeRoute({check:paperId,packet:packetId,sheet,checking:this.checkingHome?'class':'',view:historyUid?'students':'',studentUid:historyUid});
+    if(write)this.writeRoute({check:paperId,packet:packetId,sheet,checking:this.checkingHome?'class':'',view:submissionId?'submissions':historyUid?'students':'',studentUid:historyUid,submission:submissionId});
     this.prepareNavigation();
-    this.openingId='';this.checkingHome=false;this.checkingPacketId=packetId;this.sheetHistoryUid=historyUid;
+    this.openingId='';this.checkingHome=false;this.checkingPacketId=packetId;this.sheetHistoryUid=historyUid;this.checkingSubmissionId=submissionId;
     this.closeDocument();this.drawer=false;this.checkingPaperId=paperId;
     void this.loadCheckingComponent();
   }
@@ -291,6 +310,16 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     catch(error){if(this.current(epoch)&&this.studentsOpen)this.reportError(error);}
     this.schedulePoll();
   }
+  async openSubmissions(id='',write=true){
+    if(!this.user||!this.contentAuthorized)return;
+    this.prepareNavigation();
+    if(write)this.writeRoute({view:'submissions',submission:id});
+    this.view='submissions';this.inboxSubmissionId=id;this.openingId='';this.drawer=false;this.error='';this.closeDocument();
+    const epoch=this.authEpoch;
+    try{this.studentSubmissionsComponent||=(await import('./student-submissions.component')).StudentSubmissionsComponent;}
+    catch(error){if(this.current(epoch)&&this.submissionsOpen)this.reportError(error);}
+    this.schedulePoll();
+  }
   private async loadCheckingHub(){
     const epoch=this.authEpoch;
     try{this.checkingHubComponent||=(await import('./checking-hub.component')).CheckingHubComponent;}
@@ -302,6 +331,12 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     const params=new URL(location.href).searchParams;
     if(params.get('view')==='students' && params.get('studentUid')){
       void this.openStudents(params.get('studentUid')!,false);return;
+    }
+    if(params.get('view')==='submissions'){
+      const submission=params.get('submission')||'';
+      this.writeRoute({view:'submissions',submission},true);
+      void this.openSubmissions(submission,false);
+      return;
     }
     this.writeRoute({},true);this.openHome(false);
   }
@@ -482,7 +517,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     }
     const restoredUrl=location.href;
     const check=params.get('check'),request=params.get('request');
-    if(check)this.openChecking(check,params.get('packet')||'',params.get('sheet')||'',false,params.get('view')==='students'?params.get('studentUid')||'':'');
+    if(check)this.openChecking(check,params.get('packet')||'',params.get('sheet')||'',false,params.get('view')==='students'?params.get('studentUid')||'':'',params.get('view')==='submissions'?params.get('submission')||'':'');
     else if(params.get('checking')==='class')this.openCheckingHome(params.get('reference')||'',params.get('packet')||'',false);
     else if(request){
       if(params.get('shared')==='1'&&this.user.libraryAccess)await this.openLibraryConversation(request,false);
@@ -491,6 +526,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     else if(params.get('view')==='create')await this.newConversation(false);
     else if(params.get('view')==='library')await this.openLibrary(false);
     else if(params.get('view')==='students')await this.openStudents(params.get('studentUid')||'',false);
+    else if(params.get('view')==='submissions')await this.openSubmissions(params.get('submission')||'',false);
     else this.openHome(false);
     const preview=history.state?.gtDeskPreview;
     if(preview && history.state?.gtDeskOwner===this.user?.uid && restoredUrl===location.href && !this.checkingOpen){
@@ -628,7 +664,8 @@ export class PaperWorkspace implements OnInit,OnDestroy {
           if(this.checkingOpen){
             this.workspaceUpdatesPending=true;
             window.dispatchEvent(new Event('gtop-paper-content-updated'));
-          }else this.contentQueue?.request();
+          }else if(this.submissionsOpen)window.dispatchEvent(new Event('gtop-paper-content-updated'));
+          else this.contentQueue?.request();
         },
         presence:health=>{if(this.current(epoch))this.receiveHealth(health);},
         state:()=>{if(this.current(epoch)){this.schedulePoll();this.scheduleService();}},
@@ -766,6 +803,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       if(adminView && !this.transport.adminArtifact)throw Error('Library documents are not available yet.');
       const html=await (adminView ? this.transport.adminArtifact!(paper.id,kind) : this.transport.artifact(paper.id,kind));
       if(!this.current(epoch) || request!==this.documentRequest)return;
+      if(this.document?.paper.id!==paper.id)this.clearStudentLink();
       this.previewReady=false;
       this.printRequest=printOnOpen ? request : 0;
       this.document={paper,kind,adminView,readOnly:adminView&&paper.ownerUid!==this.user?.uid,safe:this.sanitizer.bypassSecurityTrustHtml(presentArtifact(html,paper.revision))};
@@ -776,7 +814,43 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       if(this.current(epoch) && request===this.documentRequest){this.reportError(e);this.libraryError=readableError(e);}
     }finally{if(this.current(epoch) && request===this.documentRequest)this.documentLoading=false;}
   }
-  closeDocument(){++this.documentRequest;this.documentLoading=false;this.previewReady=false;this.printRequest=0;this.document=undefined;this.previewOpener=undefined;}
+  async getStudentLink(invite=false){
+    const paper=this.document?.paper;
+    if(!paper||!this.contentAuthorized||this.previewLinkBusy)return;
+    const uses=this.previewInviteUses;
+    if(invite&&(!Number.isInteger(uses)||uses<1||uses>30))return;
+    const epoch=this.authEpoch, request=++this.linkRequest;
+    this.previewLinkBusy=true;this.previewLinkError='';this.previewLinkNotice='';
+    const base='/staff/student-submissions';
+    try{
+      const response=await this.transport.request<{code:string;testCode?:string}>(
+        base+(invite?'/invites':'/tests'),'POST',{paperId:paper.id,...(invite?{uses}:{})}
+      );
+      if(!this.current(epoch)||this.document?.paper.id!==paper.id||request!==this.linkRequest)return;
+      const {studentSubmissionLink}=await import('./student-submissions.component');
+      if(!this.current(epoch)||this.document?.paper.id!==paper.id||request!==this.linkRequest)return;
+      const url=new URL(studentSubmissionLink(invite?'invite':'test',response.code));
+      if(invite&&response.testCode)url.searchParams.set('test',response.testCode);
+      this.previewLinkMode=invite?'invite':'test';
+      this.previewStudentLink=url.href;
+    }catch(error){
+      if(this.current(epoch)&&request===this.linkRequest)this.previewLinkError=readableError(error);
+    }finally{
+      if(this.current(epoch)&&request===this.linkRequest)this.previewLinkBusy=false;
+    }
+  }
+  async copyStudentLink(input:HTMLInputElement){
+    try{await navigator.clipboard.writeText(input.value);this.previewLinkNotice='Link copied.';}
+    catch{input.select();this.previewLinkNotice='Select and copy the link.';}
+  }
+  closeDocument(){
+    ++this.documentRequest;this.documentLoading=false;this.previewReady=false;this.printRequest=0;
+    this.document=undefined;this.previewOpener=undefined;this.clearStudentLink();
+  }
+  private clearStudentLink(){
+    ++this.linkRequest;this.previewStudentLink='';this.previewLinkError='';this.previewLinkNotice='';
+    this.previewLinkBusy=false;this.previewInviteUses=10;this.previewLinkMode='test';
+  }
   async reviseArchivePaper(paper:PaperSummary){
     if (!paper.conversationId || paper.ownerUid!==this.user?.uid || !this.user?.libraryAccess)return;
     await this.openLibraryConversation(paper.conversationId);

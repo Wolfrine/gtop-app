@@ -30,7 +30,7 @@ export class ExternalReference {
     }
     const usable=issues.length===0&&externalGradingPaper(paper);
     if(!usable&&!issues.length)issues.push('Review the question numbers and mark allocations.');
-    return {title:paper.title,paper,issues,state:usable?'ready':'review',engine:body.engine,error:null};
+    return {title:paper.title,paper,issues,state:usable&&!record.requiresPaperReview?'ready':'review',engine:body.engine,error:null};
   }
   view(record){
     const {id,title,state,pageCount,questionPages,createdAt,updatedAt,version,paper,issues,error,uploaded}=record;

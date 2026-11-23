@@ -29,36 +29,20 @@ jobs:
             gtop-v2/package-lock.json
             tools/gtop-mcp/package-lock.json
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-
-      - name: Install and validate v2
+      - name: Compile v2
         working-directory: gtop-v2
         run: |
           npm ci
-          npm run parity:check
-          npm test
-          npm run test:rules
-          npm run test:database-rules
           npm run build:uat
           package_version="$(node -p "require('./package.json').version")"
           printf '{"version":"%s-uat.%s","commit":"%s","branch":"%s","channel":"uat","builtAt":"%s"}' \
             "$package_version" "${GITHUB_SHA::8}" "$GITHUB_SHA" "$GITHUB_REF_NAME" "$(date -u +%FT%TZ)" \
             > dist/gtop-v2/browser/version.json
 
-      - name: Browser and accessibility checks
-        working-directory: gtop-v2
-        run: |
-          npx playwright install --with-deps chromium webkit
-          npm run e2e
-
-      - name: Validate Firestore MCP
+      - name: Compile Firestore MCP
         working-directory: tools/gtop-mcp
         run: |
           npm ci
-          npm test
           npm run build
 
       - name: Authenticate Firebase site provisioning

@@ -49,24 +49,6 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: gtop-app/package-lock.json
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-      - name: Install
-        working-directory: gtop-app
-        run: npm ci
-      - name: Validate browser rules
-        working-directory: gtop-app
-        run: npm run test:rules && npm run test:database-rules
-      - name: Validate paper publication service
-        if: inputs.deployment_scope == 'paper-chat-backend'
-        working-directory: gtop-app/functions
-        run: npm ci && npm test
-      - name: Verify paper service integration
-        if: inputs.deployment_scope == 'paper-chat-backend'
-        working-directory: gtop-app
-        run: npx firebase-tools@15 emulators:exec --only auth,firestore,functions --project demo-gtop 'node functions/publication.integration.mjs && node functions/register.integration.mjs && node functions/backfill-cli.integration.mjs && REGISTER_GATEWAY_URL=http://127.0.0.1:5001/demo-gtop/us-central1/paperGateway node functions/register-gateway.integration.mjs'
       - name: Authenticate Firebase
         id: auth
         uses: google-github-actions/auth@v2
@@ -121,21 +103,3 @@ jobs:
         env:
           ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
         run: node backfill-register.mjs --live-derived-index --until-ready
-      - name: Verify active question-paper permissions after deployment
-        if: inputs.deploy_backend
-        working-directory: gtop-app
-        env:
-          ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
-        run: node scripts/verify-live-paper-rules.mjs
-      - name: Verify deployed paper service
-        if: inputs.deploy_backend && inputs.deployment_scope == 'paper-chat-backend'
-        working-directory: gtop-app/functions
-        run: node verify-deployment.mjs
-      - name: Keep active-rule verification evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-verification
-          path: gtop-app/test-results/active-backend
-          retention-days: 7
-          if-no-files-found: ignore

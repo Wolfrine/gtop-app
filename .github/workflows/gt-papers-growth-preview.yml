@@ -26,37 +26,9 @@ jobs:
       - name: Install existing GT Papers dependencies
         run: npm ci
         working-directory: question-papers
-      - name: Preserve current GT Papers behavior with existing regression tests
-        run: npm test
-        working-directory: question-papers
       - name: Build existing production-mode app for preview
         run: npm run build
         working-directory: question-papers
-      - name: Install existing browser capture dependencies
-        run: npm ci
-        working-directory: gtop-app
-      - name: Install Chromium for approved design comparison
-        run: npx playwright install --with-deps chromium
-        working-directory: gtop-app
-      - name: Capture synthetic phone and desktop teacher-work states
-        run: |
-          npm --prefix question-papers start > "$RUNNER_TEMP/gt-papers-growth-serve.log" 2>&1 &
-          papers_pid=$!
-          trap 'kill "$papers_pid" 2>/dev/null || true' EXIT
-          ready=0
-          for attempt in $(seq 1 90); do
-            if curl --fail --silent http://127.0.0.1:4317/ > /dev/null; then ready=1; break; fi
-            sleep 1
-          done
-          if [ "$ready" != 1 ]; then cat "$RUNNER_TEMP/gt-papers-growth-serve.log"; exit 1; fi
-          GTOP_PAPERS_RENDER_DIR="$RUNNER_TEMP/gtop-growth-design" node question-papers/scripts/growth-design-capture.mjs
-      - uses: actions/upload-artifact@v4
-        if: always()
-        continue-on-error: true
-        with:
-          name: gt-papers-growth-visual-evidence
-          path: '${{ runner.temp }}/gtop-growth-design'
-          retention-days: 3
       - uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'

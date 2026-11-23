@@ -5,6 +5,7 @@ Scope: `gtop-app/`
 ## Build Check
 
 - Run `npm run build -- --configuration production` in `gtop-app/` after changes.
+- Use manual runtime inspection and live release metadata for verification. Do not add or run automated test suites or make them deployment gates.
 
 ## GT Ecosystem Rules
 

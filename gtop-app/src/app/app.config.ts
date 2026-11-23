@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, provideZoneChangeDetection, isDevMode, inject } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, isDevMode, inject } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 
@@ -8,18 +8,18 @@ import { provideClientHydration } from '@angular/platform-browser';
 // Firebase services
 import { provideFirebaseApp, initializeApp, FirebaseApp } from '@angular/fire/app';
 import { provideFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, connectFirestoreEmulator } from '@angular/fire/firestore';
-import { Auth, provideAuth, getAuth, connectAuthEmulator, signInWithEmailAndPassword } from '@angular/fire/auth';
+import { provideAuth, getAuth, connectAuthEmulator } from '@angular/fire/auth';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideDatabase, getDatabase, connectDatabaseEmulator } from '@angular/fire/database';
 import { INVITATION_PRESENTATION, INVITED_SOLO_READY } from './services/practice-invite.service';
 import { presentQuestion, restorePresentation, validOrder, canonicalIndex } from './services/question-presentation';
 
-// Local integration tests use isolated emulators; query parameters cannot switch a hosted site.
+// Local development can use isolated emulators. Hosted sites ignore the query parameter.
 const params = new URLSearchParams(window.location.search);
 const localHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 let useEmulators = localHost && params.has('emulator');
-// Keep isolated local QA in its emulators across real route reloads; hosted sites ignore it.
+// Keep the local emulator connection across route reloads.
 if (localHost) try {
     if (useEmulators) sessionStorage.setItem('gtop.local-emulators', '1');
     useEmulators ||= sessionStorage.getItem('gtop.local-emulators') === '1';
@@ -64,14 +64,6 @@ export const appConfig: ApplicationConfig = {
             if (useEmulators) connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
             return auth;
         }),
-        { provide: APP_INITIALIZER, multi: true, useFactory: () => {
-            const auth = inject(Auth);
-            return async () => {
-                if (useEmulators && params.get('testEmail') && params.get('testPassword')) {
-                    await signInWithEmailAndPassword(auth, params.get('testEmail')!, params.get('testPassword')!);
-                }
-            };
-        } },
         provideAnimationsAsync(),
         provideDatabase(() => {
             const database = getDatabase();

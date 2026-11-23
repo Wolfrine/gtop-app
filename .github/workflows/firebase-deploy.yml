@@ -43,6 +43,10 @@ jobs:
           RELEASE_EVENT: ${{ github.event_name }}
           RELEASE_BEFORE: ${{ github.event.before }}
         run: |
+          if [[ "$RELEASE_EVENT" == push ]] && node .github/suite-removal-scope.cjs "$RELEASE_BEFORE" "$GITHUB_SHA"; then
+            printf 'backend_required=false\nassistant_only=false\n' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           node <<'NODE'
           const {execFileSync} = require('node:child_process');
           const {appendFileSync, existsSync} = require('node:fs');

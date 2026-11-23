@@ -3,7 +3,6 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithCredential,
-  signInWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
   signOut,
@@ -36,19 +35,12 @@ export class AuthStore {
   );
   private profileUnsubscribe?: () => void;
   private settled = false;
-  private emulatorSignInPending = false;
 
   constructor(
     private readonly firebase: FirebaseClient,
     private readonly presence: PresenceService,
     private readonly diagnostics: DiagnosticsService,
   ) {
-    const params = new URLSearchParams(location.search);
-    const testEmail = params.get('testEmail');
-    const testPassword = params.get('testPassword');
-    const emulatorTestHost = ['127.0.0.1', 'localhost'].includes(location.hostname);
-    this.emulatorSignInPending =
-      emulatorTestHost && params.has('emulator') && Boolean(testEmail && testPassword);
     onAuthStateChanged(
       this.firebase.auth,
       (user) => void this.handleAuthChange(user),
@@ -57,13 +49,6 @@ export class AuthStore {
         this.finish({ ...initialState, phase: 'error', error: error.message });
       },
     );
-    if (emulatorTestHost && params.has('emulator') && testEmail && testPassword)
-      void signInWithEmailAndPassword(this.firebase.auth, testEmail, testPassword)
-        .catch((error) => {
-          this.diagnostics.captureError('auth', 'Emulator sign-in failed.', error);
-          this.finish({ ...initialState, phase: 'error', error: error.message });
-        })
-        .finally(() => (this.emulatorSignInPending = false));
   }
 
   ready(): Promise<AuthState> {
@@ -143,7 +128,6 @@ export class AuthStore {
   private async handleAuthChange(user: import('firebase/auth').User | null): Promise<void> {
     this.profileUnsubscribe?.();
     if (!user) {
-      if (this.emulatorSignInPending) return;
       this.diagnostics.capture('info', 'auth', 'No restored Firebase session was found.');
       this.finish({ ...initialState, phase: 'unauthenticated' });
       return;

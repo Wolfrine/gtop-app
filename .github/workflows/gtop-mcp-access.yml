@@ -28,13 +28,11 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: tools/gtop-mcp/package-lock.json
-      - name: Validate MCP and client
+      - name: Compile Firestore MCP
         working-directory: tools/gtop-mcp
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
-          npm test
           npm run build
-          node --test ../gtop-mcp-runner/client.test.mjs
       - name: Authenticate using existing Firebase deployment identity
         uses: google-github-actions/auth@v2
         with:

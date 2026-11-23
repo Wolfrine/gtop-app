@@ -119,7 +119,7 @@ export async function approveSubmission(checker, uid, id, body) {
     if (reference?.requiresPaperReview && !reference.reviewedAt) {
       checker.fail(409, 'paper_review_required', 'Review the uploaded question paper before checking the answers.');
     }
-    if (profile?.role !== 'user') checker.fail(409, 'student_unavailable', 'The submitted student account is unavailable.');
+    if (!profile) checker.fail(409, 'student_unavailable', 'The submitted student account is unavailable.');
     ensureQueueSpace(checker, usage);
     const sheetId = 'submission-' + digest(uid, id, current.revision).slice(0, 45);
     const sheetPath = sheets(uid, paperId) + '/' + sheetId;

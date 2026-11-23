@@ -1,6 +1,6 @@
 import {HttpError} from './service.mjs';
 import {
-  assertEnrollment, authenticatedStudent, createSubmissionInvite, currentEnrollment, getSubmissionTest, listSubmissionInvites,
+  assertEnrollment, authenticatedStudent, createSubmissionInvite, getSubmissionTest, listSubmissionInvites, personalSubmissionAccess,
   redeemSubmissionInvite, revokeSubmissionInvite, shareSubmissionTest
 } from './student-submission-access.mjs';
 import {
@@ -27,10 +27,15 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
   const checker = service.checking;
   const staff = path.startsWith(staffRoot);
   const relative = path.slice((staff ? staffRoot : studentRoot).length);
-  const uid = staff ? (await service.user(claims)).uid : authenticatedStudent(checker, claims);
+  const uid = authenticatedStudent(checker, claims);
+  if (staff) await service.user(claims);
   if (relative === '' && method === 'GET') {
-    if (!staff && query.get('eligibility') === '1') return {eligible: !!await currentEnrollment(checker, uid)};
-    return submissionList(checker, uid, query.get('cursor'), staff, submissionProgress, staff ? query.get('status') : null);
+    if (!staff && query.get('eligibility') === '1') {
+      const access = await personalSubmissionAccess(checker, uid);
+      return {eligible: access.sharedTestsAvailable};
+    }
+    const preview = !staff && query.get('preview') === '1';
+    return submissionList(checker, uid, query.get('cursor'), staff, submissionProgress, staff ? query.get('status') : null, preview);
   }
   if (relative === '' && method === 'POST' && !staff) return createStudentSubmission(checker, uid, body);
   if (staff && relative === '/tests' && method === 'POST') return shareSubmissionTest(checker, uid, body.paperId);
@@ -61,7 +66,7 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
       headers['Content-Type'] = 'image/jpeg';
       return image;
     }
-    if (!staff) return uploadSubmissionPage(checker, uid, id, kind, Number(index), body);
+    if (!staff && method === 'POST') return uploadSubmissionPage(checker, uid, id, kind, Number(index), body);
   }
   if (staff && method === 'POST') {
     if (action === 'rescan') return requestSubmissionRescan(checker, uid, id, body, submissionProgress);
@@ -77,11 +82,9 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
   }
   if (!staff && method === 'GET') {
     if (action === 'result') {
-      await assertEnrollment(checker, uid);
       return studentResult(checker, uid, id);
     }
     if (action === 'result/pdf') {
-      await assertEnrollment(checker, uid);
       const pdf = await studentResultPdf(checker, uid, id);
       headers['Content-Type'] = 'application/pdf';
       headers['Content-Disposition'] = 'attachment; filename="checked-answer-sheet.pdf"';

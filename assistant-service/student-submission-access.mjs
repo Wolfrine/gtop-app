@@ -1,11 +1,14 @@
 import {randomBytes} from 'node:crypto';
 import {HttpError} from './service.mjs';
+import {digest} from './checking-storage.mjs';
 import {
-  inviteId, ownerInvites, submissionAccessPath, submissionInvitePath, submissionSettingsPath,
+  centralIntakeLabel, centralIntakeSource, inviteId, ownerInvites, submissionAccessPath, submissionInvitePath, submissionSettingsPath,
   submissionTestOwnerPath, submissionTestPath
 } from './student-submission-storage.mjs';
 
 const inviteLifeMs = 7 * 86400000;
+const defaultIntakeLimit = 30;
+const maximumIntakeLimit = 150;
 const fail = (status, code, message) => { throw new HttpError(status, code, message); };
 const inviteUnavailable = () => fail(404, 'invite_unavailable', 'This invitation is no longer available. Ask GT staff for a new link.');
 const testUnavailable = () => fail(404, 'test_unavailable', 'This test link is unavailable for your GTOP account.');
@@ -22,21 +25,42 @@ export function authenticatedStudent(checker, claims) {
 }
 
 async function activeOwner(reader, ownerUid) {
+  if (typeof ownerUid !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(ownerUid)) return false;
   const [pilot, profile] = await reader.getSelected(
     ['assistantConfig/pilot', 'users/' + ownerUid], ['allowedOwnerUids', 'role']
   );
-  return pilot?.allowedOwnerUids?.includes(ownerUid) && profile?.role === 'admin';
+  return Array.isArray(pilot?.allowedOwnerUids) && pilot.allowedOwnerUids.includes(ownerUid) && profile?.role === 'admin';
+}
+
+export async function personalSubmissionAccess(checker, uid, reader = checker.store, previous = null) {
+  const [membership, profile, settings] = await reader.getSelected(
+    [submissionAccessPath(uid), 'users/' + uid, submissionSettingsPath],
+    ['enabled', 'ownerUid', 'checkingOwnerUid', 'checkingDailyLimit', 'displayName', 'name']
+  );
+  const label = studentLabel(profile);
+  const savesEnabled = enabled(settings);
+  // An existing assignment, even if disabled, takes priority over the configured inbox.
+  const candidate = membership
+    ? membership.enabled === true && membership.ownerUid
+    : previous?.ownerUid || settings?.checkingOwnerUid;
+  const ownerUid = savesEnabled && profile && await activeOwner(reader, candidate) ? candidate : null;
+  const participant = {studentUid: uid, studentLabel: label || 'GTOP account', ownerUid};
+  const source = membership || (previous?.ownerUid && previous.intake?.source !== centralIntakeSource)
+    ? 'assigned' : centralIntakeSource;
+  const checkingDestination = ownerUid ? {
+    source, label: source === centralIntakeSource ? centralIntakeLabel : 'Assigned GT Papers reviewer',
+    confirmation: digest('student-submission-recipient-v1', uid, ownerUid, source)
+  } : null;
+  const configuredLimit = settings?.checkingDailyLimit;
+  const checkingDailyLimit = Number.isSafeInteger(configuredLimit) && configuredLimit > 0 && configuredLimit <= maximumIntakeLimit
+    ? configuredLimit : defaultIntakeLimit;
+  return {savesEnabled, participant, checkingAvailable: !!checkingDestination, checkingDestination, checkingDailyLimit,
+    sharedTestsAvailable: !!ownerUid && !!membership, checkingNeedsProfile: !profile};
 }
 
 export async function currentEnrollment(checker, uid, reader = checker.store) {
-  const [membership, profile, settings] = await reader.getSelected(
-    [submissionAccessPath(uid), 'users/' + uid, submissionSettingsPath],
-    ['enabled', 'ownerUid', 'role', 'displayName', 'name']
-  );
-  const label = studentLabel(profile);
-  if (!enabled(settings) || profile?.role !== 'user' || !label || membership?.enabled !== true ||
-      typeof membership.ownerUid !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(membership.ownerUid)) return null;
-  return await activeOwner(reader, membership.ownerUid) ? {studentUid: uid, studentLabel: label, ownerUid: membership.ownerUid} : null;
+  const access = await personalSubmissionAccess(checker, uid, reader);
+  return access.sharedTestsAvailable ? access.participant : null;
 }
 
 export async function assertEnrollment(checker, uid, reader = checker.store) {
@@ -134,7 +158,7 @@ export async function redeemSubmissionInvite(checker, uid, code) {
       [path, submissionSettingsPath, 'users/' + uid, submissionAccessPath(uid)],
       ['enabled','ownerUid','uses','used','revokedAt','expiresAt','testCode','role','displayName','name']
     );
-    if (!enabled(settings) || profile?.role !== 'user' || !studentLabel(profile) || !invite ||
+    if (!enabled(settings) || !profile || !invite ||
         invite.revokedAt || invite.expiresAt <= checker.now() || !await activeOwner(tx, invite.ownerUid)) {
       inviteUnavailable();
     }

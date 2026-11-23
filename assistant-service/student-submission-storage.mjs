@@ -1,5 +1,8 @@
 import {createHash} from 'node:crypto';
 
+export const centralIntakeSource = 'growth_tutorials';
+export const centralIntakeLabel = 'Growth Tutorials';
+
 const root = 'assistantStudentSubmissions';
 const owners = 'assistantStudentSubmissionOwners';
 export const submissionPath = id => root + '/' + id;
@@ -18,6 +21,7 @@ export const confirmedPaperPath = (ownerUid, fingerprint) => owners + '/' + owne
 export const submissionAccessPath = uid => 'assistantStudentSubmissionAccess/' + uid;
 export const submissionSettingsPath = 'assistantConfig/studentSubmissions';
 export const submissionLimitPath = uid => 'assistantStudentSubmissionLimits/' + uid;
+export const submissionIntakeLimitPath = uid => owners + '/' + uid + '/intakeLimits/daily';
 export const submissionTestPath = code => 'assistantStudentSubmissionTests/' + code;
 export const submissionTestOwnerPath = (uid, paperId) => owners + '/' + uid + '/tests/' + paperId;
 export const submissionInvitePath = id => 'assistantStudentSubmissionInvites/' + id;
@@ -39,8 +43,9 @@ export function submissionSummary(row, staff, detail, progress) {
     rescan: rescan || null, createdAt, updatedAt, submittedAt: submittedAt || null,
     paperTitle: paperTitle || null,
     ...(testCode ? {testCode} : {}),
+    ...(row.intake?.source === centralIntakeSource ? {checkingRecipient: centralIntakeLabel} : {}),
     ...(staff ? {
-      studentUid: row.studentUid, studentLabel: row.studentLabel,
+      studentUid: row.studentUid, studentLabel: row.studentLabel, intake: row.intake || null,
       paperId: paperId || null, questionFingerprint: row.questionFingerprint || null,
       paperReady, ...internalProgress
     } : {}),

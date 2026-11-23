@@ -1,155 +1,239 @@
-<div class="reports-container">
-    <ng-container *ngIf="!isLoading; else loadingState">
-        <section class="reports-header">
-            <div class="reports-heading">
-                <h1>Progress</h1>
-                <p>
-                    Review your accuracy, previous attempts, and questions to practise again.
-                    <span *ngIf="lastUpdatedLabel && hasResults" class="last-updated">Last updated {{ lastUpdatedLabel }}.</span>
-                </p>
+﻿<main class="progress" aria-labelledby="progress-title">
+    <header class="hero">
+        <div>
+            <h1 id="progress-title">Learning progress</h1>
+            @if (otherStudent) { <p>Student quiz results</p> }
+            @if (papers.length) {
+                <button type="button" class="action primary" (click)="reviewLatestPaper()">
+                    Review latest paper <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+                </button>
+            } @else if (userId && !otherStudent && !paperLoading) {
+                <a class="action primary" routerLink="/quiz" [queryParams]="hubParams">
+                    Start practice <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+                </a>
+            }
+        </div>
+        <div class="hero-mark" aria-hidden="true">
+            <img src="assets/brand/growth-logo.webp" alt="" width="84" height="84" decoding="async">
+        </div>
+    </header>
+
+    @if (!userId && !quizLoading) {
+        <p role="status">Sign in to see progress.</p>
+    } @else {
+        <section class="metrics" [class.two]="showPapers" aria-label="Recent scores">
+            <div class="panel metric">
+                <span class="label"><mat-icon aria-hidden="true">task_alt</mat-icon> MCQ accuracy</span>
+                @if (quizScore; as score) {
+                    <strong>{{ percent(score) }}%</strong>
+                    <small>{{ score.earned }} / {{ score.possible }} correct · {{ quizCount }} {{ quizCount === 1 ? 'quiz' : 'recent quizzes' }}</small>
+                } @else {
+                    <span class="muted">{{ quizLoading ? 'Loading…' : quizError ? 'Unavailable' : quizCount ? 'No recorded scores' : 'No quizzes yet' }}</span>
+                }
             </div>
-            <button mat-stroked-button color="primary" class="header-action" (click)="startNewQuiz()">
-                <mat-icon>play_arrow</mat-icon>
-                Quick Quiz
-            </button>
+            @if (showPapers) {
+                <div class="panel metric">
+                    <span class="label"><mat-icon aria-hidden="true">description</mat-icon> Written marks</span>
+                    @if (paperScore; as score) {
+                        <strong>{{ percent(score) }}%</strong>
+                        <small>{{ score.earned }} / {{ score.possible }} marks · {{ paperCount }} {{ paperCount === 1 ? 'paper' : 'recent papers' }}</small>
+                    } @else {
+                        <span class="muted">{{ paperLoading ? 'Loading…' : paperError ? 'Unavailable' : paperCount ? 'No recorded marks' : 'No papers returned yet' }}</span>
+                    }
+                </div>
+            }
         </section>
 
-        <section class="summary-grid" aria-label="Quiz performance summary">
-            <mat-card class="summary-card" *ngFor="let card of summaryCards"
-                [style.--accent]="card.accent"
-                [style.--accent-bg]="card.accentBg">
-                <div class="card-icon" aria-hidden="true">
-                    <mat-icon>{{ card.icon }}</mat-icon>
-                </div>
-                <div class="card-body">
-                    <div class="card-label">{{ card.label }}</div>
-                    <div class="card-value">{{ card.value }}</div>
-                    <div class="card-trend" *ngIf="card.trend">
-                        <mat-icon>{{ card.trend.direction === 'up' ? 'trending_up' : 'trending_down' }}</mat-icon>
-                        <span>{{ card.trend.text }}</span>
-                    </div>
-                    <div class="card-sublabel">{{ card.sublabel }}</div>
-                </div>
-            </mat-card>
-        </section>
-
-        <section class="charts-section">
-            <mat-card appCard class="chart-card">
-                <div class="chart-header">
-                    <div>
-                        <div class="chart-title">Accuracy Over Time</div>
-                        <div class="chart-subtitle">Daily accuracy trend to help spot improvements.</div>
-                    </div>
-                </div>
-
-                <div class="chart-wrapper" *ngIf="hasResults; else accuracyEmpty">
-                    <canvas baseChart [data]="accuracyChartData" [options]="lineChartOptions" [type]="'line'"></canvas>
-                </div>
-            </mat-card>
-
-            <mat-card appCard class="chart-card pie-chart">
-                <div class="chart-header">
-                    <div>
-                        <div class="chart-title">Quiz Type Distribution</div>
-                        <div class="chart-subtitle">Completed attempts by quiz type.</div>
-                    </div>
-                </div>
-
-                <div class="chart-wrapper" *ngIf="hasResults; else quizTypeEmpty">
-                    <canvas baseChart [data]="quizTypeChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
-                </div>
-            </mat-card>
-        </section>
-
-        <mat-card appCard class="s-card" *ngIf="hasResults; else emptyState">
-            <div class="section-header">
-                <div>
-                    <div class="section-title">Previous Attempts</div>
-                    <div class="section-subtitle">Open a session to retry incorrect questions or replay the full quiz.</div>
-                </div>
-            </div>
-
-            <div class="s-list" role="list">
-                <div class="s-item" *ngFor="let session of sessions" role="button" tabindex="0"
-                     (click)="openSession(session)"
-                     (keydown.enter)="openSession(session)"
-                     (keydown.space)="openSession(session)"
-                     >
-                    <div class="s-top">
-                        <div class="s-meta">
-                            <span class="quiz-type-pill" [ngClass]="session.quizType">
-                                {{ session.quizType | titlecase }}
-                            </span>
-                            <span class="s-date">{{ session.date }} · {{ session.time }}</span>
+        <div class="columns">
+            @if (showPapers) {
+                <section class="panel" aria-labelledby="returned-title">
+                    <header class="section-head">
+                        <h2 id="returned-title">Returned papers</h2>
+                        <a class="action" routerLink="/answer-sheets">Answer Sheets <mat-icon aria-hidden="true">arrow_outward</mat-icon></a>
+                    </header>
+                    <ul class="rows">
+                        @for (paper of papers | slice:0:paperVisible; track paper.id) {
+                            <li>
+                                <button type="button" class="row" [id]="'progress-paper-' + paper.id"
+                                    [attr.aria-expanded]="paperId === paper.id" (click)="togglePaper(paper.id)">
+                                    <mat-icon class="tile" aria-hidden="true">description</mat-icon>
+                                    <span class="row-copy">
+                                        <strong>{{ paper.title }}</strong>
+                                        <small>{{ paper.subject }} · {{ (paper.date | date:'d MMM y') || 'Date not recorded' }}</small>
+                                    </span>
+                                    <span class="score">
+                                        @if (paper.score; as score) { {{ score.earned }} / {{ score.possible }} }
+                                        @else { Marks unavailable }
+                                    </span>
+                                    <mat-icon class="disclosure" aria-hidden="true">expand_more</mat-icon>
+                                </button>
+                                @if (paperId === paper.id) {
+                                    <div class="detail">
+                                        @if (feedbackLoading) {
+                                            <p role="status">Loading feedback…</p>
+                                        } @else if (feedbackError) {
+                                            <p role="status">Feedback is unavailable.</p>
+                                            <button type="button" class="action" (click)="openPaper(paper.id)">Try again</button>
+                                        } @else if (paperResult) {
+                                            <h3>{{ paperResult.rubric.title || paper.title }}</h3>
+                                            <p>Teacher-approved · {{ paperResult.sheet.grade.awarded }} / {{ paperResult.sheet.grade.max }} marks</p>
+                                            @if (paperResult.sheet.grade.answers.length) {
+                                                <details>
+                                                    <summary>Marks by question</summary>
+                                                    <ul class="feedback">
+                                                        @for (answer of paperResult.sheet.grade.answers; track $index) {
+                                                            <li>
+                                                                <strong>Question {{ answer.number }}</strong>
+                                                                @if (answer.awarded !== null) { <span> · {{ answer.awarded }} / {{ answer.max }}</span> }
+                                                                @if (answer.counted === false) { <small> · Excluded from total</small> }
+                                                                @if (answer.explanation) { <p>{{ answer.explanation }}</p> }
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </details>
+                                            }
+                                            <div class="actions">
+                                                <button type="button" class="action primary" [disabled]="pdfLoading" (click)="downloadPdf()">
+                                                    <mat-icon aria-hidden="true">download</mat-icon> {{ pdfLoading ? 'Preparing…' : 'Marked PDF' }}
+                                                </button>
+                                                <a class="action" routerLink="/answer-sheets" [queryParams]="{ sheet: paper.id }">Open answer sheet</a>
+                                            </div>
+                                            @if (pdfError) { <p role="status">The marked PDF could not be downloaded.</p> }
+                                        }
+                                    </div>
+                                }
+                            </li>
+                        }
+                    </ul>
+                    @if (paperError) {
+                        <div class="state" role="status">Returned papers are unavailable.
+                            <button type="button" class="action" (click)="loadPapers(!!paperCursor)">Try again</button>
                         </div>
-                        <div class="s-score" [ngClass]="{ positive: getAccuracyPercent(session) >= 70, caution: getAccuracyPercent(session) < 50 }">
-                            <span class="score">{{ session.correct }}/{{ session.total }}</span>
-                            <span class="score-label">{{ getAccuracyPercent(session) }}% accuracy</span>
+                    } @else if (paperLoading && !papers.length) {
+                        <p role="status">Loading returned papers…</p>
+                    } @else if (!papers.length) {
+                        <p>No papers returned yet.</p>
+                    } @else if (paperVisible < papers.length || paperCursor) {
+                        <button type="button" class="action" [disabled]="paperLoading" (click)="morePapers()">
+                            {{ paperLoading ? 'Loading…' : 'More papers' }}
+                        </button>
+                    }
+                </section>
+            }
+
+            @if (quizDays.length > 1 || paperDays.length > 1) {
+                <section class="panel trend" aria-labelledby="trend-title">
+                    <header class="section-head">
+                        <h2 id="trend-title">Score trend</h2>
+                        @if (quizDays.length && paperDays.length) {
+                            <div class="switch" role="group" aria-label="Score type">
+                                <button type="button" [attr.aria-pressed]="trend === 'quiz'" (click)="selectTrend('quiz')">MCQ</button>
+                                <button type="button" [attr.aria-pressed]="trend === 'written'" (click)="selectTrend('written')">Written</button>
+                            </div>
+                        }
+                    </header>
+                    <p>{{ trend === 'quiz' ? 'MCQ accuracy' : 'Written marks' }} · Recent scoring days</p>
+                    @if (days.length > 1) {
+                        <div class="chart">
+                            <canvas baseChart [data]="chartData" [options]="chartOptions" [type]="'line'" aria-hidden="true"></canvas>
                         </div>
-                    </div>
+                    }
+                    <details>
+                        <summary>Scores by date</summary>
+                        <ul class="days">
+                            @for (point of days; track point.date.getTime()) {
+                                <li><time>{{ point.date | date:'d MMM y' }}</time><strong>{{ percent(point.score) }}%</strong></li>
+                            }
+                        </ul>
+                    </details>
+                </section>
+            }
 
-                    <div class="s-path" matTooltip="{{ session.board }} > {{ session.standard }} > {{ session.subject }} > {{ session.chapter }}">
-                        {{ session.board }} > {{ session.standard }} > {{ session.subject }} > {{ session.chapter }}
-                    </div>
+            @if (subjects.length) {
+                <section class="panel" aria-labelledby="subjects-title">
+                    <h2 id="subjects-title">Subjects</h2>
+                    @for (subject of subjects; track subject.key) {
+                        @if (subject.chapters.length) {
+                            <details class="subject">
+                                <summary>
+                                    <strong>{{ subject.title }}</strong>
+                                    <ng-container *ngTemplateOutlet="subjectScores; context: { $implicit: subject }"></ng-container>
+                                </summary>
+                                <ul class="chapters" aria-label="Chapter accuracy">
+                                    @for (chapter of subject.chapters; track chapter.key) {
+                                        <li>
+                                            <span>{{ chapter.title }} @if (chapter.curriculum) { <small>{{ chapter.curriculum }}</small> }</span>
+                                            <strong>{{ percent(chapter.score) }}% <small>{{ chapter.score.earned }} / {{ chapter.score.possible }} correct</small></strong>
+                                        </li>
+                                    }
+                                </ul>
+                            </details>
+                        } @else {
+                            <div class="subject subject-static">
+                                <strong>{{ subject.title }}</strong>
+                                <ng-container *ngTemplateOutlet="subjectScores; context: { $implicit: subject }"></ng-container>
+                            </div>
+                        }
+                    }
+                </section>
+            }
 
-                    <div class="s-progress" *ngIf="session.total">
-                        <mat-progress-bar color="primary" mode="determinate" [value]="getAccuracyPercent(session)"></mat-progress-bar>
-                    </div>
-
-                    <div class="s-bottom">
-                        <div class="s-stats">
-                            <span>Questions: {{ session.total }}</span>
-                            <span>Correct: {{ session.correct }}</span>
-                            <span *ngIf="session.duration && session.duration !== '—'">Time: {{ session.duration }}</span>
-                        </div>
-                        <div class="retry-actions">
-                            <button mat-flat-button color="primary" class="retry-btn"
-                                [disabled]="!hasIncorrectQuestions(session)"
-                                (click)="$event.stopPropagation(); retrySession(session)">
-                                <mat-icon>refresh</mat-icon>
-                                Retry Incorrect
+            <section class="panel" aria-labelledby="quizzes-title">
+                <h2 id="quizzes-title">Recent quizzes</h2>
+                <ul class="rows">
+                    @for (row of quizzes | slice:0:quizVisible; track row.id) {
+                        <li>
+                            <button type="button" class="row" [attr.aria-expanded]="quizId === row.id" (click)="toggleQuiz(row.id)">
+                                <mat-icon class="tile" aria-hidden="true">quiz</mat-icon>
+                                <span class="row-copy">
+                                    <strong>{{ row.title }}</strong>
+                                    <small>{{ row.quiz.quizType ? (row.quiz.quizType | titlecase) + ' · ' : '' }}{{ (row.date | date:'d MMM y') || 'Date not recorded' }}</small>
+                                </span>
+                                <span class="score">
+                                    @if (row.score; as score) { {{ score.earned }} / {{ score.possible }} }
+                                    @else { Score unavailable }
+                                </span>
+                                <mat-icon class="disclosure" aria-hidden="true">expand_more</mat-icon>
                             </button>
-                            <button mat-stroked-button class="retry-all-btn" (click)="$event.stopPropagation(); retrySession(session, 'all')">
-                                <mat-icon>replay</mat-icon>
-                                Retry Entire Quiz
-                            </button>
-                        </div>
+                            @if (quizId === row.id) {
+                                <div class="detail">
+                                    <div class="actions">
+                                        <button type="button" class="action primary" (click)="reviewQuiz(row)">Review quiz</button>
+                                        @if (hasIncorrect(row)) {
+                                            <button type="button" class="action" [disabled]="retrying" (click)="retryQuiz(row, 'incorrect')">Retry incorrect</button>
+                                        }
+                                        @if (row.quiz.questions?.length) {
+                                            <button type="button" class="action" [disabled]="retrying" (click)="retryQuiz(row, 'all')">Retry all</button>
+                                        }
+                                    </div>
+                                    @if (retrying) { <p role="status">Preparing retry…</p> }
+                                    @if (retryError) { <p role="status">The quiz could not be prepared. Try again.</p> }
+                                </div>
+                            }
+                        </li>
+                    }
+                </ul>
+                @if (quizError) {
+                    <div class="state" role="status">Quiz history is unavailable.
+                        <button type="button" class="action" (click)="loadQuizzes(!!quizCursor)">Try again</button>
                     </div>
-                </div>
-            </div>
-        </mat-card>
-    </ng-container>
-
-    <ng-template #accuracyEmpty>
-        <div class="chart-empty">
-            <mat-icon>show_chart</mat-icon>
-            <p>Complete a quiz to unlock your accuracy trend.</p>
+                } @else if (quizLoading && !quizzes.length) {
+                    <p role="status">Loading quizzes…</p>
+                } @else if (!quizzes.length) {
+                    <p>No quiz attempts yet.</p>
+                } @else if (quizVisible < quizzes.length || quizCursor) {
+                    <button type="button" class="action" [disabled]="quizLoading" (click)="moreQuizzes()">
+                        {{ quizLoading ? 'Loading…' : 'More quizzes' }}
+                    </button>
+                }
+            </section>
         </div>
-    </ng-template>
+    }
+</main>
 
-    <ng-template #quizTypeEmpty>
-        <div class="chart-empty">
-            <mat-icon>pie_chart</mat-icon>
-            <p>Once you try different quiz modes you’ll see them here.</p>
-        </div>
-    </ng-template>
-
-    <ng-template #emptyState>
-        <mat-card class="empty-state">
-            <mat-icon>insights</mat-icon>
-            <h2>No quiz attempts yet</h2>
-            <p>Complete a quiz to see your accuracy and review your answers here.</p>
-            <button mat-raised-button color="primary" (click)="startNewQuiz()">
-                <mat-icon>play_arrow</mat-icon>
-                Quick Quiz
-            </button>
-        </mat-card>
-    </ng-template>
-
-    <ng-template #loadingState>
-        <div class="loading-state">
-            <mat-progress-spinner diameter="44" mode="indeterminate"></mat-progress-spinner>
-            <p>Loading your progress…</p>
-        </div>
-    </ng-template>
-</div>
+<ng-template #subjectScores let-subject>
+    <span class="subject-scores">
+        @if (subject.quiz; as score) { <span>MCQ <strong>{{ percent(score) }}%</strong></span> }
+        @if (subject.written; as score) { <span>Written <strong>{{ percent(score) }}%</strong></span> }
+    </span>
+</ng-template>

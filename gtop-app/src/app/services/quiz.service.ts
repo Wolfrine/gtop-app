@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, getCountFromServer, doc, getDoc, getDocFromServer, setDoc, runTransaction, increment } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, getDocsFromServer, getCountFromServer, doc, getDoc, getDocFromServer, setDoc, runTransaction, increment, orderBy, startAfter, limit, QueryDocumentSnapshot } from '@angular/fire/firestore';
 import { SyllabusService, SyllabusItem } from './syllabus.service';
 import { Timestamp } from '@angular/fire/firestore';
 import { filter, firstValueFrom, timeout } from 'rxjs';
@@ -273,6 +273,25 @@ export class QuizService {
         }
     }
 
+    async fetchRecentQuizResults(userId: string, cursor?: QueryDocumentSnapshot): Promise<QuizResultPage> {
+        const size = 24;
+        const results = collection(this.firestore, 'QuizResults');
+        const snapshot = await getDocsFromServer(query(results, where('userId', '==', userId),
+            orderBy('timestamp', 'desc'), ...(cursor ? [startAfter(cursor)] : []), limit(size + 1)));
+        const page = snapshot.docs.slice(0, size);
+        return {
+            results: page.map(record => ({ ...record.data(), id: record.id } as SavedQuizResult)),
+            nextCursor: snapshot.size > size ? page[page.length - 1] : undefined,
+        };
+    }
+
+    async fetchQuizResult(userId: string, resultId: string): Promise<SavedQuizResult | undefined> {
+        if (typeof resultId !== 'string' || !resultId || resultId.includes('/')) return;
+        const record = await getDoc(doc(this.firestore, 'QuizResults', resultId));
+        const data = record.data();
+        return data?.['userId'] === userId ? { ...data, id: record.id } as SavedQuizResult : undefined;
+    }
+
     // Live Leaderboard: aggregate results directly from the live session data so every
     // participant sees a consistent scoreboard ordered by score then total time taken.
     async fetchLiveResultsForSession(sessionId: string): Promise<any[]> {
@@ -399,6 +418,7 @@ export class QuizService {
         questionSummaries: QuizResultQuestion[];
         incorrectOnly?: boolean;
         context: RetryContext;
+        signal?: AbortSignal;
     }) {
         const { questionSummaries, incorrectOnly = false, context } = options;
         const filteredSummaries = incorrectOnly
@@ -412,6 +432,7 @@ export class QuizService {
 
         const questionIds = filteredSummaries.map(q => q.questionId).filter(Boolean);
         const questions = await this.fetchQuestionsByIds(questionIds);
+        if (options.signal?.aborted) return;
         this.setPendingRetry(questions, context);
     }
 
@@ -547,4 +568,22 @@ export interface QuizResultQuestion {
     correctIndex: number;
     isCorrect: boolean;
     optionOrder?: number[];
+}
+
+export interface SavedQuizResult {
+    id: string;
+    board?: string;
+    standard?: string;
+    subject?: string;
+    chapter?: string;
+    quizType?: string;
+    totalQuestions?: number;
+    correctAnswers?: number;
+    timestamp?: Timestamp | Date | string | number | null;
+    questions?: QuizResultQuestion[];
+}
+
+export interface QuizResultPage {
+    results: SavedQuizResult[];
+    nextCursor?: QueryDocumentSnapshot;
 }

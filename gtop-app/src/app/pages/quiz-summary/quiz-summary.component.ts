@@ -167,8 +167,7 @@ export class QuizSummaryComponent implements OnInit, OnDestroy {
             let historical = navState.session;
             if (params['sessionId'] && params['userId'] &&
                 (params['userId'] === uid || user.role === 'admin')) {
-                historical = (await this.quizService.fetchUserQuizResults(params['userId']))
-                    .find(r => r.id === params['sessionId']);
+                historical = await this.quizService.fetchQuizResult(params['userId'], params['sessionId']);
                 if (!this.isCurrentSummary(version)) return;
                 if (!historical) { this.saveState = 'error'; this.saveError = 'This saved attempt could not be loaded. Open it from your reports.'; return; }
             }

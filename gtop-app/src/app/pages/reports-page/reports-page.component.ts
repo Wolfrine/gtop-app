@@ -1,463 +1,320 @@
-import { Component, OnInit } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
+﻿import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Auth, authState } from '@angular/fire/auth';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgChartsModule } from 'ng2-charts';
-import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChartConfiguration } from 'chart.js';
-import { Auth } from '@angular/fire/auth';
-import { QuizService } from '../../services/quiz.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { QuizResultQuestion } from '../../services/quiz.service';
-import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
+import { NgChartsModule } from 'ng2-charts';
+import { combineLatest, distinctUntilChanged, map, Subscription } from 'rxjs';
+import { QuizResultPage, QuizService } from '../../services/quiz.service';
+import { StudentSubmissionsService, SubmissionResult } from '../../services/student-submissions.service';
+import { PaperActivity, QuizActivity, Score, SubjectProgress, paperActivity, percent, quizActivity, subjectProgress, totalScore, trendDays } from './report-data';
 
 @Component({
     selector: 'app-reports-page',
     standalone: true,
     templateUrl: './reports-page.component.html',
     styleUrls: ['./reports-page.component.scss'],
-    imports: [
-        CommonModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatTooltipModule,
-        MatProgressBarModule,
-        MatProgressSpinnerModule,
-        NgChartsModule,
-        AppCardDirective,
-    ],
+    imports: [CommonModule, MatIconModule, RouterLink, NgChartsModule],
 })
-export class ReportsPageComponent implements OnInit {
-    constructor(
-        private quizService: QuizService,
-        private auth: Auth,
-        private route: ActivatedRoute,
-        private router: Router
-    ) { }
+export class ReportsPageComponent implements OnInit, OnDestroy {
+    private readonly auth = inject(Auth);
+    private readonly quizService = inject(QuizService);
+    private readonly papersApi = inject(StudentSubmissionsService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private subscription?: Subscription;
+    private request = new AbortController();
+    private paperRequest?: AbortController;
+    private downloadUrl?: string;
 
-    quizResults: any[] = [];
-    hasResults = false;
-    isLoading = true;
-    lastUpdatedLabel = '';
+    quizzes: QuizActivity[] = [];
+    papers: PaperActivity[] = [];
+    subjects: SubjectProgress[] = [];
+    quizScore: Score | null = null;
+    paperScore: Score | null = null;
+    quizCount = 0;
+    paperCount = 0;
+    quizVisible = 4;
+    paperVisible = 3;
+    quizCursor?: QuizResultPage['nextCursor'];
+    paperCursor?: string | null;
+    quizLoading = true;
+    paperLoading = false;
+    quizError = false;
+    paperError = false;
+    otherStudent = false;
+    showPapers = false;
+    userId = '';
+    quizId = '';
+    paperId = '';
+    paperResult?: SubmissionResult;
+    feedbackLoading = false;
+    feedbackError = false;
+    pdfLoading = false;
+    pdfError = false;
+    retrying = false;
+    retryError = false;
+    trend: 'quiz' | 'written' = 'quiz';
+    quizDays: ReturnType<typeof trendDays> = [];
+    paperDays: ReturnType<typeof trendDays> = [];
 
-    summaryCards: SummaryCard[] = this.createDefaultSummaryCards();
-
-    accuracyChartData: ChartConfiguration<'line'>['data'] = this.createLineChartData([]);
-
-    quizTypeChartData: ChartConfiguration<'pie'>['data'] = this.createQuizTypeChartData({
-        quick: 0,
-        custom: 0,
-        live: 0,
-        run: 0,
-        retry: 0
-    });
-
-    lineChartOptions: ChartConfiguration<'line'>['options'] = {
-        responsive: true,
-        maintainAspectRatio: false,
+    readonly percent = percent;
+    chartData: ChartConfiguration<'line'>['data'] = { labels: [], datasets: [] };
+    readonly chartOptions: ChartConfiguration<'line'>['options'] = {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { mode: 'index', intersect: false },
         plugins: {
-            legend: {
-                display: true,
-                labels: {
-                    color: '#475569',
-                    boxWidth: 12,
-                    boxHeight: 12,
-                    usePointStyle: true,
-                }
-            },
-            tooltip: {
-                backgroundColor: '#0f172a',
-                padding: 12,
-                titleFont: { weight: 600, size: 12 },
-                bodyFont: { size: 12 },
-                displayColors: false
-            }
+            legend: { display: false },
+            tooltip: { callbacks: { label: point => point.formattedValue + '%' } },
         },
         scales: {
-            x: {
-                ticks: { color: '#64748b' },
-                grid: { display: false },
-                border: { display: false }
-            },
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 5, maxRotation: 0, color: '#4c6258' } },
             y: {
-                ticks: {
-                    color: '#64748b',
-                    callback: (value: string | number) => `${value}%`
-                },
-                grid: { color: 'rgba(148, 163, 184, 0.25)' },
-                border: { display: false },
-                suggestedMin: 0,
-                suggestedMax: 100
-            }
-        }
-    };
-
-    pieChartOptions: ChartConfiguration<'pie'>['options'] = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: true,
-                position: 'bottom',
-                labels: {
-                    color: '#475569',
-                    usePointStyle: true,
-                    boxWidth: 12
-                }
+                min: 0, max: 100, border: { display: false }, grid: { color: '#e1e8e1' },
+                ticks: { stepSize: 50, color: '#4c6258', callback: value => value + '%' },
             },
-            tooltip: {
-                backgroundColor: '#0f172a',
-                padding: 12,
-                titleFont: { weight: 600, size: 12 },
-                bodyFont: { size: 12 },
-                usePointStyle: true
-            }
-        }
+        },
     };
 
-    sessions: ReportSession[] = [];
-    private currentUserId: string | null = null;
-
-    ngOnInit() {
-        this.route.queryParams.subscribe(params => {
-            const userIdFromRoute = params['userId'];
-            if (userIdFromRoute) {
-                this.fetchAndProcessUserReports(userIdFromRoute);
-                this.currentUserId = userIdFromRoute;
-            } else {
-                const user = this.auth.currentUser;
-                if (user) {
-                    this.fetchAndProcessUserReports(user.uid);
-                    this.currentUserId = user.uid;
-                }
-            }
+    ngOnInit(): void {
+        this.subscription = combineLatest([authState(this.auth), this.route.queryParamMap]).pipe(
+            map(([account, params]) => {
+                const uid = account?.uid ?? '';
+                const target = uid ? params.get('userId') || uid : '';
+                return { uid, target, personal: !!account && !account.isAnonymous && target === uid };
+            }),
+            distinctUntilChanged((a, b) => a.uid === b.uid && a.target === b.target && a.personal === b.personal),
+        ).subscribe(({ uid, target, personal }) => {
+            this.reset();
+            this.userId = target;
+            this.otherStudent = target !== uid;
+            this.showPapers = personal;
+            this.quizLoading = !!target;
+            if (target) void this.loadQuizzes();
+            if (personal) void this.loadPapers();
         });
     }
 
-    async fetchAndProcessUserReports(userId: string) {
-        this.isLoading = true;
+    ngOnDestroy(): void {
+        this.subscription?.unsubscribe();
+        this.reset();
+    }
+
+    private reset(): void {
+        this.request.abort();
+        this.request = new AbortController();
+        this.closePaper();
+        this.quizzes = [];
+        this.papers = [];
+        this.quizCursor = undefined;
+        this.paperCursor = undefined;
+        this.quizCount = this.paperCount = 0;
+        this.quizVisible = 4;
+        this.paperVisible = 3;
+        this.quizScore = this.paperScore = null;
+        this.quizDays = this.paperDays = [];
+        this.trend = 'quiz';
+        this.chartData = { labels: [], datasets: [] };
+        this.subjects = [];
+        this.quizError = this.paperError = this.paperLoading = false;
+        this.quizId = '';
+        this.retrying = this.retryError = false;
+    }
+
+    async loadQuizzes(older = false): Promise<void> {
+        if (!this.userId || (older && (!this.quizCursor || this.quizLoading))) return;
+        const signal = this.request.signal;
+        this.quizLoading = true;
+        this.quizError = false;
         try {
-            const results = await this.quizService.fetchUserQuizResults(userId);
-            this.quizResults = results;
-            this.processReportData(results);
-        } catch (error) {
-            console.error('Error fetching quiz reports:', error);
-            this.quizResults = [];
-            this.processReportData([]);
+            const page = await this.quizService.fetchRecentQuizResults(this.userId, older ? this.quizCursor : undefined);
+            if (signal.aborted) return;
+            const rows = page.results.map(quizActivity);
+            this.quizzes = older ? this.appendPage(this.quizzes, rows) : rows;
+            this.quizCursor = page.nextCursor;
+            if (older) this.quizVisible += 6;
+            if (!older) {
+                this.quizCount = rows.length;
+                this.quizScore = totalScore(rows);
+                this.quizDays = trendDays(rows);
+                this.refreshOverview();
+            }
+        } catch {
+            if (!signal.aborted) this.quizError = true;
         } finally {
-            this.isLoading = false;
+            if (!signal.aborted) this.quizLoading = false;
         }
     }
 
-    processReportData(results: any[]) {
-        if (!results || results.length === 0) {
-            this.hasResults = false;
-            this.lastUpdatedLabel = '';
-            this.summaryCards = this.createDefaultSummaryCards();
-            this.accuracyChartData = this.createLineChartData([]);
-            this.quizTypeChartData = this.createQuizTypeChartData({ quick: 0, custom: 0, live: 0, run: 0, retry: 0 });
-            this.sessions = [];
-            return;
+    async loadPapers(older = false): Promise<void> {
+        if (!this.showPapers || this.paperLoading || (older && !this.paperCursor)) return;
+        const signal = this.request.signal;
+        this.paperLoading = true;
+        this.paperError = false;
+        try {
+            const page = await this.papersApi.releasedScores(signal, older ? this.paperCursor! : undefined);
+            if (signal.aborted) return;
+            const rows = page.papers.map(paperActivity);
+            this.papers = older ? this.appendPage(this.papers, rows) : rows;
+            this.paperCursor = page.nextCursor;
+            if (older) this.paperVisible += 6;
+            if (!older) {
+                this.paperCount = rows.length;
+                this.paperScore = totalScore(rows);
+                this.paperDays = trendDays(rows);
+                this.refreshOverview();
+            }
+        } catch {
+            if (!signal.aborted) this.paperError = true;
+        } finally {
+            if (!signal.aborted) this.paperLoading = false;
         }
-
-        this.hasResults = true;
-
-        // ✅ Sort first by timestamp ascending for chart
-        const sortedByDate = results.slice().sort((a, b) => {
-            const aTime = a.timestamp?.toDate ? a.timestamp.toDate().getTime() : new Date(a.timestamp).getTime();
-            const bTime = b.timestamp?.toDate ? b.timestamp.toDate().getTime() : new Date(b.timestamp).getTime();
-            return aTime - bTime;
-        });
-
-        // ✅ Use sorted list for chart + stats
-        const totalQuizzes = sortedByDate.length;
-        const totalCorrect = sortedByDate.reduce((sum, r) => sum + (r.correctAnswers || 0), 0);
-        const totalQuestions = sortedByDate.reduce((sum, r) => sum + (r.totalQuestions || 0), 0);
-        const avgAccuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
-
-        const lastResult = sortedByDate[sortedByDate.length - 1];
-        const lastScore = `${lastResult.correctAnswers}/${lastResult.totalQuestions}`;
-
-        const sessionHistory = sortedByDate.slice().reverse().map(r => {
-            const dateObj = r.timestamp?.toDate ? r.timestamp.toDate() : new Date(r.timestamp);
-            const date = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            const time = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-
-            return {
-                id: r.id,
-                board: r.board,
-                standard: r.standard,
-                subject: r.subject,
-                chapter: r.chapter,
-                quizType: r.quizType,
-                date,
-                time,
-                total: r.totalQuestions,
-                correct: r.correctAnswers,
-                duration: r.duration || '—',
-                questions: (r.questions || []) as QuizResultQuestion[],
-                sessionId: r.sessionId || null
-            };
-        });
-
-        const lastSession = sessionHistory[0];
-        const previousSession = sessionHistory[1];
-        const lastAccuracy = lastSession?.total ? Math.round((lastSession.correct / lastSession.total) * 100) : 0;
-        const previousAccuracy = previousSession?.total ? Math.round((previousSession.correct / previousSession.total) * 100) : null;
-        const accuracyDelta = previousAccuracy !== null ? lastAccuracy - previousAccuracy : null;
-
-        const uniqueQuizDays = new Set(sortedByDate.map(result => {
-            const timestamp = result.timestamp?.toDate ? result.timestamp.toDate() : new Date(result.timestamp);
-            return timestamp.toDateString();
-        })).size;
-
-        this.lastUpdatedLabel = lastSession ? `${lastSession.date} at ${lastSession.time}` : '';
-
-        this.summaryCards = [
-            {
-                label: 'Total Quizzes',
-                value: totalQuizzes,
-                sublabel: totalQuizzes === 1
-                    ? 'Great start! Keep the streak going.'
-                    : `Completed across ${uniqueQuizDays} day${uniqueQuizDays === 1 ? '' : 's'}.`,
-                icon: 'quiz',
-                accent: '#2563eb',
-                accentBg: 'rgba(37, 99, 235, 0.12)'
-            },
-            {
-                label: 'Average Accuracy',
-                value: `${avgAccuracy}%`,
-                sublabel: accuracyDelta === null
-                    ? 'Accuracy is based on your quiz history.'
-                    : accuracyDelta >= 0
-                        ? 'Nice improvement since your last quiz.'
-                        : 'Catch up on topics that need attention.',
-                icon: 'monitoring',
-                accent: accuracyDelta === null ? '#2563eb' : accuracyDelta >= 0 ? '#16a34a' : '#f97316',
-                accentBg: accuracyDelta === null ? 'rgba(37, 99, 235, 0.12)' : accuracyDelta >= 0 ? 'rgba(22, 163, 74, 0.18)' : 'rgba(249, 115, 22, 0.18)',
-                trend: accuracyDelta === null ? undefined : {
-                    direction: accuracyDelta >= 0 ? 'up' : 'down',
-                    text: `${accuracyDelta >= 0 ? '+' : ''}${accuracyDelta.toFixed(1)} pts vs last quiz`
-                }
-            },
-            {
-                label: 'Last Score',
-                value: lastScore,
-                sublabel: lastSession
-                    ? `${lastSession.quizType || 'Quiz'} on ${lastSession.date} · ${lastSession.time}`
-                    : 'Complete a session to record your score.',
-                icon: 'military_tech',
-                accent: lastAccuracy >= 70 ? '#16a34a' : lastAccuracy >= 40 ? '#2563eb' : '#f97316',
-                accentBg: lastAccuracy >= 70 ? 'rgba(22, 163, 74, 0.18)' : lastAccuracy >= 40 ? 'rgba(37, 99, 235, 0.12)' : 'rgba(249, 115, 22, 0.18)'
-            }
-        ];
-
-        // ✅ Accuracy Over Time
-        const groupedByDate = new Map<string, { correct: number, total: number }>();
-        sortedByDate.forEach(r => {
-            const date = r.timestamp?.toDate ? r.timestamp.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : new Date(r.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            const group = groupedByDate.get(date) || { correct: 0, total: 0 };
-            group.correct += r.correctAnswers;
-            group.total += r.totalQuestions;
-            groupedByDate.set(date, group);
-        });
-
-        const accuracyLabels = Array.from(groupedByDate.keys());
-        const accuracyData = accuracyLabels.map(date => {
-            const g = groupedByDate.get(date)!;
-            return Math.round((g.correct / g.total) * 100);
-        });
-
-        this.accuracyChartData = this.createLineChartData(accuracyData, accuracyLabels);
-
-        // ✅ Quiz Type Distribution
-        const quizTypeCounts: Record<'quick' | 'custom' | 'live' | 'run' | 'retry', number> = { quick: 0, custom: 0, live: 0, run: 0, retry: 0 };
-        sortedByDate.forEach(r => {
-            const type = (r.quizType || '').toLowerCase();
-            switch (type) {
-                case 'quick':
-                case 'custom':
-                case 'live':
-                case 'run':
-                case 'retry':
-                    quizTypeCounts[type as keyof typeof quizTypeCounts]++;
-                    break;
-            }
-        });
-
-        this.quizTypeChartData = this.createQuizTypeChartData(quizTypeCounts);
-
-        // ✅ Session History = DESCENDING
-        this.sessions = sessionHistory;
     }
 
-    hasIncorrectQuestions(session: ReportSession) {
-        return session.questions?.some(question => !question.isCorrect);
+    private appendPage<T extends { id: string }>(current: T[], page: T[]): T[] {
+        const ids = new Set(current.map(row => row.id));
+        return [...current, ...page.filter(row => !ids.has(row.id))];
     }
 
-    openSession(session: ReportSession) {
-        const userId = this.currentUserId || this.auth.currentUser?.uid || '';
-        this.router.navigate(['/quiz-summary'], {
-            state: {
-                sessionId: session.id,
-                userId,
-                questionSummaries: session.questions,
-                quizType: session.quizType,
-                liveSessionId: session.sessionId
-            },
-            queryParams: {
-                sessionId: session.id,
-                userId
-            }
-        });
+    moreQuizzes(): void {
+        if (this.quizVisible < this.quizzes.length) this.quizVisible += 6;
+        else void this.loadQuizzes(true);
     }
 
-    getAccuracyPercent(session: ReportSession) {
-        if (!session.total) {
-            return 0;
+    morePapers(): void {
+        if (this.paperVisible < this.papers.length) this.paperVisible += 6;
+        else void this.loadPapers(true);
+    }
+
+    private refreshOverview(): void {
+        this.subjects = subjectProgress(this.quizzes.slice(0, this.quizCount), this.papers.slice(0, this.paperCount));
+        if (this.days.length < 2) {
+            if (this.quizDays.length >= 2 || (this.quizDays.length && !this.paperDays.length)) this.trend = 'quiz';
+            else if (this.paperDays.length) this.trend = 'written';
         }
-        return Math.round((session.correct / session.total) * 100);
+        this.selectTrend(this.trend);
     }
 
-    startNewQuiz() {
-        this.router.navigate(['/quiz']);
-    }
+    get days() { return this.trend === 'quiz' ? this.quizDays : this.paperDays; }
 
-    private createDefaultSummaryCards(): SummaryCard[] {
-        return [
-            {
-                label: 'Total Quizzes',
-                value: '—',
-                sublabel: 'Take your first quiz to unlock performance insights.',
-                icon: 'quiz',
-                accent: '#2563eb',
-                accentBg: 'rgba(37, 99, 235, 0.12)'
-            },
-            {
-                label: 'Average Accuracy',
-                value: '—',
-                sublabel: 'Accuracy data appears after your first quiz.',
-                icon: 'monitoring',
-                accent: '#2563eb',
-                accentBg: 'rgba(37, 99, 235, 0.12)'
-            },
-            {
-                label: 'Last Score',
-                value: '—',
-                sublabel: 'Complete a quiz to record your most recent score.',
-                icon: 'military_tech',
-                accent: '#2563eb',
-                accentBg: 'rgba(37, 99, 235, 0.12)'
-            }
-        ];
-    }
-
-    private createLineChartData(data: number[], labels: string[] = []): ChartConfiguration<'line'>['data'] {
-        return {
-            labels,
-            datasets: [
-                {
-                    data,
-                    label: 'Accuracy %',
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.12)',
-                    fill: 'origin',
-                    tension: 0.35,
-                    pointRadius: data.length <= 1 ? 4 : 3,
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: '#2563eb',
-                    pointBorderColor: '#f8fafc'
-                }
-            ]
+    selectTrend(kind: 'quiz' | 'written'): void {
+        this.trend = kind;
+        const format = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short', year: '2-digit' });
+        this.chartData = {
+            labels: this.days.map(point => format.format(point.date)),
+            datasets: [{
+                data: this.days.map(point => percent(point.score)),
+                borderColor: kind === 'quiz' ? '#20543f' : '#536b33',
+                backgroundColor: kind === 'quiz' ? '#20543f13' : '#536b3313',
+                pointRadius: 3, pointHoverRadius: 5, borderWidth: 2, fill: 'origin',
+            }],
         };
     }
 
-    private createQuizTypeChartData(counts: Record<'quick' | 'custom' | 'live' | 'run' | 'retry', number>): ChartConfiguration<'pie'>['data'] {
-        return {
-            labels: ['Quick', 'Custom', 'Live', 'Run', 'Retry'],
-            datasets: [
-                {
-                    data: [counts.quick, counts.custom, counts.live, counts.run, counts.retry],
-                    backgroundColor: ['#2563eb', '#22c55e', '#f97316', '#9333ea', '#0d9488'],
-                    hoverBackgroundColor: ['#1d4ed8', '#16a34a', '#ea580c', '#7e22ce', '#0f766e'],
-                    borderWidth: 2,
-                    borderColor: '#ffffff'
-                }
-            ]
-        };
+    reviewLatestPaper(): void {
+        const paper = this.papers[0];
+        if (!paper) return;
+        document.getElementById('progress-paper-' + paper.id)?.focus();
+        if (this.paperId !== paper.id) void this.openPaper(paper.id);
     }
 
-    async retrySession(session: ReportSession, scope: 'incorrect' | 'all' = 'incorrect') {
-        const questionSummaries = session.questions || [];
-        const hasQuestions = questionSummaries.length > 0;
-        const hasIncorrect = questionSummaries.some(q => !q.isCorrect);
+    togglePaper(id: string): void {
+        if (id === this.paperId) this.closePaper();
+        else void this.openPaper(id);
+    }
 
-        const shouldProceed = scope === 'all' ? hasQuestions : hasIncorrect;
-        if (!shouldProceed) return;
+    private closePaper(): void {
+        this.paperRequest?.abort();
+        this.paperRequest = undefined;
+        if (this.downloadUrl) URL.revokeObjectURL(this.downloadUrl);
+        this.downloadUrl = undefined;
+        this.paperId = '';
+        this.paperResult = undefined;
+        this.feedbackLoading = this.feedbackError = this.pdfLoading = this.pdfError = false;
+    }
 
+    async openPaper(id: string): Promise<void> {
+        if (!this.showPapers || !this.papers.some(paper => paper.id === id)) return;
+        this.closePaper();
+        this.paperId = id;
+        this.paperRequest = new AbortController();
+        const { signal } = this.paperRequest;
+        this.feedbackLoading = true;
+        try {
+            const result = await this.papersApi.result(id, signal);
+            if (!signal.aborted) this.paperResult = result;
+        } catch {
+            if (!signal.aborted) this.feedbackError = true;
+        } finally {
+            if (!signal.aborted) this.feedbackLoading = false;
+        }
+    }
+
+    async downloadPdf(): Promise<void> {
+        const result = this.paperResult;
+        const signal = this.paperRequest?.signal;
+        if (!this.showPapers || !result || !signal || this.pdfLoading) return;
+        this.pdfLoading = true;
+        this.pdfError = false;
+        try {
+            const pdf = await this.papersApi.blob('/' + encodeURIComponent(this.paperId) + '/result/pdf', signal);
+            if (signal.aborted) return;
+            if (this.downloadUrl) URL.revokeObjectURL(this.downloadUrl);
+            this.downloadUrl = URL.createObjectURL(pdf);
+            const link = document.createElement('a');
+            link.href = this.downloadUrl;
+            link.download = result.filename || 'checked-answer-sheet.pdf';
+            link.click();
+        } catch {
+            if (!signal.aborted) this.pdfError = true;
+        } finally {
+            if (!signal.aborted) this.pdfLoading = false;
+        }
+    }
+
+    toggleQuiz(id: string): void {
+        if (this.retrying) return;
+        this.quizId = this.quizId === id ? '' : id;
+        this.retryError = false;
+    }
+
+    get hubParams() {
+        const params = this.route.snapshot.queryParamMap;
+        return { returnTo: params.get('returnTo'), hubReturnPath: params.get('hubReturnPath') };
+    }
+
+    reviewQuiz(row: QuizActivity): void {
+        void this.router.navigate(['/quiz-summary'], {
+            queryParams: { ...this.hubParams, sessionId: row.id, userId: this.userId },
+        });
+    }
+
+    hasIncorrect(row: QuizActivity): boolean {
+        return row.quiz.questions?.some(question => !question.isCorrect) ?? false;
+    }
+
+    async retryQuiz(row: QuizActivity, scope: 'incorrect' | 'all'): Promise<void> {
+        const { questions, board, standard, subject, chapter } = row.quiz;
+        if (!questions?.length || this.retrying || (scope === 'incorrect' && !this.hasIncorrect(row))) return;
+        const signal = this.request.signal;
+        this.retrying = true;
+        this.retryError = false;
         try {
             await this.quizService.prepareRetryFromResults({
-                questionSummaries,
-                incorrectOnly: scope === 'incorrect',
-                context: {
-                    source: 'reports',
-                    type: scope,
-                    originId: session.id,
-                    metadata: {
-                        board: session.board,
-                        standard: session.standard,
-                        subject: session.subject,
-                        chapter: session.chapter
-                    }
-                }
+                questionSummaries: questions, incorrectOnly: scope === 'incorrect', signal,
+                context: { source: 'reports', type: scope, originId: row.id, metadata: { board, standard, subject, chapter } },
             });
-
-            this.router.navigate(['/quiz'], {
-                queryParams: {
-                    retry: 'reports',
-                    scope,
-                    sessionId: session.id
-                }
-            });
-        } catch (error) {
-            console.error('Error preparing retry from reports:', error);
+            if (!signal.aborted) {
+                if (this.quizService.getPendingRetryContext()?.originId !== row.id) throw Error('No retry questions available.');
+                await this.router.navigate(['/quiz'], {
+                    queryParams: { ...this.hubParams, retry: 'reports', scope, sessionId: row.id },
+                });
+            }
+        } catch {
+            if (!signal.aborted) this.retryError = true;
+        } finally {
+            if (!signal.aborted) this.retrying = false;
         }
     }
-
-}
-
-interface ReportSession {
-    id: string;
-    board: string;
-    standard: string;
-    subject: string;
-    chapter: string;
-    quizType: string;
-    date: string;
-    time: string;
-    total: number;
-    correct: number;
-    duration: string;
-    questions: QuizResultQuestion[];
-    sessionId: string | null;
-}
-
-interface SummaryCardTrend {
-    direction: 'up' | 'down';
-    text: string;
-}
-
-interface SummaryCard {
-    label: string;
-    value: string | number;
-    sublabel: string;
-    icon: string;
-    accent: string;
-    accentBg: string;
-    trend?: SummaryCardTrend;
 }

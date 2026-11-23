@@ -60,9 +60,23 @@ export interface SubmissionResult {
         grade: {
             awarded: number;
             max: number;
-            answers: { number: number; awarded: number | null; max: number; explanation: string; counted?: boolean }[];
+            answers: { number: number; awarded: number | null; max: number; explanation: string; status?: string; counted?: boolean }[];
         };
     };
+}
+
+export interface ReleasedPaperScore {
+    id: string;
+    title: string | null;
+    subject: string | null;
+    releasedAt: string | null;
+    awarded: number | null;
+    max: number | null;
+}
+
+export interface ReleasedPaperPage {
+    papers: ReleasedPaperScore[];
+    nextCursor: string | null;
 }
 
 export const submissionStatusLabels: Record<SubmissionStatus, string> = {
@@ -89,6 +103,13 @@ export class StudentSubmissionsService {
 
     list(cursor?: string, signal?: AbortSignal): Promise<SubmissionPage> {
         return this.json(cursor ? '?cursor=' + encodeURIComponent(cursor) : '', undefined, signal);
+    }
+
+    async releasedScores(signal: AbortSignal, cursor?: string): Promise<ReleasedPaperPage> {
+        const path = '?view=released-scores' + (cursor ? '&cursor=' + encodeURIComponent(cursor) : '');
+        const page = await this.json<ReleasedPaperPage>(path, undefined, signal);
+        if (!Array.isArray(page.papers)) throw Error('Released scores are unavailable.');
+        return page;
     }
 
     join(code: string, signal?: AbortSignal): Promise<{ testCode?: string }> {
@@ -133,6 +154,7 @@ export class StudentSubmissionsService {
             if (signal?.aborted) throw error;
             throw Error('Could not reach GT Papers. Check your connection and try again.');
         }
+        if (this.auth.currentUser !== user) throw Error('Your account changed. Reopen your answer sheets.');
         if (!response.ok) {
             const message = (await response.json().catch(() => null))?.error?.message;
             throw Error(typeof message === 'string' && message ? message : 'GT Papers could not complete the request. Try again.');

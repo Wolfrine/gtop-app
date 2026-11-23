@@ -376,8 +376,8 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         data: {
             seo: {
-                title: 'GTOP Quiz Reports',
-                description: 'Analyse historical quiz performance, accuracy by topic, and improvement streaks with GTOP reports.',
+                title: 'Learning progress | GTOP',
+                description: 'Review quiz accuracy, chapter results and returned answer sheets.',
                 robots: 'noindex, nofollow'
             }
         }

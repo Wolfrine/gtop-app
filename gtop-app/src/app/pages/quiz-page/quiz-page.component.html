@@ -47,7 +47,9 @@
             [attr.aria-pressed]="questions[currentQuestionIndex].selectedIndex === i"
             [disabled]="reviewingSavedAttempt"
             [class.frozen]="liveMode && questions[currentQuestionIndex].selectedIndex !== null"
-            (click)="selectOption(i)">
+            (click)="selectOption(i)"
+            (keydown.space)="$event.preventDefault()"
+            (keyup.space)="$event.preventDefault(); selectOption(i)">
             <span class="answer-letter">{{optionsLabel[i]}}</span><span class="answer-copy">{{ option }}</span><span class="answer-indicator" aria-hidden="true"></span>
         </button>
     </div>

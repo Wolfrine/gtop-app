@@ -23,5 +23,5 @@
     app-side-nav { position: sticky; align-self: start; top: 0; height: 100dvh; }
 }
 @media (max-width: 799px) {
-    .has-navigation .shell-body { padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px)); }
+    .has-navigation .shell-body { padding-block-end: var(--lumen-mobile-nav-space); }
 }

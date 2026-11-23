@@ -438,6 +438,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   pendingJobAction:{id:string;action:'cancel'|'retry'}|null=null;
   jobProgress(job:Job){
     if(job.phase==='codex_generating'&&job.progress)return job.progress.completed+' of '+job.progress.total+' questions drafted.';
+    if(!this.readOnly&&job.native)return 'You can draft your next message while Codex works.';
     if(!this.readOnly&&job.kind==='turn')return 'You can draft your next message below.';
     if(!this.readOnly&&job.kind==='paper')return 'You can keep talking while I work.';
     return '';
@@ -562,8 +563,8 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     },0);
   }
   async send(){
-    const text=this.draft.trim();
-    if(!this.user||!this.contentAuthorized||this.readOnly||this.readingRequest||this.view!=='chat'||!text||this.sending||this.blockedTurn)return;
+    const text=this.draft;
+    if(!this.user||!this.contentAuthorized||this.readOnly||this.readingRequest||this.view!=='chat'||!text.trim()||this.sending||this.blockedTurn)return;
     const epoch=this.authEpoch, page=this.composePage;
     this.sending=true;this.error='';
     if(this.sendText!==text){this.sendId=idForRequest();this.sendText=text;}
@@ -583,7 +584,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       }
       await this.transport.request('/conversations/'+encodeURIComponent(conversation.id)+'/messages','POST',{text,clientMessageId:messageId});
       if(!this.current(epoch))return;
-      if(this.savedBrief?.text.trim()===text)this.savedBrief=undefined;
+      if(this.savedBrief?.text.trim()===text.trim())this.savedBrief=undefined;
       if(page===this.composePage){
         this.sendId='';this.sendText='';this.draft='';await this.refresh();this.scrollMessages(true);
       }else if(this.onDesk)await this.reloadDesk();

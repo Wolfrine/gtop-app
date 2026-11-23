@@ -1,6 +1,7 @@
 param(
   [Parameter(Mandatory)][string]$Config,
-  [Parameter(Mandatory)][string]$Profile
+  [Parameter(Mandatory)][string]$Profile,
+  [string]$NativeCodexExecutable
 )
 $ErrorActionPreference='Stop'
 $controllerRoot=$PSScriptRoot
@@ -22,6 +23,10 @@ $active=Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'node.exe' -a
 if($active){throw 'This controller configuration is already running. Inspect the existing process rather than starting a duplicate.'}
 $loaderUri=([System.Uri]$loaderPath).AbsoluteUri
 $workerArguments=@('--import',('"{0}"' -f $loaderUri),('"{0}"' -f (Join-Path $controllerRoot 'src\main.ts')),('"{0}"' -f $configPath),('"{0}"' -f $profilePath))
+if($NativeCodexExecutable){
+  $nativeExecutable=(Resolve-Path -LiteralPath $NativeCodexExecutable).Path
+  $workerArguments+=('"{0}"' -f $nativeExecutable)
+}
 $env:TEMP=$runtimeDirectory
 $env:TMP=$runtimeDirectory
 $workerProcess=Start-Process -FilePath $nodeExecutable -ArgumentList $workerArguments -WorkingDirectory $controllerRoot -WindowStyle Hidden -RedirectStandardOutput $outPath -RedirectStandardError $errPath -PassThru

@@ -44,7 +44,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='POST' && /^\/worker\/checking\/[A-Za-z0-9_-]+(?:\/(?:pages\/\d+|complete|fail))?$/.test(path))output=await service.checking.worker(path.split('/').slice(3),worker,body);
         else if(method==='POST' && path==='/worker/claim')output=await service.claim(worker,body);
         else if(method==='POST' && path==='/worker/dispatch')output={ownerUids:worker.allowedOwnerUids};
-        else {const m=path.match(/^\/worker\/jobs\/([^/]+)\/(heartbeat|event|delegate|complete|fail)$/);if(method!=='POST'||!m)throw new HttpError(404,'not_found','Endpoint unavailable.');const fn={heartbeat:'renew',event:'event',delegate:'delegate',complete:'complete',fail:'failed'}[m[2]];output=await service[fn](worker,m[1],body);}
+        else {const m=path.match(/^\/worker\/jobs\/([^/]+)\/(heartbeat|event|delegate|native-thread|complete|fail)$/);if(method!=='POST'||!m)throw new HttpError(404,'not_found','Endpoint unavailable.');const fn={heartbeat:'renew',event:'event',delegate:'delegate','native-thread':'bindNativeThread',complete:'complete',fail:'failed'}[m[2]];output=await service[fn](worker,m[1],body);}
       } else {
         const user=await service.user(claims),uid=user.uid;
         if(method==='GET' && path==='/session')output=await service.session(user);

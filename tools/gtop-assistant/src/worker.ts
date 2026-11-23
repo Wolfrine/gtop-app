@@ -19,12 +19,13 @@ import {escalationReason,planSchema} from './escalation.js';
 import {assistantInstructions} from './skills.js';
 import {recallExamples,rememberInterpretation} from './learning.js';
 import {DispatchWake} from './dispatch.js';
+import {NativePapers} from './native-papers.js';
 import {workerFreshnessMs} from '../../../assistant-service/presence.mjs';
 
 // A missed publication plus 10s network margin fits the unchanged 90s window.
 // Job lease renewal/cancellation remains on its independent 30s timer.
 export const healthHeartbeatMs=workerFreshnessMs/2-5000;
-const workerVersion='harness-14-codex-papers';
+const workerVersion='harness-15-native-papers';
 const chatTimeoutMs=120000;
 const inferenceErrors:Record<string,string>={
   codex_unavailable:'The Codex connection is unavailable. Your request is saved. Try again when the host reconnects.',
@@ -58,15 +59,20 @@ export class Worker {
   api:Gateway;ready=false;available=false;stopping=false;paperBusy=false;turnBusy=false;catalogue:any=null;catalogueAt=0;
   listenerReady=false;wake=new DispatchWake();
   counters={startedAt:new Date().toISOString(),notifications:0,claimCalls:0,emptyClaims:0,jobs:0,listenerSessions:0,listenerErrors:0,heartbeats:0,leaseRenewals:0};
-  constructor(public config:Config){this.api=new Gateway(config);}
+  nativePapers?:NativePapers;
+  constructor(public config:Config){this.api=new Gateway(config);if(config.nativeCodexExecutable)this.nativePapers=new NativePapers(config,this.api);}
   paperRoot(){
     if(this.config.paperDataDirectory)return this.config.paperDataDirectory;
     if(process.platform==='win32'&&['gtop-question-papers.web.app','us-central1-gtop-app.cloudfunctions.net'].includes(new URL(this.config.gateway).hostname))return 'H:/Workspace/Runtimes/GTOP/paper-assistant/production';
     return this.config.dataDirectory;
   }
   async heartbeat(){
-    const health=await paperRuntimeHealth(this.config);
+    const wasAvailable=this.available;
+    const health=this.nativePapers
+      ? await this.nativePapers.connect().then(()=>({available:true,codexAvailable:true,errorCode:null}),()=>({available:false,codexAvailable:false,errorCode:'codex_unavailable'}))
+      : await paperRuntimeHealth(this.config);
     this.ready=health.codexAvailable;this.available=health.available;
+    if(this.nativePapers&&this.available&&!wasAvailable)this.wake.wake('turn');
     await record(this.config.dataDirectory,'worker-health.json',{schemaVersion:1,pid:process.pid,checkedAt:new Date().toISOString(),
       provider:'codex',profile:this.config.paperRuntime,healthIntervalMs:healthHeartbeatMs,freshnessMs:workerFreshnessMs,...health});
     this.counters.heartbeats++;
@@ -74,10 +80,11 @@ export class Worker {
     await record(this.config.dataDirectory,'transport.json',{...this.counters,checkedAt:new Date().toISOString(),listenerReady:this.listenerReady,turnBusy:this.turnBusy,paperBusy:this.paperBusy});
   }
   async start(signal:AbortSignal){
+    await this.nativePapers?.connect();
     await this.heartbeat().catch(error=>console.error('Gateway heartbeat: '+error.message));
     let maintaining=false;
     const timer=setInterval(()=>{if(maintaining)return;maintaining=true;void this.heartbeat().catch(e=>{this.available=false;console.error(e.message);}).finally(()=>{maintaining=false;});},healthHeartbeatMs);
-    try{await Promise.all([this.listen(signal),this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.ready=false;this.available=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:workerVersion,runtime:'codex'}).catch(()=>{});}
+    try{await Promise.all([this.listen(signal),this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.nativePapers?.close();this.ready=false;this.available=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:workerVersion,runtime:'codex'}).catch(()=>{});}
   }
   async listen(signal:AbortSignal){
     let failures=0;
@@ -102,14 +109,14 @@ export class Worker {
     let failures=0;
     while(!signal.aborted){try{
       await this.wake.wait(kind,signal);if(!this.listenerReady)continue;
-      this.counters.claimCalls++;const {job}=await this.api.post('/worker/claim',{kind,waitSeconds:0,runtime:'codex'},signal);failures=0;
+      this.counters.claimCalls++;const {job}=await this.api.post('/worker/claim',{kind,waitSeconds:0,runtime:'codex',...(kind==='turn'&&this.nativePapers?.connected?{native:true}:{})},signal);failures=0;
       if(job){this.counters.jobs++;await this.run(job,signal);this.wake.wake(kind);}else this.counters.emptyClaims++;
     }catch(e:any){if(signal.aborted)break;console.error(`${kind}: ${e.message}`);await delay(Math.min(60000,1000*2**Math.min(failures++,6)),signal).catch(()=>{});this.wake.wake(kind);}}
   }
   async run(job:any,parent:AbortSignal){
     parent.throwIfAborted();
     const abort=new AbortController();const cancel=()=>abort.abort(Error('Controller stopped.'));parent.addEventListener('abort',cancel,{once:true});const signal=abort.signal;
-    const dir=path.join(job.kind==='paper'?this.paperRoot():this.config.dataDirectory,'jobs',job.id);await record(dir,'job.json',job);const started=Date.now();
+    const dir=path.join(job.kind==='paper'?this.paperRoot():this.config.dataDirectory,'jobs',job.id);await record(dir,'job.json',job.native?{id:job.id,kind:job.kind,conversationId:job.conversationId,requestMessageId:job.request.id,native:true}:job);const started=Date.now();
     await record(dir,'runtime-profile.json',{profile:this.config.paperRuntime??null,provider:'codex'});
     await record(dir,'queue-timing.json',{queueMs:Math.max(0,Date.parse(job.startedAt||'')-Date.parse(job.createdAt||''))||0,receivedAt:new Date(started).toISOString()});
     const leaseError=()=>Error('Task cancelled, superseded, or lease expired.');
@@ -136,6 +143,11 @@ export class Worker {
     const timer=setInterval(()=>void renew(),30000);
     if(job.kind==='turn')this.turnBusy=true;else this.paperBusy=true;
     try{
+      if(job.native){
+        if(!this.nativePapers)throw Error('Native Papers runtime is unavailable.');
+        await this.nativePapers.run(job,signal);
+        return;
+      }
       verifyOriginals(job);
       if(job.kind==='turn')await this.turn(job,dir,signal);
       else if(job.operation==='check_curriculum')await this.research(job,dir,signal);

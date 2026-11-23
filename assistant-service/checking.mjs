@@ -45,7 +45,8 @@ export class PaperChecking {
   async sourcePaper(reader,paperId,uid){
     this.id(paperId);
     if(paperId.startsWith('ext-'))return this.references.paper(reader,paperId,uid);
-    return reader.get('assistantPapers/'+paperId);
+    const paper=await reader.get('assistantPapers/'+paperId);
+    return paper?.nativePrivate&&paper.ownerUid!==uid?null:paper;
   }
   async rubric(paperId,uid,reader=this.store){
     const paper=await this.sourcePaper(reader,paperId,uid);

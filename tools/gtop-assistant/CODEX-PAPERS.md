@@ -1,35 +1,56 @@
 # GT Papers Codex worker
 
-The Windows Papers worker runs the Firestore dispatch listener and claims one conversation turn and one paper or curriculum task independently. Exact greetings, task status and saved proposal responses can complete without inference. Substantive conversation, curriculum, paper planning, drafting, review and correction use the configured ChatGPT-authenticated Codex CLI.
+## Native conversations
 
-## Runtime profile
+The pilot flag is assistantConfig/pilot.nativePapersEnabled. New messages sent
+with it enabled go to an owner-scoped native Codex thread. The gateway stores
+the original text, its UTF-8 SHA-256 and the Firebase request identity. A paired
+worker binds one Codex thread to the conversation before forwarding the text.
+The turn may produce a conversational reply or stage a complete paper. The
+gateway validates, renders and publishes the student paper and worked answers
+together. Existing queued work keeps its original lease and delivery path.
 
-Keep the profile in the owner-controlled GT Papers runtime directory on H:. The paired Firebase worker configuration continues to supply its protected pairing and gateway. The profile contains only model settings and stays outside Hosting and user writes.
+The worker runs one Codex app-server over stdio. On later turns it resumes the
+recorded thread. Turn IDs and exact input proofs go to H:. The live lease fences
+delivery, and the receipt includes hashes of both documents. A cancellation
+revokes delivery immediately and requests native interruption when the worker
+observes the lease change.
 
-~~~json
-{
-  "schemaVersion": 1,
-  "revision": 1,
-  "model": "gpt-6.2-sol",
-  "reasoningEffort": "xhigh"
-}
-~~~
+The native turn has no local execution environment on this Windows host.
+It can use public web research and native collaboration, and it can submit a
+complete paper through its application tool. The worker exposes neither the
+Firebase pairing nor operator integrations to the turn. The Codex home is
+dedicated to Papers. The worker rejects unexpected MCP connectors at startup.
 
-The worker reads this file once at startup, passes its model and effort explicitly, and requires the native turn context to agree before using structured output. The output records the native thread ID and observed settings. A failed model, login, quota or profile check leaves the saved request available for retry. Checkpoint reuse requires the same profile revision, model and effort. Already reviewed retained output keeps its original provenance during a delivery retry.
+OpenAI classifies standalone Codex app-server as experimental and does not
+support it for production workloads. The pilot flag stays off pending
+production approval of that release dependency and commissioning of the
+dedicated runtime.
 
-Start from the pinned F: release checkout, with dependencies installed and the existing Firebase pairing configuration available. Use the GT Papers launcher as the Windows owner who is signed into Codex through ChatGPT. The profile's sibling runtime directory holds private execution and health logs.
+## Runtime and cutover
 
-~~~powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\gtop-assistant\start-worker.ps1 -Config "<private worker config.json>" -Profile "<H-drive paper-runtime.json>"
-~~~
+The model profile stays in the owner-controlled H: runtime directory. Its
+default is schema version 1, revision 1, model gpt-6.2-sol and reasoning effort
+xhigh. Change the model through that profile and restart the worker after
+draining. The native thread must confirm the selected model and effort.
 
-With the production pairing in Codex mode, the site reports a host-side start when offline. The legacy remote starter and its Ollama-coupled recovery cannot start a Papers worker for that pairing. A host operator restarts Papers explicitly.
+1. Provision a private Codex home named codex-home beside the profile. Sign in
+   through the official Codex CLI against that home. Keep the existing Firebase
+   pairing file in its protected location.
+2. Verify the exact Windows Codex executable, authenticated native execution,
+   thread continuity and isolation, interruption, and authenticated publication.
+   Keep commissioning receipts on H:.
+3. Deploy the gateway and Hosting through the existing main release workflow.
+   Confirm the active gateway revision and served Hosting commit.
+4. Drain the existing Papers worker with its claimsPausedUntil fence. Confirm
+   there is no active lease and both lanes are idle. Stop the identified Papers
+   process. Start the pinned release with the existing pairing, new profile and
+   native executable. Restore the prior fence and confirm the new PID, heartbeat
+   and Firestore listener.
+5. Enable the pilot flag, exercise the authenticated production route and
+   retrieve both artifacts. Disabling the flag stops new native admissions.
+   Queued native work keeps its thread and worker binding.
 
-## Change a model or roll back
-
-1. Save the current profile beside the proposed revision. Set a new revision and the intended model ID and reasoning effort. Keep xhigh for high-effort production use.
-2. Use the installed desktop Codex CLI with the intended settings and ChatGPT login to run one bounded, harmless request. Check the matching native turn context for both fields.
-3. Use the pairing's existing claimsPausedUntil drain and check that no Papers worker lease is active. Stop the identified Papers worker, restore the prior claims fence, and start the pinned release with the new profile. Verify the Firestore listener and fresh worker heartbeat.
-4. For model rollback, drain again and restart with the previous profile. For release rollback, also restore the previous gateway and Hosting through the existing main release path. Restore the old pairing mode and launcher only if reverting the entire Codex migration.
-
-The configured effort is a CLI setting. Native invocation evidence establishes the setting the CLI used.
+Invoke the existing Windows launcher with Config, Profile and
+NativeCodexExecutable. Its legacy mode remains available for saved work when no
+native executable is supplied.

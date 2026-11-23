@@ -28,6 +28,33 @@ while(workIndex?.state!=='READY'){
   await new Promise(resolve=>setTimeout(resolve,10_000));
   workIndex=await sheetWorkIndex();
 }
+// Add only this collection's composite index, keeping unrelated GTOP indexes intact.
+const catalogueIndexFields=[['lookupKeys','CONTAINS'],['createdAt','DESCENDING'],['__name__','DESCENDING']];
+async function paperCatalogueIndex(){
+  const found=JSON.parse(await command([...indexArgs,'list',...indexDatabase,
+    '--filter=name~collectionGroups/paperCatalogue/indexes/','--format=json'],true));
+  return found.find(index=>index.name.includes('/collectionGroups/paperCatalogue/indexes/')&&
+    index.queryScope==='COLLECTION'&&index.fields.length===catalogueIndexFields.length&&
+    index.fields.every((field,i)=>field.fieldPath===catalogueIndexFields[i][0]&&
+      (field.order===catalogueIndexFields[i][1]||field.arrayConfig===catalogueIndexFields[i][1])));
+}
+let catalogueIndex=await paperCatalogueIndex();
+if(!catalogueIndex){
+  try{
+    await command([...indexArgs,'create',...indexDatabase,'--collection-group=paperCatalogue',
+      '--query-scope=collection','--field-config=field-path=lookupKeys,array-config=contains',
+      '--field-config=field-path=createdAt,order=descending',
+      '--impersonate-service-account='+runtime,'--async','--quiet']);
+  }catch(error){if(!await paperCatalogueIndex())throw error;}
+}
+const catalogueIndexDeadline=Date.now()+15*60_000;
+while(catalogueIndex?.state!=='READY'){
+  if(catalogueIndex?.state==='NEEDS_REPAIR'||Date.now()>=catalogueIndexDeadline)
+    throw Error('The paper catalogue index did not become ready.');
+  await new Promise(resolve=>setTimeout(resolve,10_000));
+  catalogueIndex=await paperCatalogueIndex();
+}
+console.log('Private paper catalogue composite index is ready.');
 await command(['functions','deploy',name,'--project='+project,'--gen2','--region=us-central1','--runtime=nodejs22','--source=assistant-service','--entry-point='+name,'--service-account='+runtime,'--build-service-account=projects/'+project+'/serviceAccounts/'+runtime,'--memory=512Mi','--cpu=1','--timeout=60s','--max-instances=3','--concurrency=40','--trigger-http','--allow-unauthenticated','--update-labels=firebase-functions-codebase=gtop-assistant,gtop-release='+process.env.GITHUB_SHA,'--quiet']);
 const fn=JSON.parse(await command(['functions','describe',name,'--project='+project,'--region=us-central1','--gen2','--format=json'],true));
 assert.equal(fn.state,'ACTIVE');assert.equal(fn.buildConfig.runtime,'nodejs22');assert.equal(fn.buildConfig.entryPoint,name);assert.equal(fn.serviceConfig.serviceAccountEmail,runtime);assert.equal(fn.labels['gtop-release'],process.env.GITHUB_SHA);

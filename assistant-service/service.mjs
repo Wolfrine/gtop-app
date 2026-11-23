@@ -10,6 +10,7 @@ import {PaperChecking} from './checking.mjs';
 import {withWorkerHealth,workerFreshnessMs} from './presence.mjs';
 import {proposalResponse,researchKey,pendingPaperTurns,confirmationText} from './domain/paper-proposal.mjs';
 import {NativePaperError, nativePaper, workerPaper} from './native-papers.mjs';
+import {stagePaperCatalogue,normaliseCatalogueSearch,decodeCatalogueCursor,encodeCatalogueCursor,publicCatalogueItem,catalogueMigrationPath} from './paper-catalogue.mjs';
 
 export class HttpError extends Error { constructor(status, code, message) { super(message); this.status = status; this.code = code; } }
 const fail = (status, code, message) => { throw new HttpError(status, code, message); };
@@ -210,6 +211,54 @@ export class AssistantService {
     const nextCursor=rows.length<=50?null:legacyOrder?last.id:
       libraryCursorPrefix+Buffer.from(JSON.stringify([body.kind,last[order.orderBy[0]],last.id])).toString('base64url');
     return {items,nextCursor};
+  }
+  // Authorized indexed discovery. Original papers, solutions and the existing
+  // chronological library endpoint are not modified.
+  async adminLibrarySearch(uid,body={}){
+    await this.user({uid});
+    let request,offset;
+    try{
+      request=normaliseCatalogueSearch(body);
+      offset=decodeCatalogueCursor(body.cursor,request.signature);
+    }catch(error){fail(400,'invalid_catalogue_search',String(error.message||error));}
+    const migration=await this.store.get(catalogueMigrationPath);
+    const columns=['paperId','title','ownerUid','nativePrivate','board','standard','subject','academicYear',
+      'chapterKeys','chapterBreakdown','questionCount','questionTypeCounts','marks','format',
+      'revision','familyId','parentPaperId','sourceConversationId','createdAt',
+      'classificationStatus','classificationIssues','isFamilyLatest'];
+    const matches=[],maxScanned=300;
+    let scanned=0,exhausted=false,position=offset;
+    const allowed=(row)=>{
+      if(row.nativePrivate&&row.ownerUid!==uid)return false;
+      if(request.filters.ownerScope==='mine'&&row.ownerUid!==uid)return false;
+      const context=[row.title,row.board?.raw,row.standard?.raw,row.subject?.raw,row.academicYear,
+        row.marks+' marks',...(row.chapterBreakdown||[]).map(c=>c.title)]
+        .join(' ').normalize('NFKC').toLocaleLowerCase('en-IN');
+      const searchTerms=context.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+      return request.words.every(word=>searchTerms.includes(word));
+    };
+    while(scanned<maxScanned&&matches.length<=request.pageSize){
+      const size=Math.min(50,maxScanned-scanned);
+      const records=await this.store.list('paperCatalogue',[['lookupKeys','array-contains',request.lookupKey]],size,{
+        orderBy:['createdAt','desc'],orderById:true,
+        ...(position?{cursorValues:[position.createdAt,position.paperId]}:{}),select:columns
+      });
+      for(const record of records){
+        scanned++;
+        position={createdAt:record.createdAt,paperId:record.paperId};
+        if(allowed(record))matches.push(record);
+        if(matches.length>request.pageSize)break;
+      }
+      if(records.length<size){exhausted=true;break;}
+    }
+    const items=matches.slice(0,request.pageSize);
+    const more=matches.length>request.pageSize||!exhausted;
+    const last=items.at(-1)||position;
+    return {items:items.map(publicCatalogueItem),
+      nextCursor:more&&last?encodeCatalogueCursor(last,request.signature):null,
+      indexCoverage:migration?.completed===true?'complete':'building',
+      isPartial:migration?.completed!==true||(!exhausted&&matches.length<=request.pageSize),
+      sortApplied:'recent',pageSize:request.pageSize};
   }
   async adminConversation(uid,id) {
     await this.user({uid});const path=ref('assistantConversations',id),c=await this.store.get(path);
@@ -682,6 +731,7 @@ export class AssistantService {
       if(job.operation==='check_curriculum'&&body.researchUnavailable===true)final.phase='curriculum_unavailable';
       let curriculumId=null;
       if(checkedCurriculum){curriculumId=this.id();tx.create(ref('assistantCurricula',curriculumId),{id:curriculumId,ownerUid:job.ownerUid,conversationId:c.id,curriculum:checkedCurriculum,jobId:id,createdAt:now});final.phase='curriculum_checked';}
+      if(paper)await stagePaperCatalogue(tx,paper,now);
       if(paper){tx.create(ref('assistantPapers',paper.id),paper);tx.create(`assistantPapers/${paper.id}/artifacts/student`,artifactStudent);tx.create(`assistantPapers/${paper.id}/artifacts/answers`,artifactAnswers);}
       if(resumeTurn){tx.create(ref('assistantJobs',resumeTurn.id),resumeTurn);this.notifyDispatch(tx,job.ownerUid);}
       else this.notifyContent(tx,job.ownerUid);
@@ -741,6 +791,7 @@ export class AssistantService {
       }
       if(Date.parse(job.leaseUntil)<=this.now().getTime())return {active:false};
       const mid=this.id();
+      if(paper)await stagePaperCatalogue(tx,paper,now);
       tx.create(messagePath(c.id,mid),{id:mid,conversationId:c.id,role:'assistant',text:notice?`${reply}\n\n${notice}`:reply,createdAt:now,jobId:id,native:true,...(paper?{paperId:paper.id}:{})});
       tx.create(turnPath,{...delivery,jobId:id,requestMessageId:original.id,completedAt:now});
       if(paper){

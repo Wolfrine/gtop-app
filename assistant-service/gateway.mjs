@@ -54,6 +54,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='POST' && path==='/conversations')output=await service.createConversation(uid,body);
         else if(method==='POST' && path==='/feedback')output=await service.feedback(uid,body);
         else if(method==='POST' && path==='/admin/library')output=await service.adminLibrary(uid,body);
+        else if(method==='POST' && path==='/admin/library/search')output=await service.adminLibrarySearch(uid,body);
         else if(method==='GET' && path==='/students/search')output=await searchStudents(service.store,query.get('q'),query.get('cursor'));
         else if(method==='GET' && /^\/students\/[A-Za-z0-9_-]+$/.test(path))output={student:await getStudent(service.store,path.split('/').at(-1))};
         else if(method==='POST' && path==='/checking/student-history')output=await service.checking.studentHistory(uid,body);

@@ -1,5 +1,7 @@
 # Private GTOP assistant gateway
 
+Production Papers uses the [Windows Codex runtime profile](../tools/gtop-assistant/CODEX-PAPERS.md). Paper checking operates through its separate worker.
+
 This is an independent Node.js 22 Firebase function. It does not invoke a model,
 read the legacy question bank, or start any old generation scheduler. The outbound
 Windows controller owns local-model and subscription-authenticated Codex execution.

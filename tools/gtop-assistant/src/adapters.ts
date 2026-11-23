@@ -8,8 +8,9 @@ import {tools} from './tools.js';
 import {tokenCounter,fitRequest} from './context-budget.js';
 import {prepareRunner,resolveDesktopCodex,scopedEndpoint,type Runner} from './runner.js';
 import {listenForDispatch} from './dispatch.js';
+import {nativeTurnContext,readPaperRuntime,type PaperRuntime} from './paper-runtime.js';
 
-export interface Config {gateway:string;workerId:string;secretProtected?:string;emulatorSecret?:string;firebaseApiKey:string;authEmulator?:string;ollama:string;model:string;codexExecutable:string;codexModel:string;dataDirectory:string;paperDataDirectory?:string;runnerContractVersion?:number;runner?:Runner;codexReasoningEffort?:'low'|'medium'|'high'|'xhigh';}
+export interface Config {gateway:string;workerId:string;secretProtected?:string;emulatorSecret?:string;firebaseApiKey:string;authEmulator?:string;ollama:string;model:string;codexExecutable:string;codexModel:string;dataDirectory:string;paperDataDirectory?:string;legacyDataDirectory?:string;legacyPaperDataDirectory?:string;runnerContractVersion?:number;runner?:Runner;codexReasoningEffort?:'low'|'medium'|'high'|'xhigh';paperRuntime?:Readonly<PaperRuntime>;}
 export const delay=(ms:number,signal?:AbortSignal)=>new Promise<void>((resolve,reject)=>{if(signal?.aborted)return reject(signal.reason);const stop=()=>{clearTimeout(timer);signal?.removeEventListener('abort',stop);reject(signal?.reason);};const timer=setTimeout(()=>{signal?.removeEventListener('abort',stop);resolve();},ms);signal?.addEventListener('abort',stop,{once:true});});
 export async function record(dir:string,name:string,value:unknown){await mkdir(dir,{recursive:true});await writeFile(path.join(dir,name),typeof value==='string'?value:JSON.stringify(value,null,2),'utf8');}
 export async function readGatewayConfig(file:string):Promise<Config>{
@@ -27,6 +28,17 @@ export async function readConfig(file:string):Promise<Config>{
   c.runner=await prepareRunner(c,path.resolve(file));
   c.codexExecutable=await c.runner.resolveCodex();
   return c;
+}
+export async function readPaperConfig(file:string,profile:string):Promise<Config>{
+  const config=await readGatewayConfig(file);
+  const runtime=await readPaperRuntime(profile);
+  const dataDirectory=path.join(path.dirname(path.resolve(profile)),'runtime');
+  const production=['gtop-question-papers.web.app','us-central1-gtop-app.cloudfunctions.net'].includes(new URL(config.gateway).hostname);
+  const legacyPaperDataDirectory=config.paperDataDirectory??(production&&process.platform==='win32'?
+    'H:/Workspace/Runtimes/GTOP/paper-assistant/production':config.dataDirectory);
+  return {...config,paperRuntime:runtime,codexModel:runtime.model,codexReasoningEffort:runtime.reasoningEffort,
+    legacyDataDirectory:config.dataDirectory,legacyPaperDataDirectory,dataDirectory,paperDataDirectory:dataDirectory,
+    runner:{resolveCodex:resolveDesktopCodex}};
 }
 // A PowerShell7 parent can inherit incompatible Core modules into Windows PowerShell5.
 // Use only that child's own built-in modules; pairing data travels over stdin/stdout.
@@ -105,6 +117,10 @@ export async function runtimeHealth(config:Config){
   return {available:modelInstalled&&codexAvailable,modelInstalled,modelResident,codexAvailable,
     errorCode:!modelInstalled?'model_unavailable':!codexAvailable?'codex_unavailable':null};
 }
+export async function paperRuntimeHealth(config:Config){
+  try{await resolveJobCodex(config);return {available:true,codexAvailable:true,errorCode:null};}
+  catch{return {available:false,codexAvailable:false,errorCode:'codex_unavailable'};}
+}
 export async function waitForRuntime(config:Config,signal:AbortSignal,probe=runtimeHealth){
   for(let attempt=0;attempt<3;attempt++){
     signal.throwIfAborted();const health=await probe(config);
@@ -176,34 +192,57 @@ export function childEnvironment(){const allowed=['SystemRoot','WINDIR','COMSPEC
 export function codexArguments(config:Config,schemaFile:string,onlineResearch=false,domains:string[]=[]){
   if(onlineResearch&&(!domains.length||domains.some(d=>! /^[a-z0-9.-]+$/.test(d))))throw Error('Official source domains are required for live curriculum research.');
   const effort=config.codexReasoningEffort||'medium';if(!['low','medium','high','xhigh'].includes(effort))throw Error('Invalid Codex reasoning effort.');
-  return disabled.filter(x=>!onlineResearch||x!=='code_mode_host').flatMap(x=>['--disable',x]).concat(onlineResearch?['--enable','code_mode_host','--search','-c','tools.web_search.allowed_domains='+JSON.stringify(domains)]:['-c','web_search="disabled"']).concat(['-c','approval_policy="never"','-c',`model_reasoning_effort="${effort}"`,'exec','--ignore-user-config','--ignore-rules','--sandbox','read-only','--json','--skip-git-repo-check','--output-schema',schemaFile,'-m',config.codexModel,'-']);
+  return disabled.filter(x=>!onlineResearch||x!=='code_mode_host').flatMap(x=>['--disable',x]).concat(onlineResearch?['--enable','code_mode_host','--search','-c','tools.web_search.allowed_domains='+JSON.stringify(domains)]:['-c','web_search="disabled"']).concat(['-c','approval_policy="never"','-c','model_provider="openai"','-c','forced_login_method="chatgpt"','-c',`model_reasoning_effort="${effort}"`,'exec','--ignore-user-config','--ignore-rules','--sandbox','read-only','--json','--skip-git-repo-check','--output-schema',schemaFile,'-m',config.codexModel,'-']);
 }
 export async function codex(config:Config,prompt:string,schema:any,dir:string,signal:AbortSignal,onProgress:()=>Promise<void>,onlineResearch=false,domains:string[]=[],maxWebActions=4,timeoutMs=900000){
   signal.throwIfAborted();
-  const executable=await resolveJobCodex(config);signal.throwIfAborted();
+  let executable:string;
+  try{executable=await resolveJobCodex(config);}
+  catch(cause){throw Object.assign(Error('The Codex installation is unavailable.',{cause}),{code:'codex_unavailable'});}
+  signal.throwIfAborted();
   await mkdir(dir,{recursive:true});const schemaFile=path.join(dir,'schema.json');await record(dir,'schema.json',schema);await record(dir,'prompt.txt',prompt);
   const args=codexArguments(config,schemaFile,onlineResearch,domains);
-  const start=Date.now();await record(dir,'invocation.json',{executable,args,runnerContractId:config.runner?.contractId,startedAt:new Date(start).toISOString(),authentication:'existing ChatGPT subscription; no API key'});
+  const start=Date.now();await record(dir,'invocation.json',{executable,args,runnerContractId:config.runner?.contractId,requestedProfile:config.paperRuntime,startedAt:new Date(start).toISOString(),authentication:'existing ChatGPT subscription; no API key'});
   return new Promise<{value:any;metrics:any}>((resolve,reject)=>{
     if(signal.aborted)return reject(signal.reason);
-    const child=spawn(executable,args,{cwd:dir,env:childEnvironment(),stdio:['pipe','pipe','pipe'],windowsHide:true});let buffer='',events:any[]=[],stderr='',result='',finished=false,usage:any,failed=false,settled=false,webActions=0,budgetExceeded:string|null=null,timedOut=false;
-    const event=(e:any)=>{events.push(e);if(onlineResearch&&e.type==='item.started'&&e.item?.type==='web_search'&&++webActions>maxWebActions){budgetExceeded='official_web_action_limit';child.kill();}if(e.type==='error'||e.type==='turn.failed')failed=true;if(e.type==='turn.completed'){finished=true;usage=e.usage;}if(e.type==='item.completed'&&e.item?.type==='agent_message')result=e.item.text;};
+    const child=spawn(executable,args,{cwd:dir,env:childEnvironment(),stdio:['pipe','pipe','pipe'],windowsHide:true});let buffer='',events:any[]=[],stderr='',result='',finished=false,usage:any,failed=false,settled=false,webActions=0,budgetExceeded:string|null=null,timedOut=false,threadId:string|undefined,forbiddenTool=false;
+    const event=(e:any)=>{events.push(e);
+      if(e.type==='thread.started')threadId=e.thread_id;
+      if(['item.started','item.completed'].includes(e.type)&&['command_execution','file_change','mcp_tool_call'].includes(e.item?.type)){
+        forbiddenTool=true;child.kill();
+      }
+      if(onlineResearch&&e.type==='item.started'&&e.item?.type==='web_search'&&++webActions>maxWebActions){budgetExceeded='official_web_action_limit';child.kill();}if(e.type==='error'||e.type==='turn.failed')failed=true;if(e.type==='turn.completed'){finished=true;usage=e.usage;}if(e.type==='item.completed'&&e.item?.type==='agent_message')result=e.item.text;};
     child.stdout.on('data',b=>{buffer+=b;let pos;while((pos=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,pos);buffer=buffer.slice(pos+1);try{event(JSON.parse(line));}catch{stderr+='Malformed JSON event\n';}}});child.stderr.on('data',b=>{stderr+=b;});
     const abort=()=>child.kill();signal.addEventListener('abort',abort,{once:true});const timeout=setTimeout(()=>{timedOut=true;if(onlineResearch)budgetExceeded='official_research_time_limit';abort();},onlineResearch?120000:timeoutMs);const progress=setInterval(()=>{void onProgress().catch(()=>{});},30000);
     const finish=async(code:number|null,error?:Error)=>{
       if(settled)return;
       settled=true;clearTimeout(timeout);clearInterval(progress);signal.removeEventListener('abort',abort);
       if(buffer.trim())try{event(JSON.parse(buffer));}catch{}
-      const metrics={elapsedMs:Date.now()-start,exitCode:code,completed:finished,usage,model:config.codexModel,timedOut,...(onlineResearch?{webActions,maxWebActions,budgetExceeded}:{})};
+      const observed=config.paperRuntime?await nativeTurnContext(threadId,start).catch(()=>null):null;
+      const profile=config.paperRuntime;
+      const metrics={elapsedMs:Date.now()-start,exitCode:code,completed:finished,usage,threadId,
+        ...(profile?{requestedProfile:profile,model:observed?.model??null,reasoningEffort:observed?.reasoningEffort??null,
+          evidence:observed?'native_turn_context':null}:{model:config.codexModel}),timedOut,
+        ...(onlineResearch?{webActions,maxWebActions,budgetExceeded}:{})};
       await Promise.all([record(dir,'events.json',events),record(dir,'stderr.txt',stderr),record(dir,'execution.json',metrics)]);
       signal.throwIfAborted();
-      if(timedOut&&!onlineResearch)throw Object.assign(Error('Codex reached its stage time limit.'),{code:'codex_timeout'});
-      if(error||budgetExceeded||code!==0||!finished||failed)throw error || Object.assign(Error(budgetExceeded?
+      if(timedOut&&!onlineResearch)throw Object.assign(Error('Codex reached its stage time limit.'),{code:'codex_timeout',metrics});
+      if(forbiddenTool)throw Object.assign(Error('The model attempted an action outside the Papers runtime.'),{code:'codex_unavailable',metrics});
+      if(error||budgetExceeded||code!==0||!finished||failed){
+        const diagnostics=stderr+'\n'+events.filter(e=>e.type==='error'||e.type==='turn.failed').map(e=>JSON.stringify(e)).join('\n');
+        const reason=/model[^\n]{0,180}(?:not supported|not available|does not exist|not found)|unsupported.{0,40}model|model_not_found/i.test(diagnostics)?'codex_model_unavailable':
+          /rate.limit|usage limit|quota|too many requests|\b429\b/i.test(diagnostics)?'codex_rate_limited':
+          /log ?in|sign ?in|refresh token|authentication|unauthorized|\b401\b/i.test(diagnostics)?'codex_auth_required':'codex_unavailable';
+        throw Object.assign(Error(budgetExceeded?
         'Official-source research reached its bounded action/time limit. Retain the existing syllabus evidence and state the unresolved format.':
-        'Codex did not complete. Check local authentication, subscription limits, or retry the task.'),{code:'codex_unavailable'});
+        'Codex could not complete the request.'),{code:budgetExceeded?'codex_research_budget':reason,metrics,cause:error});
+      }
+      if(profile&&(!observed||observed.model!==profile.model||observed.reasoningEffort!==profile.reasoningEffort)){
+        throw Object.assign(Error('Codex did not verify the configured model and reasoning effort for this turn.'),{code:'codex_profile_unverified',metrics});
+      }
       let value:any;
       try{value=JSON.parse(result);assertSchema(value,schema);}
-      catch(cause){throw Object.assign(Error('Codex output did not match the required structure.',{cause}),{code:'codex_output_invalid'});}
+      catch(cause){throw Object.assign(Error('Codex output did not match the required structure.',{cause}),{code:'codex_output_invalid',metrics});}
       await record(dir,'result.json',value);
       resolve({value,metrics});
     };

@@ -79,7 +79,7 @@ export function scopeFromHistory(job,index){
 export const capabilityQuestion=t=>/what (?:all )?can you do|your (?:scope|capabilit)|what.*help.*with|do you support|(?:which|what(?: all)?).{0,25}(?:boards|classes|standards|subjects)|(?:will you be )?able to (?:make|create|generate)|क्या.{0,30}कर सकते|कौन.{0,25}(?:बोर्ड|कक्षा|विषय)|kya kya|kaun.*(?:board|class|subject)/i.test(t);
 export const latestRequest=t=>/\b(?:check|verify|find|look up|fetch|update|latest|current)\b.{0,60}\b(?:curriculum|syllabus)\b|\b(?:curriculum|syllabus)\b.{0,60}\b(?:latest|online|check|verify|updated)\b|\b(?:check|verify|look up|fetch|search)\s+(?:it\s+)?online\b|नवीनतम.{0,25}(?:पाठ्यक्रम|सिलेबस)|(?:सिलेबस|पाठ्यक्रम).{0,25}(?:जाँच|ऑनलाइन)|online\s+(?:check|dekh)|latest syllabus/i.test(t);
 export function savedSubjects(index,scope={}){return [...new Set((index.scopes||[]).filter(s=>(!scope.board||s.board===scope.board)&&(!scope.standard||String(s.standard)===String(scope.standard))).map(s=>s.subject))].sort((a,b)=>a.localeCompare(b));}
-export function replyLanguage(job){const t=job.request.text;if(/[\u0900-\u097f]/.test(t))return 'hi';if(/\b(?:kya|kaun|kaise|samjhao|namaste|dhanyavaad|shukriya|aap|haan|honge|banao)\b/i.test(t))return 'hinglish';return 'en';}
+export function replyLanguage(job){const t=job.request.text;if(/[\u0900-\u097f]/.test(t))return 'hi';if(/\b(?:kya|kaun|kaise|samjhao|namaste|dhanyavaad|shukriya|aap|haan|honge|banao|mujhe|chahiye|sirf|dijiye|batao)\b/i.test(t))return 'hinglish';return 'en';}
 export function missingScopeReply(scope,language='en'){
   const key=['board','standard','subject'].find(k=>!scope[k]);
   if(!key)return null;

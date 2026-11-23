@@ -1,6 +1,6 @@
 export interface UserSummary {uid:string;displayName:string;email:string;libraryAccess?:boolean}
 export interface WorkerStatus {state:string;lastSeenAt?:string|null;modelReady:boolean}
-export interface AssistantServiceStatus {workerId:string;state:'ready'|'offline'|'starting'|'failed'|'starter_offline';starter:{state:'online'|'offline';lastSeenAt:string|null};worker:WorkerStatus;request:{id:string;state:string;requestedAt:string;expiresAt:string;errorCode:string|null}|null;canStart:boolean}
+export interface AssistantServiceStatus {workerId:string;launchMode?:'host';state:'ready'|'offline'|'starting'|'failed'|'starter_offline';starter:{state:'online'|'offline';lastSeenAt:string|null};worker:WorkerStatus;request:{id:string;state:string;requestedAt:string;expiresAt:string;errorCode:string|null}|null;canStart:boolean}
 export interface PilotSession {user:UserSummary;worker:WorkerStatus;service?:AssistantServiceStatus|null;notifications?:import('./owner-events').Notifications;capabilities:unknown;defaults:Record<string,unknown>}
 export interface Conversation {id:string;title:string;status:string;updatedAt:string;activePaperJobId?:string;activeCurriculumJobId?:string;latestPaperId?:string;ownerUid?:string;creatorName?:string;createdAt?:string}
 export interface Message {id:string;conversationId:string;role:'user'|'assistant'|'system';text:string;createdAt:string;jobId?:string;paperId?:string}

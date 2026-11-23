@@ -1,5 +1,7 @@
 # GTOP local controller
 
+For the production Papers worker, use the [Codex runtime profile and Windows launch guide](CODEX-PAPERS.md). The pilot configuration below documents the previous runner.
+
 Node22-compatible TypeScript controller. The installed Node24 runtime also passes local checks. This is a closed educational workflow, not a general shell agent.
 
 Run `npm ci`, `npm run check`, `npm test`. Production uses the PTI native launcher and runner contract v1 (`PTI/tools/local-service-initiator/GTOP-RUNNER-CONTRACT.md`). For an explicitly owned standalone launch use `./start-worker.ps1 -Config F:\Workspace\Support\GTOP\assistant-runtime\worker.json` after confirming that no old or duplicate work can be claimed. The launcher creates a hidden process, checks for duplicates and records its PID/log paths. It does not install a service, alter global environment variables, or change a scheduled task. Keep this PC awake and connected for the private pilot. Inspect `process.json` and the process command line before stopping that controller; never stop unrelated Codex/Ollama or scheduled processes.

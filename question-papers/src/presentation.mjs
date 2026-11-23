@@ -34,6 +34,7 @@ export function workerPresentation(worker) {
 export function servicePresentation(service, worker) {
   if (!service) return workerPresentation(worker);
   if (service.state === 'ready') return {label:'Assistant available',detail:service.worker?.modelReady?'Ready for your next request.':'Connected. The model loads when a request arrives.',tone:'online'};
+  if (service.launchMode === 'host' && service.state === 'offline') return {label:'Assistant offline',detail:'Start GT Papers on its Windows host to continue. Your requests stay saved.',tone:'offline'};
   if (service.state === 'starting') return {label:'Assistant starting',detail:'Start requested. Waiting for the assistant to connect. Your messages are saved.',tone:'waiting'};
   if (service.state === 'starter_offline') return {label:'Assistant offline',detail:'Keep the host PC awake and connected. Its starter is not responding. Your requests stay saved.',tone:'offline'};
   if (service.state === 'failed') return {label:'Could not start assistant',detail:service.request?.errorCode==='model_unavailable'?'The local model is unavailable. Check Ollama on the host PC, then try again.':'Check the assistant setup on the host PC, then try again. Your requests stay saved.',tone:'offline'};

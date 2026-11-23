@@ -20,6 +20,15 @@ const text = (value, max = 12000) => { if (typeof value !== 'string' || !value.t
 const clean = value => JSON.parse(JSON.stringify(value));
 const publicJobFields=['id','kind','ownerUid','conversationId','state','phase','createdAt','updatedAt','startedAt','elapsedSeconds','error','errorCode','requestRevision','paperId','retryable','progress'];
 const publicJob = job => job && clean(Object.fromEntries(publicJobFields.filter(key => job[key] !== undefined).map(key => [key,job[key]])));
+const failedCodexMessages=Object.freeze({
+  codex_unavailable:'The Codex connection is unavailable. Your request is saved. Try again when the host reconnects.',
+  codex_auth_required:'The host needs to sign in to Codex with ChatGPT again. Your request is saved.',
+  codex_rate_limited:'The ChatGPT subscription is temporarily limited. Your request is saved. Try again when the limit resets.',
+  codex_model_unavailable:'The configured Codex model is unavailable to the host. Your request is saved. Contact the administrator before retrying.',
+  codex_profile_unverified:'Codex could not verify the configured model and reasoning effort. Your request is saved.',
+  codex_response_timeout:'Codex took too long to reply. Your request is saved. Try again.',
+  codex_response_invalid:'Codex could not prepare a usable reply. Your request is saved. Try again.',
+});
 const failedPaperMessages=Object.freeze({
   paper_generation_timeout:'Writing or reviewing the paper took too long. Your requirements are saved. Try again to continue.',
   paper_draft_invalid:'The draft did not pass the paper checks. Try again to continue from the verified work.',
@@ -321,7 +330,7 @@ export class AssistantService {
   async artifact(uid,id,kind) { await this.owned(uid,'assistantPapers',id); if(!['student','answers'].includes(kind))fail(404,'not_found','Artifact unavailable.');const doc=await this.store.get(`assistantPapers/${safeId(id)}/artifacts/${kind}`);if(!doc)fail(404,'not_found','Artifact unavailable.');return decodeArtifact(doc); }
   async heartbeat(worker,body) {
     if(!['ready','loading','busy','offline'].includes(body.state) || typeof body.modelReady!=='boolean')fail(400,'invalid_heartbeat','Invalid worker heartbeat.');
-    await this.store.transaction(async tx=>{const current=await tx.get(ref('assistantWorkers',worker.id));if(current?.enabled!==true||!Array.isArray(current.allowedOwnerUids))fail(403,'worker_disabled','Worker pairing is disabled.');tx.set(ref('assistantWorkerHealth',worker.id),{schemaVersion:1,state:body.state,modelReady:body.modelReady,version:text(body.version,100),lastSeenAt:this.iso()});});return {ok:true};
+    await this.store.transaction(async tx=>{const current=await tx.get(ref('assistantWorkers',worker.id));if(current?.enabled!==true||!Array.isArray(current.allowedOwnerUids))fail(403,'worker_disabled','Worker pairing is disabled.');if(current.paperRuntimeMode==='codex'&&body.runtime!=='codex')fail(409,'worker_profile_required','The paired worker requires the Codex Papers runtime.');tx.set(ref('assistantWorkerHealth',worker.id),{schemaVersion:1,state:body.state,modelReady:body.modelReady,version:text(body.version,100),lastSeenAt:this.iso()});});return {ok:true};
   }
   async expireOne(id,ownerUid=null) {
     return this.store.transaction(async tx=>{
@@ -336,7 +345,7 @@ export class AssistantService {
   }
   async claim(worker,body) {
     if(!['turn','paper'].includes(body.kind))fail(400,'invalid_kind','Invalid task kind.');
-    if(claimsPaused(worker,this.now().getTime()))return {job:null};
+    if(claimsPaused(worker,this.now().getTime())||(worker.paperRuntimeMode==='codex'&&body.runtime!=='codex'))return {job:null};
     const wait=Math.max(0,Math.min(20,Number(body.waitSeconds)||0)),deadline=Date.now()+wait*1000;
     do {
       const candidates=(await this.store.list('assistantJobs',[['state','==','queued']],200,{select:['id','kind','ownerUid','createdAt']})).filter(j=>(j.kind===body.kind||(body.kind==='paper'&&j.kind==='curriculum')) && worker.allowedOwnerUids.includes(j.ownerUid)).sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
@@ -344,11 +353,11 @@ export class AssistantService {
         const job=await this.store.transaction(async tx=>{
           const j=await tx.get(ref('assistantJobs',candidate.id));if(!j || j.state!=='queued')return null;
           const config=await tx.get('assistantConfig/pilot'),profile=await tx.get(ref('users',j.ownerUid)),c=await tx.get(ref('assistantConversations',j.conversationId)),currentWorker=await tx.get(ref('assistantWorkers',worker.id));
-          if(!config?.allowedOwnerUids?.includes(j.ownerUid) || profile?.role!=='admin' || !c || c.ownerUid!==j.ownerUid || currentWorker?.enabled!==true || !currentWorker.allowedOwnerUids?.includes(j.ownerUid) || claimsPaused(currentWorker,this.now().getTime())) return null;
+          if(!config?.allowedOwnerUids?.includes(j.ownerUid) || profile?.role!=='admin' || !c || c.ownerUid!==j.ownerUid || currentWorker?.enabled!==true || !currentWorker.allowedOwnerUids?.includes(j.ownerUid) || claimsPaused(currentWorker,this.now().getTime()) || (currentWorker.paperRuntimeMode==='codex'&&body.runtime!=='codex')) return null;
           const slot=jobSlot(j);
           if(j.kind==='turn'&&c.latestUserMessageId&&c.latestUserMessageId!==j.requestMessageId){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded_by_new_message',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return null;}
           if(j.kind!=='turn' && (c[slot.id]!==j.id || (c[slot.revision]||0)!==j.requestRevision)){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return null;}
-          const next={...j,state:'running',phase:j.kind==='turn'?'local_conversation':'codex_starting',assignedWorkerId:worker.id,leaseId:this.id(),leaseUntil:new Date(this.now().getTime()+120000).toISOString(),startedAt:this.iso(),updatedAt:this.iso()};tx.set(ref('assistantJobs',j.id),next);this.notifyContent(tx,j.ownerUid);return next;
+          const next={...j,state:'running',phase:j.kind==='turn'?(body.runtime==='codex'?'codex_understanding_request':'local_conversation'):'codex_starting',assignedWorkerId:worker.id,leaseId:this.id(),leaseUntil:new Date(this.now().getTime()+120000).toISOString(),startedAt:this.iso(),updatedAt:this.iso()};tx.set(ref('assistantJobs',j.id),next);this.notifyContent(tx,j.ownerUid);return next;
         });
         if(job){
           try{return {job:await this.workerJob(job)};}
@@ -601,8 +610,9 @@ export class AssistantService {
     return this.store.transaction(async tx=>{
       const active=await this.leased(tx,worker,id,body.leaseId);if(!active)return {active:false};
       const {job}=active;
-      const errorCode=job.kind==='paper'&&Object.hasOwn(failedPaperMessages,body.errorCode)?body.errorCode:null;
-      tx.update(ref('assistantJobs',id),{state:'failed',phase:'failed',error:errorCode?failedPaperMessages[errorCode]:text(body.error,2000),errorCode,retryable:body.retryable!==false&&errorCode!=='paper_scope_infeasible',updatedAt:this.iso(),leaseId:null,leaseUntil:null});
+      const knownErrors=job.kind==='paper'?{...failedPaperMessages,...failedCodexMessages}:failedCodexMessages;
+      const errorCode=Object.hasOwn(knownErrors,body.errorCode)?body.errorCode:null;
+      tx.update(ref('assistantJobs',id),{state:'failed',phase:'failed',error:errorCode?knownErrors[errorCode]:text(body.error,2000),errorCode,...(body.metrics?{metrics:bounded(body.metrics)}:{}),retryable:body.retryable!==false&&errorCode!=='paper_scope_infeasible',updatedAt:this.iso(),leaseId:null,leaseUntil:null});
       this.notifyContent(tx,job.ownerUid);
       return {active:true};
     });

@@ -29,6 +29,11 @@ export class ServiceControl {
   }
   status(worker,control={}){
     const online=fresh(control.lastSeenAt,this.now()),workerOnline=fresh(worker?.lastSeenAt,this.now())&&['ready','busy','loading'].includes(worker?.state),ready=workerOnline&&['ready','busy'].includes(worker.state),request=this.normalRequest(control.request,worker);
+    if(worker?.paperRuntimeMode==='codex')return {
+      workerId:serviceWorkerId,state:ready?'ready':workerOnline?'starting':'offline',launchMode:'host',
+      starter:{state:'offline',lastSeenAt:null},worker:{state:workerOnline?worker.state:'offline',lastSeenAt:worker?.lastSeenAt||null,modelReady:!!(ready&&worker.modelReady)},
+      request:null,canStart:false,
+    };
     const pending=!!request&&pendingStates.has(request.state),cooling=Number.isFinite(Date.parse(control.lastRequestedAt))&&this.now()-Date.parse(control.lastRequestedAt)<cooldownMs;
     const enabled=worker?.enabled===true;
     const state=enabled&&ready?'ready':enabled&&workerOnline||pending?'starting':!online?'starter_offline':['failed','expired'].includes(request?.state)?'failed':'offline';
@@ -53,6 +58,7 @@ export class ServiceControl {
       if(existing)return {service:status};
       const receipt={id:requestId,requestedAt:this.service.iso(),expiresAt:new Date(this.now()+requestMs).toISOString()};
       if(['ready','loading','busy'].includes(status.worker.state)){tx.create(requestPath,receipt);return {service:status};}
+      if(status.launchMode==='host')this.fail(409,'host_start_required','Start the GT Papers worker on its Windows host. Your requests stay saved.');
       if(status.starter.state!=='online')this.fail(409,'starter_offline','The PC starter is offline. Open the local starter on the PC before trying again.');
       if(control.request&&pendingStates.has(status.request?.state)){tx.create(requestPath,receipt);return {service:status};}
       if(!status.canStart)this.fail(429,'start_cooldown','Please wait briefly before requesting another start.');
@@ -72,6 +78,8 @@ export class ServiceControl {
       const [pairing,health,stored]=await Promise.all([tx.get(workerPath),tx.get(`assistantWorkerHealth/${serviceWorkerId}`),tx.get(controlPath)]);
       const currentWorker=withWorkerHealth(pairing,health);
       if(currentWorker?.enabled!==true||!Array.isArray(currentWorker.allowedOwnerUids))this.fail(403,'worker_disabled','Worker pairing is disabled.');
+      // The legacy host treats a successful poll as permission to auto-recover.
+      if(currentWorker.paperRuntimeMode==='codex')this.fail(409,'host_start_required','The legacy Papers launcher is disabled for this pairing.');
       let request=this.normalRequest(stored?.request,currentWorker);
       if(result&&request?.id===result.requestId&&['claimed','started'].includes(request.state))request={...request,state:result.state,acknowledgedAt:this.service.iso(),errorCode:result.state==='failed'?result.errorCode||'start_failed':null};
       if(request?.state==='pending')request={...request,state:'claimed',claimedAt:this.service.iso()};

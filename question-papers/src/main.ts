@@ -172,7 +172,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   get greeting(){const hour=new Date().getHours();return hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';}
   get teacherName(){return this.user?.displayName?.trim() || 'Teacher';}
   get reviewCount(){return this.workSheets.filter(item=>item.state==='review'||(item.pending??0)>0).length;}
-  get approvedCount(){return this.workSheets.filter(item=>item.state==='final').length;}
+  // Ready-to-return totals require inbox data; do not invent a number from recent work.
   get savedTestCount(){return this.conversations.filter(item=>!!item.latestPaperId).length;}
   ownQuery=''; allWork=false; workLoading=false; workError='';
   workPackets:DeskPacket[]=[]; workSheets:DeskSheet[]=[];

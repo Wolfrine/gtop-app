@@ -22,8 +22,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .desk-wordmark{font-family:'Manrope',var(--font);font-size:22px;font-weight:800;letter-spacing:-.85px}
 .desk-wordmark small{color:#688171;font-size:10px;letter-spacing:.2px}
 .desk-book{width:43px;height:43px;border-radius:50%;object-fit:contain;filter:drop-shadow(0 2px 3px #18412822)}
-.desk-nav{gap:5px}
-.desk-nav button{font-size:13px;color:#355747;border-radius:999px;padding:0 17px}
+.desk-nav{gap:3px}
+.desk-nav button{font-size:13px;color:#355747;border-radius:999px;padding:0 12px}
 .desk-nav button:hover{background:#e8f0e5;color:#164d37}
 .desk-nav button[aria-current]{
   background:#185a3e;color:#fff;box-shadow:0 2px 8px #164a352b;
@@ -56,12 +56,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .desk-intro h1 span{display:block;color:#1b583b}
 .desk-tagline{margin:11px 0 0;color:#6a7768;font-size:14px;line-height:1.45}
 .desk-upload-quick{
-  display:inline-flex;align-items:center;justify-content:center;gap:9px;
-  min-height:45px;flex:0 0 auto;padding:9px 16px;
-  border:1px solid #b9cfb9;border-radius:999px;background:#fffdf8;
+  display:inline-flex;align-items:center;justify-content:flex-start;gap:11px;
+  min-height:57px;flex:0 0 auto;padding:9px 16px;text-align:left;
+  border:1px solid #b9cfb9;border-radius:15px;background:#fffdf8;
   box-shadow:0 2px 8px #355a2914;color:#255d44;font-weight:720;
   white-space:nowrap;
 }
+.desk-upload-label{display:grid;gap:3px;line-height:1.2}
+.desk-upload-label strong{font-size:14px;letter-spacing:-.15px}
+.desk-upload-label small{font-size:11px;font-weight:500;color:#697e6b}
 .desk-upload-quick svg,.overview-card-icon svg{
   width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.75;
   stroke-linecap:round;stroke-linejoin:round;
@@ -172,24 +175,27 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .desk-book{width:36px;height:36px}
   .desk-wordmark small{font-size:9px}
   .desk-nav{
-    background:#fffcf6;border-top:1px solid #dbe4d7;gap:4px;
-    box-shadow:0 -3px 15px #284b2a0a;padding:5px 12px calc(5px + env(safe-area-inset-bottom,0px));
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    background:#fffcf6;border-top:1px solid #dbe4d7;gap:3px;
+    box-shadow:0 -3px 15px #284b2a0a;padding:5px 7px calc(5px + env(safe-area-inset-bottom,0px));
   }
-  .desk-nav button{min-height:51px;border-radius:12px;padding:5px 2px;color:#45634f}
+  .desk-nav button{min-height:51px;border-radius:12px;padding:5px 0;color:#45634f;font-size:10.5px;gap:2px}
   .desk-nav button:hover{background:#eef5eb}
   .desk-nav button[aria-current]{background:#1b6140;color:#fff;box-shadow:0 2px 6px #16452d27}
   .desk-sheet{width:calc(100% - 32px);padding:23px 0 38px}
-  .desk-hero{min-height:120px;align-items:flex-start;margin-bottom:18px;gap:9px}
+  .desk-hero{min-height:0;flex-direction:column;align-items:stretch;margin-bottom:18px;gap:13px}
   .desk-hero:after{right:-17px;top:8px;width:145px;height:132px;opacity:.09}
   .desk-intro time{font-size:10px}
   .desk-intro h1{font-size:clamp(29px,7.6vw,37px);line-height:1.17;letter-spacing:-1.35px}
   .desk-tagline{font-size:12px;max-width:260px;line-height:1.45}
   .desk-upload-quick{
-    position:absolute;right:0;top:0;border-radius:11px;
-    width:44px;height:44px;padding:0;overflow:hidden;
-    font-size:0;white-space:nowrap;gap:0;
+    position:static;width:100%;height:auto;min-height:54px;
+    justify-content:flex-start;align-self:stretch;border-radius:13px;
+    padding:10px 13px;overflow:visible;white-space:normal;gap:12px;
   }
-  .desk-upload-quick svg{width:22px;height:22px;flex:none}
+  .desk-upload-quick svg{width:23px;height:23px;flex:none}
+  .desk-upload-label strong{font-size:13px}
+  .desk-upload-label small{font-size:11px}
   .overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-bottom:19px}
   .overview-card{min-height:142px;border-radius:15px;padding:14px;gap:6px}
   .overview-card-icon{width:33px;height:33px;border-radius:9px}
@@ -216,7 +222,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .desk-sheet{width:calc(100% - 23px)}
   .desk-bar{padding-inline:10px}
   .desk-wordmark{font-size:19px}
-  .desk-hero{min-height:128px}
+  .desk-hero{min-height:0}
   .desk-tagline{max-width:240px}
   .overview-card{min-height:132px;padding:12px}
   .desk-incoming p{display:none}

@@ -22,6 +22,9 @@
       <button type="button" [attr.aria-current]="view==='library'||view==='chat'?'page':null" (click)="openLibrary()">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6ZM14 3v5h5M9 12h7m-7 4h7"/></svg><span>Papers</span>
       </button>
+      <button type="button" [attr.aria-current]="checkingOpen?'page':null" (click)="openCheckingHome()" aria-label="Check papers you collected in class">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6ZM14 3v5h5M9 12h7m-7 4h7M9 16l2 2 4-4"/></svg><span>Check</span>
+      </button>
       <button type="button" [attr.aria-current]="view==='submissions'?'page':null" (click)="openSubmissions()">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 12 3-7h12l3 7v7H3Zm0 0h5l2 3h4l2-3h5"/></svg><span>Inbox</span>
       </button>
@@ -66,9 +69,9 @@
             <h1>{{greeting}},<span>{{teacherName}}.</span></h1>
             <p class="desk-tagline">A calmer way to prepare, review and return your classwork.</p>
           </div>
-          <button class="desk-upload-quick" type="button" (click)="openCheckingHome()">
+          <button class="desk-upload-quick" type="button" (click)="openCheckingHome()" aria-label="Check papers: upload your own scanned answer sheets">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
-            Upload answer sheets
+            <span class="desk-upload-label"><strong>Check papers</strong><small>Upload your scans or PDFs</small></span>
           </button>
         </header>
         <nav class="overview-grid" aria-label="Your teaching work">
@@ -112,8 +115,8 @@
         </section>
         <aside class="desk-incoming" aria-labelledby="desk-incoming-title">
           <div>
-            <h2 id="desk-incoming-title">Incoming submissions</h2>
-            <p>Review handwriting and decide which marks to approve before private return.</p>
+            <h2 id="desk-incoming-title">GTOP submissions</h2>
+            <p>Review answers sent by students through GTOP, then return approved work privately.</p>
           </div>
           <button class="button desk-inbox-link" type="button" (click)="openSubmissions()">Open inbox <span aria-hidden="true">→</span></button>
         </aside>

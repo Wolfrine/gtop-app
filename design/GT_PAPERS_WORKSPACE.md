@@ -22,11 +22,11 @@ The image illustrates the desired hierarchy, proportions, mood and materials, **
 2. **Create:** keep the existing conversational paper authoring, editable requests, immutable validated paper and worked answers, and print/share features; style in the same paper-and-sage system.
 3. **Review:** student/test context first, handwriting large enough to inspect, current/suggested marks, rationale, marking scheme and teacher decision. On desktop: answer-book queue → scan → review. On phone: image and decision in a continuous readable flow.
 4. **Return:** approval of marks and student release are distinct. Approved work must return only through the existing authorized private handback.
-5. **Navigation:** retain Home, Papers, Inbox and Students as actual destinations; do not invent decorative Reports or unimplemented pages.
+5. **Navigation:** Home, Papers, **Check**, Inbox and Students are distinct, always-text-labeled destinations on mobile and desktop. **Check** is for the teacher independently scanning/uploading a collected paper or class stack (with AI suggestions or manual marking); **Inbox** is for GTOP student-submitted work and private handback. Keep a fully labeled **Check papers — Upload your scans or PDFs** action on the home screen, including narrow phones. Do not rely on an icon-only shortcut, and do not invent decorative Reports or unimplemented pages.
 
 ## Implementation and evidence
 
 - Standalone Angular app: question-papers/. Existing gateway, auth, storage, worker, student privacy and APIs are unchanged by this visual work.
 - Desktop and phone reference is the approved image, not a new direction. Inspect rendered UI against matched states; preserve useful existing navigation and content.
-- Verify teacher actions from create through scanned handwritten review, mark correction, approval and private return; loading/error/empty/long-content states and responsive constraints.
+- Verify teacher actions from create through independently initiated scan/upload and GTOP submissions, handwritten review, mark correction, approval and private return; loading/error/empty/long-content states and responsive constraints.
 - A successful build does **not** establish actual visual or educational acceptance. Unseen authenticated states remain unverified.

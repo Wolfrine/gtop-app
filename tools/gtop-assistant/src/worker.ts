@@ -84,7 +84,7 @@ export class Worker {
     await this.heartbeat().catch(error=>console.error('Gateway heartbeat: '+error.message));
     let maintaining=false;
     const timer=setInterval(()=>{if(maintaining)return;maintaining=true;void this.heartbeat().catch(e=>{this.available=false;console.error(e.message);}).finally(()=>{maintaining=false;});},healthHeartbeatMs);
-    try{await Promise.all([this.listen(signal),this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.nativePapers?.close();this.ready=false;this.available=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:workerVersion,runtime:'codex'}).catch(()=>{});}
+    try{await Promise.all([this.listen(signal),this.loop('turn',signal),this.loop('paper',signal)]);}finally{clearInterval(timer);this.ready=false;this.available=false;await this.api.post('/worker/heartbeat',{state:'offline',modelReady:false,version:workerVersion,runtime:'codex'}).catch(()=>{});}
   }
   async listen(signal:AbortSignal){
     let failures=0;

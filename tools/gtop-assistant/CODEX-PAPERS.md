@@ -1,86 +1,48 @@
 # GT Papers Codex worker
 
-## Native conversations
+New requests admitted under assistantConfig/pilot.nativePapersEnabled use
+Codex CLI 0.171.0. The worker sends the original UTF-8 text on stdin. It
+resumes the conversation by its exact native UUID, using the existing Windows
+ChatGPT authentication. The model and reasoning effort come from the Papers
+runtime profile. The initial values are gpt-6.2-sol and xhigh.
 
-The pilot flag is assistantConfig/pilot.nativePapersEnabled. New messages sent
-with it enabled go to an owner-scoped native Codex thread. The gateway stores
-the original text, its UTF-8 SHA-256 and the Firebase request identity. A paired
-worker binds one Codex thread to the conversation before forwarding the text.
-The turn may produce a conversational reply or stage a complete paper. The
-gateway validates, renders and publishes the student paper and worked answers
-together. Existing queued work keeps its original lease and delivery path.
+Codex decides whether to ask for clarification, do public research, consult an
+agent, or prepare a complete paper. Its one Papers MCP server can read the
+saved context for the current conversation and stage a complete package.
+Firebase retains owner authorization, lease checks, turn receipts, validation
+and atomic publication of the student paper and worked answers. Existing work
+uses its original lease and delivery path.
 
-The worker runs one Codex app-server over stdio. On later turns it resumes the
-recorded thread. Turn IDs and exact input proofs go to H:. The live lease fences
-delivery, and the receipt includes hashes of both documents. A cancellation
-revokes delivery immediately and requests native interruption when the worker
-observes the lease change.
+## Isolation and release status
 
-The native turn has no local execution environment on this Windows host.
-It can use public web research and native collaboration, and it can submit a
-complete paper through its application tool. The worker exposes neither the
-Firebase pairing nor operator integrations to the turn. The Codex home is
-dedicated to Papers. The worker rejects unexpected MCP connectors at startup.
+The worker uses exec --ignore-user-config and --ignore-rules, an allowlisted
+process environment, and a per-attempt read-only permission profile. It
+disables host command and image tools, owner integrations and project
+instruction discovery. The package tool receives only the current owner's
+conversation data and has no Firebase credentials.
 
-## Authentication and isolation
+The signed-in CLI still loads global AGENTS.md or AGENTS.override.md from its
+Codex home. The project document budget does not affect these files. The
+current Windows owner home includes private operational context. The worker
+blocks production start under that profile. A loopback Firebase emulator can
+commission the native flow with controlled educational prompts. A supported
+way to separate global instructions from the existing authentication is
+required before this host can admit production teacher messages.
 
-Run the standard worker as the Windows owner who is already signed in through
-the Codex CLI. Omit `NativeCodexExecutable` in this mode. Codex manages
-authentication through the owner's existing `CODEX_HOME`. The standard
-worker's `codex exec --ignore-user-config` invocation skips the user
-configuration. [Codex authentication](https://learn.chatgpt.com/docs/auth)
+- [Codex non-interactive mode](https://learn.chatgpt.com/docs/non-interactive-mode)
+- [Codex CLI options](https://learn.chatgpt.com/docs/developer-commands#codex-exec)
+- [Global instructions provider in Codex 0.171.0](https://github.com/openai/codex/blob/rust-v0.171.0/codex-rs/codex-home/src/instructions/mod.rs)
 
-Windows Codex CLI 0.171.0 completed two turns with `exec` and
-`exec resume <thread-id> -` using this login. The second process recovered the
-first turn's context. Both native input hashes matched the original UTF-8
-text, including whitespace, CRLF and Unicode. The native records confirmed
-read-only permissions and an approval policy of never. This was a native CLI
-run. End-to-end Papers delivery through that thread remains unverified.
-[Non-interactive Codex](https://learn.chatgpt.com/docs/non-interactive-mode)
+## Cutover after acceptance
 
-The 0.171 standalone app-server rejects `--ignore-user-config`. It loads
-owner settings from the same Codex home as the authentication and local
-thread records. The empty `mcp_servers` override retains inherited entries,
-and the startup MCP inventory can initialize configured connectors. Keep
-shared-home pilot admission off until a supported configuration can exclude
-owner integrations before starting a thread. An already provisioned pilot
-uses its isolated home and saved thread IDs.
-[App Server](https://learn.chatgpt.com/docs/app-server)
-[Configuration merge in Codex 0.171](https://github.com/openai/codex/blob/rust-v0.171.0/codex-rs/config/src/merge.rs)
-[MCP discovery in Codex 0.171](https://github.com/openai/codex/blob/rust-v0.171.0/codex-rs/codex-mcp/src/mcp/mod.rs#L572)
+Run the existing Windows launcher with Config, Profile and
+NativeCodexExecutable. Use the qualified executable and keep the current
+pairing in its protected location. The launch profile and worker receipts
+belong on H:.
 
-For a single-login cutover, keep the redesign's Firebase owner, conversation and
-worker binding, original input hash and delivery lease. Qualify a native
-runtime that preserves the thread, input and tool scope before enabling new
-admissions. Native thread IDs already bound to an isolated Codex home must
-continue to resolve there.
-
-## Runtime and cutover
-
-The model profile stays in the owner-controlled H: runtime directory. Its
-default is schema version 1, revision 1, model gpt-6.2-sol and reasoning effort
-xhigh. Change the model through that profile and restart the worker after
-draining. The native thread must confirm the selected model and effort.
-
-For an already provisioned, explicitly approved isolated pilot:
-
-1. Verify the existing private codex-home beside the worker data directory and
-   the existing Firebase pairing. The worker requires an active managed ChatGPT
-   session in that isolated home.
-2. Verify the exact Windows Codex executable, authenticated native execution,
-   thread continuity and isolation, interruption, and authenticated publication.
-   Keep commissioning receipts on H:.
-3. Deploy the gateway and Hosting through the existing main release workflow.
-   Confirm the active gateway revision and served Hosting commit.
-4. Drain the existing Papers worker with its claimsPausedUntil fence. Confirm
-   there is no active lease and both lanes are idle. Stop the identified Papers
-   process. Start the pinned release with the existing pairing, new profile and
-   native executable. Restore the prior fence and confirm the new PID, heartbeat
-   and Firestore listener.
-5. Enable the pilot flag, exercise the authenticated production route and
-   retrieve both artifacts. Disabling the flag stops new native admissions.
-   Queued native work keeps its thread and worker binding.
-
-Invoke the existing Windows launcher with Config, Profile and
-NativeCodexExecutable. Its legacy mode remains available for saved work when no
-native executable is supplied.
+Deploy the verified gateway and Hosting through the main release workflow.
+Fence claims with claimsPausedUntil, confirm there is no active lease and both
+Papers lanes are idle, and replace only the identified Papers worker. Verify
+the new PID, heartbeat, listener and authenticated publication before enabling
+native admission. Disabling the flag stops new native admissions. Queued
+native work keeps its thread and worker binding.

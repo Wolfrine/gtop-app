@@ -221,7 +221,15 @@ jobs:
           node --input-type=module <<'NODE'
           import assert from 'node:assert/strict';
           const origin='https://gtop-question-papers.web.app';
-          const version=await fetch(origin+'/version.json',{signal:AbortSignal.timeout(30000)});assert(version.ok);assert.equal((await version.json()).commit,process.env.GITHUB_SHA);
+          let served='';
+          for(let attempt=1;attempt<=18;attempt++){
+            const version=await fetch(origin+'/version.json?release='+encodeURIComponent(process.env.GITHUB_SHA)+'&attempt='+attempt,{headers:{'Cache-Control':'no-cache'},signal:AbortSignal.timeout(30000)});
+            if(version.ok){const current=await version.json();served=current.commit||'';if(served===process.env.GITHUB_SHA)break;}
+            else served='HTTP '+version.status;
+            console.log('Hosting propagation: expected '+process.env.GITHUB_SHA+', observed '+served+' (attempt '+attempt+'/18)');
+            if(attempt<18)await new Promise(resolve=>setTimeout(resolve,5000));
+          }
+          assert.equal(served,process.env.GITHUB_SHA,'Hosting did not serve deployed commit');
           assert.equal((await fetch(origin+'/api/session',{signal:AbortSignal.timeout(30000)})).status,401);
           const html=await fetch(origin,{signal:AbortSignal.timeout(30000)});assert(html.ok);assert((await html.text()).includes('<gtop-paper-app'));
           console.log('Independent Hosting commit and unauthenticated gateway denial verified. Visual acceptance is separately recorded.');

@@ -6,7 +6,7 @@ import {pathToFileURL} from 'node:url';
 // A local controller or documentation change needs verification, not a repeat
 // deployment of byte-for-byte unchanged gateway and Hosting sources.
 export function cloudReleasePlan(files:string[]){
-  if(files.length>0&&files.every(file=>/^(?:assistant-service\/|question-papers\/|tools\/gtop-assistant\/|docs\/|design\/|\.github\/workflows\/gtop-assistant-release\.yml$)/.test(file))){
+  if(files.length>0&&files.every(file=>/^(?:assistant-service\/|question-papers\/|tools\/gtop-assistant\/|docs\/|design\/|\.github\/workflows\/(?:gtop-assistant-release|gt-papers-growth-preview)\.yml$)/.test(file))){
     const sharedWithPapers=new Set(['assistant-service/domain/exam-copy.mjs','assistant-service/domain/checking.mjs','assistant-service/domain/checking-limits.mjs','assistant-service/domain/checking-intake.mjs','assistant-service/domain/external-reference.mjs']);
     return {backend:files.some(file=>file.startsWith('assistant-service/')),hosting:files.some(file=>file.startsWith('question-papers/')||sharedWithPapers.has(file))};
   }

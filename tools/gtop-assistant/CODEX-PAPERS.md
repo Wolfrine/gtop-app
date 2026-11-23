@@ -44,6 +44,6 @@ belong on H:.
 Deploy the verified gateway and Hosting through the main release workflow.
 Fence claims with claimsPausedUntil, confirm there is no active lease and both
 Papers lanes are idle, and replace only the identified Papers worker. Verify
-the new PID, heartbeat, listener and authenticated publication before enabling
-native admission. Disabling the flag stops new conversations entering native admission. Queued
-native work keeps its thread and worker binding.
+the new PID, heartbeat and listener. Enable native admission when an
+authenticated client is available to verify publication. Disabling admission
+keeps existing native conversations and queued work on their bound threads.

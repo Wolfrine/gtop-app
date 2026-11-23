@@ -34,7 +34,7 @@ type NativeJob = {
   request: {id: string; text: string; sha256Utf8: string};
   history?: unknown[]; basePaper?: Record<string, unknown>; retryOf?: string; retryErrorCode?: string;
 };
-type Attempt = {startedAt: number; inputSha256: string; threadId?: string; status: string; model: string; effort: string};
+type Attempt = {startedAt: number; inputSha256: string; threadId?: string; status: string; model: string; effort: string; sourceJobId?: string};
 type NativeTurn = {
   turnId?: string; inputMatches?: boolean; model?: string; effort?: string; approved?: boolean;
   durationMs?: number; reply?: string; completed?: boolean; interrupted?: boolean;
@@ -167,7 +167,7 @@ export class NativePapers {
     const demo=this.config.authEmulator && new URL(this.config.gateway).hostname==='127.0.0.1' && new URL(this.config.authEmulator).hostname==='127.0.0.1';
     if(!demo){
       const home=process.env.CODEX_HOME;
-      if(!home||!path.isAbsolute(home)||!path.relative(path.join(homedir(),'.codex'),home)||
+      if(!home||path.parse(home).root.toLowerCase()!=='h:\\'||
          path.relative(home,await realpath(home))) {
         throw failure('codex_unavailable','Select the prepared isolated Papers Codex home.');
       }
@@ -205,10 +205,14 @@ export class NativePapers {
     let result: NativeTurn={};
     let resultDir=directory;
     let attempt: Attempt={startedAt:Date.now(),inputSha256:job.request.sha256Utf8,threadId,status:'launching',model:profile.model,effort:profile.reasoningEffort};
-    if(prior?.threadId&&!corrective){
-      const priorDir=path.join(root,job.retryOf!);
+    const sourceJobId=prior?.sourceJobId||job.retryOf;
+    if(prior?.status==='finished'&&prior.threadId&&sourceJobId&&safeId.test(sourceJobId)&&!corrective){
+      const priorDir=path.join(root,sourceJobId);
       const saved=await readNativeTurn(priorDir,prior.threadId,prior);
-      if(saved.completed&&saved.inputMatches){result=saved;resultDir=priorDir;attempt={...prior};}
+      if(saved.completed&&saved.inputMatches&&saved.approved&&saved.scopeApproved&&
+         saved.model===prior.model&&saved.effort===prior.effort){
+        result=saved;resultDir=priorDir;attempt={...prior,sourceJobId};
+      }
     }
     const bind=async(id: string)=>{
       const receipt=await this.api.post(endpoint+'/native-thread',{leaseId:job.leaseId,threadId:id},signal);

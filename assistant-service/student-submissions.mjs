@@ -2,9 +2,10 @@ import {HttpError} from './service.mjs';
 import {day, digest} from './checking-storage.mjs';
 import {maxCheckingPages} from './domain/checking-limits.mjs';
 import {maxExternalPages} from './domain/external-reference.mjs';
-import {assertEnrollment, currentEnrollment, getSubmissionTest, submissionsEnabled} from './student-submission-access.mjs';
+import {assertEnrollment, assertSubmissionsEnabled, getSubmissionTest, personalSubmissionAccess, submissionsEnabled} from './student-submission-access.mjs';
 import {
-  moveStaffSubmissionIndex, ownerSubmissions, staffSubmissionStatePath, staffSubmissionStates, studentSubmissions, submissionLimitPath, submissionPagePath, submissionPath, submissionSummary
+  centralIntakeSource, moveStaffSubmissionIndex, ownerSubmissions, staffSubmissionStatePath, staffSubmissionStates, studentSubmissions,
+  submissionIntakeLimitPath, submissionLimitPath, submissionPagePath, submissionPath, submissionSummary
 } from './student-submission-storage.mjs';
 
 const pageSize = 25;
@@ -42,37 +43,46 @@ async function renderRow(checker, row, staff, detail = false, progress = progres
   return submissionSummary(row, staff, detail, await progress(checker, row, reads));
 }
 
-export async function submissionList(checker, uid, cursor, staff, progress, status = null) {
-  const eligible = staff ? undefined : !!await currentEnrollment(checker, uid);
-  if (!staff && !eligible) return {eligible: false, submissions: [], nextCursor: null};
+export async function submissionList(checker, uid, cursor, staff, progress, status = null, preview = false) {
+  const access = staff || preview ? null : await personalSubmissionAccess(checker, uid);
+  const size = preview ? 3 : pageSize;
   if (status && (!staff || !staffSubmissionStates.includes(status))) {
     fail(400, 'invalid_submission_status', 'Choose a valid submissions filter.');
   }
   const collection = status ? staffSubmissionStatePath(uid, status) : staff ? ownerSubmissions(uid) : studentSubmissions(uid);
-  const pointers = await checker.store.list(collection, [], pageSize + 1, {
+  const pointers = await checker.store.list(collection, [], preview ? size : size + 1, {
     orderBy: ['createdAt','desc'], orderById: true, cursorValues: checker.readCursor(cursor), includeId: true
   });
-  const page = pointers.slice(0, pageSize);
+  const page = pointers.slice(0, size);
   const rows = await checker.store.getSelected(page.map(row => submissionPath(row.id)), [
     'id','title','subject','ownerUid','studentUid','studentLabel','paperId','testCode','questionFingerprint','staffPaperId',
     'status','version','revision','rescan','answer','question','createdAt','updatedAt','submittedAt','referenceId',
-    'sheetId','requiresPaperReview','paperTitle','releasedAt','publishedSheetVersion'
+    'sheetId','requiresPaperReview','paperTitle','releasedAt','publishedSheetVersion','intake'
   ]);
   const visible = rows.filter(row => row && (staff ? row.ownerUid === uid && row.status !== 'draft' &&
     (!status || row.status === status) : row.studentUid === uid));
   const last = page.at(-1);
   const reads = new Map();
   return {
-    ...(staff ? {enabled: await submissionsEnabled(checker)} : {eligible}),
-    submissions: await Promise.all(visible.map(row => renderRow(checker, row, staff, false, progress, reads))),
-    nextCursor: pointers.length > pageSize ? Buffer.from(JSON.stringify([last.createdAt,last.id])).toString('base64url') : null
+    ...(staff ? {enabled: await submissionsEnabled(checker)} : access ? {
+      eligible: access.sharedTestsAvailable, savesEnabled: access.savesEnabled,
+      checkingAvailable: access.checkingAvailable, sharedTestsAvailable: access.sharedTestsAvailable,
+      checkingNeedsProfile: access.checkingNeedsProfile, checkingDestination: access.checkingDestination
+    } : {}),
+    submissions: await Promise.all(visible.map(row => renderRow(checker, row, staff, false, preview ? progressStub : progress, reads))),
+    nextCursor: pointers.length > size ? Buffer.from(JSON.stringify([last.createdAt,last.id])).toString('base64url') : null
   };
 }
 
 export async function submissionDetail(checker, uid, id, staff, progress) {
-  if (!staff) await assertEnrollment(checker, uid);
   const row = await authorizedSubmission(checker, uid, id, staff);
-  return {submission: await renderRow(checker, row, staff, true, progress)};
+  const submission = await renderRow(checker, row, staff, true, progress);
+  if (!staff && row.submittedAt && ['draft', 'needs_rescan'].includes(row.status)) {
+    const access = await personalSubmissionAccess(checker, uid, checker.store, row);
+    submission.mayResend = access.participant.ownerUid === row.ownerUid && (!row.testCode || access.sharedTestsAvailable);
+    submission.checkingDestination = submission.mayResend ? access.checkingDestination : null;
+  }
+  return {submission};
 }
 
 export async function createStudentSubmission(checker, uid, body) {
@@ -80,13 +90,20 @@ export async function createStudentSubmission(checker, uid, body) {
   // A caller controls its own retry key but cannot reserve IDs belonging to other pupils.
   const id = digest('student-submission', uid, nonce).slice(0, 40);
   const submission = await checker.store.transaction(async tx => {
-    const membership = await assertEnrollment(checker, uid, tx);
-    const test = body.testCode ? await getSubmissionTest(checker, membership, body.testCode, tx) : null;
+    let participant = {studentUid: uid, studentLabel: 'GTOP account', ownerUid: null};
+    let test = null;
+    if (body.testCode) {
+      participant = await assertEnrollment(checker, uid, tx);
+      test = await getSubmissionTest(checker, participant, body.testCode, tx);
+    } else {
+      await assertSubmissionsEnabled(checker, tx);
+    }
     const title = test?.title || checker.text(body.title ?? '', 120) || 'Uploaded question paper';
     const subject = test?.subject || checker.text(body.subject ?? '', 100) || null;
     const answer = attachment(checker, 'answer', body.answerName, body.answerPageCount);
     if (test && body.questionPageCount > 0) fail(400, 'unexpected_question_paper', 'This test already includes the question paper.');
-    const question = test ? null : attachment(checker, 'question', body.questionName, body.questionPageCount);
+    const question = test || body.questionPageCount == null || body.questionPageCount === 0
+      ? null : attachment(checker, 'question', body.questionName, body.questionPageCount);
     const path = submissionPath(id), existing = await tx.get(path);
     if (existing) {
       if (existing.testCode !== (test?.code || null) || existing.title !== title ||
@@ -99,7 +116,7 @@ export async function createStudentSubmission(checker, uid, body) {
       fail(429, 'submission_limit', 'The daily submission limit was reached. You can continue any saved drafts.');
     }
     const row = {
-      id, ...membership, title, subject, paperId: test?.paperId || null, testCode: test?.code || null,
+      id, ...participant, title, subject, paperId: test?.paperId || null, testCode: test?.code || null,
       status: 'draft', version: 1, revision: 1, answer, question, rescan: null,
       createdAt: now, updatedAt: now
     };
@@ -114,7 +131,7 @@ export async function createStudentSubmission(checker, uid, body) {
 export async function uploadSubmissionPage(checker, uid, id, kind, index, body) {
   const {bytes, size, sha} = checker.scan(body);
   const submission = await checker.store.transaction(async tx => {
-    await assertEnrollment(checker, uid, tx);
+    await assertSubmissionsEnabled(checker, tx);
     const row = await authorizedSubmission(checker, uid, id, false, tx);
     const doc = row[kind];
     if (!doc || !Number.isInteger(index) || index < 1 || index > doc.pageCount) unavailable();
@@ -138,7 +155,6 @@ export async function uploadSubmissionPage(checker, uid, id, kind, index, body) 
 }
 
 export async function readSubmissionPage(checker, uid, id, kind, index, staff) {
-  if (!staff) await assertEnrollment(checker, uid);
   const row = await authorizedSubmission(checker, uid, id, staff);
   const page = row[kind]?.pages.find(page => page.index === index);
   if (!page) unavailable();
@@ -166,22 +182,45 @@ function orderedChecksums(doc, kind) {
 
 export async function submitStudentSubmission(checker, uid, id, body) {
   const submission = await checker.store.transaction(async tx => {
-    const member = await assertEnrollment(checker, uid, tx);
     const row = await authorizedSubmission(checker, uid, id, false, tx);
     if (row.status === 'submitted' && row.submittedVersion === body.version) return row;
     if (row.status !== 'draft' || row.version !== body.version) changed();
-    if (row.ownerUid !== member.ownerUid) {
+    const access = await personalSubmissionAccess(checker, uid, tx, row.submittedAt ? row : null);
+    const member = access.participant;
+    if (!access.savesEnabled) fail(503, 'student_submissions_paused', 'Student submissions are paused.');
+    if (access.checkingNeedsProfile) fail(409, 'checking_profile_required', 'Complete your GTOP profile before sending for checking.');
+    if (!member.ownerUid || (row.testCode && !access.sharedTestsAvailable)) {
+      fail(409, 'checking_inbox_required', 'Your draft is saved. Connect a GT Papers checking invitation to send it for checking.');
+    }
+    if (row.ownerUid && row.ownerUid !== member.ownerUid) {
       fail(409, 'student_scope_conflict', 'Your GTOP account is linked to another submissions inbox. Ask GT staff for help.');
     }
+    const destination = access.checkingDestination;
+    if ((destination.source === centralIntakeSource || body.checkingConfirmation != null) &&
+        body.checkingConfirmation !== destination.confirmation) {
+      fail(409, 'checking_recipient_changed', 'Review the current checking recipient and send again. Your changes are saved.');
+    }
+    if (!row.testCode && !row.question) fail(409, 'upload_incomplete', 'Add the question paper before sending for checking.');
     orderedChecksums(row.answer, 'answer');
     const questionFingerprint = row.question ? digest('ordered-question-pages-v1', ...orderedChecksums(row.question, 'question')) : null;
     const now = checker.now();
-    const next = {...row, studentLabel: member.studentLabel, status: 'submitted', submittedVersion: row.version,
+    if (!row.submittedAt && destination.source === centralIntakeSource) {
+      const limitPath = submissionIntakeLimitPath(member.ownerUid);
+      const usage = await tx.get(limitPath);
+      const today = day(now);
+      const total = usage?.day === today ? usage.total : 0;
+      if (!Number.isSafeInteger(total) || total < 0 || total >= access.checkingDailyLimit) {
+        fail(429, 'checking_inbox_full', 'Growth Tutorials has reached today’s intake limit. Your draft is saved for later.');
+      }
+      tx.set(limitPath, {day: today, total: total + 1});
+    }
+    const next = {...row, ownerUid: member.ownerUid, studentLabel: member.studentLabel, status: 'submitted', submittedVersion: row.version,
+      ...(!row.submittedAt ? {intake: {source: destination.source, assignedAt: now}} : {}),
       submittedAt: now, updatedAt: now, version: row.version + 1, rescan: null, questionFingerprint};
     tx.set(submissionPath(id), next);
-    moveStaffSubmissionIndex(tx, row, next.status, now);
-    if (!row.submittedAt) tx.create(ownerSubmissions(row.ownerUid) + '/' + id, {createdAt: now});
-    checker.service.notifyContent(tx, row.ownerUid);
+    moveStaffSubmissionIndex(tx, {...row, ownerUid: next.ownerUid}, next.status, now);
+    if (!row.submittedAt) tx.create(ownerSubmissions(next.ownerUid) + '/' + id, {createdAt: now});
+    checker.service.notifyContent(tx, next.ownerUid);
     return next;
   });
   return {submission: await renderRow(checker, submission, false, true)};
@@ -189,7 +228,8 @@ export async function submitStudentSubmission(checker, uid, id, body) {
 
 function revisedAttachment(checker, row, kind, target, page, body) {
   const current = row[kind];
-  if (!current) return null;
+  if (!current) return target === 'question' && kind === 'question' && page == null
+    ? attachment(checker, kind, body.questionName, body.questionPageCount) : null;
   const changedFile = target === kind;
   const pageCount = body[kind + 'PageCount'] ?? current.pageCount;
   const name = body[kind + 'Name'] ?? current.name;
@@ -211,12 +251,15 @@ function revisedAttachment(checker, row, kind, target, page, body) {
 
 export async function reviseStudentSubmission(checker, uid, id, body) {
   const submission = await checker.store.transaction(async tx => {
-    await assertEnrollment(checker, uid, tx);
+    await assertSubmissionsEnabled(checker, tx);
     const row = await authorizedSubmission(checker, uid, id, false, tx);
     if (!['draft','needs_rescan'].includes(row.status)) changed();
     const kind = body.replaceKind ?? row.rescan?.kind;
     const page = Object.hasOwn(body, 'replacePage') ? body.replacePage : body.replaceKind ? null : row.rescan?.page ?? null;
-    if (!Object.hasOwn(limits, kind) || !row[kind]) fail(400, 'invalid_replacement', 'Choose the document to replace.');
+    const addingQuestion = kind === 'question' && !row.question && !row.testCode && row.status === 'draft' && page == null;
+    if (!Object.hasOwn(limits, kind) || (!row[kind] && !addingQuestion)) {
+      fail(400, 'invalid_replacement', 'Choose the document to replace.');
+    }
     const answer = revisedAttachment(checker, row, 'answer', kind, page, body);
     const question = revisedAttachment(checker, row, 'question', kind, page, body);
     const request = digest(kind, page, answer.name, answer.pageCount, question?.name ?? null, question?.pageCount ?? null);
@@ -238,7 +281,10 @@ export async function requestSubmissionRescan(checker, uid, id, body, progress) 
     const row = await authorizedSubmission(checker, uid, id, true, tx);
     if (row.status !== 'submitted' || row.version !== body.version) changed();
     const kind = body.kind;
-    if (!Object.hasOwn(limits, kind) || !row[kind]) fail(400, 'invalid_replacement', 'Choose the document to replace.');
+    const addingQuestion = kind === 'question' && !row.question && !row.testCode && row.status === 'draft' && page == null;
+    if (!Object.hasOwn(limits, kind) || (!row[kind] && !addingQuestion)) {
+      fail(400, 'invalid_replacement', 'Choose the document to replace.');
+    }
     const page = body.page ?? null;
     if (page != null && (!Number.isInteger(page) || page < 1 || page > row[kind].pageCount)) {
       fail(400, 'invalid_page', 'Choose a page from the selected document.');

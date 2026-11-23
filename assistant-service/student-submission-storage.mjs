@@ -3,9 +3,9 @@ import {createHash} from 'node:crypto';
 export const centralIntakeSource = 'growth_tutorials';
 export const centralIntakeLabel = 'Growth Tutorials';
 
-const root = 'assistantStudentSubmissions';
+export const submissionCollection = 'assistantStudentSubmissions';
 const owners = 'assistantStudentSubmissionOwners';
-export const submissionPath = id => root + '/' + id;
+export const submissionPath = id => submissionCollection + '/' + id;
 export const submissionPagePath = (id, revision, kind, index) =>
   submissionPath(id) + '/revisions/' + revision + '/' + kind + '/' + index;
 export const ownerSubmissions = uid => owners + '/' + uid + '/submissions';

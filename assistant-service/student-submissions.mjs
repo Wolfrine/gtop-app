@@ -5,6 +5,7 @@ import {maxExternalPages} from './domain/external-reference.mjs';
 import {assertEnrollment, assertSubmissionsEnabled, getSubmissionTest, personalSubmissionAccess, submissionsEnabled} from './student-submission-access.mjs';
 import {
   centralIntakeSource, moveStaffSubmissionIndex, ownerSubmissions, staffSubmissionStatePath, staffSubmissionStates, studentSubmissions,
+  submissionCollection,
   submissionIntakeLimitPath, submissionLimitPath, submissionPagePath, submissionPath, submissionSummary
 } from './student-submission-storage.mjs';
 
@@ -71,6 +72,25 @@ export async function submissionList(checker, uid, cursor, staff, progress, stat
     } : {}),
     submissions: await Promise.all(visible.map(row => renderRow(checker, row, staff, false, preview ? progressStub : progress, reads))),
     nextCursor: pointers.length > size ? Buffer.from(JSON.stringify([last.createdAt,last.id])).toString('base64url') : null
+  };
+}
+
+export async function releasedSubmissionScores(checker, uid, cursor) {
+  const size = 12;
+  const rows = await checker.store.list(submissionCollection, [
+    ['studentUid', '==', uid], ['status', '==', 'released']
+  ], size + 1, {
+    orderBy: ['releasedAt', 'desc'], orderById: true, cursorValues: checker.readCursor(cursor), includeId: true,
+    select: ['paperTitle', 'title', 'subject', 'releasedAt', 'result.awarded', 'result.max']
+  });
+  const page = rows.slice(0, size);
+  const last = page.at(-1);
+  return {
+    papers: page.map(row => ({
+      id: row.id, title: row.paperTitle || row.title || null, subject: row.subject || null,
+      releasedAt: row.releasedAt, awarded: row.result?.awarded ?? null, max: row.result?.max ?? null
+    })),
+    nextCursor: rows.length > size ? Buffer.from(JSON.stringify([last.releasedAt, last.id])).toString('base64url') : null
   };
 }
 

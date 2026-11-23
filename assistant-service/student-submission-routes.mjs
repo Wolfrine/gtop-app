@@ -4,7 +4,7 @@ import {
   redeemSubmissionInvite, revokeSubmissionInvite, shareSubmissionTest
 } from './student-submission-access.mjs';
 import {
-  authorizedSubmission, createStudentSubmission, readSubmissionPage, requestSubmissionRescan, reviseStudentSubmission,
+  authorizedSubmission, createStudentSubmission, readSubmissionPage, releasedSubmissionScores, requestSubmissionRescan, reviseStudentSubmission,
   submissionDetail, submissionList, submitStudentSubmission, uploadSubmissionPage
 } from './student-submissions.mjs';
 import {
@@ -30,6 +30,9 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
   const uid = authenticatedStudent(checker, claims);
   if (staff) await service.user(claims);
   if (relative === '' && method === 'GET') {
+    if (!staff && query.get('view') === 'released-scores') {
+      return releasedSubmissionScores(checker, uid, query.get('cursor'));
+    }
     if (!staff && query.get('eligibility') === '1') {
       const access = await personalSubmissionAccess(checker, uid);
       return {eligible: access.sharedTestsAvailable};

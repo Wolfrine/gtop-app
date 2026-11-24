@@ -41,3 +41,7 @@ Native RCA `01a20bfd-c421-7b42-bd8e-a4da545de018` measured 69,689 reads on 23 No
 Explicit admin catalogue management, deliberate all-curriculum search, and the legacy all-scope quiz action can still load the catalogue. Their consumers own the read. Academic totals continue to come from their canonical sources.
 
 The figures above include live aggregate observations and code budgets. Capture actual initial and reconnect counts from the `[firestore-read]` console events for the same origin, release and workflow before attributing usage savings. A reconnect may reuse the existing target or be billed as a new query depending on connection duration and Firestore persistence.
+
+## GT Papers history verification
+
+The 24 November read-only service comparison used one authorized owner's eight saved requests and a completed thread. The legacy thread returned 12 messages, two papers and 10 job records in three queries returning 24 rows, plus four point lookups. The candidate unchanged-status path made five point lookups and zero queries. Both candidate initial page queries returned `FAILED_PRECONDITION` on production because their composite indexes were absent. These observations describe the legacy path and candidate code against existing data. The history and catalogue candidate requires index readiness and authenticated workflow verification before release.

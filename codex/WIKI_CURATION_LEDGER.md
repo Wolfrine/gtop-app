@@ -348,3 +348,5 @@ Processed `raw/2026-11-23-student-submitted-answer-sheets.md` into `wiki/Users.m
 ### 2026-11-24 - Firestore load and classroom data isolation
 
 Processed `raw/2026-11-24-firestore-efficiency-correction.md` into `wiki/Decisions.md`. Recorded the demand-led loading and development isolation decision, with full question eligibility, saved history, offline access and permissions retained. The RCA left individual burst attribution unresolved. Execution, evidence and remaining gates belong to Action Plan `UYM9i7n8yMoVHfz3t3ZU` and `docs/engineering/firestore-efficiency.md`.
+
+Processed the completion-request addendum into the same decision. Preserved full-pool practice, offline access, and the development boundary for diagrams and notifications. Release and verification evidence remain in the engineering standard and Action Plan.

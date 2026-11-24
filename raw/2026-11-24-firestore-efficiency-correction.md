@@ -17,3 +17,7 @@ GTOP recorded 69,689 Firestore read operations on 23 November IST, including 57,
 ## Suggested Wiki Integration
 
 Add the product principle to Decisions. Keep measured load evidence, query budgets, deployment and verification in the engineering standard and Action Plan.
+
+## Completion request addendum
+
+The owner authorized completion and deployment of the remaining work. Preserve offline practice and the full eligible question pool when reducing reads. Keep classroom data, diagrams, and device push separate from developer rehearsals. Require evidence for document reads, index entries, and writes. Keep routine remote polling, eager full reads, and redundant writes out of default product behavior. Existing protected checks and older active sessions remain part of the rollout.

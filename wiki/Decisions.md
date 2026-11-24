@@ -126,7 +126,7 @@ GTOP should study what students may expect from education products over the next
 
 ## Keep Classroom Work Fast and Development Isolated
 
-Practice and paper workflows should load what a learner or teacher needs for the current task. Faster loading must preserve the full eligible question pool, the ability to return to older work, and access to previously available offline work. Development uses isolated classroom data. Role boundaries and canonical academic records continue to apply as delivery changes.
+Practice and paper workflows should load what a learner or teacher needs for the current task. Faster loading must preserve the full eligible question pool, the ability to return to older work, and access to previously available offline work. Development uses isolated classroom data, including diagrams and notifications. Role boundaries and canonical academic records continue to apply as delivery changes. Measure real workflows before crediting cost savings.
 
 ## Source Notes
 

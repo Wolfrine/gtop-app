@@ -14,7 +14,7 @@ import { AppDialogComponent } from './shared/app-dialog.component';
   template: `
     <div #chromeStack class="app-chrome-stack">
       @if (uat) {
-        <div class="uat-banner" role="status">UAT — LIVE PRODUCTION DATA · CHANGES ARE REAL</div>
+        <div class="uat-banner" role="status">UAT · Local emulator data</div>
       }
       @if (!updates.online()) {
         <div class="network-banner" role="status">

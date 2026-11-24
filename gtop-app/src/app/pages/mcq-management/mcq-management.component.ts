@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -15,6 +15,7 @@ import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-mcq-management',
@@ -36,16 +37,16 @@ import { AppCardDirective } from '../../shared/ui/app-card/app-card.directive';
         AppCardDirective
     ]
 })
-export class McqManagementComponent implements OnInit {
+export class McqManagementComponent implements OnInit, OnDestroy {
     mcqs: (MCQ & { editMode?: boolean; updatedJson?: string; displayJson?: string })[] = [];
     optionLabels = ['A)', 'B)', 'C)', 'D)'];
     loading = true;
     lastVisible: any = null;
 
     // Filter-related
-    boardList: string[] = ['CBSE', 'ICSE'];
-    standardList: string[] = ['6th', '7th', '8th'];
-    subjectList: string[] = ['Science', 'Mathematics'];
+    boardList: string[] = [];
+    standardList: string[] = [];
+    subjectList: string[] = [];
     chapterList: string[] = [];
 
     selectedBoard = '';
@@ -68,20 +69,19 @@ export class McqManagementComponent implements OnInit {
         private snackBar: MatSnackBar
     ) { }
 
-    syllabusData: SyllabusItem[] = [];
+    private syllabusData: SyllabusItem[] = [];
+    private readonly subscriptions = new Subscription();
+    private standardsSub?: Subscription;
+    private syllabusSub?: Subscription;
+    private loadedBoard = '';
+    private loadedStandard = '';
 
     ngOnInit() {
-        // Fetch syllabus data
-        this.syllabusService.syllabus$.subscribe((syllabusItems) => {
-            this.syllabusData = syllabusItems;
-
-            // Ensure dropdowns populated AFTER params applied
-            this.populateDropdowns(syllabusItems);
-        });
-
-
-        // Query params
-        this.route.queryParams.subscribe(async (params) => {
+        this.subscriptions.add(this.syllabusService.boards().subscribe({
+            next: boards => { this.boardList = boards; },
+            error: error => console.error('Unable to load boards', error)
+        }));
+        this.subscriptions.add(this.route.queryParams.subscribe(async (params) => {
             if (params['board']) this.selectedBoard = params['board'];
             if (params['standard']) this.selectedStandard = params['standard'];
             if (params['subject']) this.selectedSubject = params['subject'];
@@ -95,52 +95,50 @@ export class McqManagementComponent implements OnInit {
                 chapter: this.selectedChapter
             };
 
-            // Populate dropdowns AFTER syllabus data arrives
-            if (this.syllabusData.length > 0) {
-                this.populateDropdowns(this.syllabusData);
-            }
-
+            this.loadFilterOptions();
             await this.fetchMCQs();
-        });
-
+        }));
     }
 
-    populateDropdowns(syllabusItems: SyllabusItem[]) {
-        // Populate Board List
-        this.boardList = [...new Set(syllabusItems.map(item => item.board))];
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
+        this.standardsSub?.unsubscribe();
+        this.syllabusSub?.unsubscribe();
+    }
 
-        // Populate Standard List based on Board selection
-        if (this.selectedBoard) {
-            this.standardList = [...new Set(
-                syllabusItems.filter(item => item.board === this.selectedBoard)
-                    .map(item => item.standard)
-            )];
-        } else {
+    private loadFilterOptions(): void {
+        const board = this.selectedBoard;
+        const standard = this.selectedStandard;
+        const boardChanged = board !== this.loadedBoard;
+        if (boardChanged) {
+            this.loadedBoard = board;
+            this.standardsSub?.unsubscribe();
             this.standardList = [];
+            if (board) {
+                this.standardsSub = this.syllabusService.standards(board).subscribe({
+                    next: standards => { this.standardList = standards; },
+                    error: error => console.error('Unable to load classes', error)
+                });
+            }
         }
+        if (boardChanged || standard !== this.loadedStandard) {
+            this.loadedStandard = standard;
+            this.syllabusSub?.unsubscribe();
+            this.syllabusData = [];
+            if (board && standard) {
+                this.syllabusSub = this.syllabusService.watchScope(board, standard).subscribe({
+                    next: ({ items }) => { this.syllabusData = items; this.populateDropdowns(); },
+                    error: error => console.error('Unable to load syllabus', error)
+                });
+            }
+        }
+        this.populateDropdowns();
+    }
 
-        // Populate Subject List based on Standard selection
-        if (this.selectedStandard) {
-            this.subjectList = [...new Set(
-                syllabusItems.filter(item => item.board === this.selectedBoard &&
-                    item.standard === this.selectedStandard)
-                    .map(item => item.subject)
-            )];
-        } else {
-            this.subjectList = [];
-        }
-
-        // Populate Chapter List based on Subject selection
-        if (this.selectedSubject) {
-            this.chapterList = [...new Set(
-                syllabusItems.filter(item => item.board === this.selectedBoard &&
-                    item.standard === this.selectedStandard &&
-                    item.subject === this.selectedSubject)
-                    .map(item => item.chapter)
-            )];
-        } else {
-            this.chapterList = [];
-        }
+    private populateDropdowns(): void {
+        this.subjectList = [...new Set(this.syllabusData.map(item => item.subject))];
+        this.chapterList = [...new Set(this.syllabusData
+            .filter(item => item.subject === this.selectedSubject).map(item => item.chapter))];
     }
 
 
@@ -238,30 +236,23 @@ export class McqManagementComponent implements OnInit {
     }
 
     filterMCQs() {
+        if (this.selectedBoard !== this.loadedBoard) {
+            this.selectedStandard = '';
+        }
+        if (this.selectedStandard !== this.loadedStandard || !this.selectedStandard) {
+            this.selectedSubject = '';
+        }
+        if (this.selectedSubject !== this.filters.subject || !this.selectedSubject) {
+            this.selectedChapter = '';
+        }
+
         this.filters = {
             board: this.selectedBoard,
             standard: this.selectedStandard,
             subject: this.selectedSubject,
             chapter: this.selectedChapter
         };
-
-        // Repopulate dependent dropdowns
-        this.populateDropdowns(this.syllabusData);
-
-        // Reset lower levels if parent is cleared
-        if (!this.selectedBoard) {
-            this.selectedStandard = '';
-            this.selectedSubject = '';
-            this.selectedChapter = '';
-        }
-        if (!this.selectedStandard) {
-            this.selectedSubject = '';
-            this.selectedChapter = '';
-        }
-        if (!this.selectedSubject) {
-            this.selectedChapter = '';
-        }
-
+        this.loadFilterOptions();
         this.fetchMCQs();
     }
 

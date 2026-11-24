@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, getDocsFromServer, getCountFromServer, doc, getDoc, getDocFromServer, setDoc, runTransaction, increment, orderBy, startAfter, limit, QueryDocumentSnapshot } from '@angular/fire/firestore';
+import { Auth, User } from '@angular/fire/auth';
+import {
+    DocumentData, Firestore, Query, QueryConstraint, QueryDocumentSnapshot, QuerySnapshot, Timestamp,
+    collection, doc, getCountFromServer, getDoc, getDocFromServer, getDocs, getDocsFromServer,
+    increment, limit, orderBy, query, queryEqual, runTransaction, setDoc, startAfter, where
+} from '@angular/fire/firestore';
 import { SyllabusService, SyllabusItem } from './syllabus.service';
-import { Timestamp } from '@angular/fire/firestore';
 import { filter, firstValueFrom, timeout } from 'rxjs';
 import { normalizePracticeBoard } from './practice-context';
 import { canonicalIndex, canonicalQuestion, restorePresentation, presentQuestion, validOrder } from './question-presentation';
@@ -15,6 +19,11 @@ export interface QuizCurriculumScope { board: string; standard: string; }
 })
 export class QuizService {
     private quizQuestions: any[] = [];
+    private questionReads: {
+        user: User;
+        request: Query<DocumentData>;
+        result: Promise<QuerySnapshot<DocumentData>>;
+    }[] = [];
     private pendingRetry: {
         questions: any[];
         context: RetryContext;
@@ -22,7 +31,8 @@ export class QuizService {
 
     constructor(
         private firestore: Firestore,
-        private syllabusService: SyllabusService
+        private syllabusService: SyllabusService,
+        private readonly auth: Auth
     ) { }
 
     setQuestions(questions: any[]) {
@@ -75,8 +85,10 @@ export class QuizService {
         const matchesScope = (item: SyllabusItem) => item.mcqCount > 0 && (!scope ||
             (normalizePracticeBoard(item.board) === board && String(item.standard).trim() === standard));
 
-        // syllabus$ starts with a placeholder []; wait for an actual catalogue snapshot.
-        const snapshot = await firstValueFrom(this.syllabusService.snapshots$.pipe(
+        const chapters = scope
+            ? this.syllabusService.watchScope(board, standard, { includeBoardAliases: true })
+            : this.syllabusService.watchCatalogue();
+        const snapshot = await firstValueFrom(chapters.pipe(
             filter(snapshot => !snapshot.fromCache || snapshot.items.some(matchesScope)),
             timeout({ first: 15_000 })
         ));
@@ -86,35 +98,57 @@ export class QuizService {
             : 'No chapters with MCQs found.');
 
         const selected = eligible[Math.floor(Math.random() * eligible.length)];
-        const questions = await this.fetchCurriculumQuestions(selected.board, String(selected.standard), [
+        return this.fetchCurriculumQuestions(selected.board, String(selected.standard), 'quick', 10, [
             where('subject', '==', selected.subject), where('chapter', '==', selected.chapter)
         ]);
-        return this.shuffleQuestions(questions).slice(0, 10);
     }
 
-    private async fetchCurriculumQuestions(board: string, standard: string, constraints: any[]): Promise<any[]> {
+    private async fetchCurriculumQuestions(
+        board: string, standard: string, mode: 'quick' | 'custom', count: number, constraints: QueryConstraint[]
+    ): Promise<any[]> {
+        const user = this.auth.currentUser;
         const normalized = normalizePracticeBoard(board);
         // Query each historical alias separately: another `in` would multiply the
         // custom subject/chapter disjunctions and can exceed Firestore's query limit.
         const boards = normalized === 'IGCSE' ? ['IGCSE', 'Cambridge IGCSE'] : [normalized];
-        const snapshots = await Promise.all(boards.map(value => getDocs(query(
+        const requests = boards.map(value => query(
             collection(this.firestore, 'questions'), where('board', '==', value),
             where('standard', '==', standard), ...constraints
-        ))));
-        const questions = new Map<string, any>();
-        snapshots.forEach(snapshot => snapshot.docs.forEach(item => questions.set(item.id, {
+        ));
+        const snapshots = await Promise.all(requests.map(request => this.readQuizQuestionScope(request, user, mode)));
+        if (user !== this.auth.currentUser) throw new Error('auth-changed');
+        const byId = new Map<string, QueryDocumentSnapshot<DocumentData>>();
+        snapshots.forEach(snapshot => snapshot.docs.forEach(item => byId.set(item.id, item)));
+        // Sample the complete eligible scope so document ID order never influences selection.
+        const questions = [...byId.values()];
+        for (let i = questions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [questions[i], questions[j]] = [questions[j], questions[i]];
+        }
+        return questions.slice(0, count).map(item => ({
             ...item.data(), id: item.id, selectedIndex: null
-        })));
-        return [...questions.values()];
+        }));
     }
 
-    private shuffleQuestions(questions: any[]): any[] {
-        const shuffled = [...questions];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
+    private readQuizQuestionScope(
+        request: Query<DocumentData>, user: User | null, mode: 'quick' | 'custom'
+    ): Promise<QuerySnapshot<DocumentData>> {
+        const pending = this.questionReads.find(read => read.user === user && queryEqual(read.request, request));
+        if (pending) return pending.result;
+
+        // Leave freshness and offline fallback with the SDK. Share only the
+        // in-flight load, and independently shuffle for every new quiz.
+        const result = getDocs(request).then(snapshot => {
+            console.debug('[firestore-read]', {
+                scope: 'quiz-questions', mode, source: snapshot.metadata.fromCache ? 'cache' : 'server',
+                resultCount: snapshot.size
+            });
+            return snapshot;
+        }).finally(() => {
+            this.questionReads = this.questionReads.filter(read => read.result !== result);
+        });
+        if (user) this.questionReads.push({ user, request, result });
+        return result;
     }
 
     /**
@@ -133,8 +167,7 @@ export class QuizService {
         const constraints = [];
         if (selectedSubjects.length) constraints.push(where('subject', 'in', selectedSubjects));
         if (selectedChapters.length) constraints.push(where('chapter', 'in', selectedChapters));
-        const questions = await this.fetchCurriculumQuestions(normalized, classValue, constraints);
-        return this.shuffleQuestions(questions).slice(0, questionCount);
+        return this.fetchCurriculumQuestions(normalized, classValue, 'custom', questionCount, constraints);
     }
 
     /** Save canonical answer indices; optionOrder retains the attempt's display order. */

@@ -9,6 +9,7 @@ import { QuestionOperationsRepository, type ScopeCounts } from '../core/question
 import { SyllabusItem } from '../core/models';
 import { AuthService } from '../../../services/auth.service';
 import { AdminUsageService } from '../../../services/admin-usage.service';
+import { SyllabusService } from '../../../services/syllabus.service';
 
 @Component({selector:'app-question-library',standalone:true,imports:[FormsModule,RouterLink,QuestionModuleHeaderComponent],templateUrl:'./question-library.page.html'})
 export class QuestionLibraryPage implements OnInit, OnDestroy {
@@ -17,23 +18,71 @@ export class QuestionLibraryPage implements OnInit, OnDestroy {
   loading=signal(false);busy=signal(false);error=signal('');message=signal('');next=signal<string|null>(null);selection=signal(new Set<string>());confirmArchive=false;
   editing:LibraryQuestion|null=null;editorOpen=false;answer='';optionsText='';edits:LibraryEdits=this.blank();label=typeLabel;
   private generation=0;
+  private boardSubscription?:Subscription;
+  private standardSubscription?:Subscription;
   private catalogueSubscription?:Subscription;
   private bankSubscription?:Subscription;
-  boards=computed(()=>this.unique(this.scopes().map(s=>s.board)));
-  standards=computed(()=>this.unique(this.scopes().filter(s=>s.board===this.board()).map(s=>s.standard)));
+  boards=signal<string[]>([]);
+  standards=signal<string[]>([]);
   subjects=computed(()=>this.unique(this.scopes().filter(s=>s.board===this.board()&&s.standard===this.standard()).map(s=>s.subject)));
   chapters=computed(()=>{const result=new Map<string,SyllabusItem>();for(const scope of this.scopes().filter(s=>s.board===this.board()&&s.standard===this.standard()&&s.subject===this.subject()).sort((a,b)=>a.id.localeCompare(b.id)))if(!result.has(scope.chapter))result.set(scope.chapter,scope);return [...result.values()].sort((a,b)=>a.chapter.localeCompare(b.chapter));});
   types=computed(()=>this.unique(this.rows().map(q=>q.questionType)));
   visible=computed(()=>this.rows().filter(q=>(this.type()==='all'||q.questionType===this.type())&&(!this.search()||q.question.toLowerCase().includes(this.search().toLowerCase()))));
   allSelected=computed(()=>this.visible().length>0&&this.visible().every(q=>this.selection().has(q.id)));
-  constructor(private readonly paper:QuestionPaperRepository,private readonly library:QuestionLibraryRepository,private readonly operations:QuestionOperationsRepository,private readonly auth:AuthService,private readonly usage:AdminUsageService){}
-  ngOnInit():void {this.loading.set(true);this.catalogueSubscription=this.paper.syllabusUpdates().subscribe({next:scopes=>{
-    this.scopes.set(scopes);if(!this.board()){this.board.set(this.boards().includes(this.auth.profile()?.board)?this.auth.profile().board:this.boards()[0]??'');this.changeBoard();}
-    if(!scopes.length)this.loading.set(false);
-  },error:e=>{this.fail(e);this.loading.set(false);}});}
-  ngOnDestroy():void {this.generation++;this.catalogueSubscription?.unsubscribe();this.bankSubscription?.unsubscribe();}
-  changeBoard():void{this.standard.set(this.standards()[0]??'');this.changeStandard();}
-  changeStandard():void{this.subject.set(this.subjects()[0]??'');this.changeSubject();}
+  constructor(private readonly paper:QuestionPaperRepository,private readonly library:QuestionLibraryRepository,private readonly operations:QuestionOperationsRepository,private readonly auth:AuthService,private readonly usage:AdminUsageService,private readonly syllabus:SyllabusService){}
+  ngOnInit():void {
+    this.loading.set(true);
+    this.boardSubscription=this.syllabus.boards().subscribe({
+      next:boards=>{
+        this.boards.set(this.unique(boards));
+        if(this.boards().includes(this.board()))return;
+        const preferred=this.auth.profile()?.board;
+        this.board.set(this.boards().includes(preferred)?preferred:this.boards()[0]??'');
+        this.changeBoard();
+      },
+      error:e=>{this.fail(e);this.loading.set(false);}
+    });
+  }
+  ngOnDestroy():void {
+    this.generation++;
+    this.boardSubscription?.unsubscribe();
+    this.standardSubscription?.unsubscribe();
+    this.catalogueSubscription?.unsubscribe();
+    this.bankSubscription?.unsubscribe();
+  }
+  changeBoard():void {
+    this.standardSubscription?.unsubscribe();
+    this.standards.set([]);
+    this.standard.set('');
+    this.changeStandard();
+    if(!this.board())return;
+    this.loading.set(true);
+    this.standardSubscription=this.syllabus.standards(this.board()).subscribe({
+      next:standards=>{
+        this.standards.set(this.unique(standards));
+        this.standard.set(this.standards()[0]??'');
+        this.changeStandard();
+      },
+      error:e=>{this.fail(e);this.loading.set(false);}
+    });
+  }
+  changeStandard():void {
+    this.catalogueSubscription?.unsubscribe();
+    this.scopes.set([]);
+    this.subject.set('');
+    this.changeSubject();
+    if(!this.board()||!this.standard())return;
+    this.loading.set(true);
+    this.catalogueSubscription=this.paper.syllabusUpdates(this.board(),this.standard()).subscribe({
+      next:scopes=>{
+        this.scopes.set(scopes);
+        const selected=this.scope();
+        if(!this.subjects().includes(this.subject()))this.subject.set(this.subjects()[0]??'');
+        if(!selected||!this.chapters().some(chapter=>chapter.id===selected.id))this.changeSubject();
+      },
+      error:e=>{this.fail(e);this.loading.set(false);}
+    });
+  }
   changeSubject():void{void this.openChapter(this.chapters()[0]?.id??'');}
   async openChapter(id:string):Promise<void>{this.bankSubscription?.unsubscribe();const scope=this.chapters().find(s=>s.id===id)??null;this.scope.set(scope);this.counts.set(null);this.closeEditor();++this.generation;
     if(!scope){this.rows.set([]);this.next.set(null);this.loading.set(false);return;}

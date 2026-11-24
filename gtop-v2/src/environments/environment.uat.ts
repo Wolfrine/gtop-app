@@ -3,7 +3,7 @@ export const environment = {
   uat: true,
   version: 'uat',
   googleOneTapClientId: '120622375082-4161ki3qobd7mc4m2as3e19qb0ef3dkh.apps.googleusercontent.com',
-  googleOneTapEnabled: true,
+  googleOneTapEnabled: false,
   analyticsMeasurementId: 'G-JKGH6JKDHJ',
   analyticsEnabled: false,
   firebase: {

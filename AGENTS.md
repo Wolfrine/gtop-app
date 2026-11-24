@@ -82,6 +82,7 @@ If the user does not provide these explicitly, infer conservative defaults from 
 
 ## Deployment Rules
 
+- Follow [the Firestore engineering standard](docs/engineering/firestore-efficiency.md) for data access, development isolation, and read-budget evidence across GTOP and GT Papers.
 - GitHub Actions deploy on every push.
 - `main` deploys `prod-gtop-app`.
 - any non-`main` branch deploys `dev-gtop-app`.

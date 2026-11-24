@@ -8,7 +8,8 @@
   <div class="qb-scope-search">
     <label for="qb-scope">Find any syllabus chapter</label>
     <input id="qb-scope" type="search" placeholder="Search board, class, subject or chapter"
-      [ngModel]="scopeSearch()" (ngModelChange)="scopeSearch.set($event)" autocomplete="off" />
+      [ngModel]="scopeSearch()" (ngModelChange)="searchSyllabus($event)" autocomplete="off" />
+    @if (syllabusSearchLoading() && scopeSearch().trim().length > 1) { <p class="qb-muted" role="status">Loading syllabus chapters…</p> }
     @if (scopeMatches().length) {
       <div class="qb-suggestions" aria-label="Syllabus matches">
         @for (scope of scopeMatches(); track scope.id) {
@@ -33,7 +34,7 @@
           <option value="blocked">Blocked</option><option value="paused">Paused</option><option value="done">Complete</option>
         </select>
       </div>
-      @if (loading() && !priorities().length) { <p class="qb-muted">Loading priorities and syllabus…</p> }
+      @if (loading() && !priorities().length) { <p class="qb-muted">Loading priorities…</p> }
       @if (!loading() && !filteredPriorities().length) {
         <p class="qb-empty">No priorities match this view. Search for a syllabus chapter above to set one.</p>
       }

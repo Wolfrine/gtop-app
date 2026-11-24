@@ -12,9 +12,15 @@ import {
 import { environment } from '../../environments/environment';
 import { PersistenceState } from './models';
 
-const useEmulators =
-  typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('emulator');
-const app = initializeApp(environment.firebase);
+const productionOrigins = new Set([
+  'https://gtop.growthtutorials.in',
+  'https://gtop-app.web.app',
+  'https://gtop-app.firebaseapp.com',
+]);
+const useEmulators = !environment.production || environment.uat || !productionOrigins.has(location.origin);
+const app = initializeApp(useEmulators
+  ? { projectId: 'demo-gtop-assistant', apiKey: 'demo-key', authDomain: 'localhost' }
+  : environment.firebase);
 const auth = getAuth(app);
 const firestore = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),

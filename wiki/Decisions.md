@@ -124,8 +124,13 @@ Rendered desktop and phone inspection is an explicit quality requirement. Build 
 
 GTOP should study what students may expect from education products over the next decade and use that thinking to shape product bets. This is a strategic direction, not a wiki todo list or a commitment to any specific AI feature.
 
+## Keep Classroom Work Fast and Development Isolated
+
+Practice and paper workflows should load what a learner or teacher needs for the current task. Faster loading must preserve the full eligible question pool, the ability to return to older work, and access to previously available offline work. Development uses isolated classroom data. Role boundaries and canonical academic records continue to apply as delivery changes.
+
 ## Source Notes
 
+- `raw/2026-11-24-firestore-efficiency-correction.md`
 - `raw/2026-10-24-post-mvp-paper-library.md`
 - `raw/2026-10-24-conversational-paper-pilot-approval.md`
 

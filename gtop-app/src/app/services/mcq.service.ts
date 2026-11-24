@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, query, where, orderBy, limit, getDocs, doc, updateDoc, deleteDoc, setDoc, addDoc, startAfter, serverTimestamp, getCountFromServer, collectionSnapshots, writeBatch, onSnapshot, getDoc } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, orderBy, limit, getDocs, doc, updateDoc, deleteDoc, setDoc, addDoc, startAfter, serverTimestamp, getCountFromServer, collectionSnapshots, writeBatch, onSnapshot, getDoc, runTransaction } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Observable, map } from 'rxjs';
 import { SyllabusService } from './syllabus.service';
@@ -166,52 +166,6 @@ export class McqService {
 
 
 
-    async fetchQuickQuizQuestions(): Promise<any[]> {
-        return new Promise((resolve, reject) => {
-            this.syllabusService.syllabus$.subscribe(async (syllabusData: any[]) => {
-                try {
-                    // Filter chapters with at least 1 MCQ
-                    const validChapters = syllabusData.filter(item => item.mcqCount > 0);
-                    if (validChapters.length === 0) {
-                        reject('No chapters with MCQs found.');
-                        return;
-                    }
-
-                    // Pick random chapter
-                    const randomIndex = Math.floor(Math.random() * validChapters.length);
-                    const selected = validChapters[randomIndex];
-
-                    // Firestore Query
-                    const chapterQuery = query(
-                        this.mcqCollection,
-                        where('board', '==', selected.board),
-                        where('standard', '==', selected.standard),
-                        where('subject', '==', selected.subject),
-                        where('chapter', '==', selected.chapter)
-                    );
-
-                    // OnSnapshot fetch + unsubscribe immediately
-                    const unsubscribe = onSnapshot(chapterQuery, (snapshot) => {
-                        let mcqs = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data(),
-                            selectedIndex: null
-                        }));
-
-                        unsubscribe(); // ✅ Unsubscribe immediately!
-
-                        // Shuffle & return
-                        mcqs = mcqs.sort(() => 0.5 - Math.random());
-                        resolve(mcqs.slice(0, 10));
-                    });
-
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        });
-    }
-
     /**
      * ✅ Fetch Custom Quiz Questions based on selected subjects & chapters.
      */
@@ -292,20 +246,18 @@ export class McqService {
             await deleteDoc(mcqRef);
 
             // ✅ Update Syllabus Count
-            await this.syllabusService.updateMcqCountForCombo(board, standard, subject, chapter);
-
-            // 🔁 Check if count is now zero → delete syllabus combo
-            const currentCombo = this.syllabusService.syllabus$.value.find(item =>
-                item.board === board &&
-                item.standard === standard &&
-                item.subject === subject &&
-                item.chapter === chapter
-            );
-
-            if (currentCombo?.id && currentCombo.mcqCount === 0) {
-                const syllabusDocRef = doc(this.firestore, `syllabus/${currentCombo.id}`);
-                await deleteDoc(syllabusDocRef);
-                console.log(`🗑 Syllabus combo removed: ${board} > ${standard} > ${subject} > ${chapter}`);
+            const refreshed = await this.syllabusService.updateMcqCountForCombo(board, standard, subject, chapter);
+            if (refreshed?.count === 0) {
+                const syllabusRef = doc(this.firestore, 'syllabus', refreshed.id);
+                await runTransaction(this.firestore, async transaction => {
+                    const syllabus = await transaction.get(syllabusRef);
+                    const current = syllabus.data();
+                    if (current?.['mcqCount'] === 0 && current['board'] === board
+                        && String(current['standard']) === String(standard)
+                        && current['subject'] === subject && current['chapter'] === chapter) {
+                        transaction.delete(syllabusRef);
+                    }
+                });
             }
         }
     }

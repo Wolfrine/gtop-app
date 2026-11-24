@@ -5,7 +5,7 @@ import {
   type DocumentData, type QueryDocumentSnapshot,
 } from '@angular/fire/firestore';
 import { FirebaseClient } from './firebase';
-import { SyllabusService } from '../../../services/syllabus.service';
+import { SyllabusService, type SyllabusItem as CatalogueItem } from '../../../services/syllabus.service';
 import { FirestoreReadService } from '../../../services/firestore-read.service';
 import { filter, firstValueFrom, map } from 'rxjs';
 import { SyllabusItem } from './models';
@@ -23,15 +23,25 @@ export * from './question-paper.domain';
 export class QuestionPaperRepository {
   constructor(private readonly firebase: FirebaseClient, private readonly catalogue: SyllabusService, private readonly reads: FirestoreReadService) {}
 
-  async syllabus(): Promise<SyllabusItem[]> {
-    return firstValueFrom(this.syllabusUpdates());
+  async syllabus(board?: string, standard?: string): Promise<SyllabusItem[]> {
+    return board && standard ? firstValueFrom(this.syllabusUpdates(board, standard)) : this.sortedSyllabus(await this.catalogue.readCatalogue());
   }
 
-  syllabusUpdates() {
-    return this.catalogue.snapshots$.pipe(filter(state => !state.fromCache || state.items.length > 0), map(state => state.items
+  async syllabusItem(id: string, scope?: Pick<SyllabusItem, 'board' | 'standard' | 'subject' | 'chapter'>): Promise<SyllabusItem | null> {
+    const item = await this.catalogue.item(id, scope);
+    return item?.id && item.board && item.standard && item.subject && item.chapter ? { ...item, id: item.id } : null;
+  }
+
+  syllabusUpdates(board?: string, standard?: string) {
+    const snapshot = board && standard ? this.catalogue.watchScope(board, standard) : this.catalogue.watchCatalogue();
+    return snapshot.pipe(filter(state => !state.fromCache || state.items.length > 0), map(state => this.sortedSyllabus(state.items)));
+  }
+
+  private sortedSyllabus(items: CatalogueItem[]): SyllabusItem[] {
+    return items
       .filter(item => item.id && item.board && item.standard && item.subject && item.chapter)
       .map(item => ({ ...item, id: item.id!, standard: String(item.standard) }))
-      .sort((a,b) => `${a.board}|${a.standard}|${a.subject}|${a.chapter}`.localeCompare(`${b.board}|${b.standard}|${b.subject}|${b.chapter}`))));
+      .sort((a,b) => `${a.board}|${a.standard}|${a.subject}|${a.chapter}`.localeCompare(`${b.board}|${b.standard}|${b.subject}|${b.chapter}`));
   }
 
   async templates(): Promise<QuestionPaperTemplate[]> {

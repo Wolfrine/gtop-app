@@ -344,3 +344,7 @@ Processed `raw/2026-11-20-student-paper-checking.md` into `wiki/Users.md`. A tea
 ### 2026-11-23 - Student-submitted handwritten answer sheets
 
 Processed `raw/2026-11-23-student-submitted-answer-sheets.md` into `wiki/Users.md`. Captured the student upload path, teacher approval, and private handback. Implementation and teacher workload verification are tracked in the GTOP Action Plan.
+
+### 2026-11-24 - Firestore load and classroom data isolation
+
+Processed `raw/2026-11-24-firestore-efficiency-correction.md` into `wiki/Decisions.md`. Recorded the demand-led loading and development isolation decision, with full question eligibility, saved history, offline access and permissions retained. The RCA left individual burst attribution unresolved. Execution, evidence and remaining gates belong to Action Plan `UYM9i7n8yMoVHfz3t3ZU` and `docs/engineering/firestore-efficiency.md`.

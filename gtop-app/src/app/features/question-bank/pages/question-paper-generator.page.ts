@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { QuestionModuleHeaderComponent } from './question-module-header.component';
 import { AdminUsageService } from '../../../services/admin-usage.service';
@@ -8,6 +8,7 @@ import { AuthService } from '../../../services/auth.service';
 import { PAPER_EXAMPLES, type PaperExample } from '../core/question-paper.examples';
 import { SyllabusItem } from '../core/models';
 import { CurriculumService } from '../../../services/curriculum.service';
+import { SyllabusService } from '../../../services/syllabus.service';
 import { applicableChapters, currentAcademicYear, type AssessmentPurpose, type CurriculumSubject, type CurriculumSeed } from '../../../services/curriculum.domain';
 import {
   buildGenerationRules, chapterKey, createPaperPlan, paperPrintHtml, ruleMarks, resizeGenerationRules,
@@ -95,11 +96,11 @@ import {
             <label>Board<select [hidden]="customContext" aria-label="Board" [(ngModel)]="board" (ngModelChange)="onBoardChange()">
               <option value="">Select board</option>
               @for (item of boardOptions; track item) { <option [value]="item">{{ item }}</option> }
-            </select>@if(customContext){<input aria-label="Board name" [(ngModel)]="board" (ngModelChange)="onBoardChange()" />}</label>
+            </select>@if(customContext){<input aria-label="Board name" [(ngModel)]="board" (change)="onBoardChange()" />}</label>
             <label>Standard<select [hidden]="customContext" aria-label="Standard" [(ngModel)]="standard" (ngModelChange)="onStandardChange()">
               <option value="">Select standard</option>
               @for (item of standardOptions; track item) { <option [value]="item">{{ item }}</option> }
-            </select>@if(customContext){<input aria-label="Standard name" [(ngModel)]="standard" (ngModelChange)="onStandardChange()" />}</label>
+            </select>@if(customContext){<input aria-label="Standard name" [(ngModel)]="standard" (change)="onStandardChange()" />}</label>
             <label>Marks<input type="number" min="1" max="2000" [(ngModel)]="marks" (change)="onMarksChange()" /></label>
             <label>Duration minutes<input type="number" min="1" max="360" [(ngModel)]="durationMinutes" (ngModelChange)="onSetupChange()" /></label>
           </div>
@@ -332,6 +333,10 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
   private resumedScopes:ChapterScope[]|null=null;
   private resumedResolved=false;
   private catalogueSubscriptions=new Subscription();
+  private classOptionsSubscription?: Subscription;
+  private chapterOptionsSubscription?: Subscription;
+  private legacyBoards: string[] = [];
+  private legacyClasses: string[] = [];
 
   constructor(
     private readonly papers: QuestionPaperRepository,
@@ -340,9 +345,9 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     private readonly changeDetector: ChangeDetectorRef,
     private readonly route: ActivatedRoute,
     private readonly usage: AdminUsageService,
+    private readonly legacySyllabus: SyllabusService,
   ) {}
   async ngOnInit(): Promise<void> {
-    this.catalogueSubscriptions.add(this.papers.syllabusUpdates().subscribe({next:items=>{this.syllabus=items;this.changeDetector.markForCheck();},error:error=>{this.errorMessage=this.message(error);this.changeDetector.markForCheck();}}));
     this.catalogueSubscriptions.add(this.papers.templateUpdates().subscribe({next:items=>{this.templates=items;this.changeDetector.markForCheck();},error:()=>{this.templateWarning='Paper templates could not be updated. Reconnect and refresh.';this.changeDetector.markForCheck();}}));
     if (typeof window !== 'undefined') {
       this.viewportQuery = window.matchMedia('(max-width: 640px)');
@@ -354,7 +359,12 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     if(params.get('draftId'))await this.openDraft(params.get('draftId')!);
     else if(params.get('requestId'))await this.resumeRequest(params.get('requestId')!);
   }
-  ngOnDestroy(): void { this.catalogueSubscriptions.unsubscribe();this.viewportQuery?.removeEventListener('change', this.onViewportChange); }
+  ngOnDestroy(): void {
+    this.catalogueSubscriptions.unsubscribe();
+    this.classOptionsSubscription?.unsubscribe();
+    this.chapterOptionsSubscription?.unsubscribe();
+    this.viewportQuery?.removeEventListener('change', this.onViewportChange);
+  }
   get selectedFormatTitle(): string { return this.paperFormatOptions.find((format) => format.id === this.templateId)?.title ?? this.selectedTemplate?.title ?? 'Saved format'; }
   get filteredChapterCount(): number { return this.chapterOptions.filter((scope) => `${scope.subject} ${scope.chapter}`.toLocaleLowerCase().includes(this.chapterSearch.trim().toLocaleLowerCase())).length; }
   get visibleChapterOptions(): (ChapterScope & { id: string })[] {
@@ -387,8 +397,8 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     if (!this.isCompactViewport) return;
     requestAnimationFrame(() => document.querySelector('.qpg-journey')?.scrollIntoView({ block: 'start', behavior: 'auto' }));
   }
-  get boardOptions(): string[] { return this.unique([...this.syllabus.map(item => item.board), ...(this.catalogueSeed?.boards.map(item => item.board) ?? []), ...this.curriculum.map(item => item.board)]); }
-  get standardOptions(): string[] { return this.unique([...this.syllabus.filter(item => item.board === this.board).map(item => item.standard), ...(this.catalogueSeed?.boards.find(item => item.board === this.board)?.standards ?? []), ...this.curriculum.filter(item => item.board === this.board).map(item => item.standard)]); }
+  get boardOptions(): string[] { return this.unique([...this.legacyBoards, ...(this.catalogueSeed?.boards.map(item => item.board) ?? []), ...this.curriculum.map(item => item.board)]); }
+  get standardOptions(): string[] { return this.unique([...this.legacyClasses, ...(this.catalogueSeed?.boards.find(item => item.board === this.board)?.standards ?? []), ...this.curriculum.filter(item => item.board === this.board).map(item => item.standard)]); }
   get subjectOptions(): string[] { return this.unique([...this.syllabus.filter(item => item.board === this.board && item.standard === this.standard).map(item => item.subject), ...this.curriculum.filter(item => item.board === this.board && item.standard === this.standard).map(item => item.subject), ...(this.catalogueSeed?.subjects.filter(item => item.board === this.board && item.standard === this.standard).map(item => item.subject) ?? []), ...this.customSubjects]); }
   get selectedCurriculum(): CurriculumSubject[] { return this.curriculum.filter(item => item.board === this.board && item.standard === this.standard && item.academicYear === this.academicYear && this.subjects.includes(item.subject)); }
   get missingApprovedSubjects(): string[] { if(this.resumedScopes)return this.subjects.filter(subject=>!this.resumedScopes!.some(scope=>scope.subject===subject&&scope.curriculumVersionId)); return this.subjects.filter(subject => !this.selectedCurriculum.some(item => item.subject === subject)); }
@@ -505,16 +515,19 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     this.loading = true; this.loadingMessage = 'Loading syllabus and templates…'; this.errorMessage = ''; this.templateWarning = '';
     this.resetResults();
     try {
-      const [syllabus, templates] = await Promise.all([this.papers.syllabus(), this.papers.templates().catch(() => {
+      const [boards, templates] = await Promise.all([firstValueFrom(this.legacySyllabus.boards()), this.papers.templates().catch(() => {
         this.templateWarning = 'Paper templates are unavailable right now. You can still prepare and print a standard MCQ paper. Refresh to try loading templates again.';
         return [] as QuestionPaperTemplate[];
       })]);
-      this.syllabus = syllabus; this.templates = templates;
+      this.legacyBoards = boards; this.templates = templates;
       await this.loadCurriculum();
       this.requests = await this.papers.recentRequests().catch(() => []);
       const profile = this.auth.profile();
       if (!this.boardOptions.includes(this.board)) this.board = profile?.board && this.boardOptions.includes(profile.board) ? profile.board : this.boardOptions[0] ?? '';
+      this.legacyClasses = this.board ? await firstValueFrom(this.legacySyllabus.standards(this.board)) : [];
       if (!this.standardOptions.includes(this.standard)) this.standard = profile?.standard && this.standardOptions.includes(profile.standard) ? profile.standard : this.standardOptions[0] ?? '';
+      this.watchLegacyChapters();
+      if (this.board && this.standard) this.syllabus = await this.papers.syllabus(this.board, this.standard);
       this.subjects = this.subjects.filter((subject) => this.subjectOptions.includes(subject));
       this.chapters = this.chapters.filter((id) => this.chapterOptions.some((scope) => scope.id === id));
       if (this.templateId !== 'auto' && !this.selectedTemplate) {
@@ -530,8 +543,29 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     catch (error) { this.draftListError = `Saved papers could not be loaded. ${this.message(error)}`; }
     finally { this.changeDetector.markForCheck(); }
   }
-  onBoardChange(): void { this.customSubjects = []; this.customChapters = ''; this.standard = ''; this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.refreshRuleSubjects(); this.resetResults(); }
-  onStandardChange(): void { this.customSubjects = []; this.customChapters = ''; this.subjects = []; this.chapters = []; this.chapterSearch = ''; this.refreshRuleSubjects(); this.resetResults(); }
+  onBoardChange(): void { this.standard = ''; this.watchLegacyClasses(); this.onStandardChange(); }
+  onStandardChange(): void {
+    this.customSubjects = []; this.customChapters = ''; this.subjects = []; this.chapters = []; this.chapterSearch = '';
+    this.watchLegacyChapters(); this.refreshRuleSubjects(); this.resetResults();
+  }
+  private watchLegacyClasses(): void {
+    this.classOptionsSubscription?.unsubscribe();
+    this.legacyClasses = [];
+    if (!this.board) return;
+    this.classOptionsSubscription = this.legacySyllabus.standards(this.board).subscribe({
+      next: classes => { this.legacyClasses = classes; this.changeDetector.markForCheck(); },
+      error: error => { this.errorMessage = this.message(error); this.changeDetector.markForCheck(); }
+    });
+  }
+  private watchLegacyChapters(): void {
+    this.chapterOptionsSubscription?.unsubscribe();
+    this.syllabus = [];
+    if (!this.board || !this.standard) return;
+    this.chapterOptionsSubscription = this.papers.syllabusUpdates(this.board, this.standard).subscribe({
+      next: items => { this.syllabus = items; this.changeDetector.markForCheck(); },
+      error: error => { this.errorMessage = this.message(error); this.changeDetector.markForCheck(); }
+    });
+  }
   onTemplateChange(): void { this.showSampleAnswer = false; this.rebuildRules(); this.resetResults(); }
   onSetupChange(): void { this.resetResults(); }
   onMarksChange(): void {
@@ -626,6 +660,7 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
       this.resetResults();
       this.academicYear=request.academicYear??currentAcademicYear();this.scopeMode=request.scopeMode??'selected';this.assessmentPurpose=request.assessmentPurpose??'summative';
       this.board=request.board;this.standard=request.standard;this.subjects=[...request.subjects];this.customSubjects=[...request.subjects];
+      this.watchLegacyClasses();this.watchLegacyChapters();
       this.title=request.title;this.templateId=request.templateId;this.marks=request.marks;this.durationMinutes=request.durationMinutes;this.negativeMarking=request.negativeMarking;
       this.syllabusNotes=request.syllabusNotes??'';this.rules=structuredClone(request.rules);this.customChapters=request.scopeMode==='custom'?request.chapterScopes.map(scope=>scope.subject+' | '+scope.chapter).join('\n'):'';
       await this.loadCurriculum();this.chapters=request.chapterScopes.map(chapterKey);this.requestId=request.id;this.requestSaved=true;this.resumedScopes=structuredClone(request.chapterScopes);this.resumedResolved=request.syllabusResolved===true;this.priorityItemsCreated=request.prioritiesCreated===true;
@@ -641,6 +676,7 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
       this.academicYear = draft.academicYear ?? currentAcademicYear(); this.scopeMode = draft.scopeMode ?? 'selected'; this.assessmentPurpose = draft.assessmentPurpose ?? 'summative'; this.syllabusNotes = draft.syllabusNotes ?? '';
       this.customChapters = draft.scopeMode === 'custom' ? draft.chapterScopes.map(scope => `${scope.subject} | ${scope.chapter}`).join('\n') : '';
       this.board = draft.board; this.standard = draft.standard; this.subjects = [...draft.subjects];
+      this.watchLegacyClasses(); this.watchLegacyChapters();
       this.savedScopes = structuredClone(draft.chapterScopes); this.chapters = draft.chapterScopes.map(chapterKey);
       this.title = draft.title; this.templateId = draft.templateId; this.marks = draft.marks;
       this.durationMinutes = draft.durationMinutes; this.negativeMarking = draft.negativeMarking;

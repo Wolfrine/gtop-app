@@ -6,14 +6,13 @@ import { map,filter,switchMap,of } from 'rxjs';
 import { FirebaseClient } from './firebase';
 import { FirestoreReadService } from '../../../services/firestore-read.service';
 import { AuthService } from '../../../services/auth.service';
+import { paperGatewayUrl } from '../../../firebase-environment';
 import { QuestionPaperRepository } from './question-paper.repository';
 import { nextPaperRun,type PaperConversation,type PaperChatMessage,type PaperChatRequest,type ChatSavedPaper,type PaperNotification } from './paper-chat.models';
 
 @Injectable({providedIn:'root'})
 export class PaperChatRepository {
-  private readonly gateway=['127.0.0.1','localhost'].includes(window.location.hostname)&&new URLSearchParams(window.location.search).has('emulator')
-    ?'http://127.0.0.1:5001/gtop-app/us-central1/paperGateway'
-    :'https://us-central1-gtop-app.cloudfunctions.net/paperGateway';
+  private readonly gateway=paperGatewayUrl;
   constructor(private readonly client:FirebaseClient,private readonly reads:FirestoreReadService,private readonly auth:Auth,private readonly profile:AuthService,private readonly legacy:QuestionPaperRepository,private readonly push:SwPush){}
   private watch<T>(q:Query){return this.reads.watch(q).pipe(filter(snapshot=>!snapshot.metadata.fromCache||!snapshot.empty),map(snapshot=>snapshot.docs.map(item=>({...item.data(),id:item.id}) as T)));}
   conversations$(){return this.watch<PaperConversation>(query(collection(this.client.firestore,'paperConversations'),orderBy('updatedAt','desc'),limit(40)));}

@@ -45,6 +45,9 @@ export class QuestionBankWorkspacePage implements OnInit, OnDestroy {
   readonly target = signal(50);
   readonly matchingCoverage = signal<{approved:number;pending:number}|null>(null);
   private coverageVersion=0;
+  private scopeSelection=0;
+  private syllabusSearchStarted=false;
+  readonly syllabusSearchLoading=signal(false);
   private coverageRead:Promise<Record<string,{approved:number;pending:number}>>|null=null;
   private subscriptions=new Subscription();
   readonly urgency = signal('high');
@@ -102,22 +105,38 @@ export class QuestionBankWorkspacePage implements OnInit, OnDestroy {
         if (found) void this.selectPriority(found);
       }
     }));
-    this.subscriptions.add(this.paper.syllabusUpdates().subscribe({next:scopes=>this.syllabus.set(scopes),error:e=>this.error.set(this.messageFor(e))}));
     void this.load();
   }
-  ngOnDestroy():void{this.coverageVersion++;this.subscriptions.unsubscribe();}
+  ngOnDestroy():void{this.coverageVersion++;this.scopeSelection++;this.subscriptions.unsubscribe();}
+
+  searchSyllabus(value: string): void {
+    this.scopeSearch.set(value);
+    if (value.trim().length < 2 || this.syllabusSearchStarted) return;
+    this.syllabusSearchStarted = true;
+    this.syllabusSearchLoading.set(true);
+    this.subscriptions.add(this.paper.syllabusUpdates().subscribe({
+      next: scopes => { this.syllabus.set(scopes); this.syllabusSearchLoading.set(false); },
+      error: error => {
+        this.error.set(this.messageFor(error));
+        this.syllabusSearchLoading.set(false);
+        this.syllabusSearchStarted = false;
+      }
+    }));
+  }
 
   async load(): Promise<void> {
     if (this.loading()) return;
     this.loading.set(true); this.error.set('');
     try {
-      const [priorityPage, scopes] = await Promise.all([this.operations.priorities(undefined,50,this.route.snapshot.queryParamMap.get('requestId')??undefined), this.paper.syllabus()]);
+      const params = this.route.snapshot.queryParamMap;
+      const scopeId = params.get('syllabusId');
+      const [priorityPage, chapter] = await Promise.all([
+        this.operations.priorities(undefined, 50, params.get('requestId') ?? undefined),
+        scopeId ? this.paper.syllabusItem(scopeId) : Promise.resolve(null)
+      ]);
       this.priorities.set(priorityPage.items);
       this.morePriorities.set(priorityPage.nextCursor);
-      this.syllabus.set(scopes);
-      const requested = this.route.snapshot.queryParamMap.get('priorityId');
-      const scopeId=this.route.snapshot.queryParamMap.get('syllabusId');
-      const chapter=scopes.find(scope=>scope.id===scopeId);
+      const requested = params.get('priorityId');
       if(chapter){await this.selectScope(chapter);return;}
       const initial = (requested?await this.operations.priority(requested):null) ??
         priorityPage.items.find((item) => item.status === 'open') ?? priorityPage.items[0];
@@ -139,17 +158,28 @@ export class QuestionBankWorkspacePage implements OnInit, OnDestroy {
   }
 
   async selectPriority(item: PriorityItem): Promise<void> {
+    const selection = ++this.scopeSelection;
     this.selectedPriority.set(item); this.showDetail.set(true);
     this.target.set(item.requiredCount || 1000);
     this.urgency.set(item.priority);
     this.types.set(item.questionTypes.length ? item.questionTypes : ['mcq']);
-    const scope = this.syllabus().find((entry) => entry.id === item.sourceSyllabusId) ??
-      this.syllabus().find((entry) => entry.board === item.board && entry.standard === item.standard &&
-        entry.subject === item.subject && entry.chapter === item.chapter) ?? null;
+    this.detailLoading.set(true);
+    let scope: SyllabusItem | null;
+    try {
+      scope = await this.paper.syllabusItem(item.sourceSyllabusId, item);
+    } catch (error) {
+      if (selection === this.scopeSelection) {
+        this.detailError.set(this.messageFor(error));
+        this.detailLoading.set(false);
+      }
+      return;
+    }
+    if (selection !== this.scopeSelection) return;
     await this.openScope(scope, item);
   }
 
   async selectScope(scope: SyllabusItem): Promise<void> {
+    this.scopeSelection++;
     this.scopeSearch.set(''); this.selectedPriority.set(null); this.showDetail.set(true);
     const kind=this.route.snapshot.queryParamMap.get('questionKind');
     this.target.set(kind==='written'?20:50); this.urgency.set('high'); this.types.set(kind==='written'?['short_answer']:kind==='objective'?['mcq']:['mcq','short_answer']);

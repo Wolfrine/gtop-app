@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -27,10 +28,10 @@ import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
 export class ManageSyllabusComponent {
     syllabusData: { name: string; standards: any[] }[] = []; // Initialize empty
 
-    constructor(private router: Router, private syllabusService: SyllabusService) {
-        // Subscribe to syllabus observable
-        this.syllabusService.syllabus$.subscribe((syllabusItems) => {
-            this.organizeSyllabusData(syllabusItems);
+    constructor(private router: Router, private syllabusService: SyllabusService, destroyRef: DestroyRef) {
+        this.syllabusService.watchCatalogue().pipe(takeUntilDestroyed(destroyRef)).subscribe({
+            next: ({ items }) => this.organizeSyllabusData(items),
+            error: error => console.error('Unable to load the syllabus catalogue', error)
         });
     }
 

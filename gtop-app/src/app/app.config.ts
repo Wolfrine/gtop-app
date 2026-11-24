@@ -14,16 +14,9 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideDatabase, getDatabase, connectDatabaseEmulator } from '@angular/fire/database';
 import { INVITATION_PRESENTATION, INVITED_SOLO_READY } from './services/practice-invite.service';
 import { presentQuestion, restorePresentation, validOrder, canonicalIndex } from './services/question-presentation';
+import { emulatorProject, useEmulators } from './firebase-environment';
 
-// Local development can use isolated emulators. Hosted sites ignore the query parameter.
 const params = new URLSearchParams(window.location.search);
-const localHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-let useEmulators = localHost && params.has('emulator');
-// Keep the local emulator connection across route reloads.
-if (localHost) try {
-    if (useEmulators) sessionStorage.setItem('gtop.local-emulators', '1');
-    useEmulators ||= sessionStorage.getItem('gtop.local-emulators') === '1';
-} catch { /* The explicit localhost query remains sufficient if storage is unavailable. */ }
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -45,7 +38,9 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(),
 
         // Initialize Firebase App
-        provideFirebaseApp(() => initializeApp(firebaseConfig)),
+        provideFirebaseApp(() => initializeApp(useEmulators
+            ? { projectId: emulatorProject, apiKey: 'demo-key', authDomain: 'localhost' }
+            : firebaseConfig)),
 
         // Enable Firestore Persistence
         provideFirestore(() => {

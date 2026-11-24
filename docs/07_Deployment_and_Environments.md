@@ -6,8 +6,7 @@
 - `gtop-v2/`: Angular 21 application promoted through UAT before production.
 - `tools/gtop-mcp/`: audited agent and release interface for Firestore.
 
-Both applications use the Firebase project `gtop-app`. UAT uses the live backend,
-so application testing must respect the visible live-data warning.
+Production uses the Firebase project `gtop-app`. Development and UAT use the isolated emulator setup in the [Firestore engineering standard](engineering/firestore-efficiency.md).
 
 ## Local development
 

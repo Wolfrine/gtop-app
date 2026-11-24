@@ -12,6 +12,7 @@ import { Firestore, doc, setDoc, getDoc, onSnapshot } from '@angular/fire/firest
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest, filter, map, take, firstValueFrom } from 'rxjs';
 import { ActiveUsersService } from './active-users.service';
+import { useEmulators } from '../firebase-environment';
 
 declare global {
     interface Window {
@@ -66,7 +67,7 @@ export class AuthService {
     }
 
     initGoogleOneTap() {
-        if (this.oneTapInitialized || this.userSubject.value) {
+        if (useEmulators || this.oneTapInitialized || this.userSubject.value) {
             console.log('Skipping One Tap: Already initialized or user logged in.');
             return;
         }
@@ -74,18 +75,13 @@ export class AuthService {
 
         this.loadGoogleScript().then(() => {
             if (window.google?.accounts) {
-                const isLocalhost = window.location.hostname === 'localhost';
-                if (!isLocalhost) {
-                    window.google.accounts.id.initialize({
-                        client_id: this.googleClientId,
-                        callback: (response: { credential: string }) => this.handleCredentialResponse(response),
-                        auto_select: true,
-                        cancel_on_tap_outside: false
-                    });
-                    window.google.accounts.id.prompt();
-                } else {
-                    console.warn("One Tap is disabled in localhost. Use popup login instead.");
-                }
+                window.google.accounts.id.initialize({
+                    client_id: this.googleClientId,
+                    callback: (response: { credential: string }) => this.handleCredentialResponse(response),
+                    auto_select: true,
+                    cancel_on_tap_outside: false
+                });
+                window.google.accounts.id.prompt();
             }
         }).catch((error) => {
             console.error('Google One Tap failed to initialize:', error);

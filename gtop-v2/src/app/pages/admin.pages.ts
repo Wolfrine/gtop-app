@@ -737,7 +737,7 @@ export class QuestionBankPage implements OnInit {
   }
   async remove(q: Question) {
     const warning = environment.uat
-      ? 'UAT IS USING LIVE DATA. This retires a production question.'
+      ? 'This retires the question in the emulator.'
       : 'Retire this question?';
     const confirmed = environment.uat
       ? await this.dialog.prompt({
@@ -844,7 +844,7 @@ export class QuestionBankPage implements OnInit {
       !(await this.dialog.confirm({
         title: `Import ${this.validImports()} questions?`,
         message:
-          'These validated questions will be written to live production data and syllabus counts will be refreshed.',
+          'These validated questions will be written to the emulator and syllabus counts will be refreshed.',
         confirmLabel: 'Import questions',
       }))
     )
@@ -1131,7 +1131,7 @@ export class SyllabusAdminPage implements OnInit {
       !(await this.dialog.confirm({
         title: 'Save syllabus change?',
         message:
-          'UAT uses live production data. Linked questions may be updated when hierarchy values change.',
+          'Linked questions in the emulator may be updated when hierarchy values change.',
         confirmLabel: 'Save change',
       }))
     )
@@ -1173,7 +1173,7 @@ export class SyllabusAdminPage implements OnInit {
       !(await this.dialog.confirm({
         title: 'Publish syllabus preview?',
         message:
-          'The prepared new, changed, existing, and absent states will be published using live production data.',
+          'The prepared new, changed, existing, and absent states will be published to the emulator.',
         confirmLabel: 'Publish preview',
       }))
     )

@@ -49,8 +49,11 @@ export class QuizRunLandingComponent implements OnInit, OnDestroy {
   chapters: string[] = [];
 
   private syllabus: SyllabusItem[] = [];
+  private boardsSub?: Subscription;
+  private standardsSub?: Subscription;
+  private scopeSub?: Subscription;
+  private readonly formSubscriptions = new Subscription();
   private userSub?: Subscription;
-  private syllabusSub?: Subscription;
   currentUser: any;
 
   constructor(
@@ -78,25 +81,28 @@ export class QuizRunLandingComponent implements OnInit, OnDestroy {
     });
 
     this.userSub = this.auth.user$.subscribe(user => {
+      const previousUid = this.currentUser?.uid;
       this.currentUser = user;
-      if (user && (!this.createForm.value.board || !this.createForm.value.standard)) {
-        this.patchUserDefaults();
+      if (previousUid === user?.uid) {
+        if (user?.board && user.standard && !this.createForm.value.standard) {
+          this.createForm.patchValue({ board: user.board, standard: String(user.standard) }, { emitEvent: false });
+          this.onBoardChange(user.board, false);
+        }
+        return;
       }
+      this.stopSyllabus();
+      this.createForm.patchValue({ board: user?.board || '', standard: String(user?.standard || '') }, { emitEvent: false });
+      if (user?.uid) this.loadBoards();
     });
-
-    this.syllabusSub = this.syllabusService.syllabus$.subscribe(list => {
-      this.syllabus = list || [];
-      this.refreshBoards();
-    });
-
-    this.createForm.get('board')?.valueChanges.subscribe(board => this.onBoardChange(board));
-    this.createForm.get('standard')?.valueChanges.subscribe(std => this.onStandardChange(std));
-    this.createForm.get('subjects')?.valueChanges.subscribe(subs => this.onSubjectsChange(subs));
+    this.formSubscriptions.add(this.createForm.get('board')?.valueChanges.subscribe(board => this.onBoardChange(board)));
+    this.formSubscriptions.add(this.createForm.get('standard')?.valueChanges.subscribe(standard => this.onStandardChange(standard)));
+    this.formSubscriptions.add(this.createForm.get('subjects')?.valueChanges.subscribe(subjects => this.onSubjectsChange(subjects)));
   }
 
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
-    this.syllabusSub?.unsubscribe();
+    this.stopSyllabus();
+    this.formSubscriptions.unsubscribe();
   }
 
   async generateQuestions(): Promise<void> {
@@ -215,50 +221,75 @@ export class QuizRunLandingComponent implements OnInit, OnDestroy {
     return this.generatedQuestions.length;
   }
 
-  private patchUserDefaults() {
-    const board = this.currentUser?.board || '';
-    const standard = this.currentUser?.standard || '';
-    this.createForm.patchValue({ board, standard }, { emitEvent: false });
-    this.refreshBoards();
+  private loadBoards(): void {
+    this.boardsSub = this.syllabusService.boards().subscribe({
+      next: boards => {
+        this.boards = [...boards].sort();
+        const board = this.createForm.value.board || this.currentUser?.board || this.boards[0] || '';
+        this.createForm.patchValue({ board }, { emitEvent: false });
+        this.onBoardChange(board, false);
+      },
+      error: error => console.error('Unable to load boards', error)
+    });
   }
 
-  private refreshBoards() {
-    const boards = this.syllabus.map(item => item.board);
-    this.boards = Array.from(new Set(boards)).sort();
-    const board = this.createForm.value.board || this.currentUser?.board || this.boards[0] || '';
-    this.createForm.patchValue({ board }, { emitEvent: false });
-    this.onBoardChange(board, false);
-  }
-
-  private onBoardChange(board: string, reset = true) {
-    const standards = this.syllabus
-      .filter(item => !board || item.board === board)
-      .map(item => item.standard);
-    this.standards = Array.from(new Set(standards)).sort();
-    const nextStandard = reset ? (this.currentUser?.standard || this.standards[0] || '') : (this.createForm.value.standard || '');
-    this.createForm.patchValue({ standard: nextStandard }, { emitEvent: false });
-    this.onStandardChange(nextStandard);
-  }
-
-  private onStandardChange(standard: string) {
-    const board = this.createForm.value.board;
-    const subjects = this.syllabus
-      .filter(item => (!board || item.board === board) && (!standard || item.standard === standard))
-      .map(item => item.subject);
-    this.subjects = Array.from(new Set(subjects)).sort();
-    this.createForm.patchValue({ subjects: [], chapters: [] }, { emitEvent: false });
+  private stopSyllabus(): void {
+    this.boardsSub?.unsubscribe();
+    this.standardsSub?.unsubscribe();
+    this.scopeSub?.unsubscribe();
+    this.boards = [];
+    this.standards = [];
+    this.syllabus = [];
+    this.subjects = [];
     this.chapters = [];
+    this.createForm.patchValue({ subjects: [], chapters: [] }, { emitEvent: false });
   }
 
-  private onSubjectsChange(subjects: string[]) {
+  private onBoardChange(board: string, reset = true): void {
+    this.standardsSub?.unsubscribe();
+    this.standards = [];
+    if (reset) this.createForm.patchValue({ standard: '' }, { emitEvent: false });
+    this.onStandardChange(this.createForm.value.standard);
+    if (!board) return;
+
+    this.standardsSub = this.syllabusService.standards(board).subscribe({
+      next: standards => {
+        this.standards = [...standards].sort();
+        if (reset && !this.createForm.value.standard) {
+          const preferred = String(this.currentUser?.standard || '');
+          const standard = this.standards.includes(preferred) ? preferred : (this.standards[0] || '');
+          this.createForm.patchValue({ standard }, { emitEvent: false });
+          this.onStandardChange(standard);
+        }
+      },
+      error: error => console.error('Unable to load classes', error)
+    });
+  }
+
+  private onStandardChange(standard: string): void {
     const board = this.createForm.value.board;
-    const standard = this.createForm.value.standard;
-    const chapters = this.syllabus
-      .filter(item => (!board || item.board === board)
-        && (!standard || item.standard === standard)
-        && (subjects.length === 0 || subjects.includes(item.subject)))
-      .map(item => item.chapter);
-    this.chapters = Array.from(new Set(chapters)).sort();
+    this.scopeSub?.unsubscribe();
+    this.syllabus = [];
+    this.subjects = [];
+    this.chapters = [];
+    this.createForm.patchValue({ subjects: [], chapters: [] }, { emitEvent: false });
+    if (!board || !standard) return;
+    this.scopeSub = this.syllabusService.watchScope(board, standard).subscribe({
+      next: ({ items }) => {
+        this.syllabus = items;
+        this.subjects = [...new Set(items.map(item => item.subject))].sort();
+        const subjects: string[] = (this.createForm.value.subjects || []).filter((subject: string) => this.subjects.includes(subject));
+        this.createForm.patchValue({ subjects }, { emitEvent: false });
+        this.onSubjectsChange(subjects);
+      },
+      error: error => console.error('Unable to load syllabus', error)
+    });
+  }
+
+  private onSubjectsChange(subjects: string[]): void {
+    this.chapters = [...new Set(this.syllabus
+      .filter(item => !subjects.length || subjects.includes(item.subject))
+      .map(item => item.chapter))].sort();
     const selected = (this.createForm.value.chapters || []).filter((chapter: string) => this.chapters.includes(chapter));
     this.createForm.patchValue({ chapters: selected }, { emitEvent: false });
   }

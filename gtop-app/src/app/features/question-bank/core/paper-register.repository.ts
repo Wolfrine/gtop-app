@@ -5,6 +5,7 @@ import { map } from 'rxjs';
 import { FirebaseClient } from './firebase';
 import { AuthService } from '../../../services/auth.service';
 import { FirestoreReadService } from '../../../services/firestore-read.service';
+import { paperGatewayUrl } from '../../../firebase-environment';
 import type { ChatRequestStatus } from './paper-chat.models';
 
 export type RegisterView='all'|'needs-action'|'in-progress'|'ready';
@@ -22,8 +23,7 @@ export interface RegisterFilters {view:RegisterView;q:string;mine:boolean;}
 
 @Injectable({providedIn:'root'})
 export class PaperRegisterRepository {
-  private readonly gateway=['127.0.0.1','localhost'].includes(location.hostname)&&new URLSearchParams(location.search).has('emulator')
-    ?'http://127.0.0.1:5001/gtop-app/us-central1/paperGateway':'https://us-central1-gtop-app.cloudfunctions.net/paperGateway';
+  private readonly gateway=paperGatewayUrl;
   constructor(private readonly client:FirebaseClient,private readonly reads:FirestoreReadService,private readonly auth:Auth,private readonly profile:AuthService){}
   watch(filters:RegisterFilters){
     const constraints:QueryConstraint[]=[];

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, catchError, combineLatest, of, switchMap } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
-import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
+import { SyllabusService } from '../../services/syllabus.service';
 
 @Component({
     selector: 'app-profile-setup',
@@ -42,28 +42,18 @@ export class ProfileSetupComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         // ✅ Subscribe to AuthService
-        this.subscriptions.add(this.authService.getUser().subscribe((user) => {
+        this.subscriptions.add(this.authService.getUser().pipe(switchMap(user => {
             if (user && user.board && user.standard) {
                 // Already setup
                 this.authService.continueAfterSignIn(user.role);
-                return;
+                return of([[], []]);
             }
             this.user = user;
-        }));
-
-        // ✅ Fetch distinct boards & standards from syllabus (from IndexedDB)
-        this.subscriptions.add(this.syllabusService.syllabus$.subscribe((syllabus: SyllabusItem[]) => {
-            const uniqueBoards = new Set<string>();
-            const uniqueStandards = new Set<string>();
-
-            syllabus.forEach(item => {
-                uniqueBoards.add(item.board);
-                uniqueStandards.add(item.standard);
-            });
-
-            this.boards = Array.from(uniqueBoards);
-            this.standards = Array.from(uniqueStandards);
-        }));
+            return user ? combineLatest([this.syllabusService.boards(), this.syllabusService.standards()]).pipe(catchError(error => {
+                console.error('Unable to load curriculum options', error);
+                return of([[], []]);
+            })) : of([[], []]);
+        })).subscribe(([boards, standards]) => { this.boards = boards; this.standards = standards; }));
     }
 
     ngOnDestroy(): void {

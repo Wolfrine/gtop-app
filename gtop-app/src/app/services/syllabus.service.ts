@@ -1,7 +1,9 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { Firestore, collection, collectionData, doc, getCountFromServer, getDocs, onSnapshot, query, runTransaction, serverTimestamp, setDoc, updateDoc, where, writeBatch } from '@angular/fire/firestore';
-import { BehaviorSubject, ReplaySubject, Subscription } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Auth, authState } from '@angular/fire/auth';
+import { DocumentSnapshot, Firestore, QueryConstraint, collection, doc, getCountFromServer, getDoc, getDocs, limit, orderBy, query, runTransaction, serverTimestamp, setDoc, startAfter, updateDoc, where, writeBatch } from '@angular/fire/firestore';
+import { Observable, from, map, of, switchMap } from 'rxjs';
 import { FirestoreReadService } from './firestore-read.service';
+import { normalizePracticeBoard } from './practice-context';
 
 export interface SyllabusItem {
     id?: string;
@@ -12,40 +14,149 @@ export interface SyllabusItem {
     mcqCount: number;
 }
 
+export interface SyllabusSnapshot {
+    items: SyllabusItem[];
+    fromCache: boolean;
+}
+
 @Injectable({
     providedIn: 'root'
 })
-export class SyllabusService implements OnDestroy {
+export class SyllabusService {
+    private readonly syllabusCollection = collection(this.firestore, 'syllabus');
+    private readonly optionReads = new Map<string, { expiresAt: number; result: Promise<string[]> }>();
+    private optionUser = '';
 
-    private syllabusCollection = collection(this.firestore, 'syllabus');
-    syllabus$ = new BehaviorSubject<SyllabusItem[]>([]); // Observable syllabus data for reuse
-    readonly snapshots$ = new ReplaySubject<{ items: SyllabusItem[]; fromCache: boolean }>(1);
-    private subscription?:Subscription;
+    constructor(private firestore: Firestore, private readonly reads: FirestoreReadService, private readonly auth: Auth) {}
 
-    constructor(private firestore: Firestore, private readonly reads: FirestoreReadService) {
-        this.loadSyllabus();
+    watchScope(board: string, standard: string, options?: { includeBoardAliases?: boolean }): Observable<SyllabusSnapshot> {
+        if (!board || !standard) return of({ items: [], fromCache: false });
+        const boardFilter = options?.includeBoardAliases && normalizePracticeBoard(board) === 'IGCSE'
+            ? where('board', 'in', ['Cambridge IGCSE', 'IGCSE'])
+            : where('board', '==', board);
+        return this.watch('syllabus.curriculum', boardFilter, this.standardFilter(standard));
     }
 
-    private loadSyllabus() {
-        this.subscription=this.reads.watch(this.syllabusCollection).subscribe({ next: snapshot => {
-            const syllabus: SyllabusItem[] = snapshot.docs.map(doc => ({
-                id: doc.id,
-                board: doc.data()['board'],
-                standard: String(doc.data()['standard']),
-                subject: doc.data()['subject'],
-                chapter: doc.data()['chapter'],
-                mcqCount: doc.data()['mcqCount'] || 0 // ✅ Fetch mcqCount, default 0
-            }));
-            this.syllabus$.next(syllabus);
-            this.snapshots$.next({ items: syllabus, fromCache: snapshot.metadata.fromCache });
-        }, error: error => this.snapshots$.error(error) });
+    /** Only views that intentionally use the whole catalogue should call this. */
+    watchCatalogue(): Observable<SyllabusSnapshot> {
+        return this.watch('syllabus.catalogue');
     }
-    ngOnDestroy():void {this.subscription?.unsubscribe();}
 
-    // Optional: Manual refresh
-    async refreshSyllabus() {
+    async readCatalogue(): Promise<SyllabusItem[]> {
         const snapshot = await getDocs(this.syllabusCollection);
-        this.syllabus$.next(snapshot.docs.map(item => ({ ...item.data(), id:item.id, standard:String(item.data()['standard']) })) as SyllabusItem[]);
+        console.debug('[firestore-read]', { scope: 'syllabus.catalogue',
+            source: snapshot.metadata.fromCache ? 'cache' : 'server', resultCount: snapshot.size });
+        return snapshot.docs.map(row => this.toItem(row));
+    }
+
+    async item(id: string, scope?: Pick<SyllabusItem, 'board' | 'standard' | 'subject' | 'chapter'>): Promise<SyllabusItem | null> {
+        if (id && !id.includes('/')) {
+            try {
+                const row = await getDoc(doc(this.syllabusCollection, id));
+                if (row.exists()) return this.toItem(row);
+            } catch (error) {
+                if (!scope || (error as { code?: string })?.code !== 'unavailable') throw error;
+            }
+        }
+        if (!scope?.board || !scope.standard || !scope.subject || !scope.chapter) return null;
+        const matches = await getDocs(query(this.syllabusCollection, ...this.comboFilters(scope.board, String(scope.standard), scope.subject, scope.chapter), limit(1)));
+        return matches.empty ? null : this.toItem(matches.docs[0]);
+    }
+
+    boards(): Observable<string[]> {
+        return this.options('board');
+    }
+
+    standards(board?: string): Observable<string[]> {
+        return this.options('standard', board);
+    }
+
+    private watch(scope: string, ...constraints: QueryConstraint[]): Observable<SyllabusSnapshot> {
+        return this.reads.watch(query(this.syllabusCollection, ...constraints), scope).pipe(map(snapshot => ({
+            items: snapshot.docs.map(row => this.toItem(row)),
+            fromCache: snapshot.metadata.fromCache
+        })));
+    }
+
+    private toItem(row: DocumentSnapshot): SyllabusItem {
+        const data = row.data()!;
+        return { id: row.id, board: data['board'], standard: String(data['standard']), subject: data['subject'],
+            chapter: data['chapter'], mcqCount: data['mcqCount'] || 0 };
+    }
+
+    private comboFilters(board: string, standard: string, subject: string, chapter: string): QueryConstraint[] {
+        return [where('board', '==', board), this.standardFilter(standard), where('subject', '==', subject), where('chapter', '==', chapter)];
+    }
+
+    private standardFilter(standard: string): QueryConstraint {
+        const numeric = Number(standard);
+        return Number.isFinite(numeric) && String(numeric) === standard
+            ? where('standard', 'in', [standard, numeric])
+            : where('standard', '==', standard);
+    }
+
+    private options(field: 'board' | 'standard', board?: string): Observable<string[]> {
+        return authState(this.auth).pipe(switchMap(user => {
+            const uid = user?.uid ?? '';
+            if (this.optionUser !== uid) {
+                this.optionReads.clear();
+                this.optionUser = uid;
+            }
+            return uid ? from(this.readOptions(uid, field, board)) : of([]);
+        }));
+    }
+
+    private readOptions(uid: string, field: 'board' | 'standard', board?: string): Promise<string[]> {
+        const key = JSON.stringify([field, board]);
+        const now = Date.now();
+        const cached = this.optionReads.get(key);
+        if (cached && cached.expiresAt > now) return cached.result;
+
+        const entry = { expiresAt: Infinity, result: board
+            ? this.readOptions(uid, 'standard').then(values => this.standardsForBoard(uid, board, values))
+            : this.distinctValues(uid, field) };
+        this.optionReads.set(key, entry);
+        void entry.result.then(
+            values => { entry.expiresAt = Date.now() + (values.length ? 60_000 : 5_000); },
+            () => { if (this.optionReads.get(key) === entry) this.optionReads.delete(key); }
+        );
+        for (const [cachedKey, value] of this.optionReads) {
+            if (value.expiresAt <= now) this.optionReads.delete(cachedKey);
+        }
+        return entry.result;
+    }
+
+    private async distinctValues(uid: string, field: 'board' | 'standard'): Promise<string[]> {
+        const values = new Set<string>();
+        let cursor: unknown;
+        let resultCount = 0;
+        let queryCount = 0;
+        let fromCache = false;
+        while (this.auth.currentUser?.uid === uid) {
+            // A field-value cursor skips every row with the previous value.
+            const result = await getDocs(query(this.syllabusCollection, orderBy(field), limit(1),
+                ...(cursor === undefined ? [] : [startAfter(cursor)])));
+            queryCount++;
+            resultCount += result.size;
+            fromCache ||= result.metadata.fromCache;
+            if (result.empty) break;
+            cursor = result.docs[0].get(field);
+            if (typeof cursor === 'string' && cursor) values.add(cursor);
+            if (field === 'standard' && typeof cursor === 'number') values.add(String(cursor));
+        }
+        console.debug('[firestore-read]', { scope: 'syllabus.options.' + field,
+            source: fromCache ? 'cache-or-mixed' : 'server', resultCount, queryCount });
+        return [...values];
+    }
+
+    private async standardsForBoard(uid: string, board: string, values: string[]): Promise<string[]> {
+        if (this.auth.currentUser?.uid !== uid) return [];
+        const results = await Promise.all(values.map(standard => getDocs(query(this.syllabusCollection,
+            where('board', '==', board), this.standardFilter(standard), limit(1)))));
+        console.debug('[firestore-read]', { scope: 'syllabus.options.board-standards',
+            source: results.some(result => result.metadata.fromCache) ? 'cache-or-mixed' : 'server',
+            resultCount: results.reduce((total, result) => total + result.size, 0), queryCount: results.length });
+        return values.filter((_, index) => !results[index].empty);
     }
 
     async updateSyllabusCountsFromIndexedDB() {
@@ -93,6 +204,7 @@ export class SyllabusService implements OnDestroy {
         // ⚡️ 2. Update Syllabus (only changed fields)
         if (Object.keys(changedFields).length > 0) {
             await updateDoc(syllabusDocRef, changedFields);
+            if (changedFields.board || changedFields.standard) this.optionReads.clear();
         }
 
         // 🔃 3. If subject/chapter changed, update MCQs
@@ -148,9 +260,7 @@ export class SyllabusService implements OnDestroy {
     async insertComboIfNotExists(board: string, standard: string, subject: string, chapter: string): Promise<void> {
         board = board.trim(); standard = String(standard).trim(); subject = subject.trim(); chapter = chapter.trim();
         if (!board || !standard || !subject || !chapter) throw new Error('A complete syllabus scope is required.');
-        const matches = await getDocs(query(this.syllabusCollection, where('board','==',board),
-            where('standard','in',/^\d+$/.test(standard) ? [standard,Number(standard)] : [standard]),
-            where('subject','==',subject), where('chapter','==',chapter)));
+        const matches = await getDocs(query(this.syllabusCollection, ...this.comboFilters(board, standard, subject, chapter), limit(1)));
         if (!matches.empty) return;
         const id = 'scope-' + [board,standard,subject,chapter].map(encodeURIComponent).join('~');
         const ref = doc(this.syllabusCollection,id);
@@ -158,9 +268,10 @@ export class SyllabusService implements OnDestroy {
             const current = await transaction.get(ref);
             if (!current.exists()) transaction.set(ref,{board,standard,subject,chapter,mcqCount:0,createdAt:serverTimestamp()});
         });
+        this.optionReads.clear();
     }
 
-    async updateMcqCountForCombo(board: string, standard: string, subject: string, chapter: string): Promise<void> {
+    async updateMcqCountForCombo(board: string, standard: string, subject: string, chapter: string) {
         const syllabusQuery = query(
             collection(this.firestore, 'questions'),
             where('board', '==', board),
@@ -169,21 +280,13 @@ export class SyllabusService implements OnDestroy {
             where('chapter', '==', chapter)
         );
 
-        const countSnap = await getCountFromServer(syllabusQuery);
+        const matchesQuery = query(this.syllabusCollection, ...this.comboFilters(board, String(standard), subject, chapter), limit(1));
+        const [countSnap, matches] = await Promise.all([getCountFromServer(syllabusQuery), getDocs(matchesQuery)]);
         const count = countSnap.data().count;
-
-        // Find existing syllabus doc ID from cached value
-        const match = this.syllabus$.value.find(item =>
-            item.board === board &&
-            item.standard === standard &&
-            item.subject === subject &&
-            item.chapter === chapter
-        );
-
-        if (match?.id) {
-            const syllabusDoc = doc(this.firestore, `syllabus/${match.id}`);
-            await updateDoc(syllabusDoc, { mcqCount: count });
-        }
+        const match = matches.docs[0];
+        if (!match) return null;
+        await updateDoc(match.ref, { mcqCount: count });
+        return { id: match.id, count };
     }
 
 }

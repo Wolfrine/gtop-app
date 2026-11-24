@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
+import { assistantGatewayUrl } from '../firebase-environment';
 
 export type ScanKind = 'answer' | 'question';
 export type SubmissionStatus = 'draft' | 'submitted' | 'needs_rescan' | 'checking' | 'released';
@@ -83,17 +84,6 @@ export const submissionStatusLabels: Record<SubmissionStatus, string> = {
     draft: 'Draft', submitted: 'Submitted', needs_rescan: 'Rescan needed', checking: 'Checking', released: 'Results ready',
 };
 
-function gatewayOrigin(): string {
-    if (['localhost', '127.0.0.1'].includes(location.hostname)) {
-        try {
-            if (new URLSearchParams(location.search).has('emulator') || sessionStorage.getItem('gtop.local-emulators') === '1') {
-                return 'http://127.0.0.1:5201/gtop-app/us-central1/gtopAssistantGateway';
-            }
-        } catch { /* An unavailable browser store does not affect the production gateway. */ }
-    }
-    return 'https://us-central1-gtop-app.cloudfunctions.net/gtopAssistantGateway';
-}
-
 @Injectable({ providedIn: 'root' })
 export class StudentSubmissionsService {
     private readonly auth = inject(Auth);
@@ -146,7 +136,7 @@ export class StudentSubmissionsService {
         if (body) headers.set('Content-Type', 'application/json');
         let response: Response;
         try {
-            response = await fetch(gatewayOrigin() + '/student-submissions' + path, {
+            response = await fetch(assistantGatewayUrl + '/student-submissions' + path, {
                 method: body ? 'POST' : 'GET', headers, body: body ? JSON.stringify(body) : undefined,
                 signal, cache: 'no-store', credentials: 'omit',
             });

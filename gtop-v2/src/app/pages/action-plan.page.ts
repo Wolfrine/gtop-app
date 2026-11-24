@@ -849,7 +849,7 @@ export class ActionPlanPage implements OnInit, OnDestroy {
       !(await this.dialog.confirm({
         title: 'Archive completed activity?',
         message: environment.uat
-          ? 'UAT uses live production data. The item will leave active Action Plan views.'
+          ? 'The item will leave active Action Plan views in the emulator.'
           : 'The item will leave active Action Plan views.',
         confirmLabel: 'Archive',
         danger: true,

@@ -7,10 +7,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
-import { combineLatest, Subscription } from 'rxjs';
+import { catchError, combineLatest, of, Subscription, switchMap } from 'rxjs';
 import { doc, Firestore, getDoc, updateDoc } from '@angular/fire/firestore';
 import { AuthService } from '../../services/auth.service';
-import { SyllabusService, SyllabusItem } from '../../services/syllabus.service';
+import { SyllabusService } from '../../services/syllabus.service';
 import { QuizService } from '../../services/quiz.service';
 import { ActiveUsersService } from '../../services/active-users.service';
 
@@ -71,22 +71,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscriptions.add(
-      this.syllabusService.syllabus$.subscribe((syllabus: SyllabusItem[]) => {
-        const boardSet = new Set<string>();
-        const standardSet = new Set<string>();
-        syllabus.forEach((item) => {
-          if (item.board) boardSet.add(item.board);
-          if (item.standard) standardSet.add(item.standard);
-        });
-        this.boards = Array.from(boardSet);
-        this.standards = Array.from(standardSet);
-      })
-    );
-
-    this.subscriptions.add(
-      combineLatest([this.route.queryParamMap, this.authService.getUser()]).subscribe(([params, currentUser]) => {
+      combineLatest([this.route.queryParamMap, this.authService.getUser()]).pipe(switchMap(([params, currentUser]) => {
         void this.handleProfileContext(params.get('userId'), currentUser);
-      })
+        return currentUser && this.isSelfView
+          ? combineLatest([this.syllabusService.boards(), this.syllabusService.standards()]).pipe(catchError(error => {
+            console.error('Unable to load curriculum options', error);
+            return of([[], []]);
+          }))
+          : of([[], []]);
+      })).subscribe(([boards, standards]) => { this.boards = boards; this.standards = standards; })
     );
   }
 

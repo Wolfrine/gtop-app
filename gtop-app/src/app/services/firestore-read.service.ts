@@ -30,7 +30,7 @@ export class FirestoreReadService implements OnDestroy {
     );
   }
 
-  watch(request: Query<DocumentData>): Observable<QuerySnapshot<DocumentData>> {
+  watch(request: Query<DocumentData>, diagnosticScope?: string): Observable<QuerySnapshot<DocumentData>> {
     // All shared catalogue/module queries require a signed-in user. Keep the
     // auth subscription alive across logout without starting a denied listener.
     return this.identity$.pipe(switchMap(uid => uid ? new Observable<QuerySnapshot<DocumentData>>(subscriber => {
@@ -46,8 +46,14 @@ export class FirestoreReadService implements OnDestroy {
       this.updateStatus();
       const subscription = current.subject.subscribe(subscriber);
       if (created) {
+        let reportedSource: 'cache' | 'server' | undefined;
         const stop = onSnapshot(request, { includeMetadataChanges: true }, snapshot => {
           current.fromCache = snapshot.metadata.fromCache;
+          const source = current.fromCache ? 'cache' : 'server';
+          if (diagnosticScope && reportedSource !== source) {
+            reportedSource = source;
+            console.debug('[firestore-read]', { scope: diagnosticScope, source, resultCount: snapshot.size });
+          }
           this.updateStatus();
           current.subject.next(snapshot);
         }, error => {

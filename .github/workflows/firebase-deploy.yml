@@ -60,7 +60,7 @@ jobs:
             const files = execFileSync('git', ['diff', '--no-renames', '--name-only', '-z', before, process.env.GITHUB_SHA], {encoding: 'utf8'}).split('\0').filter(Boolean);
             // Only known frontend and documentation paths can skip backend deployment.
             // Unknown paths, missing history, and explicit dispatches retain the backend gate.
-            const frontendOnly = /^(?:gtop-app\/(?:src\/|scripts\/verify-deployment\.mjs$)|docs\/|\.github\/workflows\/firebase-deploy\.yml$)/;
+            const frontendOnly = /^(?:gtop-app\/(?:src\/|scripts\/verify-deployment\.mjs$)|(?:docs|raw|wiki|codex|question-papers|assistant-service|gtop-v2)\/|AGENTS\.md$|\.github\/workflows\/(?:firebase-deploy|firebase-v2-uat|gtop-assistant-release)\.yml$)/;
             required = files.some(file => !frontendOnly.test(file));
             // PDF decoding for the student upload is a browser-only dependency.
             const packagePaths = ['gtop-app/package.json','gtop-app/package-lock.json'];

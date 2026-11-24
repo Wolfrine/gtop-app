@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
@@ -45,13 +47,14 @@ export class EditSyllabusComponent implements OnInit {
 
     constructor(
         private syllabusService: SyllabusService,
-        private authService: AuthService
+        private authService: AuthService,
+        private destroyRef: DestroyRef
     ) { }
 
     ngOnInit(): void {
-        this.syllabusService.syllabus$.subscribe((data) => {
+        this.syllabusService.watchCatalogue().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: ({ items }) => {
             // Sort the full data
-            this.syllabus = [...data].sort((a, b) => {
+            this.syllabus = [...items].sort((a, b) => {
                 const aKey = `${a.board}|${a.standard}|${a.subject}|${a.chapter}`.toLowerCase();
                 const bKey = `${b.board}|${b.standard}|${b.subject}|${b.chapter}`.toLowerCase();
                 return aKey.localeCompare(bKey);
@@ -61,7 +64,7 @@ export class EditSyllabusComponent implements OnInit {
             this.uniqueBoards = [...new Set(this.syllabus.map(i => i.board))];
 
             this.applyFilters();
-        });
+        }, error: error => console.error('Unable to load the syllabus catalogue', error) });
     }
 
     applyFilters(): void {
@@ -126,7 +129,7 @@ export class EditSyllabusComponent implements OnInit {
                 return;
             }
 
-            this.authService.getUser().subscribe((user) => {
+            this.authService.getUser().pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
                 if (user && user.uid) {
                     this.syllabusService.editSyllabus(
                         oldRow.id!,           // Firestore doc ID

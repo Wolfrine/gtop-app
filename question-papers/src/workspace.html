@@ -60,7 +60,9 @@
         <div class="desk-account-head"><div><strong>{{user.displayName || 'Your account'}}</strong><small>{{user.email}}</small></div><button class="icon-button rail-close" aria-label="Close account menu" (click)="toggleDrawer()">×</button></div>
         <h2>Recent requests</h2>
         <nav aria-label="Recent requests"><button *ngFor="let conversation of conversations" class="account-request" (click)="openConversation(conversation.id)">{{conversation.title || 'Paper request'}}<small>{{relativeTime(conversation.updatedAt)}}</small></button></nav>
-        <p *ngIf="!conversations.length">No recent paper requests.</p>
+        <p *ngIf="!conversations.length&&!ownHistoryLoading&&!ownHistoryError">No recent paper requests.</p>
+        <p *ngIf="ownHistoryError" role="alert">{{ownHistoryError}}</p>
+        <button *ngIf="conversationCursor||ownHistoryError||ownHistoryLoading" class="text-button" [disabled]="ownHistoryLoading" (click)="loadOwnHistory(!conversationCursor)">{{ownHistoryLoading?'Loading requests…':conversationCursor?'Load earlier requests':'Try again'}}</button>
         <button class="sign-out text-button" (click)="logoutFromShell()">Sign out</button>
       </aside>
     </ng-container>
@@ -91,8 +93,8 @@
           </button>
           <button class="overview-card overview-tests" type="button" (click)="openLibrary()">
             <span class="overview-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6 12 3l8 3-8 3-8-3Zm0 6 8 3 8-3M4 18l8 3 8-3"/></svg></span>
-            <span class="overview-card-name">Saved tests</span>
-            <strong class="overview-card-value" [attr.aria-label]="savedTestCount+' saved test conversations'">{{savedTestCount}}</strong>
+            <span class="overview-card-name">Recent saved tests</span>
+            <strong class="overview-card-value" [attr.aria-label]="savedTestCount+' saved tests in recent requests'">{{savedTestCount}}</strong>
             <span class="overview-card-arrow" aria-hidden="true">↗</span>
           </button>
           <button class="overview-card overview-create" type="button" (click)="newConversation()">
@@ -164,6 +166,8 @@
             <h2>{{ownQuery?'No matching requests':'Your requests will appear here'}}</h2>
             <button class="author-quiet" (click)="ownQuery?ownQuery='':newConversation()">{{ownQuery?'Clear search':'Create a paper'}}</button>
           </div>
+          <p *ngIf="ownHistoryError" role="alert">{{ownHistoryError}}</p>
+          <button *ngIf="conversationCursor||ownHistoryError||ownHistoryLoading" class="text-button" [disabled]="ownHistoryLoading" (click)="loadOwnHistory(!conversationCursor)">{{ownHistoryLoading?'Loading requests…':conversationCursor?'Load earlier requests':'Try again'}}</button>
         </div>
       </div>
     </section>
@@ -287,6 +291,8 @@
         </div>
 
         <div class="conversation-content" *ngIf="detail?.messages?.length">
+          <button *ngIf="detail?.history?.messages" class="text-button" [disabled]="!!threadHistoryLoading" (click)="loadThreadHistory('messages')">{{threadHistoryLoading==='messages'?'Loading messages…':'Load earlier messages'}}</button>
+          <p *ngIf="threadHistoryError.messages" role="alert">{{threadHistoryError.messages}}</p>
           <article *ngFor="let message of detail?.messages" class="message" [class.user-message]="message.role==='user'" [class.system-message]="message.role==='system'">
             <span class="message-avatar" [class.teacher-avatar]="message.role==='user'" aria-hidden="true">{{message.role==='user'?creatorInitials():'G'}}</span>
             <div class="message-body"><div class="message-byline"><strong>{{message.role==='user'?creatorLabel():message.role==='system'?'Workspace':'GT Papers'}}</strong><time [attr.datetime]="message.createdAt">{{relativeTime(message.createdAt)}}</time></div><div *ngIf="message.role==='assistant';else verbatimMessage" class="assistant-text" [innerHTML]="assistantText(message.text)" [assistantMath]="message.text"></div><ng-template #verbatimMessage><p>{{message.text}}</p></ng-template></div>
@@ -302,7 +308,7 @@
             <div class="paper-actions"><button class="button primary" [disabled]="documentLoading" (click)="showDocument(paper,'student')"><span aria-hidden="true">▤</span> View paper</button><button class="button secondary" aria-label="View worked answers" [disabled]="documentLoading" (click)="showDocument(paper,'answers')">Worked answers</button><button class="button secondary" [disabled]="documentLoading" (click)="showDocument(paper,'student',adminConversation,true)">Print</button><button class="button secondary" (click)="startPaperCheck(paper)">Check answer sheets</button><button *ngIf="!readOnly" class="text-button" aria-label="Request a revision" (click)="revise(paper)">Revise <span aria-hidden="true">→</span></button></div>
             <div class="paper-footnote">Check the content before sharing with students.</div>
           </section>
-          <details *ngIf="previousPapers.length" class="revision-history"><summary>Earlier revisions <span>{{previousPapers.length}}</span></summary><div *ngFor="let previous of previousPapers"><span>Revision {{previous.revision}} <small>{{previous.marks}} marks · {{relativeTime(previous.createdAt)}}</small></span><button class="text-button" (click)="showDocument(previous,'student')">Paper</button><button class="text-button" (click)="showDocument(previous,'answers')">Answers</button><button class="text-button" (click)="startPaperCheck(previous)">Check answer sheets</button></div></details>
+          <details *ngIf="previousPapers.length||detail?.history?.papers" class="revision-history"><summary>Earlier revisions <span>{{previousPapers.length}}</span></summary><div *ngFor="let previous of previousPapers"><span>Revision {{previous.revision}} <small>{{previous.marks}} marks · {{relativeTime(previous.createdAt)}}</small></span><button class="text-button" (click)="showDocument(previous,'student')">Paper</button><button class="text-button" (click)="showDocument(previous,'answers')">Answers</button><button class="text-button" (click)="startPaperCheck(previous)">Check answer sheets</button></div><button *ngIf="detail?.history?.papers" class="text-button" [disabled]="!!threadHistoryLoading" (click)="loadThreadHistory('papers')">{{threadHistoryLoading==='papers'?'Loading revisions…':'Load earlier revisions'}}</button><p *ngIf="threadHistoryError.papers" role="alert">{{threadHistoryError.papers}}</p></details>
           <details *ngIf="!readOnly" class="feedback-disclosure"><summary>Share feedback</summary><div class="feedback-row"><span>{{currentPaper?'How is this paper?':'How was this conversation?'}}</span><button class="feedback-button" (click)="feedback('helpful',currentPaper?.id)">Helpful</button><button class="feedback-button" (click)="feedbackPaperId=currentPaper?.id||'';feedbackOpen=true">Needs work</button></div></details>
           <form *ngIf="!readOnly&&feedbackOpen" class="feedback-form" (ngSubmit)="feedback('needs_work',feedbackPaperId||undefined)"><label for="feedback-text">What could be better?</label><textarea id="feedback-text" name="feedback" [(ngModel)]="feedbackText" maxlength="2000" rows="2"></textarea><div><button class="button secondary">Save feedback</button><button type="button" class="text-button" (click)="feedbackPaperId='';feedbackOpen=false">Cancel</button></div></form>
           <p *ngIf="!readOnly&&feedbackMessage" class="feedback-confirmation" role="status">{{feedbackMessage}}</p>

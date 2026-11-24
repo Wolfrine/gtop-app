@@ -2,7 +2,8 @@ import {createHash, randomUUID, timingSafeEqual} from 'node:crypto';
 import {gzipSync,gunzipSync} from 'node:zlib';
 import * as domain from './domain/index.mjs';
 import {pinnedUnitCurriculum} from './domain/curriculum.mjs';
-import {catalogueIndex,capabilityFacts,savedCurriculum,validateScope,validateCurriculumScope,sameScope,officialUrl} from './domain/catalogue.mjs';
+import {capabilityFacts,savedCurriculum,validateScope,validateCurriculumScope,sameScope,officialUrl} from './domain/catalogue.mjs';
+import {CurriculumCatalogueCache} from './curriculum-catalogue-cache.mjs';
 import {researchCurriculum,curriculumResearchSchema} from './domain/research.mjs';
 import {buildTaskBrief,missingTaskField,selectedCurriculum} from './domain/task-brief.mjs';
 import {ServiceControl,serviceWorkerId} from './service-control.mjs';
@@ -22,7 +23,11 @@ const safeId = id => { if (typeof id !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.t
 const text = (value, max = 12000) => { if (typeof value !== 'string' || !value.trim() || value.length > max) fail(400,'invalid_text',`Text must contain 1–${max} characters.`); return value; };
 const clean = value => JSON.parse(JSON.stringify(value));
 const publicJobFields=['id','kind','native','ownerUid','conversationId','state','phase','createdAt','updatedAt','startedAt','elapsedSeconds','error','errorCode','requestRevision','paperId','retryable','progress'];
-const publicJob = job => job && clean(Object.fromEntries(publicJobFields.filter(key => job[key] !== undefined).map(key => [key,job[key]])));
+const publicJob = job => job && clean({
+  ...Object.fromEntries(publicJobFields.filter(key => job[key] !== undefined).map(key => [key,job[key]])),
+  ...(['running','validating'].includes(job.state)&&Number.isFinite(Date.parse(job.leaseUntil))
+    ?{nextLeaseCheckAt:job.leaseUntil}:{})
+});
 const failedCodexMessages=Object.freeze({
   codex_unavailable:'The Codex connection is unavailable. Your request is saved. Try again when the host reconnects.',
   codex_auth_required:'The host needs to sign in to Codex with ChatGPT again. Your request is saved.',
@@ -43,7 +48,31 @@ const nativeDraftRejections=new Set(['invalid_paper','curriculum_unavailable','i
 const claimsPaused=(worker,now)=>Date.parse(worker?.claimsPausedUntil||'')>now;
 const leaseExpired=(job,now)=>['running','validating'].includes(job.state)&&!(Date.parse(job.leaseUntil||'')>now);
 const expiredJob=(j,when)=>({...j,state:'failed',phase:'worker_disconnected',error:'The assistant disconnected. Your request is saved. Try again to continue.',errorCode:'worker_disconnected',retryable:true,updatedAt:when,leaseId:null,leaseUntil:null});
-const publicConversation = c => c && clean(Object.fromEntries(['id','title','status','updatedAt','activeNativeTurnId','activePaperJobId','activeCurriculumJobId','latestPaperId'].filter(key => c[key] !== undefined).map(key => [key,c[key]])));
+const conversationFields=['id','title','status','updatedAt','activeNativeTurnId','activePaperJobId','activeCurriculumJobId','latestPaperId'];
+const paperSummaryFields=['id','title','revision','marks','createdAt','jobId','ownerUid','conversationId','board','standard','subject','academicYear','requirements.format'];
+const publicConversation = c => c && clean(Object.fromEntries(conversationFields.filter(key => c[key] !== undefined).map(key => [key,c[key]])));
+const historySizes={requests:30,messages:40,papers:12};
+const historyLogTimes=new Map();
+function historyDiagnostic(view,counts){
+  const now=Date.now();
+  if(now-(historyLogTimes.get(view)||0)<60_000)return;
+  historyLogTimes.set(view,now);
+  console.info(JSON.stringify({event:'gt_papers_history',view,...counts}));
+}
+function historyOrder(kind,field,scope,cursor){
+  const order={orderBy:[field,'desc'],orderById:true};
+  if(!cursor)return order;
+  try{
+    if(typeof cursor!=='string'||cursor.length>400)throw Error();
+    const [cursorKind,cursorScope,date,id]=JSON.parse(Buffer.from(cursor,'base64url').toString());
+    if(cursorKind!==kind||cursorScope!==hash(scope).slice(0,16)||typeof date!=='string'||date.length>40||!Number.isFinite(Date.parse(date)))throw Error();
+    return {...order,cursorValues:[date,safeId(id)]};
+  }catch{fail(400,'invalid_history_cursor','Reload the request history to continue.');}
+}
+function historyPage(kind,field,scope,rows){
+  const size=historySizes[kind],items=rows.slice(0,size),last=items.at(-1);
+  return {items,nextCursor:rows.length>size?Buffer.from(JSON.stringify([kind,hash(scope).slice(0,16),last[field],last.id])).toString('base64url'):null};
+}
 const visibleToAdmin=(row,uid)=>row&&(!row.nativePrivate||row.ownerUid===uid);
 const summary = p => clean({...Object.fromEntries(['id','title','revision','marks','createdAt','jobId','conversationId','ownerUid','board','standard','subject','academicYear'].filter(k=>p[k]!==undefined).map(k=>[k,p[k]])),verifiedSectionPattern:p.requirements?.format==='board'});
 const paperConversationTitle=p=>p.board&&p.standard&&p.subject?`${p.board} Class ${p.standard} ${p.subject} · ${p.marks} marks`.slice(0,120):String(p.title||'Question paper').replace(/\s+/g,' ').slice(0,120);
@@ -87,7 +116,7 @@ function decodeArtifact(doc){
 }
 
 export class AssistantService {
-  constructor(store, {now = () => new Date(), id = randomUUID, signer = null, sleep = ms => new Promise(r => setTimeout(r,ms)), domainApi = domain} = {}) { Object.assign(this,{store,now,id,signer,sleep,domain:domainApi});this.serviceControl=new ServiceControl(this,fail);this.checking=new PaperChecking(this,fail); }
+  constructor(store, {now = () => new Date(), id = randomUUID, signer = null, sleep = ms => new Promise(r => setTimeout(r,ms)), domainApi = domain} = {}) { Object.assign(this,{store,now,id,signer,sleep,domain:domainApi});this.serviceControl=new ServiceControl(this,fail);this.checking=new PaperChecking(this,fail);this.catalogueCache=new CurriculumCatalogueCache(store,sleep,fail); }
   iso() { return this.now().toISOString(); }
   notifyDispatch(tx,ownerUid) {
     tx.set(ref('assistantDispatch',ownerUid),{schemaVersion:1,revision:randomUUID(),updatedAt:this.iso()});
@@ -128,19 +157,16 @@ export class AssistantService {
     if (!doc || doc.ownerUid !== uid) fail(404,'not_found','This item is unavailable.');
     return doc;
   }
-  async session(user) {
-    const pairings = await this.store.list('assistantWorkers', [['enabled','==',true]],20,{includeId:true});
+  async session(user,includeContentRevision=false) {
+    const [pairings,marker]=await Promise.all([this.store.list('assistantWorkers', [['enabled','==',true]],20,{includeId:true}),includeContentRevision?this.store.get(ref('assistantUiNotifications',user.uid)).catch(()=>undefined):undefined]);
     const workers=await Promise.all(pairings.filter(w=>w.allowedOwnerUids?.includes(user.uid)).map(async w=>withWorkerHealth(w,await this.store.get(ref('assistantWorkerHealth',w.id)))));
     const own = workers.filter(w => w.allowedOwnerUids?.includes(user.uid)).sort((a,b) => (b.lastSeenAt || '').localeCompare(a.lastSeenAt || ''))[0];
     const fresh = own && this.now().getTime() - Date.parse(own.lastSeenAt || '')>=0 && this.now().getTime() - Date.parse(own.lastSeenAt || '') < workerFreshnessMs;
     const service=await this.serviceControl.get(user).catch(error=>{if([403,503].includes(error.status))return null;throw error;});
-    return {user,worker:{state:fresh ? own.state || 'loading' : 'offline',lastSeenAt:own?.lastSeenAt || null,modelReady:!!(fresh && own.modelReady)},service,notifications:{schemaVersion:1,contentPath:ref('assistantUiNotifications',user.uid),presencePath:service?ref('assistantWorkerHealth',serviceWorkerId):null,freshnessMs:workerFreshnessMs},capabilities:capabilityFacts({}),defaults:Object.fromEntries(['marks','durationMinutes','questionLanguage','answerLanguage'].map(key=>[key,domain.defaults[key]]))};
+    const contentRevision=marker===null?'':marker?.schemaVersion===1&&typeof marker.revision==='string'?marker.revision:undefined;
+    return {user,worker:{state:fresh ? own.state || 'loading' : 'offline',lastSeenAt:own?.lastSeenAt || null,modelReady:!!(fresh && own.modelReady)},service,notifications:{schemaVersion:1,contentPath:ref('assistantUiNotifications',user.uid),presencePath:service?ref('assistantWorkerHealth',serviceWorkerId):null,freshnessMs:workerFreshnessMs},...(contentRevision===undefined?{}:{contentRevision}),capabilities:capabilityFacts({}),defaults:Object.fromEntries(['marks','durationMinutes','questionLanguage','answerLanguage'].map(key=>[key,domain.defaults[key]]))};
   }
-  async curriculumCatalogue(){
-    if(this.catalogueCache&&Date.now()-this.catalogueCache.at<21600000)return this.catalogueCache.value;
-    const rows=await this.store.list('syllabus',[],5001,{select:['board','standard','subject','chapter']});
-    const value=catalogueIndex(rows);this.catalogueCache={at:Date.now(),value};return value;
-  }
+  curriculumCatalogue(consumer='worker'){return this.catalogueCache.get(consumer);}
   async resolveCurriculum(requirements,conversationId=null,worker=null){
     const r=validateScope({...domain.defaults,...requirements});validateCurriculumScope(r);
     const c=conversationId?await this.store.get(ref('assistantConversations',conversationId)):null;
@@ -174,7 +200,19 @@ export class AssistantService {
     if(rows.length>400)fail(409,'catalogue_bound','Saved subject exceeds its chapter read bound.');
     try{return selectedCurriculum(savedCurriculum(r,rows),r);}catch(e){fail(400,'curriculum_unavailable',e.message);}
   }
-  async conversations(uid) { const rows = await this.store.list('assistantConversations',[['ownerUid','==',uid]],100); return {conversations:rows.sort((a,b) => b.updatedAt.localeCompare(a.updatedAt)).map(publicConversation)}; }
+  async conversations(uid,query) {
+    if(query?.get('view')==='recent'){
+      const cursor=query.get('cursor');
+      const rows=await this.store.list('assistantConversations',[['ownerUid','==',uid]],historySizes.requests+1,{
+        ...historyOrder('requests','updatedAt',uid,cursor),includeId:true,select:conversationFields
+      });
+      const {items,nextCursor}=historyPage('requests','updatedAt',uid,rows);
+      historyDiagnostic(cursor?'older-requests':'recent-requests',{resultCount:items.length,queryRows:rows.length,hasMore:!!nextCursor});
+      return {conversations:items.map(publicConversation),nextCursor};
+    }
+    const rows=await this.store.list('assistantConversations',[['ownerUid','==',uid]],100);
+    return {conversations:rows.sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)).map(publicConversation)};
+  }
   async adminLibrary(uid,body={}) {
     await this.user({uid});
     if(!['papers','conversations'].includes(body.kind))fail(400,'invalid_library_kind','Choose papers or conversations.');
@@ -282,12 +320,16 @@ export class AssistantService {
       isPartial:migration?.completed!==true||(!exhausted&&matches.length<=request.pageSize),
       sortApplied:'recent',pageSize:request.pageSize};
   }
-  async adminConversation(uid,id) {
+  async adminConversation(uid,id,query) {
     await this.user({uid});const path=ref('assistantConversations',id),c=await this.store.get(path);
     if(!visibleToAdmin(c,uid))fail(404,'not_found','Conversation unavailable.');
-    const detail=await this.conversationView(c),profile=await this.store.get(ref('users',c.ownerUid));
+    const view=query?.get('view');
+    const pageOrStatus=['messages','papers','paper','status'].includes(view);
+    const detail=await this.historyView(c,uid,view,query,!!view&&c.ownerUid===uid);
+    const profile=pageOrStatus?null:await this.store.get(ref('users',c.ownerUid));
     if(c.ownerUid!==uid&&!visibleToAdmin(await this.store.get(path),uid))fail(404,'not_found','Conversation unavailable.');
-    return {...detail,readOnly:c.ownerUid!==uid,creatorName:String(profile?.displayName||profile?.name||'GTOP administrator').slice(0,120)};
+    if(pageOrStatus&&!detail.conversation)return detail;
+    return {...detail,readOnly:c.ownerUid!==uid,...(pageOrStatus?{}:{creatorName:String(profile?.displayName||profile?.name||'GTOP administrator').slice(0,120)})};
   }
   async adminArtifact(uid,id,kind) {await this.user({uid});const p=await this.store.get(ref('assistantPapers',id));if(!visibleToAdmin(p,uid))fail(404,'not_found','Paper unavailable.');return this.artifact(p.ownerUid,id,kind);}
   async createConversation(uid, body) {
@@ -301,23 +343,98 @@ export class AssistantService {
     });
     return {conversation:publicConversation(result)};
   }
-  async conversation(uid,id) {
+  async conversation(uid,id,query) {
     const c = await this.owned(uid,'assistantConversations',id);
-    return this.conversationView(c,{expireLeases:true});
+    return this.historyView(c,uid,query?.get('view'),query,true);
   }
   async conversationRevision(uid,id,admin=false){
     const c=admin?await this.store.get(ref('assistantConversations',id)):await this.owned(uid,'assistantConversations',id);
     if(!visibleToAdmin(c,uid))fail(404,'not_found','Conversation unavailable.');
     return {updatedAt:c.updatedAt};
   }
-  async conversationView(c,{expireLeases=false}={}) {
+  async historyView(c,viewer,view,query,expireLeases){
+    if(!['recent','messages','papers','paper','status'].includes(view))return this.conversationView(c,{expireLeases,viewer});
+    const {id,ownerUid}=c,scope=[viewer,id].join('/');
+    if(view==='paper'){
+      const [paper]=await this.store.getSelected([ref('assistantPapers',query.get('paperId'))],[...paperSummaryFields,'nativePrivate']);
+      if(paper?.ownerUid!==ownerUid||paper.conversationId!==id||!visibleToAdmin(paper,viewer))fail(404,'not_found','Paper unavailable.');
+      return {paper:summary(paper)};
+    }
+    const loadMessages=async cursor=>{
+      const rows=await this.store.list(`assistantConversations/${id}/messages`,[],historySizes.messages+1,{
+        ...historyOrder('messages','createdAt',scope,cursor),includeId:true
+      });
+      const page=historyPage('messages','createdAt',scope,rows);
+      return {...page,items:page.items.reverse(),queryRows:rows.length};
+    };
+    const loadPapers=async cursor=>{
+      const rows=await this.store.list('assistantPapers',[['conversationId','==',id],['ownerUid','==',ownerUid]],historySizes.papers+1,{
+        ...historyOrder('papers','createdAt',scope,cursor),includeId:true,select:[...paperSummaryFields,'nativePrivate']
+      });
+      // Paper creation preserves the parent privacy invariant. Fail closed if a
+      // historically inconsistent row would otherwise influence a shared page.
+      if(rows.some(paper=>!visibleToAdmin(paper,viewer)))fail(404,'not_found','Conversation unavailable.');
+      const page=historyPage('papers','createdAt',scope,rows);
+      return {...page,items:page.items.reverse().map(summary),queryRows:rows.length};
+    };
+    if(view==='messages'||view==='papers'){
+      const cursor=query.get('cursor');
+      if(!cursor)fail(400,'invalid_history_cursor','An earlier history cursor is required.');
+      const {items,nextCursor,queryRows}=await (view==='messages'?loadMessages(cursor):loadPapers(cursor));
+      historyDiagnostic('older-'+view,{resultCount:items.length,queryRows,hasMore:!!nextCursor});
+      return {items,nextCursor};
+    }
+
+    // The saved conversation date changes with transcript or paper writes. Job
+    // progress/lease updates can leave it unchanged, so refresh the active jobs.
+    const unchanged=view==='status'&&query.get('updatedAt')===c.updatedAt;
+    const [messages,papers]=await Promise.all([unchanged?null:loadMessages(null),unchanged?null:loadPapers(null)]);
+    const latestInPage=messages?.items.findLast(m=>m.role==='user');
+    const latestRequestLookup=!c.latestUserJobId&&!!c.latestUserMessageId&&latestInPage?.id!==c.latestUserMessageId;
+    const latestRequest=latestRequestLookup?await this.store.get(messagePath(id,c.latestUserMessageId)):latestInPage;
+    const leadJob=c.latestUserJobId||latestRequest?.jobId;
+    const jobIds=[...new Set([c.activeNativeTurnId,c.activePaperJobId,c.activeCurriculumJobId,c.pendingResumeTurnId,leadJob].filter(Boolean))];
+    const fields=[...publicJobFields,'leaseUntil','retryJobId'];
+    const candidates=await this.store.getSelected(jobIds.map(jobId=>ref('assistantJobs',jobId)),fields);
+    const belongs=job=>job?.ownerUid===ownerUid&&job.conversationId===id;
+    const own=new Map(candidates.filter(belongs).map(job=>[job.id,job]));
+    const checked=new Map(own);
+    let retryLookups=0;
+    // Legacy retries retain both the original user-message job pointer and any
+    // resumed curriculum-turn pointer. Resolve the current job for each root.
+    for(const root of new Set([c.pendingResumeTurnId,leadJob].filter(Boolean))){
+      let job=checked.get(root);
+      const visited=new Set();
+      while(belongs(job)&&job.kind==='turn'&&job.retryJobId&&retryLookups<100){
+        visited.add(job.id);
+        if(visited.has(job.retryJobId))break;
+        if(!checked.has(job.retryJobId)){
+          const [next]=await this.store.getSelected([ref('assistantJobs',job.retryJobId)],fields);
+          checked.set(job.retryJobId,next);retryLookups++;
+        }
+        const next=checked.get(job.retryJobId);
+        if(!belongs(next)||next.kind!=='turn')break;
+        own.delete(job.id);own.set(next.id,next);job=next;
+      }
+    }
+    const currentJobs=[...own.values()];
+    const jobs=(expireLeases?await Promise.all(currentJobs.map(job=>leaseExpired(job,this.now().getTime())?this.expireOne(job.id,ownerUid):job)):currentJobs).filter(Boolean).map(publicJob);
+    historyDiagnostic(unchanged?'unchanged-status':view==='status'?'changed-status':'thread-head',{
+      messageRows:messages?.queryRows||0,paperRows:papers?.queryRows||0,jobLookups:jobIds.length,retryLookups,latestRequestLookup
+    });
+    if(unchanged)return {unchanged:true,jobs};
+    return {conversation:{...publicConversation(c),...(papers.items.length?{title:paperConversationTitle(papers.items.at(-1))}:{})},
+      messages:messages.items,papers:papers.items,jobs,history:{messages:messages.nextCursor,papers:papers.nextCursor}};
+  }
+  async conversationView(c,{expireLeases=false,viewer=c.ownerUid}={}) {
     const id=c.id,uid=c.ownerUid;
     const jobFields=[...publicJobFields,'leaseUntil'];
     const [messages,jobs,papers]=await Promise.all([
       this.store.list(`assistantConversations/${id}/messages`,[],250,{orderBy:['createdAt','desc']}),
       this.store.list('assistantJobs',[['conversationId','==',id]],100,{select:jobFields}),
-      this.store.list('assistantPapers',[['conversationId','==',id]],100,{select:['id','title','revision','marks','createdAt','jobId','ownerUid','conversationId','board','standard','subject','academicYear','requirements.format']})
+      this.store.list('assistantPapers',[['conversationId','==',id]],100,{select:[...paperSummaryFields,'nativePrivate']})
     ]);
+    if(papers.some(paper=>paper.ownerUid===uid&&!visibleToAdmin(paper,viewer)))fail(404,'not_found','Conversation unavailable.');
     const currentIds=[c.activeNativeTurnId,c.activePaperJobId,c.activeCurriculumJobId,c.pendingResumeTurnId,messages.find(m=>m.role==='user')?.jobId];
     const missing=[...new Set(currentIds.filter(jid=>jid&&!jobs.some(j=>j.id===jid)))];
     const selected=missing.length?await this.store.getSelected(missing.map(jid=>ref('assistantJobs',jid)),jobFields):[];
@@ -348,7 +465,7 @@ export class AssistantService {
         message.native=true;
         tx.create(messagePath(cid,mid),message);
         tx.create(ref('assistantJobs',jid),job);
-        tx.set(ref('assistantConversations',cid),{...c,nativePrivate:true,activeNativeTurnId:jid,latestUserMessageId:mid,title:c.title==='New paper conversation'?original.replace(/\s+/g,' ').slice(0,80):c.title,rootRequestId:c.rootRequestId||mid,updatedAt:when});
+        tx.set(ref('assistantConversations',cid),{...c,nativePrivate:true,activeNativeTurnId:jid,latestUserMessageId:mid,latestUserJobId:jid,title:c.title==='New paper conversation'?original.replace(/\s+/g,' ').slice(0,80):c.title,rootRequestId:c.rootRequestId||mid,updatedAt:when});
         this.notifyDispatch(tx,uid);
         return {message,job:publicJob(job)};
       }
@@ -394,7 +511,7 @@ export class AssistantService {
       else this.notifyContent(tx,uid);
       if(continuation&&activeStates.has(continuation.state))tx.set(ref('assistantJobs',continuation.id),{...continuation,state:'cancelled',phase:'superseded_by_new_message',leaseId:null,leaseUntil:null,updatedAt:when});
       if(current&&leaseExpired(current,now))tx.set(ref('assistantJobs',current.id),expiredJob(current,when));
-      tx.set(ref('assistantConversations',cid),{...c,...(c.activeNativeTurnId?{activeNativeTurnId:null}:{}),...(c.nativeThreadStartedAt?{nativeLegacyContextPending:true}:{}),...(paperProposal?{paperProposal}:{}),...(taskBrief?{taskBrief}:{}),requestRevision:revision,...(job.kind==='paper'&&job.id===jid?{activePaperJobId:jid}:{}),latestUserMessageId:mid,pendingResumeTurnId:null,title:c.title==='New paper conversation'?original.replace(/\s+/g,' ').slice(0,80):c.title,rootRequestId:c.rootRequestId || mid,updatedAt:when});
+      tx.set(ref('assistantConversations',cid),{...c,...(c.activeNativeTurnId?{activeNativeTurnId:null}:{}),...(c.nativeThreadStartedAt?{nativeLegacyContextPending:true}:{}),...(paperProposal?{paperProposal}:{}),...(taskBrief?{taskBrief}:{}),requestRevision:revision,...(job.kind==='paper'&&job.id===jid?{activePaperJobId:jid}:{}),latestUserMessageId:mid,latestUserJobId:message.jobId,pendingResumeTurnId:null,title:c.title==='New paper conversation'?original.replace(/\s+/g,' ').slice(0,80):c.title,rootRequestId:c.rootRequestId || mid,updatedAt:when});
       return {message,job:publicJob(job)};
     });
   }
@@ -437,8 +554,10 @@ export class AssistantService {
       if(j.kind!=='turn' && active && active.id!==jid && activeStates.has(active.state)) fail(409,'newer_task_active','A newer paper task is active.');
       const id=this.id(), now=this.iso(), next={...j,id,state:'queued',phase:'retry_queued',createdAt:now,updatedAt:now,leaseId:null,leaseUntil:null,assignedWorkerId:null,startedAt:null,error:null,errorCode:null,elapsedSeconds:0,progress:null,retryOf:jid,retryJobId:null,...(j.native?{retryErrorCode:j.errorCode||null}:{})};
       tx.create(ref('assistantJobs',id),next); tx.set(ref('assistantJobs',jid),{...j,retryJobId:id});this.notifyDispatch(tx,uid);
-      if(j.native)tx.update(ref('assistantConversations',c.id),{activeNativeTurnId:id,updatedAt:now});
-      else if(j.kind!=='turn') tx.set(ref('assistantConversations',c.id),{...c,[slot.id]:id,...(j.confirmedProposalId&&c.paperProposal?.id===j.confirmedProposalId?{paperProposal:{...c.paperProposal,generationJobId:id}}:{}),updatedAt:now});
+      if(j.native)tx.update(ref('assistantConversations',c.id),{activeNativeTurnId:id,latestUserJobId:id,updatedAt:now});
+      else if(j.kind==='turn')tx.update(ref('assistantConversations',c.id),j.resumedFromCurriculumJobId
+        ?{pendingResumeTurnId:id}:{latestUserJobId:id});
+      else tx.set(ref('assistantConversations',c.id),{...c,[slot.id]:id,...(j.confirmedProposalId&&c.paperProposal?.id===j.confirmedProposalId?{paperProposal:{...c.paperProposal,generationJobId:id}}:{}),updatedAt:now});
       return {job:publicJob(next)};
     });
   }
@@ -539,7 +658,7 @@ export class AssistantService {
   }
   async turnBrief(worker,job,body,input){
     if(job.kind!=='turn')return null;
-    input.catalogue=await this.curriculumCatalogue();
+    input.catalogue=await this.curriculumCatalogue('legacy-turn');
     let brief;try{brief=buildTaskBrief(input,body.selection||null);}catch(e){fail(400,'invalid_selection',e.message);}
     const field=missingTaskField(brief);
     const asked=body.clarificationField&&(body.clarificationField===field||['course','edition','curriculum','format'].includes(body.clarificationField));

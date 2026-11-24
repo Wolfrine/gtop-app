@@ -7,7 +7,7 @@ import {
 import { FirebaseClient } from './firebase';
 import { SyllabusService, type SyllabusItem as CatalogueItem } from '../../../services/syllabus.service';
 import { FirestoreReadService } from '../../../services/firestore-read.service';
-import { filter, firstValueFrom, map } from 'rxjs';
+import { filter, firstValueFrom, map, takeWhile } from 'rxjs';
 import { SyllabusItem } from './models';
 import { curriculumKey } from '../../../services/curriculum.domain';
 import {
@@ -35,6 +35,13 @@ export class QuestionPaperRepository {
   syllabusUpdates(board?: string, standard?: string) {
     const snapshot = board && standard ? this.catalogue.watchScope(board, standard) : this.catalogue.watchCatalogue();
     return snapshot.pipe(filter(state => !state.fromCache || state.items.length > 0), map(state => this.sortedSyllabus(state.items)));
+  }
+
+  searchCatalogue() {
+    return this.catalogue.watchCatalogue().pipe(
+      takeWhile(snapshot => snapshot.fromCache, true),
+      map(snapshot => ({ items: this.sortedSyllabus(snapshot.items), fromCache: snapshot.fromCache }))
+    );
   }
 
   private sortedSyllabus(items: CatalogueItem[]): SyllabusItem[] {

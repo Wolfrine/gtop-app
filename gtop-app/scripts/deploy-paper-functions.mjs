@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 const project='gtop-app';
 const runtime='78765581239-compute@developer.gserviceaccount.com';
+const runtimeOnly=process.env.PAPER_RUNTIME_ONLY==='1';
 const databaseResponse=await fetch('https://firestore.googleapis.com/v1/projects/'+project+'/databases/(default)',{headers:{Authorization:'Bearer '+process.env.ACCESS_TOKEN},signal:AbortSignal.timeout(30000)});
 assert(databaseResponse.ok,'The database location must be verified before trigger deployment.');
 const location=(await databaseResponse.json()).locationId;
@@ -38,8 +39,12 @@ async function deploy(spec){
 }
 // Initialize the first service before independent background deployments.
 await deploy(specs[0]);
-const results=await Promise.allSettled(specs.slice(1).map(deploy));
+const results=await Promise.allSettled(specs.slice(1,runtimeOnly?4:specs.length).map(deploy));
 for(const result of results)if(result.status==='rejected')throw result.reason;
+if(runtimeOnly){
+  console.log('Verified the four existing legacy paper runtimes.');
+  process.exit(0);
+}
 // Remove only the failed Gen2 resources created by the earlier deployment.
 for(const name of ['publishPaper','uploadPaperAsset','notifyPaperAdmin']){
   let failed;

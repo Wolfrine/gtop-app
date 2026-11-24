@@ -32,6 +32,7 @@ jobs:
       contents: read
     outputs:
       backend_required: ${{ steps.scope.outputs.backend_required }}
+      backend_scope: ${{ steps.scope.outputs.backend_scope }}
       assistant_only: ${{ steps.scope.outputs.assistant_only }}
     steps:
       - uses: actions/checkout@v4
@@ -56,12 +57,15 @@ jobs:
           const before = process.env.RELEASE_BEFORE || '';
           let required = true;
           let assistantOnly = false;
+          let backendScope = 'paper-chat-backend';
           if (process.env.RELEASE_EVENT === 'push' && /^[a-f0-9]{40}$/.test(before) && !/^0+$/.test(before)) {
             const files = execFileSync('git', ['diff', '--no-renames', '--name-only', '-z', before, process.env.GITHUB_SHA], {encoding: 'utf8'}).split('\0').filter(Boolean);
             // Only known frontend and documentation paths can skip backend deployment.
             // Unknown paths, missing history, and explicit dispatches retain the backend gate.
-            const frontendOnly = /^(?:gtop-app\/(?:src\/|scripts\/verify-deployment\.mjs$)|(?:docs|raw|wiki|codex|question-papers|assistant-service|gtop-v2)\/|AGENTS\.md$|\.github\/workflows\/(?:firebase-deploy|firebase-v2-uat|gtop-assistant-release)\.yml$)/;
+            const frontendOnly = /^(?:gtop-app\/(?:src\/|scripts\/verify-deployment\.mjs$|AGENTS\.md$|firebase\.local\.json$|storage\.local\.rules$)|(?:docs|raw|wiki|codex|question-papers|assistant-service|gtop-v2|tools\/gtop-assistant)\/|AGENTS\.md$|\.github\/workflows\/(?:firebase-deploy|firebase-v2-uat|firebase-v2-backend|gtop-assistant-release)\.yml$)/;
             required = files.some(file => !frontendOnly.test(file));
+            const legacyRuntime = /^gtop-app\/(?:functions\/(?:index|paper-engine|legacy-environment)\.mjs|scripts\/deploy-paper-functions\.mjs)$/;
+            if (required && files.every(file => frontendOnly.test(file) || legacyRuntime.test(file))) backendScope = 'paper-runtime-only';
             // PDF decoding for the student upload is a browser-only dependency.
             const packagePaths = ['gtop-app/package.json','gtop-app/package-lock.json'];
             const buildPath = 'gtop-app/angular.json';
@@ -99,6 +103,7 @@ jobs:
             console.log(`Reviewed release: ${files.length} changed paths; backend required: ${required}`);
           }
           appendFileSync(process.env.GITHUB_OUTPUT, `backend_required=${required}\n`);
+          appendFileSync(process.env.GITHUB_OUTPUT, `backend_scope=${backendScope}\n`);
           appendFileSync(process.env.GITHUB_OUTPUT, `assistant_only=${assistantOnly}\n`);
           })().catch(error=>{console.error(error);process.exitCode=1;});
           NODE
@@ -109,8 +114,8 @@ jobs:
     uses: ./.github/workflows/firebase-v2-backend.yml
     with:
       deploy_backend: true
-      deployment_scope: paper-chat-backend
-      allow_planned_rule_change: true
+      deployment_scope: ${{ needs.release-scope.outputs.backend_scope }}
+      allow_planned_rule_change: ${{ needs.release-scope.outputs.backend_scope != 'paper-runtime-only' }}
     secrets: inherit
 
   build-and-verify:

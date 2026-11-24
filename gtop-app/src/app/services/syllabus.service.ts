@@ -170,7 +170,8 @@ export class SyllabusService {
     async updateSyllabusCountsFromIndexedDB() {
         const syllabusCollection = collection(this.firestore, 'syllabus');
         const syllabusSnapshot = await getDocs(syllabusCollection);
-        const batch = writeBatch(this.firestore);
+        let batch = writeBatch(this.firestore);
+        let changed = 0;
 
         for (const docSnap of syllabusSnapshot.docs) {
             const syllabusDoc = docSnap.ref;
@@ -187,10 +188,16 @@ export class SyllabusService {
             const mcqSnapshot = await getCountFromServer(mcqQuery);
             const count = mcqSnapshot.data().count;
 
+            if (syllabusData['mcqCount'] === count) continue;
             batch.update(syllabusDoc, { mcqCount: count });
+            if (++changed === 400) {
+                await batch.commit();
+                batch = writeBatch(this.firestore);
+                changed = 0;
+            }
         }
 
-        await batch.commit();
+        if (changed) await batch.commit();
     }
 
     async editSyllabus(
@@ -210,10 +217,9 @@ export class SyllabusService {
         });
 
         // ⚡️ 2. Update Syllabus (only changed fields)
-        if (Object.keys(changedFields).length > 0) {
-            await updateDoc(syllabusDocRef, changedFields);
-            if (changedFields.board || changedFields.standard) this.optionReads.clear();
-        }
+        if (!Object.keys(changedFields).length) return;
+        await updateDoc(syllabusDocRef, changedFields);
+        if (changedFields.board || changedFields.standard) this.optionReads.clear();
 
         // 🔃 3. If subject/chapter changed, update MCQs
         const shouldUpdateMCQs = changedFields.subject || changedFields.chapter;
@@ -293,7 +299,7 @@ export class SyllabusService {
         const count = countSnap.data().count;
         const match = matches.docs[0];
         if (!match) return null;
-        await updateDoc(match.ref, { mcqCount: count });
+        if (match.data()['mcqCount'] !== count) await updateDoc(match.ref, { mcqCount: count });
         return { id: match.id, count };
     }
 

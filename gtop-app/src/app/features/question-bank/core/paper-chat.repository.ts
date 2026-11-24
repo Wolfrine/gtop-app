@@ -6,7 +6,7 @@ import { map,filter,switchMap,of } from 'rxjs';
 import { FirebaseClient } from './firebase';
 import { FirestoreReadService } from '../../../services/firestore-read.service';
 import { AuthService } from '../../../services/auth.service';
-import { paperGatewayUrl } from '../../../firebase-environment';
+import { paperGatewayUrl, useEmulators } from '../../../firebase-environment';
 import { QuestionPaperRepository } from './question-paper.repository';
 import { nextPaperRun,type PaperConversation,type PaperChatMessage,type PaperChatRequest,type ChatSavedPaper,type PaperNotification } from './paper-chat.models';
 
@@ -101,6 +101,7 @@ export class PaperChatRepository {
     return paper;
   }
   async enablePush(){
+    if(useEmulators)throw Error('Device push is unavailable in the emulator.');
     if(!this.push.isEnabled)throw Error('Device notifications are available in the installed or production app.');
     const token=await this.auth.currentUser?.getIdToken();if(!token)throw Error('Sign in again to enable notifications.');
     const config=await fetch(this.gateway+'/config',{headers:{Authorization:'Bearer '+token}});

@@ -2,6 +2,7 @@ export interface MarkerSnapshot {fromCache:boolean;data:Record<string,unknown>|n
 export type WatchMarker=(path:string,next:(snapshot:MarkerSnapshot)=>void,error:(error:unknown)=>void)=>()=>void;
 export interface Notifications {schemaVersion:1;contentPath:string;presencePath:string|null;freshnessMs:number}
 export interface WorkerHealth {schemaVersion:1;state:'ready'|'loading'|'busy'|'offline';modelReady:boolean;version:string;lastSeenAt:string}
+type ContentSignal='attach'|'reconnect'|'change';
 
 // Notifications invalidate gateway data; they never carry private workspace content.
 export class InvalidationQueue {
@@ -37,7 +38,7 @@ export class OwnerEvents {
   private stopped=false;private cleanups=new Set<()=>void>();
   private presenceCleanup?:()=>void;
   private contentCleanup?:()=>void;
-  constructor(private watch:WatchMarker,private config:Notifications,private callbacks:{content:()=>void;presence:(health:WorkerHealth|undefined)=>void;state:()=>void;denied?:(kind:'content'|'presence',code:string)=>void},private clock:{set:typeof setTimeout;clear:typeof clearTimeout}={set:setTimeout,clear:clearTimeout}){}
+  constructor(private watch:WatchMarker,private config:Notifications,private callbacks:{content:(revision:string,signal:ContentSignal)=>void;presence:(health:WorkerHealth|undefined)=>void;state:()=>void;denied?:(kind:'content'|'presence',code:string)=>void},private clock:{set:typeof setTimeout;clear:typeof clearTimeout}={set:setTimeout,clear:clearTimeout}){}
   start(){this.attach('content',this.config.contentPath);if(this.config.presencePath)this.attach('presence',this.config.presencePath);}
   retryPresence(){if(this.presenceCleanup){this.presenceCleanup();this.cleanups.delete(this.presenceCleanup);}if(this.config.presencePath)this.attach('presence',this.config.presencePath);}
   retryContent(){if(this.contentCleanup){this.contentCleanup();this.cleanups.delete(this.contentCleanup);}this.attach('content',this.config.contentPath);}
@@ -56,18 +57,22 @@ export class OwnerEvents {
       ready=false;this[kind==='content'?'contentReady':'presenceReady']=false;this.callbacks.state();
       const code=String((error as {code?:unknown})?.code||'').split('/').at(-1)||'';
       if(['permission-denied','unauthenticated'].includes(code)){cleanup();this.cleanups.delete(cleanup);this.callbacks.denied?.(kind,code);return;}
-      unsubscribe();retry=this.clock.set(()=>{cleanup();this.cleanups.delete(cleanup);this.attach(kind,path,attempt+1);},Math.min(60000,2000*2**Math.min(attempt,5)));
+      unsubscribe();
+      if(attempt>=3){cleanup();this.cleanups.delete(cleanup);return;}
+      retry=this.clock.set(()=>{cleanup();this.cleanups.delete(cleanup);this.attach(kind,path,attempt+1);},2000*2**attempt);
     };
     try{unsubscribe=this.watch(path,snapshot=>{
       if(this.stopped||closed||failed)return;
       if(snapshot.fromCache){if(ready){ready=false;this[kind==='content'?'contentReady':'presenceReady']=false;this.callbacks.state();}return;}
-      const reconnect=!ready;
       if(kind==='content'){
         const data=snapshot.data;
         if(data&&(data.schemaVersion!==1||typeof data.revision!=='string'||typeof data.updatedAt!=='string')){fail();return;}
         const revision=data?String(data.revision):'';
+        const signal=lastRevision===undefined?'attach':!ready?'reconnect':'change';
+        const changed=!ready||revision!==lastRevision;
+        lastRevision=revision;
         ready=true;this.contentReady=true;
-        if(reconnect||revision!==lastRevision){lastRevision=revision;this.callbacks.content();}
+        if(changed)this.callbacks.content(revision,signal);
       }else{
         const health=workerHealth(snapshot.data);
         ready=!!health;this.presenceReady=ready;this.callbacks.presence(health);

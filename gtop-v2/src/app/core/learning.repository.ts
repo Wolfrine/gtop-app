@@ -35,8 +35,11 @@ export class LearningRepository {
     private readonly firebase: FirebaseClient,
   ) {}
 
-  async syllabus(): Promise<SyllabusItem[]> {
-    const source = query(collection(this.firebase.firestore, 'syllabus'), limit(500));
+  async syllabus(scope?: { board?: string | null; standard?: string | null }): Promise<SyllabusItem[]> {
+    const source = query(collection(this.firebase.firestore, 'syllabus'),
+      ...(scope?.board ? [where('board', '==', scope.board)] : []),
+      ...(scope?.standard ? [where('standard', '==', scope.standard)] : []),
+      ...(!scope?.board && !scope?.standard ? [limit(500)] : []));
     let snapshot;
     try {
       const cached = await getDocsFromCache(source);
@@ -54,25 +57,24 @@ export class LearningRepository {
   }
 
   async questions(filters: PracticeFilters): Promise<Question[]> {
+    if (!filters.board || !filters.standard) throw Error('Choose a board and class before starting practice.');
     const constraints = [];
     if (filters.board) constraints.push(where('board', '==', filters.board));
     if (filters.standard) constraints.push(where('standard', '==', filters.standard));
     if (filters.subject) constraints.push(where('subject', '==', filters.subject));
     if (filters.chapter) constraints.push(where('chapter', '==', filters.chapter));
-    if (!filters.subject && filters.subjects?.length && filters.subjects.length <= 10)
-      constraints.push(where('subject', 'in', filters.subjects));
-    else if (
-      !filters.chapter &&
-      !filters.subjects?.length &&
-      filters.chapters?.length &&
-      filters.chapters.length <= 10
-    )
-      constraints.push(where('chapter', 'in', filters.chapters));
-    constraints.push(limit(Math.min(Math.max((filters.count ?? 10) * 3, 20), 200)));
-    const snapshot = await getDocs(
-      query(collection(this.firebase.firestore, 'questions'), ...constraints),
-    );
-    const items = snapshot.docs
+    const subjects = filters.subject ? [] : [...new Set(filters.subjects ?? [])];
+    const chapters = filters.chapter ? [] : [...new Set(filters.chapters ?? [])];
+    const field = chapters.length ? 'chapter' : 'subject';
+    const values = chapters.length ? chapters : subjects;
+    const source = collection(this.firebase.firestore, 'questions');
+    const docs = new Map();
+    for (let offset = 0; offset < Math.max(1, values.length); offset += 20) {
+      const block = values.slice(offset, offset + 20);
+      const snapshot = await getDocs(query(source, ...constraints, ...(block.length ? [where(field, 'in', block)] : [])));
+      for (const entry of snapshot.docs) docs.set(entry.id, entry);
+    }
+    const items = [...docs.values()]
       .map((entry) => this.normalizeQuestion(entry.id, entry.data()))
       .filter((item) => !filters.subjects?.length || filters.subjects.includes(item.subject))
       .filter((item) => !filters.chapters?.length || filters.chapters.includes(item.chapter));
@@ -83,7 +85,7 @@ export class LearningRepository {
     profile: { board?: string | null; standard?: string | null },
     count = 10,
   ): Promise<Question[]> {
-    const syllabus = (await this.syllabus()).filter(
+    const syllabus = (await this.syllabus(profile)).filter(
       (item) =>
         item.mcqCount > 0 &&
         (!profile.board || item.board === profile.board) &&

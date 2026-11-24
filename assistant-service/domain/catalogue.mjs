@@ -39,6 +39,15 @@ export function catalogueIndex(rows){
   if(rows.length>=5001)throw Error('Curriculum catalogue exceeds its read bound; narrow the catalogue before release.');
   const scopes=new Map();
   for(const row of rows){const standard=String(row.standard);if(!boards.some(b=>b.name===row.board&&b.standards.includes(Number(standard)))||!row.subject||!row.chapter)continue;const key=[row.board,standard,row.subject].join('|');const old=scopes.get(key)||{board:row.board,standard,subject:row.subject,chapters:0};old.chapters++;scopes.set(key,old);}
+  return catalogueWithCounts([...scopes.values()]);
+}
+export function catalogueWithCounts(rows){
+  const scopes=new Map();
+  for(const row of rows){
+    const key=JSON.stringify([row.board,row.standard,row.subject]);
+    const prior=scopes.get(key);
+    if(prior)prior.chapters+=row.chapters;else scopes.set(key,{...row});
+  }
   return {boards:boards.map(({name,standards,url})=>({name,standards,url})),standards:[5,6,7,8,9,10,11,12],scopes:[...scopes.values()].sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),basis:'GTOP saved syllabus; year/completeness are not inferred from question counts'};
 }
 const escaped=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');

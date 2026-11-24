@@ -21,6 +21,8 @@ jobs:
       deploy_required: ${{ steps.scope.outputs.deploy_required }}
       backend_required: ${{ steps.scope.outputs.backend_required }}
       hosting_required: ${{ steps.scope.outputs.hosting_required }}
+      directory_required: ${{ steps.scope.outputs.directory_required }}
+      catalogue_backfill_required: ${{ steps.scope.outputs.catalogue_backfill_required }}
     permissions:
       contents: read
       actions: read
@@ -120,12 +122,15 @@ jobs:
       - name: Check live rule drift and deploy only worker identity restrictions
         run: node assistant-service/scripts/deploy-rules.mjs
       - name: Synchronize the private student directory using existing permissions
+        if: needs.verify.outputs.directory_required == 'true'
         run: node assistant-service/scripts/deploy-student-directory.mjs
       - name: Deploy assistant gateway using existing runtime permissions
         run: node assistant-service/scripts/deploy.mjs
       - name: Project original papers into their private catalogue once
+        if: needs.verify.outputs.catalogue_backfill_required == 'true'
         run: node assistant-service/scripts/backfill-paper-catalogue.mjs
       - name: Backfill curriculum browse options from the derived private catalogue
+        if: needs.verify.outputs.catalogue_backfill_required == 'true'
         run: node assistant-service/scripts/backfill-paper-facets.mjs
       - name: Read-only verification of real paper taxonomy and authorized search
         run: node assistant-service/scripts/verify-paper-catalogue.mjs

@@ -10,15 +10,24 @@ import { AssistantApi } from './api.service';
 import type { StudentHistoryRecord } from './student-history.component';
 import { handbackIdentity } from './class-return-data';
 import { OwnerEvents, InvalidationQueue, WorkerHealth, validNotifications, freshHealth } from './owner-events';
-import { Conversation, ConversationDetail, Job, PaperSummary, PilotSession, Transport, LibraryKind, LibraryItem, LibraryPage, LibraryFilters, AssistantServiceStatus, libraryMatches, mergeLibraryItems, conversationReadOnly } from './contracts';
+import { Conversation, ConversationDetail, ConversationList, Job, Message, PaperSummary, PilotSession, Transport, LibraryKind, LibraryItem, LibraryPage, LibraryFilters, AssistantServiceStatus, libraryMatches, mergeLibraryItems, conversationReadOnly } from './contracts';
 import { getDevTransport } from './dev-transport';
 import { presentArtifact } from './artifact-presentation.mjs';
 import { ChatMathDirective } from './chat-math.directive';
-import { formatAssistantText, idForRequest, pendingStates, phaseLabel, pollingDelay, readableError, visibleJobs, servicePresentation } from './presentation.mjs';
+import { formatAssistantText, idForRequest, pendingStates, phaseLabel, readableError, visibleJobs, servicePresentation } from './presentation.mjs';
 
 interface DeskPacket {id:string; label:string; studentLabel?:string; pageCount:number; state:string; updatedAt:string; paperId?:string|null}
 interface DeskSheet {id:string; paperId:string; label:string; studentUid?:string; studentLabel?:string; labelFromStudent?:boolean; singleStudentBook?:boolean; state:string; pending:number|null; updatedAt:string; packetId?:string; packetLabel?:string}
 interface DeskItem {kind:'request'|'packet'|'sheet'|'draft'; id:string; title:string; description:string; action:string; updatedAt:string; paperId?:string; packetId?:string}
+type ThreadHistory='messages'|'papers';
+type ThreadStatus=ConversationDetail|{unchanged:true;jobs:Job[]};
+const mergeRows=<T extends {id:string}>(previous:T[],incoming:T[])=>[...new Map([...previous,...incoming].map(row=>[row.id,row])).values()];
+const timeOrder=(a:{id:string;createdAt:string},b:{id:string;createdAt:string})=>a.createdAt.localeCompare(b.createdAt)||a.id.localeCompare(b.id);
+
+function mergedHistoryCursor<T extends {id:string}>(prior:T[],incoming:T[],priorCursor:string|null,incomingCursor:string|null){
+  if(!incomingCursor)return null;
+  return incoming.length&&prior.some(row=>row.id===incoming[0].id)?priorCursor:incomingCursor;
+}
 
 @Component({
   selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls,PaperLibraryComponent],templateUrl:'./workspace.html'
@@ -31,11 +40,18 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   serviceStarting=false;serviceError='';serviceStale=false;private serviceRequestId='';
   private lastOverviewAt=0;private refreshPending?:Promise<void>;
   private authEpoch=0;private authUnsubscribe?:()=>void;private events?:OwnerEvents;private contentQueue?:InvalidationQueue;
+  private contentRevision?:string;
+  private contentConfirmed=false;
+  private sharedProbeOnAttach=false;
+  private workReady=false;private workRevision?:string;
+  private requestsFresh=false;private requestsPending?:{older:boolean;promise:Promise<void>};
+  conversationCursor:string|null=null;ownHistoryLoading=false;ownHistoryError='';
+  threadHistoryLoading:ThreadHistory|null=null;threadHistoryError:Partial<Record<ThreadHistory,string>>={};
   private health?:WorkerHealth;private serviceTimer?:ReturnType<typeof setTimeout>;private servicePending?:Promise<void>;
   private libraryRefreshRequested=false;
   private contentRetryTimer?:ReturnType<typeof setTimeout>;private contentRetryAttempt=0;
   private presenceDenied=false;private capabilityPending?:Promise<void>;private eventConfig='';
-  private contentDenied=false;private contentAccessAllowed=false;private contentAccessPending?:Promise<void>;private contentAccessTimer?:ReturnType<typeof setTimeout>;
+  private contentDenied=false;private contentAccessAllowed=false;private contentAccessPending?:Promise<void>;
   document?:{paper:PaperSummary;kind:'student'|'answers';safe:SafeHtml;adminView:boolean;readOnly:boolean};documentLoading=false;
   checkingPaperId='';checkingComponent?:Type<unknown>;
   checkingHome=false;
@@ -92,7 +108,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   libraryFilters:LibraryFilters={board:'',standard:'',subject:'',text:'',year:''};
   libraryPages:Record<LibraryKind,{items:LibraryItem[];nextCursor:string|null;loaded:boolean}>={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};
   public adminConversation=false;
-  feedbackMessage='';feedbackText='';feedbackPaperId='';feedbackOpen=false;newRequestId='';private sendId='';private sendText='';private documentRequest=0;private timer?:ReturnType<typeof setTimeout>;private destroyed=false;private openingId='';
+  feedbackMessage='';feedbackText='';feedbackPaperId='';feedbackOpen=false;newRequestId='';private sendId='';private sendText='';private documentRequest=0;private timer?:ReturnType<typeof setTimeout>;private sharedAccessTimer?:ReturnType<typeof setTimeout>;private checkedLeases=new Map<string,string>();private destroyed=false;private openingId='';
   get user(){return this.session?.user;}
   get checkingOpen(){return (!!this.checkingPaperId||this.checkingHome)&&!!this.user&&this.contentAuthorized;}
   get checkingInputs(){return {paperId:this.checkingPaperId,scopePacketId:this.checkingPacketId,fromStudentHistory:!!this.sheetHistoryUid,fromSubmissionInbox:!!this.checkingSubmissionId,onClose:this.returnFromChecking,onScanClass:this.scanForPaper,onManageClass:this.managePacket};}
@@ -175,7 +191,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   get teacherName(){return this.user?.displayName?.trim() || 'Teacher';}
   get reviewCount(){return this.workSheets.filter(item=>item.state==='review'||(item.pending??0)>0).length;}
   // Ready-to-return totals require inbox data; do not invent a number from recent work.
-  get savedTestCount(){return this.conversations.filter(item=>!!item.latestPaperId).length;}
+  get savedTestCount(){return this.conversations.slice(0,30).filter(item=>!!item.latestPaperId).length;}
   ownQuery=''; allWork=false; workLoading=false; workError='';
   workPackets:DeskPacket[]=[]; workSheets:DeskSheet[]=[];
   private workRequest=0;
@@ -247,19 +263,20 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     try{await pending;}finally{if(this.workPending===pending)this.workPending=undefined;}
   }
   private async loadDeskWork(){
-    const epoch=this.authEpoch, request=++this.workRequest;
+    const epoch=this.authEpoch, request=++this.workRequest, revision=this.contentRevision;
     this.error='';this.workError='';this.workLoading=true;
     const [requests,packets,sheets]=await Promise.allSettled([
-      this.transport.request<{conversations:Conversation[]}>('/conversations'),
+      this.loadConversations(),
       this.transport.request<{packets:DeskPacket[]}>('/checking/packets'),
       this.transport.request<{sheets:DeskSheet[]}>('/checking/work')
     ]);
     if(!this.current(epoch)||request!==this.workRequest)return;
-    if(requests.status==='fulfilled')this.conversations=requests.value.conversations;
     if(packets.status==='fulfilled')this.workPackets=packets.value.packets;
     if(sheets.status==='fulfilled')this.workSheets=sheets.value.sheets;
     this.workLoading=false;
     const missing=[requests.status==='rejected'?'requests':'',packets.status==='rejected'?'class stacks':'',sheets.status==='rejected'?'answer books':''].filter(Boolean);
+    this.workReady=!missing.length&&revision===this.contentRevision;
+    this.workRevision=revision;
     if(missing.length)this.workError='Could not load '+missing.join(', ')+'.';
     if(requests.status==='rejected'&&[401,403].includes(requests.reason?.status))this.reportError(requests.reason);
   }
@@ -305,7 +322,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     if(!this.user)return;
     if(write)this.writeRoute({});
     this.prepareNavigation();this.openingId='';this.view='home';this.drawer=false;this.closeDocument();this.allWork=false;
-    void this.reloadDesk();this.schedulePoll();
+    if(!this.workReady||!this.events?.contentReady)void this.reloadDesk();this.scheduleThreadCheck();
   }
   openChecking(paperId:string,packetId='',sheet='',write=true,historyUid='',submissionId=''){
     if(!this.user||!this.contentAuthorized)return;
@@ -340,7 +357,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     const epoch=this.authEpoch;
     try{this.studentHistoryComponent||=(await import('./student-history.component')).StudentHistoryComponent;}
     catch(error){if(this.current(epoch)&&this.studentsOpen)this.reportError(error);}
-    this.schedulePoll();
+    this.scheduleThreadCheck();
   }
   async openSubmissions(id='',write=true){
     if(!this.user||!this.contentAuthorized)return;
@@ -350,7 +367,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     const epoch=this.authEpoch;
     try{this.studentSubmissionsComponent||=(await import('./student-submissions.component')).StudentSubmissionsComponent;}
     catch(error){if(this.current(epoch)&&this.submissionsOpen)this.reportError(error);}
-    this.schedulePoll();
+    this.scheduleThreadCheck();
   }
   private async loadCheckingHub(){
     const epoch=this.authEpoch;
@@ -407,8 +424,8 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.prepareNavigation();if(write)this.writeRoute({view:'library'});
     this.openingId='';this.view='library';this.drawer=false;this.error='';this.closeDocument();
     if(this.user.libraryAccess){if((this.legacyLibraryMode||this.libraryKind==='conversations')&&!this.libraryPage.loaded)await this.loadLibrary();}
-    else{const epoch=this.authEpoch;try{await this.loadConversations();}catch(e){if(this.current(epoch))this.reportError(e);}}
-    this.schedulePoll();
+    else if(!this.requestsFresh){const epoch=this.authEpoch;try{await this.loadConversations();}catch(e){if(this.current(epoch))this.reportError(e);}}
+    this.scheduleThreadCheck();
   }
   async switchLibrary(kind:LibraryKind){
     if(this.libraryLoading || kind===this.libraryKind)return;
@@ -459,10 +476,17 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.prepareNavigation();if(write)this.writeRoute({request:id,shared:'1'});
     this.view='chat';this.detail=undefined;this.adminConversation=true;
     const epoch=this.authEpoch;this.openingId=id;this.error='';this.drawer=false;this.closeDocument();this.draft='';this.feedbackPaperId='';this.feedbackOpen=false;this.feedbackText='';this.feedbackMessage='';
-    try{const result=await this.transport.request<ConversationDetail>('/admin/conversations/'+encodeURIComponent(id));if(!this.current(epoch)||this.openingId!==id)return;this.detail={...result,readOnly:result.readOnly??true};this.adminConversation=true;this.view='chat';this.scrollMessages(true);}
-    catch(e){if(this.current(epoch)&&this.openingId===id){this.libraryError=readableError(e);this.reportError(e);}}finally{if(this.current(epoch))this.schedulePoll();}
+    this.threadHistoryLoading=null;this.threadHistoryError={};
+    try{const result=await this.transport.request<ConversationDetail>(this.threadPath(id,true,'recent'));if(!this.current(epoch)||this.openingId!==id)return;this.detail={...result,readOnly:result.readOnly??true};this.adminConversation=true;this.view='chat';this.scrollMessages(true);}
+    catch(e){if(this.current(epoch)&&this.openingId===id){this.libraryError=readableError(e);this.reportError(e);}}finally{if(this.current(epoch))this.scheduleThreadCheck();}
   }
-  toggleDrawer(){this.drawer=!this.drawer;if(this.drawer)setTimeout(()=>document.querySelector<HTMLButtonElement>('.rail-close')?.focus(),0);else document.querySelector<HTMLButtonElement>('.desk-profile')?.focus();}
+  toggleDrawer(){
+    this.drawer=!this.drawer;
+    if(this.drawer){
+      if(!this.requestsFresh)void this.loadOwnHistory(true);
+      setTimeout(()=>document.querySelector<HTMLButtonElement>('.rail-close')?.focus(),0);
+    }else document.querySelector<HTMLButtonElement>('.desk-profile')?.focus();
+  }
   @HostListener('document:keydown',['$event']) drawerKeyboard(event:KeyboardEvent){
     if(!this.drawer)return;
     if(event.key==='Escape'){event.preventDefault();this.toggleDrawer();return;}
@@ -473,8 +497,26 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
   }
   @HostListener('window:resize') updateFormulaFocus(){this.prepareDocument();}
-  @HostListener('document:visibilitychange') visibilityChanged(){this.stopEvents();if(!document.hidden&&this.session){if(this.view==='home'&&!this.checkingOpen)void this.reloadDesk();this.startEvents();if(!this.events)void this.reconnect().finally(()=>this.schedulePoll());else if(this.presenceDenied||!this.session.notifications?.presencePath)void this.reconcileCapabilities(true);}}
-  @HostListener('window:online') connectionRestored(){if(!document.hidden&&this.session){if(!this.events)void this.reconnect().finally(()=>this.startEvents());else if(this.presenceDenied||!this.session.notifications?.presencePath)void this.reconcileCapabilities(true);}}
+  @HostListener('document:visibilitychange') visibilityChanged(){
+    if(document.hidden){this.sharedProbeOnAttach=false;this.stopEvents();return;}
+    if(!this.session)return;
+    const probeShared=this.viewingSharedThread;
+    this.sharedProbeOnAttach=probeShared;
+    this.startEvents();
+    if(this.view==='home'&&!this.checkingOpen&&!this.workReady)void this.reloadDesk();
+    if(!this.events)void this.reconnect().finally(()=>this.scheduleThreadCheck());
+    else {
+      if(probeShared)void this.probeSharedThread();
+      if(this.presenceDenied||!this.session.notifications?.presencePath)void this.reconcileCapabilities(true);
+    }
+  }
+  @HostListener('window:online') connectionRestored(){
+    if(document.hidden||!this.session)return;
+    if(!this.events){void this.reconnect().finally(()=>this.startEvents());return;}
+    if(!this.events.contentReady){this.events.retryContent();if(this.contentDenied)void this.reconcileContentAccess();}
+    if(!this.events.presenceReady||this.presenceDenied)void this.reconcileCapabilities(true);
+    this.scheduleThreadCheck();
+  }
   phase(job:Job){return phaseLabel(job,this.worker.tone==='offline');}
   assistantText(text:string){return formatAssistantText(text);}
   pendingJobAction:{id:string;action:'cancel'|'retry'}|null=null;
@@ -516,6 +558,8 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   }
   private reportError(error:unknown){if([401,403].includes((error as {status?:number})?.status||0))this.resetAccount();this.error=readableError(error);}
   private resetAccount(){
+    this.contentRevision=undefined;this.contentConfirmed=false;this.sharedProbeOnAttach=false;this.workReady=false;this.workRevision=undefined;this.requestsFresh=false;this.requestsPending=undefined;
+    this.conversationCursor=null;this.ownHistoryLoading=false;this.ownHistoryError='';this.threadHistoryLoading=null;this.threadHistoryError={};
     this.confirmedBack=false;this.returningAfterCancel=false;this.composePage++;this.savedBrief=undefined;this.workRequest++;this.workPending=undefined;this.workPackets=[];this.workSheets=[];this.workError='';this.workLoading=false;this.ownQuery='';this.allWork=false;this.error='';this.emailForm=false;this.checkingInjector=undefined;
     this.checkingHome=false;this.checkingPacketId='';this.studentUid='';this.sheetHistoryUid='';this.workspaceUpdatesPending=false;
     this.authEpoch++;this.pendingJobAction=null;this.checkingPaperId='';this.stopEvents();this.refreshPending=undefined;this.servicePending=undefined;this.capabilityPending=undefined;this.contentAccessPending=undefined;this.contentDenied=false;this.contentAccessAllowed=false;this.presenceDenied=false;this.session=undefined;this.detail=undefined;this.conversations=[];
@@ -529,9 +573,10 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   private async loadSession(){
     const epoch=this.authEpoch;this.loading=true;
     try{
-      const session=await this.transport.request<PilotSession>('/session');
+      const session=await this.transport.request<PilotSession>(this.fixture?'/session':'/session?contentRevision=1');
       if(!this.current(epoch))return;
       this.acceptSession(session);this.serviceStale=false;
+      this.contentRevision=session.contentRevision;
       if(this.checkedOwner && this.checkedOwner!==session.user.uid)this.writeRoute({},true);
       this.checkedOwner=session.user.uid;
       this.loading=false;
@@ -565,6 +610,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       this.writeRoute({},true);this.openHome(false);return;
     }
     const restoredUrl=location.href;
+    const epoch=this.authEpoch;
     const check=params.get('check'),request=params.get('request');
     if(check)this.openChecking(check,params.get('packet')||'',params.get('sheet')||'',false,params.get('view')==='students'?params.get('studentUid')||'':'',params.get('view')==='submissions'?params.get('submission')||'':'');
     else if(params.get('checking')==='class')this.openCheckingHome(params.get('reference')||'',params.get('packet')||'',false);
@@ -580,25 +626,95 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     const preview=history.state?.gtDeskPreview;
     if(preview && history.state?.gtDeskOwner===this.user?.uid && restoredUrl===location.href && !this.checkingOpen){
       const papers=this.view==='library' ? this.libraryPages.papers.items as PaperSummary[] : this.detail?.papers || [];
-      const paper=papers.find(item=>item.id===preview.paperId);
-      if(paper && (preview.kind==='student'||preview.kind==='answers'))await this.showDocument(paper,preview.kind,!!preview.adminView);
+      let paper=papers.find(item=>item.id===preview.paperId);
+      const thread=this.view==='chat'?this.detail:undefined;
+      if(!paper&&thread?.history&&typeof preview.paperId==='string'){
+        const path=this.threadPath(thread.conversation.id,this.adminConversation,'paper',{paperId:preview.paperId});
+        try{paper=(await this.transport.request<{paper:PaperSummary}>(path)).paper;}catch(error){
+          if(this.current(epoch)&&[401,403].includes((error as {status?:number})?.status||0))this.reportError(error);
+        }
+      }
+      if(this.current(epoch)&&restoredUrl===location.href&&paper&&(preview.kind==='student'||preview.kind==='answers'))await this.showDocument(paper,preview.kind,!!preview.adminView);
     }
-    if((this.view==='chat'||this.view==='library')&&!this.conversations.length && !this.checkingOpen)void this.loadConversations().catch(()=>{});
   }
-  private async loadConversations(){const epoch=this.authEpoch;const result=await this.transport.request<{conversations:Conversation[]}>('/conversations');if(this.current(epoch))this.conversations=result.conversations;}
+  private async loadConversations(older=false){
+    const epoch=this.authEpoch;
+    if(this.requestsPending){
+      const pending=this.requestsPending;
+      await pending.promise;
+      if(!this.current(epoch)||pending.older===older)return;
+    }
+    const cursor=older?this.conversationCursor:null;
+    if(older&&!cursor)return;
+    const revision=this.contentRevision;
+    const promise=(async()=>{
+      const path=this.fixture?'/conversations':'/conversations?view=recent'+(cursor?'&cursor='+encodeURIComponent(cursor):'');
+      const result=await this.transport.request<ConversationList>(path);
+      if(!this.current(epoch))return;
+      const newCursor=result.nextCursor??null;
+      const overlaps=result.conversations.length&&this.conversations.some(row=>row.id===result.conversations.at(-1)?.id);
+      if(older||overlaps&&newCursor){
+        this.conversations=mergeRows(this.conversations,result.conversations).sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)||b.id.localeCompare(a.id));
+      }else this.conversations=result.conversations;
+      if(older||!overlaps||!newCursor)this.conversationCursor=newCursor;
+      if(!older)this.requestsFresh=revision===this.contentRevision;
+    })();
+    const pending={older,promise};
+    this.requestsPending=pending;
+    try{await promise;}finally{if(this.requestsPending===pending)this.requestsPending=undefined;}
+  }
+  async loadOwnHistory(refresh=false){
+    if(!this.user||!this.contentAuthorized||this.ownHistoryLoading)return;
+    const epoch=this.authEpoch;
+    this.ownHistoryLoading=true;this.ownHistoryError='';
+    try{await this.loadConversations(!refresh);}catch(error){
+      if(this.current(epoch)){
+        if([401,403].includes((error as {status?:number})?.status||0))this.reportError(error);
+        else this.ownHistoryError=readableError(error);
+      }
+    }finally{if(this.current(epoch))this.ownHistoryLoading=false;}
+  }
+  private threadPath(id:string,admin:boolean,view:string,extra?:Record<string,string>){
+    const path=(admin?'/admin/conversations/':'/conversations/')+encodeURIComponent(id);
+    return this.fixture?path:path+'?'+new URLSearchParams({view,...extra});
+  }
+  async loadThreadHistory(kind:ThreadHistory){
+    const detail=this.detail,cursor=detail?.history?.[kind];
+    if(!detail||!cursor||!this.contentAuthorized||this.threadHistoryLoading)return;
+    const epoch=this.authEpoch,id=detail.conversation.id,admin=this.adminConversation,page=this.composePage;
+    const current=()=>this.current(epoch)&&this.composePage===page&&this.view==='chat'&&this.detail?.conversation.id===id&&this.adminConversation===admin;
+    this.threadHistoryLoading=kind;this.threadHistoryError[kind]='';
+    try{
+      const result=await this.transport.request<{items:Message[]|PaperSummary[];nextCursor:string|null}>(this.threadPath(id,admin,kind,{cursor}));
+      if(!current()||!this.detail?.history||this.detail.history[kind]!==cursor)return;
+      const el=this.messageList?.nativeElement;
+      const height=el?.scrollHeight||0,top=el?.scrollTop||0;
+      const rows=kind==='messages'?{messages:mergeRows(this.detail.messages,result.items as Message[]).sort(timeOrder)}:
+        {papers:mergeRows(this.detail.papers,result.items as PaperSummary[]).sort(timeOrder)};
+      this.detail={...this.detail,...rows,history:{...this.detail.history,[kind]:result.nextCursor}};
+      if(el&&kind==='messages')requestAnimationFrame(()=>{if(current())el.scrollTop=top+el.scrollHeight-height;});
+    }catch(error){
+      if(current()){
+        if(admin&&(error as {status?:number})?.status===404){this.clearSharedThread();this.reportError(error);return;}
+        if([401,403].includes((error as {status?:number})?.status||0))this.reportError(error);
+        else this.threadHistoryError[kind]=readableError(error);
+      }
+    }finally{if(current())this.threadHistoryLoading=null;}
+  }
   async openConversation(id:string,write=true){
     if(!this.user||!this.contentAuthorized)return;
     this.prepareNavigation();if(write)this.writeRoute({request:id});
     const epoch=this.authEpoch;this.view='chat';this.detail=undefined;this.draft='';this.adminConversation=false;
     this.openingId=id;this.error='';this.drawer=false;this.closeDocument();this.feedbackPaperId='';this.feedbackOpen=false;this.feedbackText='';this.feedbackMessage='';
-    try{const result=await this.transport.request<ConversationDetail>('/conversations/'+encodeURIComponent(id));if(this.current(epoch)&&this.openingId===id){this.detail=result;this.scrollMessages(true);}}
+    this.threadHistoryLoading=null;this.threadHistoryError={};
+    try{const result=await this.transport.request<ConversationDetail>(this.threadPath(id,false,'recent'));if(this.current(epoch)&&this.openingId===id){this.detail=result;this.scrollMessages(true);}}
     catch(e){if(this.current(epoch)&&this.openingId===id)this.reportError(e);}
-    finally{if(this.current(epoch))this.schedulePoll();}
+    finally{if(this.current(epoch))this.scheduleThreadCheck();}
   }
   async newConversation(write=true){
     if(!this.user||!this.contentAuthorized)return;
     this.prepareNavigation();if(write)this.writeRoute({view:'create'});
-    this.detail=undefined;this.view='chat';this.adminConversation=false;this.draft=this.savedBrief?.text||'';this.drawer=false;this.openingId='';this.error='';this.sendId='';this.newRequestId='';this.closeDocument();this.schedulePoll();
+    this.detail=undefined;this.view='chat';this.adminConversation=false;this.draft=this.savedBrief?.text||'';this.drawer=false;this.openingId='';this.error='';this.sendId='';this.newRequestId='';this.closeDocument();this.scheduleThreadCheck();
     setTimeout(()=>{
       const target=matchMedia('(pointer:coarse)').matches?'.new-paper h1':'#message-input';
       document.querySelector<HTMLElement>(target)?.focus({preventScroll:true});
@@ -628,11 +744,11 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       if(!this.current(epoch))return;
       if(this.savedBrief?.text.trim()===text.trim())this.savedBrief=undefined;
       if(page===this.composePage){
-        this.sendId='';this.sendText='';this.draft='';await this.refresh();this.scrollMessages(true);
+        this.sendId='';this.sendText='';this.draft='';await this.refresh(false,true);this.scrollMessages(true);
       }else if(this.onDesk)await this.reloadDesk();
       else await this.loadConversations();
     }catch(e){if(this.current(epoch))this.reportError(e);}
-    finally{if(this.current(epoch)){this.sending=false;this.schedulePoll();}}
+    finally{if(this.current(epoch)){this.sending=false;this.scheduleThreadCheck();}}
   }
   composerKey(event:KeyboardEvent){if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();void this.send();}}
   useSuggestion(text:string){if(this.readOnly)return;this.draft=text;document.querySelector<HTMLTextAreaElement>('#message-input')?.focus();}
@@ -643,7 +759,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.error='';
     try{
       await this.transport.request('/jobs/'+encodeURIComponent(job.id)+'/'+action,'POST',{});
-      if(this.current(epoch))await this.refresh();
+      if(this.current(epoch))await this.refresh(false,true);
     }catch(error){if(this.current(epoch))this.reportError(error);}
     finally{if(this.pendingJobAction===pending)this.pendingJobAction=null;}
   }
@@ -655,40 +771,67 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     const pending=this.refreshNow(automatic,contentOnly);this.refreshPending=pending;
     try{await pending;}finally{if(this.refreshPending===pending)this.refreshPending=undefined;}
   }
+  private get viewingSharedThread(){return this.view==='chat'&&!this.checkingOpen&&this.adminConversation&&this.readOnly&&!!this.detail;}
+  private clearSharedThread(){this.threadHistoryLoading=null;this.threadHistoryError={};this.detail=undefined;this.closeDocument();}
+  private async probeSharedThread(){
+    if(!this.viewingSharedThread)return;
+    const epoch=this.authEpoch,page=this.composePage;
+    try{await this.refresh(true,true);}
+    catch(error){if(this.current(epoch)&&this.composePage===page)this.reportError(error);}
+  }
   private async refreshNow(automatic:boolean,contentOnly:boolean){
-    const epoch=this.authEpoch;
-    const id=this.view==='chat'?this.detail?.conversation.id:undefined;
+    const epoch=this.authEpoch,page=this.composePage;
+    const prior=this.view==='chat'?this.detail:undefined,id=prior?.conversation.id;
     const nearBottom=this.messageList ? this.messageList.nativeElement.scrollHeight-this.messageList.nativeElement.scrollTop-this.messageList.nativeElement.clientHeight<150 : true;
     const oldCount=this.detail?.messages.length;
     const admin=this.adminConversation;
     const overview=!contentOnly&&(!automatic||Date.now()-this.lastOverviewAt>=30000);
     const path=(admin?'/admin/conversations/':'/conversations/')+encodeURIComponent(id||'');
-    const getDetail=async()=>{
+    const getDetail=async():Promise<ThreadStatus|undefined>=>{
       if(!id)return undefined;
+      if(prior?.history)return this.transport.request<ThreadStatus>(this.threadPath(id,admin,'status',{updatedAt:prior.conversation.updatedAt}));
       if(automatic&&!this.fixture&&!this.activeJobs.length){
         const revision=await this.transport.request<{updatedAt:string}>(path+'/revision');
         if(revision.updatedAt===this.detail?.conversation.updatedAt)return undefined;
       }
-      return this.transport.request<ConversationDetail>(path);
+      return this.transport.request<ConversationDetail>(this.threadPath(id,admin,'recent'));
     };
-    const [session,conversations,detail]=await Promise.all([overview?this.transport.request<PilotSession>('/session'):Promise.resolve(this.session!),overview||contentOnly&&!automatic?this.transport.request<{conversations:Conversation[]}>('/conversations'):Promise.resolve({conversations:this.conversations}),getDetail()]);
+    const [session,detail]=await Promise.all([overview?this.transport.request<PilotSession>('/session'):Promise.resolve(this.session!),getDetail().catch(error=>{
+      if(admin&&(error as {status?:number})?.status===404&&this.current(epoch)&&page===this.composePage)this.clearSharedThread();
+      throw error;
+    })]);
     if(!this.current(epoch)||!this.session)return;
     if(overview){this.acceptSession(session);this.serviceStale=false;if(this.events?.presenceReady&&this.eventConfig===JSON.stringify(session.notifications)&&session.notifications?.presencePath&&freshHealth(this.health))this.receiveHealth(this.health);}
-    if(this.session.service?.state==='ready')this.serviceError='';this.conversations=conversations.conversations;if(this.view==='chat'&&id===this.detail?.conversation.id&&admin===this.adminConversation&&detail){this.detail=admin?{...detail,readOnly:detail.readOnly??true}:detail;if(nearBottom&&oldCount!==detail.messages.length)this.scrollMessages();}
+    if(this.session.service?.state==='ready')this.serviceError='';
+    const current=this.detail;
+    if(this.view==='chat'&&page===this.composePage&&current&&id===current.conversation.id&&admin===this.adminConversation&&detail){
+      if('unchanged' in detail)this.detail={...current,jobs:detail.jobs};
+      else {
+        let next=detail;
+        if(current.history&&detail.history){
+          next={...detail,messages:mergeRows(current.messages,detail.messages).sort(timeOrder),papers:mergeRows(current.papers,detail.papers).sort(timeOrder),history:{
+            messages:mergedHistoryCursor(current.messages,detail.messages,current.history.messages,detail.history.messages),
+            papers:mergedHistoryCursor(current.papers,detail.papers,current.history.papers,detail.history.papers)
+          }};
+        }
+        this.detail=admin?{...next,readOnly:next.readOnly??true,creatorName:next.creatorName||current.creatorName}:next;
+        if(nearBottom&&oldCount!==next.messages.length)this.scrollMessages();
+      }
+    }
     if(overview)this.lastOverviewAt=Date.now();
     this.configureEvents();
-    this.scheduleService();this.schedulePoll();
+    this.scheduleService();this.scheduleThreadCheck();
   }
-  async reconnect(){const epoch=this.authEpoch;this.error='';try{if(!this.contentAuthorized)await this.reconcileContentAccess();if(this.contentAuthorized)await this.refresh();}catch(e){if(this.current(epoch)){this.serviceStale=true;this.reportError(e);}}}
+  async reconnect(){const epoch=this.authEpoch;this.error='';try{if(!this.contentAuthorized)await this.reconcileContentAccess();if(this.contentAuthorized){await this.refresh();if(this.current(epoch)&&this.onDesk&&!this.events)await this.reloadDesk();}}catch(e){if(this.current(epoch)){this.serviceStale=true;this.reportError(e);}}}
   async startService(){
     if(!this.contentAuthorized||!this.canStartService)return;
     const epoch=this.authEpoch;
     this.serviceStarting=true;this.serviceError='';this.serviceRequestId||=idForRequest();
     try{const result=await this.transport.request<{service:AssistantServiceStatus}>('/service/start','POST',{clientRequestId:this.serviceRequestId});if(this.session&&this.current(epoch)){this.session={...this.session,service:result.service,worker:result.service.worker};this.serviceRequestId='';}}
     catch(e){if(this.current(epoch)){this.serviceStale=true;this.serviceError='Start could not be confirmed. Refresh status before trying again.';if([401,403].includes((e as {status?:number})?.status||0))this.reportError(e);}}
-    finally{if(this.current(epoch)){this.serviceStarting=false;this.schedulePoll();this.scheduleService();}}
+    finally{if(this.current(epoch)){this.serviceStarting=false;this.scheduleThreadCheck();this.scheduleService();}}
   }
-  private stopEvents(){clearTimeout(this.timer);clearTimeout(this.serviceTimer);clearTimeout(this.contentRetryTimer);clearTimeout(this.contentAccessTimer);this.contentRetryAttempt=0;this.events?.stop();this.events=undefined;this.eventConfig='';this.contentQueue?.stop();this.contentQueue=undefined;}
+  private stopEvents(){clearTimeout(this.timer);clearTimeout(this.sharedAccessTimer);this.sharedAccessTimer=undefined;clearTimeout(this.serviceTimer);clearTimeout(this.contentRetryTimer);this.contentRetryAttempt=0;this.events?.stop();this.events=undefined;this.eventConfig='';this.contentQueue?.stop();this.contentQueue=undefined;}
   private configureEvents(){if(this.events&&this.eventConfig!==JSON.stringify(this.session?.notifications)){this.stopEvents();this.health=undefined;}if(!this.events)this.startEvents();}
   private startEvents(){
     if(this.destroyed||!this.session||document.hidden||this.events)return;
@@ -697,19 +840,37 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       this.eventConfig=JSON.stringify(config);
       this.contentQueue=new InvalidationQueue(async()=>{
         if(!this.current(epoch)||document.hidden||!this.contentAuthorized)return;
-        if(this.view==='home'&&!this.checkingOpen)await this.reloadDesk();else await this.refresh(false,true);
+        if(this.view==='home'&&!this.checkingOpen){
+          await this.reloadDesk();
+          if(this.workRevision!==this.contentRevision&&this.current(epoch)&&!document.hidden)await this.reloadDesk();
+        }else{
+          if(this.view==='chat'&&!this.checkingOpen)await this.refresh(false,true);
+          if(this.drawer||this.view==='library'&&!this.user?.libraryAccess)await this.loadConversations();
+        }
         if(!this.current(epoch)||document.hidden)return;
         clearTimeout(this.contentRetryTimer);if(this.contentRetryAttempt)this.error='';this.contentRetryAttempt=0;
         for(const page of Object.values(this.libraryPages))page.loaded=false;
-        if(this.view==='library'){if(this.libraryLoading)this.libraryRefreshRequested=true;else await this.loadLibrary(true);}
+        if(this.view==='library'&&(this.legacyLibraryMode||this.libraryKind==='conversations')){
+          if(this.libraryLoading)this.libraryRefreshRequested=true;else await this.loadLibrary(true);
+        }
       },error=>{
         if(!this.current(epoch))return;this.reportError(error);
         if(!this.current(epoch)||!this.session||document.hidden)return;
-        clearTimeout(this.contentRetryTimer);this.contentRetryTimer=setTimeout(()=>this.contentQueue?.request(),Math.min(60000,2000*2**Math.min(this.contentRetryAttempt++,5)));
+        clearTimeout(this.contentRetryTimer);if(this.contentRetryAttempt<3)this.contentRetryTimer=setTimeout(()=>this.contentQueue?.request(),2000*2**this.contentRetryAttempt++);
       });
       this.events=new OwnerEvents(this.api.watchMarker.bind(this.api),config,{
-        content:()=>{
-          this.contentDenied=false;this.contentAccessAllowed=false;clearTimeout(this.contentAccessTimer);
+        content:(revision,signal)=>{
+          const regainedAccess=this.contentDenied;
+          this.contentDenied=false;this.contentAccessAllowed=false;
+          const changed=regainedAccess||revision!==this.contentRevision;
+          const phase=signal==='attach'?(this.contentConfirmed?'reconnect':'initial'):signal;
+          const probeShared=phase==='reconnect'&&(signal!=='attach'||!this.sharedProbeOnAttach);
+          if(signal==='attach')this.sharedProbeOnAttach=false;
+          const marker='gt-papers:content:'+phase+(changed?':changed':':unchanged');
+          performance.clearMarks(marker);performance.mark(marker);
+          this.contentConfirmed=true;
+          if(!changed){if(probeShared)void this.probeSharedThread();return;}
+          this.contentRevision=revision;this.workReady=false;this.requestsFresh=false;
           if(this.checkingOpen){
             this.workspaceUpdatesPending=true;
             window.dispatchEvent(new Event('gtop-paper-content-updated'));
@@ -717,7 +878,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
           else this.contentQueue?.request();
         },
         presence:health=>{if(this.current(epoch))this.receiveHealth(health);},
-        state:()=>{if(this.current(epoch)){this.schedulePoll();this.scheduleService();}},
+        state:()=>{if(this.current(epoch)){this.scheduleThreadCheck();this.scheduleService();}},
         denied:(kind,code)=>{
           if(!this.current(epoch))return;
           if(kind==='content'){this.contentDenied=true;this.contentAccessAllowed=false;clearTimeout(this.timer);void this.reconcileContentAccess();}
@@ -726,7 +887,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       });
       this.events.start();
     }
-    this.schedulePoll();this.scheduleService();
+    this.scheduleThreadCheck();this.scheduleService();
   }
   private async reconcileContentAccess(){
     if(this.fixture||!this.session||document.hidden||this.destroyed)return;
@@ -739,11 +900,10 @@ export class PaperWorkspace implements OnInit,OnDestroy {
         if(!this.current(epoch)||!this.session)return;
         this.acceptSession(session);this.contentAccessAllowed=true;this.error='';
         if(this.events?.presenceReady&&this.eventConfig===JSON.stringify(session.notifications)&&freshHealth(this.health))this.receiveHealth(this.health);
-        this.configureEvents();this.contentQueue?.request();this.schedulePoll();
+        this.configureEvents();this.contentQueue?.request();this.scheduleThreadCheck();
       }catch(e){if(this.current(epoch)){this.contentAccessAllowed=false;this.reportError(e);}}
       finally{if(this.current(epoch)){
-        this.contentAccessPending=undefined;clearTimeout(this.contentAccessTimer);
-        if(this.contentDenied&&!document.hidden)this.contentAccessTimer=setTimeout(()=>{if(this.contentAccessAllowed)this.events?.retryContent();else void this.reconcileContentAccess();},60000);
+        this.contentAccessPending=undefined;
       }}
     })();
     this.contentAccessPending=pending;return pending;
@@ -802,40 +962,52 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   private scheduleService(){
     clearTimeout(this.serviceTimer);
     if(this.destroyed||document.hidden||!this.session||this.fixture||!this.events)return;
-    let delay:number;
-    if(this.presenceDenied||!this.session.service||!this.session.notifications?.presencePath)delay=60000;
-    else if(this.serviceStale)delay=5000;
-    else if(this.session.service.state==='starting')delay=5000;
-    else if(this.session.service.state==='ready'&&Number.isFinite(Date.parse(this.session.worker.lastSeenAt||'')))delay=Math.max(1000,Date.parse(this.session.worker.lastSeenAt!)+90000-Date.now());
-    else delay=60000; // migration/offline starter facts have no health-write event
+    const deadline=Date.parse(this.session.worker.lastSeenAt||'')+90000;
+    const startup=this.session.service?.request;
+    const starterDeadline=startup&&['pending','claimed','started'].includes(startup.state)?Date.parse(startup.expiresAt):NaN;
+    if(starterDeadline>Date.now()){
+      const epoch=this.authEpoch;
+      this.serviceTimer=setTimeout(()=>{
+        if(this.current(epoch)&&!document.hidden)void this.refreshService();
+      },starterDeadline-Date.now());
+      return;
+    }
+    if(this.serviceStale)return;
+    if(!(deadline>Date.now())){if(Number.isFinite(deadline)&&!freshHealth(this.health))this.serviceStale=true;return;}
     const epoch=this.authEpoch;
     this.serviceTimer=setTimeout(()=>{
-      if(!this.current(epoch)||document.hidden)return;
-      if(this.presenceDenied||!this.session?.service||!this.session.notifications?.presencePath){void this.reconcileCapabilities(true);return;}
-      if(!freshHealth(this.health)&&(!this.health||Date.parse(this.session?.worker.lastSeenAt||'')+90000<=Date.now())){
-        this.serviceStale=true;
-        if(this.activeJobs.length)this.contentQueue?.request();
-      }
-      void this.refreshService();
-    },delay);
+      if(this.current(epoch)&&!document.hidden&&!freshHealth(this.health))this.serviceStale=true;
+    },Math.max(1,deadline-Date.now()));
   }
-  private schedulePoll(){
-    clearTimeout(this.timer);if(this.destroyed||!this.session||document.hidden||!this.contentAuthorized)return;
-    const connected=!!this.events?.contentReady,crossAdmin=this.adminConversation&&this.readOnly;
-    const jobs=this.view==='chat'?this.activeJobs:[];
-    if(connected&&!crossAdmin&&!jobs.length)return;
-    // Job lease renewals intentionally do not notify. Reconcile its public update
-    // deadline so a dead worker cannot leave an active card indefinitely.
-    const expiry=jobs.length?Math.min(...jobs.map(job=>Date.parse(job.updatedAt)||Date.now()))+125000-Date.now():60000;
-    const delay=connected&&!crossAdmin?Math.max(5000,expiry):this.session.service?.state==='starting'&&!connected?5000:pollingDelay(this.view==='chat'?this.detail?.jobs||[]:[]);
+  private scheduleThreadCheck(){
+    clearTimeout(this.timer);
+    if(this.destroyed||!this.session||document.hidden||!this.contentAuthorized)return;
     const epoch=this.authEpoch;
-    this.timer=setTimeout(async()=>{
+    const jobs=this.view==='chat'?this.activeJobs:[];
+    const activeIds=new Set(jobs.map(job=>job.id));
+    for(const id of this.checkedLeases.keys())if(!activeIds.has(id))this.checkedLeases.delete(id);
+    const pending=jobs.filter(job=>job.nextLeaseCheckAt&&this.checkedLeases.get(job.id)!==job.nextLeaseCheckAt)
+      .map(job=>({id:job.id,deadline:job.nextLeaseCheckAt!,time:Date.parse(job.nextLeaseCheckAt!)}))
+      .filter(job=>Number.isFinite(job.time)).sort((a,b)=>a.time-b.time);
+    if(pending.length)this.timer=setTimeout(async()=>{
+      if(!this.current(epoch)||document.hidden)return;
+      const due=pending.filter(job=>job.time<=Date.now());
       try{
-        if(this.onDesk&&!connected)await this.reloadDesk();
-        else await this.refresh(true,connected);
-      }catch(e){if(this.current(epoch)){this.serviceStale=true;this.reportError(e);}}
-      if(this.current(epoch))this.schedulePoll();
-    },delay);
+        await this.refresh(false,true);
+        if(!this.current(epoch))return;
+        for(const job of due)this.checkedLeases.set(job.id,job.deadline);
+        this.scheduleThreadCheck();
+      }catch(error){if(this.current(epoch))this.reportError(error);}
+    },Math.max(100,pending[0].time-Date.now()));
+    // An invited viewer cannot subscribe to the author's private owner marker.
+    // Revalidate this one visible shared thread, including revocation.
+    if(!this.viewingSharedThread){clearTimeout(this.sharedAccessTimer);this.sharedAccessTimer=undefined;}
+    else if(!this.sharedAccessTimer)this.sharedAccessTimer=setTimeout(async()=>{
+      this.sharedAccessTimer=undefined;
+      if(!this.current(epoch)||document.hidden)return;
+      await this.probeSharedThread();
+      if(this.current(epoch))this.scheduleThreadCheck();
+    },60000);
   }
   private scrollMessages(force=false){setTimeout(()=>{const el=this.messageList?.nativeElement;if(el)el.scrollTo({top:el.scrollHeight,behavior:force?'instant':'auto'});},30);}
   relativeTime(value:string){const date=new Date(value);if(Number.isNaN(date.getTime()))return '';const minutes=Math.floor((Date.now()-date.getTime())/60000);if(minutes<1)return 'Just now';if(minutes<60)return minutes+' min ago';if(minutes<1440)return date.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});return date.toLocaleDateString('en-IN',{day:'numeric',month:'short'});}

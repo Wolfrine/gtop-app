@@ -11,6 +11,7 @@ import { normalizePracticeBoard } from './practice-context';
 import { canonicalIndex, canonicalQuestion, restorePresentation, presentQuestion, validOrder } from './question-presentation';
 import { invitationHistory } from './practice-invite-session';
 import { REVIEWED_PRACTICES } from './reviewed-practices';
+import { QuizQuestionFilter, QuizRankReadError, QuizRankScope, quizRankScope, sampleQuizRanks } from './quiz-rank-sampler';
 
 export interface QuizCurriculumScope { board: string; standard: string; }
 
@@ -19,6 +20,8 @@ export interface QuizCurriculumScope { board: string; standard: string; }
 })
 export class QuizService {
     private quizQuestions: any[] = [];
+    private rankUser: User | null = null;
+    private readonly rankScopes = new Map<string, { scopes: QuizRankScope[]; expiresAt: number }>();
     private questionReads: {
         user: User;
         request: Query<DocumentData>;
@@ -98,25 +101,60 @@ export class QuizService {
             : 'No chapters with MCQs found.');
 
         const selected = eligible[Math.floor(Math.random() * eligible.length)];
-        return this.fetchCurriculumQuestions(selected.board, String(selected.standard), 'quick', 10, [
-            where('subject', '==', selected.subject), where('chapter', '==', selected.chapter)
-        ]);
+        return this.fetchCurriculumQuestions(selected.board, String(selected.standard), 'quick', 10, [selected.subject], [selected.chapter]);
     }
 
     private async fetchCurriculumQuestions(
-        board: string, standard: string, mode: 'quick' | 'custom', count: number, constraints: QueryConstraint[]
+        board: string, standard: string, mode: 'quick' | 'custom', count: number, subjects: string[], chapters: string[]
     ): Promise<any[]> {
         const user = this.auth.currentUser;
         const normalized = normalizePracticeBoard(board);
         // Query each historical alias separately: another `in` would multiply the
         // custom subject/chapter disjunctions and can exceed Firestore's query limit.
         const boards = normalized === 'IGCSE' ? ['IGCSE', 'Cambridge IGCSE'] : [normalized];
-        const requests = boards.map(value => query(
-            collection(this.firestore, 'questions'), where('board', '==', value),
-            where('standard', '==', standard), ...constraints
-        ));
+        const subjectValues = [...new Set(subjects)].sort();
+        const chapterValues = [...new Set(chapters)].sort();
+        const filters: QuizQuestionFilter[] = [];
+        // Keep overlapping selection accumulations out of the sample. Each raw
+        // board, subject block and chapter block represents a disjoint query.
+        for (const value of boards) {
+            for (let s = 0; s < Math.max(1, subjectValues.length); s += 20) {
+                const subjectBlock = subjectValues.slice(s, s + 20);
+                const width = Math.floor(20 / Math.max(1, subjectBlock.length));
+                for (let c = 0; c < Math.max(1, chapterValues.length); c += width) {
+                    filters.push({ board: value, standard, subjects: subjectBlock, chapters: chapterValues.slice(c, c + width) });
+                }
+            }
+        }
+        const key = JSON.stringify(filters);
+        if (this.rankUser !== user) { this.rankScopes.clear(); this.rankUser = user; }
+        const warmed = this.rankScopes.get(key);
+        if (warmed && user && Date.now() < warmed.expiresAt) {
+            const sampled = await sampleQuizRanks(this.firestore, user, warmed.scopes, count).catch(error => {
+                if (error instanceof QuizRankReadError && navigator.onLine) throw error;
+                return null;
+            });
+            if (user !== this.auth.currentUser) throw Error('auth-changed');
+            if (sampled) return sampled.map(item => ({ ...item, selectedIndex: null }));
+        }
+        const requests = filters.map(filter => {
+            const constraints: QueryConstraint[] = [where('board', '==', filter.board), where('standard', '==', filter.standard)];
+            for (const [field, values] of [['subject', filter.subjects], ['chapter', filter.chapters]] as const) {
+                if (values.length) constraints.push(where(field, values.length === 1 ? '==' : 'in', values.length === 1 ? values[0] : values));
+            }
+            return query(collection(this.firestore, 'questions'), ...constraints);
+        });
         const snapshots = await Promise.all(requests.map(request => this.readQuizQuestionScope(request, user, mode)));
         if (user !== this.auth.currentUser) throw new Error('auth-changed');
+        // A complete authoritative SDK read warms the same offline cache as the
+        // legacy path. The retained map contains only partition boundaries.
+        if (user && snapshots.every(snapshot => !snapshot.metadata.fromCache) && filters.length <= 64) {
+            if (this.rankScopes.size >= 8) this.rankScopes.delete(this.rankScopes.keys().next().value!);
+            this.rankScopes.set(key, {
+                scopes: snapshots.map((snapshot, i) => quizRankScope(filters[i], snapshot.docs.map(item => item.id))),
+                expiresAt: Date.now() + 5 * 60_000
+            });
+        }
         const byId = new Map<string, QueryDocumentSnapshot<DocumentData>>();
         snapshots.forEach(snapshot => snapshot.docs.forEach(item => byId.set(item.id, item)));
         // Sample the complete eligible scope so document ID order never influences selection.
@@ -164,10 +202,7 @@ export class QuizService {
         const normalized = normalizePracticeBoard(board);
         const classValue = String(standard ?? '').trim();
         if (!normalized || !classValue) throw new Error('profile-required');
-        const constraints = [];
-        if (selectedSubjects.length) constraints.push(where('subject', 'in', selectedSubjects));
-        if (selectedChapters.length) constraints.push(where('chapter', 'in', selectedChapters));
-        return this.fetchCurriculumQuestions(normalized, classValue, 'custom', questionCount, constraints);
+        return this.fetchCurriculumQuestions(normalized, classValue, 'custom', questionCount, selectedSubjects, selectedChapters);
     }
 
     /** Save canonical answer indices; optionOrder retains the attempt's display order. */

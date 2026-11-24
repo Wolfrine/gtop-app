@@ -46,7 +46,8 @@ export class QuestionBankWorkspacePage implements OnInit, OnDestroy {
   readonly matchingCoverage = signal<{approved:number;pending:number}|null>(null);
   private coverageVersion=0;
   private scopeSelection=0;
-  private syllabusSearchStarted=false;
+  private syllabusSearch?: Subscription;
+  private syllabusSearchConfirmed=false;
   readonly syllabusSearchLoading=signal(false);
   private coverageRead:Promise<Record<string,{approved:number;pending:number}>>|null=null;
   private subscriptions=new Subscription();
@@ -94,6 +95,14 @@ export class QuestionBankWorkspacePage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    let searchIdentity: string | undefined;
+    this.subscriptions.add(this.auth.user$.subscribe(user => {
+      if (user?.uid === searchIdentity) return;
+      searchIdentity = user?.uid;
+      this.searchSyllabus('');
+      this.syllabus.set([]);
+      this.syllabusSearchConfirmed = false;
+    }));
     this.subscriptions.add(this.route.queryParamMap.subscribe((params) => {
       if(params.get('view')==='bank'){void this.router.navigate(['/admin/question-library'],{replaceUrl:true});return;}
       this.view.set('coverage');
@@ -107,21 +116,27 @@ export class QuestionBankWorkspacePage implements OnInit, OnDestroy {
     }));
     void this.load();
   }
-  ngOnDestroy():void{this.coverageVersion++;this.scopeSelection++;this.subscriptions.unsubscribe();}
+  ngOnDestroy():void{this.coverageVersion++;this.scopeSelection++;this.syllabusSearch?.unsubscribe();this.subscriptions.unsubscribe();}
 
   searchSyllabus(value: string): void {
     this.scopeSearch.set(value);
-    if (value.trim().length < 2 || this.syllabusSearchStarted) return;
-    this.syllabusSearchStarted = true;
+    if (value.trim().length < 2) {
+      this.syllabusSearch?.unsubscribe();
+      this.syllabusSearchLoading.set(false);
+      return;
+    }
+    if (this.syllabusSearchConfirmed || (this.syllabusSearch && !this.syllabusSearch.closed)) return;
     this.syllabusSearchLoading.set(true);
-    void this.paper.syllabus().then(scopes => {
-      if (!this.subscriptions.closed) this.syllabus.set(scopes);
-    }).catch(error => {
-      if (this.subscriptions.closed) return;
-      this.error.set(this.messageFor(error));
-      this.syllabusSearchStarted = false;
-    }).finally(() => {
-      if (!this.subscriptions.closed) this.syllabusSearchLoading.set(false);
+    this.syllabusSearch = this.paper.searchCatalogue().subscribe({
+      next: snapshot => {
+        this.syllabus.set(snapshot.items);
+        this.syllabusSearchConfirmed = !snapshot.fromCache;
+        this.syllabusSearchLoading.set(snapshot.fromCache && navigator.onLine);
+      },
+      error: error => {
+        this.error.set(this.messageFor(error));
+        this.syllabusSearchLoading.set(false);
+      }
     });
   }
 
@@ -181,7 +196,7 @@ export class QuestionBankWorkspacePage implements OnInit, OnDestroy {
 
   async selectScope(scope: SyllabusItem): Promise<void> {
     this.scopeSelection++;
-    this.scopeSearch.set(''); this.selectedPriority.set(null); this.showDetail.set(true);
+    this.searchSyllabus(''); this.selectedPriority.set(null); this.showDetail.set(true);
     const kind=this.route.snapshot.queryParamMap.get('questionKind');
     this.target.set(kind==='written'?20:50); this.urgency.set('high'); this.types.set(kind==='written'?['short_answer']:kind==='objective'?['mcq']:['mcq','short_answer']);
     await this.openScope(scope, null);

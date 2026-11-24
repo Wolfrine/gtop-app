@@ -8,6 +8,7 @@ import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import { PaperChatRepository } from '../core/paper-chat.repository';
 import type { ChatSavedPaper } from '../core/paper-chat.models';
 import { paperPrintHtml } from '../core/question-paper.domain';
+import { localPaperContentPolicy, useEmulators } from '../../../firebase-environment';
 
 @Component({selector:'app-paper-chat-viewer-page',standalone:true,imports:[RouterLink],templateUrl:'./paper-chat-viewer.page.html'})
 export class PaperChatViewerPage implements OnInit, OnDestroy {
@@ -94,7 +95,9 @@ export class PaperChatViewerPage implements OnInit, OnDestroy {
     // without a recorded revision stay explicitly unknown; no version is inferred.
     const identity='<aside class="gtop-saved-identity">'+(this.answers()?'Answer key':'Question paper')+' · '+escapeHtml(this.versionLabel(paper))+'<br>Saved paper ID: '+escapeHtml(paper.id)+'</aside>';
     const identityStyle='<style>.gtop-saved-identity{font:11px/1.5 Arial,sans-serif;color:#526059;border-bottom:1px solid #cfd9d2;padding:0 0 10px;margin:0 0 20px;overflow-wrap:anywhere;break-inside:avoid}</style>';
-    const withStyle=html.includes('</head>')?html.replace('</head>',fitting+identityStyle+'</head>'):fitting+identityStyle+html;
+    const policy=useEmulators?`<meta http-equiv="Content-Security-Policy" content="${localPaperContentPolicy}">`:'';
+    const localHtml=policy?(/<head(?:\s[^>]*)?>/i.test(html)?html.replace(/<head(?:\s[^>]*)?>/i,head=>head+policy):policy+html):html;
+    const withStyle=localHtml.includes('</head>')?localHtml.replace('</head>',fitting+identityStyle+'</head>'):fitting+identityStyle+localHtml;
     const fitted=/<body(?:\s[^>]*)?>/i.test(withStyle)?withStyle.replace(/<body(?:\s[^>]*)?>/i,match=>match+identity):identity+withStyle;
     this.documentReady.set(false); this.imageError.set('');
     this.document.set(this.sanitizer.bypassSecurityTrustHtml(fitted));

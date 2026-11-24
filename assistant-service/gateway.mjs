@@ -47,10 +47,10 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else {const m=path.match(/^\/worker\/jobs\/([^/]+)\/(heartbeat|event|delegate|native-thread|complete|fail)$/);if(method!=='POST'||!m)throw new HttpError(404,'not_found','Endpoint unavailable.');const fn={heartbeat:'renew',event:'event',delegate:'delegate','native-thread':'bindNativeThread',complete:'complete',fail:'failed'}[m[2]];output=await service[fn](worker,m[1],body);}
       } else {
         const user=await service.user(claims),uid=user.uid;
-        if(method==='GET' && path==='/session')output=await service.session(user);
+        if(method==='GET' && path==='/session')output=await service.session(user,query.get('contentRevision')==='1');
         else if(method==='GET' && path==='/service/status')output={service:await service.serviceControl.get(user)};
         else if(method==='POST' && path==='/service/start')output=await service.serviceControl.start(user,body);
-        else if(method==='GET' && path==='/conversations')output=await service.conversations(uid);
+        else if(method==='GET' && path==='/conversations')output=await service.conversations(uid,query);
         else if(method==='POST' && path==='/conversations')output=await service.createConversation(uid,body);
         else if(method==='POST' && path==='/feedback')output=await service.feedback(uid,body);
         else if(method==='POST' && path==='/admin/library')output=await service.adminLibrary(uid,body);
@@ -60,7 +60,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='GET' && /^\/students\/[A-Za-z0-9_-]+$/.test(path))output={student:await getStudent(service.store,path.split('/').at(-1))};
         else if(method==='POST' && path==='/checking/student-history')output=await service.checking.studentHistory(uid,body);
         else if(method==='GET' && path==='/checking/work')output=await service.checking.recentWork(uid);
-        else if(method==='GET' && /^\/admin\/conversations\/[^/]+$/.test(path))output=await service.adminConversation(uid,path.split('/').at(-1));
+        else if(method==='GET' && /^\/admin\/conversations\/[^/]+$/.test(path))output=await service.adminConversation(uid,path.split('/').at(-1),query);
         else if(method==='GET' && /^\/(admin\/)?conversations\/[^/]+\/revision$/.test(path))output=await service.conversationRevision(uid,path.split('/').at(-2),path.startsWith('/admin/'));
         else {let m;
           const intake=path.match(/^\/checking\/(packets|references)(?:\/([A-Za-z0-9_-]+)(?:\/(organize|manual|correct|recheck|save|confirm|delete|results|reference|queue|review|pages\/(\d+)))?)?$/);
@@ -79,7 +79,7 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
               responseHeaders['Cross-Origin-Resource-Policy']='same-origin';
             }
           }
-          else if(method==='GET' && (m=path.match(/^\/conversations\/([^/]+)$/)))output=await service.conversation(uid,m[1]);
+          else if(method==='GET' && (m=path.match(/^\/conversations\/([^/]+)$/)))output=await service.conversation(uid,m[1],query);
           else if(method==='POST' && (m=path.match(/^\/conversations\/([^/]+)\/messages$/)))output=await service.submit(uid,m[1],body);
           else if(method==='POST' && (m=path.match(/^\/jobs\/([^/]+)\/(cancel|retry)$/)))output=await service[m[2]](uid,m[1]);
           else if(method==='GET' && (m=path.match(/^\/papers\/([^/]+)$/)))output=await service.paper(uid,m[1]);

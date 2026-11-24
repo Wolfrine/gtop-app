@@ -8,8 +8,9 @@ import {onRequest} from 'firebase-functions/v2/https';
 import webpush from 'web-push';
 import {hash,paperContentHash as contentHash,validatePaper,validateBankSnapshot,renderPaper,imageType} from './paper-engine.mjs';
 import {projectSource,refreshRegister,searchRegister} from './paper-register.mjs';
+import {legacyAssetBase,legacyBucket,localLegacy,localPaperPolicy} from './legacy-environment.mjs';
 
-initializeApp({storageBucket:'gtop-app.firebasestorage.app'});
+initializeApp({storageBucket:legacyBucket});
 const db=getFirestore();const bucket=getStorage().bucket();
 const stamp=()=>FieldValue.serverTimestamp();
 const region='us-central1';
@@ -103,7 +104,7 @@ export const uploadPaperAsset=onDocumentWritten({document:'paperAssetUploads/{as
     try{const [metadata]=await file.getMetadata();token=metadata.metadata?.firebaseStorageDownloadTokens;if(metadata.metadata?.sha256!==upload.sha256)throw Error('Diagram ID already has different content.');}
     catch(error){if(Number(error.code)!==404)throw error;token=randomUUID();await immutableFile(path,bytes,type.mime,{firebaseStorageDownloadTokens:token});const [saved]=await file.getMetadata();token=saved.metadata?.firebaseStorageDownloadTokens;}
     if(!token)throw Error('The saved diagram has no download token.');
-    const url='https://firebasestorage.googleapis.com/v0/b/'+bucket.name+'/o/'+encodeURIComponent(path)+'?alt=media&token='+token;
+    const url=legacyAssetBase+'/v0/b/'+bucket.name+'/o/'+encodeURIComponent(path)+'?alt=media&token='+token;
     await ref.update({status:'ready',storagePath:path,url,contentType:type.mime,byteCount:bytes.length,updatedAt:stamp()});
     const batch=db.batch();parts.docs.forEach(part=>batch.delete(part.ref));await batch.commit();
   }catch(error){console.error('Diagram upload failed',id,error.message);await ref.update({status:'error',error:String(error.message).slice(0,500),updatedAt:stamp()});}
@@ -120,16 +121,19 @@ function validSubscription(body){
   if(!/^[A-Za-z0-9_-]{30,200}$/.test(body.keys?.p256dh??'')||!/^[A-Za-z0-9_-]{16,80}$/.test(body.keys?.auth??''))throw Error('Invalid browser subscription.');
   return {endpoint:url.toString(),keys:body.keys};
 }
-export const paperGateway=onRequest({region,cors:['https://gtop-app.web.app','https://gtop-app.firebaseapp.com','https://dev-gtop-app.web.app','http://127.0.0.1:4300'],timeoutSeconds:60,memory:'256MiB',maxInstances:3},async(req,res)=>{
+const gatewayOrigins=localLegacy?['http://127.0.0.1:4300','http://localhost:4300','http://127.0.0.1:4200','http://localhost:4200']:
+  ['https://gtop-app.web.app','https://gtop-app.firebaseapp.com','https://dev-gtop-app.web.app','http://127.0.0.1:4300'];
+export const paperGateway=onRequest({region,cors:gatewayOrigins,timeoutSeconds:60,memory:'256MiB',maxInstances:3},async(req,res)=>{
   try{
     const match=/^Bearer (.+)$/.exec(req.headers.authorization??'');if(!match){res.status(401).send('Sign in required');return;}
     const identity=await getAuth().verifyIdToken(match[1]);const profile=await db.doc('users/'+identity.uid).get();if(profile.data()?.role!=='admin'){res.status(403).send('Admin access required');return;}
     const path=req.path.replace(/\/$/,'');
+    if(localLegacy&&['/config','/subscribe'].includes(path)){res.status(409).send('Device push is unavailable in the emulator.');return;}
     if(req.method==='GET'&&path==='/register'){res.set('Cache-Control','private,no-store').json(await searchRegister(db,req.query,identity.uid));return;}
     if(req.method==='GET'&&path==='/config'){const keys=await pushKeys();res.json({publicKey:keys.publicKey});return;}
     if(req.method==='POST'&&path==='/subscribe'){const subscription=validSubscription(req.body);await db.doc('paperPushSubscriptions/'+identity.uid+'/devices/'+hash(subscription.endpoint)).set({...subscription,updatedAt:stamp()});res.json({saved:true});return;}
     const artifact=/^\/artifact\/([a-zA-Z0-9_-]{1,140})\/(paper|answers)$/.exec(path);
-    if(req.method==='GET'&&artifact){const paper=await db.doc('paperDrafts/'+artifact[1]).get();if(paper.data()?.status!=='ready'){res.status(404).send('Paper unavailable');return;}const document=await db.doc('paperArtifacts/'+artifact[1]+'/documents/'+artifact[2]).get();if(!document.exists){res.status(404).send('Artifact unavailable');return;}res.set('Content-Type','text/html; charset=utf-8').set('Cache-Control','private,no-store').set('Content-Security-Policy',"default-src 'none'; img-src https://firebasestorage.googleapis.com https://storage.googleapis.com; style-src 'unsafe-inline'; font-src https://gtop-app.web.app").send(document.data().html);return;}
+    if(req.method==='GET'&&artifact){const paper=await db.doc('paperDrafts/'+artifact[1]).get();if(paper.data()?.status!=='ready'){res.status(404).send('Paper unavailable');return;}const document=await db.doc('paperArtifacts/'+artifact[1]+'/documents/'+artifact[2]).get();if(!document.exists){res.status(404).send('Artifact unavailable');return;}res.set('Content-Type','text/html; charset=utf-8').set('Cache-Control','private,no-store').set('Content-Security-Policy',localLegacy?localPaperPolicy:"default-src 'none'; img-src https://firebasestorage.googleapis.com https://storage.googleapis.com; style-src 'unsafe-inline'; font-src https://gtop-app.web.app").send(document.data().html);return;}
     res.status(404).send('Not found');
   }catch(error){console.error('Paper gateway request failed',error.message);res.status(400).json({error:'This request could not be completed.'});}
 });
@@ -146,6 +150,7 @@ export const registerMessage=onDocumentWritten({document:'paperMessages/{id}',re
 });
 
 export const notifyPaperAdmin=onDocumentCreated({document:'paperNotifications/{notificationId}',region,timeoutSeconds:60,maxInstances:2,retry:true},async event=>{
+  if(localLegacy)return;
   const notification=event.data?.data();if(!cleanId(notification?.ownerUid)||!cleanId(notification.conversationId))return;
   const devices=await db.collection('paperPushSubscriptions/'+notification.ownerUid+'/devices').limit(12).get();if(devices.empty)return;
   const keys=await pushKeys();webpush.setVapidDetails('mailto:schttewary@gmail.com',keys.publicKey,keys.privateKey);

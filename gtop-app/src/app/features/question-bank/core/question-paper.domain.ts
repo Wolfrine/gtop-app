@@ -1,4 +1,5 @@
 import type { Question } from './models';
+import { allowedPaperImage } from '../../../firebase-environment';
 
 export interface ChapterScope { subject: string; chapter: string; curriculumVersionId?: string; bankAliases?: {subject: string; chapter: string}[]; }
 export interface QuestionPaperTemplateSection {
@@ -211,10 +212,10 @@ export function normalizeQuestion(id: string, raw: Record<string, unknown>): Nor
     if (!value || typeof value !== 'object') return [];
     const item = value as Record<string, unknown>;
     const url = textValue(item['url']);
-    return /^https:\/\//i.test(url) ? [{ url, alt: textValue(item['alt']) || 'Question diagram' }] : [];
+    return allowedPaperImage(url) ? [{ url, alt: textValue(item['alt']) || 'Question diagram' }] : [];
   });
   const imageUrl = textValue(raw['imageUrl'] ?? raw['diagramUrl']);
-  if (/^https:\/\//i.test(imageUrl) && !assets.some((item) => item.url === imageUrl)) {
+  if (allowedPaperImage(imageUrl) && !assets.some((item) => item.url === imageUrl)) {
     assets.push({ url: imageUrl, alt: textValue(raw['imageAlt']) || 'Question diagram' });
   }
   return {

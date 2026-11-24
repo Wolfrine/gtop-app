@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto';
 import katex from 'katex';
 import {readFileSync} from 'node:fs';
+import {legacyFontRoot,permittedLegacyDiagram} from './legacy-environment.mjs';
 
 const escape=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 export const hash=value=>createHash('sha256').update(typeof value==='string'||Buffer.isBuffer(value)?value:JSON.stringify(value)).digest('hex');
@@ -38,7 +39,7 @@ export function validatePaper(paper){
     if(question.origin==='generated')generated++;else reused++;
     for(const asset of question.assets??[]){
       const url=new URL(asset.url);
-      if(url.protocol!=='https:'||!['firebasestorage.googleapis.com','storage.googleapis.com'].includes(url.hostname))throw Error('Paper diagrams must be stored in Firebase Storage.');
+      if(!permittedLegacyDiagram(url))throw Error('Paper diagrams must be stored in the active Firebase Storage environment.');
       if(!asset.alt)throw Error('Every diagram needs a description.');
     }
     if((kind(question.questionType)==='diagram_based'||question.diagramRequired)&&!question.assets?.length)throw Error('A required diagram is missing.');
@@ -92,7 +93,7 @@ export function renderPaper(paper,answerKey=false){
     const answer=answerKey?'<div class="answer">'+(objective.has(questionType(question.questionType))?'<strong>Answer: ('+String.fromCharCode(65+question.correctIndex)+')</strong><br>':'')+question.solutions.map(text).join('<br>')+'</div>':'';
     return '<article class="question"><div class="question-line"><span class="number">'+number+'.</span><div class="stem">'+text(question.question)+blocks(question)+options+assets+answer+'</div><span class="marks">['+question.marks+']</span></div></article>';
   }).join('')+'</section>').join('');
-  const katexCss=readFileSync(new URL('./node_modules/katex/dist/katex.min.css',import.meta.url),'utf8').replace(/url\(fonts\//g,'url(https://gtop-app.web.app/assets/paper-fonts/');
+  const katexCss=readFileSync(new URL('./node_modules/katex/dist/katex.min.css',import.meta.url),'utf8').replace(/url\(fonts\//g,'url('+legacyFontRoot);
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escape(paper.title)+(answerKey?' — Answer key':'')+'</title><style>'+katexCss+baseCss+'</style></head><body><header><div class="brand">GROWTH TUTORIALS</div><h1>'+escape(paper.title)+'</h1><div>'+escape(paper.board)+' · Class '+escape(paper.standard)+' · '+escape((paper.subjects??[]).join(', '))+(answerKey?' · Answer key':'')+'</div><div class="meta"><span>Time: '+escape(paper.durationMinutes??60)+' minutes</span><span>Maximum marks: '+escape(paper.marks)+'</span></div></header>'+(answerKey?'':'<p class="student">Name: __________________________ &nbsp; Roll no.: __________</p>')+'<p class="scope">Chapters: '+escape((paper.chapters??[]).join(', '))+'</p><ol class="instructions">'+(paper.instructions??['Attempt all questions.','Marks are shown in brackets.']).map(value=>'<li>'+text(value)+'</li>').join('')+'</ol>'+sections+'<div class="end">'+(answerKey?'End of answer key':'End of question paper')+'</div></body></html>';
 }
 export function imageType(bytes){

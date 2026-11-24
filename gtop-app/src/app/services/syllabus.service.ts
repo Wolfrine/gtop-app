@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
 import { DocumentSnapshot, Firestore, QueryConstraint, collection, doc, getCountFromServer, getDoc, getDocs, limit, orderBy, query, runTransaction, serverTimestamp, setDoc, startAfter, updateDoc, where, writeBatch } from '@angular/fire/firestore';
-import { Observable, from, map, of, switchMap } from 'rxjs';
+import { Observable, distinctUntilChanged, from, fromEvent, map, merge, of, share, switchMap, tap } from 'rxjs';
 import { FirestoreReadService } from './firestore-read.service';
 import { normalizePracticeBoard } from './practice-context';
 
@@ -25,6 +25,10 @@ export interface SyllabusSnapshot {
 export class SyllabusService {
     private readonly syllabusCollection = collection(this.firestore, 'syllabus');
     private readonly optionReads = new Map<string, { expiresAt: number; result: Promise<string[]> }>();
+    private readonly optionsReconnect = fromEvent(window, 'online').pipe(
+        tap(() => this.optionReads.clear()),
+        share()
+    );
     private optionUser = '';
 
     constructor(private firestore: Firestore, private readonly reads: FirestoreReadService, private readonly auth: Auth) {}
@@ -102,7 +106,11 @@ export class SyllabusService {
                 this.optionReads.clear();
                 this.optionUser = uid;
             }
-            return uid ? from(this.readOptions(uid, field, board)) : of([]);
+            return uid ? merge(of(null), this.optionsReconnect).pipe(
+                switchMap(() => from(this.readOptions(uid, field, board))),
+                distinctUntilChanged((left, right) => left.length === right.length &&
+                    left.every((value, index) => value === right[index]))
+            ) : of([]);
         }));
     }
 

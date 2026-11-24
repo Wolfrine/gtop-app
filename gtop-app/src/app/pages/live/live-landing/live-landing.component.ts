@@ -110,6 +110,8 @@ export class LiveLandingComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.userSub?.unsubscribe();
     this.upcomingUnsub?.();
+    this.stopSyllabus();
+    this.formSubscriptions.unsubscribe();
   }
 
   async createSession(): Promise<void> {

@@ -114,14 +114,15 @@ export class QuestionBankWorkspacePage implements OnInit, OnDestroy {
     if (value.trim().length < 2 || this.syllabusSearchStarted) return;
     this.syllabusSearchStarted = true;
     this.syllabusSearchLoading.set(true);
-    this.subscriptions.add(this.paper.syllabusUpdates().subscribe({
-      next: scopes => { this.syllabus.set(scopes); this.syllabusSearchLoading.set(false); },
-      error: error => {
-        this.error.set(this.messageFor(error));
-        this.syllabusSearchLoading.set(false);
-        this.syllabusSearchStarted = false;
-      }
-    }));
+    void this.paper.syllabus().then(scopes => {
+      if (!this.subscriptions.closed) this.syllabus.set(scopes);
+    }).catch(error => {
+      if (this.subscriptions.closed) return;
+      this.error.set(this.messageFor(error));
+      this.syllabusSearchStarted = false;
+    }).finally(() => {
+      if (!this.subscriptions.closed) this.syllabusSearchLoading.set(false);
+    });
   }
 
   async load(): Promise<void> {

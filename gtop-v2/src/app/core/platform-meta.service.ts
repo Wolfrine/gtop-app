@@ -4,6 +4,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { useEmulators } from './firebase';
 
 const productionOrigin = 'https://gtop.growthtutorials.in';
 
@@ -19,9 +20,9 @@ export class PlatformMetaService {
       const publicPage = event.urlAfterRedirects === '/' || event.urlAfterRedirects.startsWith('/privacy');
       this.meta.updateTag({ name: 'robots', content: publicPage ? 'index, follow' : 'noindex, nofollow' });
       this.setCanonical(publicPage ? `${productionOrigin}${event.urlAfterRedirects.split('?')[0]}` : productionOrigin);
-      if (environment.analyticsEnabled) this.track(event.urlAfterRedirects);
+      if (!useEmulators && environment.analyticsEnabled) this.track(event.urlAfterRedirects);
     });
-    if (environment.analyticsEnabled) this.loadAnalytics();
+    if (!useEmulators && environment.analyticsEnabled) this.loadAnalytics();
   }
 
   private setCanonical(href: string): void {

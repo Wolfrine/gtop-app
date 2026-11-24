@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { AuthStore } from './auth.store';
 import { DiagnosticsService } from './diagnostics.service';
+import { useEmulators } from './firebase';
 
 interface GooglePromptMoment {
   isNotDisplayed(): boolean;
@@ -39,9 +40,9 @@ export class GoogleOneTapService {
   }
 
   async initialize(): Promise<void> {
-    if (this.initialized || !environment.googleOneTapEnabled) return;
+    if (this.initialized || useEmulators || !environment.googleOneTapEnabled) return;
     const state = await this.auth.ready();
-    if (state.phase === 'authenticated' || location.hostname === 'localhost') return;
+    if (state.phase === 'authenticated') return;
     this.initialized = true;
     try {
       await this.loadScript();

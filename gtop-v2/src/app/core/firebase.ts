@@ -17,7 +17,7 @@ const productionOrigins = new Set([
   'https://gtop-app.web.app',
   'https://gtop-app.firebaseapp.com',
 ]);
-const useEmulators = !environment.production || environment.uat || !productionOrigins.has(location.origin);
+export const useEmulators = !environment.production || environment.uat || !productionOrigins.has(location.origin);
 const app = initializeApp(useEmulators
   ? { projectId: 'demo-gtop-assistant', apiKey: 'demo-key', authDomain: 'localhost' }
   : environment.firebase);

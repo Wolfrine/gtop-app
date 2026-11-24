@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { Database } from 'firebase/database';
-import { FirebaseClient } from './firebase';
+import { FirebaseClient, useEmulators } from './firebase';
 import { PresenceRecord } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -17,8 +17,7 @@ export class PresenceService {
   constructor(private readonly firebase: FirebaseClient) {
     this.database = import('firebase/database').then(({ getDatabase, connectDatabaseEmulator }) => {
       const db = getDatabase(firebase.app);
-      if (typeof window !== 'undefined' && new URLSearchParams(location.search).has('emulator'))
-        connectDatabaseEmulator(db, '127.0.0.1', 9000);
+      if (useEmulators) connectDatabaseEmulator(db, '127.0.0.1', 9000);
       return db;
     });
     onAuthStateChanged(firebase.auth, (user) => {

@@ -110,6 +110,7 @@ export async function sampleQuizRanks(
     let countedEntries = 0;
     let questionReads = 0;
     let cacheReads = 0;
+    let hydrated = 0;
     let drawn = false;
     async function request<T>(method: string, body: object): Promise<T> {
         const response = await fetch(`${host}/v1/${database}:${method}`, {
@@ -195,13 +196,17 @@ export async function sampleQuizRanks(
         // through the SDK as well so later offline practice sees these IDs and edits.
         await mapPages(result, async item => {
             cacheReads++;
-            await getDocFromServer(doc(firestore, 'questions', item.id)).catch(() => undefined);
+            try {
+                if ((await getDocFromServer(doc(firestore, 'questions', item.id))).exists()) hydrated++;
+            } catch {
+                // A cache refresh must never discard a completed exact draw.
+            }
         });
         return result;
     } catch {
         if (drawn) throw new QuizRankReadError();
         return null;
     } finally {
-        console.debug('[firestore-read]', { scope: 'quiz-rank-snapshot', countQueries, countedEntries, questionReads, cacheReads, writes: 0 });
+        console.debug('[firestore-read]', { scope: 'quiz-rank-snapshot', countQueries, countedEntries, questionReads, cacheReads, hydrated, writes: 0 });
     }
 }

@@ -5,6 +5,7 @@ import { getAuth, Auth, User, GoogleAuthProvider, signInWithRedirect, getRedirec
 import type { Firestore } from 'firebase/firestore';
 import { Transport } from './contracts';
 import { MarkerSnapshot } from './owner-events';
+import { emulatorConfig, useEmulators } from './firebase-environment';
 
 @Injectable({providedIn:'root'})
 export class AssistantApi implements Transport {
@@ -17,28 +18,25 @@ export class AssistantApi implements Transport {
   private observers=new Set<(user:User|null)=>void>();
   user:User|null=null;
   async initialize():Promise<void> {
-    const response=await fetch('/assistant-config.json',{cache:'no-store'});
-    if(!response.ok)throw new Error('The workspace configuration could not be loaded.');
-    const config=await response.json();
-    if(!config.apiBase || !config.firebase?.projectId)throw new Error('The workspace is not configured.');
-    const local=['127.0.0.1','localhost','[::1]'].includes(location.hostname);
-    if(local && new URLSearchParams(location.search).has('emulator')){
-      config.apiBase='http://127.0.0.1:5201/demo-gtop-assistant/us-central1/gtopAssistantGateway';
-      config.authEmulatorUrl='http://127.0.0.1:9299';
-      config.firebase={...config.firebase,projectId:'demo-gtop-assistant',apiKey:'demo-key',authDomain:'localhost'};
+    let config=emulatorConfig;
+    if(!useEmulators){
+      const response=await fetch('/assistant-config.json',{cache:'no-store'});
+      if(!response.ok)throw new Error('The workspace configuration could not be loaded.');
+      config=await response.json();
     }
+    if(!config.apiBase || !config.firebase?.projectId)throw new Error('The workspace is not configured.');
     const apiUrl=new URL(config.apiBase,location.origin);
-    if(apiUrl.protocol!=='https:' && !(local && ['127.0.0.1','localhost'].includes(apiUrl.hostname)))throw new Error('A secure workspace connection is required.');
+    if(!useEmulators && apiUrl.protocol!=='https:')throw new Error('A secure workspace connection is required.');
     this.apiBase=apiUrl.href.replace(/\/$/,'');
     const app=initializeApp(config.firebase);
     this.auth=getAuth(app);
-    if(local && config.authEmulatorUrl)connectAuthEmulator(this.auth,config.authEmulatorUrl,{disableWarnings:true});
+    if(useEmulators)connectAuthEmulator(this.auth,'http://127.0.0.1:9299',{disableWarnings:true});
     // Stream loading failure keeps the authenticated gateway fallback usable.
     // Private gateway data is never persisted in Firestore's browser cache.
     try{
       this.firestore=await import('firebase/firestore');
       this.database=this.firestore.initializeFirestore(app,{localCache:this.firestore.memoryLocalCache()});
-      if(local&&new URLSearchParams(location.search).has('emulator'))this.firestore.connectFirestoreEmulator(this.database,'127.0.0.1',8280);
+      if(useEmulators)this.firestore.connectFirestoreEmulator(this.database,'127.0.0.1',8280);
     }catch{this.database=undefined;this.firestore=undefined;}
     await setPersistence(this.auth,browserLocalPersistence);
     // The hosted auth helper shares this app's origin, including on browsers

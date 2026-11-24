@@ -1,7 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { Database } from 'firebase/database';
-import { FirebaseClient, useEmulators } from './firebase';
+import { FirebaseClient } from './firebase';
+import { useEmulators } from './firebase-environment';
 import { PresenceRecord } from './models';
 
 @Injectable({ providedIn: 'root' })

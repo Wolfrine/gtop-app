@@ -9,7 +9,7 @@ npm run build
 npm start
 ```
 
-Development: http://127.0.0.1:4317. Runtime public configuration is `public/assistant-config.json`: `apiBase` plus Firebase browser configuration. Firebase Google sign-in requires this independent Hosting domain in the project's authorized domains. Existing email sign-in is also available. Local-only `?emulator=1` selects project `demo-gtop-assistant`, Auth port 9299 and gateway port 5201 from the isolated Firebase config. Sign in using a seeded emulator identity; no authentication bypass is provided. Hosted origins ignore that query and always use production identity.
+Local development uses http://127.0.0.1:4317 and the isolated Firebase emulator configuration. Production Hosting uses `public/assistant-config.json` and existing Firebase sign-in methods. See [Firestore access and read budgets](../docs/engineering/firestore-efficiency.md) for emulator commands and preview behavior.
 
 ## Visual QA
 

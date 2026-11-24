@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { AuthStore } from './auth.store';
 import { DiagnosticsService } from './diagnostics.service';
-import { useEmulators } from './firebase';
+import { useEmulators } from './firebase-environment';
 
 interface GooglePromptMoment {
   isNotDisplayed(): boolean;

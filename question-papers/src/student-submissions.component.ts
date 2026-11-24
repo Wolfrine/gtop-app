@@ -6,21 +6,19 @@ import {
 import { FormsModule } from '@angular/forms';
 import { AssistantApi } from './api.service';
 import { ExternalExamComponent } from './external-exam.component';
+import { useEmulators } from './firebase-environment';
 
 const base = '/staff/student-submissions';
 const batchLimit = 30;
 const gtopOrigin = 'https://gtop.growthtutorials.in';
 
 export function studentSubmissionLink(kind: 'test' | 'invite', code: string) {
-  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  const origin = local && new URL(location.href).searchParams.has('emulator')
-    ? 'http://localhost:4200' : gtopOrigin;
+  const origin = useEmulators ? 'http://localhost:4200' : gtopOrigin;
   const url = new URL('/answer-sheets', origin);
   if (kind === 'invite') {
     url.hash = new URLSearchParams({ invite: code }).toString();
     url.searchParams.set('ngsw-bypass', '1');
   } else url.searchParams.set('test', code);
-  if (origin !== gtopOrigin) url.searchParams.set('emulator', '');
   return url.href;
 }
 

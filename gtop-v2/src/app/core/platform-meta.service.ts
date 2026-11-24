@@ -4,7 +4,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { useEmulators } from './firebase';
+import { useEmulators } from './firebase-environment';
 
 const productionOrigin = 'https://gtop.growthtutorials.in';
 

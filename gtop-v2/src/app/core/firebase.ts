@@ -10,14 +10,9 @@ import {
   enablePersistentCacheIndexAutoCreation,
 } from 'firebase/firestore';
 import { environment } from '../../environments/environment';
+import { useEmulators } from './firebase-environment';
 import { PersistenceState } from './models';
 
-const productionOrigins = new Set([
-  'https://gtop.growthtutorials.in',
-  'https://gtop-app.web.app',
-  'https://gtop-app.firebaseapp.com',
-]);
-export const useEmulators = !environment.production || environment.uat || !productionOrigins.has(location.origin);
 const app = initializeApp(useEmulators
   ? { projectId: 'demo-gtop-assistant', apiKey: 'demo-key', authDomain: 'localhost' }
   : environment.firebase);

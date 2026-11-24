@@ -107,6 +107,10 @@
         }
     },
     "cli": {
-        "analytics": false
+        "analytics": false,
+        "cache": {
+            "environment": "local",
+            "path": "H:/Workspace/Caches/angular/GTOP"
+        }
     }
 }

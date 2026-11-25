@@ -9,9 +9,21 @@ runtime profile. The initial values are gpt-6.2-sol and xhigh.
 Codex decides whether to ask for clarification, do public research, consult an
 agent, or prepare a complete paper. Its one Papers MCP server can read the
 saved context for the current conversation and stage a complete package.
-Firebase retains owner authorization, lease checks, turn receipts, validation
-and atomic publication of the student paper and worked answers. Existing work
-uses its original lease and delivery path.
+Firebase enforces owner authorization, lease and native turn receipts, schema
+and size limits, safe rendering, and atomic publication of both artifacts.
+Native paper content, cited sources, format and syllabus interpretation belong
+to Codex. The teacher receives the output for review and decides whether to
+accept it or request changes. Do not require an academic, syllabus or
+board-pattern approval at staging or publication. Native papers record a
+technical content digest in `deliveryValidation`. Earlier paper records
+keep their existing validation metadata.
+
+For recovery, use the owner-facing retry action on the original saved
+request. The worker can recover a finished local package when the previous
+attempt has the original-input hash, the same bound native thread and the
+recorded curriculum-publication rejection. The gateway publishes only under
+the new retry lease and deduplicates delivery by the bound native turn.
+Leave teacher decisions and previous papers intact.
 
 ## Isolation and release status
 

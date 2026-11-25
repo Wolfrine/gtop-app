@@ -26,6 +26,10 @@ Previously created papers should remain useful teaching material. Sachit wants a
 
 The library is deferred until the base conversational Question Paper MVP is complete. This is a direction for later review, not current development approval; the precise experience and visibility across administrators remain open.
 
+## Teachers Decide Whether To Accept Native Papers
+
+Codex is responsible for native GT Papers content, syllabus interpretation, format, and academic quality. The teacher receives the rendered paper and worked answers privately, checks them, and decides whether to use them or request a correction. Native delivery depends on a safe, intact document and verified access. A curriculum catalogue or academic approval can inform the work and must never prevent delivery to the teacher. Earlier curriculum-review decisions still govern learner-facing and legacy workflows in their own scope.
+
 ## GTOP Is Independent
 
 GTOP is owned as an independent production application. It should not be treated as a Hub submodule.
@@ -129,6 +133,8 @@ GTOP should study what students may expect from education products over the next
 Practice and paper workflows should load what a learner or teacher needs for the current task. Faster loading must preserve the full eligible question pool, the ability to return to older work, and access to previously available offline work. Development uses isolated classroom data, including diagrams and notifications. Role boundaries and canonical academic records continue to apply as delivery changes. Measure real workflows before crediting cost savings.
 
 ## Source Notes
+
+- `raw/2026-11-25-native-paper-delivery-ownership.md`
 
 - `raw/2026-11-24-firestore-efficiency-correction.md`
 - `raw/2026-10-24-post-mvp-paper-library.md`

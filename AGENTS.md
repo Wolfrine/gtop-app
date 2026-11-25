@@ -84,6 +84,7 @@ If the user does not provide these explicitly, infer conservative defaults from 
 
 - Follow [the Firestore engineering standard](docs/engineering/firestore-efficiency.md) for data access, development isolation, and read-budget evidence across GTOP and GT Papers.
 - Prohibit fixed-interval remote polling by default, eager full reads, and no-op writes. Use shared, scoped AngularFire caching and listeners. Record document reads, scanned and billed index entries, and writes for the changed workflow.
+- Native GT Papers publication must enforce only technical rendering, ownership, security, size, and delivery integrity. Codex owns the academic work and the teacher decides acceptance or correction. Do not add academic, curriculum, or format approval gates. Follow [native Papers delivery guidance](tools/gtop-assistant/CODEX-PAPERS.md).
 - GitHub Actions deploy on every push.
 - `main` deploys `prod-gtop-app`.
 - any non-`main` branch deploys `dev-gtop-app`.

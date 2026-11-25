@@ -82,6 +82,7 @@ If the user does not provide these explicitly, infer conservative defaults from 
 
 ## Deployment Rules
 
+- Follow the [owner-wide cloud cost rule](https://github.com/Wolfrine/PTI/blob/main/docs/cloud-cost-rule.md) for local, remote and manual releases. Record the cost forecast and readback with existing deployment evidence.
 - Follow [the Firestore engineering standard](docs/engineering/firestore-efficiency.md) for data access, development isolation, and read-budget evidence across GTOP and GT Papers.
 - Prohibit fixed-interval remote polling by default, eager full reads, and no-op writes. Use shared, scoped AngularFire caching and listeners. Record document reads, scanned and billed index entries, and writes for the changed workflow.
 - Native GT Papers publication must enforce only technical rendering, ownership, security, size, and delivery integrity. Codex owns the academic work and the teacher decides acceptance or correction. Do not add academic, curriculum, or format approval gates. Follow [native Papers delivery guidance](tools/gtop-assistant/CODEX-PAPERS.md).

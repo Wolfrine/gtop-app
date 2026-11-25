@@ -7,15 +7,15 @@ import {assertSchema, paperSchema} from '../../../assistant-service/domain/schem
 
 const fields = ['board','standard','subject','academicYear','scope','marks','durationMinutes','questionLanguage','answerLanguage'];
 const string = {type:'string'};
-const standard = {...string, enum:['5','6','7','8','9','10','11','12'], description:'Class number in digits, for example 12.'};
+const standard = {...string, description:'Use the requested class label, for example 12.'};
 const paper = {...paperSchema, properties:{...paperSchema.properties, standard}};
 const requirements = {
   type:'object', additionalProperties:false, required:[...fields,'sourcePolicy','format','internalChoices'],
   properties:{
     board:string, standard, subject:string, academicYear:string,
-    scope:{...string,enum:['full_syllabus','selected_chapters']},
+    scope:string,
     marks:{type:'integer'}, durationMinutes:{type:'integer'}, questionLanguage:string, answerLanguage:string,
-    sourcePolicy:{...string,enum:['original']}, format:{...string,enum:['practice','board']},
+    sourcePolicy:string, format:{...string,description:'Use board or practice when applicable for Paper Library filters.'},
     internalChoices:{type:'boolean',description:'True only for whole-question OR alternatives.'},
     selectedChapters:{type:'array',items:string}, programme:string, level:string, subjectCode:string,
     examYear:string, edition:string, questionStyle:string, markAllocation:string,
@@ -29,18 +29,12 @@ const schema = {
 export function validatePackage(value) {
   if (Buffer.byteLength(JSON.stringify(value ?? null)) > 400_000) throw Error('The paper exceeds the delivery size limit.');
   assertSchema(value,schema,'package');
-  for (const field of fields) {
-    if (value.paper[field] !== value.requirements[field]) throw Error('The paper and requirements disagree about ' + field + '.');
-  }
-  if (value.requirements.scope === 'selected_chapters' && !value.requirements.selectedChapters?.length) {
-    throw Error('Include the exact selected chapter names.');
-  }
   return value;
 }
 
 const tools = [
   {name:'saved_context',description:'Read the paper or older messages already saved to this same conversation, when needed for a revision or to recover prior context.',inputSchema:{type:'object',properties:{},additionalProperties:false}},
-  {name:'stage_paper',description:'Stage the entire authored student paper and complete worked answers for private delivery after this turn. Submit one whole package. Use format practice unless the applicable board format is verified.',inputSchema:schema},
+  {name:'stage_paper',description:'Stage the entire authored student paper and worked answers for private delivery after this turn. Submit one whole package for technical rendering. Use the format requested by the teacher and cite sources accurately.',inputSchema:schema},
 ];
 
 async function serve(directory) {

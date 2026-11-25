@@ -41,6 +41,7 @@ const failedPaperMessages=Object.freeze({
   paper_generation_timeout:'Writing or reviewing the paper took too long. Your requirements are saved. Try again to continue.',
   paper_draft_invalid:'The draft did not pass the paper checks. Try again to continue from the verified work.',
   paper_delivery_unavailable:'The assistant could not save the finished paper. Try again to recover it.',
+  paper_delivery_invalid:'The draft could not be prepared as printable documents. Your request is saved. Try again to repair the draft.',
   paper_scope_infeasible:'These marks or section choices cannot cover all requested chapters. Change the marks or scope and send the revised request.',
 });
 const nativeDraftRejections=new Set(['invalid_paper','curriculum_unavailable','invalid_base_paper','invalid_question','payload_too_large','artifact_too_large']);
@@ -906,34 +907,29 @@ export class AssistantService {
       ]);
       if(original?.role!=='user'||original.conversationId!==c.id||typeof original.text!=='string'||job.inputSha256!==proof.inputSha256||hash(original.text)!==proof.inputSha256)fail(409,'native_input_mismatch','Codex did not acknowledge the saved original message.');
       if(previousTurn)fail(409,'native_turn_already_used','This Codex turn already belongs to another saved reply.');
-      if(body.basePaperId&&!workerPaper(this.domain,base,c))fail(400,'invalid_base_paper','Choose an existing, validated paper from this conversation.');
+      if(body.basePaperId&&!workerPaper(this.domain,base,c))fail(400,'invalid_base_paper','Choose a saved paper from this conversation with an intact delivery record.');
       if(body.targetQuestionNumber!=null&&(!base||!Number.isInteger(body.targetQuestionNumber)||body.targetQuestionNumber<1))fail(400,'invalid_question','Choose a valid question from a saved base paper.');
-      let paper=null,completionArtifacts={},artifacts=null,notice=null;
+      let paper=null,completionArtifacts={},artifacts=null;
       const now=this.iso();
       if(body.paper!=null){
         const candidate=bounded(body.paper,400000),submitted=body.requirements==null?body.requirements:bounded(body.requirements);
         try{
-          const result=await nativePaper(this.domain,{
-            candidate,requirements:submitted,base,targetQuestionNumber:body.targetQuestionNumber,
-            resolveCurriculum:requirements=>this.resolveCurriculum(requirements,c.id,worker),
-            userMessages:async()=>{
-              const recent=await this.store.list(`assistantConversations/${c.id}/messages`,[],100,{orderBy:['createdAt','desc']});
-              return [original,...recent].filter(m=>m.role==='user'&&m.conversationId===c.id&&m.createdAt<=original.createdAt&&typeof m.text==='string');
-            }
-          });
-          notice=result.notice;
-          paper={...result.paper,id:this.id(),ownerUid:job.ownerUid,conversationId:c.id,nativePrivate:true,requirements:result.requirements,curriculumSnapshot:bounded(result.curriculumSnapshot,180000),reportedSourceReferences:result.reportedSourceReferences,rootRequestMessageId:base?.rootRequestMessageId||original.id,revision:base?(base.revision||1)+1:1,...(base?{parentPaperId:base.id}:{}),jobId:id,createdAt:now,validation:result.validation};
-          artifacts={student:encodeArtifact(this.domain.renderPaper(paper,false),now),answers:encodeArtifact(this.domain.renderPaper(paper,true),now)};
+          const result=nativePaper(this.domain,candidate,submitted);
+          paper={...result.paper,id:this.id(),ownerUid:job.ownerUid,conversationId:c.id,nativePrivate:true,requirements:result.requirements,deliveryValidation:result.deliveryValidation,rootRequestMessageId:base?.rootRequestMessageId||original.id,revision:base?(base.revision||1)+1:1,...(base?{parentPaperId:base.id}:{}),jobId:id,createdAt:now};
+          let student,answers;
+          try{student=this.domain.renderPaper(paper,false);answers=this.domain.renderPaper(paper,true);}
+          catch{fail(400,'paper_delivery_invalid','The staged content could not be rendered safely as both printable documents.');}
+          artifacts={student:encodeArtifact(student,now),answers:encodeArtifact(answers,now)};
           completionArtifacts={paperId:paper.id,studentSha256:artifacts.student.sha256,answersSha256:artifacts.answers.sha256};
         }catch(error){
-          if(error instanceof NativePaperError)fail(400,'invalid_paper',error.message);
+          if(error instanceof NativePaperError)fail(400,'paper_delivery_invalid',error.message);
           throw error;
         }
       }
       if(Date.parse(job.leaseUntil)<=this.now().getTime())return {active:false};
       const mid=this.id();
       if(paper)await stagePaperCatalogue(tx,paper,now);
-      tx.create(messagePath(c.id,mid),{id:mid,conversationId:c.id,role:'assistant',text:notice?`${reply}\n\n${notice}`:reply,createdAt:now,jobId:id,native:true,...(paper?{paperId:paper.id}:{})});
+      tx.create(messagePath(c.id,mid),{id:mid,conversationId:c.id,role:'assistant',text:reply,createdAt:now,jobId:id,native:true,...(paper?{paperId:paper.id}:{})});
       tx.create(turnPath,{...delivery,jobId:id,requestMessageId:original.id,completedAt:now});
       if(paper){
         tx.create(ref('assistantPapers',paper.id),paper);

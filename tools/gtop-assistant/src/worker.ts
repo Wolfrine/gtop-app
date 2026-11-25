@@ -25,7 +25,7 @@ import {workerFreshnessMs} from '../../../assistant-service/presence.mjs';
 // A missed publication plus 10s network margin fits the unchanged 90s window.
 // Job lease renewal/cancellation remains on its independent 30s timer.
 export const healthHeartbeatMs=workerFreshnessMs/2-5000;
-const workerVersion='harness-15-native-papers';
+const workerVersion='harness-16-native-paper-delivery';
 const chatTimeoutMs=120000;
 const inferenceErrors:Record<string,string>={
   codex_unavailable:'The Codex connection is unavailable. Your request is saved. Try again when the host reconnects.',

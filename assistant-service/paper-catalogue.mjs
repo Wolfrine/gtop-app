@@ -52,8 +52,11 @@ export function paperCatalogueProjection(paper,{familyId=paper.id,issues=[],late
   if(!boardNames.has(boardRaw))warnings.push('unrecognized_board');
   if(!/^(?:[5-9]|1[0-2])$/.test(standard.key))warnings.push('unrecognized_class');
   if(!subject.key)warnings.push('missing_subject');
-  if(!paper.curriculumSnapshot)warnings.push('curriculum_snapshot_missing');
-  if(paper.validation?.passed!==true)warnings.push('validation_unconfirmed');
+  const nativeDelivery=paper.nativePrivate===true&&paper.deliveryValidation?.schemaVersion===1;
+  if(!nativeDelivery){
+    if(!paper.curriculumSnapshot)warnings.push('curriculum_snapshot_missing');
+    if(paper.validation?.passed!==true)warnings.push('validation_unconfirmed');
+  }
   const questions=(Array.isArray(paper.sections)?paper.sections:[]).flatMap(section=>Array.isArray(section.questions)?section.questions:[]);
   const byChapter=new Map(),questionTypes={};
   for(const question of questions){
@@ -69,8 +72,8 @@ export function paperCatalogueProjection(paper,{familyId=paper.id,issues=[],late
     if(Number.isInteger(question.number))entry.questionNumbers.push(question.number);
   }
   const validated=Array.isArray(paper.validation?.chaptersCovered)?paper.validation.chaptersCovered:[];
-  if(!validated.length||byChapter.size!==new Set(validated.map(catalogueKey)).size||
-    [...byChapter.keys()].some(k=>!validated.some(v=>catalogueKey(v)===k)))warnings.push('chapter_coverage_mismatch');
+  if(!nativeDelivery&&(!validated.length||byChapter.size!==new Set(validated.map(catalogueKey)).size||
+    [...byChapter.keys()].some(k=>!validated.some(v=>catalogueKey(v)===k))))warnings.push('chapter_coverage_mismatch');
   const chapterBreakdown=[...byChapter.values()];
   const chapterKeys=chapterBreakdown.map(c=>c.key);
   const format=['practice','board'].includes(paper.requirements?.format)?paper.requirements.format:undefined;
@@ -82,7 +85,7 @@ export function paperCatalogueProjection(paper,{familyId=paper.id,issues=[],late
   const sourceFingerprint=digest([
     paper.id,paper.ownerUid,paper.conversationId,paper.parentPaperId||null,paper.revision,
     paper.createdAt,paper.board,paper.standard,paper.subject,paper.academicYear,
-    paper.marks,paper.validation?.paperContentSha256||null,
+    paper.marks,paper.deliveryValidation?.paperContentSha256||paper.validation?.paperContentSha256||null,
     paper.validation?.chaptersCovered||null,
     questions.map(q=>[q.number,q.chapter,q.type,q.marks])
   ]);

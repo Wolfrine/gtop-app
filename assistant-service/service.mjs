@@ -50,7 +50,7 @@ const claimsPaused=(worker,now)=>Date.parse(worker?.claimsPausedUntil||'')>now;
 const leaseExpired=(job,now)=>['running','validating'].includes(job.state)&&!(Date.parse(job.leaseUntil||'')>now);
 const expiredJob=(j,when)=>({...j,state:'failed',phase:'worker_disconnected',error:'The assistant disconnected. Your request is saved. Try again to continue.',errorCode:'worker_disconnected',retryable:true,updatedAt:when,leaseId:null,leaseUntil:null});
 const conversationFields=['id','title','status','updatedAt','activeNativeTurnId','activePaperJobId','activeCurriculumJobId','latestPaperId'];
-const paperSummaryFields=['id','title','revision','marks','createdAt','jobId','ownerUid','conversationId','board','standard','subject','academicYear','requirements.format'];
+const paperSummaryFields=['id','title','revision','marks','createdAt','jobId','ownerUid','conversationId','board','standard','subject','academicYear','requirements.format','deliveryValidation.schemaVersion'];
 const publicConversation = c => c && clean(Object.fromEntries(conversationFields.filter(key => c[key] !== undefined).map(key => [key,c[key]])));
 const historySizes={requests:30,messages:40,papers:12};
 const historyLogTimes=new Map();
@@ -75,7 +75,11 @@ function historyPage(kind,field,scope,rows){
   return {items,nextCursor:rows.length>size?Buffer.from(JSON.stringify([kind,hash(scope).slice(0,16),last[field],last.id])).toString('base64url'):null};
 }
 const visibleToAdmin=(row,uid)=>row&&(!row.nativePrivate||row.ownerUid===uid);
-const summary = p => clean({...Object.fromEntries(['id','title','revision','marks','createdAt','jobId','conversationId','ownerUid','board','standard','subject','academicYear'].filter(k=>p[k]!==undefined).map(k=>[k,p[k]])),verifiedSectionPattern:p.requirements?.format==='board'});
+const summary = p => clean({
+  ...Object.fromEntries(['id','title','revision','marks','createdAt','jobId','conversationId','ownerUid','board','standard','subject','academicYear'].filter(k=>p[k]!==undefined).map(k=>[k,p[k]])),
+  paperFormat:['board','practice'].includes(p.requirements?.format)?p.requirements.format:undefined,
+  verifiedSectionPattern:p.requirements?.format==='board'&&p.deliveryValidation?.schemaVersion!==1,
+});
 const paperConversationTitle=p=>p.board&&p.standard&&p.subject?`${p.board} Class ${p.standard} ${p.subject} · ${p.marks} marks`.slice(0,120):String(p.title||'Question paper').replace(/\s+/g,' ').slice(0,120);
 const libraryCursorPrefix='date.';
 function libraryOrder(kind,cursor){
@@ -908,7 +912,8 @@ export class AssistantService {
       if(original?.role!=='user'||original.conversationId!==c.id||typeof original.text!=='string'||job.inputSha256!==proof.inputSha256||hash(original.text)!==proof.inputSha256)fail(409,'native_input_mismatch','Codex did not acknowledge the saved original message.');
       if(previousTurn)fail(409,'native_turn_already_used','This Codex turn already belongs to another saved reply.');
       if(body.basePaperId&&!workerPaper(this.domain,base,c))fail(400,'invalid_base_paper','Choose a saved paper from this conversation with an intact delivery record.');
-      if(body.targetQuestionNumber!=null&&(!base||!Number.isInteger(body.targetQuestionNumber)||body.targetQuestionNumber<1))fail(400,'invalid_question','Choose a valid question from a saved base paper.');
+      if(body.targetQuestionNumber!=null&&(!Number.isSafeInteger(body.targetQuestionNumber)||body.targetQuestionNumber<1||
+        !base?.sections?.some(section=>section.questions.some(question=>question.number===body.targetQuestionNumber))))fail(400,'invalid_question','Choose a question that exists in the saved base paper.');
       let paper=null,completionArtifacts={},artifacts=null;
       const now=this.iso();
       if(body.paper!=null){

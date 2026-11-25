@@ -209,8 +209,8 @@ export class NativePapers {
     const priorDir=sourceJobId&&safeId.test(sourceJobId)?path.join(root,sourceJobId):undefined;
     // Earlier gateways rejected authored packages against the curriculum gate.
     // Recover only a retained package with that exact local failure receipt.
-    const priorFailure=corrective&&priorDir&&prior?.status==='finished'
-      ?await json(path.join(this.config.dataDirectory,'jobs',sourceJobId!,'failure.json')).catch(()=>null)
+    const priorFailure=corrective&&priorDir&&job.retryOf&&prior?.status==='finished'
+      ?await json(path.join(this.config.dataDirectory,'jobs',job.retryOf,'failure.json')).catch(()=>null)
       :null;
     const retainedPaper=priorFailure?.errorCode==='curriculum_unavailable'&&priorDir
       ?await lstat(path.join(priorDir,'package.json')).then(info=>info.isFile(),()=>false)

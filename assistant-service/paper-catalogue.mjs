@@ -74,7 +74,10 @@ export function paperCatalogueProjection(paper,{familyId=paper.id,issues=[],late
   const validated=Array.isArray(paper.validation?.chaptersCovered)?paper.validation.chaptersCovered:[];
   if(!nativeDelivery&&(!validated.length||byChapter.size!==new Set(validated.map(catalogueKey)).size||
     [...byChapter.keys()].some(k=>!validated.some(v=>catalogueKey(v)===k))))warnings.push('chapter_coverage_mismatch');
-  const chapterBreakdown=[...byChapter.values()];
+  // Bound native facet writes independently of the complete printable paper.
+  // Only the derived browse index is clipped.
+  if(nativeDelivery&&byChapter.size>100)warnings.push('chapter_index_limit');
+  const chapterBreakdown=nativeDelivery?[...byChapter.values()].slice(0,100):[...byChapter.values()];
   const chapterKeys=chapterBreakdown.map(c=>c.key);
   const format=['practice','board'].includes(paper.requirements?.format)?paper.requirements.format:undefined;
   const academicYear=safeText(paper.academicYear,16);

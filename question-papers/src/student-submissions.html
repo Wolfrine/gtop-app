@@ -53,23 +53,26 @@
     @if (actionError) { <p class="notice error" role="alert">{{actionError}}</p> }
 
     <div class="inbox-work" [class.has-selection]="selectedId" [class.reference-mode]="referenceEditor">
-      <section class="queue" [class.compact-hide]="selectedId" aria-label="Submission queue">
+      <section class="queue" [class.compact-hide]="selectedId" aria-label="Submissions">
         <div class="queue-controls">
           <nav class="filters" aria-label="Submission status">
             @for (label of filters; track label) {
               <button type="button" [attr.aria-pressed]="filter === label" (click)="trackFilter(label)" [disabled]="mutationBusy">{{filterLabels[label]}}</button>
             }
           </nav>
-          <button class="quiet refresh" type="button" (click)="refresh()" [disabled]="listBusy || mutationBusy" aria-label="Refresh submissions" title="Refresh submissions"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" aria-hidden="true"><path d="M20 5v5h-5M4 19v-5h5M5 10a7 7 0 0 1 12-3l3 3M4 14l3 3a7 7 0 0 0 12-3"/></svg></button>
+          <button class="quiet refresh" type="button" (click)="refresh()" [disabled]="listBusy || refreshBusy || mutationBusy" aria-label="Refresh submissions" title="Refresh submissions"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" aria-hidden="true"><path d="M20 5v5h-5M4 19v-5h5M5 10a7 7 0 0 1 12-3l3 3M4 14l3 3a7 7 0 0 0 12-3"/></svg></button>
         </div>
+        @if (rows.length) {
+          <p class="queue-count">{{rows.length}} {{rows.length === 1 ? 'submission' : 'submissions'}}{{cursor ? ' loaded' : ''}}</p>
+        }
         @if (listError) {
           <div class="notice error" role="alert">{{listError}} <button type="button" class="link" (click)="refresh()">Try again</button></div>
         }
         @if (listBusy && !groups.length) { <p class="notice" role="status">Loading submissions…</p> }
         @if (!listBusy && !groups.length && !listError) {
           <div class="empty">
-            <h2>{{cursor ? 'No matches in the loaded submissions' : filter === 'submitted' ? 'All caught up' : 'No submissions here yet'}}</h2>
-            <p>{{cursor ? 'Load older submissions to see more.' : filter === 'submitted' ? 'New answer sheets from GTOP will appear here.' : 'Submissions will appear here as their status changes.'}}</p>
+            <h2>{{cursor ? 'No matches in the loaded submissions' : filter === 'submitted' ? 'All caught up' : filter === 'all' ? 'No submissions yet' : 'No submissions with this status'}}</h2>
+            <p>{{cursor ? 'Load older submissions to see more.' : filter === 'all' || filter === 'submitted' ? 'New answer sheets from GTOP will appear here.' : 'Use All submissions to see work at other stages.'}}</p>
           </div>
         }
         @for (group of groups; track group.key) {
@@ -104,7 +107,7 @@
           </article>
         }
         @if (cursor) {
-          <button type="button" class="quiet more" (click)="loadList(true)" [disabled]="listBusy || mutationBusy">{{listBusy ? 'Loading…' : 'Load older submissions'}}</button>
+          <button type="button" class="quiet more" (click)="loadList(true)" [disabled]="listBusy || refreshBusy || mutationBusy">{{listBusy ? 'Loading…' : 'Load older submissions'}}</button>
         }
       </section>
 

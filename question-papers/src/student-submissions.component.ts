@@ -62,10 +62,10 @@ interface SubmissionPage { submissions: Submission[]; nextCursor: string | null;
 interface SubmissionGroup { key: string; title: string; rows: Submission[]; paperId?: string; batch?: Submission[] }
 interface Invitation { id: string; expiresAt: string; uses: number; used: number; revokedAt?: string }
 interface SavedReference { id: string; title: string; state: string; referenceRevision: number; marks: number | null }
-type Filter = Status;
+type Filter = 'all' | Status;
 
 const filterLabels: Record<Filter, string> = {
-  submitted: 'For approval', checking: 'Checking', needs_rescan: 'Rescan requested', released: 'Released',
+  all: 'All submissions', submitted: 'For approval', checking: 'Checking', needs_rescan: 'Rescan requested', released: 'Released',
 };
 
 @Component({
@@ -95,10 +95,11 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   readonly fileKinds: { value: ScanKind; label: string }[] = [
     { value: 'answer', label: 'Answer sheet' }, { value: 'question', label: 'Question paper' },
   ];
-  filter: Filter = 'submitted';
+  filter: Filter = 'all';
   rows: Submission[] = [];
   selected?: Submission;
   listBusy = false;
+  refreshBusy = false;
   detailBusy = false;
   mutationBusy = false;
   mutationProgress = '';
@@ -143,19 +144,14 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     this.clearScan();
   }
   @HostListener('window:gtop-paper-content-updated')
-  onWorkspaceUpdate() {
-    if (this.mutationBusy || this.listBusy || this.showRescan || this.referenceEditor) {
-      this.refreshPending = true;
-      return;
-    }
-    void this.refresh(false);
-  }
+  onWorkspaceUpdate() { void this.refresh(false); }
   private paint() { if (!this.closed) this.change.markForCheck(); }
   private message(error: unknown, fallback: string) {
     return error instanceof Error && error.message ? error.message : fallback;
   }
   private trailRefresh() {
-    if (!this.refreshPending || this.closed || this.listBusy || this.mutationBusy || this.showRescan || this.referenceEditor) return;
+    if (!this.refreshPending || this.closed || this.listBusy || this.refreshBusy || this.mutationBusy ||
+        this.showRescan || this.referenceEditor) return;
     this.refreshPending = false;
     queueMicrotask(() => void this.refresh(false));
   }
@@ -180,7 +176,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       }
     }
     if (row.status === 'released' && row.automatic)
-      return row.outcome === 'partial' ? 'Partial result sent' : row.outcome === 'unassessable' ? 'Unable to assess ? report sent' : 'Result sent';
+      return row.outcome === 'partial' ? 'Partial result sent' : row.outcome === 'unassessable' ? 'Unable to assess. Report sent' : 'Result sent';
     return row.status === 'needs_rescan' ? 'Rescan requested' : row.updatedCopyReady ? 'Updated copy ready' : 'Released';
   }
   canApprove(row: Submission) {
@@ -208,7 +204,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   get groups() {
     const byPaper = new Map<string, SubmissionGroup>();
     for (const row of this.rows) {
-      if (row.status !== this.filter) continue;
+      if (this.filter !== 'all' && row.status !== this.filter) continue;
       const paperId = row.paperId || (row.paperReady ? row.referenceId : undefined);
       const key = paperId || row.questionFingerprint || row.id;
       let group = byPaper.get(key);
@@ -220,11 +216,14 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     }
     return [...byPaper.values()].map(group => ({
       ...group,
-      batch: group.paperId ? group.rows.filter(row => this.canApprove(row)).slice(0, batchLimit) : [],
+      batch: group.paperId
+        ? group.rows.filter(row => row.status === 'submitted' && row.paperReady === true && row.paperId === group.paperId)
+            .slice(0, batchLimit)
+        : [],
     }));
   }
   trackFilter(filter: Filter) {
-    if (filter === this.filter) return;
+    if (filter === this.filter || this.mutationBusy) return;
     this.choose('');
     this.switchFeed(filter);
   }
@@ -260,7 +259,8 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     this.clearScan();
   }
   private updateRow(row: Submission) {
-    this.rows = this.rows.map(item => item.id === row.id ? row : item);
+    this.rows = this.rows.map(item => item.id === row.id && row.version >= item.version ? row : item);
+    if (this.filter !== 'all') this.rows = this.rows.filter(item => item.status === this.filter);
   }
   private async loadDetail(id: string, focus = false, keepPreview = false) {
     this.requestedId = id;
@@ -274,12 +274,13 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     try {
       const { submission } = await this.api.request<{ submission: Submission }>(this.endpoint(id));
       if (this.closed || seq !== this.detailSequence) return;
-      this.selected = submission;
-      this.updateRow(submission);
-      if (this.filter !== submission.status) this.switchFeed(submission.status);
+      const listed = this.rows.find(row => row.id === id);
+      const current = listed && listed.version > submission.version ? listed : submission;
+      this.selected = current;
+      this.updateRow(current);
       this.paint();
-      if (!keepPreview || previous?.revision !== submission.revision || !this.scanUrl) {
-        const kind = keepPreview && this.scanKind === 'question' && submission.question ? 'question' : 'answer';
+      if (!keepPreview || previous?.revision !== current.revision || !this.scanUrl) {
+        const kind = keepPreview && this.scanKind === 'question' && current.question ? 'question' : 'answer';
         await this.loadScan(kind, keepPreview ? this.scanPage : 1);
       }
       if (focus) requestAnimationFrame(() => this.reviewHeading?.nativeElement.focus());
@@ -290,21 +291,33 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     }
   }
   async loadList(older = false) {
-    if (this.listBusy || (older && !this.cursor)) return;
+    if (this.closed || this.listBusy || (older && (!this.cursor || this.refreshBusy))) return;
     const seq = ++this.listSequence;
     const previous = this.cursor;
     this.listBusy = true;
     this.listError = '';
     try {
-      const params = new URLSearchParams({ status: this.filter });
+      const params = new URLSearchParams();
+      if (this.filter !== 'all') params.set('status', this.filter);
       if (older && previous) params.set('cursor', previous);
-      const page = await this.api.request<SubmissionPage>(base + '?' + params);
+      const query = params.toString();
+      const page = await this.api.request<SubmissionPage>(query ? base + '?' + query : base);
       if (this.closed || seq !== this.listSequence) return;
+      if (!page || typeof page.enabled !== 'boolean' || !Array.isArray(page.submissions) ||
+          (page.nextCursor !== null && typeof page.nextCursor !== 'string')) {
+        throw Error('The submissions list could not be read. Try again.');
+      }
       if (older && page.nextCursor && page.nextCursor === previous) throw Error('Could not load older submissions.');
       this.enabled = page.enabled;
-      this.rows = older
-        ? [...new Map([...this.rows, ...page.submissions].map(row => [row.id, row])).values()]
-        : page.submissions;
+      const current = new Map(this.rows.map(row => [row.id, row]));
+      const next = older ? new Map(current) : new Map<string, Submission>();
+      for (const row of page.submissions) {
+        const listed = current.get(row.id);
+        const selected = this.selected?.id === row.id ? this.selected : undefined;
+        const known = selected && (!listed || selected.version > listed.version) ? selected : listed;
+        next.set(row.id, known && known.version > row.version ? known : row);
+      }
+      this.rows = [...next.values()].filter(row => this.filter === 'all' || row.status === this.filter);
       this.cursor = page.nextCursor;
     } catch (error) {
       if (seq === this.listSequence) this.listError = this.message(error, 'Could not load submissions.');
@@ -318,11 +331,26 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   }
   async refresh(showError = true) {
     if (this.closed) return;
-    if (this.listBusy || this.mutationBusy) { this.refreshPending = true; return; }
+    if (this.listBusy || this.refreshBusy || this.mutationBusy ||
+        (!showError && (this.showRescan || this.referenceEditor))) {
+      this.refreshPending = true;
+      return;
+    }
+    this.refreshPending = false;
+    this.refreshBusy = true;
+    const id = this.selectedId;
+    const detail = this.detailSequence;
     if (showError) this.actionError = '';
-    await this.loadList();
-    if (!this.closed && this.selectedId && !this.showRescan && !this.referenceEditor) {
-      await this.loadDetail(this.selectedId, false, true);
+    try {
+      await this.loadList();
+      if (!this.closed && id && this.selectedId === id && this.detailSequence === detail &&
+          !this.detailBusy && !this.showRescan && !this.referenceEditor) {
+        await this.loadDetail(id, false, true);
+      }
+    } finally {
+      this.refreshBusy = false;
+      this.paint();
+      this.trailRefresh();
     }
   }
   private clearScan() {
@@ -473,10 +501,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       this.mutationBusy = false;
       this.mutationProgress = '';
       this.paint();
-      if (!this.closed) {
-        this.refreshPending = false;
-        await this.refresh(false);
-      }
+      if (!this.closed) await this.refresh(false);
     }
   }
   async toggleInvitations() {

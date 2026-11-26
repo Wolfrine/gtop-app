@@ -26,6 +26,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .queue,.detail,.group,.detail-head>div,.group header>div{min-width:0}
 .inbox-work.has-selection{grid-template-columns:minmax(300px,.78fr) minmax(0,1.22fr)}
 .queue-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:7px;margin:0 0 12px}
+.queue .queue-count{margin:0 0 10px;font-size:13px;color:var(--desk-muted)}
 .queue-controls .refresh{display:grid;place-items:center;width:44px;padding:0;border-color:var(--desk-line)}
 .filters,.scan-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:3px;background:var(--inbox-tint);border:1px solid var(--desk-line);border-radius:7px}
 .filters button,.scan-tabs button,.page-turn button{border:0;background:none;border-radius:4px;color:var(--desk-ink);min-height:40px;padding:5px 10px;font-weight:650;font-size:13px}

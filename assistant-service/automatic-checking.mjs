@@ -1,7 +1,7 @@
 import {createHash} from 'node:crypto';
 import {PDFDocument} from 'pdf-lib';
 import {assessmentRecoveryPath} from './assessment-recovery.mjs';
-import {checkingReport} from './checking-report.mjs';
+import {checkingReport,checkingReportLayout} from './checking-report.mjs';
 import {externalGradingPaper} from './domain/external-reference.mjs';
 import {assessStudentGrade,gradingRubric} from './domain/checking.mjs';
 import {digest,queue} from './checking-storage.mjs';
@@ -97,8 +97,6 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
     return stopRecovery(message||'Reassessment did not produce supported marks and annotations.');
   const finalTitle=title||sheet.title||'Answer sheet';
   const path=row.path;
-  const fileKey='auto-'+row.lease;
-  const filePath=resultFile(path,fileKey);
   let pdf;
   try{
     const images=[];
@@ -108,24 +106,28 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
         images.push(...await Promise.all(batch));
       }
     }
-    pdf=await checkingReport(finalTitle,outcome,grade,message,images);
+    pdf=await checkingReport(finalTitle,outcome,grade,message,images,autoReference(row.kind)?undefined:sheet);
     if(pdf.length>22_000_000)throw Error('Report exceeds the result limit.');
     if(sheet.assessmentRecoveryId&&(await PDFDocument.load(pdf)).getPageCount()<=images.length)
       throw Error('Assessment summary is unavailable.');
   }catch{
     if(sheet.assessmentRecoveryId)return stopRecovery('Reassessment could not build the annotated report.');
     message=[message,'Scan images could not be included. The assessment notes are available below.'].filter(Boolean).join(' ');
-    pdf=await checkingReport(finalTitle,outcome,grade,message);
+    pdf=await checkingReport(finalTitle,outcome,grade,message,[],autoReference(row.kind)?undefined:sheet);
   }
   const sha=createHash('sha256').update(pdf).digest('hex');
   const stage=resultShape(checker,{sheetVersion:sheet.version+1,size:pdf.length,sha});
+  const batchSize=12;
+  // A retry under different ink-decoding load can produce a different PDF.
+  // Multi-transaction stages keep separate candidates until the lease publishes one.
+  const fileKey='auto-'+row.lease+(stage.chunks>batchSize?'-'+sha:'');
+  const filePath=resultFile(path,fileKey);
   const result={...stage,generation:row.lease,fileKey,outcome,message,pending:grade?.pending??null,
     awarded:outcome==='complete'?grade.awarded:null,max:grade?.max??null,
     assessedAwarded:grade?.assessedMax>0?grade.awarded:null,assessedMax:grade?.assessedMax??null,
-    storage:'checking',answers:gradingFeedback(grade)};
+    storage:'checking',layout:checkingReportLayout,answers:gradingFeedback(grade)};
   // Files staged by a superseded lease are never visible. Each bounded batch must
   // still own the lease; the final transaction publishes exactly one result pointer.
-  const batchSize=12;
   const saveChunks=(tx,from,to)=>{
     for(let i=from;i<to;i++){
       const bytes=pdf.subarray(i*chunkBytes,(i+1)*chunkBytes);

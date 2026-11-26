@@ -7,4 +7,7 @@ process.env.FIREBASE_CONFIG=JSON.stringify({projectId:process.env.GCLOUD_PROJECT
 const {gtopAssistantGateway,gtopAssistantIndexStudent}=await import('../runtime.mjs');
 assert.equal(typeof gtopAssistantGateway,'function');
 assert.equal(typeof gtopAssistantIndexStudent,'function');
+const {checkedPdfCanvas}=await import('../checked-pdf-canvas.mjs');
+const {textFallback}=await checkedPdfCanvas();
+assert(textFallback.measure('L⁻¹ s⁻¹',10,false)>0);
 console.log('Production-only gateway and student directory entry points loaded.');

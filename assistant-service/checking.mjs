@@ -116,6 +116,7 @@ export class PaperChecking {
       const rubric=await this.rubric(sheet.gradingPaperId??paperId,uid);
       const {lease,leaseUntil,queueId,modelGrade,scanSource,retiredSources,submissionUploadId,submissionUploadKind,...visible}=sheet;
       if(submissionUploadId)visible.studentSubmission=true;
+      if(sheet.automatic)visible.outcome=sheet.checkingResult?.outcome??null;
       if(sheet.packetId&&!sheet.packetLabel){
         const [packet]=await this.store.getSelected([packets(uid)+'/'+this.id(sheet.packetId)],['label','paperId','scanSource']);
         visible.packetLabel=(packet?.paperId===paperId&&packet.scanSource===sheet.scanSource&&packet.label)||sheet.packetId;

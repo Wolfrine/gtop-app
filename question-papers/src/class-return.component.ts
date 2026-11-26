@@ -362,7 +362,7 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
         this.progress = `Register ready for ${rows.length} ${rows.length === 1 ? 'sheet' : 'sheets'}.`;
         return;
       }
-      const returning = rows.filter((row) => row.state === 'final' || row.state === 'completed');
+      const returning = rows.filter((row) => row.state === 'final' || (row.automatic && row.state === 'completed' && row.outcome));
       if (!returning.length)
         throw Error('There are no completed reports among the selected sheets.');
       const { markedCopy } = await import('./class-return-pdf');
@@ -384,14 +384,20 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
         const endpoint = this.base + '/' + encodeURIComponent(row.id);
         const detail = await this.api.request<ReturnDetail>(endpoint);
         this.check(epoch, uid);
+        const outcome = detail.sheet.outcome ?? null;
+        const awarded = outcome && outcome !== 'complete' ? null : detail.sheet.grade?.awarded ?? null;
+        const maximum = detail.sheet.grade?.max ?? detail.rubric.marks;
         if (
           detail.sheet.state !== row.state ||
           detail.sheet.version !== row.version ||
           detail.sheet.label !== row.label ||
           detail.sheet.studentUid !== row.studentUid ||
           detail.sheet.studentLabel !== row.studentLabel ||
-          (row.max != null && detail.sheet.grade?.max !== row.max) ||
-          detail.sheet.grade?.awarded !== row.awarded
+          detail.sheet.gradingRevision !== row.gradingRevision ||
+          !!detail.sheet.automatic !== !!row.automatic ||
+          outcome !== (row.outcome ?? null) ||
+          (row.max != null && maximum !== row.max) ||
+          awarded !== row.awarded
         )
           throw Error('Marks changed for ' + this.identity(row).full + '. Download again for the latest result.');
         const pdf = row.automatic

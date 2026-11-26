@@ -1,0 +1,80 @@
+[
+    {
+        "file":  "notosans/notosans.ttf",
+        "sha256":  "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosans/NotoSans%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosans/OFL.txt"
+    },
+    {
+        "file":  "notosansdevanagari/notosansdevanagari.ttf",
+        "sha256":  "14ec4af41f27482216d1c2229f417ff9b1425e1babb014e57d1d40d03229853e",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosansdevanagari/NotoSansDevanagari%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosansdevanagari/OFL.txt"
+    },
+    {
+        "file":  "notosansmath/notosansmath.ttf",
+        "sha256":  "3f495fe933c06786e4d5f6d86b8ee70b6753a68ee3b9d87528726de0f6e2c47d",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosansmath/NotoSansMath-Regular.ttf",
+        "license":  "notosansmath/OFL.txt"
+    },
+    {
+        "file":  "notosanssymbols2/notosanssymbols2.ttf",
+        "sha256":  "7d5fb73b7ca67a6798101741f5d280a3d016a56a197afcd4199dbb57b4b82a21",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosanssymbols2/NotoSansSymbols2-Regular.ttf",
+        "license":  "notosanssymbols2/OFL.txt"
+    },
+    {
+        "file":  "notosansbengali/notosansbengali.ttf",
+        "sha256":  "dcd42978094e584a849c84a51450eeac40c8826057d566ea6d4b9627a403a05a",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosansbengali/NotoSansBengali%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosansbengali/OFL.txt"
+    },
+    {
+        "file":  "notosansgujarati/notosansgujarati.ttf",
+        "sha256":  "9901d8552f1dd5d2c50dbd4caa6f6e174e74e8264f06594ab259ae6e7b1ac428",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosansgujarati/NotoSansGujarati%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosansgujarati/OFL.txt"
+    },
+    {
+        "file":  "notosanstamil/notosanstamil.ttf",
+        "sha256":  "aa3a9b321f4b0bb2c40203ffbde9af89713227866e0e13f76e5b9eeea727cf88",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosanstamil/NotoSansTamil%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosanstamil/OFL.txt"
+    },
+    {
+        "file":  "notosanstelugu/notosanstelugu.ttf",
+        "sha256":  "e618af7bf999df192ed4f388eba2e563f2b5015034e9cbb317b5bd793bd7334d",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosanstelugu/NotoSansTelugu%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosanstelugu/OFL.txt"
+    },
+    {
+        "file":  "notosanskannada/notosanskannada.ttf",
+        "sha256":  "cca4f3b3a8cb12fb261f1b43baf5d2f7f59d90fe123d41f0065ed3a183997ec9",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosanskannada/NotoSansKannada%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosanskannada/OFL.txt"
+    },
+    {
+        "file":  "notosansmalayalam/notosansmalayalam.ttf",
+        "sha256":  "312e0e7c3cc15fa09eb42a8f749eeb246b593ed420e3c81aafe8d910c3a6fb56",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosansmalayalam/NotoSansMalayalam%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosansmalayalam/OFL.txt"
+    },
+    {
+        "file":  "notosansgurmukhi/notosansgurmukhi.ttf",
+        "sha256":  "1e6f728fa620e566f842d81e220265813faa12771214765d289c98e035adc5f2",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosansgurmukhi/NotoSansGurmukhi%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosansgurmukhi/OFL.txt"
+    },
+    {
+        "file":  "notosansoriya/notosansoriya.ttf",
+        "sha256":  "910342275d619081b896b4ed25fd9ad6ff320c25591b810de1fcc4beb153ba82",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosansoriya/NotoSansOriya%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosansoriya/OFL.txt"
+    },
+    {
+        "file":  "notosansarabic/notosansarabic.ttf",
+        "sha256":  "63111b5b2e074dd48cc67692e0a2726d86ee94c1c37fe8598257b7b4e87e869e",
+        "source":  "https://raw.githubusercontent.com/google/fonts/0eb7e7be6f65e356cfffd0de8caf3e74e4e9437c/ofl/notosansarabic/NotoSansArabic%5Bwdth%2Cwght%5D.ttf",
+        "license":  "notosansarabic/OFL.txt"
+    }
+]

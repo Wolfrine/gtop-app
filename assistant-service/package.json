@@ -13,7 +13,8 @@
     "@grpc/grpc-js": "1.13.7",
     "firebase-admin": "14.5.0",
     "firebase-functions": "7.4.0",
-    "katex": "0.19.1"
+    "katex": "0.19.1",
+    "pdf-lib": "1.17.1"
   },
   "overrides": {
     "@grpc/grpc-js": "1.13.7"

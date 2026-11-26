@@ -24,11 +24,15 @@ export function studentSubmissionLink(kind: 'test' | 'invite', code: string) {
 
 type ScanKind = 'answer' | 'question';
 type Status = 'submitted' | 'needs_rescan' | 'checking' | 'released';
-type MarkingState = 'queued' | 'running' | 'failed' | 'review' | 'final';
+type MarkingState = 'completed' | 'queued' | 'running' | 'failed' | 'review' | 'final';
 type ReferenceState = 'uploading' | 'queued' | 'running' | 'review' | 'ready' | 'failed';
 interface FileSummary { name: string; pageCount: number }
 interface Submission {
   id: string;
+  automatic?: boolean;
+  teacherUpload?: boolean;
+  outcome?: 'complete' | 'partial' | 'unassessable' | null;
+  message?: string | null;
   version: number;
   title: string;
   subject?: string;
@@ -166,6 +170,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       return 'Question paper to prepare';
     }
     if (row.status === 'checking') {
+      if (row.automatic && !row.sheetId) return 'Preparing question paper';
       switch (this.markState(row)) {
         case 'final': return 'Ready to release';
         case 'review': return 'Ready for review';
@@ -174,10 +179,12 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
         default: return 'Queued for checking';
       }
     }
+    if (row.status === 'released' && row.automatic)
+      return row.outcome === 'partial' ? 'Partial result sent' : row.outcome === 'unassessable' ? 'Unable to assess ? report sent' : 'Result sent';
     return row.status === 'needs_rescan' ? 'Rescan requested' : row.updatedCopyReady ? 'Updated copy ready' : 'Released';
   }
   canApprove(row: Submission) {
-    return row.status === 'submitted' && row.paperReady === true;
+    return row.status === 'submitted' && (row.paperReady === true || !!row.question?.pageCount);
   }
   get scanFile() { return this.scanKind === 'answer' ? this.selected?.answer : this.selected?.question; }
   get fileCount() { return this.scanFile?.pageCount || 0; }
@@ -328,7 +335,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   async loadScan(kind: ScanKind, index = 1) {
     const row = this.selected;
     const file = kind === 'answer' ? row?.answer : row?.question;
-    if (!row || !file) return;
+    if (!row || !file || row.teacherUpload) return;
     this.clearScan();
     const seq = this.scanSequence;
     this.scanKind = kind;
@@ -436,6 +443,10 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       if (blocked) this.actionError = blocked + (blocked === 1 ? ' submission needs attention. ' : ' submissions need attention. ') +
         (results.find(result => !result.ok)?.message ?? 'Open a submission to review it.');
     });
+  }
+  async downloadReport(row: Submission) {
+    const path = this.endpoint(row.id, '/report');
+    await this.mutate(() => this.api.checkingReport(path));
   }
   openSheet(row: Submission) {
     if (row.paperId && row.sheetId) this.onOpenSheet(row.id, row.paperId, row.sheetId);

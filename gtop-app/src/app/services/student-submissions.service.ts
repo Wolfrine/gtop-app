@@ -20,6 +20,7 @@ export interface SavedScan {
 export interface StudentSubmission {
     id: string;
     status: SubmissionStatus;
+    teacherUpload?: boolean;
     version: number;
     revision: number;
     title: string;
@@ -56,12 +57,16 @@ export interface SubmissionTest {
 
 export interface SubmissionResult {
     filename: string;
-    rubric: { title: string; marks: number };
+    rubric: { title: string; marks: number | null };
+    outcome?: 'complete' | 'partial' | 'unassessable';
+    message?: string | null;
+    assessedAwarded?: number | null;
     sheet: {
         grade: {
-            awarded: number;
-            max: number;
-            answers: { number: number; awarded: number | null; max: number; explanation: string; status?: string; counted?: boolean }[];
+            awarded: number | null;
+            max: number | null;
+            pending?: number | null;
+            answers: { number: number; awarded: number | null; max: number; explanation: string; status?: string; counted?: boolean | null }[];
         };
     };
 }

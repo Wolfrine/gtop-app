@@ -242,7 +242,7 @@
             class="state"
             [class.attention]="pending > 0 || current.state === 'failed' || current.state === 'uploading'"
             >{{
-              current.grade
+              current.checkingResult ? (current.checkingResult.outcome === 'partial' ? 'Partial assessment' : current.checkingResult.outcome === 'unassessable' ? 'Unable to assess' : 'Checked') : current.grade
                 ? pending
                   ? 'Review needed'
                   : current.state === 'final'
@@ -251,7 +251,7 @@
                 : stateLabel(current)
             }}</span
           >
-          @if (!current.studentUid && !linkFormOpen) {
+          @if (!current.automatic && !current.studentUid && !linkFormOpen) {
             <button class="link" type="button" (click)="linkFormOpen = true" [disabled]="busy || dirty">Link to student</button>
           }
           @if (current.grade) {
@@ -263,7 +263,11 @@
             </span>
           }
         </div>
-        @if (current.grade) {
+        @if (current.checkingResult) {
+          <div class="actions">
+            <button class="action primary" type="button" (click)="downloadCheckingReport()">Download checking report</button>
+          </div>
+        } @else if (current.grade) {
           <div class="actions">
             @if (canEdit) {
               @if (dirty && !editingAnswer && (current.state !== 'final' || pending)) {
@@ -290,7 +294,7 @@
                 Edit marks
               </button>
             }
-            @if (fromSubmissionInbox && current.state === 'final' && !editing && !dirty) {
+            @if (fromSubmissionInbox && !current.automatic && current.state === 'final' && !editing && !dirty) {
               <span class="return-guidance">Marks approved · release privately from Inbox</span>
               <button class="action primary" type="button" (click)="leave()" [disabled]="busy">Return to Inbox <span aria-hidden="true">→</span></button>
             }
@@ -305,6 +309,7 @@
           </div>
         }
       </div>
+      @if (current.checkingResult?.message) { <p class="notice">{{current.checkingResult?.message}}</p> }
       @if (active || current.state === 'failed' || current.state === 'uploading') {
         <div class="notice workflow">
           <p>
@@ -330,11 +335,7 @@
             @if (active && current.studentUid && onScanClass) {
               <button class="action" type="button" (click)="onScanClass(current.gradingPaperId || paperId)" [disabled]="busy || dirty">Check another student</button>
             }
-            @if (current.uploaded.length === current.pageCount) {
-              <button class="action" type="button" (click)="markManually()" [disabled]="busy">
-                Mark manually
-              </button>
-            }
+
             @if (current.state === 'uploading' && current.uploaded.length < current.pageCount) {
               <button class="action primary" type="button" (click)="start(true)" [disabled]="busy">
                 Resume upload
@@ -963,7 +964,7 @@
                     <button class="action" type="button" (click)="save(false)" [disabled]="busy">Save review draft</button>
                   }
                 }
-                @if (fromSubmissionInbox && current.state === 'final' && !editing && !dirty) {
+                @if (fromSubmissionInbox && !current.automatic && current.state === 'final' && !editing && !dirty) {
                   <p class="return-guidance">Marks approved. Release the result privately from Inbox.</p>
                   <button class="action primary" type="button" (click)="leave()" [disabled]="busy">Return to Inbox →</button>
                 }

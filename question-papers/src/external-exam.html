@@ -8,7 +8,7 @@
   @if(selecting&&!loading){
     @if(current){<p class="notice">Resume by selecting the same {{current.questionPages}} question pages and {{current.pageCount-current.questionPages}} marking-scheme pages in their original order.</p>}
     <div class="entry">
-      <p>Upload the exam your students sat. Review the questions and marks before using it for checking.</p>
+      <p>Upload the exam your students sat. GT Papers reads the questions and marks automatically.</p>
       @for(group of ['exam','scheme'];track group){
         @let pages=group==='exam'?exam:scheme;
         <div class="file-group">
@@ -66,8 +66,10 @@
     }
     @if(doc.state==='failed'&&!editing){
       <section class="entry"><h3>Couldn’t read this paper</h3><p>{{doc.error||'The original pages are saved.'}}</p>
-      <div class="actions"><button type="button" class="primary" (click)="retry()" [disabled]="processing">Retry reading</button>
-      <button type="button" (click)="edit()" [disabled]="processing">Enter questions and marks</button></div></section>
+      <div class="actions">
+        @if(doc.hasReport){<button type="button" class="primary" (click)="downloadReport()">Download checking report</button>}
+        @else if(!doc.automatic){<button type="button" class="primary" (click)="retry()" [disabled]="processing">Read again</button>}
+      </div></section>
     }
     @if(doc.paper&&!editing){
       <section class="entry">
@@ -91,8 +93,8 @@
           }
         }
         <div class="actions">
-          @if(doc.state==='ready'){<button type="button" class="primary" (click)="ready.emit({id:doc.id,title:(doc.paper.title || doc.title) + ' · Rev ' + (doc.referenceRevision || 1),marks:doc.paper.marks ?? undefined})">Use this paper</button><button type="button" (click)="edit()">Correct as a new revision</button>}
-          @else {<button type="button" class="primary" (click)="edit()">Review questions and marks</button>}
+          @if(doc.state==='ready'){<button type="button" class="primary" (click)="ready.emit({id:doc.id,title:(doc.paper.title || doc.title) + ' · Rev ' + (doc.referenceRevision || 1),marks:doc.paper.marks ?? undefined})">Use this paper</button>@if(!doc.automatic){<button type="button" (click)="edit()">Correct as a new revision</button>}}
+          @else if(!doc.automatic) {<button type="button" class="primary" (click)="edit()">Review questions and marks</button>}
         </div>
       </section>
     }

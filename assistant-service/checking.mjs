@@ -8,10 +8,13 @@ import {gradingRubric,validateGrades,summarizeGrades} from './domain/checking.mj
 import {maxCheckingPages,checkingLeaseMs} from './domain/checking-limits.mjs';
 import {submissionPagePath} from './student-submission-storage.mjs';
 
+import {autoReference,automaticJob,automaticReportPdf,completeAutomatic,finishAutomatic} from './automatic-checking.mjs';
+
 const maxPageBytes=400000,historySize=40;
 const paidBudgetPath='assistantCheckingControls/paidBudget';
 const lastOwnerPath=workerId=>'assistantCheckingSchedulers/'+workerId;
 const nextDay=now=>new Date(Date.parse(day(now)+'T00:00:00.000Z')+86400000).toISOString();
+const checkingPaused=(pilot,now)=>typeof pilot?.checkingCutoverUntil==='string'&&pilot.checkingCutoverUntil>now;
 function jpegDimensions(bytes){
   if(bytes[0]!==0xff||bytes[1]!==0xd8||bytes.at(-2)!==0xff||bytes.at(-1)!==0xd9)return null;
   let offset=2;
@@ -123,6 +126,11 @@ export class PaperChecking {
         ...q,alternative:alternative?.question||null,alternativeRubric:alternative
       }))}};
     }
+    if(action==='result-pdf'&&method==='GET'){
+      const sheet=await this.store.get(path);
+      if(!sheet?.checkingResult)this.notFound();
+      return automaticReportPdf(this,path,sheet.checkingResult);
+    }
     if(action==='pages'&&method==='GET'){
       const sheet=await this.store.get(path);
       if(!sheet||sheet.state==='deleting')this.notFound();
@@ -214,16 +222,20 @@ export class PaperChecking {
     return this.store.transaction(async tx=>{
       const sheet=await tx.get(path),usage=await tx.get(quota(uid))||{};
       if(!sheet)this.notFound();
+      if(sheet.automatic&&sheet.checkingResult)return {state:sheet.state};
       if(['queued','running','review','final','ready','completed'].includes(sheet.state))return {state:sheet.state};
       if(!['uploading','failed'].includes(sheet.state)||sheet.uploaded.length!==sheet.pageCount)
         this.fail(409,'upload_incomplete','Finish uploading all pages first.');
       if(sheet.state==='failed'&&body.version!==sheet.version)
         this.fail(409,'sheet_changed','Reopen the latest sheet before retrying.');
+      if(sheet.submissionUploadId&&!sheet.automatic)
+        this.fail(409,'legacy_submission','This older submission needs its original delivery workflow.');
+      const autoKind=kind==='grading'?'auto-grade':kind==='external-exam'?'auto-print-reference':kind;
       const now=this.now();
       if((usage.active||0)>=maxActive)
         this.fail(429,'grading_limit','Your '+maxActive+'-sheet checking queue is full. Your uploaded pages are saved.');
-      tx.set(path,{...sheet,state:'queued',version:sheet.version+1,error:null,updatedAt:now});
-      tx.set(queue(sheet.queueId),{id:sheet.queueId,path,uid,paperId:sheet.gradingPaperId??paperId,state:'queued',queuedAt:now,...(kind==='grading'?{}:{kind}),[queueField(kind)]:orderedKey(uid,now,sheet.queueId)});
+      tx.set(path,{...sheet,automatic:automaticJob(autoKind),state:'queued',version:sheet.version+1,error:null,updatedAt:now});
+      tx.set(queue(sheet.queueId),{id:sheet.queueId,path,uid,paperId:sheet.gradingPaperId??paperId,state:'queued',queuedAt:now,kind:autoKind,[queueField(autoKind)]:orderedKey(uid,now,sheet.queueId)});
       tx.set(quota(uid),{...usage,active:(usage.active||0)+1});
       this.service.notifyDispatch(tx,uid);
       return {state:'queued'};
@@ -233,6 +245,7 @@ export class PaperChecking {
     return this.store.transaction(async tx=>{
       const sheet=await tx.get(path);
       if(!sheet)this.notFound();
+      if(sheet.automatic)this.fail(409,'automatic_checking','This sheet is evaluated and returned automatically.');
       const inQueue=['queued','running'].includes(sheet.state);
       const completeDraft=sheet.state==='uploading'&&sheet.uploaded?.length===sheet.pageCount;
       if((!inQueue&&!completeDraft&&sheet.state!=='failed')||sheet.version!==body.version)
@@ -255,7 +268,7 @@ export class PaperChecking {
     return this.store.transaction(async tx=>{
       const sheet=await tx.get(path);
       if(!sheet)this.notFound();
-      if(!['review','final'].includes(sheet.state)||sheet.version!==body.version)
+      if(sheet.automatic||!['review','final'].includes(sheet.state)||sheet.version!==body.version)
         this.fail(409,'sheet_changed','This sheet has changed. Reopen the latest saved review.');
       const rubric=await this.rubric(sheet.gradingPaperId??paperId,uid,tx);
       let grade;
@@ -351,11 +364,15 @@ export class PaperChecking {
       });
     }
   }
-  async authorizedWorker(tx,workerId,uid){
+  async authorizedOwner(tx,uid){
+    const [profile,pilot]=await Promise.all([tx.get('users/'+uid),tx.get('assistantConfig/pilot')]);
+    return profile?.role==='admin'&&pilot?.allowedOwnerUids?.includes(uid);
+  }
+  async authorizedWorker(tx,workerId,uid,{claim=false}={}){
     const [pairing,profile,pilot]=await Promise.all([
       tx.get('assistantWorkers/'+workerId),tx.get('users/'+uid),tx.get('assistantConfig/pilot')
     ]);
-    return pairing?.enabled===true&&pairing.allowedOwnerUids?.includes(uid)&&
+    return (!claim||!checkingPaused(pilot,this.now()))&&pairing?.enabled===true&&pairing.allowedOwnerUids?.includes(uid)&&
       profile?.role==='admin'&&pilot?.allowedOwnerUids?.includes(uid);
   }
   async worker(parts,worker,body){
@@ -384,6 +401,7 @@ export class PaperChecking {
       const engine=body.engine;
       if(!['codex-cli','openai-api'].includes(engine)||(row.engine&&engine!==row.engine))
         this.fail(400,'invalid_engine','The checking engine must match its reservation.');
+      if(automaticJob(row.kind))return completeAutomatic(this,row,sheet,body);
       if(row.kind==='class-intake')return this.packets.complete(row,body);
       if(row.kind==='external-exam')return this.finish(row,await this.references.complete(body,sheet));
       const rubric=await this.rubric(row.paperId,row.uid);
@@ -392,8 +410,14 @@ export class PaperChecking {
       catch(error){this.fail(400,'invalid_grade',error.message);}
       return this.finish(row,{state:'review',grade,modelGrade:grade,engine,error:null});
     }
-    if(action==='fail')return this.finish(row,{state:'failed',
-      error:'Checking could not finish. You can retry or review this sheet manually.'});
+    if(action==='fail'){
+      if(automaticJob(row.kind))return finishAutomatic(this,row,sheet,{
+        message:body.reason==='scan_unavailable'
+          ? 'At least one saved scan page could not be retrieved or verified. No mark was issued.'
+          : 'Automatic checking could not complete after recovery. No mark was issued.'
+      });
+      return this.finish(row,{state:'failed',error:'Checking could not finish. You can retry or review this sheet manually.'});
+    }
     this.notFound();
   }
   async indexLegacyRows(uid){
@@ -417,6 +441,7 @@ export class PaperChecking {
   async claim(worker,engine='codex-cli',capabilities=[]){
     if(!['codex-cli','openai-api'].includes(engine))this.fail(400,'invalid_engine','Unknown grading engine.');
     const [scheduler,pilot]=await Promise.all([this.store.get(lastOwnerPath(worker.id)),this.store.get('assistantConfig/pilot')]);
+    if(checkingPaused(pilot,this.now()))return {job:null,nextWake:pilot.checkingCutoverUntil};
     const owners=[...new Set(worker.allowedOwnerUids.filter(uid=>pilot?.allowedOwnerUids?.includes(uid)))].sort();
     const offset=owners.indexOf(scheduler?.lastOwnerUid)+1;
     const now=this.now();
@@ -434,33 +459,39 @@ export class PaperChecking {
         wakeAt(now);
       }else wakeAt(row.leaseUntil);
     }));
+    const supportsAutomatic=engine==='codex-cli'&&Array.isArray(capabilities)&&capabilities.includes('automatic-checking-v1');
     for(const uid of [...owners.slice(offset),...owners.slice(0,offset)]){
       // A single-field range index yields the owner's oldest pending sheet.
       const fields=['orderKey'];
+      if(supportsAutomatic)
+        fields.push('automaticOrderKey');
       if(Array.isArray(capabilities)&&capabilities.includes('class-intake-v1'))fields.push('intakeOrderKey');
       if(Array.isArray(capabilities)&&capabilities.includes('external-exam-v1'))fields.push('referenceOrderKey');
       const heads=await Promise.all(fields.map(field=>this.store.list('assistantCheckingQueue',
         [[field,'>=',uid+'/'],[field,'<',uid+'0']],1,{orderBy:[field,'asc']})));
       const [candidate]=heads.flat().sort((a,b)=>a.queuedAt.localeCompare(b.queuedAt)||a.id.localeCompare(b.id));
       if(!candidate)continue;
-      const result=await this.claimOne(worker.id,candidate,engine);
+      const result=await this.claimOne(worker.id,candidate,engine,supportsAutomatic);
       if(result?.job)return {job:result.job,nextWake};
       wakeAt(result?.nextWake);
     }
     return {job:null,nextWake};
   }
-  async claimOne(workerId,candidate,engine){
+  async claimOne(workerId,candidate,engine,supportsAutomatic){
     return this.store.transaction(async tx=>{
       const row=await tx.get(queue(candidate.id));
-      if(row?.state!=='queued'||!await this.authorizedWorker(tx,workerId,row.uid))return null;
-      const special=row.kind==='class-intake'||row.kind==='external-exam';
+      if(row?.state!=='queued'||automaticJob(row.kind)&&!supportsAutomatic||!await this.authorizedWorker(tx,workerId,row.uid,{claim:true}))return null;
+      const reference=row.kind==='external-exam'||autoReference(row.kind);
+      const auto=automaticJob(row.kind);
+      const special=row.kind==='class-intake'||reference;
       const [sheet,usage,paper]=await Promise.all([
         tx.get(row.path),tx.get(quota(row.uid)),special?null:this.sourcePaper(tx,row.paperId,row.uid)
       ]);
       if(sheet?.state!=='queued')return null;
-      const rubric=special?null:gradingRubric(paper);
+      let rubric=special?null:gradingRubric(paper);
+      if(auto&&sheet.rubricDigest&&rubric&&sheet.rubricDigest!==digest(rubric))rubric=null;
       const now=this.now();
-      if(!special&&!rubric){
+      if(!special&&!rubric&&!auto){
         tx.delete(queue(row.id));
         tx.set(row.path,{...sheet,state:'failed',version:sheet.version+1,updatedAt:now,
           error:'This paper revision is unavailable or its mark allocations are inconsistent.'});
@@ -478,29 +509,53 @@ export class PaperChecking {
         tx.set(quota(row.uid),{...usage,paidDay:today,paidAttempts:ownerUsed+1});
         tx.set(paidBudgetPath,{day:today,attempts:globalUsed+1});
       }
-      const detail=row.kind==='class-intake'?this.packets.job(sheet):row.kind==='external-exam'?this.references.claimJob(sheet):{notes:sheet.notes,rubric};
+      const detail=row.kind==='class-intake'?this.packets.job(sheet):reference?this.references.claimJob(sheet):{notes:sheet.notes,rubric};
       const imageCount=row.kind==='class-intake'?detail.lastPage-Math.max(1,detail.firstPage-1)+1:sheet.pageCount;
-      const questionBudget=row.kind==='external-exam'?50:rubric?.questions.length??1;
+      const questionBudget=reference?50:rubric?.questions.length??1;
       const lease=randomUUID(),leaseUntil=new Date(Date.parse(now)+checkingLeaseMs(imageCount,questionBudget)).toISOString();
-      tx.set(queue(row.id),{...row,[queueField(row.kind)]:null,runningKey:orderedKey(row.uid,leaseUntil,row.id),state:'running',workerId,lease,leaseUntil,engine});
+      tx.set(queue(row.id),{...row,...(auto?{rubricDigest:rubric?digest(rubric):null}:{}),[queueField(row.kind)]:null,runningKey:orderedKey(row.uid,leaseUntil,row.id),state:'running',workerId,lease,leaseUntil,engine});
       tx.set(row.path,{...sheet,state:'running',version:sheet.version+1,lease,leaseUntil,updatedAt:now});
       tx.set(lastOwnerPath(workerId),{lastOwnerUid:row.uid});
       this.service.notifyContent(tx,row.uid);
-      return {job:{id:row.id,lease,leaseUntil,pageCount:sheet.pageCount,...(special?{kind:row.kind}:{}),...detail}};
+      return {job:{id:row.id,lease,leaseUntil,pageCount:sheet.pageCount,...(special?{kind:reference?'external-exam':row.kind}:{}),...(auto?{automatic:true}:{}),...detail}};
     });
   }
   async expire(path){
     const row=await this.store.get(path);
-    if(row?.state==='running'&&row.leaseUntil<=this.now())
+    if(row?.state!=='running'||row.leaseUntil>this.now())return;
+    if(!automaticJob(row.kind))
       return this.finish(row,{state:'failed',error:'The local checker stopped before saving a result. Retry or review manually.'},true);
+    const sheet=await this.store.get(row.path);
+    if(!sheet||sheet.lease!==row.lease)return;
+    if(!row.recoveryCount){
+      return this.store.transaction(async tx=>{
+        const [current,live]=await Promise.all([tx.get(path),tx.get(row.path)]);
+        if(current?.lease!==row.lease||current.leaseUntil>this.now()||live?.lease!==row.lease)return;
+        const now=this.now();
+        tx.set(path,{...current,state:'queued',recoveryCount:1,lease:null,leaseUntil:null,runningKey:null,
+          [queueField(current.kind)]:orderedKey(row.uid,row.queuedAt,row.id)});
+        tx.update(row.path,{state:'queued',lease:null,leaseUntil:null,version:live.version+1,updatedAt:now});
+        this.service.notifyDispatch(tx,row.uid);
+      });
+    }
+    return finishAutomatic(this,row,sheet,{expired:true,message:'The local checker stopped twice before producing a usable assessment.'});
   }
-  async finish(expected,patch,expired=false){
+  async finish(expected,patch,expired=false,finalize){
     const path=queue(expected.id);
     return this.store.transaction(async tx=>{
       const row=await tx.get(path),sheet=await tx.get(expected.path),usage=await tx.get(quota(expected.uid))||{};
       if(row?.state!=='running'||row.lease!==expected.lease||sheet?.lease!==row.lease||
           (row.leaseUntil<=this.now())!==expired)return {active:false};
       if(!expired&&!await this.authorizedWorker(tx,row.workerId,row.uid))return {active:false};
+      if(expired&&automaticJob(row.kind)&&!await this.authorizedOwner(tx,row.uid)){
+        tx.delete(path);
+        tx.update(row.path,{state:'failed',error:'The checking authorization changed.',lease:null,leaseUntil:null,
+          updatedAt:this.now(),version:sheet.version+1});
+        tx.set(quota(row.uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
+        return {active:false};
+      }
+      const action=finalize?await finalize(tx,row,sheet):{};
+      if(!action)return {active:false};
       tx.delete(path);
       const {modelGrade,...visiblePatch}=patch;
       if(modelGrade){
@@ -509,8 +564,11 @@ export class PaperChecking {
           gradingPaperId:row.paperId,engine:patch.engine,createdAt:this.now()});
       }
       tx.set(row.path,{...sheet,...visiblePatch,lease:null,leaseUntil:null,updatedAt:this.now(),version:sheet.version+1});
-      tx.set(quota(row.uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
-      this.service.notifyContent(tx,row.uid);
+      if(action.transferred)this.service.notifyDispatch(tx,row.uid);
+      else{
+        tx.set(quota(row.uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
+        this.service.notifyContent(tx,row.uid);
+      }
       return {active:true};
     });
   }

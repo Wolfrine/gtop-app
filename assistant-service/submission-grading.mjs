@@ -1,15 +1,16 @@
+import {gradingRubric} from './domain/checking.mjs';
 import {createHash, randomUUID} from 'node:crypto';
 import {currentSheetGrade, digest, maxActive, orderedKey, queue, queueField, quota, sheets} from './checking-storage.mjs';
 import {indexStudent} from './checking-student.mjs';
 import {confirmedPaperPath, moveStaffSubmissionIndex, submissionPath} from './student-submission-storage.mjs';
 
-const chunkBytes = 400_000;
+export const chunkBytes = 400_000;
 const maxResultBytes = 22_000_000;
 const shaPattern = /^[a-f0-9]{64}$/;
 const stagePath = (path, sheetVersion) => path + '/resultFiles/' + sheetVersion;
 const chunkPath = (stage, index) => stage + '/chunks/' + index;
 
-async function staffSubmission(checker, tx, uid, path) {
+export async function staffSubmission(checker, tx, uid, path) {
   const [record, profile, pilot, policy] = await Promise.all([
     tx.get(path), tx.get('users/' + uid), tx.get('assistantConfig/pilot'),
     tx.get('assistantConfig/studentSubmissions')
@@ -33,7 +34,7 @@ function ensureQueueSpace(checker, usage) {
   }
 }
 
-function createQueueEntry(tx, uid, path, paperId, record, now, kind) {
+export function createQueueEntry(tx, uid, path, paperId, record, now, kind) {
   tx.create(queue(record.queueId), {
     id: record.queueId, path, uid, paperId, state: 'queued', queuedAt: now,
     ...(kind ? {kind} : {}), [queueField(kind)]: orderedKey(uid, now, record.queueId)
@@ -88,61 +89,79 @@ export async function prepareSubmissionReference(checker, uid, id, {version}) {
   });
 }
 
+export function queueSubmissionSheet(checker, tx, current, paperId, rubric, now) {
+  const uid=current.ownerUid;
+  const sheetId='submission-'+digest(uid,current.id,current.revision).slice(0,45);
+  const sheetPath=sheets(uid,paperId)+'/'+sheetId;
+  const sheet={
+    id:sheetId,label:current.studentLabel,studentUid:current.studentUid,studentLabel:current.studentLabel,
+    labelFromStudent:true,singleStudentBook:true,notes:'',version:0,state:'queued',
+    createdAt:current.submittedAt||current.createdAt,updatedAt:now,uploaded:current.answer.pages,
+    pageCount:current.answer.pageCount,queueId:digest(uid,paperId,sheetId),
+    submissionUploadId:current.id,submissionUploadKind:'answer',approvalRevision:current.revision,
+    automatic:true,rubricDigest:rubric?digest(rubric):null
+  };
+  tx.create(sheetPath,sheet);
+  createQueueEntry(tx,uid,sheetPath,paperId,sheet,now,'auto-grade');
+  indexStudent(tx,uid,sheet,'sheet',paperId);
+  return {paperId,paperTitle:rubric?.title||current.title,sheetId};
+}
+
 export async function approveSubmission(checker, uid, id, body) {
   const path = submissionPath(checker.id(id));
   return checker.store.transaction(async tx => {
     const current = await staffSubmission(checker, tx, uid, path);
-    if (current.sheetId && current.paperId && ['checking', 'released'].includes(current.status)) {
-      if (body.paperId && body.paperId !== current.paperId) {
-        checker.fail(409, 'submission_changed', 'This submission is already checking against another paper.');
-      }
-      return {paperId: current.paperId, sheetId: current.sheetId};
+    if (['checking','released'].includes(current.status) && current.approvedAt) {
+      if (body.paperId && current.paperId !== body.paperId)
+        checker.fail(409,'submission_changed','This submission was approved against another paper.');
+      return {paperId:current.paperId??null,sheetId:current.sheetId??null,referenceId:current.referenceId??null};
     }
-    submittedRevision(checker, current, body.version);
-    if (current.paperId && body.paperId && body.paperId !== current.paperId) {
-      checker.fail(409, 'paper_changed', 'This submission is attached to the paper used in its test link.');
-    }
-    const matchedPaperId = await confirmedPaper(tx, current);
-    const paperId = current.paperId || body.paperId || matchedPaperId || current.referenceId ||
-      (current.questionFingerprint ? referenceKey(current) : null);
-    if (!paperId) checker.fail(409, 'choose_paper', 'Confirm the question paper before checking the answers.');
-    checker.id(paperId);
-    if (!current.paperId && (!matchedPaperId && body.confirmReference !== true || matchedPaperId && paperId !== matchedPaperId)) {
-      checker.fail(409, 'paper_confirmation_required', 'Use the confirmed question paper for this version.');
-    }
-
-    const [rubric, reference, usage, profile] = await Promise.all([
-      checker.rubric(paperId, uid, tx),
-      paperId.startsWith('ext-') ? tx.get(checker.references.path(uid, paperId)) : null,
-      tx.get(quota(uid)), tx.get('users/' + checker.id(current.studentUid))
+    submittedRevision(checker,current,body.version);
+    if (current.paperId && body.paperId && body.paperId !== current.paperId)
+      checker.fail(409,'paper_changed','This submission is attached to the paper used in its test link.');
+    const [matchedPaperId,usage,profile]=await Promise.all([
+      current.paperId?null:confirmedPaper(tx,current),tx.get(quota(uid)),tx.get('users/'+checker.id(current.studentUid))
     ]);
-    if (reference?.requiresPaperReview && !reference.reviewedAt) {
-      checker.fail(409, 'paper_review_required', 'Review the uploaded question paper before checking the answers.');
+    if(!profile)checker.fail(409,'student_unavailable','The submitted student account is unavailable.');
+    ensureQueueSpace(checker,usage);
+    if(!current.paperId&&body.paperId&&(body.confirmReference!==true||matchedPaperId&&body.paperId!==matchedPaperId))
+      checker.fail(409,'paper_confirmation_required','Use the confirmed question paper for this version.');
+    let paperId=current.paperId||body.paperId||matchedPaperId;
+    if(!paperId&&current.referenceId&&current.referenceRevision===current.revision){
+      const reference=await tx.get(checker.references.path(uid,current.referenceId));
+      if(reference?.state==='ready'&&reference.reviewedAt)paperId=current.referenceId;
     }
-    if (!profile) checker.fail(409, 'student_unavailable', 'The submitted student account is unavailable.');
-    ensureQueueSpace(checker, usage);
-    const sheetId = 'submission-' + digest(uid, id, current.revision).slice(0, 45);
-    const sheetPath = sheets(uid, paperId) + '/' + sheetId;
-    const createdAt = current.submittedAt || current.createdAt;
-    const now = checker.now();
-    const sheet = {
-      id: sheetId, label: current.studentLabel, studentUid: current.studentUid, studentLabel: current.studentLabel,
-      labelFromStudent: true, singleStudentBook: true, notes: '', version: 0, state: 'queued', createdAt, updatedAt: now,
-      uploaded: current.answer.pages, pageCount: current.answer.pageCount, queueId: digest(uid, paperId, sheetId),
-      submissionUploadId: current.id, submissionUploadKind: 'answer'
-    };
-    tx.create(sheetPath, sheet);
-    createQueueEntry(tx, uid, sheetPath, paperId, sheet, now);
-    tx.set(quota(uid), {...usage, active: (usage?.active || 0) + 1});
-    indexStudent(tx, uid, sheet, 'sheet', paperId);
-    if (!current.paperId && current.questionFingerprint && !matchedPaperId) {
-      tx.create(confirmedPaperPath(uid, current.questionFingerprint), {paperId, confirmedAt: now});
+    const now=checker.now();
+    let next;
+    if(paperId){
+      const source=await checker.sourcePaper(tx,paperId,uid);
+      if(body.paperId&&!current.paperId&&body.paperId!==matchedPaperId&&!source)checker.notFound();
+      const rubric=gradingRubric(source);
+      next=queueSubmissionSheet(checker,tx,current,paperId,rubric,now);
+      if(body.paperId&&!current.paperId&&!matchedPaperId&&current.questionFingerprint)
+        tx.create(confirmedPaperPath(uid,current.questionFingerprint),{paperId,confirmedAt:now});
+    }else{
+      if(!current.question?.pages?.length||!shaPattern.test(current.questionFingerprint||''))
+        checker.fail(409,'question_scan_unavailable','The approved submission needs its complete question scan.');
+      const referenceId='ext-auto-'+digest(uid,id,current.revision,current.questionFingerprint).slice(0,48);
+      const referencePath=checker.references.path(uid,referenceId);
+      const pageCount=current.question.pageCount;
+      const entry={
+        id:referenceId,ownerUid:uid,title:current.title,uploadTitle:current.title,state:'queued',
+        createdAt:now,updatedAt:now,version:0,questionPages:pageCount,pageCount,
+        uploaded:current.question.pages,queueId:digest(uid,'auto-reference',referenceId),
+        submissionUploadId:id,submissionUploadKind:'question',approvalRevision:current.revision,automatic:true
+      };
+      tx.create(referencePath,entry);
+      createQueueEntry(tx,uid,referencePath,referenceId,entry,now,'auto-reference');
+      next={paperId:null,sheetId:null,referenceId,referenceRevision:current.revision};
     }
-    tx.update(path, {status: 'checking', paperId, paperTitle: rubric.title, sheetId, approvedAt: now,
-      updatedAt: now, version: current.version + 1});
-    moveStaffSubmissionIndex(tx, current, 'checking', now);
-    checker.service.notifyDispatch(tx, uid);
-    return {paperId, sheetId};
+    tx.update(path,{...next,status:'checking',approvedAt:now,approvalRevision:current.revision,automatic:true,
+      updatedAt:now,version:current.version+1});
+    tx.set(quota(uid),{...usage,active:(usage?.active||0)+1});
+    moveStaffSubmissionIndex(tx,current,'checking',now);
+    checker.service.notifyDispatch(tx,uid);
+    return {paperId:next.paperId,sheetId:next.sheetId,referenceId:next.referenceId??null};
   });
 }
 
@@ -155,12 +174,19 @@ function cachedRead(store, reads, path, fields) {
 
 export async function submissionProgress(checker, row, reads) {
   const read = (path, fields) => cachedRead(checker.store, reads, path, fields);
+  if(row.automatic&&row.status==='released')return {
+    paperId:row.paperId??null,paperTitle:row.paperTitle||row.title,sheetId:row.sheetId??null,
+    releasedAt:row.releasedAt,automatic:true,outcome:row.result?.outcome??null,message:row.result?.message??null
+  };
+  if(row.automatic&&row.referenceId&&!row.sheetId)return {
+    paperReady:false,referenceId:row.referenceId,referenceState:'running',automatic:true
+  };
   if (row.sheetId && row.paperId) {
     const sheet = await read(sheets(row.ownerUid, row.paperId) + '/' + row.sheetId,
       ['state', 'version', 'error', 'gradingRevision', 'gradeRevision', 'grade.awarded', 'grade.max', 'grade.pending']);
     const grade = currentSheetGrade(sheet || {});
     const out = {
-      paperId: row.paperId, paperTitle: row.paperTitle, paperReady: true, sheetId: row.sheetId,
+      paperId: row.paperId, paperTitle: row.paperTitle, paperReady: true, sheetId: row.sheetId, automatic:row.automatic===true,
       sheetState: sheet?.state || 'unavailable', sheetVersion: sheet?.version ?? null
     };
     if (sheet?.state === 'failed') out.error = sheet.error || 'Checking stopped. The teacher can retry.';
@@ -191,7 +217,7 @@ export async function submissionProgress(checker, row, reads) {
   };
 }
 
-function resultShape(checker, {sheetVersion, size, sha}) {
+export function resultShape(checker, {sheetVersion, size, sha}) {
   if (!Number.isSafeInteger(sheetVersion) || sheetVersion < 0 || !Number.isSafeInteger(size) ||
       size < 12 || size > maxResultBytes || typeof sha !== 'string' || !shaPattern.test(sha)) {
     checker.fail(400, 'invalid_result', 'Export a marked PDF no larger than 22 MB.');
@@ -202,6 +228,8 @@ function resultShape(checker, {sheetVersion, size, sha}) {
 const expectedLength = (stage, index) => Math.min(chunkBytes, stage.size - index * chunkBytes);
 
 function approvedSheet(checker, record, sheet, {version, sheetVersion}) {
+  if(record.automatic||sheet?.automatic)
+    checker.fail(409,'automatic_handback','This result is returned automatically.');
   const grade = currentSheetGrade(sheet || {});
   if (record.version !== version || sheet?.version !== sheetVersion ||
       !['checking', 'released'].includes(record.status) || sheet?.state !== 'final' || !grade ||
@@ -253,7 +281,7 @@ export async function stageSubmissionResult(checker, uid, id, index, body) {
   });
 }
 
-async function readResultBytes(checker, path, stage, download) {
+export async function readResultBytes(checker, path, stage, download) {
   const sha = createHash('sha256');
   const result = download ? Buffer.allocUnsafe(stage.size) : null;
   let end = Buffer.alloc(0);
@@ -324,15 +352,22 @@ async function releasedRecord(checker, studentUid, id) {
 
 export async function studentResult(checker, studentUid, id) {
   const record = await releasedRecord(checker, studentUid, id);
-  const {awarded, max, answers} = record.result;
+  const {awarded,max,answers,pending=0,outcome='complete',message=null,assessedAwarded=null}=record.result;
   return {
     rubric: {title: record.paperTitle || record.title, marks: max},
-    sheet: {grade: {awarded, max, pending: 0, answers}},
+    sheet:{grade:{awarded,max,pending,answers}},outcome,message,assessedAwarded,
     filename: 'checked-answer-sheet.pdf', releasedAt: record.releasedAt
   };
 }
 
 export async function studentResultPdf(checker, studentUid, id) {
   const record = await releasedRecord(checker, studentUid, id);
-  return readResultBytes(checker, stagePath(submissionPath(id), record.result.sheetVersion), record.result, true);
+  return readResultBytes(checker, stagePath(record.result.checkingPath??submissionPath(id), record.result.fileKey??record.result.sheetVersion), record.result, true);
+}
+
+export async function staffResultPdf(checker,uid,id){
+  const record=await staffSubmission(checker,checker.store,uid,submissionPath(checker.id(id)));
+  if(record.status!=='released'||!record.result)checker.notFound();
+  return readResultBytes(checker,stagePath(record.result.checkingPath??submissionPath(id),
+    record.result.fileKey??record.result.sheetVersion),record.result,true);
 }

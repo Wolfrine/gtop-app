@@ -9,7 +9,7 @@ import {
 } from './student-submissions.mjs';
 import {
   approveSubmission, prepareSubmissionReference, releaseSubmission, stageSubmissionResult,
-  studentResult, studentResultPdf, submissionProgress
+  staffResultPdf, studentResult, studentResultPdf, submissionProgress
 } from './submission-grading.mjs';
 
 const studentRoot = '/student-submissions';
@@ -82,6 +82,12 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
   if (!staff && method === 'POST') {
     if (action === 'submit') return submitStudentSubmission(checker, uid, id, body);
     if (action === 'revise') return reviseStudentSubmission(checker, uid, id, body);
+  }
+  if (staff && method === 'GET' && action === 'report') {
+    const pdf=await staffResultPdf(checker,uid,id);
+    headers['Content-Type']='application/pdf';
+    headers['Content-Disposition']='attachment; filename="checking-report.pdf"';
+    return pdf;
   }
   if (!staff && method === 'GET') {
     if (action === 'result') {

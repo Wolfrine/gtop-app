@@ -44,7 +44,7 @@
       </section>
     }
     @if (picker === 'import') {
-      <gtop-external-exam [referenceId]="printedId" (recordChange)="rememberPrinted($event)" (ready)="chooseReference($event.id,$event.title,$event.marks)" (closed)="dismissPicker()" />
+      <gtop-external-exam [referenceId]="printedId" [autoSelect]="true" (recordChange)="rememberPrinted($event)" (ready)="chooseReference($event.id,$event.title,$event.marks)" (closed)="dismissPicker()" />
     }
   </div>
 </main>

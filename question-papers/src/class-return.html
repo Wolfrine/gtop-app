@@ -15,7 +15,7 @@
     <p role="status">Loading the class register…</p>
     } @else if (entries.length) {
     <div class="summary">
-      <p><strong>{{finalCount}} approved {{ finalCount === 1 ? 'copy' : 'copies' }}</strong><span> · {{chosen.length}} selected for the register</span>@if (unavailableCount) { <span> · {{unavailableCount}} held or withdrawn</span> }</p>
+      <p><strong>{{finalCount}} {{ finalCount === 1 ? 'report' : 'reports' }}</strong><span> · {{chosen.length}} selected for the register</span>@if (unavailableCount) { <span> · {{unavailableCount}} held or withdrawn</span> }</p>
       <button
         class="link"
         type="button"
@@ -74,7 +74,7 @@
         <span>Download marks register <small>CSV · Scores and current status</small></span>
       </button>
     </div>
-    @if (!finalCount && chosen.length) { <p class="hint">Approve a sheet to include its marked copy in a download.</p> }
+    @if (!finalCount && chosen.length) { <p class="hint">Completed reports appear here automatically.</p> }
     } @else if (!error) {
     <p>No answer sheets yet.</p>
     } @if (progress) {

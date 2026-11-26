@@ -80,6 +80,21 @@ export class AssistantApi implements Transport {
   }
   private async read<T>(path:string,method='GET',body?:unknown,text=false):Promise<T>{const epoch=this.authEpoch;const response=await this.authorized(path,method,body);const result=await (text?response.text():response.json());if(epoch!==this.authEpoch)throw Error('Account changed');return result as T;}
   async request<T>(path:string,method='GET',body?:unknown):Promise<T> {return this.read<T>(path,method,body);}
+  async reportBlob(path:string):Promise<Blob>{
+    const epoch=this.authEpoch;
+    const response=await this.authorized(path);
+    if(!response.ok||response.headers.get('Content-Type')!=='application/pdf')throw Error('The checking report is unavailable.');
+    const blob=await response.blob();
+    if(epoch!==this.authEpoch)throw Error('Account changed');
+    return blob;
+  }
+  async checkingReport(path:string):Promise<void>{
+    const url=URL.createObjectURL(await this.reportBlob(path));
+    try{
+      const link=document.createElement('a');
+      link.href=url;link.download='checking-report.pdf';link.click();
+    }finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
+  }
   async checkingImage(path:string):Promise<Blob>{
     const epoch=this.authEpoch;
     const response=await this.authorized(path);

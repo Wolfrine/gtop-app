@@ -7,6 +7,7 @@ export type SheetState =
   | 'failed'
   | 'review'
   | 'final'
+  | 'completed'
   | 'withdrawn'
   | 'held';
 export interface RegisterEntry {
@@ -17,6 +18,8 @@ export interface RegisterEntry {
   labelFromStudent?: boolean;
   singleStudentBook?: boolean;
   state: SheetState;
+  automatic?: boolean;
+  outcome?: 'complete' | 'partial' | 'unassessable' | null;
   pageCount: number;
   version: number;
   awarded: number | null;
@@ -113,6 +116,8 @@ export function registerStatus(row: RegisterEntry) {
       return 'Checking failed';
     case 'review':
       return row.pending === 0 ? 'Ready to finalize' : 'Needs review';
+    case 'completed':
+      return row.outcome === 'partial' ? 'Partial assessment' : 'Unable to assess';
     case 'final':
       return 'Final';
     case 'held':

@@ -121,24 +121,32 @@
                     @if (item.status === 'submitted') {
                         <p>{{ item.checkingRecipient || 'GT Papers' }} received your scans. Checking starts after staff approve the submission.</p>
                     } @else if (item.status === 'checking') {
-                        <p>GT Papers staff will release your marks and feedback here when ready.</p>
+                        <p>Your checking report will appear here automatically when it is ready.</p>
                     } @else if (item.status === 'released') {
                         @if (result; as marked) {
-                            <p class="result-score"><strong>{{ marked.sheet.grade.awarded }} / {{ marked.sheet.grade.max }}</strong> marks</p>
-                            <button type="button" class="primary" [disabled]="!!busy" (click)="download()">{{ busy || 'Download marked PDF' }}</button>
+                            @if (marked.sheet.grade.awarded != null) {
+                                <p class="result-score"><strong>{{ marked.sheet.grade.awarded }} / {{ marked.sheet.grade.max }}</strong> marks</p>
+                            } @else {
+                                <p class="result-score"><strong>{{ marked.outcome === 'partial' ? 'Partial assessment' : 'Unable to assess' }}</strong> ? No final mark</p>
+                                @if (marked.assessedAwarded != null) {
+                                    <p>Assessed marks counted so far: {{ marked.assessedAwarded }}.</p>
+                                }
+                            }
+                            @if (marked.message) { <p>{{ marked.message }}</p> }
+                            <button type="button" class="primary" [disabled]="!!busy" (click)="download()">{{ busy || 'Download checking report' }}</button>
                             @if (marked.sheet.grade.answers.length) {
                                 <details class="feedback-details">
                                     <summary>Question feedback</summary>
                                     <ul>
                                         @for (answer of marked.sheet.grade.answers; track answer.number) {
-                                            <li><strong>Question {{ answer.number }} @if (answer.awarded !== null) { · {{ answer.awarded }} / {{ answer.max }} }</strong>@if (answer.counted === false) { <small> · Excluded from total</small> }<p>{{ answer.explanation }}</p></li>
+                                            <li><strong>Question {{ answer.number }} @if (answer.awarded !== null) { · {{ answer.awarded }} / {{ answer.max }} } @else { ? Mark unavailable }</strong>@if (answer.counted === false) { <small> · Excluded from total</small> } @else if (answer.counted === null) { <small> ? Count not determined</small> }<p>{{ answer.explanation }}</p></li>
                                         }
                                     </ul>
                                 </details>
                             }
                         }
                     }
-                    <div class="receipt-files">
+                    <div class="receipt-files" [hidden]="item.teacherUpload">
                         @for (kind of kinds; track kind) {
                             @if (saved(kind); as scan) {
                                 <button type="button" class="text-button" [disabled]="!!busy" (click)="showPreview(kind)">View {{ label(kind).toLowerCase() }} ({{ scan.pageCount }})</button>

@@ -24,7 +24,7 @@ import { marginGroups, marksOnPage, positionedMarks, scoreStatus, type MappingPo
   type MethodStep, type ScanMark } from './checking-scan';
 import { summarizeGrades } from '../../assistant-service/domain/checking.mjs';
 
-type State = 'uploading' | 'queued' | 'running' | 'failed' | 'review' | 'final' | 'withdrawn' | 'held';
+type State = 'uploading' | 'queued' | 'running' | 'failed' | 'review' | 'completed' | 'final' | 'withdrawn' | 'held';
 type Result = MarkStatus;
 type PrintBadge = { key: string; left: number; top: number; width: number; height: number; text: string };
 type Answer = {
@@ -94,9 +94,12 @@ type Summary = {
   version: number;
   max?: number;
   updatedAt?: string;
+  automatic?: boolean;
+  outcome?: 'complete' | 'partial' | 'unassessable' | null;
 };
 type Sheet = Summary & {
   studentSubmission?: boolean;
+  checkingResult?: {outcome: 'complete' | 'partial' | 'unassessable'; message?: string | null; awarded?: number | null; max?: number | null};
   gradingPaperId?: string;
   notes: string;
   uploaded: Page[];
@@ -277,7 +280,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     return this.sheet?.grade?.max ?? this.rubric?.marks;
   }
   get canEdit() {
-    return this.sheet?.state === 'review' || (this.sheet?.state === 'final' && this.editing);
+    return !this.sheet?.automatic && (this.sheet?.state === 'review' || (this.sheet?.state === 'final' && this.editing));
   }
   get imagesReady() {
     return !!this.sheet && this.displayUrls.size === this.sheet.pageCount;
@@ -312,7 +315,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       case 'failed': return 'Review error';
       case 'withdrawn': return 'Withdrawn';
       case 'queued': case 'running': return 'View sheet';
-      case 'final': return 'View marked copy';
+      case 'completed': case 'final': return 'View checking report';
       case 'review': return row.pending === 0 ? 'Check and approve' : 'Review marks';
     }
   }
@@ -340,7 +343,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   bucket(item: Summary): Filter {
     if (item.state === 'withdrawn') return 'Withdrawn';
     if (item.state === 'held') return 'Needs attention';
-    if (item.state === 'final') return 'Finalized';
+    if (item.state === 'final' || item.state === 'completed') return 'Finalized';
     if (item.state === 'failed' || item.state === 'uploading' || (item.state === 'review' && item.pending !== 0))
       return 'Needs attention';
     return item.state === 'review' ? 'Ready' : 'In progress';
@@ -351,6 +354,8 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     if (item.state === 'failed') return 'Checking failed';
     if (item.state === 'queued') return 'Queued';
     if (item.state === 'running') return 'Checking';
+    if (item.automatic && (item.state === 'completed' || item.state === 'final'))
+      return item.outcome === 'partial' ? 'Partial assessment' : item.outcome === 'unassessable' ? 'Unable to assess' : 'Checked';
     if (item.state === 'final') return 'Approved';
     if (item.state === 'review') {
       if (item.pending == null) return 'Awaiting review';
@@ -870,6 +875,11 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       this.busy = false;
       this.paint();
     }
+  }
+  async downloadCheckingReport() {
+    if (!this.sheet || this.busy) return;
+    try { await this.api.checkingReport(this.base + '/' + encodeURIComponent(this.sheet.id) + '/result-pdf'); }
+    catch (error) { this.error = this.describe(error); this.paint(); }
   }
   markManually() {
     if (this.active && !window.confirm('Stop automatic checking for this sheet and mark it manually?'))

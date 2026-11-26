@@ -63,19 +63,19 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else if(method==='GET' && /^\/admin\/conversations\/[^/]+$/.test(path))output=await service.adminConversation(uid,path.split('/').at(-1),query);
         else if(method==='GET' && /^\/(admin\/)?conversations\/[^/]+\/revision$/.test(path))output=await service.conversationRevision(uid,path.split('/').at(-2),path.startsWith('/admin/'));
         else {let m;
-          const intake=path.match(/^\/checking\/(packets|references)(?:\/([A-Za-z0-9_-]+)(?:\/(organize|manual|correct|recheck|save|confirm|delete|results|reference|queue|review|pages\/(\d+)))?)?$/);
+          const intake=path.match(/^\/checking\/(packets|references)(?:\/([A-Za-z0-9_-]+)(?:\/(organize|manual|correct|recheck|save|confirm|delete|results|reference|queue|review|result-pdf|pages\/(\d+)))?)?$/);
           if(intake){
             const [,kind,id,action,index]=intake;
             const handler=kind==='packets'?service.checking.packets:service.checking.references;
             output=await handler.teacher(method,uid,id,index?'pages':action,index,body);
             if(Buffer.isBuffer(output)){
-              responseHeaders['Content-Type']='image/jpeg';responseHeaders['Cross-Origin-Resource-Policy']='same-origin';
+              responseHeaders['Content-Type']=action==='result-pdf'?'application/pdf':'image/jpeg';responseHeaders['Cross-Origin-Resource-Policy']='same-origin';
             }
           }
-          else if((m=path.match(/^\/papers\/([A-Za-z0-9_-]+)\/checking(?:\/([A-Za-z0-9_-]+)(?:\/(?:(pages)\/(\d+)|(queue|review|manual|delete|student)))?)?$/))){
+          else if((m=path.match(/^\/papers\/([A-Za-z0-9_-]+)\/checking(?:\/([A-Za-z0-9_-]+)(?:\/(?:(pages)\/(\d+)|(queue|review|manual|delete|student|result-pdf)))?)?$/))){
             output=await service.checking.teacher(method,[m[1],m[2],m[3]||m[5],m[4]],uid,body);
             if(Buffer.isBuffer(output)){
-              responseHeaders['Content-Type']='image/jpeg';
+              responseHeaders['Content-Type']=m[5]==='result-pdf'?'application/pdf':'image/jpeg';
               responseHeaders['Cross-Origin-Resource-Policy']='same-origin';
             }
           }

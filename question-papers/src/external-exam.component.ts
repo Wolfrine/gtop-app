@@ -11,7 +11,7 @@ type Section={title:string;instructions:string;attemptCount:number|null;question
 type Paper={title:string;marks:number|null;instructions:string[];sections:Section[]};
 type Status='uploading'|'queued'|'running'|'review'|'ready'|'failed';
 type Summary={id:string;title:string;referenceRevision:number;state:Status;questionPages:number;pageCount:number;updatedAt:string;marks:number|null};
-type RecordView=Omit<Summary,'marks'>&{version:number;paper:Paper|null;issues:string[];error:string|null;uploaded:number[]};
+type RecordView=Omit<Summary,'marks'>&{version:number;paper:Paper|null;issues:string[];error:string|null;uploaded:number[];automatic?:boolean;hasReport?:boolean};
 type Group='exam'|'scheme';
 const base='/checking/references';
 const newId=()=>'ext-'+crypto.randomUUID();
@@ -26,6 +26,7 @@ const emptyPaper=(title:string):Paper=>({title,marks:null,instructions:[],sectio
 })
 export class ExternalExamComponent implements OnInit,OnDestroy {
   @Input() referenceId='';
+  @Input() autoSelect=false;
   @Output() ready=new EventEmitter<{id:string;title:string;marks?:number}>();
   @Output() recordChange=new EventEmitter<string>();
   @Output() closed=new EventEmitter<void>();
@@ -37,6 +38,7 @@ export class ExternalExamComponent implements OnInit,OnDestroy {
   private pendingRefresh=false;
   private newReferenceId='';
   private revisionId='';
+  private emittedReference='';
   readonly maxPages=maxExternalPages;
   readonly captions:Record<Status,string>={uploading:'Upload incomplete',queued:'Waiting for checker',running:'Reading paper',review:'Needs your review',ready:'Ready to use',failed:'Needs attention'};
   statusMessage='';
@@ -96,6 +98,11 @@ export class ExternalExamComponent implements OnInit,OnDestroy {
     this.openVersion++;this.loading=false;this.current=undefined;this.editing=false;this.draft=undefined;this.clearLocal();this.dropSource();
     this.showHistory=true;this.showScheme=false;this.recordChange.emit('');this.newReferenceId='';this.revisionId='';this.title='';this.error='';this.statusMessage='';void this.history();
   }
+  async downloadReport(){
+    if(!this.current)return;
+    try{await this.api.checkingReport(base+'/'+this.current.id+'/result-pdf');}
+    catch(error){this.error=shortError(error);this.paint();}
+  }
   async refresh(){if(this.current&&!this.editing&&!this.processing)await this.open(this.current.id,false);}
   async open(id:string,checkChanges=true){
     if(checkChanges&&!this.canLeave())return;
@@ -107,6 +114,10 @@ export class ExternalExamComponent implements OnInit,OnDestroy {
       if(this.current?.id!==id||!this.selecting){this.clearLocal();this.dropSource();}
       this.current=reference;this.showScheme=reference.questionPages<reference.pageCount;this.recordChange.emit(id);this.newReferenceId=id;this.title=reference.title;
       this.editing=false;this.draft=undefined;this.reviewed=false;this.revisionId='';
+      if(this.autoSelect&&reference.automatic&&reference.state==='ready'&&this.emittedReference!==id){
+        this.emittedReference=id;
+        this.ready.emit({id,title:reference.title,marks:reference.paper?.marks??undefined});
+      }
     }catch(error){if(seq===this.openVersion)this.error=shortError(error);}
     finally{
       if(seq===this.openVersion){this.loading=false;this.paint();this.refreshIfPending();}

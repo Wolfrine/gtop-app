@@ -44,6 +44,8 @@ export async function correctPacket(intake,uid,path,body){
     const records=await Promise.all(affected.map(g=>tx.get(sheets(uid,packet.paperId)+'/'+g.sheetId)));
     if(records.some(sheet=>!sheet||sheet.packetId!==packet.id||sheet.scanSource!==packet.scanSource||['deleting','withdrawn'].includes(sheet.state)))
       checker.fail(409,'booklet_withdrawn','One of the selected books has been withdrawn.');
+    if(records.some(sheet=>sheet.automatic))
+      checker.fail(409,'automatic_result','Automatic assessments are preserved. Start a new check for changed scans.');
     if(records.some(sheet=>sheet.state==='final'))
       checker.fail(409,'final_booklet','Reopen the affected final result for review before correcting its scan or identity.');
     let label;

@@ -1,3 +1,4 @@
+import {readResultBytes} from './submission-grading.mjs';
 import {createHash} from 'node:crypto';
 import {externalGradingPaper,maxExternalPages,readExternalReference} from './domain/external-reference.mjs';
 
@@ -10,7 +11,7 @@ export class ExternalReference {
   path(uid,id){
     this.checking.id(uid);
     if(!validId.test(id))this.checking.notFound();
-    return collection(uid)+'/'+id;
+    return (id.startsWith('ext-auto-')?collection(uid).replace(/references$/,'submissionReferences'):collection(uid))+'/'+id;
   }
   async paper(reader,id,uid){
     const record=await reader.get(this.path(uid,id));
@@ -35,7 +36,7 @@ export class ExternalReference {
   view(record){
     const {id,title,state,pageCount,questionPages,createdAt,updatedAt,version,paper,issues,error,uploaded}=record;
     return {id,title,state,pageCount,questionPages,createdAt,updatedAt,version,referenceRevision:record.referenceRevision??1,paper:paper??null,
-      issues:issues??[],error:error??null,uploaded:(uploaded||[]).map(p=>p.index)};
+      issues:issues??[],error:error??null,automatic:record.automatic===true,hasReport:!!record.checkingResult,uploaded:(uploaded||[]).map(p=>p.index)};
   }
   async list(uid,cursor){
     let cursorValues;
@@ -68,6 +69,10 @@ export class ExternalReference {
         if(!record)this.checking.notFound();
       }
       return {reference:this.view(record)};
+    }
+    if(action==='result-pdf'&&method==='GET'){
+      if(!record.checkingResult)this.checking.notFound();
+      return readResultBytes(this.checking,path+'/resultFiles/'+record.checkingResult.fileKey,record.checkingResult,true);
     }
     if(action==='pages'&&method==='POST')return this.checking.upload(path,Number(index),body);
     if(action==='pages'&&method==='GET') {
@@ -104,6 +109,7 @@ export class ExternalReference {
     return this.store.transaction(async tx=>{
       const saved=await tx.get(path);
       if(!saved||saved.ownerUid!==uid)this.checking.notFound();
+      if(saved.automatic)this.fail(409,'automatic_reference','This question paper is processed automatically.');
       let result;
       try{result=readExternalReference({...body.paper,issues:[]},saved.questionPages);}
       catch(error){this.fail(400,'invalid_reference',error.message);}

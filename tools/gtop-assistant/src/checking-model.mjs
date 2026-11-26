@@ -1,7 +1,7 @@
 import {spawn} from 'node:child_process';
 import {mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import path from 'node:path';
-import {gradingPrompt,gradingSchema} from '../../../assistant-service/domain/checking.mjs';
+import {gradingPrompt,gradingSchema,studentGradingSchema} from '../../../assistant-service/domain/checking.mjs';
 import {intakeChunkSize,intakePrompt,intakeSchema,validateIntakePages} from '../../../assistant-service/domain/checking-intake.mjs';
 import {externalReferencePrompt,externalReferenceSchema,maxExternalPages} from '../../../assistant-service/domain/external-reference.mjs';
 
@@ -20,7 +20,8 @@ export function checkingConfig(env=process.env) {
 
 export function gradeScans(config,rubric,notes,images,options={}){
   return analyzeScans(config,images,{
-    name:'paper_grades',schema:gradingSchema,prompt:gradingPrompt(rubric,images.length,notes),
+    name:'paper_grades',schema:options.automatic?studentGradingSchema:gradingSchema,
+    prompt:gradingPrompt(rubric,images.length,notes,{student:options.automatic,recheck:options.recheck}),
     timeoutMs:checkingModelBudgetMs(images.length,rubric.questions.length),maxOutputTokens:16000,
   },options);
 }
@@ -74,6 +75,7 @@ function runCodex(executable,config,dir,prompt,files,schema,result,signal){
   const args=['exec','--ignore-user-config','--ephemeral','--skip-git-repo-check',
     '--sandbox','read-only','--disable','shell_tool','--disable','apps','--disable','plugins',
     '-c','approval_policy="never"','-c','web_search="disabled"','-c','model_provider="openai"',
+    '-c','forced_login_method="chatgpt"',
     '-c','model_reasoning_effort='+JSON.stringify(config.effort),
     '--model',config.model,'--json','--output-schema',schema,'--output-last-message',result,
     ...files.map(file=>'--image='+file),'-'];

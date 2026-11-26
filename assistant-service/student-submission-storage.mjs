@@ -40,6 +40,7 @@ export function submissionSummary(row, staff, detail, progress) {
   return {
     id, title, subject: subject || null, status, version, revision,
     answer: attachment(row.answer), question: attachment(row.question) || null,
+    ...(row.teacherUpload?{teacherUpload:true}:{}),
     rescan: rescan || null, createdAt, updatedAt, submittedAt: submittedAt || null,
     paperTitle: paperTitle || null,
     ...(testCode ? {testCode} : {}),

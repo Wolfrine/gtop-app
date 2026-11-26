@@ -492,7 +492,7 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
         if (item.status === 'checking') {
             switch (item.sheetState) {
                 case 'running': return 'Checking';
-                case 'review': case 'final': return 'With your teacher';
+                case 'review': case 'final': return 'Checking';
                 case 'failed': return 'Waiting for your teacher';
                 default: return 'Queued for checking';
             }

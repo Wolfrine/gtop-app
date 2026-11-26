@@ -2,7 +2,7 @@
   <header class="inbox-top" [class.compact-hide]="selectedId">
     <div>
       <h1 id="inbox-heading">Student submissions</h1>
-      <p>Review answer sheets from GTOP and send marked copies back to students.</p>
+      <p>Approve GTOP submissions for automatic checking and private return.</p>
     </div>
     @if (enabled) {
       <button class="quiet" type="button" (click)="toggleInvitations()" [attr.aria-expanded]="showInvitations" aria-controls="invitations">
@@ -135,22 +135,10 @@
                 <div class="notice">The student was asked to rescan the {{row.rescan.kind === 'answer' ? 'answer sheet' : 'question paper'}}{{row.rescan.page ? ', page ' + row.rescan.page : ''}}. {{row.rescan.reason}}</div>
               }
 
-              @if (row.status === 'submitted' && row.question && (!canApprove(row) || row.referenceId)) {
-                <div class="reference-status">
-                  <div>
-                    <strong>Question paper</strong>
-                    <p>{{row.referenceId ? 'Open the saved reference to check its questions and marks.' : 'Prepare a marking reference from the student’s uploaded paper.'}}</p>
-                  </div>
-                  @if (row.referenceId) {
-                    <button class="quiet" type="button" (click)="referenceEditor=row.referenceId" [disabled]="mutationBusy">Review question paper</button>
-                  } @else {
-                    <div class="reference-actions">
-                      <button class="quiet" type="button" (click)="prepare(row)" [disabled]="mutationBusy">Prepare question paper</button>
-                      <button class="link" type="button" (click)="openReferencePicker()" [disabled]="mutationBusy || showReferences">Use an approved paper</button>
-                    </div>
-                  }
-                </div>
+              @if (row.status === 'submitted' && row.question && !row.paperReady) {
+                <p>GT Papers prepares the uploaded question paper after approval.</p>
               }
+              @if (row.message) { <p class="notice">{{row.message}}</p> }
 
               @if (showReferences) {
                 <section class="reference-picker" aria-labelledby="match-paper-title">
@@ -185,7 +173,9 @@
                     <button class="primary" type="button" (click)="approve(row)" [disabled]="mutationBusy">Approve &amp; check</button>
                   }
                   <button class="quiet" type="button" (click)="startRescan()" [disabled]="mutationBusy || showRescan">Request rescan</button>
-                } @else if (row.paperId && row.sheetId) {
+                } @else if (row.automatic && row.status === 'released') {
+                  <button class="primary" type="button" (click)="downloadReport(row)" [disabled]="mutationBusy">Download checking report</button>
+                } @else if (!row.automatic && row.paperId && row.sheetId) {
                   @if ((row.status === 'checking' && markState(row) === 'final') || row.updatedCopyReady) {
                     <button class="primary" type="button" (click)="release(row)" [disabled]="mutationBusy">{{row.updatedCopyReady ? 'Release updated copy' : 'Release to student'}}</button>
                   }
@@ -216,7 +206,7 @@
                 </form>
               }
 
-              <section class="scan" aria-label="Uploaded scans">
+              <section class="scan" aria-label="Uploaded scans" [hidden]="row.teacherUpload">
                 <div class="scan-toolbar">
                   <div class="scan-tabs" aria-label="Choose the upload to preview">
                     <button type="button" [attr.aria-pressed]="scanKind === 'answer'" (click)="loadScan('answer')">Answer sheet</button>

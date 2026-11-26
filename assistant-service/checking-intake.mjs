@@ -231,11 +231,11 @@ export class ClassIntake {
         for(const [i,group] of groups.entries()){
           const id='book-'+digest(uid,packet.scanSource,i).slice(0,40),source=sheets(uid,paperId)+'/'+id,queueId=digest(uid,paperId,id);
           const uploaded=group.pages.map((n,j)=>({...byIndex.get(n),index:j+1,sourceIndex:byIndex.get(n).sourceIndex??n}));
-          const sheet={id,label:group.label,...identity(group),...(packet.studentUid?{singleStudentBook:true}:{}),...(group.labelFromStudent?{labelFromStudent:true}:{}),packetId:packet.id,packetLabel:packet.label,scanSource:packet.scanSource,pageCount:uploaded.length,uploaded,notes:'',state:group.held?'held':'queued',
+          const sheet={id,label:group.label,...identity(group),...(packet.studentUid?{singleStudentBook:true}:{}),...(group.labelFromStudent?{labelFromStudent:true}:{}),packetId:packet.id,packetLabel:packet.label,scanSource:packet.scanSource,pageCount:uploaded.length,uploaded,notes:'',automatic:!group.held,state:group.held?'held':'queued',
             version:1,createdAt:now,updatedAt:now,queueId};
           tx.create(source,sheet);
           indexStudent(tx,uid,sheet,'sheet',paperId);
-          if(!group.held)tx.create(queue(queueId),{id:queueId,path:source,uid,paperId,state:'queued',queuedAt:now,orderKey:orderedKey(uid,now,queueId)});
+          if(!group.held)tx.create(queue(queueId),{id:queueId,path:source,uid,paperId,state:'queued',queuedAt:now,kind:'auto-grade',automaticOrderKey:orderedKey(uid,now,queueId)});
           group.sheetId=id;
         }
         tx.set(quota(uid),{...usage,day:day(now),drafts:drafts+groups.length,active:(usage.active||0)+ready});

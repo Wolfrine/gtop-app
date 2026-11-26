@@ -54,7 +54,7 @@ export async function linkSheetStudent(checker,uid,paperId,path,body){
   return checker.store.transaction(async tx=>{
     const sheet=await tx.get(path);
     if(!sheet||['deleting','withdrawn'].includes(sheet.state))checker.notFound();
-    if(sheet.submissionUploadId&&sheet.studentUid!==body.studentUid)
+    if((sheet.submissionUploadId||sheet.automatic&&sheet.state!=='uploading')&&sheet.studentUid!==body.studentUid)
       checker.fail(409,'student_submission_identity','This answer sheet is linked to the GTOP account that submitted it.');
     if(sheet.studentUid&&sheet.studentUid===body.studentUid)
       return {studentUid:sheet.studentUid,studentLabel:sheet.studentLabel,version:sheet.version,

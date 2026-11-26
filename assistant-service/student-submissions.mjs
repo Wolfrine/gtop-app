@@ -58,7 +58,7 @@ export async function submissionList(checker, uid, cursor, staff, progress, stat
   const rows = await checker.store.getSelected(page.map(row => submissionPath(row.id)), [
     'id','title','subject','ownerUid','studentUid','studentLabel','paperId','testCode','questionFingerprint','staffPaperId',
     'status','version','revision','rescan','answer','question','createdAt','updatedAt','submittedAt','referenceId',
-    'sheetId','requiresPaperReview','paperTitle','releasedAt','publishedSheetVersion','intake'
+    'sheetId','requiresPaperReview','paperTitle','releasedAt','publishedSheetVersion','intake','automatic','teacherUpload','result.outcome','result.message'
   ]);
   const visible = rows.filter(row => row && (staff ? row.ownerUid === uid && row.status !== 'draft' &&
     (!status || row.status === status) : row.studentUid === uid));

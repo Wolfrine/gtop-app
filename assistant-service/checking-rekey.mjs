@@ -24,6 +24,8 @@ export async function recheckClass(intake,uid,path,body){
     const revision=(packet.gradingRevision??1)+1,now=checker.now();
     const counts={queued:0,held:0,withdrawn:0};
     let delta=0;
+    if(records.some(sheet=>sheet?.automatic))
+      checker.fail(409,'automatic_result','Automatic assessments are preserved. Start a new check for a revised paper.');
     for(const [i,sheet] of records.entries()){
       if(!sheet||packet.groups[i].withdrawn||sheet.state==='deleting'||sheet.state==='withdrawn'){counts.withdrawn++;continue;}
       if(sheet.id!==packet.groups[i].sheetId||sheet.packetId!==packet.id||sheet.scanSource!==packet.scanSource)

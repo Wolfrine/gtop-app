@@ -72,7 +72,7 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
     return this.entries.filter((row) => this.selected.has(row.id));
   }
   get finalCount() {
-    return this.chosen.filter((row) => row.state === 'final').length;
+    return this.chosen.filter((row) => row.state === 'final' || row.state === 'completed').length;
   }
   get unavailableCount() {
     return this.chosen.filter((row) => row.state === 'held' || row.state === 'withdrawn').length;
@@ -290,7 +290,7 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
     )
       throw Error('The marking key changed. Download again for the latest result.');
     const currentRows = new Map(current.sheets.map((row) => [row.id, row]));
-    const currentNames = filenames(current.sheets.filter((row) => row.state === 'final'));
+    const currentNames = filenames(current.sheets.filter((row) => row.state === 'final' || row.state === 'completed'));
     for (const row of selected) {
       const latest = currentRows.get(row.id);
       if (
@@ -336,7 +336,7 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
       if (
         kind === 'zip' &&
         savePicker &&
-        this.chosen.filter((row) => row.state === 'final').reduce((n, r) => n + r.pageCount, 0) > 120
+        this.chosen.filter((row) => row.state === 'final' || row.state === 'completed').reduce((n, r) => n + r.pageCount, 0) > 120
       ) {
         const file = await savePicker.call(window, {
           suggestedName: nameFor(this.paperTitle, this.classLabel),
@@ -351,7 +351,7 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
       if (rows.length !== ids.size)
         throw Error('A selected sheet was removed. Reopen the panel and select the current sheets.');
       this.entries = snapshot.sheets;
-      const names = filenames(snapshot.sheets.filter((row) => row.state === 'final'));
+      const names = filenames(snapshot.sheets.filter((row) => row.state === 'final' || row.state === 'completed'));
       if (kind === 'csv') {
         const csv = new Blob([marksRegister(rows, snapshot.rubric?.marks ?? this.paperMaximum, names)], {
           type: 'text/csv;charset=utf-8',
@@ -362,9 +362,9 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
         this.progress = `Register ready for ${rows.length} ${rows.length === 1 ? 'sheet' : 'sheets'}.`;
         return;
       }
-      const returning = rows.filter((row) => row.state === 'final');
+      const returning = rows.filter((row) => row.state === 'final' || row.state === 'completed');
       if (!returning.length)
-        throw Error('Approve at least one selected sheet to download its marked copy.');
+        throw Error('There are no completed reports among the selected sheets.');
       const { markedCopy } = await import('./class-return-pdf');
       const printSet =
         kind === 'print'
@@ -385,7 +385,7 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
         const detail = await this.api.request<ReturnDetail>(endpoint);
         this.check(epoch, uid);
         if (
-          detail.sheet.state !== 'final' ||
+          detail.sheet.state !== row.state ||
           detail.sheet.version !== row.version ||
           detail.sheet.label !== row.label ||
           detail.sheet.studentUid !== row.studentUid ||
@@ -394,7 +394,9 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
           detail.sheet.grade?.awarded !== row.awarded
         )
           throw Error('Marks changed for ' + this.identity(row).full + '. Download again for the latest result.');
-        const pdf = await markedCopy(
+        const pdf = row.automatic
+          ? new Uint8Array(await (await this.api.reportBlob(endpoint + '/result-pdf')).arrayBuffer())
+          : await markedCopy(
           { ...detail, classLabel: this.identity(row).classLabel },
           (index) => this.api.checkingImage(endpoint + '/pages/' + index),
           () => this.check(epoch, uid),

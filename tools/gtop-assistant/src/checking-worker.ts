@@ -47,7 +47,8 @@ const wake=new DispatchWake(),lane='checking';
 const stop=new AbortController();
 for(const signal of ['SIGINT','SIGTERM'] as const)process.on(signal,()=>stop.abort());
 const status={protocol:'automatic-checking-v1',pid:process.pid,engine:model.engine,model:model.model,startedAt:new Date().toISOString(),
-  connected:false,claims:0,graded:0,organizedChunks:0,examsRead:0,failed:0,state:'connecting'};
+  connected:false,claims:0,graded:0,organizedChunks:0,examsRead:0,failed:0,scanRetries:0,
+  lastScanFailure:null as {page:number;kind:string}|null,state:'connecting'};
 async function report(state:string){
   status.state=state;
   await record(root,'checking-status.json',{...status,updatedAt:new Date().toISOString()});
@@ -132,6 +133,26 @@ function pageRange(job:CheckingJob):[number,number]{
   return [1,job.pageCount];
 }
 
+function transientGatewayFailure(error:unknown):string|null{
+  if(!(error instanceof Error))return null;
+  const http=(error as Error & {status?:number}).status;
+  if(http&&[401,408,429,500,502,503,504].includes(http))return 'http-'+http;
+  if(error.name==='TimeoutError')return 'timeout';
+  if(error instanceof TypeError&&/^(?:fetch failed|terminated)$/i.test(error.message))return 'connection';
+  return null;
+}
+
+async function leaseRequest<T>(signal:AbortSignal,request:()=>Promise<T>):Promise<T>{
+  signal.throwIfAborted();
+  let onAbort=()=>{};
+  const stopped=new Promise<never>((_,reject)=>{
+    onAbort=()=>reject(signal.reason);
+    signal.addEventListener('abort',onAbort,{once:true});
+  });
+  try{return await Promise.race([request(),stopped]);}
+  finally{signal.removeEventListener('abort',onAbort);}
+}
+
 async function processJob(job:CheckingJob){
   const endpoint='/worker/checking/'+job.id;
   const signal=AbortSignal.any([stop.signal,AbortSignal.timeout(Math.max(1,Date.parse(job.leaseUntil)-Date.now()-10_000))]);
@@ -146,9 +167,23 @@ async function processJob(job:CheckingJob){
     const [first,last]=pageRange(job);
     const images:Buffer[]=[];
     reason='scan_unavailable';
+    let retries=0;
     for(let index=first;index<=last;index++){
-      const {jpeg}=await gateway.post(endpoint+'/pages/'+index,{lease:job.lease},signal);
-      images.push(Buffer.from(jpeg,'base64'));
+      while(true){
+        try{
+          const {jpeg}=await leaseRequest(signal,()=>gateway.post(endpoint+'/pages/'+index,{lease:job.lease},signal));
+          images.push(Buffer.from(jpeg,'base64'));
+          break;
+        }catch(error){
+          const kind=transientGatewayFailure(error);
+          status.lastScanFailure={page:index,kind:kind??'unavailable'};
+          if(!job.automatic||!kind||signal.aborted||retries===3||Date.parse(job.leaseUntil)-Date.now()<70_000)
+            throw error;
+          await delay(400*2**retries+Math.floor(Math.random()*150),signal);
+          retries++;
+          status.scanRetries++;
+        }
+      }
     }
     reason='checker_failed';
     const executable=model.engine==='codex-cli'?await resolveDesktopCodex():undefined;
@@ -216,6 +251,11 @@ async function processJob(job:CheckingJob){
   }catch{
     status.failed++;
     console.error('Checking attempt failed during '+state+'.');
-    await gateway.post(endpoint+'/fail',{lease:job.lease,reason},stop.signal).catch(()=>{});
+    const fail=()=>leaseRequest(signal,()=>gateway.post(endpoint+'/fail',{lease:job.lease,reason},signal));
+    try{await fail();}
+    catch(error){
+      if(job.automatic&&transientGatewayFailure(error)&&!signal.aborted&&Date.parse(job.leaseUntil)-Date.now()>50_000)
+        await delay(400+Math.floor(Math.random()*150),signal).then(fail).catch(()=>{});
+    }
   }
 }

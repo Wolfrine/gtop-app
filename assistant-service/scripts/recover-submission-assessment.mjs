@@ -1,10 +1,12 @@
 import {parseArgs} from 'node:util';
 
 const usage='Usage: node assistant-service/scripts/recover-submission-assessment.mjs --project gtop-app --apply '+
-  '--submission-id ID --version VERSION --revision REVISION --reference-id ID --report-sha SHA256 --attempt-id ID';
+  '--submission-id ID --version VERSION --revision REVISION --reference-id ID --report-sha SHA256 --attempt-id ID '+
+  '[--verified-question NUMBER --verified-wording-sha SHA256 --source-reason TEXT]';
 const publicErrors=new Set([
   'invalid_id','invalid_recovery_target','recovery_target_changed','recovery_owner_unavailable','recovery_already_started',
-  'recovery_student_unavailable','recovery_queue_unavailable','invalid_result','result_upload_incomplete','result_integrity'
+  'recovery_student_unavailable','recovery_queue_unavailable','invalid_result','result_upload_incomplete','result_integrity',
+  'invalid_source_evidence','source_evidence_unavailable','source_evidence_conflict','recovery_still_running'
 ]);
 const states=new Set(['reference_queued','grading_queued','published','failed']);
 
@@ -14,7 +16,8 @@ async function run(){
     const parsed=parseArgs({options:{
       project:{type:'string'},apply:{type:'boolean'},help:{type:'boolean'},
       'submission-id':{type:'string'},version:{type:'string'},revision:{type:'string'},
-      'reference-id':{type:'string'},'report-sha':{type:'string'},'attempt-id':{type:'string'}
+      'reference-id':{type:'string'},'report-sha':{type:'string'},'attempt-id':{type:'string'},
+      'verified-question':{type:'string'},'verified-wording-sha':{type:'string'},'source-reason':{type:'string'}
     },tokens:true});
     if(new Set(parsed.tokens.map(token=>token.name)).size!==parsed.tokens.length)throw Error();
     values=parsed.values;
@@ -27,9 +30,14 @@ async function run(){
     console.log(usage);
     return;
   }
+  const verifiedQuestion=values['verified-question'],sourceReason=values['source-reason'];
+  const verifiedWordingSha=values['verified-wording-sha'];
+  const sourceEvidenceRequested=verifiedQuestion!==undefined||sourceReason!==undefined||verifiedWordingSha!==undefined;
   if(values.project!=='gtop-app'||!values.apply||process.env.FIRESTORE_EMULATOR_HOST||
       !values['submission-id']||!values['reference-id']||!values['report-sha']||!values['attempt-id']||
-      !/^[1-9][0-9]*$/.test(values.version??'')||!/^[1-9][0-9]*$/.test(values.revision??'')){
+      !/^[1-9][0-9]*$/.test(values.version??'')||!/^[1-9][0-9]*$/.test(values.revision??'')||
+      (sourceEvidenceRequested&&(!/^[1-9][0-9]*$/.test(verifiedQuestion??'')||
+        !/^[0-9a-f]{64}$/.test(verifiedWordingSha??'')||!sourceReason?.trim()))){
     console.error(usage);
     process.exitCode=2;
     return;
@@ -45,7 +53,8 @@ async function run(){
     const service=new AssistantService(new FirestoreStore(getFirestore(app)));
     const result=await startAssessmentRecovery(service.checking,{
       id:values['submission-id'],version:Number(values.version),revision:Number(values.revision),
-      referenceId:values['reference-id'],reportSha:values['report-sha'],attemptId:values['attempt-id']
+      referenceId:values['reference-id'],reportSha:values['report-sha'],attemptId:values['attempt-id'],
+      ...(sourceEvidenceRequested?{verifiedQuestion:Number(verifiedQuestion),sourceReason,verifiedWordingSha}:{})
     });
     console.log(JSON.stringify({state:states.has(result.state)?result.state:'recorded',replayed:result.replayed}));
   }finally{

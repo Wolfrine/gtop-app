@@ -4,6 +4,7 @@ import path from 'node:path';
 import {gradingPrompt,gradingSchema,studentGradingSchema} from '../../../assistant-service/domain/checking.mjs';
 import {intakeChunkSize,intakePrompt,intakeSchema,validateIntakePages} from '../../../assistant-service/domain/checking-intake.mjs';
 import {externalReferencePrompt,externalReferenceSchema,maxExternalPages} from '../../../assistant-service/domain/external-reference.mjs';
+import {sourceFidelityBudgetMs,sourceFidelityPrompt,sourceFidelitySchema} from './checking-source-fidelity.mjs';
 
 import {checkingModelBudgetMs,maxCheckingPages} from '../../../assistant-service/domain/checking-limits.mjs';
 export function checkingConfig(env=process.env) {
@@ -41,11 +42,22 @@ export async function organizeScans(config,job,images,options={}){
 export async function readExternalExam(config,job,images,options={}){
   if(!Number.isInteger(job.questionPages)||job.questionPages<1||job.questionPages>images.length||
       images.length!==job.pageCount||images.length>maxExternalPages)throw Error('invalid_exam_pages');
+  const prompt=externalReferencePrompt(job.questionPages,images.length,{recheck:options.recheck});
   const reference=await analyzeScans(config,images,{
-    name:'external_exam',schema:externalReferenceSchema,prompt:externalReferencePrompt(job.questionPages,images.length,{recheck:options.recheck}),
+    name:'external_exam',schema:externalReferenceSchema,prompt:options.automatic?prompt+
+      '\n\nBefore returning, compare every number, sign and unit independently with the source at that exact occurrence. Repeated values can have different printed units. Do not borrow a unit or exponent from another value or repair the paper.':prompt,
     timeoutMs:checkingModelBudgetMs(images.length,50),maxOutputTokens:16000,
   },options);
   return {reference};
+}
+
+export function verifyExternalExamSource(config,reference,questionImages,options={}){
+  if(config.engine!=='codex-cli'||!questionImages.length||questionImages.length>maxExternalPages)
+    throw Error('invalid_source_verification');
+  return analyzeScans(config,questionImages,{
+    name:'external_exam_source',schema:sourceFidelitySchema,
+    prompt:sourceFidelityPrompt(reference,questionImages.length),timeoutMs:sourceFidelityBudgetMs,
+  },options);
 }
 
 async function analyzeScans(config,images,task,{executable,root,signal}={}){

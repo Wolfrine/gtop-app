@@ -55,7 +55,7 @@ function updateRecovery(tx,recovery,now,state,details={},submissionPatch={}){
 export async function failActiveAssessmentRecovery(checker,tx,row,sheet,message){
   const recovery=await activeRecovery(tx,row,sheet);
   if(recovery)updateRecovery(tx,recovery,checker.now(),'failed',{error:message});
-  return {};
+  return recovery?{}:{discarded:true};
 }
 
 export async function continueApprovedReference(checker,row,sheet,patch){
@@ -64,7 +64,7 @@ export async function continueApprovedReference(checker,row,sheet,patch){
   return checker.finish(row,patch,false,async(tx,liveRow,liveSheet)=>{
     if(liveSheet.assessmentRecoveryId){
       const recovery=await activeRecovery(tx,liveRow,liveSheet);
-      if(!recovery)return {};
+      if(!recovery)return {discarded:true};
       const now=checker.now();
       const next=queueSubmissionSheet(checker,tx,recovery.current,liveSheet.id,paper,now,{attemptId:recovery.attempt.id});
       updateRecovery(tx,recovery,now,'grading_queued',{sheetId:next.sheetId});
@@ -158,7 +158,7 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
   return checker.finish(row,patch,expired,async(tx,liveRow,liveSheet)=>{
     if(liveSheet.assessmentRecoveryId){
       const recovery=await activeRecovery(tx,liveRow,liveSheet);
-      if(!recovery)return {};
+      if(!recovery)return {discarded:true};
       saveChunks(tx,offset,stage.chunks);
       const now=checker.now(),nextResult={...result,checkingPath:path};
       updateRecovery(tx,recovery,now,'published',{replacementSha:result.sha,completedAt:now},{

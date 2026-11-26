@@ -5,7 +5,8 @@ import { resolveDesktopCodex } from './runner.js';
 import { DispatchWake } from './dispatch.js';
 import { acquireWorkerLock } from './singleton.js';
 import { assessStudentGrade } from '../../../assistant-service/domain/checking.mjs';
-import { checkingConfig, gradeScans, organizeScans, readExternalExam } from './checking-model.mjs';
+import { checkingConfig, gradeScans, organizeScans, readExternalExam, verifyExternalExamSource } from './checking-model.mjs';
+import { reconcileSourceFidelity, sourceFidelityBudgetMs } from './checking-source-fidelity.mjs';
 import { intakeChunkSize } from '../../../assistant-service/domain/checking-intake.mjs';
 import { maxCheckingPages } from '../../../assistant-service/domain/checking-limits.mjs';
 import { maxExternalPages, readExternalReference } from '../../../assistant-service/domain/external-reference.mjs';
@@ -164,18 +165,26 @@ async function processJob(job:CheckingJob){
       result=await run(true);
     }
     const timeLeft=Date.parse(job.leaseUntil)-Date.now();
-    if(!recovered&&job.automatic&&job.kind==='external-exam'&&timeLeft>90_000){
+    if(!recovered&&job.automatic&&job.kind==='external-exam'&&model.engine==='codex-cli'&&timeLeft>90_000){
       const usable=(value:{reference?:unknown})=>{
         try{return readExternalReference(value.reference,job.questionPages).issues.length===0;}
         catch{return false;}
       };
-      if(!usable(result)){
-        const recovery=AbortSignal.any([signal,AbortSignal.timeout(Math.min(120_000,timeLeft-65_000))]);
-        try{
+      const verifySource=usable(result);
+      const budget=verifySource?sourceFidelityBudgetMs:120_000;
+      const recovery=AbortSignal.any([signal,AbortSignal.timeout(Math.min(budget,timeLeft-65_000))]);
+      try{
+        if(verifySource){
+          const evidence=await verifyExternalExamSource(model,result.reference,images.slice(0,job.questionPages),{...options,signal:recovery});
+          const reference=structuredClone(result.reference);
+          reconcileSourceFidelity(reference,evidence,job.questionPages);
+          if(usable({reference}))result={reference};
+        }else{
+          // A structural retry and a source reread share the same second model turn.
           const revised=await readExternalExam(model,job,images,{...options,recheck:true,signal:recovery});
           if(usable(revised))result=revised;
-        }catch{/* Keep the first reading and its structural reason. */}
-      }
+        }
+      }catch{/* Keep the first reading and any structural reason it established. */}
     }
     if(!recovered&&job.automatic&&job.kind!=='external-exam'&&job.kind!=='class-intake'&&timeLeft>75_000){
       const assessment=(()=>{try{return assessStudentGrade(result,job.rubric,images.length);}catch{return null;}})();

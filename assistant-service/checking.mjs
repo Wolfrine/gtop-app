@@ -564,7 +564,9 @@ export class PaperChecking {
       const action=finalize?await finalize(tx,row,sheet):{};
       if(!action)return {active:false};
       tx.delete(path);
-      const {modelGrade,...visiblePatch}=patch;
+      const {modelGrade,...visiblePatch}=action.discarded
+        ? {state:'failed',error:'This assessment attempt was superseded.'}
+        : patch;
       if(modelGrade){
         visiblePatch.gradeRevision=sheet.gradingRevision??1;
         tx.set(row.path+'/grading/original',{grade:modelGrade,gradingRevision:visiblePatch.gradeRevision,

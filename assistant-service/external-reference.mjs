@@ -1,5 +1,6 @@
 import {notifySubmissionInbox} from './student-submission-storage.mjs';
 import {readResultBytes} from './submission-grading.mjs';
+import {corroborateSourceReference} from './source-fidelity.mjs';
 import {createHash} from 'node:crypto';
 import {externalGradingPaper,maxExternalPages,readExternalReference} from './domain/external-reference.mjs';
 
@@ -20,8 +21,12 @@ export class ExternalReference {
   }
   claimJob(record){return {questionPages:record.questionPages};}
   complete(body,record){
-    let result;
-    try{result=readExternalReference(body.reference,record.questionPages);}
+    let result,sourceFidelity;
+    try{
+      const checked=corroborateSourceReference(body.reference,record);
+      sourceFidelity=checked.sourceFidelity;
+      result=readExternalReference(checked.reference,record.questionPages);
+    }
     catch(error){this.fail(400,'invalid_reference',error.message);}
     const {paper,issues}=result;
     if(record.questionPages===record.pageCount){
@@ -37,7 +42,8 @@ export class ExternalReference {
     }
     const usable=issues.length===0&&externalGradingPaper(paper);
     if(!usable&&!issues.length)issues.push('Review the question numbers and mark allocations.');
-    return {title:paper.title,paper,issues,state:usable&&!record.requiresPaperReview?'ready':'review',engine:body.engine,error:null};
+    return {title:paper.title,paper,issues,state:usable&&!record.requiresPaperReview?'ready':'review',engine:body.engine,error:null,
+      ...(sourceFidelity?{sourceFidelity}:{})};
   }
   view(record){
     const {id,title,state,pageCount,questionPages,createdAt,updatedAt,version,paper,issues,error,uploaded}=record;

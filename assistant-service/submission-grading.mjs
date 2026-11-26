@@ -5,6 +5,7 @@ import {indexStudent} from './checking-student.mjs';
 import {confirmedPaperPath, moveStaffSubmissionIndex, notifySubmissionInbox, submissionPath} from './student-submission-storage.mjs';
 
 import {staffSubmission} from './student-submission-access.mjs';
+import {verifiedQuestionSourcePath} from './source-fidelity.mjs';
 
 export const chunkBytes = 400_000;
 const maxResultBytes = 22_000_000;
@@ -145,14 +146,17 @@ export async function approveSubmission(checker, actorUid, id, body, {batch=fals
     }else{
       if(!current.question?.pages?.length||!shaPattern.test(current.questionFingerprint||''))
         checker.fail(409,'question_scan_unavailable','The approved submission needs its complete question scan.');
-      const referenceId='ext-auto-'+digest(uid,id,current.revision,current.questionFingerprint).slice(0,48);
+      const sourceFingerprint=current.questionFingerprint;
+      const sourceEvidence=await tx.get(verifiedQuestionSourcePath(uid,sourceFingerprint));
+      const referenceId='ext-auto-'+digest(uid,id,current.revision,sourceFingerprint).slice(0,48);
       const referencePath=checker.references.path(uid,referenceId);
       const pageCount=current.question.pageCount;
       const entry={
         id:referenceId,ownerUid:uid,title:current.title,uploadTitle:current.title,state:'queued',
         createdAt:now,updatedAt:now,version:0,questionPages:pageCount,pageCount,
         uploaded:current.question.pages,queueId:digest(uid,'auto-reference',referenceId),
-        submissionUploadId:id,submissionUploadKind:'question',approvalRevision:current.revision,automatic:true
+        submissionUploadId:id,submissionUploadKind:'question',approvalRevision:current.revision,automatic:true,
+        sourceFingerprint,...(sourceEvidence?{sourceEvidence}:{})
       };
       tx.create(referencePath,entry);
       createQueueEntry(tx,uid,referencePath,referenceId,entry,now,'auto-reference');

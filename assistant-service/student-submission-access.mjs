@@ -2,7 +2,7 @@ import {randomBytes} from 'node:crypto';
 import {HttpError} from './service.mjs';
 import {digest} from './checking-storage.mjs';
 import {
-  centralIntakeLabel, centralIntakeSource, inviteId, ownerInvites, submissionAccessPath, submissionInvitePath, submissionSettingsPath,
+  centralIntakeLabel, centralIntakeSource, hasSubmissionOwner, inviteId, staffSubmissionStates, ownerInvites, submissionAccessPath, submissionInvitePath, submissionSettingsPath,
   submissionTestOwnerPath, submissionTestPath
 } from './student-submission-storage.mjs';
 
@@ -22,6 +22,28 @@ export function authenticatedStudent(checker, claims) {
     fail(401, 'student_sign_in_required', 'Sign in to GTOP to submit an answer sheet.');
   }
   return checker.id(claims.uid);
+}
+
+export async function assertStaffSubmissionActor(checker, actorUid, reader=checker.store) {
+  const [profile, pilot] = await Promise.all([reader.get('users/' + actorUid),reader.get('assistantConfig/pilot')]);
+  const allowed = pilot?.allowedOwnerUids;
+  if (profile?.role !== 'admin' || !Array.isArray(allowed) || !allowed.includes(actorUid)) {
+    checker.fail(403, 'pilot_access_required', 'Your submission access has changed.');
+  }
+  return allowed;
+}
+
+export async function staffSubmission(checker, reader, actorUid, path, {queueing=false, write=true}={}) {
+  const [record, allowed, policy] = await Promise.all([
+    reader.get(path), assertStaffSubmissionActor(checker, actorUid, reader), write ? reader.get(submissionSettingsPath) : null
+  ]);
+  if (policy?.enabled === false) checker.fail(403, 'pilot_access_required', 'Your submission access has changed.');
+  if (!hasSubmissionOwner(record) || !staffSubmissionStates.includes(record.status)) checker.notFound();
+  if (queueing && record.ownerUid !== actorUid &&
+      (!allowed.includes(record.ownerUid) || (await reader.get('users/' + record.ownerUid))?.role !== 'admin')) {
+    checker.fail(409, 'checking_owner_unavailable', 'The original checking inbox is unavailable for queueing this submission.');
+  }
+  return record;
 }
 
 async function activeOwner(reader, ownerUid) {

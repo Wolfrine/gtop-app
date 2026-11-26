@@ -119,7 +119,7 @@ jobs:
       - name: Read aggregate Firestore usage with existing permissions
         continue-on-error: true
         run: node assistant-service/scripts/inspect-usage.mjs
-      - name: Check live rule drift and deploy only worker identity restrictions
+      - name: Check live rule drift and deploy scoped assistant access rules
         run: node assistant-service/scripts/deploy-rules.mjs
       - name: Synchronize the private student directory using existing permissions
         if: needs.verify.outputs.directory_required == 'true'

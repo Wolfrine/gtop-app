@@ -6,7 +6,7 @@ import {ExternalReference} from './external-reference.mjs';
 import {currentSheetGrade,day,digest,matchesStudentLabel,maxActive,maxDrafts,orderedKey,packets,pagePath,queue,queueField,quota,sheets,sheetFields,sheetSummary} from './checking-storage.mjs';
 import {gradingRubric,validateGrades,summarizeGrades} from './domain/checking.mjs';
 import {maxCheckingPages,checkingLeaseMs} from './domain/checking-limits.mjs';
-import {submissionPagePath} from './student-submission-storage.mjs';
+import {notifySubmissionInbox,submissionPagePath} from './student-submission-storage.mjs';
 
 import {autoReference,automaticJob,automaticReportPdf,completeAutomatic,finishAutomatic} from './automatic-checking.mjs';
 
@@ -260,6 +260,7 @@ export class PaperChecking {
         tx.set(quota(uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
       }
       tx.set(path,{...sheet,state:'review',grade,gradeRevision:sheet.gradingRevision??1,lease:null,leaseUntil:null,error:null,updatedAt:this.now(),version:sheet.version+1});
+      if(sheet.submissionUploadId)notifySubmissionInbox(tx,this.now());
       this.service.notifyContent(tx,uid);
       return {ok:true};
     });
@@ -278,6 +279,7 @@ export class PaperChecking {
       const saved={...sheet,grade,gradeRevision:sheet.gradingRevision??1,state,version:sheet.version+1,updatedAt:now,reviewedAt:now,
         finalizedAt:state==='final'?now:null};
       tx.set(path,saved);
+      if(sheet.submissionUploadId)notifySubmissionInbox(tx,now);
       this.service.notifyContent(tx,uid);
       return {grade,state,version:saved.version,finalizedAt:saved.finalizedAt};
     });
@@ -300,7 +302,7 @@ export class PaperChecking {
         const docs=await Promise.all(group.map(e=>tx.get(collection+'/'+e.id)));
         const paperIds=[...new Set(docs.filter(sheet=>sheet?.state==='review').map(sheet=>sheet.gradingPaperId??paperId))];
         const rubrics=new Map(await Promise.all(paperIds.map(async id=>[id,await this.rubric(id,uid,tx)])));
-        let saved=false;
+        let saved=false,linkedSubmission=false;
         const now=this.now();
         const statuses=group.map(({id,version},n)=>{
           const sheet=docs[n];
@@ -314,9 +316,11 @@ export class PaperChecking {
           tx.set(collection+'/'+id,{...sheet,grade,state:'final',version:version+1,
             updatedAt:now,reviewedAt:now,finalizedAt:now});
           saved=true;
+          if(sheet.submissionUploadId)linkedSubmission=true;
           return {id,status:'finalized'};
         });
         if(saved)this.service.notifyContent(tx,uid);
+        if(linkedSubmission)notifySubmissionInbox(tx,now);
         return statuses;
       });
       for(const result of results){out[result.status]++;out.results.push(result);}
@@ -516,6 +520,7 @@ export class PaperChecking {
       tx.set(queue(row.id),{...row,...(auto?{rubricDigest:rubric?digest(rubric):null}:{}),[queueField(row.kind)]:null,runningKey:orderedKey(row.uid,leaseUntil,row.id),state:'running',workerId,lease,leaseUntil,engine});
       tx.set(row.path,{...sheet,state:'running',version:sheet.version+1,lease,leaseUntil,updatedAt:now});
       tx.set(lastOwnerPath(workerId),{lastOwnerUid:row.uid});
+      if(sheet.submissionUploadId&&!autoReference(row.kind))notifySubmissionInbox(tx,now);
       this.service.notifyContent(tx,row.uid);
       return {job:{id:row.id,lease,leaseUntil,pageCount:sheet.pageCount,...(special?{kind:reference?'external-exam':row.kind}:{}),...(auto?{automatic:true}:{}),...detail}};
     });
@@ -535,6 +540,7 @@ export class PaperChecking {
         tx.set(path,{...current,state:'queued',recoveryCount:1,lease:null,leaseUntil:null,runningKey:null,
           [queueField(current.kind)]:orderedKey(row.uid,row.queuedAt,row.id)});
         tx.update(row.path,{state:'queued',lease:null,leaseUntil:null,version:live.version+1,updatedAt:now});
+        if(live.submissionUploadId&&!autoReference(row.kind))notifySubmissionInbox(tx,now);
         this.service.notifyDispatch(tx,row.uid);
       });
     }
@@ -563,7 +569,9 @@ export class PaperChecking {
         tx.set(row.path+'/grading/original',{grade:modelGrade,gradingRevision:visiblePatch.gradeRevision,
           gradingPaperId:row.paperId,engine:patch.engine,createdAt:this.now()});
       }
-      tx.set(row.path,{...sheet,...visiblePatch,lease:null,leaseUntil:null,updatedAt:this.now(),version:sheet.version+1});
+      const now=this.now();
+      tx.set(row.path,{...sheet,...visiblePatch,lease:null,leaseUntil:null,updatedAt:now,version:sheet.version+1});
+      if(sheet.submissionUploadId&&!automaticJob(row.kind))notifySubmissionInbox(tx,now);
       if(action.transferred)this.service.notifyDispatch(tx,row.uid);
       else{
         tx.set(quota(row.uid),{...usage,active:Math.max(0,(usage.active||0)-1)});

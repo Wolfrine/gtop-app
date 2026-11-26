@@ -2,9 +2,9 @@ import {HttpError} from './service.mjs';
 import {day, digest} from './checking-storage.mjs';
 import {maxCheckingPages} from './domain/checking-limits.mjs';
 import {maxExternalPages} from './domain/external-reference.mjs';
-import {assertEnrollment, assertSubmissionsEnabled, getSubmissionTest, personalSubmissionAccess, submissionsEnabled} from './student-submission-access.mjs';
+import {assertEnrollment, assertSubmissionsEnabled, getSubmissionTest, personalSubmissionAccess, staffSubmission, submissionsEnabled} from './student-submission-access.mjs';
 import {
-  centralIntakeSource, moveStaffSubmissionIndex, ownerSubmissions, staffSubmissionStatePath, staffSubmissionStates, studentSubmissions,
+  centralIntakeSource, hasSubmissionOwner, moveStaffSubmissionIndex, ownerSubmissions, staffSubmissionStates, studentSubmissions,
   submissionCollection,
   submissionIntakeLimitPath, submissionLimitPath, submissionPagePath, submissionPath, submissionSummary
 } from './student-submission-storage.mjs';
@@ -20,7 +20,7 @@ const progressStub = () => ({});
 
 export async function authorizedSubmission(checker, uid, id, staff, reader = checker.store) {
   const row = await reader.get(submissionPath(checker.id(id)));
-  if (!row || (staff ? row.ownerUid !== uid || row.status === 'draft' : row.studentUid !== uid)) unavailable();
+  if (!row || (staff ? !hasSubmissionOwner(row) || !staffSubmissionStates.includes(row.status) : row.studentUid !== uid)) unavailable();
   return row;
 }
 
@@ -40,9 +40,15 @@ function creditState(usage, now) {
   return usage?.day === day(now) ? usage : {day: day(now), drafts: 0, pages: 0};
 }
 
-async function renderRow(checker, row, staff, detail = false, progress = progressStub, reads) {
-  return submissionSummary(row, staff, detail, await progress(checker, row, reads));
+async function renderRow(checker, row, staff, detail = false, progress = progressStub, reads, actorUid) {
+  return submissionSummary(row, staff, detail, await progress(checker, row, reads), actorUid);
 }
+
+const submissionFields = [
+  'id','title','subject','ownerUid','studentUid','studentLabel','paperId','testCode','questionFingerprint','staffPaperId',
+  'status','version','revision','rescan','answer','question','createdAt','updatedAt','submittedAt','referenceId',
+  'sheetId','requiresPaperReview','paperTitle','releasedAt','publishedSheetVersion','intake','automatic','teacherUpload','result.outcome','result.message'
+];
 
 export async function submissionList(checker, uid, cursor, staff, progress, status = null, preview = false) {
   const access = staff || preview ? null : await personalSubmissionAccess(checker, uid);
@@ -50,17 +56,21 @@ export async function submissionList(checker, uid, cursor, staff, progress, stat
   if (status && (!staff || !staffSubmissionStates.includes(status))) {
     fail(400, 'invalid_submission_status', 'Choose a valid submissions filter.');
   }
-  const collection = status ? staffSubmissionStatePath(uid, status) : staff ? ownerSubmissions(uid) : studentSubmissions(uid);
-  const pointers = await checker.store.list(collection, [], preview ? size : size + 1, {
-    orderBy: ['createdAt','desc'], orderById: true, cursorValues: checker.readCursor(cursor), includeId: true
-  });
-  const page = pointers.slice(0, size);
-  const rows = await checker.store.getSelected(page.map(row => submissionPath(row.id)), [
-    'id','title','subject','ownerUid','studentUid','studentLabel','paperId','testCode','questionFingerprint','staffPaperId',
-    'status','version','revision','rescan','answer','question','createdAt','updatedAt','submittedAt','referenceId',
-    'sheetId','requiresPaperReview','paperTitle','releasedAt','publishedSheetVersion','intake','automatic','teacherUpload','result.outcome','result.message'
-  ]);
-  const visible = rows.filter(row => row && (staff ? row.ownerUid === uid && row.status !== 'draft' &&
+  const scope = 'shared-v1.' + (status || 'all') + '.';
+  if (staff && cursor && !cursor.startsWith(scope)) {
+    fail(400, 'inbox_cursor_changed', 'Refresh the submissions list before loading older work.');
+  }
+  const cursorValues = checker.readCursor(staff && cursor ? cursor.slice(scope.length) : cursor);
+  const query = {orderBy: ['createdAt','desc'], orderById: true, cursorValues, includeId: true};
+  // Staff uses the canonical status/createdAt index. Student queries retain their self-only pointer collection.
+  const candidates = staff
+    ? await checker.store.list(submissionCollection,
+      [status ? ['status','==',status] : ['status','in',staffSubmissionStates]], size + 1,
+      {...query, select: submissionFields})
+    : await checker.store.list(studentSubmissions(uid), [], preview ? size : size + 1, query);
+  const page = candidates.slice(0, size);
+  const rows = staff ? page : await checker.store.getSelected(page.map(row => submissionPath(row.id)), submissionFields);
+  const visible = rows.filter(row => row && (staff ? hasSubmissionOwner(row) && staffSubmissionStates.includes(row.status) &&
     (!status || row.status === status) : row.studentUid === uid));
   const last = page.at(-1);
   const reads = new Map();
@@ -70,8 +80,10 @@ export async function submissionList(checker, uid, cursor, staff, progress, stat
       checkingAvailable: access.checkingAvailable, sharedTestsAvailable: access.sharedTestsAvailable,
       checkingNeedsProfile: access.checkingNeedsProfile, checkingDestination: access.checkingDestination
     } : {}),
-    submissions: await Promise.all(visible.map(row => renderRow(checker, row, staff, false, preview ? progressStub : progress, reads))),
-    nextCursor: pointers.length > size ? Buffer.from(JSON.stringify([last.createdAt,last.id])).toString('base64url') : null
+    submissions: await Promise.all(visible.map(row => renderRow(checker, row, staff, false, preview ? progressStub : progress, reads, uid))),
+    nextCursor: candidates.length > size
+      ? (staff ? scope : '') + Buffer.from(JSON.stringify([last.createdAt,last.id])).toString('base64url')
+      : null
   };
 }
 
@@ -96,7 +108,7 @@ export async function releasedSubmissionScores(checker, uid, cursor) {
 
 export async function submissionDetail(checker, uid, id, staff, progress) {
   const row = await authorizedSubmission(checker, uid, id, staff);
-  const submission = await renderRow(checker, row, staff, true, progress);
+  const submission = await renderRow(checker, row, staff, true, progress, undefined, uid);
   if (!staff && row.submittedAt && ['draft', 'needs_rescan'].includes(row.status)) {
     const access = await personalSubmissionAccess(checker, uid, checker.store, row);
     submission.mayResend = access.participant.ownerUid === row.ownerUid && (!row.testCode || access.sharedTestsAvailable);
@@ -296,13 +308,12 @@ export async function reviseStudentSubmission(checker, uid, id, body) {
   return {submission: await renderRow(checker, submission, false, true)};
 }
 
-export async function requestSubmissionRescan(checker, uid, id, body, progress) {
+export async function requestSubmissionRescan(checker, actorUid, id, body, progress) {
   const submission = await checker.store.transaction(async tx => {
-    const row = await authorizedSubmission(checker, uid, id, true, tx);
+    const row = await staffSubmission(checker, tx, actorUid, submissionPath(checker.id(id)));
     if (row.status !== 'submitted' || row.version !== body.version) changed();
     const kind = body.kind;
-    const addingQuestion = kind === 'question' && !row.question && !row.testCode && row.status === 'draft' && page == null;
-    if (!Object.hasOwn(limits, kind) || (!row[kind] && !addingQuestion)) {
+    if (!Object.hasOwn(limits, kind) || !row[kind]) {
       fail(400, 'invalid_replacement', 'Choose the document to replace.');
     }
     const page = body.page ?? null;
@@ -310,12 +321,12 @@ export async function requestSubmissionRescan(checker, uid, id, body, progress) 
       fail(400, 'invalid_page', 'Choose a page from the selected document.');
     }
     const reason = checker.text(body.reason ?? '', 600, true);
-    const next = {...row, status: 'needs_rescan', rescan: {kind, page, reason}, version: row.version + 1,
+    const next = {...row, status: 'needs_rescan', rescan: {kind, page, reason}, rescanRequestedByUid: actorUid, version: row.version + 1,
       updatedAt: checker.now()};
     tx.set(submissionPath(id), next);
     moveStaffSubmissionIndex(tx, row, next.status, next.updatedAt);
-    checker.service.notifyContent(tx, uid);
+    checker.service.notifyContent(tx, row.ownerUid);
     return next;
   });
-  return {submission: await renderRow(checker, submission, true, true, progress)};
+  return {submission: await renderRow(checker, submission, true, true, progress, undefined, actorUid)};
 }

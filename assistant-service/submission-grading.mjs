@@ -2,25 +2,15 @@ import {gradingRubric} from './domain/checking.mjs';
 import {createHash, randomUUID} from 'node:crypto';
 import {currentSheetGrade, digest, maxActive, orderedKey, queue, queueField, quota, sheets} from './checking-storage.mjs';
 import {indexStudent} from './checking-student.mjs';
-import {confirmedPaperPath, moveStaffSubmissionIndex, submissionPath} from './student-submission-storage.mjs';
+import {confirmedPaperPath, moveStaffSubmissionIndex, notifySubmissionInbox, submissionPath} from './student-submission-storage.mjs';
+
+import {staffSubmission} from './student-submission-access.mjs';
 
 export const chunkBytes = 400_000;
 const maxResultBytes = 22_000_000;
 const shaPattern = /^[a-f0-9]{64}$/;
 const stagePath = (path, sheetVersion) => path + '/resultFiles/' + sheetVersion;
 const chunkPath = (stage, index) => stage + '/chunks/' + index;
-
-export async function staffSubmission(checker, tx, uid, path) {
-  const [record, profile, pilot, policy] = await Promise.all([
-    tx.get(path), tx.get('users/' + uid), tx.get('assistantConfig/pilot'),
-    tx.get('assistantConfig/studentSubmissions')
-  ]);
-  if (profile?.role !== 'admin' || !pilot?.allowedOwnerUids?.includes(uid) || policy?.enabled === false) {
-    checker.fail(403, 'pilot_access_required', 'Your submission access has changed.');
-  }
-  if (record?.ownerUid !== uid || record.status === 'draft') checker.notFound();
-  return record;
-}
 
 function submittedRevision(checker, record, expectedVersion) {
   if (record.status !== 'submitted' || record.version !== expectedVersion) {
@@ -50,10 +40,11 @@ async function confirmedPaper(store, submission) {
 const referenceKey = submission => 'ext-sub-' +
   digest(submission.ownerUid, submission.questionFingerprint).slice(0, 52);
 
-export async function prepareSubmissionReference(checker, uid, id, {version}) {
+export async function prepareSubmissionReference(checker, actorUid, id, {version}) {
   const path = submissionPath(checker.id(id));
   return checker.store.transaction(async tx => {
-    const current = await staffSubmission(checker, tx, uid, path);
+    const current = await staffSubmission(checker, tx, actorUid, path, {queueing:true});
+    const uid = current.ownerUid;
     if (current.referenceId && current.status === 'submitted' && current.referenceRevision === current.revision &&
         await tx.get(checker.references.path(uid, current.referenceId))) {
       return {referenceId: current.referenceId};
@@ -84,7 +75,9 @@ export async function prepareSubmissionReference(checker, uid, id, {version}) {
     } else {
       checker.service.notifyContent(tx, uid);
     }
-    tx.update(path, {referenceId, referenceRevision: current.revision, updatedAt: now, version: current.version + 1});
+    tx.update(path, {referenceId, referenceRevision: current.revision, referencePreparedByUid: actorUid,
+      updatedAt: now, version: current.version + 1});
+    notifySubmissionInbox(tx, now);
     return {referenceId};
   });
 }
@@ -107,10 +100,11 @@ export function queueSubmissionSheet(checker, tx, current, paperId, rubric, now)
   return {paperId,paperTitle:rubric?.title||current.title,sheetId};
 }
 
-export async function approveSubmission(checker, uid, id, body) {
+export async function approveSubmission(checker, actorUid, id, body, {batch=false}={}) {
   const path = submissionPath(checker.id(id));
   return checker.store.transaction(async tx => {
-    const current = await staffSubmission(checker, tx, uid, path);
+    const current = await staffSubmission(checker, tx, actorUid, path, {queueing:true});
+    const uid = current.ownerUid;
     if (['checking','released'].includes(current.status) && current.approvedAt) {
       if (body.paperId && current.paperId !== body.paperId)
         checker.fail(409,'submission_changed','This submission was approved against another paper.');
@@ -126,17 +120,22 @@ export async function approveSubmission(checker, uid, id, body) {
     ensureQueueSpace(checker,usage);
     if(!current.paperId&&body.paperId&&(body.confirmReference!==true||matchedPaperId&&body.paperId!==matchedPaperId))
       checker.fail(409,'paper_confirmation_required','Use the confirmed question paper for this version.');
-    let paperId=current.paperId||body.paperId||matchedPaperId;
-    if(!paperId&&current.referenceId&&current.referenceRevision===current.revision){
+    let linkedPaperId=current.paperId||matchedPaperId;
+    if(!linkedPaperId&&current.referenceId&&current.referenceRevision===current.revision){
       const reference=await tx.get(checker.references.path(uid,current.referenceId));
-      if(reference?.state==='ready'&&reference.reviewedAt)paperId=current.referenceId;
+      if(reference?.state==='ready'&&reference.reviewedAt)linkedPaperId=current.referenceId;
     }
+    if((batch||actorUid!==uid&&body.paperId) && (!linkedPaperId||body.paperId!==linkedPaperId)){
+      checker.fail(409,'paper_confirmation_required','Batch or shared approval requires the paper already linked to this submission.');
+    }
+    const paperId=body.paperId||linkedPaperId;
     const now=checker.now();
     let next;
     if(paperId){
       const source=await checker.sourcePaper(tx,paperId,uid);
       if(body.paperId&&!current.paperId&&body.paperId!==matchedPaperId&&!source)checker.notFound();
       const rubric=gradingRubric(source);
+      if(batch&&!rubric)checker.fail(409,'paper_confirmation_required','The linked paper has no usable marking reference.');
       next=queueSubmissionSheet(checker,tx,current,paperId,rubric,now);
       if(body.paperId&&!current.paperId&&!matchedPaperId&&current.questionFingerprint)
         tx.create(confirmedPaperPath(uid,current.questionFingerprint),{paperId,confirmedAt:now});
@@ -156,7 +155,7 @@ export async function approveSubmission(checker, uid, id, body) {
       createQueueEntry(tx,uid,referencePath,referenceId,entry,now,'auto-reference');
       next={paperId:null,sheetId:null,referenceId,referenceRevision:current.revision};
     }
-    tx.update(path,{...next,status:'checking',approvedAt:now,approvalRevision:current.revision,automatic:true,
+    tx.update(path,{...next,status:'checking',approvedAt:now,approvedByUid:actorUid,approvalRevision:current.revision,automatic:true,
       updatedAt:now,version:current.version+1});
     tx.set(quota(uid),{...usage,active:(usage?.active||0)+1});
     moveStaffSubmissionIndex(tx,current,'checking',now);
@@ -239,7 +238,7 @@ function approvedSheet(checker, record, sheet, {version, sheetVersion}) {
   return grade;
 }
 
-export async function stageSubmissionResult(checker, uid, id, index, body) {
+export async function stageSubmissionResult(checker, actorUid, id, index, body) {
   const path = submissionPath(checker.id(id));
   const stage = resultShape(checker, body);
   if (!Number.isSafeInteger(index) || index < 0 || index >= stage.chunks ||
@@ -254,14 +253,14 @@ export async function stageSubmissionResult(checker, uid, id, index, body) {
   const staged = stagePath(path, stage.sheetVersion);
   const part = chunkPath(staged, index);
   return checker.store.transaction(async tx => {
-    const record = await staffSubmission(checker, tx, uid, path);
+    const record = await staffSubmission(checker, tx, actorUid, path);
     if (record.result?.sheetVersion === stage.sheetVersion) {
       if (record.result.sha === stage.sha) return {ok: true};
       checker.fail(409, 'result_released', 'This approved revision is already released.');
     }
     if (!record.sheetId || !record.paperId) checker.notFound();
     const [sheet, previous, savedChunk] = await Promise.all([
-      tx.get(sheets(uid, record.paperId) + '/' + record.sheetId), tx.get(staged), tx.get(part)
+      tx.get(sheets(record.ownerUid, record.paperId) + '/' + record.sheetId), tx.get(staged), tx.get(part)
     ]);
     approvedSheet(checker, record, sheet, body);
     const sameStage = previous?.sha === stage.sha && previous.size === stage.size;
@@ -306,40 +305,41 @@ export async function readResultBytes(checker, path, stage, download) {
   return result;
 }
 
-export async function releaseSubmission(checker, uid, id, body) {
+export async function releaseSubmission(checker, actorUid, id, body) {
   const path = submissionPath(checker.id(id));
   const stage = resultShape(checker, body);
   const staged = stagePath(path, stage.sheetVersion);
   const [current, prepared] = await Promise.all([
-    staffSubmission(checker, checker.store, uid, path), checker.store.get(staged)
+    staffSubmission(checker, checker.store, actorUid, path), checker.store.get(staged)
   ]);
   if (current.result?.sheetVersion === stage.sheetVersion && current.result.sha === stage.sha) return {ok: true};
   if (!current.sheetId || !current.paperId) checker.notFound();
-  approvedSheet(checker, current, await checker.store.get(sheets(uid, current.paperId) + '/' + current.sheetId), body);
+  approvedSheet(checker, current, await checker.store.get(sheets(current.ownerUid, current.paperId) + '/' + current.sheetId), body);
   if (prepared?.sha !== stage.sha || prepared.size !== stage.size) {
     checker.fail(409, 'upload_changed', 'Upload the latest approved marked PDF again before release.');
   }
   await readResultBytes(checker, staged, prepared, false);
   return checker.store.transaction(async tx => {
-    const record = await staffSubmission(checker, tx, uid, path);
+    const record = await staffSubmission(checker, tx, actorUid, path);
     if (record.result?.sheetVersion === stage.sheetVersion && record.result.sha === stage.sha) return {ok: true};
     if (!record.sheetId || !record.paperId) checker.notFound();
     const [sheet, saved] = await Promise.all([
-      tx.get(sheets(uid, record.paperId) + '/' + record.sheetId), tx.get(staged)
+      tx.get(sheets(record.ownerUid, record.paperId) + '/' + record.sheetId), tx.get(staged)
     ]);
     const grade = approvedSheet(checker, record, sheet, body);
     if (saved?.generation !== prepared.generation) {
       checker.fail(409, 'upload_changed', 'Upload the latest approved marked PDF again before release.');
     }
-    const {title: paperTitle} = await checker.rubric(sheet.gradingPaperId || record.paperId, uid, tx);
+    const {title: paperTitle} = await checker.rubric(sheet.gradingPaperId || record.paperId, record.ownerUid, tx);
     const now = checker.now();
     const feedback = grade.answers.map(({number, status, awarded, max, explanation, counted}) =>
       ({number, status, awarded, max, explanation, counted: counted !== false}));
     tx.update(path, {status: 'released', paperTitle, publishedSheetVersion: stage.sheetVersion,
-      releasedAt: now, updatedAt: now, version: record.version + 1,
+      releasedAt: now, releasedByUid: actorUid, updatedAt: now, version: record.version + 1,
       result: {...stage, generation: prepared.generation, awarded: grade.awarded, max: grade.max, answers: feedback}});
     if (record.status !== 'released') moveStaffSubmissionIndex(tx, record, 'released', now);
-    checker.service.notifyContent(tx, uid);
+    else notifySubmissionInbox(tx, now);
+    checker.service.notifyContent(tx, record.ownerUid);
     return {ok: true};
   });
 }
@@ -365,9 +365,26 @@ export async function studentResultPdf(checker, studentUid, id) {
   return readResultBytes(checker, stagePath(record.result.checkingPath??submissionPath(id), record.result.fileKey??record.result.sheetVersion), record.result, true);
 }
 
-export async function staffResultPdf(checker,uid,id){
-  const record=await staffSubmission(checker,checker.store,uid,submissionPath(checker.id(id)));
+export async function staffResultPdf(checker,actorUid,id){
+  const record=await staffSubmission(checker,checker.store,actorUid,submissionPath(checker.id(id)),{write:false});
   if(record.status!=='released'||!record.result)checker.notFound();
   return readResultBytes(checker,stagePath(record.result.checkingPath??submissionPath(id),
     record.result.fileKey??record.result.sheetVersion),record.result,true);
+}
+
+export async function legacySubmissionSource(checker, actorUid, id, page) {
+  const record = await staffSubmission(checker, checker.store, actorUid, submissionPath(checker.id(id)), {write:false});
+  if (!record.sheetId || !record.paperId) checker.notFound();
+  const source = sheets(record.ownerUid, record.paperId) + '/' + record.sheetId;
+  const sheet = await checker.store.get(source);
+  const grade = approvedSheet(checker, record, sheet, {version:record.version, sheetVersion:sheet?.version});
+  if (page !== undefined) return checker.page(source, sheet, page);
+  const {title, marks} = await checker.rubric(sheet.gradingPaperId || record.paperId, record.ownerUid);
+  const {id:sheetId, version, state, pageCount, label, studentUid, studentLabel, labelFromStudent, singleStudentBook} = sheet;
+  return {
+    rubric:{title, marks},
+    sheet:{id:sheetId, version, state, pageCount, label, studentUid, studentLabel,
+      labelFromStudent:!!labelFromStudent, singleStudentBook:!!singleStudentBook, grade,
+      uploaded:sheet.uploaded.map(({index, width, height})=>({index, width, height}))}
+  };
 }

@@ -874,8 +874,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
           if(this.checkingOpen){
             this.workspaceUpdatesPending=true;
             window.dispatchEvent(new Event('gtop-paper-content-updated'));
-          }else if(this.submissionsOpen)window.dispatchEvent(new Event('gtop-paper-content-updated'));
-          else this.contentQueue?.request();
+          }else if(!this.submissionsOpen)this.contentQueue?.request();
         },
         presence:health=>{if(this.current(epoch))this.receiveHealth(health);},
         state:()=>{if(this.current(epoch)){this.scheduleThreadCheck();this.scheduleService();}},

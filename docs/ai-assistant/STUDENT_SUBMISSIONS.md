@@ -24,7 +24,13 @@
 - To stop new central submissions while preserving assigned traffic, clear `checkingOwnerUid`. This keeps existing submitted items and authorized rescans with their recorded reviewer.
 - Setting `assistantConfig/studentSubmissions.enabled` to `false` pauses new drafts, uploads and sends. Own saved scans and released results remain available for reading. Existing teacher-uploaded checking uses its current workflow.
 - Submitted scans are tied to immutable page revisions. Approval fixes the student, paper and pages for the grading attempt. A checker advertising automatic-checking-v1 takes the approved attempt from the existing owner-scoped dispatch listener. Approved question preparation transfers its queue slot to answer grading in one transaction. A submitted PDF may stay queued until the worker is available.
-- Question material and answer scans stay in the existing private grading boundary. Student access is limited to their own uploads and released copies. Staff access is limited to their assigned inbox. The grading provider and limits are documented in [Checking handwritten answer sheets](../../question-papers/PAPER_CHECKING.md).
+- Question material and answer scans stay in the private grading boundary. The staff Inbox is shared by current GT Papers pilot administrators. Student access remains limited to their own uploads and released copies. Opening a submission authorizes only that row and its linked files. Generic checking and library routes keep their own permissions. Each submission keeps its original inbox, queue, dispatch, paper and reference paths. Staff actions capture the approving or releasing administrator independently of ownership. Existing released PDFs can be downloaded from the shared Inbox.
+
+## Shared inbox access budget
+
+The staff Inbox queries the canonical submission collection by status and orders by immutable creation time and document ID. The composite index covers both the combined feed and explicit status filters. Each page reads at most 26 projected rows, including one lookahead, instead of reading owner/state pointers and then hydrating up to 25 submissions. Existing page-local progress reads still share identical lookups. Student preview still reads up to three self-scoped pointers.
+
+The shared Firestore marker contains a random revision and a timestamp. It has one document listener per visible Inbox and one write for each material submission change. Private drafts, general workspace changes and worker heartbeats do not write it. Existing deployments retain the original owner and state indexes for compatibility. The canonical collection held six documents, including four staff-visible records, at commissioning.
 
 ## Release verification
 

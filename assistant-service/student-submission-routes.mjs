@@ -1,14 +1,14 @@
 import {HttpError} from './service.mjs';
 import {
-  assertEnrollment, authenticatedStudent, createSubmissionInvite, getSubmissionTest, listSubmissionInvites, personalSubmissionAccess,
+  assertEnrollment, assertStaffSubmissionActor, authenticatedStudent, createSubmissionInvite, getSubmissionTest, listSubmissionInvites, personalSubmissionAccess,
   redeemSubmissionInvite, revokeSubmissionInvite, shareSubmissionTest
 } from './student-submission-access.mjs';
 import {
-  authorizedSubmission, createStudentSubmission, readSubmissionPage, releasedSubmissionScores, requestSubmissionRescan, reviseStudentSubmission,
+  createStudentSubmission, readSubmissionPage, releasedSubmissionScores, requestSubmissionRescan, reviseStudentSubmission,
   submissionDetail, submissionList, submitStudentSubmission, uploadSubmissionPage
 } from './student-submissions.mjs';
 import {
-  approveSubmission, prepareSubmissionReference, releaseSubmission, stageSubmissionResult,
+  approveSubmission, legacySubmissionSource, prepareSubmissionReference, releaseSubmission, stageSubmissionResult,
   staffResultPdf, studentResult, studentResultPdf, submissionProgress
 } from './submission-grading.mjs';
 
@@ -16,6 +16,7 @@ const studentRoot = '/student-submissions';
 const staffRoot = '/staff/student-submissions';
 const itemRoute = /^\/([a-z0-9_-]+)(?:\/(.*))?$/i;
 const scanRoute = /^pages\/(answer|question)\/(\d+)$/;
+const legacyPageRoute = /^legacy-source\/pages\/(\d+)$/;
 const chunkRoute = /^result-chunks\/(\d+)$/;
 
 export const hasStudentSubmissionRoute = path => [studentRoot, staffRoot]
@@ -28,7 +29,7 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
   const staff = path.startsWith(staffRoot);
   const relative = path.slice((staff ? staffRoot : studentRoot).length);
   const uid = authenticatedStudent(checker, claims);
-  if (staff) await service.user(claims);
+  if (staff) await assertStaffSubmissionActor(checker, uid);
   if (relative === '' && method === 'GET') {
     if (!staff && query.get('view') === 'released-scores') {
       return releasedSubmissionScores(checker, uid, query.get('cursor'));
@@ -83,6 +84,15 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
     if (action === 'submit') return submitStudentSubmission(checker, uid, id, body);
     if (action === 'revise') return reviseStudentSubmission(checker, uid, id, body);
   }
+  if (staff && method === 'GET') {
+    if (action === 'legacy-source') return legacySubmissionSource(checker, uid, id);
+    const legacyPage = action?.match(legacyPageRoute);
+    if (legacyPage) {
+      const image = await legacySubmissionSource(checker, uid, id, Number(legacyPage[1]));
+      headers['Content-Type'] = 'image/jpeg';
+      return image;
+    }
+  }
   if (staff && method === 'GET' && action === 'report') {
     const pdf=await staffResultPdf(checker,uid,id);
     headers['Content-Type']='application/pdf';
@@ -111,15 +121,9 @@ async function approveBatch(checker, uid, {submissions, paperId}) {
     throw new HttpError(400, 'invalid_selection', 'Select up to 30 distinct submissions for the same paper.');
   }
   const results = [];
-  const reads = new Map();
   for (const {id, version} of submissions) {
     try {
-      const row = await authorizedSubmission(checker, uid, id, true);
-      const progress = await submissionProgress(checker, row, reads);
-      if (!progress.paperReady || progress.paperId !== paperId) {
-        throw new HttpError(409, 'paper_confirmation_required', 'Match this submission to the confirmed question paper first.');
-      }
-      const approved = await approveSubmission(checker, uid, id, {version, paperId, confirmReference: true});
+      const approved = await approveSubmission(checker, uid, id, {version, paperId, confirmReference: true}, {batch:true});
       results.push({id, ok: true, ...approved});
     } catch (error) {
       if (!(error instanceof HttpError)) throw error;

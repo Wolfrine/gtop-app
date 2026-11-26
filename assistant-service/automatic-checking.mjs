@@ -4,7 +4,7 @@ import {externalGradingPaper} from './domain/external-reference.mjs';
 import {assessStudentGrade,gradingRubric} from './domain/checking.mjs';
 import {digest,queue} from './checking-storage.mjs';
 import {chunkBytes,queueSubmissionSheet,readResultBytes,resultShape} from './submission-grading.mjs';
-import {moveStaffSubmissionIndex,ownerSubmissions,studentSubmissions,submissionPath} from './student-submission-storage.mjs';
+import {moveStaffSubmissionIndex,notifySubmissionInbox,ownerSubmissions,studentSubmissions,submissionPath} from './student-submission-storage.mjs';
 
 export const autoReference = kind => kind==='auto-reference'||kind==='auto-print-reference';
 export const automaticJob = kind => kind==='auto-grade'||autoReference(kind);
@@ -28,6 +28,7 @@ export async function continueApprovedReference(checker,row,sheet,patch){
     const now=checker.now();
     const next=queueSubmissionSheet(checker,tx,approval,liveSheet.id,paper,now);
     tx.update(submissionPath(approval.id),{...next,updatedAt:now,version:approval.version+1});
+    notifySubmissionInbox(tx,now);
     return {transferred:true};
   });
 }
@@ -124,7 +125,7 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
       tx.create(submissionPath(directId),direct);
       tx.create(studentSubmissions(direct.studentUid)+'/'+directId,{createdAt:now});
       tx.create(ownerSubmissions(row.uid)+'/'+directId,{createdAt:now});
-      moveStaffSubmissionIndex(tx,direct,'released',now);
+      moveStaffSubmissionIndex(tx,{id:directId,ownerUid:row.uid},'released',now);
     }
     return {};
   });

@@ -1,3 +1,4 @@
+import {notifySubmissionInbox} from './student-submission-storage.mjs';
 import {readResultBytes} from './submission-grading.mjs';
 import {createHash} from 'node:crypto';
 import {externalGradingPaper,maxExternalPages,readExternalReference} from './domain/external-reference.mjs';
@@ -136,7 +137,10 @@ export class ExternalReference {
         if(saved.state!=='ready')this.fail(409,'reference_changed','Complete the current review first.');
         tx.create(revisedPath,{...ready,id:body.revisionId,createdAt:now,version:1,sourceId:saved.sourceId||saved.id,
           revisionOf:saved.id,sourceVersion:saved.version,referenceRevision:(saved.referenceRevision??1)+1});
-      }else tx.set(path,ready);
+      }else {
+        tx.set(path,ready);
+        if(saved.submissionUploadId)notifySubmissionInbox(tx,now);
+      }
       this.checking.service.notifyContent(tx,uid);
       return {id:revisedPath?body.revisionId:saved.id};
     });

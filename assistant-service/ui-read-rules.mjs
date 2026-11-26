@@ -18,3 +18,13 @@ export const uiReadRules=`    match /assistantUiNotifications/{ownerUid} {
     }
 `;
 export const withoutUiReadRules=source=>source.replaceAll('\r\n','\n').replace(uiReadRules,'');
+
+export const submissionInboxRule=`    match /assistantInboxNotifications/submissions {
+      allow get: if isAdmin()
+        && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous'
+        && request.auth.uid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids;
+      allow list, write: if false;
+    }
+
+`;
+export const withoutSubmissionInboxRule=source=>source.replaceAll('\r\n','\n').replace(submissionInboxRule,'');

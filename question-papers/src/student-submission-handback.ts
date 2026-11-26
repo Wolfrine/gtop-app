@@ -18,16 +18,14 @@ export async function publishStudentCopy(
   api: Pick<AssistantApi, 'request' | 'checkingImage' | 'user'>,
   id: string,
   version: number,
-  paperId: string,
-  sheetId: string,
   onProgress: (message: string) => void = () => {},
 ) {
   const account = api.user?.uid;
   const checkActive = () => {
     if (!account || api.user?.uid !== account) throw Error('Your account changed. Reopen the submission.');
   };
-  const source = '/papers/' + encodeURIComponent(paperId) + '/checking/' + encodeURIComponent(sheetId);
   const target = '/staff/student-submissions/' + encodeURIComponent(id);
+  const source = target + '/legacy-source';
   checkActive();
   onProgress('Preparing the marked PDF…');
   const detail = await api.request<ReturnDetail>(source);

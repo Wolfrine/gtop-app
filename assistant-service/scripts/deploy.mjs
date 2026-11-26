@@ -7,6 +7,7 @@ function command(args,capture=false){return new Promise((resolve,reject)=>{const
 const indexArgs=['firestore','indexes','composite'];
 const indexDatabase=['--project='+project,'--database=(default)'];
 const requiredIndexes=[
+  {group:'assistantStudentSubmissions', scope:'collection', fields:[['status','ASCENDING'],['createdAt','DESCENDING']]},
   {group:'sheets', scope:'collection-group', fields:[['state','ASCENDING'],['updatedAt','DESCENDING']]},
   {group:'paperCatalogue', scope:'collection', fields:[['lookupKeys','CONTAINS'],['createdAt','DESCENDING']]},
   {group:'assistantConversations', scope:'collection', fields:[['ownerUid','ASCENDING'],['updatedAt','DESCENDING']]},

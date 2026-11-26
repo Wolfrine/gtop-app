@@ -60,7 +60,7 @@
               <button type="button" [attr.aria-pressed]="filter === label" (click)="trackFilter(label)" [disabled]="mutationBusy">{{filterLabels[label]}}</button>
             }
           </nav>
-          <button class="quiet refresh" type="button" (click)="refresh()" [disabled]="listBusy || refreshBusy || mutationBusy" aria-label="Refresh submissions" title="Refresh submissions"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" aria-hidden="true"><path d="M20 5v5h-5M4 19v-5h5M5 10a7 7 0 0 1 12-3l3 3M4 14l3 3a7 7 0 0 0 12-3"/></svg></button>
+          <button class="quiet refresh" type="button" (click)="refresh()" [disabled]="loadingInbox || listBusy || refreshBusy || mutationBusy" aria-label="Refresh submissions" title="Refresh submissions"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" aria-hidden="true"><path d="M20 5v5h-5M4 19v-5h5M5 10a7 7 0 0 1 12-3l3 3M4 14l3 3a7 7 0 0 0 12-3"/></svg></button>
         </div>
         @if (rows.length) {
           <p class="queue-count">{{rows.length}} {{rows.length === 1 ? 'submission' : 'submissions'}}{{cursor ? ' loaded' : ''}}</p>
@@ -68,8 +68,8 @@
         @if (listError) {
           <div class="notice error" role="alert">{{listError}} <button type="button" class="link" (click)="refresh()">Try again</button></div>
         }
-        @if (listBusy && !groups.length) { <p class="notice" role="status">Loading submissions…</p> }
-        @if (!listBusy && !groups.length && !listError) {
+        @if ((loadingInbox || listBusy) && !groups.length) { <p class="notice" role="status">Loading submissions…</p> }
+        @if (!loadingInbox && !listBusy && !groups.length && !listError) {
           <div class="empty">
             <h2>{{cursor ? 'No matches in the loaded submissions' : filter === 'submitted' ? 'All caught up' : filter === 'all' ? 'No submissions yet' : 'No submissions with this status'}}</h2>
             <p>{{cursor ? 'Load older submissions to see more.' : filter === 'all' || filter === 'submitted' ? 'New answer sheets from GTOP will appear here.' : 'Use All submissions to see work at other stages.'}}</p>
@@ -128,7 +128,7 @@
               <span class="status" [class.ready]="canApprove(row) || markState(row) === 'final'" [class.attention]="row.status === 'needs_rescan' || markState(row) === 'failed' || row.referenceState === 'failed'">{{status(row)}}</span>
             </div>
 
-            @if (referenceEditor) {
+            @if (referenceEditor && row.ownerWorkspace) {
               <section class="reference" aria-label="Verify the question paper">
                 <p>Confirm the questions and marks against the scan. Use the confirmed paper to return to this submission.</p>
                 <gtop-external-exam [referenceId]="referenceEditor" (closed)="closeReference()" (ready)="closeReference()" />
@@ -143,7 +143,7 @@
               }
               @if (row.message) { <p class="notice">{{row.message}}</p> }
 
-              @if (showReferences) {
+              @if (showReferences && row.ownerWorkspace) {
                 <section class="reference-picker" aria-labelledby="match-paper-title">
                   <div class="detail-head"><h3 id="match-paper-title">Match the exact question paper</h3><button type="button" class="link" (click)="closeReferencePicker()" [disabled]="mutationBusy">Cancel</button></div>
                   <p>Compare the student’s uploaded paper below with the approved version.</p>
@@ -176,15 +176,20 @@
                     <button class="primary" type="button" (click)="approve(row)" [disabled]="mutationBusy">Approve &amp; check</button>
                   }
                   <button class="quiet" type="button" (click)="startRescan()" [disabled]="mutationBusy || showRescan">Request rescan</button>
-                } @else if (row.automatic && row.status === 'released') {
-                  <button class="primary" type="button" (click)="downloadReport(row)" [disabled]="mutationBusy">Download checking report</button>
-                } @else if (!row.automatic && row.paperId && row.sheetId) {
-                  @if ((row.status === 'checking' && markState(row) === 'final') || row.updatedCopyReady) {
-                    <button class="primary" type="button" (click)="release(row)" [disabled]="mutationBusy">{{row.updatedCopyReady ? 'Release updated copy' : 'Release to student'}}</button>
+                } @else {
+                  @if (row.status === 'released') {
+                    <button class="primary" type="button" (click)="downloadReport(row)" [disabled]="mutationBusy">Download checking report</button>
                   }
-                  <button [class]="row.status === 'checking' && markState(row) === 'review' ? 'primary' : 'quiet'" type="button" (click)="openSheet(row)" [disabled]="mutationBusy">
-                    {{markState(row) === 'review' ? 'Review marks' : 'Open marked sheet'}}
-                  </button>
+                  @if (!row.automatic && row.paperId && row.sheetId) {
+                    @if ((row.status === 'checking' && markState(row) === 'final') || row.updatedCopyReady) {
+                      <button [class]="row.status === 'released' ? 'quiet' : 'primary'" type="button" (click)="release(row)"
+                        [disabled]="mutationBusy">{{row.updatedCopyReady ? 'Release updated copy' : 'Release to student'}}</button>
+                    }
+                    @if (row.ownerWorkspace && row.status !== 'released') {
+                      <button [class]="row.status === 'checking' && markState(row) === 'review' ? 'primary' : 'quiet'" type="button"
+                        (click)="openSheet(row)" [disabled]="mutationBusy">{{markState(row) === 'review' ? 'Review marks' : 'Open marked sheet'}}</button>
+                    }
+                  }
                 }
                 @if (mutationBusy) { <span role="status">{{mutationProgress || 'Saving…'}}</span> }
               </div>

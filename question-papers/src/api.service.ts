@@ -56,7 +56,7 @@ export class AssistantApi implements Transport {
   observeUser(observer:(user:User|null)=>void){this.observers.add(observer);observer(this.user);return ()=>this.observers.delete(observer);}
   watchMarker(path:string,next:(snapshot:MarkerSnapshot)=>void,error:(error:unknown)=>void):()=>void {
     if(!this.database||!this.firestore||!this.user)throw Error('Notification connection unavailable');
-    if(path!==`assistantUiNotifications/${this.user.uid}`&&path!=='assistantWorkerHealth/sachit-windows')throw Error('Invalid notification path');
+    if(path!==`assistantUiNotifications/${this.user.uid}`&&path!=='assistantWorkerHealth/sachit-windows'&&path!=='assistantInboxNotifications/submissions')throw Error('Invalid notification path');
     const epoch=this.authEpoch;
     return this.firestore.onSnapshot(this.firestore.doc(this.database,path),{includeMetadataChanges:true},snapshot=>{if(epoch===this.authEpoch)next({fromCache:snapshot.metadata.fromCache,data:snapshot.exists()?snapshot.data():null});},reason=>{if(epoch===this.authEpoch)error(reason);});
   }

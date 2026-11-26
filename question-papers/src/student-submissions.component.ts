@@ -4,6 +4,7 @@ import {
   OnInit, SimpleChanges, ViewChild, inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { OwnerEvents } from './owner-events';
 import { AssistantApi } from './api.service';
 import { ExternalExamComponent } from './external-exam.component';
 import { useEmulators } from './firebase-environment';
@@ -31,6 +32,8 @@ interface Submission {
   id: string;
   automatic?: boolean;
   teacherUpload?: boolean;
+  ownerWorkspace?: boolean;
+  paperScope?: string;
   outcome?: 'complete' | 'partial' | 'unassessable' | null;
   message?: string | null;
   version: number;
@@ -89,6 +92,8 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   private requestedId = '';
   private scanSequence = 0;
   private refreshPending = false;
+  private inboxEvents?: OwnerEvents;
+  private inboxStartup?: ReturnType<typeof setTimeout>;
   private selectedApprovals = new Map<string, number>();
   readonly filters = Object.keys(filterLabels) as Filter[];
   readonly filterLabels = filterLabels;
@@ -99,6 +104,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   rows: Submission[] = [];
   selected?: Submission;
   listBusy = false;
+  loadingInbox = true;
   refreshBusy = false;
   detailBusy = false;
   mutationBusy = false;
@@ -132,7 +138,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   invitationError = '';
   invitationBusy = false;
 
-  ngOnInit() { void this.loadList(); }
+  ngOnInit() { this.startInboxEvents(); }
   ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedId'] && this.selectedId !== this.requestedId) {
       if (this.selectedId) void this.loadDetail(this.selectedId);
@@ -141,16 +147,54 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   }
   ngOnDestroy() {
     this.closed = true;
+    this.stopInboxEvents();
     this.clearScan();
   }
-  @HostListener('window:gtop-paper-content-updated')
-  onWorkspaceUpdate() { void this.refresh(false); }
+  @HostListener('document:visibilitychange')
+  onVisibilityChange() {
+    if (document.hidden) this.stopInboxEvents();
+    else this.startInboxEvents();
+  }
+
+  private startInboxEvents() {
+    if (this.closed || document.hidden || this.inboxEvents) return;
+    const read = () => {
+      clearTimeout(this.inboxStartup);
+      if (!this.closed && !document.hidden) void this.refresh(false);
+    };
+    const marker = 'assistantInboxNotifications/submissions';
+    this.inboxEvents = new OwnerEvents(this.api.watchMarker.bind(this.api),
+      {schemaVersion: 1, contentPath: marker, presencePath: null, freshnessMs: 90000},
+      {
+        content: (_revision, signal) => {
+          performance.mark('gt-papers:submissions:' + signal);
+          read();
+        },
+        presence: () => {},
+        state: () => {},
+        denied: () => {
+          this.showRescan = false;
+          this.referenceEditor = '';
+          read();
+        },
+      });
+    // While the stream is offline, the initial gateway read still reports its own result.
+    // A later server snapshot reconciles any change since that read.
+    this.inboxStartup = setTimeout(read, 1500);
+    this.inboxEvents.start();
+  }
+
+  private stopInboxEvents() {
+    clearTimeout(this.inboxStartup);
+    this.inboxEvents?.stop();
+    this.inboxEvents = undefined;
+  }
   private paint() { if (!this.closed) this.change.markForCheck(); }
   private message(error: unknown, fallback: string) {
     return error instanceof Error && error.message ? error.message : fallback;
   }
   private trailRefresh() {
-    if (!this.refreshPending || this.closed || this.listBusy || this.refreshBusy || this.mutationBusy ||
+    if (!this.refreshPending || this.closed || document.hidden || this.listBusy || this.detailBusy || this.refreshBusy || this.mutationBusy ||
         this.showRescan || this.referenceEditor) return;
     this.refreshPending = false;
     queueMicrotask(() => void this.refresh(false));
@@ -206,7 +250,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     for (const row of this.rows) {
       if (this.filter !== 'all' && row.status !== this.filter) continue;
       const paperId = row.paperId || (row.paperReady ? row.referenceId : undefined);
-      const key = paperId || row.questionFingerprint || row.id;
+      const key = row.paperScope || paperId || row.questionFingerprint || row.id;
       let group = byPaper.get(key);
       if (!group) {
         group = { key, title: row.paperTitle || row.title, rows: [], paperId };
@@ -229,6 +273,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   }
   private switchFeed(filter: Filter) {
     this.filter = filter;
+    clearTimeout(this.inboxStartup);
     this.listSequence++;
     this.listBusy = false;
     this.selectedApprovals.clear();
@@ -258,6 +303,29 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     this.detailBusy = false;
     this.clearScan();
   }
+  private resetAccess(error: unknown) {
+    if (![401, 403].includes((error as {status?: number})?.status ?? 0)) return false;
+    this.listSequence++;
+    this.listBusy = false;
+    this.loadingInbox = false;
+    this.refreshPending = false;
+    this.rows = [];
+    this.cursor = null;
+    this.showRescan = false;
+    this.referenceEditor = '';
+    this.closeReferencePicker();
+    this.references = [];
+    this.showInvitations = false;
+    this.invitations = [];
+    this.invitationLink = '';
+    this.selectedApprovals.clear();
+    this.selectedId = '';
+    this.onSelect('');
+    this.clearSelection();
+    this.stopInboxEvents();
+    this.paint();
+    return true;
+  }
   private updateRow(row: Submission) {
     this.rows = this.rows.map(item => item.id === row.id && row.version >= item.version ? row : item);
     if (this.filter !== 'all') this.rows = this.rows.filter(item => item.status === this.filter);
@@ -285,9 +353,23 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       }
       if (focus) requestAnimationFrame(() => this.reviewHeading?.nativeElement.focus());
     } catch (error) {
-      if (seq === this.detailSequence) this.actionError = this.message(error, 'Could not open this submission.');
+      if (seq === this.detailSequence) {
+        this.actionError = this.message(error, 'Could not open this submission.');
+        if (!this.resetAccess(error) && (error as {status?: number})?.status === 404) {
+          this.rows = this.rows.filter(row => row.id !== id);
+          this.selectedApprovals.delete(id);
+          this.selectedId = '';
+          this.onSelect('');
+          this.clearSelection();
+        }
+        this.paint();
+      }
     } finally {
-      if (seq === this.detailSequence) { this.detailBusy = false; this.paint(); }
+      if (seq === this.detailSequence) {
+        this.detailBusy = false;
+        this.paint();
+        this.trailRefresh();
+      }
     }
   }
   async loadList(older = false) {
@@ -320,19 +402,23 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       this.rows = [...next.values()].filter(row => this.filter === 'all' || row.status === this.filter);
       this.cursor = page.nextCursor;
     } catch (error) {
-      if (seq === this.listSequence) this.listError = this.message(error, 'Could not load submissions.');
+      if (seq === this.listSequence) {
+        this.listError = this.message(error, 'Could not load submissions.');
+        this.resetAccess(error);
+      }
     } finally {
       if (seq === this.listSequence) {
         this.listBusy = false;
+        this.loadingInbox = false;
         this.paint();
         this.trailRefresh();
       }
     }
   }
   async refresh(showError = true) {
-    if (this.closed) return;
+    if (this.closed || (!showError && document.hidden)) return;
     if (this.listBusy || this.refreshBusy || this.mutationBusy ||
-        (!showError && (this.showRescan || this.referenceEditor))) {
+        (!showError && (this.detailBusy || this.showRescan || this.referenceEditor))) {
       this.refreshPending = true;
       return;
     }
@@ -343,7 +429,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     if (showError) this.actionError = '';
     try {
       await this.loadList();
-      if (!this.closed && id && this.selectedId === id && this.detailSequence === detail &&
+      if (!this.closed && !document.hidden && id && this.selectedId === id && this.detailSequence === detail &&
           !this.detailBusy && !this.showRescan && !this.referenceEditor) {
         await this.loadDetail(id, false, true);
       }
@@ -374,7 +460,11 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       if (this.closed || seq !== this.scanSequence || this.selected?.id !== row.id) return;
       this.scanUrl = URL.createObjectURL(blob);
     } catch (error) {
-      if (seq === this.scanSequence) this.scanError = this.message(error, 'Could not open this page.');
+      if (seq === this.scanSequence) {
+        if (this.resetAccess(error)) this.actionError = this.message(error, 'Could not open this page.');
+        else this.scanError = this.message(error, 'Could not open this page.');
+        this.paint();
+      }
     } finally {
       if (seq === this.scanSequence) { this.scanBusy = false; this.paint(); }
     }
@@ -477,13 +567,13 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     await this.mutate(() => this.api.checkingReport(path));
   }
   openSheet(row: Submission) {
-    if (row.paperId && row.sheetId) this.onOpenSheet(row.id, row.paperId, row.sheetId);
+    if (row.ownerWorkspace && row.paperId && row.sheetId) this.onOpenSheet(row.id, row.paperId, row.sheetId);
   }
   async release(row: Submission) {
     if (!row.paperId || !row.sheetId || this.markState(row) !== 'final') return;
     await this.mutate(async () => {
       const { publishStudentCopy } = await import('./student-submission-handback');
-      await publishStudentCopy(this.api, row.id, row.version, row.paperId!, row.sheetId!, message => {
+      await publishStudentCopy(this.api, row.id, row.version, message => {
         this.mutationProgress = message;
         this.paint();
       });
@@ -496,7 +586,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     this.actionError = '';
     this.notice = '';
     try { await run(); }
-    catch (error) { this.actionError = this.message(error, 'Could not save the change. Try again.'); }
+    catch (error) { this.resetAccess(error); this.actionError = this.message(error, 'Could not save the change. Try again.'); }
     finally {
       this.mutationBusy = false;
       this.mutationProgress = '';

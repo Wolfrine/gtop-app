@@ -3,7 +3,7 @@ import {PDFDocument,StandardFonts,rgb} from 'pdf-lib';
 const width=595,height=842,margin=32;
 const black=rgb(.1,.16,.18),accent=rgb(.12,.35,.28);
 const plain=value=>String(value??'').normalize('NFKD').replace(/\p{M}/gu,'')
-  .replace(/[–—]/gu,'-').replace(/×/gu,'x').replace(/÷/gu,'/')
+  .replace(/[–—−]/gu,'-').replace(/×/gu,'x').replace(/÷/gu,'/')
   .replace(/[^\x20-\x7E\n]/gu,'?');
 
 export async function checkingReport(title,outcome,grade,message,images=[]){
@@ -24,13 +24,14 @@ export async function checkingReport(title,outcome,grade,message,images=[]){
     draw(page,'Answer page '+pageNumber,margin,height-39,12,bold);
     page.drawImage(image,{x,y,width:w,height:h});
     const marks=(grade?.answers??[]).flatMap(answer=>{
+      const priority=answer.counted===true&&answer.awarded!==null?0:1;
       const steps=answer.steps.flatMap((step,i)=>step.anchor?.page===pageNumber?
-        [{anchor:step.anchor,label:'Q'+answer.number+'.'+(i+1)+' '+(step.awarded??'?')+'/'+step.max}]:[]);
+        [{anchor:step.anchor,priority,label:'Q'+answer.number+'.'+(i+1)+' '+(step.awarded??'?')+'/'+step.max}]:[]);
       if(steps.length)return steps;
       return answer.anchors.filter(anchor=>anchor.page===pageNumber)
-        .map(anchor=>({anchor,label:'Q'+answer.number+' '+(answer.awarded??'?')+'/'+answer.max}));
-    }).sort((a,b)=>a.anchor.y-b.anchor.y);
-    const pins=marks.slice(0,60);
+        .map(anchor=>({anchor,priority,label:'Q'+answer.number+' '+(answer.awarded??'?')+'/'+answer.max}));
+    }).sort((a,b)=>a.priority-b.priority||a.anchor.y-b.anchor.y);
+    const pins=marks.slice(0,60).sort((a,b)=>a.anchor.y-b.anchor.y);
     if(pins.length<marks.length)draw(page,'See notes for additional marks.',300,height-39,9);
     const spacing=Math.min(15,740/Math.max(1,pins.length));
     for(const [i,{anchor,label}] of pins.entries()){
@@ -70,8 +71,8 @@ export async function checkingReport(title,outcome,grade,message,images=[]){
   if(outcome==='complete')paragraph('Final mark: '+grade.awarded+' / '+grade.max,12,bold);
   else {
     paragraph(outcome==='partial'?'Partial assessment | No final mark':'Unable to assess | No final mark',12,bold);
-    if(grade?.answers.some(answer=>answer.counted===true&&answer.awarded!==null))
-      paragraph('Assessed marks counted so far: '+grade.awarded+'. The paper maximum is '+grade.max+'.');
+    if(grade?.assessedMax>0)
+      paragraph('Assessed marks: '+grade.awarded+' / '+grade.assessedMax+'. Full paper maximum: '+grade.max+'.');
   }
   if(message)paragraph(message);
   y-=9;

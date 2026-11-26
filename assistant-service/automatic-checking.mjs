@@ -1,4 +1,6 @@
 import {createHash} from 'node:crypto';
+import {PDFDocument} from 'pdf-lib';
+import {assessmentRecoveryPath} from './assessment-recovery.mjs';
 import {checkingReport} from './checking-report.mjs';
 import {externalGradingPaper} from './domain/external-reference.mjs';
 import {assessStudentGrade,gradingRubric} from './domain/checking.mjs';
@@ -19,10 +21,55 @@ async function approvedSubmission(tx,row,sheet){
   return current.sheetId===sheet.id&&current.paperId===row.paperId&&current.studentUid===sheet.studentUid?current:null;
 }
 
+async function activeRecovery(tx,row,sheet){
+  const path=submissionPath(sheet.submissionUploadId);
+  const attemptPath=assessmentRecoveryPath(sheet.submissionUploadId,sheet.assessmentRecoveryId);
+  const [current,attempt]=await Promise.all([tx.get(path),tx.get(attemptPath)]);
+  const pointer=current?.assessmentRecovery;
+  if(!attempt||current?.status!=='released'||!current.automatic||pointer?.attemptId!==attempt.id||
+    attempt.id!==sheet.assessmentRecoveryId||attempt.submissionId!==current.id||
+    current.ownerUid!==row.uid||attempt.ownerUid!==row.uid||attempt.studentUid!==current.studentUid||
+    current.approvalRevision!==attempt.approvalRevision||current.revision!==attempt.approvalRevision||
+    sheet.approvalRevision!==attempt.approvalRevision||current.approvedAt!==attempt.approvedAt||
+    current.approvedByUid!==attempt.approvedByUid||current.referenceId!==attempt.originalReferenceId||
+    current.result?.sha!==attempt.originalResult.sha||current.result?.fileKey!==attempt.originalResult.fileKey||
+    current.result?.checkingPath!==attempt.originalResult.checkingPath||current.releasedAt!==attempt.originalReleasedAt)
+    return null;
+  if(autoReference(row.kind)){
+    if(pointer.state!=='reference_queued'||attempt.state!==pointer.state||sheet.id!==pointer.referenceId||
+      sheet.id!==attempt.referenceId||row.paperId!==attempt.referenceId)return null;
+  }else if(pointer.state!=='grading_queued'||attempt.state!==pointer.state||row.paperId!==attempt.referenceId||
+    sheet.id!==attempt.sheetId||sheet.id!==pointer.sheetId||sheet.studentUid!==current.studentUid)return null;
+  return {current,attempt,path,attemptPath};
+}
+
+function updateRecovery(tx,recovery,now,state,details={},submissionPatch={}){
+  const {current,path,attemptPath}=recovery;
+  tx.update(attemptPath,{...details,state,updatedAt:now});
+  tx.update(path,{...submissionPatch,assessmentRecovery:{...current.assessmentRecovery,state,
+    sheetId:details.sheetId??current.assessmentRecovery.sheetId},
+    updatedAt:now,version:current.version+1});
+  notifySubmissionInbox(tx,now);
+}
+
+export async function failActiveAssessmentRecovery(checker,tx,row,sheet,message){
+  const recovery=await activeRecovery(tx,row,sheet);
+  if(recovery)updateRecovery(tx,recovery,checker.now(),'failed',{error:message});
+  return {};
+}
+
 export async function continueApprovedReference(checker,row,sheet,patch){
   const paper=patch.state==='ready'?gradingRubric(externalGradingPaper(patch.paper)):null;
   if(!paper)return false;
   return checker.finish(row,patch,false,async(tx,liveRow,liveSheet)=>{
+    if(liveSheet.assessmentRecoveryId){
+      const recovery=await activeRecovery(tx,liveRow,liveSheet);
+      if(!recovery)return {};
+      const now=checker.now();
+      const next=queueSubmissionSheet(checker,tx,recovery.current,liveSheet.id,paper,now,{attemptId:recovery.attempt.id});
+      updateRecovery(tx,recovery,now,'grading_queued',{sheetId:next.sheetId});
+      return {transferred:true};
+    }
     const approval=await approvedSubmission(tx,liveRow,liveSheet);
     if(!approval)return null;
     const now=checker.now();
@@ -43,6 +90,11 @@ const resultFile = (path,key) => path+'/resultFiles/'+key;
 export async function finishAutomatic(checker,row,sheet,{grade=null,message=null,title,scans=false,expired=false,referencePatch}={}){
   const outcome=grade?.answers.some(answer=>answer.awarded!==null)
     ? (message||grade.pending?'partial':'complete'):'unassessable';
+  const stopRecovery=error=>checker.finish(row,{...referencePatch,state:'failed',error},expired,
+    (tx,liveRow,liveSheet)=>failActiveAssessmentRecovery(checker,tx,liveRow,liveSheet,error));
+  if(sheet.assessmentRecoveryId&&(!scans||!grade?.answers.some(answer=>
+      answer.counted===true&&answer.awarded!==null&&answer.anchors.length)))
+    return stopRecovery(message||'Reassessment did not produce supported marks and annotations.');
   const finalTitle=title||sheet.title||'Answer sheet';
   const path=row.path;
   const fileKey='auto-'+row.lease;
@@ -58,7 +110,10 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
     }
     pdf=await checkingReport(finalTitle,outcome,grade,message,images);
     if(pdf.length>22_000_000)throw Error('Report exceeds the result limit.');
+    if(sheet.assessmentRecoveryId&&(await PDFDocument.load(pdf)).getPageCount()<=images.length)
+      throw Error('Assessment summary is unavailable.');
   }catch{
+    if(sheet.assessmentRecoveryId)return stopRecovery('Reassessment could not build the annotated report.');
     message=[message,'Scan images could not be included. The assessment notes are available below.'].filter(Boolean).join(' ');
     pdf=await checkingReport(finalTitle,outcome,grade,message);
   }
@@ -66,7 +121,7 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
   const stage=resultShape(checker,{sheetVersion:sheet.version+1,size:pdf.length,sha});
   const result={...stage,generation:row.lease,fileKey,outcome,message,pending:grade?.pending??null,
     awarded:outcome==='complete'?grade.awarded:null,max:grade?.max??null,
-    assessedAwarded:grade?.answers.some(a=>a.counted===true&&a.awarded!==null)?grade.awarded:null,
+    assessedAwarded:grade?.assessedMax>0?grade.awarded:null,assessedMax:grade?.assessedMax??null,
     storage:'checking',answers:gradingFeedback(grade)};
   // Files staged by a superseded lease are never visible. Each bounded batch must
   // still own the lease; the final transaction publishes exactly one result pointer.
@@ -101,6 +156,16 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
     ? {...referencePatch,state:'failed',error:message,checkingResult}
     : {state:outcome==='complete'?'final':'completed',grade,modelGrade:grade,engine:'codex-cli',error:null,checkingResult};
   return checker.finish(row,patch,expired,async(tx,liveRow,liveSheet)=>{
+    if(liveSheet.assessmentRecoveryId){
+      const recovery=await activeRecovery(tx,liveRow,liveSheet);
+      if(!recovery)return {};
+      saveChunks(tx,offset,stage.chunks);
+      const now=checker.now(),nextResult={...result,checkingPath:path};
+      updateRecovery(tx,recovery,now,'published',{replacementSha:result.sha,completedAt:now},{
+        paperId:row.paperId,paperTitle:finalTitle,sheetId:sheet.id,referenceId:row.paperId,
+        publishedSheetVersion:stage.sheetVersion,result:nextResult,assessmentUpdatedAt:now});
+      return {};
+    }
     const approval=await approvedSubmission(tx,liveRow,liveSheet);
     if(liveSheet.submissionUploadId&&!approval)return null;
     // Staff-uploaded work can reach a student only when explicitly linked to a

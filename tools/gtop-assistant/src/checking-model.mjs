@@ -42,7 +42,7 @@ export async function readExternalExam(config,job,images,options={}){
   if(!Number.isInteger(job.questionPages)||job.questionPages<1||job.questionPages>images.length||
       images.length!==job.pageCount||images.length>maxExternalPages)throw Error('invalid_exam_pages');
   const reference=await analyzeScans(config,images,{
-    name:'external_exam',schema:externalReferenceSchema,prompt:externalReferencePrompt(job.questionPages,images.length),
+    name:'external_exam',schema:externalReferenceSchema,prompt:externalReferencePrompt(job.questionPages,images.length,{recheck:options.recheck}),
     timeoutMs:checkingModelBudgetMs(images.length,50),maxOutputTokens:16000,
   },options);
   return {reference};

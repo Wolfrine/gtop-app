@@ -8,7 +8,7 @@ import { assessStudentGrade } from '../../../assistant-service/domain/checking.m
 import { checkingConfig, gradeScans, organizeScans, readExternalExam } from './checking-model.mjs';
 import { intakeChunkSize } from '../../../assistant-service/domain/checking-intake.mjs';
 import { maxCheckingPages } from '../../../assistant-service/domain/checking-limits.mjs';
-import { maxExternalPages } from '../../../assistant-service/domain/external-reference.mjs';
+import { maxExternalPages, readExternalReference } from '../../../assistant-service/domain/external-reference.mjs';
 
 interface LeasedJob {
   id:string;
@@ -153,7 +153,7 @@ async function processJob(job:CheckingJob){
     const executable=model.engine==='codex-cli'?await resolveDesktopCodex():undefined;
     const options={executable,root,signal,automatic:job.automatic===true};
     const run=(recheck=false)=>job.kind==='class-intake'?organizeScans(model,job,images,options):
-      job.kind==='external-exam'?readExternalExam(model,job,images,options):
+      job.kind==='external-exam'?readExternalExam(model,job,images,{...options,recheck}):
       gradeScans(model,job.rubric,job.notes,images,{...options,recheck});
     let result;
     let recovered=false;
@@ -163,7 +163,21 @@ async function processJob(job:CheckingJob){
       recovered=true;
       result=await run(true);
     }
-    if(!recovered&&job.automatic&&job.kind!=='external-exam'&&job.kind!=='class-intake'&&Date.parse(job.leaseUntil)-Date.now()>75_000){
+    const timeLeft=Date.parse(job.leaseUntil)-Date.now();
+    if(!recovered&&job.automatic&&job.kind==='external-exam'&&timeLeft>90_000){
+      const usable=(value:{reference?:unknown})=>{
+        try{return readExternalReference(value.reference,job.questionPages).issues.length===0;}
+        catch{return false;}
+      };
+      if(!usable(result)){
+        const recovery=AbortSignal.any([signal,AbortSignal.timeout(Math.min(120_000,timeLeft-65_000))]);
+        try{
+          const revised=await readExternalExam(model,job,images,{...options,recheck:true,signal:recovery});
+          if(usable(revised))result=revised;
+        }catch{/* Keep the first reading and its structural reason. */}
+      }
+    }
+    if(!recovered&&job.automatic&&job.kind!=='external-exam'&&job.kind!=='class-intake'&&timeLeft>75_000){
       const assessment=(()=>{try{return assessStudentGrade(result,job.rubric,images.length);}catch{return null;}})();
       if(!assessment||assessment.recheck){
         // Never trade valid results from the first reading for a failed or less

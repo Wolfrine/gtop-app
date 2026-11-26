@@ -30,6 +30,11 @@ export class ExternalReference {
         for(const variant of [q,q.alternative].filter(Boolean)){variant.answer='';variant.markingPoints=[];}
       }
     }
+    if(!record.automatic){
+      for(const section of paper.sections)for(const q of section.questions)
+        for(const variant of [q,q.alternative])if(variant?.sourceIssue)
+          issues.push(q.label+': '+variant.sourceIssue);
+    }
     const usable=issues.length===0&&externalGradingPaper(paper);
     if(!usable&&!issues.length)issues.push('Review the question numbers and mark allocations.');
     return {title:paper.title,paper,issues,state:usable&&!record.requiresPaperReview?'ready':'review',engine:body.engine,error:null};
@@ -112,7 +117,7 @@ export class ExternalReference {
       if(!saved||saved.ownerUid!==uid)this.checking.notFound();
       if(saved.automatic)this.fail(409,'automatic_reference','This question paper is processed automatically.');
       let result;
-      try{result=readExternalReference({...body.paper,issues:[]},saved.questionPages);}
+      try{result=readExternalReference({...body.paper,issues:[]},saved.questionPages,{allowSourceIssues:false});}
       catch(error){this.fail(400,'invalid_reference',error.message);}
       if(result.issues.length||!externalGradingPaper(result.paper))this.fail(400,'invalid_reference',result.issues[0]||'Check the exam structure and marks.');
       const reviewHash=createHash('sha256').update(JSON.stringify(result.paper)).digest('hex');

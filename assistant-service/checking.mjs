@@ -8,7 +8,7 @@ import {gradingRubric,validateGrades,summarizeGrades} from './domain/checking.mj
 import {maxCheckingPages,checkingLeaseMs} from './domain/checking-limits.mjs';
 import {notifySubmissionInbox,submissionPagePath} from './student-submission-storage.mjs';
 
-import {autoReference,automaticJob,automaticReportPdf,completeAutomatic,finishAutomatic} from './automatic-checking.mjs';
+import {autoReference,automaticJob,automaticReportPdf,completeAutomatic,failActiveAssessmentRecovery,finishAutomatic} from './automatic-checking.mjs';
 
 const maxPageBytes=400000,historySize=40;
 const paidBudgetPath='assistantCheckingControls/paidBudget';
@@ -554,6 +554,7 @@ export class PaperChecking {
           (row.leaseUntil<=this.now())!==expired)return {active:false};
       if(!expired&&!await this.authorizedWorker(tx,row.workerId,row.uid))return {active:false};
       if(expired&&automaticJob(row.kind)&&!await this.authorizedOwner(tx,row.uid)){
+        if(sheet.assessmentRecoveryId)await failActiveAssessmentRecovery(this,tx,row,sheet,'The checking authorization changed.');
         tx.delete(path);
         tx.update(row.path,{state:'failed',error:'The checking authorization changed.',lease:null,leaseUntil:null,
           updatedAt:this.now(),version:sheet.version+1});

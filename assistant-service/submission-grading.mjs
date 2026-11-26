@@ -82,9 +82,11 @@ export async function prepareSubmissionReference(checker, actorUid, id, {version
   });
 }
 
-export function queueSubmissionSheet(checker, tx, current, paperId, rubric, now) {
+export function queueSubmissionSheet(checker, tx, current, paperId, rubric, now, {attemptId}={}) {
   const uid=current.ownerUid;
-  const sheetId='submission-'+digest(uid,current.id,current.revision).slice(0,45);
+  const identity=[uid,current.id,current.revision];
+  if(attemptId)identity.push('assessment-recovery',attemptId);
+  const sheetId='submission-'+digest(...identity).slice(0,45);
   const sheetPath=sheets(uid,paperId)+'/'+sheetId;
   const sheet={
     id:sheetId,label:current.studentLabel,studentUid:current.studentUid,studentLabel:current.studentLabel,
@@ -92,11 +94,12 @@ export function queueSubmissionSheet(checker, tx, current, paperId, rubric, now)
     createdAt:current.submittedAt||current.createdAt,updatedAt:now,uploaded:current.answer.pages,
     pageCount:current.answer.pageCount,queueId:digest(uid,paperId,sheetId),
     submissionUploadId:current.id,submissionUploadKind:'answer',approvalRevision:current.revision,
-    automatic:true,rubricDigest:rubric?digest(rubric):null
+    automatic:true,rubricDigest:rubric?digest(rubric):null,
+    ...(attemptId?{assessmentRecoveryId:attemptId}:{})
   };
   tx.create(sheetPath,sheet);
   createQueueEntry(tx,uid,sheetPath,paperId,sheet,now,'auto-grade');
-  indexStudent(tx,uid,sheet,'sheet',paperId);
+  if(!attemptId)indexStudent(tx,uid,sheet,'sheet',paperId);
   return {paperId,paperTitle:rubric?.title||current.title,sheetId};
 }
 
@@ -352,10 +355,10 @@ async function releasedRecord(checker, studentUid, id) {
 
 export async function studentResult(checker, studentUid, id) {
   const record = await releasedRecord(checker, studentUid, id);
-  const {awarded,max,answers,pending=0,outcome='complete',message=null,assessedAwarded=null}=record.result;
+  const {awarded,max,answers,pending=0,outcome='complete',message=null,assessedAwarded=null,assessedMax=null}=record.result;
   return {
     rubric: {title: record.paperTitle || record.title, marks: max},
-    sheet:{grade:{awarded,max,pending,answers}},outcome,message,assessedAwarded,
+    sheet:{grade:{awarded,max,pending,answers}},outcome,message,assessedAwarded,assessedMax,
     filename: 'checked-answer-sheet.pdf', releasedAt: record.releasedAt
   };
 }

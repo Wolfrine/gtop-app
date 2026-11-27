@@ -2,7 +2,7 @@
   <header class="inbox-top" [class.compact-hide]="selectedId">
     <div>
       <h1 id="inbox-heading">Student submissions</h1>
-      <p>Approve GTOP submissions for automatic checking and private return.</p>
+      <p>Approved work is checked and sent to students automatically.</p>
     </div>
     @if (enabled) {
       <button class="quiet" type="button" (click)="toggleInvitations()" [attr.aria-expanded]="showInvitations" aria-controls="invitations">
@@ -78,32 +78,57 @@
         @for (group of groups; track group.key) {
           <article class="group">
             <header>
-              <div><h2>{{group.title || 'Uploaded question paper'}}</h2><p>{{group.rows.length}} {{group.rows.length === 1 ? 'submission' : 'submissions'}}</p></div>
-              @if (group.batch && group.batch.length > 1) {
-                <div class="batch-controls">
-                  <label class="check-option"><input #groupCheck type="checkbox" [checked]="groupSelected(group).length === group.batch.length" (change)="selectGroup(group,groupCheck.checked)" [disabled]="mutationBusy"> Select all</label>
-                  <button class="quiet batch-approve" type="button" [disabled]="mutationBusy || !groupSelected(group).length" (click)="approveBatch(group)">{{groupSelected(group).length ? 'Approve ' + groupSelected(group).length : 'Approve selected'}}</button>
-                </div>
-              } @else if(group.batch[0]; as ready) {
-                <button class="quiet batch-approve" type="button" [disabled]="mutationBusy" (click)="approve(ready)">Approve &amp; check</button>
-              }
+              <h2>{{group.title || 'Uploaded question paper'}}</h2>
+              <p>{{group.count}} {{group.count === 1 ? 'submission' : 'submissions'}}</p>
             </header>
-            <ul>
-              @for (row of group.rows; track row.id) {
-                <li [class.active]="selectedId === row.id">
-                  @if (canSelectRow(group, row)) {
-                    <label class="row-select"><input #rowCheck type="checkbox" [checked]="selectedForApproval(row)"
-                      [attr.aria-label]="'Select ' + row.studentLabel + ', GT ' + row.studentUid.slice(-6) + ', for checking'" (change)="selectionChange(row,rowCheck.checked)" [disabled]="mutationBusy"></label>
+            @for (set of group.sets; track set.key) {
+              @if (set.batch.length > 1) {
+                <div class="batch-controls">
+                  <label class="check-option"><input #groupCheck type="checkbox" [checked]="groupSelected(set).length === set.batch.length"
+                    (change)="selectGroup(set,groupCheck.checked)" [disabled]="mutationBusy"> Select linked set</label>
+                  @if (groupSelected(set).length; as count) {
+                    <button class="quiet batch-approve" type="button" [disabled]="mutationBusy" (click)="approveBatch(set)">Approve selected ({{count}})</button>
                   }
-                  <button class="open-row" type="button" (click)="choose(row.id)" [disabled]="mutationBusy" [attr.aria-current]="selectedId === row.id ? 'true' : null">
-                    <strong>{{row.studentLabel}}</strong>
-                    <small>GT {{row.studentUid.slice(-6)}} · {{row.answer.pageCount}} {{row.answer.pageCount === 1 ? 'page' : 'pages'}} · {{(row.submittedAt || row.updatedAt) | date:'d MMM, h:mm a'}}</small>
-                    <em [class.ready]="canApprove(row) || markState(row) === 'final'" [class.attention]="row.status === 'needs_rescan' || markState(row) === 'failed' || row.referenceState === 'failed'">{{status(row)}}</em>
-                    <span class="arrow" aria-hidden="true">→</span>
-                  </button>
-                </li>
+                </div>
               }
-            </ul>
+              <ul>
+                @for (row of set.rows; track row.id) {
+                  <li [class.active]="selectedId === row.id">
+                    @if (canSelectRow(set, row)) {
+                      <label class="row-select"><input #rowCheck type="checkbox" [checked]="selectedForApproval(row)"
+                        [attr.aria-label]="'Select ' + row.studentLabel + ', GT ' + row.studentUid.slice(-6) + ', for checking'" (change)="selectionChange(row,rowCheck.checked)" [disabled]="mutationBusy"></label>
+                    }
+                    <button class="open-row" type="button" (click)="choose(row.id)" [disabled]="mutationBusy"
+                      [id]="'submission-row-' + row.id" [attr.aria-current]="selectedId === row.id ? 'true' : null">
+                      <span class="row-name">
+                        <strong>{{row.studentLabel}}</strong>
+                        @if ((row.paperTitle || row.title) !== group.title) { <small>{{row.paperTitle || row.title}}</small> }
+                        <small>{{(row.submittedAt || row.updatedAt) | date:'d MMM, h:mm a'}} &middot; GT {{row.studentUid.slice(-6)}}</small>
+                      </span>
+                      @if (row.status === 'released') {
+                        <span class="row-result">
+                          <strong class="row-marks">
+                            @if (displayedMarks(row); as marks) { {{marks.awarded}} / {{marks.max}} }
+                            @else { No score }
+                          </strong>
+                          <small [class.flagged]="assessment(row) === 'partial' || assessment(row) === 'unassessable'">
+                            {{assessmentLabel(row)}}<span class="row-delivered"> &middot; Sent</span>
+                          </small>
+                        </span>
+                      } @else {
+                        <span class="status" [class.ready]="canApprove(row) || markState(row) === 'final'"
+                          [class.attention]="row.status === 'needs_rescan' || markState(row) === 'failed' || row.referenceState === 'failed'">{{status(row)}}</span>
+                      }
+                      <span class="arrow" aria-hidden="true">&rsaquo;</span>
+                    </button>
+                    @if (canApprove(row)) {
+                      <button class="primary row-approve" type="button" (click)="approve(row)" [disabled]="mutationBusy"
+                        [attr.aria-label]="'Approve &amp; check ' + row.studentLabel + ', GT ' + row.studentUid.slice(-6)">Approve &amp; check</button>
+                    }
+                  </li>
+                }
+              </ul>
+            }
           </article>
         }
         @if (cursor) {
@@ -123,7 +148,8 @@
             <div class="detail-head">
               <div>
                 <h2 id="submission-review" #reviewHeading tabindex="-1">{{row.studentLabel}}</h2>
-                <p>{{row.paperTitle || row.title || 'Uploaded question paper'}} · GT {{row.studentUid.slice(-6)}}</p>
+                <p>{{row.paperTitle || row.title || 'Uploaded question paper'}}</p>
+                <p class="submission-date">{{(row.submittedAt || row.updatedAt) | date:'d MMM, h:mm a'}} &middot; GT {{row.studentUid.slice(-6)}}</p>
               </div>
               <span class="status" [class.ready]="canApprove(row) || markState(row) === 'final'" [class.attention]="row.status === 'needs_rescan' || markState(row) === 'failed' || row.referenceState === 'failed'">{{status(row)}}</span>
             </div>
@@ -141,7 +167,48 @@
               @if (row.status === 'submitted' && row.question && !row.paperReady) {
                 <p>GT Papers prepares the uploaded question paper after approval.</p>
               }
-              @if (row.message) { <p class="notice">{{row.message}}</p> }
+              @if (row.status === 'released') {
+                <section class="assessment" aria-label="Assessment summary">
+                  <div class="assessment-score">
+                    <div>
+                      @if (displayedMarks(row); as marks) {
+                        <div class="score-value">{{marks.awarded}} <span>/ {{marks.max}}</span></div>
+                        <p>{{assessment(row) === 'partial' ? 'Assessed marks' : 'Final marks'}}</p>
+                      } @else {
+                        <div class="score-value no-score">No score</div>
+                        <p>{{assessment(row) === 'partial' ? 'Assessed subtotal unavailable' : 'No final marks available'}}</p>
+                      }
+                    </div>
+                    <div class="assessment-meta">
+                      <span class="assessment-state" [class.flagged]="assessment(row) === 'partial' || assessment(row) === 'unassessable'">
+                        {{assessmentLabel(row)}}
+                      </span>
+                      @if (assessment(row) !== 'complete' && row.score?.max != null) {
+                        <p>Full paper {{row.score?.max}} marks</p>
+                      }
+                      @if (row.score?.pending; as pending) {
+                        <p>{{pending}} unresolved {{pending === 1 ? 'item' : 'items'}}</p>
+                      }
+                    </div>
+                  </div>
+                  @if (row.message) { <p class="assessment-note">{{row.message}}</p> }
+                </section>
+                @if (row.questionMarks?.length) {
+                  <section class="findings" aria-label="Question outcomes">
+                    @if (showChoiceCounts) { <p>Counted / offered questions</p> }
+                    <dl>
+                      @for (item of findingCounts; track item.finding) {
+                        <div [attr.data-finding]="item.finding">
+                          <dt>{{findingLabels[item.finding]}}</dt>
+                          <dd>{{showChoiceCounts ? item.counted + ' / ' + item.offered : item.offered}}</dd>
+                        </div>
+                      }
+                    </dl>
+                  </section>
+                }
+              } @else if (row.message) {
+                <p class="notice">{{row.message}}</p>
+              }
 
               @if (showReferences && row.ownerWorkspace) {
                 <section class="reference-picker" aria-labelledby="match-paper-title">
@@ -178,7 +245,11 @@
                   <button class="quiet" type="button" (click)="startRescan()" [disabled]="mutationBusy || showRescan">Request rescan</button>
                 } @else {
                   @if (row.status === 'released') {
-                    <button class="primary" type="button" (click)="downloadReport(row)" [disabled]="mutationBusy">Download checking report</button>
+                    <button class="quiet" type="button" (click)="toggleReport()" [disabled]="mutationBusy || reportDownloadBusy"
+                      [attr.aria-expanded]="reportOpen">{{reportOpen ? 'Hide report' : 'Preview report'}}</button>
+                    <button class="quiet" type="button" (click)="downloadReport(row)" [disabled]="reportBusy || reportDownloadBusy || mutationBusy">
+                      {{reportDownloadBusy ? 'Preparing download…' : 'Download PDF'}}
+                    </button>
                   }
                   @if (!row.automatic && row.paperId && row.sheetId) {
                     @if ((row.status === 'checking' && markState(row) === 'final') || row.updatedCopyReady) {
@@ -190,6 +261,11 @@
                         (click)="openSheet(row)" [disabled]="mutationBusy">{{markState(row) === 'review' ? 'Review marks' : 'Open marked sheet'}}</button>
                     }
                   }
+                }
+                @if (row.answer.pageCount) {
+                  <button class="quiet" type="button" (click)="toggleScans()" [attr.aria-expanded]="scansOpen">
+                    {{scansOpen ? 'Hide original scans' : 'Original scans'}}
+                  </button>
                 }
                 @if (mutationBusy) { <span role="status">{{mutationProgress || 'Saving…'}}</span> }
               </div>
@@ -214,27 +290,78 @@
                 </form>
               }
 
-              <section class="scan" aria-label="Uploaded scans" [hidden]="row.teacherUpload">
-                <div class="scan-toolbar">
-                  <div class="scan-tabs" aria-label="Choose the upload to preview">
-                    <button type="button" [attr.aria-pressed]="scanKind === 'answer'" (click)="loadScan('answer')">Answer sheet</button>
-                    @if (row.question) {
-                      <button type="button" [attr.aria-pressed]="scanKind === 'question'" (click)="loadScan('question')">Question paper</button>
+              @if (reportOpen) {
+                <section class="scan report-preview" aria-label="Annotated checking report">
+                  <div class="scan-toolbar">
+                    <strong>Annotated checking report</strong>
+                    @if (reportPages > 1) {
+                      <div class="page-turn">
+                        <button type="button" (click)="loadReportPage(reportPage - 1)" [disabled]="reportPage === 1 || reportBusy || reportDownloadBusy" aria-label="Previous report page">&lsaquo;</button>
+                        <span>{{reportPage}} / {{reportPages}}</span>
+                        <button type="button" (click)="loadReportPage(reportPage + 1)" [disabled]="reportPage === reportPages || reportBusy || reportDownloadBusy" aria-label="Next report page">&rsaquo;</button>
+                      </div>
                     }
                   </div>
-                  @if (fileCount > 1) {
-                    <div class="page-turn">
-                      <button type="button" (click)="loadScan(scanKind, scanPage - 1)" [disabled]="scanPage === 1" aria-label="Previous page">‹</button>
-                      <span>{{scanPage}} / {{fileCount}}</span>
-                      <button type="button" (click)="loadScan(scanKind, scanPage + 1)" [disabled]="scanPage === fileCount" aria-label="Next page">›</button>
-                    </div>
+                  @if (reportError) {
+                    <div class="notice error" role="alert">{{reportError}} <button type="button" class="link" (click)="loadReportPage(reportPage)">Try again</button></div>
                   }
-                </div>
-                @if (scanFile?.name) { <p class="scan-name">{{scanFile?.name}}</p> }
-                @if (scanError) { <div class="notice error" role="alert">{{scanError}} <button type="button" class="link" (click)="loadScan(scanKind, scanPage)">Try again</button></div> }
-                @if (scanBusy) { <p class="notice" role="status">Loading scan…</p> }
-                @if (scanUrl) { <img [src]="scanUrl" [alt]="(scanKind === 'answer' ? 'Answer sheet' : 'Question paper') + ', page ' + scanPage"> }
-              </section>
+                  @if (reportBusy) { <p class="notice" role="status">Loading report…</p> }
+                  @if (reportUrl) { <img [src]="reportUrl" [alt]="'Annotated checking report, page ' + reportPage"> }
+                </section>
+              }
+
+              @if (scansOpen) {
+                <section class="scan" aria-label="Original scans">
+                  <div class="scan-toolbar">
+                    <div class="scan-tabs" aria-label="Choose the upload to preview">
+                      <button type="button" [attr.aria-pressed]="scanKind === 'answer'" (click)="loadScan('answer')">Answer sheet</button>
+                      @if (row.question) {
+                        <button type="button" [attr.aria-pressed]="scanKind === 'question'" (click)="loadScan('question')">Question paper</button>
+                      }
+                    </div>
+                    @if (fileCount > 1) {
+                      <div class="page-turn">
+                        <button type="button" (click)="loadScan(scanKind, scanPage - 1)" [disabled]="scanPage === 1 || scanBusy" aria-label="Previous page">‹</button>
+                        <span>{{scanPage}} / {{fileCount}}</span>
+                        <button type="button" (click)="loadScan(scanKind, scanPage + 1)" [disabled]="scanPage === fileCount || scanBusy" aria-label="Next page">›</button>
+                      </div>
+                    }
+                  </div>
+                  @if (scanFile?.name) { <p class="scan-name">{{scanFile?.name}}</p> }
+                  @if (scanError) { <div class="notice error" role="alert">{{scanError}} <button type="button" class="link" (click)="loadScan(scanKind, scanPage)">Try again</button></div> }
+                  @if (scanBusy) { <p class="notice" role="status">Loading scan…</p> }
+                  @if (scanUrl) { <img [src]="scanUrl" [alt]="(scanKind === 'answer' ? 'Answer sheet' : 'Question paper') + ', page ' + scanPage"> }
+                </section>
+              }
+
+              @if (row.status === 'released') {
+                <section class="question-marks" aria-labelledby="question-marks-heading">
+                  <h3 id="question-marks-heading">Question-wise marks</h3>
+                  @if (row.questionMarks?.length) {
+                    <ul>
+                      @for (mark of row.questionMarks; track mark.number) {
+                        <li [attr.data-finding]="finding(mark)">
+                          <div class="question-head">
+                            <strong>Question {{mark.number}}{{mark.choice ? ' · Option ' + mark.choice : ''}}</strong>
+                            <span class="question-score">
+                              @if (mark.awarded != null) { {{mark.awarded}}{{mark.max != null ? ' / ' + mark.max : ''}} }
+                              @else { No mark }
+                            </span>
+                          </div>
+                          <p class="question-state">
+                            <span>{{findingLabels[finding(mark)]}}</span>
+                            @if (mark.counted === false) { <span>Excluded by choice rule</span> }
+                            @else if (mark.counted === null && showChoiceCounts) { <span>Count decision unresolved</span> }
+                          </p>
+                          @if (mark.explanation) { <p class="question-explanation">{{mark.explanation}}</p> }
+                        </li>
+                      }
+                    </ul>
+                  } @else {
+                    <p>No question-wise marks were saved with this result.</p>
+                  }
+                </section>
+              }
             }
           </section>
         } @else {

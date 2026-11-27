@@ -79,6 +79,16 @@ async function openPdf(file: File, bytes?: ArrayBuffer, limit = fileLimit) {
   }
 }
 
+export async function openReportPreview(blob: Blob) {
+  const name = 'Checking report';
+  const source = await openPdf(new File([blob], 'checking-report.pdf', {type: 'application/pdf'}));
+  return {
+    pageCount: source.document.numPages,
+    page: (index: number) => rasterPage(source, index, name, 0),
+    close: () => source.document.destroy(),
+  };
+}
+
 export async function scanPdfPageCount(file: File, bytes?: ArrayBuffer): Promise<number> {
   const {document} = await openPdf(file, bytes);
   try {

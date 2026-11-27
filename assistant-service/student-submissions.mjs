@@ -2,6 +2,7 @@ import {HttpError} from './service.mjs';
 import {day, digest} from './checking-storage.mjs';
 import {maxCheckingPages} from './domain/checking-limits.mjs';
 import {maxExternalPages} from './domain/external-reference.mjs';
+import {staffReleasedAssessment, staffTeacherAnswerPage} from './submission-grading.mjs';
 import {assertEnrollment, assertSubmissionsEnabled, getSubmissionTest, personalSubmissionAccess, staffSubmission, submissionsEnabled} from './student-submission-access.mjs';
 import {
   centralIntakeSource, hasSubmissionOwner, moveStaffSubmissionIndex, ownerSubmissions, staffSubmissionStates, studentSubmissions,
@@ -41,7 +42,8 @@ function creditState(usage, now) {
 }
 
 async function renderRow(checker, row, staff, detail = false, progress = progressStub, reads, actorUid) {
-  return submissionSummary(row, staff, detail, await progress(checker, row, reads), actorUid);
+  const summary = submissionSummary(row, staff, detail, await progress(checker, row, reads), actorUid);
+  return staff ? {...summary, ...staffReleasedAssessment(row, detail)} : summary;
 }
 
 const submissionFields = [
@@ -49,6 +51,8 @@ const submissionFields = [
   'status','version','revision','rescan','answer','question','createdAt','updatedAt','submittedAt','referenceId',
   'sheetId','requiresPaperReview','paperTitle','releasedAt','publishedSheetVersion','intake','automatic','teacherUpload','result.outcome','result.message'
 ];
+const staffSubmissionFields = [...submissionFields, 'referenceRevision',
+  'result.awarded','result.max','result.assessedAwarded','result.assessedMax','result.pending'];
 
 export async function submissionList(checker, uid, cursor, staff, progress, status = null, preview = false) {
   const access = staff || preview ? null : await personalSubmissionAccess(checker, uid);
@@ -66,7 +70,7 @@ export async function submissionList(checker, uid, cursor, staff, progress, stat
   const candidates = staff
     ? await checker.store.list(submissionCollection,
       [status ? ['status','==',status] : ['status','in',staffSubmissionStates]], size + 1,
-      {...query, select: submissionFields})
+      {...query, select: staffSubmissionFields})
     : await checker.store.list(studentSubmissions(uid), [], preview ? size : size + 1, query);
   const page = candidates.slice(0, size);
   const rows = staff ? page : await checker.store.getSelected(page.map(row => submissionPath(row.id)), submissionFields);
@@ -189,6 +193,7 @@ export async function uploadSubmissionPage(checker, uid, id, kind, index, body) 
 export async function readSubmissionPage(checker, uid, id, kind, index, staff) {
   const row = await authorizedSubmission(checker, uid, id, staff);
   const page = row[kind]?.pages.find(page => page.index === index);
+  if (!page && staff && kind === 'answer' && row.teacherUpload === true) return staffTeacherAnswerPage(checker, row, index);
   if (!page) unavailable();
   const stored = await checker.store.get(submissionPagePath(id, page.sourceRevision, kind, index));
   if (!stored?.jpeg) unavailable();

@@ -26,6 +26,29 @@ export function studentSubmissionLink(kind: 'test' | 'invite', code: string) {
 type ScanKind = 'answer' | 'question';
 type Status = 'submitted' | 'needs_rescan' | 'checking' | 'released';
 type MarkingState = 'completed' | 'queued' | 'running' | 'failed' | 'review' | 'final';
+type Outcome = 'complete' | 'partial' | 'unassessable';
+interface Score {
+  outcome: Outcome | null;
+  awarded: number | null;
+  max: number | null;
+  assessedAwarded: number | null;
+  assessedMax: number | null;
+  pending: number | null;
+}
+interface QuestionMark {
+  number: number;
+  status: string;
+  awarded: number | null;
+  max: number | null;
+  counted: boolean | null;
+  choice: 'A' | 'B' | null;
+  explanation: string;
+}
+const findingLabels = {
+  correct: 'Correct', partial: 'Partial', wrong: 'Wrong', unattempted: 'Unattempted', uncertain: 'Uncertain',
+} as const;
+type Finding = keyof typeof findingLabels;
+type PdfPreview = Awaited<ReturnType<typeof import('./checking-intake')['openReportPreview']>>;
 type ReferenceState = 'uploading' | 'queued' | 'running' | 'review' | 'ready' | 'failed';
 interface FileSummary { name: string; pageCount: number }
 interface Submission {
@@ -34,7 +57,10 @@ interface Submission {
   teacherUpload?: boolean;
   ownerWorkspace?: boolean;
   paperScope?: string;
-  outcome?: 'complete' | 'partial' | 'unassessable' | null;
+  approvalScope?: string;
+  outcome?: Outcome | null;
+  score?: Score;
+  questionMarks?: QuestionMark[];
   message?: string | null;
   version: number;
   title: string;
@@ -62,7 +88,8 @@ interface Submission {
   rescan?: { kind: ScanKind; page?: number | null; reason: string } | null;
 }
 interface SubmissionPage { submissions: Submission[]; nextCursor: string | null; enabled: boolean }
-interface SubmissionGroup { key: string; title: string; rows: Submission[]; paperId?: string; batch?: Submission[] }
+interface ApprovalSet { key: string; rows: Submission[]; paperId?: string; approvalScope?: string; batch: Submission[] }
+interface SubmissionGroup { key: string; title: string; count: number; sets: ApprovalSet[] }
 interface Invitation { id: string; expiresAt: string; uses: number; used: number; revokedAt?: string }
 interface SavedReference { id: string; title: string; state: string; referenceRevision: number; marks: number | null }
 type Filter = 'all' | Status;
@@ -91,11 +118,16 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   private detailSequence = 0;
   private requestedId = '';
   private scanSequence = 0;
+  private reportSequence = 0;
+  private pdf?: PdfPreview;
+  private reportBytes?: Blob;
   private refreshPending = false;
   private inboxEvents?: OwnerEvents;
   private inboxStartup?: ReturnType<typeof setTimeout>;
   private selectedApprovals = new Map<string, number>();
   readonly filters = Object.keys(filterLabels) as Filter[];
+  readonly findings = Object.keys(findingLabels) as Finding[];
+  readonly findingLabels = findingLabels;
   readonly filterLabels = filterLabels;
   readonly fileKinds: { value: ScanKind; label: string }[] = [
     { value: 'answer', label: 'Answer sheet' }, { value: 'question', label: 'Question paper' },
@@ -114,6 +146,14 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   notice = '';
   cursor: string | null = null;
   enabled = true;
+  scansOpen = false;
+  reportOpen = false;
+  reportBusy = false;
+  reportDownloadBusy = false;
+  reportError = '';
+  reportPage = 1;
+  reportPages = 0;
+  reportUrl = '';
   scanKind: ScanKind = 'answer';
   scanPage = 1;
   scanUrl = '';
@@ -148,7 +188,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   ngOnDestroy() {
     this.closed = true;
     this.stopInboxEvents();
-    this.clearScan();
+    this.closePreviews();
   }
   @HostListener('document:visibilitychange')
   onVisibilityChange() {
@@ -219,12 +259,52 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
         default: return 'Queued for checking';
       }
     }
-    if (row.status === 'released' && row.automatic)
-      return row.outcome === 'partial' ? 'Partial result sent' : row.outcome === 'unassessable' ? 'Unable to assess. Report sent' : 'Result sent';
-    return row.status === 'needs_rescan' ? 'Rescan requested' : row.updatedCopyReady ? 'Updated copy ready' : 'Released';
+    return row.status === 'needs_rescan' ? 'Rescan requested' : 'Result sent';
   }
   canApprove(row: Submission) {
     return row.status === 'submitted' && (row.paperReady === true || !!row.question?.pageCount);
+  }
+  assessment(row: Submission) { return row.score?.outcome ?? row.outcome; }
+  assessmentLabel(row: Submission) {
+    switch (this.assessment(row)) {
+      case 'complete': return 'Complete';
+      case 'partial': return 'Partial';
+      case 'unassessable': return 'Unassessable';
+      default: return 'Assessment unavailable';
+    }
+  }
+  displayedMarks(row: Submission) {
+    const score = row.score;
+    if (!score) return;
+    switch (this.assessment(row)) {
+      case 'complete':
+        if (score.awarded != null && score.max != null) return {awarded: score.awarded, max: score.max};
+        break;
+      case 'partial':
+        if (score.assessedAwarded != null && score.assessedMax != null)
+          return {awarded: score.assessedAwarded, max: score.assessedMax};
+    }
+  }
+  finding(mark: QuestionMark): Finding {
+    if (mark.awarded == null) return 'uncertain';
+    switch (mark.status) {
+      case 'correct': case 'partial': case 'wrong': return mark.status;
+      case 'missing': case 'unattempted': return 'unattempted';
+      default: return 'uncertain';
+    }
+  }
+  get findingCounts() {
+    const counts = this.findings.map(finding => ({finding, offered: 0, counted: 0}));
+    for (const mark of this.selected?.questionMarks ?? []) {
+      const count = counts[this.findings.indexOf(this.finding(mark))];
+      count.offered++;
+      if (mark.counted === true) count.counted++;
+    }
+    return counts;
+  }
+  get showChoiceCounts() {
+    const row = this.selected;
+    return !!row?.questionMarks?.some(mark => mark.counted === false || (mark.counted === null && row.automatic));
   }
   get scanFile() { return this.scanKind === 'answer' ? this.selected?.answer : this.selected?.question; }
   get fileCount() { return this.scanFile?.pageCount || 0; }
@@ -233,38 +313,45 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     return this.references.filter(item => item.title.toLocaleLowerCase().includes(query));
   }
   selectedForApproval(row: Submission) { return this.selectedApprovals.get(row.id) === row.version; }
-  groupSelected(group: SubmissionGroup) { return (group.batch ?? []).filter(row => this.selectedForApproval(row)); }
-  canSelectRow(group: SubmissionGroup, row: Submission) {
-    return (group.batch?.length ?? 0) > 1 && group.batch?.some(item => item.id === row.id);
+  groupSelected(set: ApprovalSet) { return set.batch.filter(row => this.selectedForApproval(row)); }
+  canSelectRow(set: ApprovalSet, row: Submission) {
+    return set.batch.length > 1 && set.batch.some(item => item.id === row.id);
   }
   selectionChange(row: Submission, checked: boolean) {
     if (checked) this.selectedApprovals.set(row.id, row.version);
     else this.selectedApprovals.delete(row.id);
   }
-  selectGroup(group: SubmissionGroup, checked: boolean) {
-    for (const row of group.batch ?? []) this.selectionChange(row, checked);
+  selectGroup(set: ApprovalSet, checked: boolean) {
+    for (const row of set.batch) this.selectionChange(row, checked);
   }
   get rescanFileCount() { return (this.rescanKind === 'answer' ? this.selected?.answer : this.selected?.question)?.pageCount || 0; }
   get groups() {
-    const byPaper = new Map<string, SubmissionGroup>();
+    const exams = new Map<string, SubmissionGroup>();
+    const linkedSets = new Map<string, ApprovalSet>();
     for (const row of this.rows) {
-      if (this.filter !== 'all' && row.status !== this.filter) continue;
-      const paperId = row.paperId || (row.paperReady ? row.referenceId : undefined);
-      const key = row.paperScope || paperId || row.questionFingerprint || row.id;
-      let group = byPaper.get(key);
-      if (!group) {
-        group = { key, title: row.paperTitle || row.title, rows: [], paperId };
-        byPaper.set(key, group);
+      const paperKey = row.paperScope || (row.paperId?.startsWith('ext-') ? null : row.paperId);
+      const key = row.questionFingerprint ? 'scan:' + row.questionFingerprint : paperKey ? 'paper:' + paperKey : 'submission:' + row.id;
+      let exam = exams.get(key);
+      if (!exam) {
+        exam = {key, title: row.paperTitle || row.title, count: 0, sets: []};
+        exams.set(key, exam);
       }
-      group.rows.push(row);
+      exam.count++;
+      // A question scan can identify an examination across separate approved papers or owners.
+      // Approval sets follow the server's owner-and-paper scope.
+      const eligible = row.status === 'submitted' && row.paperReady === true && row.paperId && row.approvalScope;
+      const setKey = key + '/' + (eligible ? row.approvalScope : 'other');
+      let set = linkedSets.get(setKey);
+      if (!set) {
+        set = {key: setKey, rows: [], paperId: eligible ? row.paperId : undefined,
+          approvalScope: eligible ? row.approvalScope : undefined, batch: []};
+        linkedSets.set(setKey, set);
+        exam.sets.push(set);
+      }
+      set.rows.push(row);
+      if (eligible && set.batch.length < batchLimit) set.batch.push(row);
     }
-    return [...byPaper.values()].map(group => ({
-      ...group,
-      batch: group.paperId
-        ? group.rows.filter(row => row.status === 'submitted' && row.paperReady === true && row.paperId === group.paperId)
-            .slice(0, batchLimit)
-        : [],
-    }));
+    return [...exams.values()];
   }
   trackFilter(filter: Filter) {
     if (filter === this.filter || this.mutationBusy) return;
@@ -288,11 +375,15 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     this.showRescan = false;
     this.closeReferencePicker();
     this.referenceEditor = '';
+    const previous = this.selectedId;
     this.selectedId = id;
     this.onSelect(id);
     if (id) void this.loadDetail(id, true);
     else {
       this.clearSelection();
+      if (previous) requestAnimationFrame(() => {
+        if (!this.closed && !this.selectedId) document.getElementById('submission-row-' + previous)?.focus();
+      });
       this.trailRefresh();
     }
   }
@@ -301,7 +392,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     this.requestedId = '';
     this.selected = undefined;
     this.detailBusy = false;
-    this.clearScan();
+    this.closePreviews();
   }
   private resetAccess(error: unknown) {
     if (![401, 403].includes((error as {status?: number})?.status ?? 0)) return false;
@@ -327,16 +418,19 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     return true;
   }
   private updateRow(row: Submission) {
-    this.rows = this.rows.map(item => item.id === row.id && row.version >= item.version ? row : item);
+    const {questionMarks, ...summary} = row;
+    this.rows = this.rows.map(item => item.id === row.id && row.version >= item.version ? summary : item);
     if (this.filter !== 'all') this.rows = this.rows.filter(item => item.status === this.filter);
   }
-  private async loadDetail(id: string, focus = false, keepPreview = false) {
+  private async loadDetail(id: string, focus = false) {
     this.requestedId = id;
     const seq = ++this.detailSequence;
     const previous = this.selected;
     if (id !== previous?.id) {
       this.selected = undefined;
-      this.clearScan();
+      this.closePreviews();
+      this.scanKind = 'answer';
+      this.scanPage = 1;
       this.detailBusy = true;
     }
     try {
@@ -344,14 +438,13 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       if (this.closed || seq !== this.detailSequence) return;
       const listed = this.rows.find(row => row.id === id);
       const current = listed && listed.version > submission.version ? listed : submission;
+      if (previous?.version !== current.version) this.clearReport();
+      if (previous?.revision !== current.revision) this.closeScans();
       this.selected = current;
       this.updateRow(current);
-      this.paint();
-      if (!keepPreview || previous?.revision !== current.revision || !this.scanUrl) {
-        const kind = keepPreview && this.scanKind === 'question' && current.question ? 'question' : 'answer';
-        await this.loadScan(kind, keepPreview ? this.scanPage : 1);
-      }
-      if (focus) requestAnimationFrame(() => this.reviewHeading?.nativeElement.focus());
+      if (focus) requestAnimationFrame(() => {
+        if (!this.closed && seq === this.detailSequence) this.reviewHeading?.nativeElement.focus();
+      });
     } catch (error) {
       if (seq === this.detailSequence) {
         this.actionError = this.message(error, 'Could not open this submission.');
@@ -395,9 +488,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       const next = older ? new Map(current) : new Map<string, Submission>();
       for (const row of page.submissions) {
         const listed = current.get(row.id);
-        const selected = this.selected?.id === row.id ? this.selected : undefined;
-        const known = selected && (!listed || selected.version > listed.version) ? selected : listed;
-        next.set(row.id, known && known.version > row.version ? known : row);
+        next.set(row.id, listed && listed.version > row.version ? listed : row);
       }
       this.rows = [...next.values()].filter(row => this.filter === 'all' || row.status === this.filter);
       this.cursor = page.nextCursor;
@@ -431,13 +522,25 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       await this.loadList();
       if (!this.closed && !document.hidden && id && this.selectedId === id && this.detailSequence === detail &&
           !this.detailBusy && !this.showRescan && !this.referenceEditor) {
-        await this.loadDetail(id, false, true);
+        await this.loadDetail(id);
       }
     } finally {
       this.refreshBusy = false;
       this.paint();
       this.trailRefresh();
     }
+  }
+  private closePreviews() {
+    this.closeScans();
+    this.clearReport();
+  }
+  private closeScans() {
+    this.scansOpen = false;
+    this.clearScan();
+  }
+  toggleScans() {
+    if (this.scansOpen) this.closeScans();
+    else void this.loadScan('answer');
   }
   private clearScan() {
     this.scanSequence++;
@@ -449,8 +552,9 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   async loadScan(kind: ScanKind, index = 1) {
     const row = this.selected;
     const file = kind === 'answer' ? row?.answer : row?.question;
-    if (!row || !file || row.teacherUpload) return;
+    if (!row || !file || !file.pageCount) return;
     this.clearScan();
+    this.scansOpen = true;
     const seq = this.scanSequence;
     this.scanKind = kind;
     this.scanPage = Math.min(Math.max(index, 1), file.pageCount);
@@ -472,8 +576,8 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   startRescan() {
     this.closeReferencePicker();
     this.showRescan = true;
-    this.rescanKind = this.scanKind;
-    this.rescanPage = this.scanPage;
+    this.rescanKind = this.scansOpen ? this.scanKind : 'answer';
+    this.rescanPage = this.scansOpen ? this.scanPage : null;
     this.rescanReason = '';
     this.actionError = '';
   }
@@ -509,7 +613,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     this.showReferences = true;
     this.showRescan = false;
     this.chosenReference = undefined;
-    await Promise.all([this.loadReferences(), this.scanKind === 'question' ? Promise.resolve() : this.loadScan('question')]);
+    await Promise.all([this.loadReferences(), this.scansOpen && this.scanKind === 'question' ? Promise.resolve() : this.loadScan('question')]);
   }
   closeReferencePicker() {
     this.showReferences = false;
@@ -544,13 +648,13 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       this.notice = 'Approved and sent for checking.';
     });
   }
-  async approveBatch(group: SubmissionGroup) {
+  async approveBatch(group: ApprovalSet) {
     const selected = this.groupSelected(group);
-    if (!group.paperId || !selected.length) return;
+    if (!group.paperId || !group.approvalScope || !selected.length) return;
     await this.mutate(async () => {
       const { results } = await this.api.request<{ results: { id: string; ok: boolean; message?: string }[] }>(
         base + '/approve-batch', 'POST', {
-          paperId: group.paperId,
+          paperId: group.paperId, approvalScope: group.approvalScope,
           submissions: selected.map(row => ({ id: row.id, version: row.version })),
         },
       );
@@ -562,9 +666,87 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
         (results.find(result => !result.ok)?.message ?? 'Open a submission to review it.');
     });
   }
+  private clearReport() {
+    this.reportSequence++;
+    if (this.reportUrl) URL.revokeObjectURL(this.reportUrl);
+    if (this.pdf) void this.pdf.close().catch(() => {});
+    this.pdf = undefined;
+    this.reportBytes = undefined;
+    this.reportOpen = this.reportBusy = this.reportDownloadBusy = false;
+    this.reportUrl = this.reportError = '';
+    this.reportPage = 1;
+    this.reportPages = 0;
+  }
+  private currentReport(row: Submission, sequence: number) {
+    return !this.closed && sequence === this.reportSequence &&
+      this.selected?.id === row.id && this.selected.version === row.version;
+  }
+  toggleReport() {
+    if (this.reportOpen) this.clearReport();
+    else {
+      this.reportOpen = true;
+      void this.loadReportPage(1);
+    }
+  }
+  async loadReportPage(index: number) {
+    const row = this.selected;
+    if (!row || !this.reportOpen || this.reportBusy || row.status !== 'released') return;
+    const sequence = ++this.reportSequence;
+    this.reportBusy = true;
+    this.reportError = '';
+    try {
+      if (!this.pdf) {
+        const blob = this.reportBytes ?? await this.api.reportBlob(this.endpoint(row.id, '/report'));
+        if (!this.currentReport(row, sequence)) return;
+        this.reportBytes = blob;
+        const {openReportPreview} = await import('./checking-intake');
+        if (!this.currentReport(row, sequence)) return;
+        const preview = await openReportPreview(blob);
+        if (!this.currentReport(row, sequence)) { await preview.close(); return; }
+        this.pdf = preview;
+        this.reportPages = preview.pageCount;
+      }
+      const page = await this.pdf.page(index);
+      if (!this.currentReport(row, sequence)) { URL.revokeObjectURL(page.url); return; }
+      if (this.reportUrl) URL.revokeObjectURL(this.reportUrl);
+      this.reportUrl = page.url;
+      this.reportPage = index;
+    } catch (error) {
+      if (this.currentReport(row, sequence)) {
+        const message = this.message(error, 'Could not preview the checking report.');
+        if (this.resetAccess(error)) this.actionError = message;
+        else this.reportError = message;
+      }
+    } finally {
+      if (this.currentReport(row, sequence)) { this.reportBusy = false; this.paint(); }
+    }
+  }
   async downloadReport(row: Submission) {
-    const path = this.endpoint(row.id, '/report');
-    await this.mutate(() => this.api.checkingReport(path));
+    if (this.reportBusy || this.reportDownloadBusy) return;
+    this.reportDownloadBusy = true;
+    this.actionError = '';
+    const sequence = this.reportSequence;
+    try {
+      const blob = this.reportBytes ?? await this.api.reportBlob(this.endpoint(row.id, '/report'));
+      if (!this.currentReport(row, sequence)) return;
+      const url = URL.createObjectURL(blob);
+      try {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'checking-report.pdf';
+        link.click();
+      } finally { setTimeout(() => URL.revokeObjectURL(url), 1000); }
+    } catch (error) {
+      if (this.currentReport(row, sequence)) {
+        this.resetAccess(error);
+        this.actionError = this.message(error, 'Could not download the checking report.');
+      }
+    } finally {
+      if (this.currentReport(row, sequence)) {
+        this.reportDownloadBusy = false;
+        this.paint();
+      }
+    }
   }
   openSheet(row: Submission) {
     if (row.ownerWorkspace && row.paperId && row.sheetId) this.onOpenSheet(row.id, row.paperId, row.sheetId);

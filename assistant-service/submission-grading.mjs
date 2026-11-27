@@ -2,7 +2,7 @@ import {gradingRubric} from './domain/checking.mjs';
 import {createHash, randomUUID} from 'node:crypto';
 import {currentSheetGrade, digest, maxActive, orderedKey, queue, queueField, quota, sheets} from './checking-storage.mjs';
 import {indexStudent} from './checking-student.mjs';
-import {confirmedPaperPath, moveStaffSubmissionIndex, notifySubmissionInbox, submissionPath} from './student-submission-storage.mjs';
+import {confirmedPaperPath, moveStaffSubmissionIndex, notifySubmissionInbox, submissionApprovalScope, submissionPath} from './student-submission-storage.mjs';
 
 import {staffSubmission} from './student-submission-access.mjs';
 import {verifiedQuestionSourcePath} from './source-fidelity.mjs';
@@ -36,6 +36,17 @@ async function confirmedPaper(store, submission) {
   return submission.questionFingerprint
     ? (await store.get(confirmedPaperPath(submission.ownerUid, submission.questionFingerprint)))?.paperId || null
     : null;
+}
+
+const currentReferenceId = row => Number.isSafeInteger(row.revision) && row.revision > 0 &&
+  row.referenceRevision === row.revision ? row.referenceId : null;
+const linkedSubmissionPaper = (row, matched, reference) => row.paperId || matched ||
+  (reference?.state === 'ready' && reference.reviewedAt ? currentReferenceId(row) : null);
+
+function verifyApprovalScope(checker, scope, ownerUid, paperId) {
+  if (scope !== undefined && scope !== submissionApprovalScope(ownerUid, paperId)) {
+    checker.fail(409, 'approval_scope_changed', 'This submission no longer belongs to that approval group. Reload the inbox.');
+  }
 }
 
 const referenceKey = submission => 'ext-sub-' +
@@ -104,7 +115,7 @@ export function queueSubmissionSheet(checker, tx, current, paperId, rubric, now,
   return {paperId,paperTitle:rubric?.title||current.title,sheetId};
 }
 
-export async function approveSubmission(checker, actorUid, id, body, {batch=false}={}) {
+export async function approveSubmission(checker, actorUid, id, body, {batch=false, approvalScope}={}) {
   const path = submissionPath(checker.id(id));
   return checker.store.transaction(async tx => {
     const current = await staffSubmission(checker, tx, actorUid, path, {queueing:true});
@@ -112,6 +123,7 @@ export async function approveSubmission(checker, actorUid, id, body, {batch=fals
     if (['checking','released'].includes(current.status) && current.approvedAt) {
       if (body.paperId && current.paperId !== body.paperId)
         checker.fail(409,'submission_changed','This submission was approved against another paper.');
+      verifyApprovalScope(checker, approvalScope, uid, current.paperId);
       return {paperId:current.paperId??null,sheetId:current.sheetId??null,referenceId:current.referenceId??null};
     }
     submittedRevision(checker,current,body.version);
@@ -124,14 +136,16 @@ export async function approveSubmission(checker, actorUid, id, body, {batch=fals
     ensureQueueSpace(checker,usage);
     if(!current.paperId&&body.paperId&&(body.confirmReference!==true||matchedPaperId&&body.paperId!==matchedPaperId))
       checker.fail(409,'paper_confirmation_required','Use the confirmed question paper for this version.');
-    let linkedPaperId=current.paperId||matchedPaperId;
-    if(!linkedPaperId&&current.referenceId&&current.referenceRevision===current.revision){
-      const reference=await tx.get(checker.references.path(uid,current.referenceId));
-      if(reference?.state==='ready'&&reference.reviewedAt)linkedPaperId=current.referenceId;
+    let linkedPaperId=linkedSubmissionPaper(current,matchedPaperId);
+    const reviewedReferenceId=currentReferenceId(current);
+    if(!linkedPaperId&&reviewedReferenceId){
+      const reference=await tx.get(checker.references.path(uid,reviewedReferenceId));
+      linkedPaperId=linkedSubmissionPaper(current,matchedPaperId,reference);
     }
     if((batch||actorUid!==uid&&body.paperId) && (!linkedPaperId||body.paperId!==linkedPaperId)){
       checker.fail(409,'paper_confirmation_required','Batch or shared approval requires the paper already linked to this submission.');
     }
+    verifyApprovalScope(checker, approvalScope, uid, linkedPaperId);
     const paperId=body.paperId||linkedPaperId;
     const now=checker.now();
     let next;
@@ -178,6 +192,59 @@ function cachedRead(store, reads, path, fields) {
   return reads.get(path);
 }
 
+const publishedOutcomes = new Set(['complete', 'partial', 'unassessable']);
+const questionStatuses = new Set(['correct', 'partial', 'wrong', 'missing', 'unreadable', 'uncertain']);
+const positiveMax = value => Number.isFinite(value) && value > 0 ? value : null;
+const boundedAward = (value, max) => max > 0 && Number.isFinite(value) && value >= 0 && value <= max ? value : null;
+
+export function staffReleasedAssessment(row, detail) {
+  const result = row.result;
+  if (row.status !== 'released' || !result) return {};
+  const max = positiveMax(result.max);
+  const finalAward = boundedAward(result.awarded, max);
+  const storedAssessedMax = result.assessedMax === 0 ? 0 : positiveMax(result.assessedMax);
+  const assessedMax = max !== null && storedAssessedMax > max ? null : storedAssessedMax;
+  const legacyComplete = result.outcome === undefined && finalAward !== null && max !== null;
+  const outcome = publishedOutcomes.has(result.outcome) ? result.outcome : legacyComplete ? 'complete' : null;
+  const score = {
+    outcome, awarded: outcome === 'complete' ? finalAward : null, max,
+    assessedAwarded: boundedAward(result.assessedAwarded, assessedMax), assessedMax,
+    pending: Number.isSafeInteger(result.pending) && result.pending >= 0 ? result.pending : null
+  };
+  if (!detail) return {score};
+  const questionMarks = (Array.isArray(result.answers) ? result.answers.slice(0, 100) : [])
+    .filter(answer => Number.isSafeInteger(answer?.number) && answer.number > 0 && questionStatuses.has(answer.status))
+    .map(({number, status, awarded, max, counted, choice, explanation}) => {
+      const questionMax = positiveMax(max);
+      return {number, status, awarded: boundedAward(awarded, questionMax), max: questionMax,
+        counted: typeof counted === 'boolean' ? counted : null,
+        choice: choice === 'A' || choice === 'B' ? choice : null,
+        explanation: typeof explanation === 'string' ? explanation.slice(0, 600) : ''};
+    });
+  return {score, questionMarks};
+}
+
+export async function staffTeacherAnswerPage(checker, row, index) {
+  const result = row.result;
+  if (row.teacherUpload !== true || row.automatic !== true || row.status !== 'released' || !row.releasedAt ||
+      !row.paperId || !row.sheetId || !row.studentUid || result?.storage !== 'checking' ||
+      !Number.isSafeInteger(row.publishedSheetVersion) || row.publishedSheetVersion < 1 ||
+      result.sheetVersion !== row.publishedSheetVersion || !shaPattern.test(result.sha ?? '') ||
+      !Number.isSafeInteger(row.answer?.pageCount) || !Number.isInteger(index) || index < 1 || index > row.answer.pageCount) checker.notFound();
+  const path = sheets(row.ownerUid, checker.id(row.paperId)) + '/' + checker.id(row.sheetId);
+  if (result.checkingPath !== path || row.id !== 'teacher-' + digest(row.ownerUid, row.paperId, row.sheetId).slice(0, 48)) checker.notFound();
+  const [sheet] = await checker.store.getSelected([path], [
+    'id', 'version', 'state', 'studentUid', 'pageCount', 'uploaded', 'scanSource', 'submissionUploadId', 'automatic',
+    'checkingResult.sha', 'checkingResult.sheetVersion', 'checkingResult.fileKey', 'checkingResult.generation'
+  ]);
+  if (sheet?.id !== row.sheetId || sheet.version !== row.publishedSheetVersion || sheet.studentUid !== row.studentUid ||
+      sheet.pageCount !== row.answer.pageCount || sheet.automatic !== true || sheet.submissionUploadId ||
+      !['final', 'completed'].includes(sheet.state) || !Array.isArray(sheet.uploaded) || sheet.uploaded.length !== sheet.pageCount ||
+      sheet.checkingResult?.sha !== result.sha || sheet.checkingResult.sheetVersion !== result.sheetVersion ||
+      sheet.checkingResult.fileKey !== result.fileKey || sheet.checkingResult.generation !== result.generation) checker.notFound();
+  return checker.page(path, sheet, index);
+}
+
 export async function submissionProgress(checker, row, reads) {
   const read = (path, fields) => cachedRead(checker.store, reads, path, fields);
   if(row.automatic&&row.status==='released')return {
@@ -195,6 +262,7 @@ export async function submissionProgress(checker, row, reads) {
       paperId: row.paperId, paperTitle: row.paperTitle, paperReady: true, sheetId: row.sheetId, automatic:row.automatic===true,
       sheetState: sheet?.state || 'unavailable', sheetVersion: sheet?.version ?? null
     };
+    if (row.status === 'submitted') out.batchPaperId = row.paperId;
     if (sheet?.state === 'failed') out.error = sheet.error || 'Checking stopped. The teacher can retry.';
     if (row.status === 'released') {
       out.releasedAt = row.releasedAt;
@@ -207,10 +275,10 @@ export async function submissionProgress(checker, row, reads) {
   const matched = row.questionFingerprint
     ? (await read(confirmedPaperPath(row.ownerUid, row.questionFingerprint), ['paperId']))?.paperId
     : null;
-  const paperId = row.paperId || matched;
+  const paperId = linkedSubmissionPaper(row, matched);
   if (paperId && !paperId.startsWith('ext-')) {
     const paper = await read('assistantPapers/' + paperId, ['title']);
-    return {paperId, paperTitle: paper?.title || row.title, paperReady: !!paper};
+    return {paperId, paperTitle: paper?.title || row.title, paperReady: !!paper, batchPaperId: paper ? paperId : null};
   }
   const referenceId = paperId || row.referenceId || (row.questionFingerprint ? referenceKey(row) : null);
   if (!referenceId) return {paperReady: false};
@@ -218,7 +286,7 @@ export async function submissionProgress(checker, row, reads) {
   if (!reference) return {paperReady: false};
   const paperReady = reference.state === 'ready' && (!reference.requiresPaperReview || !!reference.reviewedAt);
   return {
-    referenceId, referenceState: reference.state, paperReady,
+    referenceId, referenceState: reference.state, paperReady, batchPaperId: paperReady ? linkedSubmissionPaper(row, matched, reference) : null,
     ...(paperReady ? {paperId: referenceId, paperTitle: reference.title} : {})
   };
 }

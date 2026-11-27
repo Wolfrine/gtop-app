@@ -113,8 +113,11 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
   missing();
 }
 
-async function approveBatch(checker, uid, {submissions, paperId}) {
+async function approveBatch(checker, uid, {submissions, paperId, approvalScope}) {
   checker.id(paperId);
+  if (approvalScope !== undefined && (typeof approvalScope !== 'string' || !/^[a-f0-9]{64}$/.test(approvalScope))) {
+    throw new HttpError(400, 'invalid_approval_scope', 'Reload the submissions before approving this group.');
+  }
   if (!Array.isArray(submissions) || !submissions.length || submissions.length > 30 ||
       submissions.some(row => !row || typeof row.id !== 'string' || !Number.isSafeInteger(row.version)) ||
       new Set(submissions.map(row => row.id)).size !== submissions.length) {
@@ -123,7 +126,7 @@ async function approveBatch(checker, uid, {submissions, paperId}) {
   const results = [];
   for (const {id, version} of submissions) {
     try {
-      const approved = await approveSubmission(checker, uid, id, {version, paperId, confirmReference: true}, {batch:true});
+      const approved = await approveSubmission(checker, uid, id, {version, paperId, confirmReference: true}, {batch:true, approvalScope});
       results.push({id, ok: true, ...approved});
     } catch (error) {
       if (!(error instanceof HttpError)) throw error;

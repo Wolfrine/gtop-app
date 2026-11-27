@@ -14,7 +14,10 @@ export const staffSubmissionStatePath = (uid, status) => owners + '/' + uid + '/
 export function notifySubmissionInbox(tx, at) {
   tx.set('assistantInboxNotifications/submissions', {schemaVersion: 1, revision: randomUUID(), updatedAt: at});
 }
-export const hasSubmissionOwner = row => typeof row?.ownerUid === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(row.ownerUid);
+const validId = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value);
+export const hasSubmissionOwner = row => validId(row?.ownerUid);
+export const submissionApprovalScope = (ownerUid, paperId) => validId(ownerUid) && validId(paperId)
+  ? createHash('sha256').update('approval-v1/'+ownerUid+'/'+paperId).digest('hex') : null;
 export function moveStaffSubmissionIndex(tx, row, nextStatus, at) {
   if (row.status === nextStatus) return;
   if (staffSubmissionStates.includes(row.status) || staffSubmissionStates.includes(nextStatus)) notifySubmissionInbox(tx, at);
@@ -41,8 +44,10 @@ export function submissionSummary(row, staff, detail, progress, actorUid) {
     ...(detail ? {pages: file.pages.map(({index, sha, width, height}) => ({index, sha, width, height}))} : {})
   });
   const {id, title, subject, testCode, paperId, status, version, revision, rescan, createdAt, updatedAt, submittedAt} = row;
-  const {paperTitle, paperReady, ...internalProgress} = progress;
+  const {paperTitle, paperReady, batchPaperId, ...internalProgress} = progress;
   const linkedPaperId = internalProgress.paperId || paperId;
+  const approvalScope = staff && status === 'submitted' && paperReady === true && batchPaperId === linkedPaperId
+    ? submissionApprovalScope(row.ownerUid, batchPaperId) : null;
   return {
     id, title, subject: subject || null, status, version, revision,
     answer: attachment(row.answer), question: attachment(row.question) || null,
@@ -56,6 +61,7 @@ export function submissionSummary(row, staff, detail, progress, actorUid) {
       paperId: paperId || null, questionFingerprint: row.questionFingerprint || null,
       paperReady, ...internalProgress,
       ownerWorkspace: row.ownerUid === actorUid,
+      ...(approvalScope ? {approvalScope} : {}),
       ...(linkedPaperId?.startsWith('ext-') ? {
         paperScope:createHash('sha256').update(row.ownerUid+'/'+linkedPaperId).digest('hex')
       } : {})

@@ -1,5 +1,6 @@
 import {randomBytes} from 'node:crypto';
 import {HttpError} from './service.mjs';
+import {papersAdmin} from './papers-access.mjs';
 import {digest} from './checking-storage.mjs';
 import {
   centralIntakeLabel, centralIntakeSource, hasSubmissionOwner, inviteId, staffSubmissionStates, ownerInvites, submissionAccessPath, submissionInvitePath, submissionSettingsPath,
@@ -26,21 +27,21 @@ export function authenticatedStudent(checker, claims) {
 
 export async function assertStaffSubmissionActor(checker, actorUid, reader=checker.store) {
   const [profile, pilot] = await Promise.all([reader.get('users/' + actorUid),reader.get('assistantConfig/pilot')]);
-  const allowed = pilot?.allowedOwnerUids;
-  if (profile?.role !== 'admin' || !Array.isArray(allowed) || !allowed.includes(actorUid)) {
+  if (!papersAdmin(profile,pilot,actorUid)) {
     checker.fail(403, 'pilot_access_required', 'Your submission access has changed.');
   }
-  return allowed;
 }
 
+export const staffCanSeeSubmission = (record, uid) => hasSubmissionOwner(record) &&
+  staffSubmissionStates.includes(record.status) && (record.teacherUpload !== true || record.ownerUid === uid);
+
 export async function staffSubmission(checker, reader, actorUid, path, {queueing=false, write=true}={}) {
-  const [record, allowed, policy] = await Promise.all([
+  const [record, , policy] = await Promise.all([
     reader.get(path), assertStaffSubmissionActor(checker, actorUid, reader), write ? reader.get(submissionSettingsPath) : null
   ]);
   if (policy?.enabled === false) checker.fail(403, 'pilot_access_required', 'Your submission access has changed.');
-  if (!hasSubmissionOwner(record) || !staffSubmissionStates.includes(record.status)) checker.notFound();
-  if (queueing && record.ownerUid !== actorUid &&
-      (!allowed.includes(record.ownerUid) || (await reader.get('users/' + record.ownerUid))?.role !== 'admin')) {
+  if (!staffCanSeeSubmission(record,actorUid)) checker.notFound();
+  if (queueing && record.ownerUid !== actorUid && !await activeOwner(reader,record.ownerUid)) {
     checker.fail(409, 'checking_owner_unavailable', 'The original checking inbox is unavailable for queueing this submission.');
   }
   return record;
@@ -49,9 +50,9 @@ export async function staffSubmission(checker, reader, actorUid, path, {queueing
 async function activeOwner(reader, ownerUid) {
   if (typeof ownerUid !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(ownerUid)) return false;
   const [pilot, profile] = await reader.getSelected(
-    ['assistantConfig/pilot', 'users/' + ownerUid], ['allowedOwnerUids', 'role']
+    ['assistantConfig/pilot', 'users/' + ownerUid], ['allowedOwnerUids', 'role', 'managedAccess', 'dispatchVersion']
   );
-  return Array.isArray(pilot?.allowedOwnerUids) && pilot.allowedOwnerUids.includes(ownerUid) && profile?.role === 'admin';
+  return papersAdmin(profile,pilot,ownerUid);
 }
 
 export async function personalSubmissionAccess(checker, uid, reader = checker.store, previous = null) {

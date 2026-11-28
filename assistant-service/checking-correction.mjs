@@ -120,7 +120,7 @@ export async function correctPacket(intake,uid,path,body){
       }
     }
     tx.set(path,next);
-    checker.service.notifyDispatch(tx,uid);
+    checker.service.notifyDispatch(tx,uid,'checking');
     return {packet:intake.visible(next)};
   });
 }

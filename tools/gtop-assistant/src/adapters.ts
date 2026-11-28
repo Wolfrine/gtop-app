@@ -58,10 +58,11 @@ export class Gateway {
     if(!signed.ok)throw Error(`Worker Firebase authentication failed (${signed.status}).`);
     const v=await signed.json() as any;this.token=v.idToken;this.until=Date.now()+(Number(v.expiresIn)-120)*1000;
   }
-  async listen(changed:()=>void,connection:(online:boolean)=>void,failed:(error:Error)=>void){
+  async listen(route:'generation'|'checking',changed:()=>void,connection:(online:boolean)=>void,failed:(error:Error)=>void,assigned:(routedOnly:boolean)=>void){
     await this.auth(true);
-    const {ownerUids}=await this.post('/worker/dispatch',{});
-    return listenForDispatch({apiKey:this.config.firebaseApiKey,idToken:this.token,workerId:this.config.workerId,ownerUids,changed,connection,failed,authEmulator:this.config.authEmulator});
+    const {ownerUids,markerPath}=await this.post('/worker/dispatch',{version:2,route});
+    assigned(typeof markerPath==='string'&&ownerUids===undefined);
+    return listenForDispatch({apiKey:this.config.firebaseApiKey,idToken:this.token,workerId:this.config.workerId,route,markerPath,ownerUids,changed,connection,failed,authEmulator:this.config.authEmulator});
   }
   async post(endpoint:string,body:any,signal?:AbortSignal):Promise<any>{
     await this.auth();

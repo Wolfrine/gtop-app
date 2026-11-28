@@ -9,6 +9,9 @@ import {gradingRubric,validateGrades,summarizeGrades} from './domain/checking.mj
 import {maxCheckingPages,checkingLeaseMs} from './domain/checking-limits.mjs';
 import {notifySubmissionInbox,submissionPagePath} from './student-submission-storage.mjs';
 import {releasedAssessment} from './released-assessment.mjs';
+import {currentPapersActor} from './store.mjs';
+import {dispatchHead,dispatchVersion,isRouteWorker,workerCanServe} from './dispatch-lanes.mjs';
+import {papersAuthority,samePapersAuthority} from './papers-access.mjs';
 
 import {autoReference,automaticJob,automaticReportPdf,completeAutomatic,failActiveAssessmentRecovery,finishAutomatic} from './automatic-checking.mjs';
 
@@ -51,7 +54,7 @@ export class PaperChecking {
     this.id(paperId);
     if(paperId.startsWith('ext-'))return this.references.paper(reader,paperId,uid);
     const paper=await reader.get('assistantPapers/'+paperId);
-    return paper?.nativePrivate&&paper.ownerUid!==uid?null:paper;
+    return (paper?.nativePrivate||currentPapersActor()?.papersAdmin===false)&&paper?.ownerUid!==uid?null:paper;
   }
   async sourceRubric(paperId,uid,reader=this.store){
     const paper=await this.sourcePaper(reader,paperId,uid);
@@ -250,7 +253,7 @@ export class PaperChecking {
       tx.set(path,{...sheet,automatic:automaticJob(autoKind),state:'queued',version:sheet.version+1,error:null,updatedAt:now});
       tx.set(queue(sheet.queueId),{id:sheet.queueId,path,uid,paperId:sheet.gradingPaperId??paperId,state:'queued',queuedAt:now,kind:autoKind,[queueField(autoKind)]:orderedKey(uid,now,sheet.queueId)});
       tx.set(quota(uid),{...usage,active:(usage.active||0)+1});
-      this.service.notifyDispatch(tx,uid);
+      this.service.notifyDispatch(tx,uid,'checking');
       return {state:'queued'};
     });
   }
@@ -309,8 +312,7 @@ export class PaperChecking {
     for(let i=0;i<items.length;i+=4){
       const group=items.slice(i,i+4);
       const results=await this.store.transaction(async tx=>{
-        const [teacher,pilot]=await Promise.all([tx.get('users/'+uid),tx.get('assistantConfig/pilot')]);
-        if(teacher?.role!=='admin'||!pilot?.allowedOwnerUids?.includes(uid))
+        if(!(await papersAuthority(tx,uid)).kind)
           this.fail(403,'pilot_access_required','Your checking access has changed.');
         const docs=await Promise.all(group.map(e=>tx.get(collection+'/'+e.id)));
         const paperIds=[...new Set(docs.filter(sheet=>sheet?.state==='review').map(sheet=>sheet.gradingPaperId??paperId))];
@@ -381,25 +383,23 @@ export class PaperChecking {
       });
     }
   }
-  async authorizedOwner(tx,uid){
-    const [profile,pilot]=await Promise.all([tx.get('users/'+uid),tx.get('assistantConfig/pilot')]);
-    return profile?.role==='admin'&&pilot?.allowedOwnerUids?.includes(uid);
+  async authorizedOwner(tx,uid,version){
+    return samePapersAuthority(await papersAuthority(tx,uid,{version}),version);
   }
-  async authorizedWorker(tx,workerId,uid,{claim=false}={}){
-    const [pairing,profile,pilot]=await Promise.all([
-      tx.get('assistantWorkers/'+workerId),tx.get('users/'+uid),tx.get('assistantConfig/pilot')
-    ]);
-    return (!claim||!checkingPaused(pilot,this.now()))&&pairing?.enabled===true&&pairing.allowedOwnerUids?.includes(uid)&&
-      profile?.role==='admin'&&pilot?.allowedOwnerUids?.includes(uid);
+  async authorizedWorker(tx,workerId,uid,{claim=false,version,modern}={}){
+    const [pairing,access]=await Promise.all([tx.get('assistantWorkers/'+workerId),papersAuthority(tx,uid,{version})]);
+    return (!claim||!checkingPaused(access.config,this.now()))&&
+      (modern===undefined||modern===(dispatchVersion(access.config)===2))&&
+      workerCanServe(pairing&&{...pairing,id:workerId},access.config,uid)&&samePapersAuthority(access,version);
   }
   async worker(parts,worker,body){
     const [id,action,index]=parts;
-    if(id==='claim'&&!action)return this.claim(worker,body.engine??'codex-cli',body.capabilities);
+    if(id==='claim'&&!action)return this.claim(worker,body.engine??'codex-cli',body.capabilities,body.dispatchVersion);
     const key=queue(this.id(id));
     const {row,sheet,image}=await this.store.transaction(async tx=>{
       const row=await tx.get(key);
       if(!row||row.workerId!==worker.id||row.state!=='running'||row.lease!==body.lease||
-          row.leaseUntil<=this.now()||!await this.authorizedWorker(tx,worker.id,row.uid))
+          row.leaseUntil<=this.now()||!await this.authorizedWorker(tx,worker.id,row.uid,{version:row.accessVersion}))
         this.fail(409,'lease_lost','This grading lease is unavailable.');
       const sheet=await tx.get(row.path);
       if(!sheet||sheet.lease!==row.lease)this.notFound();
@@ -455,10 +455,15 @@ export class PaperChecking {
       if(latest?.queueIndexVersion!==2)tx.set(quota(uid),{...latest,queueIndexVersion:2});
     });
   }
-  async claim(worker,engine='codex-cli',capabilities=[]){
+  async claim(worker,engine='codex-cli',capabilities=[],protocol){
     if(!['codex-cli','openai-api'].includes(engine))this.fail(400,'invalid_engine','Unknown grading engine.');
-    const [scheduler,pilot]=await Promise.all([this.store.get(lastOwnerPath(worker.id)),this.store.get('assistantConfig/pilot')]);
+    const pilot=await this.store.get('assistantConfig/pilot');
     if(checkingPaused(pilot,this.now()))return {job:null,nextWake:pilot.checkingCutoverUntil};
+    if(dispatchVersion(pilot)===2){
+      if(protocol!==2||!isRouteWorker(worker,pilot))this.fail(409,'worker_dispatch_update_required','This checker must use scoped dispatch.');
+      return this.claimRouted(worker,engine,capabilities);
+    }
+    const scheduler=await this.store.get(lastOwnerPath(worker.id));
     const owners=[...new Set(worker.allowedOwnerUids.filter(uid=>pilot?.allowedOwnerUids?.includes(uid)))].sort();
     const offset=owners.indexOf(scheduler?.lastOwnerUid)+1;
     const now=this.now();
@@ -494,10 +499,45 @@ export class PaperChecking {
     }
     return {job:null,nextWake};
   }
-  async claimOne(workerId,candidate,engine,supportsAutomatic){
+  async claimRouted(worker,engine,capabilities) {
+    const supportsAutomatic=engine==='codex-cli'&&capabilities.includes('automatic-checking-v1');
+    const lanes=['checking',...(supportsAutomatic?['checking-auto']:[]),
+      ...(capabilities.includes('class-intake-v1')?['checking-intake']:[]),
+      ...(capabilities.includes('external-exam-v1')?['checking-reference']:[])];
+    const [running,...heads]=await Promise.all([
+      dispatchHead(this.store,'assistantCheckingQueue','checking-lease',1,'dispatchLeaseKey'),
+      ...lanes.map(lane=>dispatchHead(this.store,'assistantCheckingQueue',lane,2))
+    ]);
+    let nextWake=running[0]?.leaseUntil??null, progressed=false;
+    if(nextWake&&nextWake<=this.now()){
+      await this.expire(queue(running[0].id));
+      nextWake=null;
+      progressed=true;
+    }
+    for(const candidate of heads.flat().sort((a,b)=>a.queuedAt.localeCompare(b.queuedAt)||a.id.localeCompare(b.id))){
+      const result=await this.claimOne(worker.id,candidate,engine,supportsAutomatic,true);
+      if(result?.job)return {job:result.job,nextWake};
+      if(result?.skipped)progressed=true;
+      if(result?.nextWake&&(!nextWake||result.nextWake<nextWake))nextWake=result.nextWake;
+    }
+    return {job:null,nextWake,...(progressed?{drain:true}:{})};
+  }
+  async claimOne(workerId,candidate,engine,supportsAutomatic,modern=false){
     return this.store.transaction(async tx=>{
       const row=await tx.get(queue(candidate.id));
-      if(row?.state!=='queued'||automaticJob(row.kind)&&!supportsAutomatic||!await this.authorizedWorker(tx,workerId,row.uid,{claim:true}))return null;
+      if(row?.state!=='queued'||automaticJob(row.kind)&&!supportsAutomatic)return null;
+      if(!await this.authorizedWorker(tx,workerId,row.uid,{claim:true,version:row.accessVersion,modern})){
+        if(!modern||await this.authorizedOwner(tx,row.uid,row.accessVersion))return null;
+        const [sheet,usage]=await Promise.all([tx.get(row.path),tx.get(quota(row.uid))]);
+        const now=this.now();
+        tx.set(queue(row.id),{...row,state:'access_paused',updatedAt:now});
+        if(sheet?.state==='queued'&&sheet.queueId===row.id){
+          tx.update(row.path,{state:'failed',error:'GT Papers access changed. Retry if access has been restored.',version:sheet.version+1,updatedAt:now});
+          tx.set(quota(row.uid),{...usage,active:Math.max(0,(usage?.active||0)-1)});
+        }
+        this.service.notifyContent(tx,row.uid);
+        return {skipped:true};
+      }
       const reference=row.kind==='external-exam'||autoReference(row.kind);
       const auto=automaticJob(row.kind);
       const special=row.kind==='class-intake'||reference;
@@ -505,7 +545,7 @@ export class PaperChecking {
         tx.get(row.path),tx.get(quota(row.uid)),special?null:this.sourcePaper(tx,row.paperId,row.uid)
       ]);
       if(sheet?.state!=='queued')return null;
-      let rubric=special?null:gradingRubric(paper);
+      let rubric=special||row.accessVersion>0&&paper?.ownerUid!==row.uid&&!row.paperId?.startsWith('ext-')?null:gradingRubric(paper);
       if(auto&&rubric&&(sheet.rubricDigest&&sheet.rubricDigest!==digest(rubric)||
           !approvedExamSourceMatches(paper,sheet.examIdentity)))rubric=null;
       const now=this.now();
@@ -514,7 +554,7 @@ export class PaperChecking {
         tx.set(row.path,{...sheet,state:'failed',version:sheet.version+1,updatedAt:now,
           error:'This paper revision is unavailable or its mark allocations are inconsistent.'});
         tx.set(quota(row.uid),{...usage,active:Math.max(0,(usage?.active||0)-1)});
-        this.service.notifyDispatch(tx,row.uid);
+        this.service.notifyDispatch(tx,row.uid,'checking');
         return {nextWake:now};
       }
       if(engine==='openai-api'){
@@ -533,7 +573,7 @@ export class PaperChecking {
       const lease=randomUUID(),leaseUntil=new Date(Date.parse(now)+checkingLeaseMs(imageCount,questionBudget)).toISOString();
       tx.set(queue(row.id),{...row,...(auto?{rubricDigest:rubric?digest(rubric):null}:{}),[queueField(row.kind)]:null,runningKey:orderedKey(row.uid,leaseUntil,row.id),state:'running',workerId,lease,leaseUntil,engine});
       tx.set(row.path,{...sheet,state:'running',version:sheet.version+1,lease,leaseUntil,updatedAt:now});
-      tx.set(lastOwnerPath(workerId),{lastOwnerUid:row.uid});
+      if(!modern)tx.set(lastOwnerPath(workerId),{lastOwnerUid:row.uid});
       if(sheet.submissionUploadId&&!autoReference(row.kind))notifySubmissionInbox(tx,now);
       this.service.notifyContent(tx,row.uid);
       return {job:{id:row.id,lease,leaseUntil,pageCount:sheet.pageCount,...(special?{kind:reference?'external-exam':row.kind}:{}),...(auto?{automatic:true}:{}),...detail}};
@@ -555,7 +595,7 @@ export class PaperChecking {
           [queueField(current.kind)]:orderedKey(row.uid,row.queuedAt,row.id)});
         tx.update(row.path,{state:'queued',lease:null,leaseUntil:null,version:live.version+1,updatedAt:now});
         if(live.submissionUploadId&&!autoReference(row.kind))notifySubmissionInbox(tx,now);
-        this.service.notifyDispatch(tx,row.uid);
+        this.service.notifyDispatch(tx,row.uid,'checking');
       });
     }
     return finishAutomatic(this,row,sheet,{expired:true,message:'The local checker stopped twice before producing a usable assessment.'});
@@ -566,8 +606,8 @@ export class PaperChecking {
       const row=await tx.get(path),sheet=await tx.get(expected.path),usage=await tx.get(quota(expected.uid))||{};
       if(row?.state!=='running'||row.lease!==expected.lease||sheet?.lease!==row.lease||
           (row.leaseUntil<=this.now())!==expired)return {active:false};
-      if(!expired&&!await this.authorizedWorker(tx,row.workerId,row.uid))return {active:false};
-      if(expired&&automaticJob(row.kind)&&!await this.authorizedOwner(tx,row.uid)){
+      if(!expired&&!await this.authorizedWorker(tx,row.workerId,row.uid,{version:row.accessVersion}))return {active:false};
+      if(expired&&automaticJob(row.kind)&&!await this.authorizedOwner(tx,row.uid,row.accessVersion)){
         if(sheet.assessmentRecoveryId)await failActiveAssessmentRecovery(this,tx,row,sheet,'The checking authorization changed.');
         tx.delete(path);
         tx.update(row.path,{state:'failed',error:'The checking authorization changed.',lease:null,leaseUntil:null,
@@ -589,7 +629,7 @@ export class PaperChecking {
       const now=this.now();
       tx.set(row.path,{...sheet,...visiblePatch,lease:null,leaseUntil:null,updatedAt:now,version:sheet.version+1});
       if(sheet.submissionUploadId&&!automaticJob(row.kind))notifySubmissionInbox(tx,now);
-      if(action.transferred)this.service.notifyDispatch(tx,row.uid);
+      if(action.transferred)this.service.notifyDispatch(tx,row.uid,'checking');
       else{
         tx.set(quota(row.uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
         this.service.notifyContent(tx,row.uid);

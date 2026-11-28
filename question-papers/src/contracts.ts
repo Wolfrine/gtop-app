@@ -1,4 +1,10 @@
-export interface UserSummary {uid:string;displayName:string;email:string;libraryAccess?:boolean}
+export interface UserSummary {uid:string;displayName:string;email:string;libraryAccess?:boolean;papersAdmin?:boolean;accessManagement?:boolean}
+export type PapersAccessStatus='none'|'pending'|'approved'|'rejected'|'revoked'|'admin'|'unavailable';
+export interface PapersAccess {status:PapersAccessStatus;version?:number}
+export type PapersAccessFilter='pending'|'approved';
+export type PapersAccessDecision='approved'|'rejected'|'revoked';
+export interface PapersAccessRow {uid:string;displayName:string;email:string;status:PapersAccessFilter;version:number;updatedAt:string|null}
+export interface PapersAccessPage {items:PapersAccessRow[];nextCursor:string|null}
 export interface WorkerStatus {state:string;lastSeenAt?:string|null;modelReady:boolean}
 export interface AssistantServiceStatus {workerId:string;launchMode?:'host';state:'ready'|'offline'|'starting'|'failed'|'starter_offline';starter:{state:'online'|'offline';lastSeenAt:string|null};worker:WorkerStatus;request:{id:string;state:string;requestedAt:string;expiresAt:string;errorCode:string|null}|null;canStart:boolean}
 export interface PilotSession {user:UserSummary;worker:WorkerStatus;service?:AssistantServiceStatus|null;notifications?:import('./owner-events').Notifications;contentRevision?:string;capabilities:unknown;defaults:Record<string,unknown>}

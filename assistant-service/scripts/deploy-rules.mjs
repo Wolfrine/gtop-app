@@ -4,7 +4,7 @@ import {spawn} from 'node:child_process';
 import {applicationDefault} from 'firebase-admin/app';
 import {withoutWorkerFirestoreRule,withoutWorkerDatabaseRule,parseRulesJson,equivalentDatabaseRules,firestoreRuleSource} from './release-scope.mjs';
 import {withoutDispatchRule} from '../dispatch-rule.mjs';
-import {withoutExamUpdateMarkerRules,withoutSubmissionInboxRule,withoutUiReadRules} from '../ui-read-rules.mjs';
+import {legacyPapersRuleSource,withoutExamUpdateMarkerRules,withoutSubmissionInboxRule,withoutUiReadRules} from '../ui-read-rules.mjs';
 
 const project='gtop-app';
 assert.equal(process.env.GITHUB_REF,'refs/heads/main','Scoped rules deployment requires main.');
@@ -15,7 +15,7 @@ const checked=await readFile('gtop-app/firestore.rules','utf8');
 const release=await get('https://firebaserules.googleapis.com/v1/projects/'+project+'/releases/cloud.firestore');
 const ruleset=await get('https://firebaserules.googleapis.com/v1/'+release.rulesetName);
 const live=firestoreRuleSource(ruleset);
-assert([checked,withoutExamUpdateMarkerRules(checked)].flatMap(rule=>[rule,withoutSubmissionInboxRule(rule)]).flatMap(rule=>[rule,withoutUiReadRules(rule),withoutDispatchRule(withoutUiReadRules(rule)),withoutWorkerFirestoreRule(withoutDispatchRule(withoutUiReadRules(rule)))]).map(normalize).includes(normalize(live)),'Unrelated live Firestore rule drift blocks assistant-only deployment.');
+assert([checked,legacyPapersRuleSource(checked)].flatMap(rule=>[rule,withoutExamUpdateMarkerRules(rule)]).flatMap(rule=>[rule,withoutSubmissionInboxRule(rule)]).flatMap(rule=>[rule,withoutUiReadRules(rule),withoutDispatchRule(withoutUiReadRules(rule)),withoutWorkerFirestoreRule(withoutDispatchRule(withoutUiReadRules(rule)))]).map(normalize).includes(normalize(live)),'Unrelated live Firestore rule drift blocks assistant-only deployment.');
 
 // The new worker must gain no legacy Storage access from its Firebase token.
 // Existing configured image buckets are server-only; preserve them and fail if
@@ -47,6 +47,7 @@ if(!equivalentDatabaseRules(liveDatabase,checkedDatabase)&&!equivalentDatabaseRu
 await new Promise((resolve,reject)=>{const p=spawn('npx',['--yes','firebase-tools@15','deploy','--project',project,'--config','firebase.assistant.json','--only','firestore:rules,database','--non-interactive'],{stdio:'inherit'});p.on('error',reject);p.on('exit',code=>code===0?resolve():reject(Error('Scoped rules deployment failed: '+code)));});
 const readbackRelease=await get('https://firebaserules.googleapis.com/v1/projects/'+project+'/releases/cloud.firestore');
 const readback=await get('https://firebaserules.googleapis.com/v1/'+readbackRelease.rulesetName);
+console.log('Read back active Firestore ruleset: '+readbackRelease.rulesetName);
 assert.equal(normalize(firestoreRuleSource(readback)),normalize(checked));
 assert(equivalentDatabaseRules(await get(database.databaseUrl.replace(/\/$/,'')+'/.settings/rules.json'),checkedDatabase));
 console.log('Verified scoped dispatch-marker access and worker identity restrictions; existing human and server-only Storage policies preserved.');

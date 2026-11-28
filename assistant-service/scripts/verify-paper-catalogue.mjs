@@ -2,6 +2,7 @@ import {initializeApp,applicationDefault,getApps} from 'firebase-admin/app';
 import {getFirestore} from 'firebase-admin/firestore';
 import {AssistantService} from '../service.mjs';
 import {FirestoreStore} from '../store.mjs';
+import {papersAdmin} from '../papers-access.mjs';
 import {catalogueKey,catalogueMigrationPath} from '../paper-catalogue.mjs';
 
 // Live, read-only release evidence from genuine existing papers (no fixtures).
@@ -27,9 +28,11 @@ for(let i=0;i<sample.size;i++){
     throw Error('A derived paper identity does not match its source.');
 }
 const config=(await db.doc('assistantConfig/pilot').get()).data();
-const invited=(config?.allowedOwnerUids||[]).filter(uid=>sample.docs.some(doc=>doc.data().ownerUid===uid));
-if(!invited.length)throw Error('No invited paper owner available for authorized query.');
-const uid=invited[0],known=sample.docs.find(doc=>doc.data().ownerUid===uid),paper=known.data();
+const owners=[...new Set(sample.docs.map(doc=>doc.data().ownerUid).filter(Boolean))];
+const profiles=await store.getSelected(owners.map(uid=>'users/'+uid),['role']);
+const uid=owners.find((candidate,i)=>papersAdmin(profiles[i],config,candidate));
+if(!uid)throw Error('No current administrator in the bounded paper sample.');
+const known=sample.docs.find(doc=>doc.data().ownerUid===uid),paper=known.data();
 const chapter=(paper.sections||[]).flatMap(section=>section.questions||[]).find(q=>q.chapter)?.chapter;
 if(!chapter)throw Error('An existing paper has no tagged chapter for verification.');
 let indexQueries=0,indexDocumentsRead=0;

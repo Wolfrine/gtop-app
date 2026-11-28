@@ -133,6 +133,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   @Input() scopePacketId = '';
   @Input() fromStudentHistory = false;
   @Input() fromSubmissionInbox = false;
+  @Input() papersAdmin = true;
   classLabel = '';
   @Input() onManageClass?: (packetId: string) => void;
   @Input() onScanClass?: (paperId:string)=>void;
@@ -638,7 +639,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
   }
   async linkStudent() {
     const sheet = this.sheet, student = this.linkCandidate;
-    if (!sheet || !student || sheet.studentUid === student.uid || this.dirty || this.busy) return;
+    if (!this.papersAdmin || !sheet || !student || sheet.studentUid === student.uid || this.dirty || this.busy) return;
     if (sheet.studentUid && !window.confirm(
       'Move this answer book from ' + this.identity(sheet).full +
       ' to ' + student.displayName + ' · GT ' + student.uid.slice(-6) + '? It will appear in the selected student’s history.'

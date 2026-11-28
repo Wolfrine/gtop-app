@@ -1,4 +1,5 @@
 import {HttpError} from './service.mjs';
+import {staffCanSeeSubmission} from './student-submission-access.mjs';
 import {day, digest} from './checking-storage.mjs';
 import {artifactFilename} from './domain/artifact-filenames.mjs';
 import {enqueueExamUpdate} from './exam-notifications.mjs';
@@ -23,7 +24,7 @@ const progressStub = () => ({});
 
 export async function authorizedSubmission(checker, uid, id, staff, reader = checker.store) {
   const row = await reader.get(submissionPath(checker.id(id)));
-  if (!row || (staff ? !hasSubmissionOwner(row) || !staffSubmissionStates.includes(row.status) : row.studentUid !== uid)) unavailable();
+  if (!row || (staff ? !staffCanSeeSubmission(row,uid) : row.studentUid !== uid)) unavailable();
   return row;
 }
 
@@ -62,7 +63,7 @@ export async function submissionList(checker, uid, cursor, staff, progress, stat
   if (status && (!staff || !staffSubmissionStates.includes(status))) {
     fail(400, 'invalid_submission_status', 'Choose a valid submissions filter.');
   }
-  const scope = 'shared-v1.' + (status || 'all') + '.';
+  const scope = 'shared-v2.' + (status || 'all') + '.';
   if (staff && cursor && !cursor.startsWith(scope)) {
     fail(400, 'inbox_cursor_changed', 'Refresh the submissions list before loading older work.');
   }
@@ -71,14 +72,16 @@ export async function submissionList(checker, uid, cursor, staff, progress, stat
   // Staff uses the canonical status/createdAt index. Student queries retain their self-only pointer collection.
   const candidates = staff
     ? await checker.store.list(submissionCollection,
-      [status ? ['status','==',status] : ['status','in',staffSubmissionStates]], size + 1,
+      // Student submissions use digest IDs. Teacher uploads have the
+      // reserved teacher- namespace and are opened through owner checking.
+      [status ? ['status','==',status] : ['status','in',staffSubmissionStates],['__name__','<','teacher-']], size + 1,
       {...query, select: staffSubmissionFields})
     : await checker.store.list(studentSubmissions(uid), [], preview ? size : size + 1, query);
   const page = candidates.slice(0, size);
   const rows = staff ? page : await checker.store.getSelected(page.map(row => submissionPath(row.id)), submissionFields);
-  const visible = rows.filter(row => row && (staff ? hasSubmissionOwner(row) && staffSubmissionStates.includes(row.status) &&
+  const visible = rows.filter(row => row && (staff ? staffCanSeeSubmission(row,uid) &&
     (!status || row.status === status) : row.studentUid === uid));
-  const last = page.at(-1);
+  const last = (staff ? visible : page).at(-1);
   const reads = new Map();
   return {
     ...(staff ? {enabled: await submissionsEnabled(checker)} : access ? {
@@ -87,7 +90,7 @@ export async function submissionList(checker, uid, cursor, staff, progress, stat
       checkingNeedsProfile: access.checkingNeedsProfile, checkingDestination: access.checkingDestination
     } : {}),
     submissions: await Promise.all(visible.map(row => renderRow(checker, row, staff, false, preview ? progressStub : progress, reads, uid))),
-    nextCursor: candidates.length > size
+    nextCursor: last && candidates.length > size
       ? (staff ? scope : '') + Buffer.from(JSON.stringify([last.createdAt,last.id])).toString('base64url')
       : null
   };

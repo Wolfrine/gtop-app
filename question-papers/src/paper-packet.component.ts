@@ -47,6 +47,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   @Input() referenceTitle = '';
   @Input() referenceChoice = 0;
   @Input() libraryAccess = false;
+  @Input() papersAdmin = true;
   @Output() needPrinted = new EventEmitter<void>();
   @Output() linkedPaper = new EventEmitter<string>();
   @Output() packetChange = new EventEmitter<string>();
@@ -146,11 +147,11 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
     if (this.incompleteUpload) return 'Finish uploading';
     return this.single ? 'Review this answer book' : this.allPdfs && this.separateFiles ? 'Review student books' : 'Find student books';
   }
-  get accountCheck() { return this.packet ? !!this.packet.studentUid : this.single; }
+  get accountCheck() { return this.papersAdmin && (this.packet ? !!this.packet.studentUid : this.single); }
   get studentLabel() { return this.packet?.studentLabel || this.student?.displayName || ''; }
 
   selectStudent(student: StudentAccount | null) {
-    if (this.packet || this.busy) return;
+    if (!this.papersAdmin || this.packet || this.busy) return;
     this.studentRequest++;
     this.lookupUid = student?.uid || '';
     this.studentLoading = false;
@@ -162,6 +163,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async loadStudent(uid: string) {
+    if(!this.papersAdmin)return;
     const request = ++this.studentRequest;
     this.lookupUid = uid;
     this.student = null;
@@ -591,7 +593,7 @@ export class PaperPacketComponent implements OnInit, OnChanges, OnDestroy {
   }
   async upload() {
     if (this.busy || this.missingSources || !this.sources.length || (this.packet && this.pageTotal!==this.packet.pageCount)) return;
-    if (!this.packet && this.single && !this.student) {this.error='Choose the student who sent these pages.';return;}
+    if (!this.packet && this.accountCheck && !this.student) {this.error='Choose the student who sent these pages.';return;}
     if (this.accountCheck && !this.attachedPaper) {this.needPaper.emit(this.openedId);return;}
     if(this.single && this.pageTotal>this.bookLimit){this.error='One answer book can contain up to '+this.bookLimit+' pages.';return;}
     if (!this.single && this.expected!==null && (!Number.isInteger(this.expected)||this.expected<1||this.expected>180)) { this.error='Enter the number of students present, between 1 and 180.'; return; }

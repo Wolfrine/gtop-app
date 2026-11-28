@@ -45,7 +45,7 @@
               </div>
             }
           </div>
-          @if (single && !packet) {
+          @if (papersAdmin && single && !packet) {
             <div class="student-pick">
               @if (studentLoading) { <p role="status">Opening GTOP student…</p> }
               @else if (studentError) {

@@ -1,8 +1,8 @@
 <div class="pl-root" [class.pl-picker]="mode==='picker'">
   <header class="pl-hero">
     <div class="pl-heading">
-      <span class="pl-overline">{{mode==='picker'?'MARKING REFERENCE':'INTELLIGENT PAPER LIBRARY'}}</span>
-      <h1>{{mode==='picker'?'Choose a saved paper':'Find the right paper.'}}</h1>
+      <span class="pl-overline">{{mode==='picker'?'MARKING REFERENCE':ownOnly?'SAVED PAPERS':'INTELLIGENT PAPER LIBRARY'}}</span>
+      <h1>{{mode==='picker'?'Choose a saved paper':ownOnly?'Your papers':'Find the right paper.'}}</h1>
       <p>{{mode==='picker'?'Browse board, class, subject and chapters to identify the correct marking scheme.':'Browse the curriculum, revisit earlier work and find the assessment that fits.'}}</p>
     </div>
     <label class="pl-search">
@@ -13,7 +13,7 @@
     </label>
   </header>
 
-  <nav *ngIf="mode==='library'" class="pl-quick" aria-label="Paper collections">
+  <nav *ngIf="mode==='library'" class="pl-quick" [class.pl-quick-own]="ownOnly" aria-label="Paper collections">
     <button type="button" class="pl-quick-card" (click)="setCollection('browse')">
       <span class="pl-quick-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 6 8-3 8 3-8 3-8-3Zm0 6 8 3 8-3M4 18l8 3 8-3"/></svg></span>
       <span><strong>Browse curriculum</strong><small>Board · Class · Subject</small></span>
@@ -22,7 +22,7 @@
       <span class="pl-quick-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a9 9 0 1 1-1 5M3 3v6h6M12 7v5l4 2"/></svg></span>
       <span><strong>Recent papers</strong><small>Latest assessments</small></span>
     </button>
-    <button type="button" class="pl-quick-card" [class.active]="ownerScope==='mine'" (click)="setCollection('mine')">
+    <button *ngIf="!ownOnly" type="button" class="pl-quick-card" [class.active]="ownerScope==='mine'" (click)="setCollection('mine')">
       <span class="pl-quick-icon amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5zM15 3v5h4M8 13h8M8 17h6"/></svg></span>
       <span><strong>My papers</strong><small>Your own creations</small></span>
     </button>
@@ -100,7 +100,7 @@
                 <option value="">Any format</option><option value="practice">Practice</option><option value="board">Board format</option>
               </select>
             </label>
-            <label>Ownership
+            <label *ngIf="!ownOnly">Ownership
               <select [(ngModel)]="ownerScope" (change)="onAdvancedChange()">
                 <option value="accessible">All accessible</option><option value="mine">My papers</option>
               </select>
@@ -198,7 +198,7 @@
   <div *ngIf="selected" class="pl-mobile-backdrop" (click)="dismissPreview()" aria-hidden="true"></div>
 
   <footer *ngIf="mode==='library'" class="pl-library-footer">
-    <button type="button" (click)="classicArchive.emit()">Previous archive</button>
+    <button *ngIf="!ownOnly" type="button" (click)="classicArchive.emit()">Previous archive</button>
     <button type="button" (click)="openRequests.emit()">View paper requests</button>
     <button type="button" (click)="createPaper.emit()">Create a paper <span aria-hidden="true">→</span></button>
   </footer>

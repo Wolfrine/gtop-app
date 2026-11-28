@@ -25,7 +25,8 @@ import {workerFreshnessMs} from '../../../assistant-service/presence.mjs';
 // A missed publication plus 10s network margin fits the unchanged 90s window.
 // Job lease renewal/cancellation remains on its independent 30s timer.
 export const healthHeartbeatMs=workerFreshnessMs/2-5000;
-const workerVersion='harness-16-native-paper-delivery';
+const workerVersion='harness-17-routed-papers';
+const workerBuild=process.env.GTOP_PAPERS_RELEASE_SHA||null;
 const chatTimeoutMs=120000;
 const inferenceErrors:Record<string,string>={
   codex_unavailable:'The Codex connection is unavailable. Your request is saved. Try again when the host reconnects.',
@@ -57,7 +58,7 @@ function makePrompt(job:any,task:string,extra:any={}){return educationalSystem+'
 function replaceQuestion(base:any,q:any){const copy=structuredClone(paperContent(base));for(const s of copy.sections)for(let i=0;i<s.questions.length;i++)if(s.questions[i].number===q.number)s.questions[i]=q;return copy;}
 export class Worker {
   api:Gateway;ready=false;available=false;stopping=false;paperBusy=false;turnBusy=false;catalogue:any=null;catalogueAt=0;
-  listenerReady=false;wake=new DispatchWake();
+  listenerReady=false;private routedOnly=false;wake=new DispatchWake();
   counters={startedAt:new Date().toISOString(),notifications:0,claimCalls:0,emptyClaims:0,jobs:0,listenerSessions:0,listenerErrors:0,heartbeats:0,leaseRenewals:0};
   nativePapers?:NativePapers;
   constructor(public config:Config){this.api=new Gateway(config);if(config.nativeCodexExecutable)this.nativePapers=new NativePapers(config,this.api);}
@@ -76,7 +77,7 @@ export class Worker {
     await record(this.config.dataDirectory,'worker-health.json',{schemaVersion:1,pid:process.pid,checkedAt:new Date().toISOString(),
       provider:'codex',profile:this.config.paperRuntime,healthIntervalMs:healthHeartbeatMs,freshnessMs:workerFreshnessMs,...health});
     this.counters.heartbeats++;
-    await this.api.post('/worker/heartbeat',{state:!this.available||!this.listenerReady?'offline':this.turnBusy||this.paperBusy?'busy':'ready',modelReady:this.ready,version:workerVersion,runtime:'codex'});
+    await this.api.post('/worker/heartbeat',{state:!this.available||!this.listenerReady?'offline':this.turnBusy||this.paperBusy?'busy':'ready',modelReady:this.ready,version:workerVersion,runtime:'codex',routedOnly:this.routedOnly,...(workerBuild?{build:workerBuild}:{})});
     await record(this.config.dataDirectory,'transport.json',{...this.counters,checkedAt:new Date().toISOString(),listenerReady:this.listenerReady,turnBusy:this.turnBusy,paperBusy:this.paperBusy});
   }
   async start(signal:AbortSignal){
@@ -94,10 +95,10 @@ export class Worker {
       signal.addEventListener('abort',finish,{once:true});
       try{
         this.counters.listenerSessions++;
-        close=await this.api.listen(()=>{this.counters.notifications++;this.wake.wake();},online=>{
+        close=await this.api.listen('generation',()=>{this.counters.notifications++;this.wake.wake();},online=>{
           const resumed=online&&!this.listenerReady;this.listenerReady=online;
           if(resumed){failures=0;this.wake.wake();}
-        },error=>{this.counters.listenerErrors++;console.error('Dispatch listener: '+error.message);finish();});
+        },error=>{this.counters.listenerErrors++;console.error('Dispatch listener: '+error.message);finish();},routedOnly=>{this.routedOnly=routedOnly;});
         // Refresh the short-lived bearer deliberately; health never resets subscriptions.
         timer=setTimeout(finish,50*60*1000);if(signal.aborted)finish();await ended;
       }catch(e:any){this.counters.listenerErrors++;console.error('Dispatch setup: '+e.message);}
@@ -106,12 +107,19 @@ export class Worker {
     }
   }
   async loop(kind:'turn'|'paper',signal:AbortSignal){
-    let failures=0;
-    while(!signal.aborted){try{
+    let failures=0,next:ReturnType<typeof setTimeout>|undefined;
+    try{while(!signal.aborted){try{
       await this.wake.wait(kind,signal);if(!this.listenerReady)continue;
-      this.counters.claimCalls++;const {job}=await this.api.post('/worker/claim',{kind,waitSeconds:0,runtime:'codex',...(kind==='turn'&&this.nativePapers?.connected?{native:true}:{})},signal);failures=0;
-      if(job){this.counters.jobs++;await this.run(job,signal);this.wake.wake(kind);}else this.counters.emptyClaims++;
+      this.counters.claimCalls++;const {job,drain,nextWake}=await this.api.post('/worker/claim',{kind,dispatchVersion:2,waitSeconds:0,runtime:'codex',...(kind==='turn'&&this.nativePapers?.connected?{native:true}:{})},signal);failures=0;
+      clearTimeout(next);
+      if(job){this.counters.jobs++;await this.run(job,signal);this.wake.wake(kind);}
+      else if(drain)this.wake.wake(kind);
+      else{
+        this.counters.emptyClaims++;
+        if(nextWake)next=setTimeout(()=>this.wake.wake(kind),Math.max(500,Date.parse(nextWake)-Date.now()+500));
+      }
     }catch(e:any){if(signal.aborted)break;console.error(`${kind}: ${e.message}`);await delay(Math.min(60000,1000*2**Math.min(failures++,6)),signal).catch(()=>{});this.wake.wake(kind);}}
+    }finally{clearTimeout(next);}
   }
   async run(job:any,parent:AbortSignal){
     parent.throwIfAborted();
@@ -217,7 +225,7 @@ export class Worker {
     const scope:any=job.taskBrief.requirements;
     if(job.kind==='turn'){
       job.context.curriculum=null;
-      if(scope.board&&scope.standard&&scope.subject)try{const result=await this.api.post('/worker/curriculum/resolve',{requirements:scope,conversationId:job.conversationId});job.context.curriculum=result.curriculum;}catch(e:any){await record(dir,'curriculum-lookup.json',{available:false,reason:e.message});}
+      if(scope.board&&scope.standard&&scope.subject)try{const result=await this.api.post('/worker/curriculum/resolve',{requirements:scope,conversationId:job.conversationId,jobId:job.id,leaseId:job.leaseId});job.context.curriculum=result.curriculum;}catch(e:any){await record(dir,'curriculum-lookup.json',{available:false,reason:e.message});}
     }
     job.controllerFacts.availableData.curriculum=job.context.curriculum;
     job.learningExamples=await recallExamples(this.config.dataDirectory,job).catch(()=>[]);
@@ -259,8 +267,8 @@ export class Worker {
     if(!missingTaskField(job.taskBrief)){
       const requirements=verifiedRequirements(job,{action:'generate_paper'});
       let available=false;
-      try{const r=await this.api.post('/worker/curriculum/resolve',{requirements,conversationId:job.conversationId});job.context.curriculum=r.curriculum;available=true;}
-      catch(e:any){if(e.code!=='curriculum_unavailable')throw e;if(requirements.format==='board')try{const r=await this.api.post('/worker/curriculum/resolve',{requirements:{...requirements,format:'practice'},conversationId:job.conversationId});job.context.curriculum=r.curriculum;available=true;}catch(error:any){if(error.code!=='curriculum_unavailable')throw error;}}
+      try{const r=await this.api.post('/worker/curriculum/resolve',{requirements,conversationId:job.conversationId,jobId:job.id,leaseId:job.leaseId});job.context.curriculum=r.curriculum;available=true;}
+      catch(e:any){if(e.code!=='curriculum_unavailable')throw e;if(requirements.format==='board')try{const r=await this.api.post('/worker/curriculum/resolve',{requirements:{...requirements,format:'practice'},conversationId:job.conversationId,jobId:job.id,leaseId:job.leaseId});job.context.curriculum=r.curriculum;available=true;}catch(error:any){if(error.code!=='curriculum_unavailable')throw error;}}
       if(!available){
         if(!allowsCurriculumResearch(job)){
           await this.api.post('/worker/jobs/'+job.id+'/complete',{leaseId:job.leaseId,reply:'Your paper requirements are saved. I need a verified syllabus for this scope before I can prepare the paper.',metrics:{engine:'controller',researchSkipped:true}});

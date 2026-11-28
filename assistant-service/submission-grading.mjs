@@ -86,7 +86,7 @@ export async function prepareSubmissionReference(checker, actorUid, id, {version
       tx.create(referencePath, entry);
       createQueueEntry(tx, uid, referencePath, referenceId, entry, now, 'external-exam');
       tx.set(quota(uid), {...usage, active: (usage?.active || 0) + 1});
-      checker.service.notifyDispatch(tx, uid);
+      checker.service.notifyDispatch(tx, uid, 'checking');
     } else {
       checker.service.notifyContent(tx, uid);
     }
@@ -188,7 +188,7 @@ export async function approveSubmission(checker, actorUid, id, body, {batch=fals
       updatedAt:now,version:current.version+1});
     tx.set(quota(uid),{...usage,active:(usage?.active||0)+1});
     moveStaffSubmissionIndex(tx,current,'checking',now);
-    checker.service.notifyDispatch(tx,uid);
+    checker.service.notifyDispatch(tx,uid,'checking');
     return {paperId:next.paperId,sheetId:next.sheetId,referenceId:next.referenceId??null};
   });
 }

@@ -1,0 +1,47 @@
+<main aria-labelledby="access-review-title" class="access-review">
+  <header class="review-header">
+    <div>
+      <h1 id="access-review-title" tabindex="-1">Teacher access</h1>
+      <p>Review requests and manage who can use their own GT Papers desk.</p>
+    </div>
+    <button type="button" class="button" (click)="closed.emit()">Back to desk</button>
+  </header>
+
+  <div class="access-controls">
+    <div class="access-filter" role="group" aria-label="Teacher access status">
+      <button type="button" [attr.aria-pressed]="filter==='pending'" [disabled]="loading || !!changing" (click)="select('pending')">Pending requests</button>
+      <button type="button" [attr.aria-pressed]="filter==='approved'" [disabled]="loading || !!changing" (click)="select('approved')">Approved teachers</button>
+    </div>
+    <button type="button" class="text-button" [disabled]="loading || !!changing" (click)="load()">Refresh list</button>
+  </div>
+  <p #feedback tabindex="-1" role="status" class="access-feedback">{{notice}}</p>
+  <p *ngIf="loading" role="status" class="access-feedback">Loading access records…</p>
+  <div *ngIf="error" class="desk-alert" role="alert">
+    <span>{{error}}</span>
+    <button class="text-button" type="button" (click)="load(retryPage)">Try again</button>
+  </div>
+  <p *ngIf="!loading && !error && !rows.length && !nextCursor" class="access-empty">
+    {{filter==='pending'?'No pending access requests.':'No approved teachers.'}}
+  </p>
+
+  <ul *ngIf="rows.length" class="access-records" [attr.aria-label]="filter==='pending'?'Pending requests':'Approved teachers'">
+    @for (row of rows; track row.uid) {
+      <li>
+        <div class="record-identity">
+          <strong>{{row.displayName || row.email || row.uid}}</strong>
+          <span *ngIf="row.displayName && row.email">{{row.email}}</span>
+          <time *ngIf="row.updatedAt" [attr.datetime]="row.updatedAt">{{row.updatedAt | date:'d MMM y, h:mm a'}}</time>
+        </div>
+        <div class="record-actions">
+          @if (filter==='pending') {
+            <button type="button" class="button primary" [disabled]="loading || !!changing" [attr.aria-label]="'Approve '+(row.displayName || row.email || row.uid)" (click)="decide(row,'approved')">Approve</button>
+            <button type="button" class="button" [disabled]="loading || !!changing" [attr.aria-label]="'Decline '+(row.displayName || row.email || row.uid)" (click)="decide(row,'rejected')">Decline</button>
+          } @else {
+            <button type="button" class="button" [disabled]="loading || !!changing" [attr.aria-label]="'Revoke access for '+(row.displayName || row.email || row.uid)" (click)="decide(row,'revoked')">Revoke access</button>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+  <button *ngIf="nextCursor && !error" type="button" class="button access-more" [disabled]="loading || !!changing" (click)="load(true)">Load more</button>
+</main>

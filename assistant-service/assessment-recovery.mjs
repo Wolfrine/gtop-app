@@ -1,3 +1,4 @@
+import {papersAdmin} from './papers-access.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {digest,maxActive,queue,quota} from './checking-storage.mjs';
 import {maxCheckingPages} from './domain/checking-limits.mjs';
@@ -96,8 +97,7 @@ async function recoveryTarget(checker,reader,expected,sourceRequest){
   if(!record||record.id!==id||!record.ownerUid||!record.studentUid)changed(checker);
   const ownerUid=checker.id(record.ownerUid);
   const [owner]=await reader.getSelected(['users/'+ownerUid],['role']);
-  const allowedOwners=pilot?.allowedOwnerUids;
-  if(settings?.enabled===false||owner?.role!=='admin'||!Array.isArray(allowedOwners)||!allowedOwners.includes(ownerUid)){
+  if(settings?.enabled===false||!papersAdmin(owner,pilot,ownerUid)){
     checker.fail(403,'recovery_owner_unavailable','The original checking inbox is unavailable for recovery.');
   }
   if(prior){
@@ -205,7 +205,7 @@ export async function startAssessmentRecovery(checker,expected){
     tx.update(submissionPath(id),{assessmentRecovery:recovery,version:version+1,updatedAt:now});
     tx.set(quota(uid),{...usage,active:active+1});
     notifySubmissionInbox(tx,now);
-    checker.service.notifyDispatch(tx,uid);
+    checker.service.notifyDispatch(tx,uid,'checking');
     return {state:recovery.state,replayed:false};
   });
 }

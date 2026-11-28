@@ -18,6 +18,7 @@ export class AssistantApi implements Transport {
   private authEpoch=0;
   private cameraCleanup:Promise<void>=Promise.resolve();
   private observers=new Set<(user:User|null)=>void>();
+  private accessObservers=new Set<()=>void>();
   user:User|null=null;
   async initialize():Promise<void> {
     let config=emulatorConfig;
@@ -56,6 +57,10 @@ export class AssistantApi implements Transport {
     }
   }
   observeUser(observer:(user:User|null)=>void){this.observers.add(observer);observer(this.user);return ()=>this.observers.delete(observer);}
+  observeAccessDenied(observer:()=>void){
+    this.accessObservers.add(observer);
+    return ()=>this.accessObservers.delete(observer);
+  }
   watchMarker(path:string,next:(snapshot:MarkerSnapshot)=>void,error:(error:unknown)=>void):()=>void {
     if(!this.database||!this.firestore||!this.user)throw Error('Notification connection unavailable');
     const markerPaths=[`assistantUiNotifications/${this.user.uid}`,'assistantWorkerHealth/sachit-windows','assistantInboxNotifications/submissions',
@@ -80,7 +85,20 @@ export class AssistantApi implements Transport {
     try{response=await fetch(this.apiBase+path,{method,cache:'no-store',signal:signal?AbortSignal.any([signal,timeout]):timeout,headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});}
     catch(error){if((error as {name?:string})?.name==='TimeoutError')throw Error('This connection took longer than expected. Please try again; saved work remains available.');throw error;}
     if(epoch!==this.authEpoch)throw Error('Account changed');
-    if(!response.ok){let reason='Request failed ('+response.status+')';try{const payload=await response.json();reason=payload.error?.message || payload.error || payload.message || reason;}catch{}throw Object.assign(new Error(typeof reason==='string'?reason:JSON.stringify(reason)),{status:response.status});}
+    if(!response.ok){
+      let reason='Request failed ('+response.status+')', code:string|undefined;
+      try{
+        const payload=await response.json();
+        reason=payload.error?.message || payload.error || payload.message || reason;
+        code=payload.error?.code;
+      }catch{}
+      if(epoch!==this.authEpoch)throw Error('Account changed');
+      if(response.status===403&&code==='papers_access_required'){
+        this.authEpoch++;
+        for(const observer of this.accessObservers)observer();
+      }
+      throw Object.assign(new Error(typeof reason==='string'?reason:JSON.stringify(reason)),{status:response.status,code});
+    }
     return response;
   }
   private async read<T>(path:string,method='GET',body?:unknown,text=false):Promise<T>{const epoch=this.authEpoch;const response=await this.authorized(path,method,body);const result=await (text?response.text():response.json());if(epoch!==this.authEpoch)throw Error('Account changed');return result as T;}

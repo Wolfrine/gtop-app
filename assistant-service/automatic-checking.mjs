@@ -201,7 +201,7 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
       tx.create(submissionPath(directId),direct);
       tx.create(studentSubmissions(direct.studentUid)+'/'+directId,{createdAt:now});
       tx.create(ownerSubmissions(row.uid)+'/'+directId,{createdAt:now});
-      moveStaffSubmissionIndex(tx,{id:directId,ownerUid:row.uid},'released',now);
+      moveStaffSubmissionIndex(tx,{id:directId,ownerUid:row.uid,teacherUpload:true},'released',now);
       enqueueExamUpdate(tx,{kind:'result-'+outcome,entityId:directId,version:stage.sheetVersion+'-'+sha,
         at:now,ownerUid:row.uid,scope:'submission'});
     }

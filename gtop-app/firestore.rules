@@ -49,34 +49,59 @@ service cloud.firestore {
       return isSelf(uid) && request.resource.data.get('uid', uid) == uid;
     }
 
+    function papersManaged() {
+      let policy = get(/databases/$(database)/documents/assistantConfig/pilot).data;
+      return policy.get('managedAccess', false) == true && policy.get('dispatchVersion', 1) == 2;
+    }
+
+    function papersHuman() {
+      return signedIn() && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous';
+    }
+
+    function papersStaff() {
+      return papersHuman() && isAdmin() && (papersManaged()
+        || request.auth.uid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids);
+    }
+
+    function papersOwner() {
+      return papersStaff() || (papersHuman() && papersManaged()
+        && get(/databases/$(database)/documents/assistantPapersAccess/$(request.auth.uid)).data.status == 'approved'
+        && get(/databases/$(database)/documents/assistantPapersAccess/$(request.auth.uid)).data.version is int
+        && get(/databases/$(database)/documents/assistantPapersAccess/$(request.auth.uid)).data.version > 0);
+    }
+
     match /assistantExamUpdateMarkers/staff {
-      allow get: if isAdmin()
-        && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous'
-        && request.auth.uid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids;
+      allow get: if papersStaff();
       allow list, write: if false;
     }
 
     match /assistantExamUpdateMarkers/staff/owners/{ownerUid} {
-      allow get: if isAdmin()
-        && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous'
-        && request.auth.uid == ownerUid
-        && ownerUid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids;
+      allow get: if papersStaff() && request.auth.uid == ownerUid;
       allow list, write: if false;
     }
 
     match /assistantInboxNotifications/submissions {
-      allow get: if isAdmin()
-        && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous'
-        && request.auth.uid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids;
+      allow get: if papersStaff();
       allow list, write: if false;
     }
 
     match /assistantUiNotifications/{ownerUid} {
-      allow get: if request.auth != null && request.auth.uid == ownerUid
-        && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous'
-        && isAdmin()
-        && ownerUid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids;
+      allow get: if papersHuman() && request.auth.uid == ownerUid && papersOwner();
       allow list, write: if false;
+    }
+
+    match /assistantWorkerDispatch/{dispatchId} {
+      allow get: if request.auth != null
+        && request.auth.token.get('assistantWorker', false) == true
+        && request.auth.token.get('workerId', '') == 'sachit-windows'
+        && request.auth.uid == 'assistant-worker-sachit-windows'
+        && dispatchId in ['sachit-windows-generation', 'sachit-windows-checking']
+        && get(/databases/$(database)/documents/assistantWorkers/sachit-windows).data.enabled == true;
+      allow list, write: if false;
+    }
+
+    match /assistantPapersAccess/{document=**} {
+      allow read, write: if false;
     }
 
     match /assistantWorkerHealth/{workerId} {
@@ -91,6 +116,7 @@ service cloud.firestore {
 
     match /assistantDispatch/{ownerUid} {
       allow get: if request.auth != null
+        && get(/databases/$(database)/documents/assistantConfig/pilot).data.get('dispatchVersion', 1) != 2
         && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous' && (
         (request.auth.uid == ownerUid && isAdmin()
           && ownerUid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids)

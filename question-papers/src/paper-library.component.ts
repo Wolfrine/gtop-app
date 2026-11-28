@@ -35,6 +35,7 @@ type FilterState={boardKey:string;standardKey:string;subjectKey:string;chapterKe
 export class PaperLibraryComponent implements OnInit,OnDestroy {
   @Input() mode:'library'|'picker'='library';
   @Input() transport?:Transport;
+  @Input() ownOnly=false;
   @Input() openError='';
   @Output() openPaper=new EventEmitter<{paper:CataloguePaper;kind:'student'|'answers';print:boolean}>();
   @Output() choosePaper=new EventEmitter<CataloguePaper>();
@@ -66,17 +67,17 @@ export class PaperLibraryComponent implements OnInit,OnDestroy {
     {key:'subjectKey',level:'subject',title:'Subject'},
     {key:'chapterKey',level:'chapter',title:'Chapter'}
   ];
-  ngOnInit(){void this.refreshAll();}
+  ngOnInit(){if(this.ownOnly)this.ownerScope='mine';void this.refreshAll();}
   ngOnDestroy(){this.disposed=true;this.requestId++;this.facetGeneration++;this.previewGeneration++;if(this.searchTimer)clearTimeout(this.searchTimer);}
   private client():Transport{return this.transport||this.api;}
   private selection():Record<string,string>{
     return {...Object.fromEntries(Object.entries(this.filters).filter(([,value])=>!!value)),
       ...(this.academicYear?{academicYear:this.academicYear}:{}),
-      ...(this.format?{format:this.format}:{}),ownerScope:this.ownerScope};
+      ...(this.format?{format:this.format}:{}),ownerScope:this.ownOnly?'mine':this.ownerScope};
   }
   private facetSelection(key:FilterName):Record<string,string>{
     const steps=['boardKey','standardKey','subjectKey','chapterKey'] as const;
-    const depth=steps.indexOf(key),result:Record<string,string>={ownerScope:this.ownerScope};
+    const depth=steps.indexOf(key),result:Record<string,string>={ownerScope:this.ownOnly?'mine':this.ownerScope};
     for(let i=0;i<depth;i++)if(this.filters[steps[i]])result[steps[i]]=this.filters[steps[i]];
     return result;
   }
@@ -127,14 +128,14 @@ export class PaperLibraryComponent implements OnInit,OnDestroy {
   }
   resetBrowse(){
     this.filters={boardKey:'',standardKey:'',subjectKey:'',chapterKey:''};
-    this.query='';this.ownerScope='accessible';this.latestRevisionOnly=true;
+    this.query='';this.ownerScope=this.ownOnly?'mine':'accessible';this.latestRevisionOnly=true;
     this.academicYear='';this.format='';this.selected=null;this.previewHtml=null;
     void this.loadFacets();void this.searchPapers(true);this.showCurriculum=true;
   }
   setCollection(choice:'browse'|'recent'|'mine'|'revisions'){
     if(choice==='browse'){this.showCurriculum=true;return;}
     if(choice==='recent'){this.resetBrowse();this.showCurriculum=false;return;}
-    this.ownerScope=choice==='mine'?'mine':'accessible';
+    this.ownerScope=this.ownOnly||choice==='mine'?'mine':'accessible';
     this.latestRevisionOnly=choice!=='revisions';
     this.selected=null;this.previewHtml=null;
     void this.loadFacets();void this.searchPapers(true);
@@ -199,9 +200,9 @@ export class PaperLibraryComponent implements OnInit,OnDestroy {
     const generation=++this.previewGeneration;
     this.previewHtml=null;this.previewSource='';this.previewError='';this.previewLoading=true;this.previewKind=kind;
     try{
-      const source=this.transport?.adminArtifact?
-        await this.transport.adminArtifact(paper.paperId,kind):
-        await this.api.adminArtifact(paper.paperId,kind);
+      const client=this.client();
+      const source=this.ownOnly?await client.artifact(paper.paperId,kind):
+        await (client.adminArtifact?.(paper.paperId,kind) ?? this.api.adminArtifact(paper.paperId,kind));
       if(this.disposed||generation!==this.previewGeneration||this.selected?.paperId!==paper.paperId)return;
       this.previewSource=source;
       this.previewHtml=this.sanitizer.bypassSecurityTrustHtml(presentArtifact(source,paper.revision));

@@ -50,7 +50,7 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
     try{
       const files=execFileSync('git',['diff','--no-renames','--name-only','-z',before,'HEAD'],{encoding:'utf8'}).split('\0').filter(Boolean);
       plan=cloudReleasePlan(files);
-      const directoryCode=files.some(file=>/^assistant-service\/(?:student-(?:directory|index)|runtime\.mjs$|store\.mjs$|scripts\/deploy-student-directory\.mjs$)/.test(file));
+      const directoryCode=files.some(file=>/^assistant-service\/(?:student-(?:directory|index)|runtime\.mjs$|scripts\/deploy-student-directory\.mjs$)/.test(file));
       const dependencies=files.some(file=>/^assistant-service\/package(?:-lock)?\.json$/.test(file));
       directory=directoryCode||dependencies&&!workerIndependentDependencyChange(before);
       catalogue=files.some(file=>/^assistant-service\/(?:paper-catalogue\.mjs$|paper-library-facets\.mjs$|scripts\/backfill-paper-(?:catalogue|facets)\.mjs$)/.test(file));

@@ -1,0 +1,85 @@
+:host {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.access-review {
+  width: min(100%, 870px);
+  margin: 0 auto;
+  padding: clamp(20px, 4vw, 48px);
+  color: var(--desk-ink);
+}
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.review-header h1 {
+  margin: 0 0 6px;
+  font: 800 clamp(27px, 4vw, 41px)/1.1 var(--desk-serif);
+  letter-spacing: -.035em;
+}
+.review-header p, .access-feedback, .record-identity span, .record-identity time {
+  color: var(--desk-muted);
+  line-height: 1.5;
+}
+.review-header p { margin: 0; }
+.access-controls, .access-filter {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.access-controls {
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.access-filter button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--desk-line);
+  border-radius: 999px;
+  background: var(--desk-white);
+  color: var(--desk-ink);
+  font: inherit;
+}
+.access-filter button[aria-pressed="true"] {
+  border-color: #185c3d;
+  background: #e5f1e6;
+  font-weight: 700;
+}
+.access-records {
+  margin: 0;
+  padding: 0 16px;
+  border: 1px solid var(--desk-line);
+  border-radius: 12px;
+  background: var(--desk-white);
+  list-style: none;
+}
+.access-records li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  padding: 14px 0;
+}
+.access-records li + li { border-top: 1px solid var(--desk-line); }
+.record-identity { min-width: 0; overflow-wrap: anywhere; }
+.record-identity > * { display: block; }
+.record-identity span, .record-identity time { font-size: 13px; }
+.record-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.access-review .button, .access-review .text-button { min-height: 44px; }
+.access-feedback:empty { margin: 0; }
+.access-empty { padding: 14px 0; color: var(--desk-muted); }
+.access-more { margin-top: 14px; }
+@media (max-width: 480px) {
+  .access-records { padding-inline: 12px; }
+  .record-identity { flex-basis: 100%; }
+}

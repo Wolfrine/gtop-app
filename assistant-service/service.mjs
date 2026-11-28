@@ -17,6 +17,10 @@ import {paperFacetOptionsPath,paperFacetScopeFromFilters} from './paper-library-
 import {artifactFilename} from './domain/artifact-filenames.mjs';
 import {enqueueExamUpdate} from './exam-notifications.mjs';
 
+import {currentPapersActor} from './store.mjs';
+import {dispatchHead, dispatchMarkerPath, dispatchVersion, generationLane, generationLeaseKey, generationLeaseLane, isDispatchRoute, isRouteWorker, workerCanServe} from './dispatch-lanes.mjs';
+import {humanPapersUid, managedPapersAccess, papersAdmin, papersAuthority, requirePapersAccess, requirePapersAdmin, samePapersAuthority} from './papers-access.mjs';
+
 export class HttpError extends Error { constructor(status, code, message) { super(message); this.status = status; this.code = code; } }
 const fail = (status, code, message) => { throw new HttpError(status, code, message); };
 const hash = text => createHash('sha256').update(text, 'utf8').digest('hex');
@@ -131,18 +135,19 @@ function decodeArtifact(doc){
 export class AssistantService {
   constructor(store, {now = () => new Date(), id = randomUUID, signer = null, sleep = ms => new Promise(r => setTimeout(r,ms)), domainApi = domain} = {}) { Object.assign(this,{store,now,id,signer,sleep,domain:domainApi});this.serviceControl=new ServiceControl(this,fail);this.checking=new PaperChecking(this,fail);this.catalogueCache=new CurriculumCatalogueCache(store,sleep,fail); }
   iso() { return this.now().toISOString(); }
-  notifyDispatch(tx,ownerUid) {
-    tx.set(ref('assistantDispatch',ownerUid),{schemaVersion:1,revision:randomUUID(),updatedAt:this.iso()});
+  notifyDispatch(tx,ownerUid,route='generation') {
+    tx.wake(ownerUid,route,{schemaVersion:1,revision:randomUUID(),updatedAt:this.iso()});
     this.notifyContent(tx,ownerUid);
   }
   notifyContent(tx,ownerUid) {
     tx.set(ref('assistantUiNotifications',ownerUid),{schemaVersion:1,revision:randomUUID(),updatedAt:this.iso()});
   }
   async user(claims) {
-    if (!claims?.uid || claims.assistantWorker) fail(401,'sign_in_required','Sign in with your Growth Tutorials account.');
-    const [profile, config] = await Promise.all([this.store.get(ref('users',claims.uid)),this.store.get('assistantConfig/pilot')]);
-    if (profile?.role !== 'admin' || !config?.allowedOwnerUids?.includes(claims.uid)) fail(403,'pilot_access_required','This private pilot is restricted to invited Growth Tutorials administrators.');
-    return {uid:claims.uid,displayName:profile.displayName || profile.name || claims.name || '',email:claims.email || profile.email || '',libraryAccess:true};
+    const uid=humanPapersUid(claims);
+    const access=requirePapersAccess(await papersAuthority(this.store,uid)), {profile,config}=access;
+    return {uid,displayName:profile?.displayName || profile?.name || claims.name || '',email:claims.email || profile?.email || '',
+      libraryAccess:true,papersAdmin:access.kind==='admin',accessManagement:access.kind==='admin'&&managedPapersAccess(config),
+      accessVersion:access.version,dispatchVersion:dispatchVersion(config)};
   }
   workerIdentity(claims) {
     if (claims?.assistantWorker !== true || !claims.workerId || claims.uid !== `assistant-worker-${claims.workerId}`) fail(403,'worker_access_required','A paired assistant worker is required.');
@@ -153,6 +158,22 @@ export class AssistantService {
     const worker = await this.store.get(ref('assistantWorkers',id));
     if (!worker || worker.enabled !== true || !Array.isArray(worker.allowedOwnerUids)) fail(403,'worker_disabled','Worker pairing is disabled.');
     return {...worker,id};
+  }
+  async dispatch(worker,body) {
+    const config=await this.store.get('assistantConfig/pilot'), modern=dispatchVersion(config)===2;
+    if(body.version!==2){
+      if(modern)fail(409,'worker_dispatch_update_required','This worker must update its dispatch protocol.');
+      return {ownerUids:worker.allowedOwnerUids};
+    }
+    if(worker.id!==serviceWorkerId||!isDispatchRoute(body.route)) fail(403,'worker_access_required','This worker route is unavailable.');
+    return {version:2,markerPath:dispatchMarkerPath(body.route),...(modern?{}:{ownerUids:worker.allowedOwnerUids})};
+  }
+  async jobWorkerAuthorized(reader,worker,job) {
+    const [access,pairing]=await Promise.all([
+      papersAuthority(reader,job.ownerUid,{version:job.accessVersion}),reader.get(ref('assistantWorkers',worker.id))
+    ]);
+    return samePapersAuthority(access,job.accessVersion) &&
+      workerCanServe(pairing && {...pairing,id:worker.id},access.config,job.ownerUid);
   }
   async bootstrap(body) {
     const workerId = safeId(body.workerId), secret = text(body.secret,256);
@@ -171,19 +192,36 @@ export class AssistantService {
     return doc;
   }
   async session(user,includeContentRevision=false) {
-    const [pairings,marker]=await Promise.all([this.store.list('assistantWorkers', [['enabled','==',true]],20,{includeId:true}),includeContentRevision?this.store.get(ref('assistantUiNotifications',user.uid)).catch(()=>undefined):undefined]);
-    const workers=await Promise.all(pairings.filter(w=>w.allowedOwnerUids?.includes(user.uid)).map(async w=>withWorkerHealth(w,await this.store.get(ref('assistantWorkerHealth',w.id)))));
-    const own = workers.filter(w => w.allowedOwnerUids?.includes(user.uid)).sort((a,b) => (b.lastSeenAt || '').localeCompare(a.lastSeenAt || ''))[0];
+    const modern=user.dispatchVersion===2;
+    const [pairings,marker]=await Promise.all([
+      modern ? this.store.get(ref('assistantWorkers',serviceWorkerId)).then(pairing=>pairing?.enabled?[{...pairing,id:serviceWorkerId}]:[])
+        : this.store.list('assistantWorkers', [['enabled','==',true]],20,{includeId:true}),
+      includeContentRevision?this.store.get(ref('assistantUiNotifications',user.uid)).catch(()=>undefined):undefined
+    ]);
+    const workers=await Promise.all(pairings.filter(w=>modern||w.allowedOwnerUids?.includes(user.uid)).map(async w=>withWorkerHealth(w,await this.store.get(ref('assistantWorkerHealth',w.id)))));
+    const own = workers.sort((a,b) => (b.lastSeenAt || '').localeCompare(a.lastSeenAt || ''))[0];
     const fresh = own && this.now().getTime() - Date.parse(own.lastSeenAt || '')>=0 && this.now().getTime() - Date.parse(own.lastSeenAt || '') < workerFreshnessMs;
-    const service=await this.serviceControl.get(user).catch(error=>{if([403,503].includes(error.status))return null;throw error;});
+    const service=user.papersAdmin ? await this.serviceControl.get(user).catch(error=>{if([403,503].includes(error.status))return null;throw error;}) : null;
     const contentRevision=marker===null?'':marker?.schemaVersion===1&&typeof marker.revision==='string'?marker.revision:undefined;
     return {user,worker:{state:fresh ? own.state || 'loading' : 'offline',lastSeenAt:own?.lastSeenAt || null,modelReady:!!(fresh && own.modelReady)},service,notifications:{schemaVersion:1,contentPath:ref('assistantUiNotifications',user.uid),presencePath:service?ref('assistantWorkerHealth',serviceWorkerId):null,freshnessMs:workerFreshnessMs},...(contentRevision===undefined?{}:{contentRevision}),capabilities:capabilityFacts({}),defaults:Object.fromEntries(['marks','durationMinutes','questionLanguage','answerLanguage'].map(key=>[key,domain.defaults[key]]))};
   }
   curriculumCatalogue(consumer='worker'){return this.catalogueCache.get(consumer);}
+  async workerCurriculum(worker,body) {
+    const modern=dispatchVersion(await this.store.get('assistantConfig/pilot'))===2;
+    if(modern&&body.conversationId){
+      const active=await this.store.transaction(tx=>this.leased(tx,worker,safeId(body.jobId),body.leaseId));
+      if(active?.conversation.id!==body.conversationId)fail(404,'not_found','Conversation unavailable.');
+    }
+    return this.resolveCurriculum(body.requirements,body.conversationId,worker);
+  }
   async resolveCurriculum(requirements,conversationId=null,worker=null){
     const r=validateScope({...domain.defaults,...requirements});validateCurriculumScope(r);
     const c=conversationId?await this.store.get(ref('assistantConversations',conversationId)):null;
-    if(conversationId&&(!c||!worker?.allowedOwnerUids?.includes(c.ownerUid)))fail(404,'not_found','Conversation unavailable.');
+    if(conversationId) {
+      if(!c||!worker)fail(404,'not_found','Conversation unavailable.');
+      const ownership=await papersAuthority(this.store,c.ownerUid);
+      if(!ownership.kind||!workerCanServe(worker,ownership.config,c.ownerUid)) fail(404,'not_found','Conversation unavailable.');
+    }
     const select=snapshot=>{
       try{return selectedCurriculum(snapshot,r);}
       catch(error){fail(400,'curriculum_unavailable',error.message);}
@@ -227,7 +265,7 @@ export class AssistantService {
     return {conversations:rows.sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)).map(publicConversation)};
   }
   async adminLibrary(uid,body={}) {
-    await this.user({uid});
+    requirePapersAdmin(await this.user({uid}));
     if(!['papers','conversations'].includes(body.kind))fail(400,'invalid_library_kind','Choose papers or conversations.');
     const order=libraryOrder(body.kind,body.cursor);
     const collection=body.kind==='papers'?'assistantPapers':'assistantConversations';
@@ -266,8 +304,9 @@ export class AssistantService {
   }
   // Show only authorized, derived curriculum options. No source-paper scans,
   // count leaks, model inferences, or repeated whole-library reads.
-  async adminLibraryFacets(uid,body={}){
-    await this.user({uid});
+  async adminLibraryFacets(uid,body={},actor){
+    const user=actor??await this.user({uid});
+    if(!user.papersAdmin)body={...body,filters:{...body.filters,ownerScope:'mine'}};
     let normalized;
     try{normalized=normaliseCatalogueSearch({kind:'papers',filters:body.filters||{},latestRevisionOnly:true});}
     catch(error){fail(400,'invalid_catalogue_scope',String(error.message||error));}
@@ -287,11 +326,13 @@ export class AssistantService {
   }
   // Authorized indexed discovery. Original papers, solutions and the existing
   // chronological library endpoint are not modified.
-  async adminLibrarySearch(uid,body={}){
-    await this.user({uid});
+  async adminLibrarySearch(uid,body={},actor){
+    const user=actor??await this.user({uid});
+    if(!user.papersAdmin)body={...body,filters:{...body.filters,ownerScope:'mine'}};
     let request,offset;
     try{
       request=normaliseCatalogueSearch(body);
+      if(!user.papersAdmin)request.signature=hash(uid+'/'+request.signature);
       offset=decodeCatalogueCursor(body.cursor,request.signature);
     }catch(error){fail(400,'invalid_catalogue_search',String(error.message||error));}
     const migration=await this.store.get(catalogueMigrationPath);
@@ -312,29 +353,33 @@ export class AssistantService {
     };
     while(scanned<maxScanned&&matches.length<=request.pageSize){
       const size=Math.min(50,maxScanned-scanned);
-      const records=await this.store.list('paperCatalogue',[['lookupKeys','array-contains',request.lookupKey]],size,{
-        orderBy:['createdAt','desc'],orderById:true,
-        ...(position?{cursorValues:[position.createdAt,position.paperId]}:{}),select:columns
-      });
+      const records=user.papersAdmin
+        ? await this.store.list('paperCatalogue',[['lookupKeys','array-contains',request.lookupKey]],size,{
+          orderBy:['createdAt','desc'],orderById:true,
+          ...(position?{cursorValues:[position.createdAt,position.paperId]}:{}),select:columns
+        })
+        : await this.store.list('paperCatalogue',[['ownerUid','==',uid]],size,{
+          orderBy:['__name__','asc'],...(position?{startAfter:position.paperId}:{}),select:[...columns,'lookupKeys']
+        });
       for(const record of records){
         scanned++;
         position={createdAt:record.createdAt,paperId:record.paperId};
-        if(allowed(record))matches.push(record);
+        if(allowed(record)&&(user.papersAdmin||record.lookupKeys?.includes(request.lookupKey)))matches.push(record);
         if(matches.length>request.pageSize)break;
       }
       if(records.length<size){exhausted=true;break;}
     }
     const items=matches.slice(0,request.pageSize);
     const more=matches.length>request.pageSize||!exhausted;
-    const last=items.at(-1)||position;
+    const last=items.at(-1)||(!user.papersAdmin?position:null);
     return {items:items.map(publicCatalogueItem),
       nextCursor:more&&last?encodeCatalogueCursor(last,request.signature):null,
       indexCoverage:migration?.completed===true?'complete':'building',
       isPartial:migration?.completed!==true||(!exhausted&&matches.length<=request.pageSize),
-      sortApplied:'recent',pageSize:request.pageSize};
+      sortApplied:user.papersAdmin?'recent':'owner',pageSize:request.pageSize};
   }
   async adminConversation(uid,id,query) {
-    await this.user({uid});const path=ref('assistantConversations',id),c=await this.store.get(path);
+    requirePapersAdmin(await this.user({uid}));const path=ref('assistantConversations',id),c=await this.store.get(path);
     if(!visibleToAdmin(c,uid))fail(404,'not_found','Conversation unavailable.');
     const view=query?.get('view');
     const pageOrStatus=['messages','papers','paper','status'].includes(view);
@@ -344,14 +389,14 @@ export class AssistantService {
     if(pageOrStatus&&!detail.conversation)return detail;
     return {...detail,readOnly:c.ownerUid!==uid,...(pageOrStatus?{}:{creatorName:String(profile?.displayName||profile?.name||'GTOP administrator').slice(0,120)})};
   }
-  async adminArtifact(uid,id,kind,named=false) {await this.user({uid});const p=await this.store.get(ref('assistantPapers',id));if(!visibleToAdmin(p,uid))fail(404,'not_found','Paper unavailable.');return this.artifact(p.ownerUid,id,kind,named);}
-  async createConversation(uid, body) {
+  async adminArtifact(uid,id,kind,named=false) {requirePapersAdmin(await this.user({uid}));const p=await this.store.get(ref('assistantPapers',id));if(!visibleToAdmin(p,uid))fail(404,'not_found','Paper unavailable.');return this.artifact(p.ownerUid,id,kind,named);}
+  async createConversation(uid, body,actor) {
     const id = body.clientRequestId ? hash(`${uid}:conversation:${safeId(body.clientRequestId)}`).slice(0,40) : this.id();
     const result = await this.store.transaction(async tx => {
       const existing = await tx.get(ref('assistantConversations',id));
       if (existing) { if(existing.ownerUid !== uid) fail(404,'not_found','Conversation unavailable.'); return existing; }
       const config=await tx.get('assistantConfig/pilot');
-      const c = {id,ownerUid:uid,title:'New paper conversation',status:'active',createdAt:this.iso(),updatedAt:this.iso(),requestRevision:0,...(config?.nativePapersEnabled===true?{nativePrivate:true}:{})};
+      const c = {id,ownerUid:uid,title:'New paper conversation',status:'active',createdAt:this.iso(),updatedAt:this.iso(),requestRevision:0,...(config?.nativePapersEnabled===true||actor?.papersAdmin===false?{nativePrivate:true}:{})};
       tx.create(ref('assistantConversations',id),c);this.notifyContent(tx,uid); return c;
     });
     return {conversation:publicConversation(result)};
@@ -463,6 +508,8 @@ export class AssistantService {
       const [c, previous, config] = await Promise.all([tx.get(ref('assistantConversations',cid)),tx.get(messagePath(cid,mid)),tx.get('assistantConfig/pilot')]);
       if (!c || c.ownerUid!==uid) fail(404,'not_found','Conversation unavailable.');
       if (previous) { if(previous.text!==original) fail(409,'idempotency_conflict','Message identifier was already used for different text.'); return {message:previous,job:publicJob(await tx.get(ref('assistantJobs',previous.jobId||jid)))}; }
+      if(currentPapersActor()?.papersAdmin===false&&c.nativePrivate!==true)
+        fail(409,'new_private_request_required','Start a private request to continue with teacher access.');
       const when = this.iso();
       const message = {id:mid,conversationId:cid,role:'user',text:original,createdAt:when,jobId:jid};
       let job = {id:jid,kind:'turn',ownerUid:uid,conversationId:cid,state:'queued',phase:'waiting_for_local_assistant',createdAt:when,updatedAt:when,requestMessageId:mid,requestRevision:c.requestRevision || 0};
@@ -498,7 +545,7 @@ export class AssistantService {
       }else if(paperProposal?.status==='pending'){
         if(response==='accept'&&!running){
           const [profile,config,...sources]=await Promise.all([tx.get(ref('users',uid)),tx.get('assistantConfig/pilot'),...paperProposal.sourceMessageIds.map(id=>tx.get(messagePath(cid,id)))]);
-          if(profile?.role!=='admin'||!config?.allowedOwnerUids?.includes(uid))fail(403,'pilot_access_required','Paper creation requires invited administrator access.');
+          if(!papersAdmin(profile,config,uid)) fail(403,'papers_access_required','Paper creation requires authorized GT Papers access.');
           if(paperProposal.ownerUid!==uid||paperProposal.conversationId!==cid||!paperProposal.curriculumSnapshot||sources.some((m,i)=>!m||m.role!=='user'||m.conversationId!==cid||hash(m.text)!==paperProposal.sourceHashes[i]))fail(409,'invalid_paper_proposal','The saved proposal evidence is unavailable. Please revise the request.');
           revision++;
           job={...job,kind:'paper',operation:'generate_paper',phase:'waiting_for_codex',requestRevision:revision,rootRequestMessageId:paperProposal.rootRequestMessageId,requirements:paperProposal.requirements,curriculumSnapshot:paperProposal.curriculumSnapshot,interpretation:paperProposal.interpretation,proposedActions:['generate_paper'],confirmedProposalId:paperProposal.id};
@@ -601,7 +648,7 @@ export class AssistantService {
   }
   async heartbeat(worker,body) {
     if(!['ready','loading','busy','offline'].includes(body.state) || typeof body.modelReady!=='boolean')fail(400,'invalid_heartbeat','Invalid worker heartbeat.');
-    await this.store.transaction(async tx=>{const current=await tx.get(ref('assistantWorkers',worker.id));if(current?.enabled!==true||!Array.isArray(current.allowedOwnerUids))fail(403,'worker_disabled','Worker pairing is disabled.');if(current.paperRuntimeMode==='codex'&&body.runtime!=='codex')fail(409,'worker_profile_required','The paired worker requires the Codex Papers runtime.');tx.set(ref('assistantWorkerHealth',worker.id),{schemaVersion:1,state:body.state,modelReady:body.modelReady,version:text(body.version,100),lastSeenAt:this.iso()});});return {ok:true};
+    await this.store.transaction(async tx=>{const current=await tx.get(ref('assistantWorkers',worker.id));if(current?.enabled!==true||!Array.isArray(current.allowedOwnerUids))fail(403,'worker_disabled','Worker pairing is disabled.');if(current.paperRuntimeMode==='codex'&&body.runtime!=='codex')fail(409,'worker_profile_required','The paired worker requires the Codex Papers runtime.');tx.set(ref('assistantWorkerHealth',worker.id),{schemaVersion:1,state:body.state,modelReady:body.modelReady,version:text(body.version,100),...(/^[a-f0-9]{40}$/.test(body.build??'')?{build:body.build}:{}),routedOnly:body.routedOnly===true,lastSeenAt:this.iso()});});return {ok:true};
   }
   async expireOne(id,ownerUid=null) {
     return this.store.transaction(async tx=>{
@@ -620,20 +667,40 @@ export class AssistantService {
   async claim(worker,body) {
     if(!['turn','paper'].includes(body.kind))fail(400,'invalid_kind','Invalid task kind.');
     if(claimsPaused(worker,this.now().getTime())||(worker.paperRuntimeMode==='codex'&&body.runtime!=='codex'))return {job:null};
-    const wait=Math.max(0,Math.min(20,Number(body.waitSeconds)||0)),deadline=Date.now()+wait*1000;
+    const config=await this.store.get('assistantConfig/pilot'), modern=dispatchVersion(config)===2;
+    if(modern&&(body.dispatchVersion!==2||!isRouteWorker(worker,config)))fail(409,'worker_dispatch_update_required','This worker must use scoped dispatch.');
+    const wait=modern?0:Math.max(0,Math.min(20,Number(body.waitSeconds)||0)),deadline=Date.now()+wait*1000;
     do {
-      const candidates=(await this.store.list('assistantJobs',[['state','==','queued']],200,{select:['id','kind','native','ownerUid','createdAt']})).filter(j=>(!j.native||body.native===true)&&(j.kind===body.kind||(body.kind==='paper'&&j.kind==='curriculum'))&&worker.allowedOwnerUids.includes(j.ownerUid)).sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
+      const lanes=[generationLane(body.kind,false),...(body.kind==='turn'&&body.native===true?[generationLane(body.kind,true)]:[])];
+      const candidates=(modern
+        ? (await Promise.all(lanes.map(lane=>dispatchHead(this.store,'assistantJobs',lane,8)))).flat()
+        : (await this.store.list('assistantJobs',[['state','==','queued']],200,{select:['id','kind','native','ownerUid','createdAt']}))
+          .filter(j=>(!j.native||body.native===true)&&(j.kind===body.kind||(body.kind==='paper'&&j.kind==='curriculum'))&&worker.allowedOwnerUids.includes(j.ownerUid))
+      ).sort((a,b)=>a.createdAt.localeCompare(b.createdAt)||a.id.localeCompare(b.id));
+      let progressed=false;
       for(const candidate of candidates){
         const job=await this.store.transaction(async tx=>{
           const j=await tx.get(ref('assistantJobs',candidate.id));if(!j || j.state!=='queued'||(j.native&&body.native!==true))return null;
           const config=await tx.get('assistantConfig/pilot'),profile=await tx.get(ref('users',j.ownerUid)),c=await tx.get(ref('assistantConversations',j.conversationId)),currentWorker=await tx.get(ref('assistantWorkers',worker.id));
-          if(!config?.allowedOwnerUids?.includes(j.ownerUid) || profile?.role!=='admin' || !c || c.ownerUid!==j.ownerUid || currentWorker?.enabled!==true || !currentWorker.allowedOwnerUids?.includes(j.ownerUid) || claimsPaused(currentWorker,this.now().getTime()) || (currentWorker.paperRuntimeMode==='codex'&&body.runtime!=='codex')) return null;
+          if(dispatchVersion(config)!==(modern?2:1)||!c||c.ownerUid!==j.ownerUid||
+            !workerCanServe(currentWorker&&{...currentWorker,id:worker.id},config,j.ownerUid)||
+            claimsPaused(currentWorker,this.now().getTime())||(currentWorker.paperRuntimeMode==='codex'&&body.runtime!=='codex'))return null;
+          const access=await papersAuthority(tx,j.ownerUid,{profile,config,version:j.accessVersion});
+          if(!samePapersAuthority(access,j.accessVersion)){
+            if(!modern)return null;
+            const now=this.iso();
+            tx.update(ref('assistantJobs',j.id),{state:'failed',phase:'access_changed',error:'GT Papers access changed. Request a retry if access has been restored.',retryable:true,updatedAt:now});
+            if(j.native&&c.activeNativeTurnId===j.id)tx.update(ref('assistantConversations',c.id),{activeNativeTurnId:null,updatedAt:now});
+            this.notifyContent(tx,j.ownerUid);
+            return {skipped:true};
+          }
           const slot=jobSlot(j);
           if(j.native&&(c.activeNativeTurnId!==j.id||(c.nativeThreadWorkerId&&c.nativeThreadWorkerId!==worker.id)))return null;
-          if(j.kind==='turn'&&c.latestUserMessageId&&c.latestUserMessageId!==j.requestMessageId){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded_by_new_message',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return null;}
-          if(j.kind!=='turn' && (c[slot.id]!==j.id || (c[slot.revision]||0)!==j.requestRevision)){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return null;}
+          if(j.kind==='turn'&&c.latestUserMessageId&&c.latestUserMessageId!==j.requestMessageId){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded_by_new_message',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return {skipped:true};}
+          if(j.kind!=='turn' && (c[slot.id]!==j.id || (c[slot.revision]||0)!==j.requestRevision)){tx.set(ref('assistantJobs',j.id),{...j,state:'cancelled',phase:'superseded',updatedAt:this.iso()});this.notifyContent(tx,j.ownerUid);return {skipped:true};}
           const next={...j,state:'running',phase:j.native?'codex_native_working':j.kind==='turn'?(body.runtime==='codex'?'codex_understanding_request':'local_conversation'):'codex_starting',assignedWorkerId:worker.id,leaseId:this.id(),leaseUntil:new Date(this.now().getTime()+120000).toISOString(),startedAt:this.iso(),updatedAt:this.iso()};tx.set(ref('assistantJobs',j.id),next);this.notifyContent(tx,j.ownerUid);return next;
         });
+        if(job?.skipped){progressed=true;continue;}
         if(job){
           try{return {job:await this.workerJob(job)};}
           catch(error){
@@ -645,6 +712,16 @@ export class AssistantService {
             throw error;
           }
         }
+      }
+      if(modern) {
+        const leaseLanes=[generationLeaseLane(body.kind,false),...(body.kind==='turn'&&body.native===true?[generationLeaseLane(body.kind,true)]:[])];
+        const active=(await Promise.all(leaseLanes.map(lane=>dispatchHead(this.store,'assistantJobs',lane,1,'dispatchLeaseKey')))).flat();
+        const next=active.sort((a,b)=>a.leaseUntil.localeCompare(b.leaseUntil))[0];
+        if(next&&leaseExpired(next,this.now().getTime())){
+          await this.expireOne(next.id,next.ownerUid);
+          return {job:null,drain:true};
+        }
+        return {job:null,...(progressed?{drain:true}:{}),...(next?{nextWake:next.leaseUntil}:{})};
       }
       if(Date.now()>=deadline)break;await this.sleep(1000);
     }while(Date.now()<deadline);
@@ -701,11 +778,10 @@ export class AssistantService {
     return bounded(brief,20000);
   }
   async leased(tx,worker,id,leaseId,existing=null) {
-    const j=existing||await tx.get(ref('assistantJobs',id));if(!j || !worker.allowedOwnerUids.includes(j.ownerUid))fail(404,'not_found','Task unavailable.');
+    const j=existing||await tx.get(ref('assistantJobs',id));if(!j)fail(404,'not_found','Task unavailable.');
     if(j.assignedWorkerId!==worker.id || !leaseId || j.leaseId!==leaseId || !['running','validating'].includes(j.state) || !Number.isFinite(Date.parse(j.leaseUntil || '')) || Date.parse(j.leaseUntil || '')<=this.now().getTime())return null;
     const c=await tx.get(ref('assistantConversations',j.conversationId));
-    const [config,profile,currentWorker]=await Promise.all([tx.get('assistantConfig/pilot'),tx.get(ref('users',j.ownerUid)),tx.get(ref('assistantWorkers',worker.id))]);
-    if(!config?.allowedOwnerUids?.includes(j.ownerUid) || profile?.role!=='admin' || !c || c.ownerUid!==j.ownerUid || currentWorker?.enabled!==true || !currentWorker.allowedOwnerUids?.includes(j.ownerUid))return null;
+    if(!c||c.ownerUid!==j.ownerUid||!await this.jobWorkerAuthorized(tx,worker,j))return null;
     const slot=jobSlot(j);
     if(j.native&&(c.activeNativeTurnId!==id||(c.nativeThreadWorkerId&&c.nativeThreadWorkerId!==worker.id)))return null;
     if(j.kind==='turn'&&c.latestUserMessageId&&c.latestUserMessageId!==j.requestMessageId)return null;
@@ -729,7 +805,7 @@ export class AssistantService {
     return this.store.transaction(async tx=>{
       const active=await this.leased(tx,worker,id,body.leaseId);if(!active)return {active:false};
       const {job}=active,now=this.now(),leaseUntil=new Date(now.getTime()+120000).toISOString();
-      tx.update(ref('assistantJobs',id),{leaseUntil,updatedAt:now.toISOString(),elapsedSeconds:Math.max(0,Math.floor((now.getTime()-Date.parse(job.startedAt))/1000)),...(body.phase?{phase:text(body.phase,100)}:{})});
+      tx.update(ref('assistantJobs',id),{leaseUntil,dispatchLeaseKey:generationLeaseKey(job,leaseUntil),updatedAt:now.toISOString(),elapsedSeconds:Math.max(0,Math.floor((now.getTime()-Date.parse(job.startedAt))/1000)),...(body.phase?{phase:text(body.phase,100)}:{})});
       if(body.phase&&body.phase!==job.phase)this.notifyContent(tx,job.ownerUid);
       return {active:true,leaseUntil};
     });
@@ -756,7 +832,7 @@ export class AssistantService {
   async delegate(worker,id,body) {
     if(!['generate_paper','revise_paper','check_curriculum'].includes(body.operation))fail(400,'unsupported_operation','This capability is unavailable.');
     const requestedJob=await this.store.get(ref('assistantJobs',id));
-    if(!requestedJob||!worker.allowedOwnerUids.includes(requestedJob.ownerUid))fail(404,'not_found','Task unavailable.');
+    if(!requestedJob||requestedJob.assignedWorkerId!==worker.id||!await this.jobWorkerAuthorized(this.store,worker,requestedJob))fail(404,'not_found','Task unavailable.');
     if(requestedJob.native)fail(409,'invalid_transition','Native Codex turns publish directly on completion.');
     const input=await this.workerJob(requestedJob);
     const taskBrief=await this.turnBrief(worker,requestedJob,body,input);
@@ -800,14 +876,14 @@ export class AssistantService {
       const pendingCreation=creationMessage&&(!latestPaperForResume||creationMessage.createdAt>latestPaperForResume.createdAt);
       if(!rootMessage || rootMessage.role!=='user' || rootMessage.conversationId!==c.id || rootMessage.createdAt>currentMessage.createdAt)fail(400,'invalid_root_request','The original paper request must be a saved user message from this conversation.');
       const jid=this.id(),now=this.iso(),revision=(c[slot.revision] || 0)+1;
-      const next={id:jid,kind:body.operation==='check_curriculum'?'curriculum':'paper',operation:body.operation,ownerUid:job.ownerUid,conversationId:job.conversationId,state:'queued',phase:'waiting_for_codex',createdAt:now,updatedAt:now,requestMessageId:job.requestMessageId,rootRequestMessageId,requestRevision:revision,requirements:bounded(requirements),...(body.operation==='check_curriculum'&&pendingCreation&&!taskBrief.creationPaused?{resumePaperAfterCheck:true}:{}),...(curriculumSnapshot?{curriculumSnapshot:bounded(curriculumSnapshot,180000)}:{}),interpretation:text(body.interpretation,4000),proposedActions:bounded(body.proposedActions,8000),...(base?{basePaperId:base.id,targetQuestionNumber:body.targetQuestionNumber ?? null}:{})};
+      const next={id:jid,kind:body.operation==='check_curriculum'?'curriculum':'paper',operation:body.operation,ownerUid:job.ownerUid,accessVersion:job.accessVersion??0,conversationId:job.conversationId,state:'queued',phase:'waiting_for_codex',createdAt:now,updatedAt:now,requestMessageId:job.requestMessageId,rootRequestMessageId,requestRevision:revision,requirements:bounded(requirements),...(body.operation==='check_curriculum'&&pendingCreation&&!taskBrief.creationPaused?{resumePaperAfterCheck:true}:{}),...(curriculumSnapshot?{curriculumSnapshot:bounded(curriculumSnapshot,180000)}:{}),interpretation:text(body.interpretation,4000),proposedActions:bounded(body.proposedActions,8000),...(base?{basePaperId:base.id,targetQuestionNumber:body.targetQuestionNumber ?? null}:{})};
       if(old && activeStates.has(old.state))tx.set(ref('assistantJobs',old.id),{...old,state:'cancelled',phase:'superseded_by_new_request',leaseId:null,leaseUntil:null,updatedAt:now});
       tx.create(ref('assistantJobs',jid),next);this.notifyDispatch(tx,job.ownerUid);tx.set(ref('assistantJobs',id),{...job,state:'completed',phase:'delegated_to_codex',updatedAt:now,leaseId:null,leaseUntil:null,metrics:bounded(body.metrics)});tx.set(ref('assistantConversations',c.id),{...c,...(taskBrief&&(!c.taskBrief?.lastMessageAt||taskBrief.lastMessageAt>=c.taskBrief.lastMessageAt)?{taskBrief}:{}),[slot.id]:jid,[slot.revision]:revision,updatedAt:now});return next;
     });return {job:body.ackOnly===true?publicJob(result):await this.workerJob(result)};
   }
   async complete(worker,id,body) {
     const requestedJob=await this.store.get(ref('assistantJobs',id));
-    if(!requestedJob||!worker.allowedOwnerUids.includes(requestedJob.ownerUid))fail(404,'not_found','Task unavailable.');
+    if(!requestedJob||requestedJob.assignedWorkerId!==worker.id||!await this.jobWorkerAuthorized(this.store,worker,requestedJob))return {active:false};
     if(requestedJob.native)return this.completeNative(worker,id,body);
     const receipt=requestedJob.kind==='paper'&&typeof body.leaseId==='string'?hash(body.leaseId):null;
     const {receiptOnly,...submission}=body;
@@ -834,8 +910,8 @@ export class AssistantService {
     return this.store.transaction(async tx=>{
       const stored=await tx.get(ref('assistantJobs',id));
       if(stored&&isReceipt(stored)){
-        const [profile,config,pairing,paper]=await Promise.all([tx.get(ref('users',stored.ownerUid)),tx.get('assistantConfig/pilot'),tx.get(ref('assistantWorkers',worker.id)),tx.get(ref('assistantPapers',stored.paperId))]);
-        if(profile?.role!=='admin'||!config?.allowedOwnerUids?.includes(stored.ownerUid)||pairing?.enabled!==true||!pairing.allowedOwnerUids?.includes(stored.ownerUid)||paper?.ownerUid!==stored.ownerUid||paper.conversationId!==stored.conversationId||paper.jobId!==id)return {active:false};
+        const [authorized,paper]=await Promise.all([this.jobWorkerAuthorized(tx,worker,stored),tx.get(ref('assistantPapers',stored.paperId))]);
+        if(!authorized||paper?.ownerUid!==stored.ownerUid||paper.conversationId!==stored.conversationId||paper.jobId!==id)return {active:false};
         if(stored.completionRequestSha256!==requestHash)return {active:false};
         return {active:true,paperId:stored.paperId};
       }
@@ -854,7 +930,7 @@ export class AssistantService {
           if(brief.creationRequestId&&!brief.creationPaused&&!missingTaskField(brief)){
             const rid='resume-'+job.id;
             resumeTurn=await tx.get(ref('assistantJobs',rid));
-            if(!resumeTurn)resumeTurn={id:rid,kind:'turn',operation:'confirm_paper',ownerUid:job.ownerUid,conversationId:c.id,state:'queued',phase:'waiting_for_confirmation',createdAt:now,updatedAt:now,requestMessageId:latestUser.id,requestRevision:c.requestRevision||0,resumedFromCurriculumJobId:job.id};else resumeTurn=null;
+            if(!resumeTurn)resumeTurn={id:rid,kind:'turn',operation:'confirm_paper',ownerUid:job.ownerUid,accessVersion:job.accessVersion??0,conversationId:c.id,state:'queued',phase:'waiting_for_confirmation',createdAt:now,updatedAt:now,requestMessageId:latestUser.id,requestRevision:c.requestRevision||0,resumedFromCurriculumJobId:job.id};else resumeTurn=null;
           }
         }
       }
@@ -932,8 +1008,8 @@ export class AssistantService {
       const stored=await tx.get(ref('assistantJobs',id));
       if(stored?.native&&stored.state==='completed'){
         if(stored.assignedWorkerId!==worker.id||stored.completionLeaseSha256!==leaseHash||stored.completionRequestSha256!==requestHash)return {active:false};
-        const [profile,config,pairing,c,turn]=await Promise.all([tx.get(ref('users',stored.ownerUid)),tx.get('assistantConfig/pilot'),tx.get(ref('assistantWorkers',worker.id)),tx.get(ref('assistantConversations',stored.conversationId)),tx.get(turnPath)]);
-        if(profile?.role!=='admin'||!config?.allowedOwnerUids?.includes(stored.ownerUid)||pairing?.enabled!==true||!pairing.allowedOwnerUids?.includes(stored.ownerUid)||c?.ownerUid!==stored.ownerUid||c.nativeThreadId!==threadId||c.nativeThreadWorkerId!==worker.id||turn?.jobId!==id)return {active:false};
+        const [authorized,c,turn]=await Promise.all([this.jobWorkerAuthorized(tx,worker,stored),tx.get(ref('assistantConversations',stored.conversationId)),tx.get(turnPath)]);
+        if(!authorized||c?.ownerUid!==stored.ownerUid||c.nativeThreadId!==threadId||c.nativeThreadWorkerId!==worker.id||turn?.jobId!==id)return {active:false};
         return {active:true,...stored.completionArtifacts};
       }
       const active=await this.leased(tx,worker,id,body.leaseId,stored);if(!active)return {active:false};

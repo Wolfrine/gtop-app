@@ -108,7 +108,7 @@ export class ClassIntake {
     return this.store.transaction(async tx=>{
       const current=await tx.get(queue(row.id)),packet=await tx.get(row.path),usage=await tx.get(quota(row.uid))||{};
       if(current?.state!=='running'||current.lease!==row.lease||packet?.lease!==row.lease||
-          current.leaseUntil<=this.checking.now()||!await this.checking.authorizedWorker(tx,current.workerId,row.uid))return {active:false};
+          current.leaseUntil<=this.checking.now()||!await this.checking.authorizedWorker(tx,current.workerId,row.uid,{version:current.accessVersion}))return {active:false};
       const {firstPage,lastPage}=this.job(packet);
       let slice;
       try{slice=validateIntakePages(body,firstPage,lastPage);}
@@ -124,9 +124,9 @@ export class ClassIntake {
         tx.set(quota(row.uid),{...usage,active:Math.max(0,(usage.active||0)-1)});
       }else{
         tx.set(queue(row.id),{id:row.id,uid:row.uid,paperId:null,path:row.path,kind:'class-intake',state:'queued',
-          queuedAt:now,intakeOrderKey:orderedKey(row.uid,now,row.id)});
+          accessVersion:current.accessVersion??0,queuedAt:now,intakeOrderKey:orderedKey(row.uid,now,row.id)});
       }
-      this.checking.service.notifyDispatch(tx,row.uid);
+      this.checking.service.notifyDispatch(tx,row.uid,'checking');
       return {active:true};
     });
   }
@@ -149,7 +149,7 @@ export class ClassIntake {
         tx.set(quota(uid),{...usage,active:Math.max(0,(usage?.active||0)-1)});
       }
       tx.set(path,packet);
-      this.checking.service.notifyDispatch(tx,uid);
+      this.checking.service.notifyDispatch(tx,uid,'checking');
       return {packet:visible(packet)};
     });
   }
@@ -241,7 +241,7 @@ export class ClassIntake {
           group.sheetId=id;
         }
         tx.set(quota(uid),{...usage,day:day(now),drafts:drafts+groups.length,active:(usage.active||0)+ready});
-        this.checking.service.notifyDispatch(tx,uid);
+        this.checking.service.notifyDispatch(tx,uid,'checking');
       }else this.checking.service.notifyContent(tx,uid);
       const next={...packet,readings:[],paperId,state:final?'completed':'review',groups,groupCount:groups.length,
         error:null,version:packet.version+1,updatedAt:now};

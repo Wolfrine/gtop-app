@@ -30,12 +30,12 @@
           <button type="button" (click)="refresh(); menu.open = false" [disabled]="busy || dirty">
             Refresh sheet
           </button>
-          @if (!sheet!.studentSubmission) {
+          @if (papersAdmin && !sheet!.studentSubmission) {
             <button type="button" (click)="linkFormOpen = true; menu.open = false" [disabled]="busy || dirty">
               {{ sheet!.studentUid ? 'Change linked student' : 'Link to a student' }}
             </button>
           }
-          @if (onScanClass && sheet!.studentUid && !active && sheet!.state !== 'uploading') {
+          @if (papersAdmin && onScanClass && sheet!.studentUid && !active && sheet!.state !== 'uploading') {
             <button type="button" (click)="menu.open = false; onScanClass(sheet!.gradingPaperId || paperId)" [disabled]="busy || dirty || printing">Check another student</button>
           }
           @if (sheet!.grade) {
@@ -118,11 +118,13 @@
         />
       } @else {
         <form (ngSubmit)="submit()" class="form intake-form">
-          @if (!frozen) {
+          @if (papersAdmin && !frozen) {
             <student-lookup [selected]="intakeStudent" [disabled]="busy" (selectedChange)="intakeStudent = $event; label = ''" />
           }
           @if (frozen && sheet?.studentLabel) { <p><strong>{{ identity(sheet!).full }}</strong></p> }
-          @if (!intakeStudent && !(frozen && sheet?.labelFromStudent)) {
+          @if (!papersAdmin && !frozen) {
+            <label>Sheet label<input name="label" [(ngModel)]="label" [disabled]="busy" maxlength="100" placeholder="e.g. Roll 07" /></label>
+          } @else if (papersAdmin && !intakeStudent && !(frozen && sheet?.labelFromStudent)) {
             <details [open]="frozen"><summary>Use a sheet label instead</summary>
               <label>Sheet label<input name="label" [(ngModel)]="label" [disabled]="busy || frozen" maxlength="100" placeholder="e.g. Roll 07" /></label>
             </details>
@@ -225,7 +227,7 @@
     </section>
   } @else if (sheet; as current) {
     <section class="sheet" aria-label="Marking desk">
-      @if (linkFormOpen) {
+      @if (papersAdmin && linkFormOpen) {
         <section class="card student-assignment" aria-label="Link this answer book to a student">
           <h2>{{ current.studentUid ? 'Change linked student' : 'Link this answer book' }}</h2>
           <p>{{ current.studentUid ? 'Currently linked to ' + identity(current).full : 'Original sheet label: ' + current.label }}</p>
@@ -251,7 +253,7 @@
                 : stateLabel(current)
             }}</span
           >
-          @if (!current.automatic && !current.studentUid && !linkFormOpen) {
+          @if (papersAdmin && !current.automatic && !current.studentUid && !linkFormOpen) {
             <button class="link" type="button" (click)="linkFormOpen = true" [disabled]="busy || dirty">Link to student</button>
           }
           @if (current.grade) {
@@ -333,7 +335,7 @@
                 {{ current.state === 'failed' ? 'Retry checking' : 'Queue checking' }}
               </button>
             }
-            @if (active && current.studentUid && onScanClass) {
+            @if (papersAdmin && active && current.studentUid && onScanClass) {
               <button class="action" type="button" (click)="onScanClass(current.gradingPaperId || paperId)" [disabled]="busy || dirty">Check another student</button>
             }
 

@@ -29,7 +29,7 @@ export function submissionApprovalScope(ownerUid, paperId, identity) {
 }
 export function moveStaffSubmissionIndex(tx, row, nextStatus, at) {
   if (row.status === nextStatus) return;
-  if (staffSubmissionStates.includes(row.status) || staffSubmissionStates.includes(nextStatus)) notifySubmissionInbox(tx, at);
+  if (row.teacherUpload !== true && (staffSubmissionStates.includes(row.status) || staffSubmissionStates.includes(nextStatus))) notifySubmissionInbox(tx, at);
   if (staffSubmissionStates.includes(row.status)) tx.delete(staffSubmissionStatePath(row.ownerUid, row.status) + '/' + row.id);
   if (staffSubmissionStates.includes(nextStatus)) tx.set(staffSubmissionStatePath(row.ownerUid, nextStatus) + '/' + row.id, {createdAt: at});
 }

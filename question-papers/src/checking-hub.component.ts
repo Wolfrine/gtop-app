@@ -20,6 +20,7 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
   @Input({required:true}) onClose!: () => void;
   @Input({required:true}) onResults!: (paperId:string, packetId?:string, sheetId?:string) => void;
   @Input() libraryAccess = false;
+  @Input() papersAdmin = true;
   @ViewChild(ExternalExamComponent) externalExam?: ExternalExamComponent;
   private api = inject(AssistantApi);
   private destroyed = false;
@@ -48,7 +49,7 @@ export class CheckingHubComponent implements OnInit, OnDestroy {
     const params = new URL(location.href).searchParams;
     if (params.get('check') || params.get('checking') !== 'class') return;
     this.packetId = params.get('packet') || '';
-    this.studentUid = this.packetId ? '' : params.get('studentUid') || '';
+    this.studentUid = this.packetId || !this.papersAdmin ? '' : params.get('studentUid') || '';
     const printed = params.get('printed');
     this.printedId = printed && printed !== 'new' ? printed : '';
     this.picker = printed ? 'import' : null;

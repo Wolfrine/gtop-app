@@ -73,6 +73,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .overview-grid{
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin:0 0 25px;
 }
+.overview-grid.teacher-overview{grid-template-columns:repeat(3,minmax(0,1fr))}
+.desk-today.teacher-today{grid-template-columns:minmax(0,1fr)}
 .overview-card{
   position:relative;min-width:0;display:flex;flex-direction:column;
   align-items:flex-start;gap:9px;text-align:left;padding:20px 19px 18px;
@@ -146,6 +148,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   filter:drop-shadow(0 14px 20px #153f2719);
 }
 .login-content h1{color:#174332}
+.login-content .access-account{overflow-wrap:anywhere;margin-bottom:10px;font-weight:700}
+.login-content>.text-button{min-height:44px}
 .button.primary,.author-primary{background:#185c3d;border-color:#185c3d;color:#fff}
 .button.primary:hover:not(:disabled),.author-primary:hover:not(:disabled){background:#10482f;border-color:#10482f}
 .author-page{--accent-hover:#10482f;--work-tint:#e9f2e8;--control-line:#b3c6b5}
@@ -179,6 +183,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     background:#fffcf6;border-top:1px solid #dbe4d7;gap:3px;
     box-shadow:0 -3px 15px #284b2a0a;padding:5px 7px calc(5px + env(safe-area-inset-bottom,0px));
   }
+  .desk-shell .desk-nav.teacher-nav{grid-template-columns:repeat(3,minmax(0,1fr))}
   .desk-nav button{min-height:51px;border-radius:12px;padding:5px 0;color:#45634f;font-size:10.5px;gap:2px}
   .desk-nav button:hover{background:#eef5eb}
   .desk-nav button[aria-current]{background:#1b6140;color:#fff;box-shadow:0 2px 6px #16452d27}
@@ -196,7 +201,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .desk-upload-quick svg{width:23px;height:23px;flex:none}
   .desk-upload-label strong{font-size:13px}
   .desk-upload-label small{font-size:11px}
-  .overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-bottom:19px}
+  .overview-grid,.overview-grid.teacher-overview{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-bottom:19px}
   .overview-card{min-height:142px;border-radius:15px;padding:14px;gap:6px}
   .overview-card-icon{width:33px;height:33px;border-radius:9px}
   .overview-card-icon svg{width:19px;height:19px}

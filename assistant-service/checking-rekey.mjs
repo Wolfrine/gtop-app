@@ -49,7 +49,7 @@ export async function recheckClass(intake,uid,path,body){
     const next={...packet,gradingPaperId:paperId,gradingRevision:revision,version:packet.version+1,updatedAt:now,
       lastRecheck:{requestId,paperId,sourceVersion:body.version,counts}};
     tx.set(path,next);
-    checker.service.notifyDispatch(tx,uid);
+    checker.service.notifyDispatch(tx,uid,'checking');
     return {packet:intake.visible(next),recheck:counts};
   });
 }

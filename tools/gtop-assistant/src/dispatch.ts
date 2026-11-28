@@ -15,13 +15,16 @@ export class DispatchState {
   }
 }
 
-/** One exact marker per assigned owner. SDK reconnects retain their backoff. */
-export async function listenForDispatch({apiKey,idToken,workerId,ownerUids,changed,connection,failed,authEmulator}:any){
-  if(!Array.isArray(ownerUids)||!ownerUids.length||ownerUids.length>20||ownerUids.some(uid=>! /^[a-zA-Z0-9_-]{1,128}$/.test(uid)))throw Error('Invalid dispatch assignment.');
+/** A route marker is sufficient after cutover. Include legacy paths during migration. */
+export async function listenForDispatch({apiKey,idToken,workerId,route,markerPath,ownerUids,changed,connection,failed,authEmulator}:any){
+  if(markerPath!==undefined&&markerPath!==('assistantWorkerDispatch/'+workerId+'-'+route))throw Error('Invalid dispatch route.');
+  if(ownerUids!==undefined&&(!Array.isArray(ownerUids)||ownerUids.length>20||ownerUids.some(uid=>! /^[a-zA-Z0-9_-]{1,128}$/.test(uid))))throw Error('Invalid dispatch assignment.');
+  const paths:string[]=[...(markerPath?[markerPath]:[]),...(ownerUids||[]).map((uid:string)=>'assistantDispatch/'+uid)];
+  if(!paths.length)throw Error('Dispatch has no authorized marker.');
   const projectId=authEmulator?'demo-gtop-assistant':'gtop-app';
   const app=initializeServerApp({apiKey,projectId,authDomain:projectId+'.firebaseapp.com'},{authIdToken:idToken});
   const db=getFirestore(app),auth=getAuth(app),subscriptions:(()=>void)[]=[];
-  const state=new DispatchState(ownerUids);let closed=false;
+  const state=new DispatchState(paths);let closed=false;
   try{
     if(authEmulator){
       connectAuthEmulator(auth,authEmulator,{disableWarnings:true});
@@ -29,9 +32,9 @@ export async function listenForDispatch({apiKey,idToken,workerId,ownerUids,chang
     }
     await auth.authStateReady();
     if(auth.currentUser?.uid!==`assistant-worker-${workerId}`)throw Error('Dispatch identity mismatch.');
-    for(const uid of ownerUids){subscriptions.push(onSnapshot(doc(db,`assistantDispatch/${uid}`),{includeMetadataChanges:true},snapshot=>{
+    for(const path of paths){subscriptions.push(onSnapshot(doc(db,path),{includeMetadataChanges:true},snapshot=>{
       if(closed)return;
-      try{const accepted=state.accept(uid,snapshot.data(),snapshot.metadata.fromCache);connection(accepted.ready);if(accepted.changed)changed();}
+      try{const accepted=state.accept(path,snapshot.data(),snapshot.metadata.fromCache);connection(accepted.ready);if(accepted.changed)changed();}
       catch(error){connection(false);failed(error);}
     },error=>{if(!closed){connection(false);failed(error);}}));}
   }catch(error){subscriptions.forEach(unsub=>unsub());await terminate(db).catch(()=>{});await deleteApp(app);throw error;}

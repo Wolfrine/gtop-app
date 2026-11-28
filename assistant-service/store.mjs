@@ -1,3 +1,42 @@
+import {AsyncLocalStorage} from 'node:async_hooks';
+import {dispatchMarkerPath,dispatchVersion,stampDispatchRecord} from './dispatch-lanes.mjs';
+import {papersPolicyPath} from './papers-access.mjs';
+
+const transactionGuard = new AsyncLocalStorage();
+export const withTransactionGuard = (guard, action, actor) => transactionGuard.run({guard,actor}, action);
+export const currentPapersActor = () => transactionGuard.getStore()?.actor;
+
+// An enqueue and its wake commit together. Defer writes so the routing mode
+// is read only on enqueues and is fenced by the same Firestore transaction.
+async function papersTransaction(raw, action) {
+  const writes = [], wakeups = [];
+  let policy, actor;
+  const tx = {
+    get:path=>path===papersPolicyPath ? (policy??=raw.get(path)) : raw.get(path),
+    getSelected:raw.getSelected,
+    set:(path,data)=>writes.push(['set',path,data]),
+    create:(path,data)=>writes.push(['create',path,data]),
+    update:(path,data)=>writes.push(['update',path,data]),
+    delete:path=>writes.push(['delete',path]),
+    wake:(ownerUid,route,marker)=>wakeups.push({ownerUid,route,marker})
+  };
+  actor = await transactionGuard.getStore()?.guard(tx);
+  const result = await action(tx);
+  const markers = new Map();
+  if(wakeups.length) {
+    const modern = dispatchVersion(await tx.get(papersPolicyPath)) === 2;
+    for(const {ownerUid,route,marker} of wakeups) {
+      markers.set(modern ? dispatchMarkerPath(route) : 'assistantDispatch/'+ownerUid,marker);
+    }
+  }
+  for(const [operation,path,data] of writes) {
+    if(operation==='delete')raw.delete(path);
+    else raw[operation](path,stampDispatchRecord(path,data,actor));
+  }
+  for(const [path,marker] of markers)raw.set(path,marker);
+  return result;
+}
+
 /** No application collection is reachable except through explicit paths in service.mjs. */
 export class FirestoreStore {
   constructor(db) { this.db = db; }
@@ -36,7 +75,8 @@ export class FirestoreStore {
     });
   }
   transaction(fn) {
-    return this.db.runTransaction(tx => fn({
+    return this.db.runTransaction(async tx => {
+      const scoped = {
       get: async path => { const d = await tx.get(this.db.doc(path)); return d.exists ? d.data() : null; },
       getSelected: async (paths,fields) => {
         if(!paths.length)return [];
@@ -47,7 +87,9 @@ export class FirestoreStore {
       set: (path, data) => tx.set(this.db.doc(path), data),
       create: (path, data) => tx.create(this.db.doc(path), data),
       delete: path => tx.delete(this.db.doc(path))
-    }));
+      };
+      return papersTransaction(scoped,fn);
+    });
   }
 }
 
@@ -74,7 +116,7 @@ export class MemoryStore {
       throw Error('Unsupported query operator: '+op);
     };
     let rows=[...this.docs.entries()].filter(([key,value])=>key.startsWith(path+'/')&&
-      key.split('/').length===path.split('/').length+1&&filters.every(filter=>matches(value,filter)))
+      key.split('/').length===path.split('/').length+1&&filters.every(filter=>matches({...value,__name__:key.split('/').at(-1)},filter)))
       .map(([key,value])=>({id:key.split('/').at(-1),value:structuredClone(value)}));
     const compare=(a,b)=>a<b?-1:a>b?1:0;
     if(options.orderBy){
@@ -105,7 +147,7 @@ export class MemoryStore {
   transaction(fn) {
     const pending = this.tail.then(async () => {
       const writes = new Map();
-      const result = await fn({
+      const scoped = {
         get: path => this.get(path),
         getSelected: (paths,fields) => this.getSelected(paths,fields),
         update: (path, fields) => {
@@ -115,7 +157,8 @@ export class MemoryStore {
         set: (path, value) => writes.set(path, structuredClone(value)),
         create: (path, value) => { if (this.docs.has(path) || writes.has(path)) throw Error('Document already exists'); writes.set(path, structuredClone(value)); },
         delete: path => writes.set(path, undefined)
-      });
+      };
+      const result = await papersTransaction(scoped,fn);
       for (const [path, value] of writes) {
         if(value===undefined)this.docs.delete(path);else this.docs.set(path,value);
       }

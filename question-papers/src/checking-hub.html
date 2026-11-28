@@ -5,7 +5,7 @@
   </header>
   <div class="home-body">
     <section [hidden]="picker !== null" aria-label="Answer sheet checking">
-      <gtop-paper-packet #packetDesk [referenceTitle]="paperTitle" [paperId]="paperId" [packetId]="packetId" [studentUid]="studentUid" (studentChange)="rememberStudent($event)" [referenceChoice]="referenceChoice" [libraryAccess]="libraryAccess"
+      <gtop-paper-packet #packetDesk [referenceTitle]="paperTitle" [paperId]="paperId" [packetId]="packetId" [studentUid]="studentUid" (studentChange)="rememberStudent($event)" [referenceChoice]="referenceChoice" [libraryAccess]="libraryAccess" [papersAdmin]="papersAdmin"
         (packetChange)="rememberPacket($event)" (linkedPaper)="setReference($event)"
         (needPaper)="choosePaper($event)" (needPrinted)="choosePrinted()" (busyChange)="busy=$event" (selectionChange)="hasLocalFiles=$event"
         (queued)="onResults($event.paperId, $event.packetId, $event.sheetId)" />
@@ -22,7 +22,7 @@
           <button type="button" class="action" (click)="choosePrinted()">Use a printed paper</button>
         </div>
         @if (!legacyPicker) {
-          <gtop-paper-library mode="picker" (choosePaper)="chooseIndexedPaper($event)"></gtop-paper-library>
+          <gtop-paper-library mode="picker" [ownOnly]="!papersAdmin" (choosePaper)="chooseIndexedPaper($event)"></gtop-paper-library>
         } @else {
           <div class="pl-legacy-picker">
             <label class="search">Find a saved paper<input type="search" [(ngModel)]="search" placeholder="Title, subject or class"></label>
@@ -38,7 +38,7 @@
             @if (!loading && (nextCursor || libraryError)) { <button class="action" (click)="loadPapers()">{{ libraryError ? 'Try again' : 'Load older papers' }}</button> }
           </div>
         }
-        <div class="pl-picker-footer"><button type="button" class="text-action" (click)="toggleLegacyPicker()">
+        <div *ngIf="papersAdmin" class="pl-picker-footer"><button type="button" class="text-action" (click)="toggleLegacyPicker()">
           {{legacyPicker?'Use curriculum-based search':'Open previous paper list'}} <span aria-hidden="true">→</span>
         </button></div>
       </section>

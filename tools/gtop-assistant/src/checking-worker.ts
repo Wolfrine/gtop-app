@@ -46,7 +46,8 @@ const gateway=new Gateway(config);
 const wake=new DispatchWake(),lane='checking';
 const stop=new AbortController();
 for(const signal of ['SIGINT','SIGTERM'] as const)process.on(signal,()=>stop.abort());
-const status={protocol:'automatic-checking-v1',pid:process.pid,engine:model.engine,model:model.model,startedAt:new Date().toISOString(),
+const status={protocol:'automatic-checking-v1',dispatchProtocol:2,build:process.env.GTOP_PAPERS_RELEASE_SHA||null,
+  listenerReadyAt:null as string|null,routedOnly:false,pid:process.pid,engine:model.engine,model:model.model,startedAt:new Date().toISOString(),
   connected:false,claims:0,graded:0,organizedChunks:0,examsRead:0,failed:0,scanRetries:0,
   lastScanFailure:null as {page:number;kind:string}|null,state:'connecting'};
 async function report(state:string){
@@ -68,12 +69,12 @@ async function listen(){
     const ended=new Promise<void>(resolve=>{done=resolve;});
     stop.signal.addEventListener('abort',done,{once:true});
     try{
-      close=await gateway.listen(()=>wake.wake(lane),online=>{
+      close=await gateway.listen('checking',()=>wake.wake(lane),online=>{
         if(status.connected===online)return;
         status.connected=online;
-        if(online){failures=0;wake.wake(lane);}
+        if(online){failures=0;status.listenerReadyAt=new Date().toISOString();wake.wake(lane);}
         else void report('connecting').catch(()=>{});
-      },done);
+      },done,routedOnly=>{status.routedOnly=routedOnly;});
       timer=setTimeout(done,50*60_000);
       if(stop.signal.aborted)done();
       await ended;
@@ -99,13 +100,13 @@ async function work(){
         await wake.wait(lane,stop.signal);
         if(!status.connected)continue;
         status.claims++;
-        const {job,nextWake}=await gateway.post('/worker/checking/claim',{
-          engine:model.engine,capabilities:['class-intake-v1','external-exam-v1','automatic-checking-v1'],
-        },stop.signal) as {job:CheckingJob|null;nextWake:string|null};
+        const {job,nextWake,drain}=await gateway.post('/worker/checking/claim',{
+          engine:model.engine,dispatchVersion:2,capabilities:['class-intake-v1','external-exam-v1','automatic-checking-v1'],
+        },stop.signal) as {job:CheckingJob|null;nextWake:string|null;drain?:boolean};
         failures=0;
         clearTimeout(next);
         if(nextWake)next=setTimeout(()=>wake.wake(lane),Math.max(500,Date.parse(nextWake)-Date.now()+500));
-        if(job){await processJob(job);wake.wake(lane);}
+        if(job){await processJob(job);wake.wake(lane);}else if(drain)wake.wake(lane);
         await report('idle');
       }catch{
         if(stop.signal.aborted)break;

@@ -1,5 +1,6 @@
 import {createECDH, createHash} from 'node:crypto';
 import {HttpError} from './service.mjs';
+import {papersAdmin} from './papers-access.mjs';
 import {hasSubmissionOwner, staffSubmissionStates, submissionPath} from './student-submission-storage.mjs';
 
 const collection = 'paperNotifications';
@@ -138,8 +139,8 @@ function validateSubscription(input) {
   return {endpoint:url.href,keys:{p256dh:input.keys.p256dh,auth:input.keys.auth}};
 }
 async function verifyStaffTransaction(tx, uid) {
-  const [pilot, profile] = await tx.getSelected([membershipConfig, 'users/' + uid], ['allowedOwnerUids','role']);
-  if (profile?.role !== 'admin' || !Array.isArray(pilot?.allowedOwnerUids) || !pilot.allowedOwnerUids.includes(uid)) {
+  const [pilot, profile] = await tx.getSelected([membershipConfig, 'users/' + uid], ['allowedOwnerUids','role','managedAccess','dispatchVersion']);
+  if (!papersAdmin(profile,pilot,uid)) {
     throw new HttpError(403, 'pilot_access_required', 'Your staff access has changed.');
   }
 }

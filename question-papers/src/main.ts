@@ -2,6 +2,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener, Injector, inject, provideZoneChangeDetection, isDevMode, type Type } from '@angular/core';
 import { provideServiceWorker } from '@angular/service-worker';
 import { GtPwaControls } from './pwa-controls';
+import { PapersAccessReviewComponent } from './access-review.component';
 import { ExamUpdatesComponent, type ExamUpdateTarget, resolveExamUpdate, validUpdateId } from './exam-updates.component';
 import { PaperLibraryComponent, type CataloguePaper } from './paper-library.component';
 import { CommonModule } from '@angular/common';
@@ -11,7 +12,7 @@ import { AssistantApi } from './api.service';
 import type { StudentHistoryRecord } from './student-history.component';
 import { handbackIdentity } from './class-return-data';
 import { OwnerEvents, InvalidationQueue, WorkerHealth, validNotifications, freshHealth } from './owner-events';
-import { Conversation, ConversationDetail, ConversationList, Job, Message, PaperSummary, PilotSession, Transport, LibraryKind, LibraryItem, LibraryPage, LibraryFilters, AssistantServiceStatus, libraryMatches, mergeLibraryItems, conversationReadOnly } from './contracts';
+import { Conversation, ConversationDetail, ConversationList, Job, Message, PaperSummary, PilotSession, Transport, LibraryKind, LibraryItem, LibraryPage, LibraryFilters, AssistantServiceStatus, PapersAccess, PapersAccessStatus, libraryMatches, mergeLibraryItems, conversationReadOnly } from './contracts';
 import { getDevTransport } from './dev-transport';
 import { presentArtifact } from './artifact-presentation.mjs';
 import { artifactFilename, saveArtifact } from '../../assistant-service/domain/artifact-filenames.mjs';
@@ -32,7 +33,7 @@ function mergedHistoryCursor<T extends {id:string}>(prior:T[],incoming:T[],prior
 }
 
 @Component({
-  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls,PaperLibraryComponent,ExamUpdatesComponent],templateUrl:'./workspace.html',
+  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls,PaperLibraryComponent,ExamUpdatesComponent,PapersAccessReviewComponent],templateUrl:'./workspace.html',
   styles:[`
     @media (min-width:761px) and (max-width:1050px) {
       .desk-bar.with-updates {grid-template-columns:auto minmax(0,1fr) auto;gap:12px;padding-inline:16px}
@@ -48,6 +49,11 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   @ViewChild(ExamUpdatesComponent) private examUpdates?:ExamUpdatesComponent;
   transport:Transport=this.api;session?:PilotSession;conversations:Conversation[]=[];detail?:ConversationDetail;
   loading=true;sending=false;authenticating=false;emailForm=false;email='';password='';error='';draft='';drawer=false;fixture='';
+  accessStatus:PapersAccessStatus='unavailable';
+  accessBusy=false;accessError='';
+  private accessTask?:Promise<void>;
+  private sessionTask?:Promise<PilotSession>;
+  private accessUnsubscribe?:()=>void;
   serviceStarting=false;serviceError='';serviceStale=false;private serviceRequestId='';
   private lastOverviewAt=0;private refreshPending?:Promise<void>;
   private authEpoch=0;private authUnsubscribe?:()=>void;private events?:OwnerEvents;private contentQueue?:InvalidationQueue;
@@ -96,7 +102,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.writeRoute({view:'submissions',submission:id},true);
   };
   private readonly openInboxSheet=(id:string,paperId:string,sheetId:string)=>this.openChecking(paperId,'',sheetId,true,'',id);
-  get submissionsOpen(){return this.view==='submissions'&&!this.checkingOpen&&this.contentAuthorized;}
+  get submissionsOpen(){return this.papersAdmin&&this.view==='submissions'&&!this.checkingOpen&&this.contentAuthorized;}
   get studentSubmissionsInputs(){
     return {selectedId:this.inboxSubmissionId,onSelect:this.selectInboxSubmission,onOpenSheet:this.openInboxSheet};
   }
@@ -111,21 +117,42 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     if(row.kind==='packet')this.openCheckingHome('',row.id,true,this.studentUid);
     else if(row.paperId)this.openChecking(row.paperId,'',row.id,true,this.studentUid);
   };
-  get studentsOpen(){return this.view==='students'&&!this.checkingOpen&&this.contentAuthorized;}
+  get studentsOpen(){return this.papersAdmin&&this.view==='students'&&!this.checkingOpen&&this.contentAuthorized;}
   get studentHistoryInputs(){
     return {selectedUid:this.studentUid,onSelect:this.selectHistoryStudent,onCheck:this.startStudentCheck,onOpen:this.openStudentRecord};
   }
-  view:'home'|'chat'|'library'|'students'|'submissions'='home';libraryKind:LibraryKind='papers';libraryLoading=false;libraryError='';libraryFiltersOpen=false;
+  view:'home'|'chat'|'library'|'students'|'submissions'|'access'='home';libraryKind:LibraryKind='papers';libraryLoading=false;libraryError='';libraryFiltersOpen=false;
   libraryFilters:LibraryFilters={board:'',standard:'',subject:'',text:'',year:''};
   libraryPages:Record<LibraryKind,{items:LibraryItem[];nextCursor:string|null;loaded:boolean}>={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};
   public adminConversation=false;
   feedbackMessage='';feedbackText='';feedbackPaperId='';feedbackOpen=false;newRequestId='';private sendId='';private sendText='';private documentRequest=0;private timer?:ReturnType<typeof setTimeout>;private sharedAccessTimer?:ReturnType<typeof setTimeout>;private checkedLeases=new Map<string,string>();private destroyed=false;private openingId='';
   get user(){return this.session?.user;}
+  get papersAdmin(){return !!this.user&&this.user.papersAdmin!==false;}
+  get sharedLibrary(){return this.papersAdmin&&!!this.user?.libraryAccess;}
+  get managesAccess(){return this.papersAdmin&&!!this.user?.accessManagement;}
+  get applicant(){return !this.user?this.api.user:null;}
+  get accessAction(){
+    if(this.accessStatus==='none')return 'Request access';
+    if(this.accessStatus==='rejected'||this.accessStatus==='revoked')return 'Request access again';
+    if(this.accessStatus==='approved'||this.accessStatus==='admin')return 'Open your desk';
+    return 'Check access status';
+  }
+  get accessMessage(){
+    switch(this.accessStatus){
+      case 'none':return 'Request access to create question papers and check answer books in your own teaching desk.';
+      case 'pending':return 'Your request is waiting for review. Return here to check its status.';
+      case 'rejected':return 'Your access request was declined. You can submit a new request.';
+      case 'revoked':return 'Your access was removed. You can submit a new request.';
+      case 'approved':
+      case 'admin':return 'You have access to GT Papers.';
+      default:return 'Access status is temporarily unavailable. Try again in a moment.';
+    }
+  }
   get checkingOpen(){return (!!this.checkingPaperId||this.checkingHome)&&!!this.user&&this.contentAuthorized;}
-  get checkingInputs(){return {paperId:this.checkingPaperId,scopePacketId:this.checkingPacketId,fromStudentHistory:!!this.sheetHistoryUid,fromSubmissionInbox:!!this.checkingSubmissionId,onClose:this.returnFromChecking,onScanClass:this.scanForPaper,onManageClass:this.managePacket};}
-  get hubInputs(){return {libraryAccess:!!this.user?.libraryAccess,onClose:this.returnToWorkspace,onResults:this.viewCheckedClass};}
+  get checkingInputs(){return {paperId:this.checkingPaperId,scopePacketId:this.checkingPacketId,fromStudentHistory:!!this.sheetHistoryUid,fromSubmissionInbox:!!this.checkingSubmissionId,papersAdmin:this.papersAdmin,onClose:this.returnFromChecking,onScanClass:this.scanForPaper,onManageClass:this.managePacket};}
+  get hubInputs(){return {libraryAccess:this.sharedLibrary||!this.papersAdmin,papersAdmin:this.papersAdmin,onClose:this.returnToWorkspace,onResults:this.viewCheckedClass};}
   get worker(){return this.serviceStale?{label:'Assistant status unavailable',detail:'Could not check the assistant. Check your connection and refresh status.',tone:'offline'}:servicePresentation(this.session?.service,this.session?.worker);}
-  get canStartService(){return !!this.session?.service?.canStart&&!this.serviceStarting&&!this.serviceStale;}
+  get canStartService(){return this.papersAdmin&&!!this.session?.service?.canStart&&!this.serviceStarting&&!this.serviceStale;}
   get activeJobs(){return (this.detail?.jobs||[]).filter(j=>pendingStates.has(j.state));}
   get paperJobs():Job[]{return visibleJobs(this.detail);}
   get currentPaper(){return this.detail?.papers?.at(-1);}
@@ -312,7 +339,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   }
   // Keep the checking job and on-device scans safe when changing destinations.
   // Both checking views already subscribe to this cancelable leave event.
-  navigateFromShell(destination:'home'|'papers'|'check'|'inbox'|'students'){
+  navigateFromShell(destination:'home'|'papers'|'check'|'inbox'|'students'|'access'){
     if(!this.user)return;
     if(this.checkingOpen){
       if(destination==='check')return;
@@ -323,7 +350,19 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     else if(destination==='papers')void this.openLibrary();
     else if(destination==='check')this.openCheckingHome();
     else if(destination==='inbox')void this.openSubmissions();
-    else void this.openStudents();
+    else if(destination==='students')void this.openStudents();
+    else this.openAccessReview();
+  }
+  openAccessReview(write=true){
+    if(!this.managesAccess||!this.contentAuthorized)return;
+    this.prepareNavigation();this.openingId='';this.drawer=false;this.closeDocument();
+    this.view='access';
+    if(write)this.writeRoute({view:'access'});
+    setTimeout(()=>document.querySelector<HTMLElement>('#access-review-title')?.focus(),0);
+  }
+  closeUnavailableAccessReview(){
+    this.openHome();
+    void this.reconcileCapabilities();
   }
   logoutFromShell(){
     if(this.checkingOpen&&!window.dispatchEvent(new Event('gtop-checking-may-leave',{cancelable:true})))return;
@@ -336,7 +375,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     if(!this.workReady||!this.events?.contentReady)void this.reloadDesk();this.scheduleThreadCheck();
   }
   openChecking(paperId:string,packetId='',sheet='',write=true,historyUid='',submissionId=''){
-    if(!this.user||!this.contentAuthorized)return;
+    if(!this.user||!this.contentAuthorized||(!this.papersAdmin&&(historyUid||submissionId)))return;
     if(write)this.writeRoute({check:paperId,packet:packetId,sheet,checking:this.checkingHome?'class':'',view:submissionId?'submissions':historyUid?'students':'',studentUid:historyUid,submission:submissionId});
     this.prepareNavigation();
     this.openingId='';this.checkingHome=false;this.checkingPacketId=packetId;this.sheetHistoryUid=historyUid;this.checkingSubmissionId=submissionId;
@@ -346,7 +385,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   private readonly managePacket=(packetId:string)=>this.openCheckingHome('',packetId);
   private readonly scanForPaper=(paperId:string)=>this.openCheckingHome(paperId);
   openCheckingHome(reference='',packet='',write=true,studentUid=''){
-    if(!this.user||!this.contentAuthorized)return;
+    if(!this.user||!this.contentAuthorized||(!this.papersAdmin&&studentUid))return;
     if(write)this.writeRoute({checking:'class',reference,packet,studentUid,view:studentUid&&this.studentsOpen?'students':''});
     this.prepareNavigation();
     this.openingId='';this.checkingPaperId='';this.checkingPacketId='';
@@ -361,7 +400,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.openCheckingHome(paper.id);
   }
   async openStudents(uid='',write=true){
-    if(!this.user||!this.contentAuthorized)return;
+    if(!this.papersAdmin||!this.contentAuthorized)return;
     this.prepareNavigation();
     this.writeRoute({view:'students',studentUid:uid},!write);
     this.view='students';this.studentUid=uid;this.openingId='';this.drawer=false;this.error='';this.closeDocument();
@@ -371,7 +410,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.scheduleThreadCheck();
   }
   readonly openExamUpdate=async(target:ExamUpdateTarget,replace=false):Promise<boolean>=>{
-    if(!this.user||!this.contentAuthorized)return false;
+    if(!this.updatesAvailable||!this.user)return false;
     if(!replace&&this.checkingOpen&&!window.dispatchEvent(new Event('gtop-checking-may-leave',{cancelable:true})))return false;
     const epoch=this.authEpoch;
     if(target.kind==='submission'){
@@ -406,7 +445,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     }
   }
   async openSubmissions(id='',write=true){
-    if(!this.user||!this.contentAuthorized)return;
+    if(!this.papersAdmin||!this.contentAuthorized)return;
     this.prepareNavigation();
     if(write)this.writeRoute({view:'submissions',submission:id});
     this.view='submissions';this.inboxSubmissionId=id;this.openingId='';this.drawer=false;this.error='';this.closeDocument();
@@ -457,10 +496,11 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       board:item.board.raw,standard:item.standard.raw,subject:item.subject.raw,
       academicYear:item.academicYear,jobId:''
     };
-    void this.showDocument(paper,event.kind,true,event.print);
+    void this.showDocument(paper,event.kind,this.sharedLibrary,event.print);
   }
   openCatalogueChecking(paper:CataloguePaper){this.openCheckingHome(paper.paperId);}
   async openClassicPaperArchive(){
+    if(!this.sharedLibrary)return;
     this.libraryKind='papers';this.legacyLibraryMode=true;
     if(!this.libraryPages.papers.loaded)await this.loadLibrary();
   }
@@ -469,18 +509,24 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     if(write){this.libraryKind='papers';this.legacyLibraryMode=false;}
     this.prepareNavigation();if(write)this.writeRoute({view:'library'});
     this.openingId='';this.view='library';this.drawer=false;this.error='';this.closeDocument();
-    if(this.user.libraryAccess){if((this.legacyLibraryMode||this.libraryKind==='conversations')&&!this.libraryPage.loaded)await this.loadLibrary();}
-    else if(!this.requestsFresh){const epoch=this.authEpoch;try{await this.loadConversations();}catch(e){if(this.current(epoch))this.reportError(e);}}
+    if(this.sharedLibrary){if((this.legacyLibraryMode||this.libraryKind==='conversations')&&!this.libraryPage.loaded)await this.loadLibrary();}
+    else if((this.papersAdmin||this.libraryKind==='conversations')&&!this.requestsFresh){const epoch=this.authEpoch;try{await this.loadConversations();}catch(e){if(this.current(epoch))this.reportError(e);}}
     this.scheduleThreadCheck();
   }
   async switchLibrary(kind:LibraryKind){
     if(this.libraryLoading || kind===this.libraryKind)return;
     this.libraryKind=kind;this.legacyLibraryMode=false;this.archiveFilterChanged();this.libraryError='';this.closeDocument();
-    if(kind==='conversations'&&!this.libraryPage.loaded)await this.loadLibrary();
+    if(kind!=='conversations')return;
+    if(this.sharedLibrary){
+      if(!this.libraryPage.loaded)await this.loadLibrary();
+    }else if(!this.requestsFresh){
+      const epoch=this.authEpoch;
+      try{await this.loadConversations();}catch(error){if(this.current(epoch))this.reportError(error);}
+    }
   }
   clearLibraryFilters(){this.libraryFilters={board:'',standard:'',subject:'',text:'',year:''};this.archiveFilterChanged();}
   async loadLibrary(refresh=true){
-    if(!this.contentAuthorized || !this.user?.libraryAccess || this.libraryLoading)return;
+    if(!this.contentAuthorized || !this.sharedLibrary || this.libraryLoading)return;
     const epoch=this.authEpoch,kind=this.libraryKind,page=this.libraryPages[kind];
     const cursor=refresh ? null : page.nextCursor;
     if(!refresh && !cursor)return;
@@ -489,7 +535,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.libraryLoading=true;this.libraryError='';this.archiveProgress='';this.archiveEarlierError=false;
     try {
       const result=await this.transport.request<LibraryPage>('/admin/library','POST',{kind,...(cursor?{cursor}:{})});
-      if(!this.current(epoch) || !this.user?.libraryAccess)return;
+      if(!this.current(epoch) || !this.sharedLibrary)return;
       if(cursor && result.nextCursor===cursor)throw Error('The archive could not advance. Refresh to try again.');
       let nextCursor=result.nextCursor;
       let cached=page.items;
@@ -518,7 +564,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     }
   }
   async openLibraryConversation(id:string,write=true){
-    if(!this.contentAuthorized||!this.user?.libraryAccess)return;
+    if(!this.contentAuthorized||!this.sharedLibrary)return;
     this.prepareNavigation();if(write)this.writeRoute({request:id,shared:'1'});
     this.view='chat';this.detail=undefined;this.adminConversation=true;
     const epoch=this.authEpoch;this.openingId=id;this.error='';this.drawer=false;this.closeDocument();this.draft='';this.feedbackPaperId='';this.feedbackOpen=false;this.feedbackText='';this.feedbackMessage='';
@@ -545,16 +591,27 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   @HostListener('window:resize') updateFormulaFocus(){this.prepareDocument();}
   @HostListener('document:visibilitychange') visibilityChanged(){
     if(document.hidden){this.sharedProbeOnAttach=false;this.stopEvents();return;}
+    if(this.applicant){
+      if(this.accessStatus==='pending')void this.checkApplicantAccess();
+      return;
+    }
     if(!this.session)return;
+    void this.resumeForeground();
+  }
+  private async resumeForeground(){
+    const epoch=this.authEpoch;
+    if(!this.fixture)await this.reconcileCapabilities(true);
+    if(!this.current(epoch)||!this.session||document.hidden)return;
     const probeShared=this.viewingSharedThread;
     this.sharedProbeOnAttach=probeShared;
     this.startEvents();
     if(this.view==='home'&&!this.checkingOpen&&!this.workReady)void this.reloadDesk();
-    if(!this.events)void this.reconnect().finally(()=>this.scheduleThreadCheck());
-    else {
-      if(probeShared)void this.probeSharedThread();
-      if(this.presenceDenied||!this.session.notifications?.presencePath)void this.reconcileCapabilities(true);
+    if(probeShared)void this.probeSharedThread();
+    else if(!this.events){
+      try{await this.refresh(false,true);}
+      catch(error){if(this.current(epoch))this.reportError(error);}
     }
+    if(this.current(epoch))this.scheduleThreadCheck();
   }
   @HostListener('window:online') connectionRestored(){
     if(document.hidden||!this.session)return;
@@ -583,17 +640,31 @@ export class PaperWorkspace implements OnInit,OnDestroy {
         this.checkingInjector=Injector.create({parent:this.injector,providers:[{provide:AssistantApi,useValue:preview.transport}]});
         await this.loadSession();
       }
-      else{await this.api.initialize();this.authUnsubscribe=this.api.observeUser(user=>{this.resetAccount();if(user)void this.loadSession().catch(e=>this.reportError(e));});}
+      else{
+        await this.api.initialize();
+        this.accessUnsubscribe=this.api.observeAccessDenied(()=>this.loseWorkspaceAccess());
+        this.authUnsubscribe=this.api.observeUser(user=>{
+          this.resetAccount();
+          if(user)void this.loadSession();
+        });
+      }
     }catch(e){this.error=readableError(e);}
     finally{if(this.fixture||!this.api.user)this.loading=false;}
   }
-  ngOnDestroy(){this.destroyed=true;this.authEpoch++;this.authUnsubscribe?.();this.stopEvents();this.closeDocument();}
+  ngOnDestroy(){this.destroyed=true;this.authEpoch++;this.authUnsubscribe?.();this.accessUnsubscribe?.();this.stopEvents();this.closeDocument();}
   private current(epoch:number){return epoch===this.authEpoch&&!this.destroyed;}
   private get contentAuthorized(){return !this.contentDenied||this.contentAccessAllowed;}
-  get updatesAvailable(){return !this.fixture&&this.contentAuthorized;}
+  get updatesAvailable(){return this.papersAdmin&&!this.fixture&&this.contentAuthorized;}
   private acceptSession(session:PilotSession){
     const lostLibrary=!!this.session?.user.libraryAccess&&!session.user.libraryAccess;
+    const lostAdmin=this.papersAdmin&&session.user.papersAdmin===false;
+    if(lostAdmin){
+      this.resetAccount();this.session=session;this.contentRevision=session.contentRevision;
+      this.writeRoute({},true);this.openHome(false);this.startEvents();
+      return;
+    }
     this.session=session;
+    if(this.view==='access'&&!this.managesAccess)this.openHome();
     if(!lostLibrary)return;
     this.archiveSearch=undefined;this.clearLibraryFilters();this.libraryError='';this.libraryFiltersOpen=false;
     this.libraryPages={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};
@@ -603,8 +674,65 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       if(!this.checkingOpen){this.writeRoute({},true);void this.reloadDesk();}
     }
   }
-  private reportError(error:unknown){if([401,403].includes((error as {status?:number})?.status||0))this.resetAccount();this.error=readableError(error);}
+  private reportError(error:unknown){
+    const {status,code}=(error||{}) as {status?:number;code?:string};
+    if(status===403&&['papers_access_required','pilot_access_required'].includes(code||'')){
+      this.loseWorkspaceAccess();
+      return;
+    }
+    if(status===401)this.resetAccount();
+    this.error=readableError(error);
+  }
+  private loseWorkspaceAccess(){
+    if(!this.api.user||this.destroyed)return;
+    const hadSession=!!this.session;
+    if(hadSession)this.writeRoute({},true);
+    this.resetAccount();
+    void this.checkApplicantAccess(false,false);
+  }
+  private checkApplicantAccess(request=false,openApproved=true){
+    if(!this.applicant)return Promise.resolve();
+    if(this.accessTask)return this.accessTask;
+    const epoch=this.authEpoch;
+    this.accessBusy=true;this.accessError='';
+    const pending=(async()=>{
+      try{
+        const result=await this.transport.request<PapersAccess>('/access',request?'POST':'GET',request?{}:undefined);
+        if(!this.current(epoch))return;
+        this.accessStatus=result.status;
+        if(openApproved&&(result.status==='approved'||result.status==='admin'))await this.loadSession();
+      }catch(error){
+        if(!this.current(epoch))return;
+        const {status,code}=(error||{}) as {status?:number;code?:string};
+        if(status===404||code==='papers_access_unavailable')this.accessStatus='unavailable';
+        else this.accessError=request?'Could not confirm your request. Check your status before trying again.':'Could not check your access status. Try again.';
+      }finally{
+        if(this.current(epoch)){this.accessBusy=false;this.accessTask=undefined;}
+      }
+    })();
+    this.accessTask=pending;
+    return pending;
+  }
+  advanceAccess(){
+    if(this.accessBusy)return;
+    if(this.accessStatus==='approved'||this.accessStatus==='admin'){void this.loadSession();return;}
+    const request=['none','rejected','revoked'].includes(this.accessStatus)&&!this.accessError;
+    void this.checkApplicantAccess(request);
+  }
+  private readSession(includeContentRevision=false){
+    if(this.sessionTask)return this.sessionTask;
+    const path=!this.fixture&&includeContentRevision?'/session?contentRevision=1':'/session';
+    const pending=this.transport.request<PilotSession>(path);
+    this.sessionTask=pending;
+    void pending.then(
+      ()=>{if(this.sessionTask===pending)this.sessionTask=undefined;},
+      ()=>{if(this.sessionTask===pending)this.sessionTask=undefined;}
+    );
+    return pending;
+  }
   private resetAccount(){
+    this.accessStatus='unavailable';this.accessError='';this.accessBusy=false;this.accessTask=undefined;this.sessionTask=undefined;
+    this.inboxSubmissionId='';this.checkingSubmissionId='';this.checkedLeases.clear();
     this.contentRevision=undefined;this.contentConfirmed=false;this.sharedProbeOnAttach=false;this.workReady=false;this.workRevision=undefined;this.requestsFresh=false;this.requestsPending=undefined;
     this.conversationCursor=null;this.ownHistoryLoading=false;this.ownHistoryError='';this.threadHistoryLoading=null;this.threadHistoryError={};
     this.confirmedBack=false;this.returningAfterCancel=false;this.composePage++;this.savedBrief=undefined;this.workRequest++;this.workPending=undefined;this.workPackets=[];this.workSheets=[];this.workError='';this.workLoading=false;this.ownQuery='';this.allWork=false;this.error='';this.emailForm=false;this.checkingInjector=undefined;
@@ -612,7 +740,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.authEpoch++;this.pendingJobAction=null;this.checkingPaperId='';this.stopEvents();this.refreshPending=undefined;this.servicePending=undefined;this.capabilityPending=undefined;this.contentAccessPending=undefined;this.contentDenied=false;this.contentAccessAllowed=false;this.presenceDenied=false;this.session=undefined;this.detail=undefined;this.conversations=[];
     this.serviceError='';this.serviceRequestId='';this.serviceStale=false;this.health=undefined;this.lastOverviewAt=0;this.openingId='';
     this.draft='';this.email='';this.password='';this.sendId='';this.sendText='';this.newRequestId='';this.feedbackText='';this.feedbackMessage='';this.feedbackPaperId='';this.feedbackOpen=false;
-    this.loading=false;this.sending=false;this.serviceStarting=false;this.libraryLoading=false;this.libraryRefreshRequested=false;this.libraryError='';this.adminConversation=false;this.view='home';this.drawer=false;
+    this.loading=false;this.sending=false;this.serviceStarting=false;this.libraryKind='papers';this.legacyLibraryMode=false;this.libraryLoading=false;this.libraryRefreshRequested=false;this.libraryError='';this.adminConversation=false;this.view='home';this.drawer=false;
     this.clearLibraryFilters();this.libraryFiltersOpen=false;this.archiveSearch=undefined;this.archiveTail={};this.archiveEarlierError=false;this.libraryPages={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};this.closeDocument();
   }
   async login(email=false){this.error='';this.authenticating=true;try{if(email)await this.api.loginEmail(this.email,this.password);else await this.api.login();this.password='';if(!this.loading&&!this.session&&this.api.user)await this.loadSession();}catch(e){this.reportError(e);}finally{this.authenticating=false;}}
@@ -625,7 +753,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   private async loadSession(){
     const epoch=this.authEpoch;this.loading=true;
     try{
-      const session=await this.transport.request<PilotSession>(this.fixture?'/session':'/session?contentRevision=1');
+      const session=await this.readSession(true);
       if(!this.current(epoch))return;
       this.acceptSession(session);this.serviceStale=false;
       this.contentRevision=session.contentRevision;
@@ -663,13 +791,18 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     }
     const restoredUrl=location.href;
     const epoch=this.authEpoch;
-    const update=params.get('update');
+    const update=params.get('update'), view=params.get('view');
+    const staffRoute=update||view==='students'||view==='submissions'||params.has('studentUid')||params.has('submission')||params.has('shared');
+    if((!this.papersAdmin&&staffRoute)||(view==='access'&&!this.managesAccess)){
+      this.writeRoute({},true);this.openHome(false);return;
+    }
+    if(view==='access'){this.openAccessReview(false);return;}
     if(update&&this.updatesAvailable){await this.openExamDeepLink(update);return;}
     const check=params.get('check'),request=params.get('request');
     if(check)this.openChecking(check,params.get('packet')||'',params.get('sheet')||'',false,params.get('view')==='students'?params.get('studentUid')||'':'',params.get('view')==='submissions'?params.get('submission')||'':'');
     else if(params.get('checking')==='class')this.openCheckingHome(params.get('reference')||'',params.get('packet')||'',false);
     else if(request){
-      if(params.get('shared')==='1'&&this.user.libraryAccess)await this.openLibraryConversation(request,false);
+      if(params.get('shared')==='1'&&this.sharedLibrary)await this.openLibraryConversation(request,false);
       else await this.openConversation(request,false);
     }
     else if(params.get('view')==='create')await this.newConversation(false);
@@ -850,7 +983,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       }
       return this.transport.request<ConversationDetail>(this.threadPath(id,admin,'recent'));
     };
-    const [session,detail]=await Promise.all([overview?this.transport.request<PilotSession>('/session'):Promise.resolve(this.session!),getDetail().catch(error=>{
+    const [session,detail]=await Promise.all([overview?this.readSession():Promise.resolve(this.session!),getDetail().catch(error=>{
       if(admin&&(error as {status?:number})?.status===404&&this.current(epoch)&&page===this.composePage)this.clearSharedThread();
       throw error;
     })]);
@@ -899,7 +1032,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
           if(this.workRevision!==this.contentRevision&&this.current(epoch)&&!document.hidden)await this.reloadDesk();
         }else{
           if(this.view==='chat'&&!this.checkingOpen)await this.refresh(false,true);
-          if(this.drawer||this.view==='library'&&!this.user?.libraryAccess)await this.loadConversations();
+          if(this.drawer||this.view==='library'&&!this.sharedLibrary)await this.loadConversations();
         }
         if(!this.current(epoch)||document.hidden)return;
         clearTimeout(this.contentRetryTimer);if(this.contentRetryAttempt)this.error='';this.contentRetryAttempt=0;
@@ -949,7 +1082,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     const pending=(async()=>{
       try{
         // Direct Firestore policy failure does not establish gateway revocation.
-        const session=await this.transport.request<PilotSession>('/session');
+        const session=await this.readSession();
         if(!this.current(epoch)||!this.session)return;
         this.acceptSession(session);this.contentAccessAllowed=true;this.error='';
         if(this.events?.presenceReady&&this.eventConfig===JSON.stringify(session.notifications)&&freshHealth(this.health))this.receiveHealth(this.health);
@@ -997,7 +1130,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       try{
         // A denied presence grant may mean worker unpairing, rather than loss of
         // user access. Only the normal user session can distinguish those cases.
-        const session=await this.transport.request<PilotSession>('/session');
+        const session=await this.readSession();
         if(!this.current(epoch)||!this.session)return;
         if(this.presenceDenied&&session.service){
           try{const result=await this.transport.request<{service:AssistantServiceStatus}>('/service/status');if(!this.current(epoch)||!this.session)return;session.service=result.service;session.worker=result.service.worker;}
@@ -1069,7 +1202,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   private previewOpener?: HTMLElement;
   previewReady = false;
   async showDocument(paper:PaperSummary,kind:'student'|'answers',adminView=this.adminConversation,printOnOpen=false){
-    if(!this.contentAuthorized || (adminView && !this.user?.libraryAccess))return;
+    if(!this.contentAuthorized || (adminView && !this.sharedLibrary))return;
     const epoch=this.authEpoch, request=++this.documentRequest;
     if(!this.document && typeof HTMLElement!=='undefined' && document.activeElement instanceof HTMLElement)this.previewOpener=document.activeElement;
     this.documentLoading=true;this.error='';this.libraryError='';this.printRequest=0;
@@ -1090,7 +1223,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   }
   async getStudentLink(invite=false){
     const paper=this.document?.paper;
-    if(!paper||!this.contentAuthorized||this.previewLinkBusy)return;
+    if(!paper||!this.papersAdmin||!this.contentAuthorized||this.previewLinkBusy)return;
     const uses=this.previewInviteUses;
     if(invite&&(!Number.isInteger(uses)||uses<1||uses>30))return;
     const epoch=this.authEpoch, request=++this.linkRequest;
@@ -1126,8 +1259,9 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.previewLinkBusy=false;this.previewInviteUses=10;this.previewLinkMode='test';
   }
   async reviseArchivePaper(paper:PaperSummary){
-    if (!paper.conversationId || paper.ownerUid!==this.user?.uid || !this.user?.libraryAccess)return;
-    await this.openLibraryConversation(paper.conversationId);
+    if (!paper.conversationId || paper.ownerUid!==this.user?.uid)return;
+    if(this.sharedLibrary)await this.openLibraryConversation(paper.conversationId);
+    else await this.openConversation(paper.conversationId);
     if (this.detail?.conversation.id===paper.conversationId && !this.readOnly)this.revise(this.currentPaper || paper);
   }
   @HostListener('document:keydown.escape',['$event'])

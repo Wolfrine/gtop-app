@@ -227,14 +227,6 @@ export class McqManagementComponent implements OnInit, OnDestroy {
         if (this.lastVisible) this.fetchMCQs(true);
     }
 
-    refreshSyllabus() {
-        this.mcqService.updateSyllabusFromQuestions().then(() => {
-            console.log("Syllabus refreshed successfully!");
-        }).catch(error => {
-            console.error("Error refreshing syllabus:", error);
-        });
-    }
-
     filterMCQs() {
         if (this.selectedBoard !== this.loadedBoard) {
             this.selectedStandard = '';

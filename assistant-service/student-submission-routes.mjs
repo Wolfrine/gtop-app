@@ -1,4 +1,5 @@
 import {HttpError} from './service.mjs';
+import {attachmentHeader} from './domain/artifact-filenames.mjs';
 import {
   assertEnrollment, assertStaffSubmissionActor, authenticatedStudent, createSubmissionInvite, getSubmissionTest, listSubmissionInvites, personalSubmissionAccess,
   redeemSubmissionInvite, revokeSubmissionInvite, shareSubmissionTest
@@ -9,7 +10,7 @@ import {
 } from './student-submissions.mjs';
 import {
   approveSubmission, legacySubmissionSource, prepareSubmissionReference, releaseSubmission, stageSubmissionResult,
-  staffResultPdf, studentResult, studentResultPdf, submissionProgress
+  staffResult, staffResultPdf, studentResult, studentResultPdf, submissionProgress
 } from './submission-grading.mjs';
 
 const studentRoot = '/student-submissions';
@@ -31,6 +32,7 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
   const uid = authenticatedStudent(checker, claims);
   if (staff) await assertStaffSubmissionActor(checker, uid);
   if (relative === '' && method === 'GET') {
+    if (staff && query.get('status') === 'released' && query.get('access') === '1') return {allowed:true};
     if (!staff && query.get('view') === 'released-scores') {
       return releasedSubmissionScores(checker, uid, query.get('cursor'));
     }
@@ -66,9 +68,10 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
   if (scan) {
     const [, kind, index] = scan;
     if (method === 'GET') {
-      const image = await readSubmissionPage(checker, uid, id, kind, Number(index), staff);
+      const {bytes,filename} = await readSubmissionPage(checker, uid, id, kind, Number(index), staff);
       headers['Content-Type'] = 'image/jpeg';
-      return image;
+      headers['Content-Disposition'] = attachmentHeader(filename);
+      return bytes;
     }
     if (!staff && method === 'POST') return uploadSubmissionPage(checker, uid, id, kind, Number(index), body);
   }
@@ -94,20 +97,23 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
     }
   }
   if (staff && method === 'GET' && action === 'report') {
-    const pdf=await staffResultPdf(checker,uid,id);
+    const {bytes,filename}=await staffResultPdf(checker,uid,id,query.get('revision'));
     headers['Content-Type']='application/pdf';
-    headers['Content-Disposition']='attachment; filename="checking-report.pdf"';
-    return pdf;
+    headers['Content-Disposition']=attachmentHeader(filename);
+    return bytes;
+  }
+  if (staff && method === 'GET' && action === 'result') {
+    return staffResult(checker,uid,id);
   }
   if (!staff && method === 'GET') {
     if (action === 'result') {
       return studentResult(checker, uid, id);
     }
     if (action === 'result/pdf') {
-      const pdf = await studentResultPdf(checker, uid, id);
+      const {bytes,filename} = await studentResultPdf(checker, uid, id,query.get('revision'));
       headers['Content-Type'] = 'application/pdf';
-      headers['Content-Disposition'] = 'attachment; filename="checked-answer-sheet.pdf"';
-      return pdf;
+      headers['Content-Disposition'] = attachmentHeader(filename);
+      return bytes;
     }
   }
   missing();
@@ -115,7 +121,7 @@ export async function studentSubmissionRoute(service, claims, method, path, quer
 
 async function approveBatch(checker, uid, {submissions, paperId, approvalScope}) {
   checker.id(paperId);
-  if (approvalScope !== undefined && (typeof approvalScope !== 'string' || !/^[a-f0-9]{64}$/.test(approvalScope))) {
+  if (typeof approvalScope !== 'string' || !/^(?:v2\.)?[a-f0-9]{64}$/.test(approvalScope)) {
     throw new HttpError(400, 'invalid_approval_scope', 'Reload the submissions before approving this group.');
   }
   if (!Array.isArray(submissions) || !submissions.length || submissions.length > 30 ||

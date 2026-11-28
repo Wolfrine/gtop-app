@@ -1,4 +1,6 @@
 import {createHash} from 'node:crypto';
+import {approvedExamSourceMatches} from './exam-identity.mjs';
+import {enqueueExamUpdate} from './exam-notifications.mjs';
 import {PDFDocument} from 'pdf-lib';
 import {assessmentRecoveryPath} from './assessment-recovery.mjs';
 import {checkingReport,checkingReportLayout} from './checking-report.mjs';
@@ -66,14 +68,14 @@ export async function continueApprovedReference(checker,row,sheet,patch){
       const recovery=await activeRecovery(tx,liveRow,liveSheet);
       if(!recovery)return {discarded:true};
       const now=checker.now();
-      const next=queueSubmissionSheet(checker,tx,recovery.current,liveSheet.id,paper,now,{attemptId:recovery.attempt.id});
+      const next=queueSubmissionSheet(checker,tx,recovery.current,liveSheet.id,paper,now,{attemptId:recovery.attempt.id,examIdentity:patch.examIdentity});
       updateRecovery(tx,recovery,now,'grading_queued',{sheetId:next.sheetId});
       return {transferred:true};
     }
     const approval=await approvedSubmission(tx,liveRow,liveSheet);
     if(!approval)return null;
     const now=checker.now();
-    const next=queueSubmissionSheet(checker,tx,approval,liveSheet.id,paper,now);
+    const next=queueSubmissionSheet(checker,tx,approval,liveSheet.id,paper,now,{examIdentity:patch.examIdentity});
     tx.update(submissionPath(approval.id),{...next,updatedAt:now,version:approval.version+1});
     notifySubmissionInbox(tx,now);
     return {transferred:true};
@@ -81,13 +83,14 @@ export async function continueApprovedReference(checker,row,sheet,patch){
 }
 
 function gradingFeedback(grade){
-  return (grade?.answers??[]).map(({number,status,awarded,max,explanation,counted})=>({
-    number,status,awarded,max,explanation,counted
+  return (grade?.answers??[]).map(({number,status,awarded,max,explanation,counted,choice})=>({
+    number,status,awarded,max,explanation,counted,...(['A','B'].includes(choice)?{choice}:{})
   }));
 }
 const resultFile = (path,key) => path+'/resultFiles/'+key;
 
-export async function finishAutomatic(checker,row,sheet,{grade=null,message=null,title,scans=false,expired=false,referencePatch}={}){
+export async function finishAutomatic(checker,row,sheet,{grade=null,message=null,title,scans=false,expired=false,referencePatch,examIdentity}={}){
+  examIdentity=sheet.examIdentity ?? examIdentity;
   const outcome=grade?.answers.some(answer=>answer.awarded!==null)
     ? (message||grade.pending?'partial':'complete'):'unassessable';
   const stopRecovery=error=>checker.finish(row,{...referencePatch,state:'failed',error},expired,
@@ -165,7 +168,11 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
       const now=checker.now(),nextResult={...result,checkingPath:path};
       updateRecovery(tx,recovery,now,'published',{replacementSha:result.sha,completedAt:now},{
         paperId:row.paperId,paperTitle:finalTitle,sheetId:sheet.id,referenceId:row.paperId,
-        publishedSheetVersion:stage.sheetVersion,result:nextResult,assessmentUpdatedAt:now});
+        publishedSheetVersion:stage.sheetVersion,result:nextResult,assessmentUpdatedAt:now,
+        ...(examIdentity ? {examIdentity} : {})});
+      enqueueExamUpdate(tx,{kind:'result-'+outcome,entityId:recovery.current.id,
+        version:stage.sheetVersion+'-'+sha,at:now,
+        ...(recovery.current.teacherUpload?{ownerUid:recovery.current.ownerUid,scope:'submission'}:{})});
       return {};
     }
     const approval=await approvedSubmission(tx,liveRow,liveSheet);
@@ -180,10 +187,12 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
     saveChunks(tx,offset,stage.chunks);
     const now=checker.now();
     const released={status:'released',paperTitle:finalTitle,releasedAt:now,updatedAt:now,
-      publishedSheetVersion:stage.sheetVersion,result:{...result,checkingPath:path}};
+      publishedSheetVersion:stage.sheetVersion,result:{...result,checkingPath:path},
+      ...(examIdentity ? {examIdentity} : {})};
     if(approval){
       tx.update(submissionPath(approval.id),{...released,version:approval.version+1});
       moveStaffSubmissionIndex(tx,approval,'released',now);
+      enqueueExamUpdate(tx,{kind:'result-'+outcome,entityId:approval.id,version:stage.sheetVersion+'-'+sha,at:now});
     }else if(directId&&profile){
       const direct={...released,id:directId,ownerUid:row.uid,studentUid:liveSheet.studentUid,studentLabel:liveSheet.studentLabel,
         title:finalTitle,paperId:row.paperId,sheetId:liveSheet.id,automatic:true,teacherUpload:true,createdAt:liveSheet.createdAt,
@@ -193,6 +202,8 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
       tx.create(studentSubmissions(direct.studentUid)+'/'+directId,{createdAt:now});
       tx.create(ownerSubmissions(row.uid)+'/'+directId,{createdAt:now});
       moveStaffSubmissionIndex(tx,{id:directId,ownerUid:row.uid},'released',now);
+      enqueueExamUpdate(tx,{kind:'result-'+outcome,entityId:directId,version:stage.sheetVersion+'-'+sha,
+        at:now,ownerUid:row.uid,scope:'submission'});
     }
     return {};
   });
@@ -201,7 +212,7 @@ export async function finishAutomatic(checker,row,sheet,{grade=null,message=null
 export async function completeAutomatic(checker,row,sheet,body){
   if(autoReference(row.kind)){
     let patch;
-    try{patch=checker.references.complete(body,sheet);}
+    try{patch=await checker.references.complete(body,sheet);}
     catch{return finishAutomatic(checker,row,sheet,{message:'The question scan could not be read reliably. The answer sheet could not be assessed.'});}
     if(patch.state==='ready'&&row.kind==='auto-print-reference')return checker.finish(row,patch);
     if(patch.state==='ready')return continueApprovedReference(checker,row,sheet,patch);
@@ -211,12 +222,12 @@ export async function completeAutomatic(checker,row,sheet,body){
   let assessment;
   const source=await checker.sourcePaper(checker.store,row.paperId,row.uid);
   const rubric=gradingRubric(source);
-  if(!rubric||digest(rubric)!==row.rubricDigest)
+  if(!rubric||digest(rubric)!==row.rubricDigest||!approvedExamSourceMatches(source,sheet.examIdentity))
     return finishAutomatic(checker,row,sheet,{message:'The approved question paper or mark allocations are unavailable.'});
   try{assessment=assessStudentGrade(body,rubric,sheet.pageCount);}
   catch{assessment={grade:null,issue:{message:'The checker did not produce marks that could be validated against the supplied scans.'}};}
   return finishAutomatic(checker,row,sheet,{...assessment,title:rubric.title,scans:!!assessment.grade?.answers.some(answer=>answer.anchors.length||answer.awarded!==null),
-    grade:assessment.grade,message:assessment.issue?.message??null});
+    grade:assessment.grade,message:assessment.issue?.message??null,examIdentity:source?.examIdentity});
 }
 
 export async function automaticReportPdf(checker,path,result){

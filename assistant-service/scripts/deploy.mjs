@@ -8,6 +8,7 @@ const indexArgs=['firestore','indexes','composite'];
 const indexDatabase=['--project='+project,'--database=(default)'];
 const requiredIndexes=[
   {group:'assistantStudentSubmissions', scope:'collection', fields:[['status','ASCENDING'],['createdAt','DESCENDING']]},
+  {group:'paperNotifications', scope:'collection', fields:[['examStream','ASCENDING'],['examSortKey','DESCENDING']]},
   {group:'sheets', scope:'collection-group', fields:[['state','ASCENDING'],['updatedAt','DESCENDING']]},
   {group:'paperCatalogue', scope:'collection', fields:[['lookupKeys','CONTAINS'],['createdAt','DESCENDING']]},
   {group:'assistantConversations', scope:'collection', fields:[['ownerUid','ASCENDING'],['updatedAt','DESCENDING']]},
@@ -46,8 +47,11 @@ async function ensureIndex({group,scope,fields}){
   console.log('Verified READY: '+group);
 }
 await Promise.all(requiredIndexes.map(ensureIndex));
-await command(['functions','deploy',name,'--project='+project,'--gen2','--region=us-central1','--runtime=nodejs22','--source=assistant-service','--entry-point='+name,'--service-account='+runtime,'--build-service-account=projects/'+project+'/serviceAccounts/'+runtime,'--memory=512Mi','--cpu=1','--timeout=60s','--max-instances=3','--concurrency=40','--trigger-http','--allow-unauthenticated','--update-labels=firebase-functions-codebase=gtop-assistant,gtop-release='+process.env.GITHUB_SHA,'--quiet']);
+const pushEnabled=process.env.PAPERS_EXAM_WEB_PUSH_ENABLED==='true'?'true':'false';
+await command(['functions','deploy',name,'--project='+project,'--gen2','--region=us-central1','--runtime=nodejs22','--source=assistant-service','--entry-point='+name,'--service-account='+runtime,'--build-service-account=projects/'+project+'/serviceAccounts/'+runtime,'--memory=512Mi','--cpu=1','--timeout=60s','--max-instances=3','--concurrency=40','--trigger-http','--allow-unauthenticated','--update-env-vars=PAPERS_EXAM_WEB_PUSH_ENABLED='+pushEnabled,'--update-labels=firebase-functions-codebase=gtop-assistant,gtop-release='+process.env.GITHUB_SHA,'--quiet']);
 const fn=JSON.parse(await command(['functions','describe',name,'--project='+project,'--region=us-central1','--gen2','--format=json'],true));
 assert.equal(fn.state,'ACTIVE');assert.equal(fn.buildConfig.runtime,'nodejs22');assert.equal(fn.buildConfig.entryPoint,name);assert.equal(fn.serviceConfig.serviceAccountEmail,runtime);assert.equal(fn.labels['gtop-release'],process.env.GITHUB_SHA);
 assert.equal(Number(fn.serviceConfig.availableCpu),1);assert.equal(fn.serviceConfig.maxInstanceRequestConcurrency,40);
+assert.equal(Number(fn.serviceConfig.minInstanceCount||0),0);
+assert.equal(fn.serviceConfig.environmentVariables?.PAPERS_EXAM_WEB_PUSH_ENABLED,pushEnabled);
 console.log('Verified gtopAssistantGateway, Node22, one CPU, expected runtime account and release.');

@@ -1,4 +1,5 @@
 import {gradingRubric} from './domain/checking.mjs';
+import {approvedExamSourceMatches} from './exam-identity.mjs';
 import {createHash, randomUUID} from 'node:crypto';
 import {currentSheetGrade, digest, maxActive, orderedKey, queue, queueField, quota, sheets} from './checking-storage.mjs';
 import {indexStudent} from './checking-student.mjs';
@@ -6,6 +7,8 @@ import {confirmedPaperPath, moveStaffSubmissionIndex, notifySubmissionInbox, sub
 
 import {staffSubmission} from './student-submission-access.mjs';
 import {verifiedQuestionSourcePath} from './source-fidelity.mjs';
+import {releasedAssessment} from './released-assessment.mjs';
+import {enqueueExamUpdate} from './exam-notifications.mjs';
 
 export const chunkBytes = 400_000;
 const maxResultBytes = 22_000_000;
@@ -43,8 +46,8 @@ const currentReferenceId = row => Number.isSafeInteger(row.revision) && row.revi
 const linkedSubmissionPaper = (row, matched, reference) => row.paperId || matched ||
   (reference?.state === 'ready' && reference.reviewedAt ? currentReferenceId(row) : null);
 
-function verifyApprovalScope(checker, scope, ownerUid, paperId) {
-  if (scope !== undefined && scope !== submissionApprovalScope(ownerUid, paperId)) {
+function verifyApprovalScope(checker, scope, exactScope) {
+  if (!exactScope || scope !== exactScope) {
     checker.fail(409, 'approval_scope_changed', 'This submission no longer belongs to that approval group. Reload the inbox.');
   }
 }
@@ -94,7 +97,7 @@ export async function prepareSubmissionReference(checker, actorUid, id, {version
   });
 }
 
-export function queueSubmissionSheet(checker, tx, current, paperId, rubric, now, {attemptId}={}) {
+export function queueSubmissionSheet(checker, tx, current, paperId, rubric, now, {attemptId,examIdentity}={}) {
   const uid=current.ownerUid;
   const identity=[uid,current.id,current.revision];
   if(attemptId)identity.push('assessment-recovery',attemptId);
@@ -107,12 +110,13 @@ export function queueSubmissionSheet(checker, tx, current, paperId, rubric, now,
     pageCount:current.answer.pageCount,queueId:digest(uid,paperId,sheetId),
     submissionUploadId:current.id,submissionUploadKind:'answer',approvalRevision:current.revision,
     automatic:true,rubricDigest:rubric?digest(rubric):null,
+    ...(examIdentity ? {examIdentity} : {}),
     ...(attemptId?{assessmentRecoveryId:attemptId}:{})
   };
   tx.create(sheetPath,sheet);
   createQueueEntry(tx,uid,sheetPath,paperId,sheet,now,'auto-grade');
   if(!attemptId)indexStudent(tx,uid,sheet,'sheet',paperId);
-  return {paperId,paperTitle:rubric?.title||current.title,sheetId};
+  return {paperId,paperTitle:rubric?.title||current.title,sheetId,...(examIdentity ? {examIdentity} : {})};
 }
 
 export async function approveSubmission(checker, actorUid, id, body, {batch=false, approvalScope}={}) {
@@ -123,7 +127,7 @@ export async function approveSubmission(checker, actorUid, id, body, {batch=fals
     if (['checking','released'].includes(current.status) && current.approvedAt) {
       if (body.paperId && current.paperId !== body.paperId)
         checker.fail(409,'submission_changed','This submission was approved against another paper.');
-      verifyApprovalScope(checker, approvalScope, uid, current.paperId);
+      if(batch)verifyApprovalScope(checker,approvalScope,current.approvedScope || submissionApprovalScope(uid,current.paperId));
       return {paperId:current.paperId??null,sheetId:current.sheetId??null,referenceId:current.referenceId??null};
     }
     submittedRevision(checker,current,body.version);
@@ -145,7 +149,6 @@ export async function approveSubmission(checker, actorUid, id, body, {batch=fals
     if((batch||actorUid!==uid&&body.paperId) && (!linkedPaperId||body.paperId!==linkedPaperId)){
       checker.fail(409,'paper_confirmation_required','Batch or shared approval requires the paper already linked to this submission.');
     }
-    verifyApprovalScope(checker, approvalScope, uid, linkedPaperId);
     const paperId=body.paperId||linkedPaperId;
     const now=checker.now();
     let next;
@@ -154,7 +157,12 @@ export async function approveSubmission(checker, actorUid, id, body, {batch=fals
       if(body.paperId&&!current.paperId&&body.paperId!==matchedPaperId&&!source)checker.notFound();
       const rubric=gradingRubric(source);
       if(batch&&!rubric)checker.fail(409,'paper_confirmation_required','The linked paper has no usable marking reference.');
-      next=queueSubmissionSheet(checker,tx,current,paperId,rubric,now);
+      const identity=source?.examIdentity;
+      const scope=submissionApprovalScope(uid,paperId,identity);
+      if(batch)verifyApprovalScope(checker,approvalScope, !approvedExamSourceMatches(source,identity) ||
+        identity && identity.rubricDigest!==digest(rubric) ? null : scope);
+      next=queueSubmissionSheet(checker,tx,current,paperId,rubric,now,{examIdentity:identity});
+      if(scope)next.approvedScope=scope;
       if(body.paperId&&!current.paperId&&!matchedPaperId&&current.questionFingerprint)
         tx.create(confirmedPaperPath(uid,current.questionFingerprint),{paperId,confirmedAt:now});
     }else{
@@ -277,17 +285,18 @@ export async function submissionProgress(checker, row, reads) {
     : null;
   const paperId = linkedSubmissionPaper(row, matched);
   if (paperId && !paperId.startsWith('ext-')) {
-    const paper = await read('assistantPapers/' + paperId, ['title']);
-    return {paperId, paperTitle: paper?.title || row.title, paperReady: !!paper, batchPaperId: paper ? paperId : null};
+    const paper = await read('assistantPapers/' + paperId, ['title','examIdentity']);
+    return {paperId, paperTitle: paper?.title || row.title, paperReady: !!paper, batchPaperId: paper ? paperId : null,
+      examIdentity:paper?.examIdentity};
   }
   const referenceId = paperId || row.referenceId || (row.questionFingerprint ? referenceKey(row) : null);
   if (!referenceId) return {paperReady: false};
-  const reference = await read(checker.references.path(row.ownerUid, referenceId), ['title', 'state', 'requiresPaperReview', 'reviewedAt']);
+  const reference = await read(checker.references.path(row.ownerUid, referenceId), ['title', 'state', 'requiresPaperReview', 'reviewedAt', 'examIdentity']);
   if (!reference) return {paperReady: false};
   const paperReady = reference.state === 'ready' && (!reference.requiresPaperReview || !!reference.reviewedAt);
   return {
     referenceId, referenceState: reference.state, paperReady, batchPaperId: paperReady ? linkedSubmissionPaper(row, matched, reference) : null,
-    ...(paperReady ? {paperId: referenceId, paperTitle: reference.title} : {})
+    ...(paperReady ? {paperId: referenceId, paperTitle: reference.title, examIdentity:reference.examIdentity} : {})
   };
 }
 
@@ -415,6 +424,7 @@ export async function releaseSubmission(checker, actorUid, id, body) {
     if (record.status !== 'released') moveStaffSubmissionIndex(tx, record, 'released', now);
     else notifySubmissionInbox(tx, now);
     checker.service.notifyContent(tx, record.ownerUid);
+    enqueueExamUpdate(tx,{kind:'result-complete',entityId:record.id,version:stage.sheetVersion+'-'+stage.sha,at:now});
     return {ok: true};
   });
 }
@@ -428,23 +438,41 @@ async function releasedRecord(checker, studentUid, id) {
 export async function studentResult(checker, studentUid, id) {
   const record = await releasedRecord(checker, studentUid, id);
   const {awarded,max,answers,pending=0,outcome='complete',message=null,assessedAwarded=null,assessedMax=null}=record.result;
+  const share = releasedAssessment(record);
   return {
     rubric: {title: record.paperTitle || record.title, marks: max},
     sheet:{grade:{awarded,max,pending,answers}},outcome,message,assessedAwarded,assessedMax,
-    filename: 'checked-answer-sheet.pdf', releasedAt: record.releasedAt
+    filename: share.filename, releasedAt: record.releasedAt, share
   };
 }
 
-export async function studentResultPdf(checker, studentUid, id) {
-  const record = await releasedRecord(checker, studentUid, id);
-  return readResultBytes(checker, stagePath(record.result.checkingPath??submissionPath(id), record.result.fileKey??record.result.sheetVersion), record.result, true);
+async function reportDownload(checker, record, id, expectedRevision) {
+  const result = record.result;
+  const file = releasedAssessment(record);
+  if (expectedRevision !== null && expectedRevision !== file.revision) {
+    checker.fail(409,'report_changed','The released report changed. Prepare the latest files again.');
+  }
+  const bytes = await readResultBytes(checker, stagePath(result.checkingPath ?? submissionPath(id),
+    result.fileKey ?? result.sheetVersion), result, true);
+  return {bytes, filename:file.filename};
 }
 
-export async function staffResultPdf(checker,actorUid,id){
-  const record=await staffSubmission(checker,checker.store,actorUid,submissionPath(checker.id(id)),{write:false});
-  if(record.status!=='released'||!record.result)checker.notFound();
-  return readResultBytes(checker,stagePath(record.result.checkingPath??submissionPath(id),
-    record.result.fileKey??record.result.sheetVersion),record.result,true);
+export async function studentResultPdf(checker, studentUid, id, expectedRevision = null) {
+  return reportDownload(checker, await releasedRecord(checker, studentUid, id), id, expectedRevision);
+}
+
+async function staffReleasedRecord(checker, actorUid, id) {
+  const record = await staffSubmission(checker,checker.store,actorUid,submissionPath(checker.id(id)),{write:false});
+  if (record.status !== 'released' || !record.result) checker.notFound();
+  return record;
+}
+
+export async function staffResult(checker, actorUid, id) {
+  return {share:releasedAssessment(await staffReleasedRecord(checker, actorUid, id))};
+}
+
+export async function staffResultPdf(checker, actorUid, id, expectedRevision = null) {
+  return reportDownload(checker, await staffReleasedRecord(checker, actorUid, id), id, expectedRevision);
 }
 
 export async function legacySubmissionSource(checker, actorUid, id, page) {

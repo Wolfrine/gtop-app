@@ -1,7 +1,9 @@
+import {examAliasPath, orderedExamFingerprint, printedExamCode, referenceExamIdentity, resolveExamLineage, stageExamCandidate} from './exam-identity.mjs';
 import {notifySubmissionInbox} from './student-submission-storage.mjs';
 import {readResultBytes} from './submission-grading.mjs';
 import {corroborateSourceReference} from './source-fidelity.mjs';
 import {createHash} from 'node:crypto';
+import {artifactFilename} from './domain/artifact-filenames.mjs';
 import {externalGradingPaper,maxExternalPages,readExternalReference} from './domain/external-reference.mjs';
 
 const collection = uid=>'assistantCheckingOwners/'+uid+'/references';
@@ -17,10 +19,16 @@ export class ExternalReference {
   }
   async paper(reader,id,uid){
     const record=await reader.get(this.path(uid,id));
-    return record?.state==='ready'&&record.ownerUid===uid?externalGradingPaper(record.paper):null;
+    if (record?.state !== 'ready' || record.ownerUid !== uid) return null;
+    const paper = externalGradingPaper(record.paper);
+    if (!paper || !record.examIdentity) return paper;
+    const exact = referenceExamIdentity(record,record.paper);
+    const pinned = record.examIdentity;
+    return {...paper,examIdentity:pinned,exactExamSource:exact.paperRevisionId===pinned.paperRevisionId &&
+      exact.source.digest===pinned.source?.digest && exact.rubricSourceFingerprint===pinned.rubricSourceFingerprint};
   }
   claimJob(record){return {questionPages:record.questionPages};}
-  complete(body,record){
+  async complete(body,record){
     let result,sourceFidelity;
     try{
       const checked=corroborateSourceReference(body.reference,record);
@@ -42,8 +50,19 @@ export class ExternalReference {
     }
     const usable=issues.length===0&&externalGradingPaper(paper);
     if(!usable&&!issues.length)issues.push('Review the question numbers and mark allocations.');
-    return {title:paper.title,paper,issues,state:usable&&!record.requiresPaperReview?'ready':'review',engine:body.engine,error:null,
-      ...(sourceFidelity?{sourceFidelity}:{})};
+    const state=usable&&!record.requiresPaperReview?'ready':'review';
+    const observedExamCode = printedExamCode(body.reference.examCode);
+    let examIdentity;
+    if (state === 'ready') {
+      const lineage = await resolveExamLineage(this.store,record,paper,observedExamCode).catch(() => {
+        console.warn('[gtop-exam-identity] reference lineage lookup unavailable');
+        return null;
+      });
+      examIdentity=referenceExamIdentity(record,paper,lineage);
+    }
+    return {title:paper.title,paper,issues,state,engine:body.engine,error:null,
+      ...(observedExamCode ? {observedExamCode} : {}),
+      ...(examIdentity ? {examIdentity} : {}),...(sourceFidelity ? {sourceFidelity} : {})};
   }
   view(record){
     const {id,title,state,pageCount,questionPages,createdAt,updatedAt,version,paper,issues,error,uploaded}=record;
@@ -84,7 +103,10 @@ export class ExternalReference {
     }
     if(action==='result-pdf'&&method==='GET'){
       if(!record.checkingResult)this.checking.notFound();
-      return readResultBytes(this.checking,path+'/resultFiles/'+record.checkingResult.fileKey,record.checkingResult,true);
+      const result=record.checkingResult;
+      return {bytes:await readResultBytes(this.checking,path+'/resultFiles/'+result.fileKey,result,true),
+        filename:artifactFilename({label:record.title,kind:'reference-report',id,
+          revision:result.sheetVersion,digest:result.sha,extension:'pdf'})};
     }
     if(action==='pages'&&method==='POST')return this.checking.upload(path,Number(index),body);
     if(action==='pages'&&method==='GET') {
@@ -144,12 +166,26 @@ export class ExternalReference {
       const now=this.checking.now();
       const ready={...saved,state:'ready',paper:result.paper,title:result.paper.title,issues:[],error:null,
         version:saved.version+1,updatedAt:now,reviewedAt:now,reviewHash};
-      if(revisedPath){
-        if(saved.state!=='ready')this.fail(409,'reference_changed','Complete the current review first.');
-        tx.create(revisedPath,{...ready,id:body.revisionId,createdAt:now,version:1,sourceId:saved.sourceId||saved.id,
-          revisionOf:saved.id,sourceVersion:saved.version,referenceRevision:(saved.referenceRevision??1)+1});
-      }else {
-        tx.set(path,ready);
+      const next = revisedPath ? {...ready,id:body.revisionId,createdAt:now,version:1,sourceId:saved.sourceId||saved.id,
+        revisionOf:saved.id,sourceVersion:saved.version,referenceRevision:(saved.referenceRevision??1)+1} : ready;
+      if (revisedPath && saved.state !== 'ready') this.fail(409,'reference_changed','Complete the current review first.');
+      // A reviewed source keeps its own exact revision and can share an established lineage.
+      const fingerprint = orderedExamFingerprint(next);
+      const aliasPath = fingerprint ? examAliasPath(uid,'scan:' + fingerprint) : null;
+      const prior = aliasPath ? await tx.get(aliasPath) : null;
+      const lineage = !saved.examIdentity || saved.examIdentity.match==='reference-only'
+        ? await resolveExamLineage({get:tx.get,list:(...args)=>this.store.list(...args)},next,result.paper,
+          saved.observedExamCode,{scanAlias:prior}).catch(() => {
+          console.warn('[gtop-exam-identity] reviewed source lineage lookup unavailable');
+          return null;
+        }) : null;
+      next.examIdentity = referenceExamIdentity(next,result.paper,lineage,{reviewed:true});
+      if (aliasPath && !prior) tx.create(aliasPath,{ownerUid:uid,fingerprint,examId:next.examIdentity.examId,
+        paperRevisionId:next.examIdentity.paperRevisionId});
+      stageExamCandidate(tx,uid,result.paper,next.examIdentity);
+      if (revisedPath) tx.create(revisedPath,next);
+      else {
+        tx.set(path,next);
         if(saved.submissionUploadId)notifySubmissionInbox(tx,now);
       }
       this.checking.service.notifyContent(tx,uid);

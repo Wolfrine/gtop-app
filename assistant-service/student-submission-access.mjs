@@ -105,11 +105,11 @@ function testView(test) {
   return {code: test.code, paperId: test.paperId, title: test.title, subject: test.subject};
 }
 
-export async function getSubmissionTest(checker, membership, code, reader = checker.store) {
+export async function getSubmissionTest(checker, membership, code, reader = checker.store, {includeExamIdentity=false}={}) {
   if (!validCode(code)) testUnavailable();
   const test = await reader.get(submissionTestPath(code));
   if (!test || test.ownerUid !== membership.ownerUid) testUnavailable();
-  return testView(test);
+  return {...testView(test), ...(includeExamIdentity && test.examIdentity ? {examIdentity:test.examIdentity} : {})};
 }
 
 export async function shareSubmissionTest(checker, ownerUid, paperId) {
@@ -120,11 +120,11 @@ export async function shareSubmissionTest(checker, ownerUid, paperId) {
     const ownerPath = submissionTestOwnerPath(ownerUid, paperId);
     const prior = await tx.get(ownerPath);
     const {title} = await checker.rubric(paperId, ownerUid, tx);
-    const [paper] = await tx.getSelected(['assistantPapers/' + paperId], ['subject', 'paper.subject']);
+    const [paper] = await tx.getSelected(['assistantPapers/' + paperId], ['subject', 'paper.subject', 'examIdentity']);
     if (prior) return testView(prior);
     const code = randomBytes(16).toString('hex');
     const test = {code, ownerUid, paperId, title, subject: paper?.subject || paper?.paper?.subject || null,
-      createdAt: checker.now()};
+      createdAt: checker.now(), ...(paper?.examIdentity ? {examIdentity:paper.examIdentity} : {})};
     tx.create(submissionTestPath(code), test);
     tx.create(ownerPath, test);
     return testView(test);

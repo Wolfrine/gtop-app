@@ -1,16 +1,20 @@
 import {getStudent, searchStudents} from './student-directory.mjs';
 import {HttpError} from './service.mjs';
-import {allowsStudentOrigin} from './student-submission-origins.mjs';
+import {allowsStaffResultsOrigin,allowsStudentOrigin} from './student-submission-origins.mjs';
 import {hasStudentSubmissionRoute, studentSubmissionRoute} from './student-submission-routes.mjs';
+import {attachmentHeader} from './domain/artifact-filenames.mjs';
+import {examUpdatesRoute} from './exam-notifications.mjs';
 const allowedOrigins=new Set(['https://gtop-question-papers.web.app','https://gtop-question-papers.firebaseapp.com','https://pti-app-2ab59.web.app','https://pti-app-2ab59.firebaseapp.com','http://localhost:4317','http://127.0.0.1:4317']);
 /** Pure HTTP boundary: authentication is injected, so checks can be exercised without cloud credentials. */
 export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,verifyHostIdToken=null}={}) {
   return async ({method,path,headers={},body={}})=>{
     const responseHeaders={'Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff','Content-Type':'application/json; charset=utf-8'};
     const origin=headers.origin || headers.Origin;
+    const requestedMethod=method==='OPTIONS' ? (headers['access-control-request-method'] || headers['Access-Control-Request-Method']) : method;
+    const staffResultOrigin=origin && allowsStaffResultsOrigin(origin,requestedMethod,path,allowLocalOrigins);
     const allowed = origin && ((allowedOrigins.has(origin) && (allowLocalOrigins || !origin.startsWith('http://'))) ||
-      allowsStudentOrigin(origin,path,allowLocalOrigins));
-    if(allowed) {responseHeaders['Access-Control-Allow-Origin']=origin;responseHeaders.Vary='Origin';responseHeaders['Access-Control-Allow-Headers']='Authorization, Content-Type';responseHeaders['Access-Control-Allow-Methods']='GET, POST, OPTIONS';}
+      allowsStudentOrigin(origin,path,allowLocalOrigins) || staffResultOrigin);
+    if(allowed) {responseHeaders['Access-Control-Allow-Origin']=origin;responseHeaders.Vary='Origin';responseHeaders['Access-Control-Allow-Headers']='Authorization, Content-Type';responseHeaders['Access-Control-Allow-Methods']=staffResultOrigin?'GET, OPTIONS':'GET, POST, OPTIONS';responseHeaders['Access-Control-Expose-Headers']='Content-Disposition';}
     try {
       if(origin && !responseHeaders['Access-Control-Allow-Origin'])throw new HttpError(403,'origin_denied','Origin is not allowed.');
       if(method==='OPTIONS')return {status:204,headers:responseHeaders,body:null};
@@ -47,7 +51,11 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
         else {const m=path.match(/^\/worker\/jobs\/([^/]+)\/(heartbeat|event|delegate|native-thread|complete|fail)$/);if(method!=='POST'||!m)throw new HttpError(404,'not_found','Endpoint unavailable.');const fn={heartbeat:'renew',event:'event',delegate:'delegate','native-thread':'bindNativeThread',complete:'complete',fail:'failed'}[m[2]];output=await service[fn](worker,m[1],body);}
       } else {
         const user=await service.user(claims),uid=user.uid;
-        if(method==='GET' && path==='/session')output=await service.session(user,query.get('contentRevision')==='1');
+        if(path==='/exam-updates'||path.startsWith('/exam-updates/')){
+          if(claims.firebase?.sign_in_provider==='anonymous')throw new HttpError(401,'sign_in_required','Authentication is required.');
+          output=await examUpdatesRoute(service,user,method,path,query,body);
+        }
+        else if(method==='GET' && path==='/session')output=await service.session(user,query.get('contentRevision')==='1');
         else if(method==='GET' && path==='/service/status')output={service:await service.serviceControl.get(user)};
         else if(method==='POST' && path==='/service/start')output=await service.serviceControl.start(user,body);
         else if(method==='GET' && path==='/conversations')output=await service.conversations(uid,query);
@@ -68,12 +76,20 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
             const [,kind,id,action,index]=intake;
             const handler=kind==='packets'?service.checking.packets:service.checking.references;
             output=await handler.teacher(method,uid,id,index?'pages':action,index,body);
+            if(action==='result-pdf'&&output?.bytes){
+              responseHeaders['Content-Disposition']=attachmentHeader(output.filename);
+              output=output.bytes;
+            }
             if(Buffer.isBuffer(output)){
               responseHeaders['Content-Type']=action==='result-pdf'?'application/pdf':'image/jpeg';responseHeaders['Cross-Origin-Resource-Policy']='same-origin';
             }
           }
-          else if((m=path.match(/^\/papers\/([A-Za-z0-9_-]+)\/checking(?:\/([A-Za-z0-9_-]+)(?:\/(?:(pages)\/(\d+)|(queue|review|manual|delete|student|result-pdf)))?)?$/))){
-            output=await service.checking.teacher(method,[m[1],m[2],m[3]||m[5],m[4]],uid,body);
+          else if((m=path.match(/^\/papers\/([A-Za-z0-9_-]+)\/checking(?:\/([A-Za-z0-9_-]+)(?:\/(?:(pages)\/(\d+)|(queue|review|manual|delete|student|result|result-pdf)))?)?$/))){
+            output=await service.checking.teacher(method,[m[1],m[2],m[3]||m[5],m[4]],uid,body,query.get('revision'));
+            if(m[5]==='result-pdf'&&output.bytes){
+              responseHeaders['Content-Disposition']=attachmentHeader(output.filename);
+              output=output.bytes;
+            }
             if(Buffer.isBuffer(output)){
               responseHeaders['Content-Type']=m[5]==='result-pdf'?'application/pdf':'image/jpeg';
               responseHeaders['Cross-Origin-Resource-Policy']='same-origin';
@@ -83,7 +99,13 @@ export function createGateway(service,verifyIdToken,{allowLocalOrigins=false,ver
           else if(method==='POST' && (m=path.match(/^\/conversations\/([^/]+)\/messages$/)))output=await service.submit(uid,m[1],body);
           else if(method==='POST' && (m=path.match(/^\/jobs\/([^/]+)\/(cancel|retry)$/)))output=await service[m[2]](uid,m[1]);
           else if(method==='GET' && (m=path.match(/^\/papers\/([^/]+)$/)))output=await service.paper(uid,m[1]);
-          else if(method==='GET' && (m=path.match(/^\/(admin\/)?papers\/([^/]+)\/artifact\/(student|answers)$/))){output=await service[m[1]?'adminArtifact':'artifact'](uid,m[2],m[3]);responseHeaders['Content-Type']='text/html; charset=utf-8';responseHeaders['Content-Security-Policy']="default-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'";}
+          else if(method==='GET' && (m=path.match(/^\/(admin\/)?papers\/([^/]+)\/artifact\/(student|answers)$/))){
+            const {html,filename}=await service[m[1]?'adminArtifact':'artifact'](uid,m[2],m[3],true);
+            output=html;
+            responseHeaders['Content-Type']='text/html; charset=utf-8';
+            responseHeaders['Content-Disposition']=attachmentHeader(filename);
+            responseHeaders['Content-Security-Policy']="default-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'self'";
+          }
           else throw new HttpError(404,'not_found','Endpoint unavailable.');
         }
       }

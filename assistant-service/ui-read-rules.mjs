@@ -28,3 +28,21 @@ export const submissionInboxRule=`    match /assistantInboxNotifications/submiss
 
 `;
 export const withoutSubmissionInboxRule=source=>source.replaceAll('\r\n','\n').replace(submissionInboxRule,'');
+
+export const examUpdateMarkerRules=`    match /assistantExamUpdateMarkers/staff {
+      allow get: if isAdmin()
+        && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous'
+        && request.auth.uid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids;
+      allow list, write: if false;
+    }
+
+    match /assistantExamUpdateMarkers/staff/owners/{ownerUid} {
+      allow get: if isAdmin()
+        && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous'
+        && request.auth.uid == ownerUid
+        && ownerUid in get(/databases/$(database)/documents/assistantConfig/pilot).data.allowedOwnerUids;
+      allow list, write: if false;
+    }
+
+`;
+export const withoutExamUpdateMarkerRules=source=>source.replaceAll('\r\n','\n').replace(examUpdateMarkerRules,'');

@@ -1,5 +1,7 @@
 import {HttpError} from './service.mjs';
 import {day, digest} from './checking-storage.mjs';
+import {artifactFilename} from './domain/artifact-filenames.mjs';
+import {enqueueExamUpdate} from './exam-notifications.mjs';
 import {maxCheckingPages} from './domain/checking-limits.mjs';
 import {maxExternalPages} from './domain/external-reference.mjs';
 import {staffReleasedAssessment, staffTeacherAnswerPage} from './submission-grading.mjs';
@@ -49,7 +51,7 @@ async function renderRow(checker, row, staff, detail = false, progress = progres
 const submissionFields = [
   'id','title','subject','ownerUid','studentUid','studentLabel','paperId','testCode','questionFingerprint','staffPaperId',
   'status','version','revision','rescan','answer','question','createdAt','updatedAt','submittedAt','referenceId',
-  'sheetId','requiresPaperReview','paperTitle','releasedAt','publishedSheetVersion','intake','automatic','teacherUpload','result.outcome','result.message'
+  'examIdentity','sheetId','requiresPaperReview','paperTitle','releasedAt','publishedSheetVersion','intake','automatic','teacherUpload','result.outcome','result.message'
 ];
 const staffSubmissionFields = [...submissionFields, 'referenceRevision',
   'result.awarded','result.max','result.assessedAwarded','result.assessedMax','result.pending'];
@@ -130,7 +132,7 @@ export async function createStudentSubmission(checker, uid, body) {
     let test = null;
     if (body.testCode) {
       participant = await assertEnrollment(checker, uid, tx);
-      test = await getSubmissionTest(checker, participant, body.testCode, tx);
+      test = await getSubmissionTest(checker, participant, body.testCode, tx, {includeExamIdentity:true});
     } else {
       await assertSubmissionsEnabled(checker, tx);
     }
@@ -153,6 +155,7 @@ export async function createStudentSubmission(checker, uid, body) {
     }
     const row = {
       id, ...participant, title, subject, paperId: test?.paperId || null, testCode: test?.code || null,
+      ...(test?.examIdentity ? {examIdentity:test.examIdentity} : {}),
       status: 'draft', version: 1, revision: 1, answer, question, rescan: null,
       createdAt: now, updatedAt: now
     };
@@ -180,7 +183,10 @@ export async function uploadSubmissionPage(checker, uid, id, kind, index, body) 
     if (usage.pages >= dailyPageLimit) {
       fail(429, 'submission_page_limit', 'The daily scan limit was reached. Your uploaded pages are saved.');
     }
-    const page = {index, sha, ...size, sourceRevision: row.revision};
+    const basename = typeof body.sourceBasename === 'string'
+      ? body.sourceBasename.split(/[\\/]/u).at(-1)?.replace(/[\p{Cc}\u202a-\u202e\u2066-\u2069]/gu,'').slice(0,120)
+      : '';
+    const page = {index, sha, ...size, sourceRevision: row.revision, ...(basename ? {sourceBasename:basename} : {})};
     const next = {...row, [kind]: {...doc, pages: [...doc.pages, page]}, version: row.version + 1, updatedAt: now};
     tx.create(submissionPagePath(id, row.revision, kind, index), {jpeg: bytes});
     tx.set(submissionPath(id), next);
@@ -193,7 +199,11 @@ export async function uploadSubmissionPage(checker, uid, id, kind, index, body) 
 export async function readSubmissionPage(checker, uid, id, kind, index, staff) {
   const row = await authorizedSubmission(checker, uid, id, staff);
   const page = row[kind]?.pages.find(page => page.index === index);
-  if (!page && staff && kind === 'answer' && row.teacherUpload === true) return staffTeacherAnswerPage(checker, row, index);
+  const filename = artifactFilename({label:row.paperTitle || row.title,id,kind:kind+'-scan',
+    revision:row.revision,page:index,digest:page?.sha,extension:'jpg'});
+  if (!page && staff && kind === 'answer' && row.teacherUpload === true) {
+    return {bytes:await staffTeacherAnswerPage(checker, row, index),filename};
+  }
   if (!page) unavailable();
   const stored = await checker.store.get(submissionPagePath(id, page.sourceRevision, kind, index));
   if (!stored?.jpeg) unavailable();
@@ -201,7 +211,7 @@ export async function readSubmissionPage(checker, uid, id, kind, index, staff) {
   if (digest(bytes.toString('base64')) !== page.sha) {
     fail(409, 'scan_integrity', 'This scan page could not be verified. Ask the student to replace it.');
   }
-  return bytes;
+  return {bytes,filename};
 }
 
 function orderedChecksums(doc, kind) {
@@ -258,6 +268,8 @@ export async function submitStudentSubmission(checker, uid, id, body) {
     moveStaffSubmissionIndex(tx, {...row, ownerUid: next.ownerUid}, next.status, now);
     if (!row.submittedAt) tx.create(ownerSubmissions(next.ownerUid) + '/' + id, {createdAt: now});
     checker.service.notifyContent(tx, next.ownerUid);
+    enqueueExamUpdate(tx,{kind:row.submittedAt ? 'submission-replacement' : 'submission-awaiting',
+      entityId:id,version:next.version,at:now});
     return next;
   });
   return {submission: await renderRow(checker, submission, false, true)};

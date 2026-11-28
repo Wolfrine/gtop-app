@@ -4,7 +4,7 @@ import {spawn} from 'node:child_process';
 import {applicationDefault} from 'firebase-admin/app';
 import {withoutWorkerFirestoreRule,withoutWorkerDatabaseRule,parseRulesJson,equivalentDatabaseRules,firestoreRuleSource} from './release-scope.mjs';
 import {withoutDispatchRule} from '../dispatch-rule.mjs';
-import {withoutSubmissionInboxRule,withoutUiReadRules} from '../ui-read-rules.mjs';
+import {withoutExamUpdateMarkerRules,withoutSubmissionInboxRule,withoutUiReadRules} from '../ui-read-rules.mjs';
 
 const project='gtop-app';
 assert.equal(process.env.GITHUB_REF,'refs/heads/main','Scoped rules deployment requires main.');
@@ -15,7 +15,7 @@ const checked=await readFile('gtop-app/firestore.rules','utf8');
 const release=await get('https://firebaserules.googleapis.com/v1/projects/'+project+'/releases/cloud.firestore');
 const ruleset=await get('https://firebaserules.googleapis.com/v1/'+release.rulesetName);
 const live=firestoreRuleSource(ruleset);
-assert([checked,withoutSubmissionInboxRule(checked)].flatMap(rule=>[rule,withoutUiReadRules(rule),withoutDispatchRule(withoutUiReadRules(rule)),withoutWorkerFirestoreRule(withoutDispatchRule(withoutUiReadRules(rule)))]).map(normalize).includes(normalize(live)),'Unrelated live Firestore rule drift blocks assistant-only deployment.');
+assert([checked,withoutExamUpdateMarkerRules(checked)].flatMap(rule=>[rule,withoutSubmissionInboxRule(rule)]).flatMap(rule=>[rule,withoutUiReadRules(rule),withoutDispatchRule(withoutUiReadRules(rule)),withoutWorkerFirestoreRule(withoutDispatchRule(withoutUiReadRules(rule)))]).map(normalize).includes(normalize(live)),'Unrelated live Firestore rule drift blocks assistant-only deployment.');
 
 // The new worker must gain no legacy Storage access from its Firebase token.
 // Existing configured image buckets are server-only; preserve them and fail if

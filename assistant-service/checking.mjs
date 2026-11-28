@@ -1,4 +1,5 @@
 import {randomUUID} from 'node:crypto';
+import {approvedExamSourceMatches} from './exam-identity.mjs';
 import {resolveStudent} from './student-directory.mjs';
 import {indexStudent,linkSheetStudent,removeStudentIndex,studentHistory} from './checking-student.mjs';
 import {ClassIntake} from './checking-intake.mjs';
@@ -7,6 +8,7 @@ import {currentSheetGrade,day,digest,matchesStudentLabel,maxActive,maxDrafts,ord
 import {gradingRubric,validateGrades,summarizeGrades} from './domain/checking.mjs';
 import {maxCheckingPages,checkingLeaseMs} from './domain/checking-limits.mjs';
 import {notifySubmissionInbox,submissionPagePath} from './student-submission-storage.mjs';
+import {releasedAssessment} from './released-assessment.mjs';
 
 import {autoReference,automaticJob,automaticReportPdf,completeAutomatic,failActiveAssessmentRecovery,finishAutomatic} from './automatic-checking.mjs';
 
@@ -51,12 +53,15 @@ export class PaperChecking {
     const paper=await reader.get('assistantPapers/'+paperId);
     return paper?.nativePrivate&&paper.ownerUid!==uid?null:paper;
   }
-  async rubric(paperId,uid,reader=this.store){
+  async sourceRubric(paperId,uid,reader=this.store){
     const paper=await this.sourcePaper(reader,paperId,uid);
     if(!paper)this.fail(404,'paper_unavailable','This paper revision is unavailable.');
     const rubric=gradingRubric(paper);
     if(!rubric)this.fail(409,'rubric_unavailable','This paper revision needs saved questions with consistent mark allocations.');
-    return rubric;
+    return {paper,rubric};
+  }
+  async rubric(paperId,uid,reader=this.store){
+    return (await this.sourceRubric(paperId,uid,reader)).rubric;
   }
   readCursor(cursor){
     if(!cursor)return undefined;
@@ -80,7 +85,7 @@ export class PaperChecking {
       ...(row.packetId?{packetId:row.packetId}:{}),...(row.packetLabel?{packetLabel:row.packetLabel}:{})
     }))};
   }
-  async teacher(method,parts,uid,body){
+  async teacher(method,parts,uid,body,expectedRevision=null){
     const [paperId,sheetId,action,pageIndex]=parts;
     this.id(paperId);
     const collection=sheets(this.id(uid),paperId);
@@ -101,8 +106,9 @@ export class PaperChecking {
       return this.finalizeReady(uid,collection,paperId,body.sheets);
     }
     if(!sheetId&&method==='POST'){
-      await this.rubric(paperId,uid);
-      return this.create(uid,paperId,collection,body);
+      const {paper,rubric}=await this.sourceRubric(paperId,uid);
+      const pin=paper.examIdentity ? {examIdentity:paper.examIdentity,rubricDigest:digest(rubric)} : {};
+      return this.create(uid,paperId,collection,body,pin);
     }
     const path=collection+'/'+this.id(sheetId);
     if(!action&&method==='GET'){
@@ -127,10 +133,16 @@ export class PaperChecking {
         ...q,alternative:alternative?.question||null,alternativeRubric:alternative
       }))}};
     }
-    if(action==='result-pdf'&&method==='GET'){
+    if((action==='result'||action==='result-pdf')&&method==='GET'){
       const sheet=await this.store.get(path);
       if(!sheet?.checkingResult)this.notFound();
-      return automaticReportPdf(this,path,sheet.checkingResult);
+      const share=releasedAssessment({id:sheet.id||sheetId,paperTitle:sheet.title,
+        title:sheet.label,releasedAt:sheet.updatedAt,examIdentity:sheet.examIdentity,
+        result:{...sheet.checkingResult,answers:currentSheetGrade(sheet)?.answers||[]}});
+      if(action==='result')return {share};
+      if(expectedRevision!==null&&expectedRevision!==share.revision)
+        this.fail(409,'report_changed','The checked report changed. Prepare the latest files again.');
+      return {bytes:await automaticReportPdf(this,path,sheet.checkingResult),filename:share.filename};
     }
     if(action==='pages'&&method==='GET'){
       const sheet=await this.store.get(path);
@@ -145,7 +157,7 @@ export class PaperChecking {
     if(action==='manual'&&method==='POST')return this.manual(uid,path,paperId,body);
     this.notFound();
   }
-  async create(uid,paperId,collection,body){
+  async create(uid,paperId,collection,body,pin={}){
     const id=this.id(body.id),path=collection+'/'+id;
     const notes=this.text(body.notes??'',1600);
     const pageCount=body.pageCount;
@@ -164,7 +176,7 @@ export class PaperChecking {
       const now=this.now(),drafts=usage.day===day(now)?usage.drafts||0:0;
       if(drafts>=maxDrafts)this.fail(429,'draft_limit','The daily answer-sheet limit has been reached.');
       const sheet={id,label,...student,...(matchesStudentLabel(label,student.studentLabel)?{labelFromStudent:true}:{}),notes,pageCount,uploaded:[],state:'uploading',version:0,
-        createdAt:now,updatedAt:now,queueId:digest(uid,paperId,id)};
+        createdAt:now,updatedAt:now,queueId:digest(uid,paperId,id),...pin};
       tx.create(path,sheet);
       indexStudent(tx,uid,sheet,'sheet',paperId);
       tx.set(quota(uid),{...usage,active:usage.active||0,day:day(now),drafts:drafts+1});
@@ -494,7 +506,8 @@ export class PaperChecking {
       ]);
       if(sheet?.state!=='queued')return null;
       let rubric=special?null:gradingRubric(paper);
-      if(auto&&sheet.rubricDigest&&rubric&&sheet.rubricDigest!==digest(rubric))rubric=null;
+      if(auto&&rubric&&(sheet.rubricDigest&&sheet.rubricDigest!==digest(rubric)||
+          !approvedExamSourceMatches(paper,sheet.examIdentity)))rubric=null;
       const now=this.now();
       if(!special&&!rubric&&!auto){
         tx.delete(queue(row.id));

@@ -1,3 +1,4 @@
+import {publishedExamIdentity,stageExamCandidate} from './exam-identity.mjs';
 import {createHash, randomUUID, timingSafeEqual} from 'node:crypto';
 import {gzipSync,gunzipSync} from 'node:zlib';
 import * as domain from './domain/index.mjs';
@@ -13,6 +14,8 @@ import {proposalResponse,researchKey,pendingPaperTurns,confirmationText} from '.
 import {NativePaperError, nativePaper, workerPaper} from './native-papers.mjs';
 import {stagePaperCatalogue,normaliseCatalogueSearch,decodeCatalogueCursor,encodeCatalogueCursor,publicCatalogueItem,catalogueMigrationPath} from './paper-catalogue.mjs';
 import {paperFacetOptionsPath,paperFacetScopeFromFilters} from './paper-library-facets.mjs';
+import {artifactFilename} from './domain/artifact-filenames.mjs';
+import {enqueueExamUpdate} from './exam-notifications.mjs';
 
 export class HttpError extends Error { constructor(status, code, message) { super(message); this.status = status; this.code = code; } }
 const fail = (status, code, message) => { throw new HttpError(status, code, message); };
@@ -49,6 +52,11 @@ const nativeDraftRejections=new Set(['invalid_paper','curriculum_unavailable','i
 const claimsPaused=(worker,now)=>Date.parse(worker?.claimsPausedUntil||'')>now;
 const leaseExpired=(job,now)=>['running','validating'].includes(job.state)&&!(Date.parse(job.leaseUntil||'')>now);
 const expiredJob=(j,when)=>({...j,state:'failed',phase:'worker_disconnected',error:'The assistant disconnected. Your request is saved. Try again to continue.',errorCode:'worker_disconnected',retryable:true,updatedAt:when,leaseId:null,leaseUntil:null});
+function notifyPaperFailure(tx,job,at){
+  if(job.kind==='paper'||job.native)
+    enqueueExamUpdate(tx,{kind:'operational-failure',scope:'job',entityId:job.id,version:1,
+      at,ownerUid:job.ownerUid,conversationId:job.conversationId});
+}
 const conversationFields=['id','title','status','updatedAt','activeNativeTurnId','activePaperJobId','activeCurriculumJobId','latestPaperId'];
 const paperSummaryFields=['id','title','revision','marks','createdAt','jobId','ownerUid','conversationId','board','standard','subject','academicYear','requirements.format','deliveryValidation.schemaVersion'];
 const publicConversation = c => c && clean(Object.fromEntries(conversationFields.filter(key => c[key] !== undefined).map(key => [key,c[key]])));
@@ -336,7 +344,7 @@ export class AssistantService {
     if(pageOrStatus&&!detail.conversation)return detail;
     return {...detail,readOnly:c.ownerUid!==uid,...(pageOrStatus?{}:{creatorName:String(profile?.displayName||profile?.name||'GTOP administrator').slice(0,120)})};
   }
-  async adminArtifact(uid,id,kind) {await this.user({uid});const p=await this.store.get(ref('assistantPapers',id));if(!visibleToAdmin(p,uid))fail(404,'not_found','Paper unavailable.');return this.artifact(p.ownerUid,id,kind);}
+  async adminArtifact(uid,id,kind,named=false) {await this.user({uid});const p=await this.store.get(ref('assistantPapers',id));if(!visibleToAdmin(p,uid))fail(404,'not_found','Paper unavailable.');return this.artifact(p.ownerUid,id,kind,named);}
   async createConversation(uid, body) {
     const id = body.clientRequestId ? hash(`${uid}:conversation:${safeId(body.clientRequestId)}`).slice(0,40) : this.id();
     const result = await this.store.transaction(async tx => {
@@ -465,7 +473,10 @@ export class AssistantService {
         if(!original.isWellFormed())fail(400,'invalid_text','The original message must be valid Unicode.');
         const legacy=await this.activeLegacyWork(tx,c);
         if(legacy.some(j=>!leaseExpired(j,now)))fail(409,'native_turn_active','Wait for the existing paper work in this conversation before sending another message.');
-        for(const pending of [...legacy,...(current&&leaseExpired(current,now)?[current]:[])])tx.set(ref('assistantJobs',pending.id),expiredJob(pending,when));
+        for(const pending of [...legacy,...(current&&leaseExpired(current,now)?[current]:[])]){
+          tx.set(ref('assistantJobs',pending.id),expiredJob(pending,when));
+          notifyPaperFailure(tx,pending,when);
+        }
         job={...job,native:true,inputSha256:hash(original),phase:'waiting_for_codex'};
         message.native=true;
         tx.create(messagePath(cid,mid),message);
@@ -515,7 +526,10 @@ export class AssistantService {
       if(job.id===jid){tx.create(ref('assistantJobs',jid),job);this.notifyDispatch(tx,uid);}
       else this.notifyContent(tx,uid);
       if(continuation&&activeStates.has(continuation.state))tx.set(ref('assistantJobs',continuation.id),{...continuation,state:'cancelled',phase:'superseded_by_new_message',leaseId:null,leaseUntil:null,updatedAt:when});
-      if(current&&leaseExpired(current,now))tx.set(ref('assistantJobs',current.id),expiredJob(current,when));
+      if(current&&leaseExpired(current,now)){
+        tx.set(ref('assistantJobs',current.id),expiredJob(current,when));
+        notifyPaperFailure(tx,current,when);
+      }
       tx.set(ref('assistantConversations',cid),{...c,...(c.activeNativeTurnId?{activeNativeTurnId:null}:{}),...(c.nativeThreadStartedAt?{nativeLegacyContextPending:true}:{}),...(paperProposal?{paperProposal}:{}),...(taskBrief?{taskBrief}:{}),requestRevision:revision,...(job.kind==='paper'&&job.id===jid?{activePaperJobId:jid}:{}),latestUserMessageId:mid,latestUserJobId:message.jobId,pendingResumeTurnId:null,title:c.title==='New paper conversation'?original.replace(/\s+/g,' ').slice(0,80):c.title,rootRequestId:c.rootRequestId || mid,updatedAt:when});
       return {message,job:publicJob(job)};
     });
@@ -576,7 +590,15 @@ export class AssistantService {
     await this.store.transaction(tx=>{tx.create(ref('assistantFeedback',id),entry);}); return {saved:true};
   }
   async paper(uid,id) { const p=await this.owned(uid,'assistantPapers',id); const {ownerUid,conversationId,nativePrivate,...paper}=p; return {paper}; }
-  async artifact(uid,id,kind) { await this.owned(uid,'assistantPapers',id); if(!['student','answers'].includes(kind))fail(404,'not_found','Artifact unavailable.');const doc=await this.store.get(`assistantPapers/${safeId(id)}/artifacts/${kind}`);if(!doc)fail(404,'not_found','Artifact unavailable.');return decodeArtifact(doc); }
+  async artifact(uid,id,kind,named=false) {
+    const paper=await this.owned(uid,'assistantPapers',id);
+    if(!['student','answers'].includes(kind))fail(404,'not_found','Artifact unavailable.');
+    const doc=await this.store.get(`assistantPapers/${safeId(id)}/artifacts/${kind}`);
+    if(!doc)fail(404,'not_found','Artifact unavailable.');
+    const html=decodeArtifact(doc);
+    return named?{html,filename:artifactFilename({label:paper.title,id,revision:paper.revision,
+      kind:kind==='student'?'question-paper':'answer-key',extension:'html'})}:html;
+  }
   async heartbeat(worker,body) {
     if(!['ready','loading','busy','offline'].includes(body.state) || typeof body.modelReady!=='boolean')fail(400,'invalid_heartbeat','Invalid worker heartbeat.');
     await this.store.transaction(async tx=>{const current=await tx.get(ref('assistantWorkers',worker.id));if(current?.enabled!==true||!Array.isArray(current.allowedOwnerUids))fail(403,'worker_disabled','Worker pairing is disabled.');if(current.paperRuntimeMode==='codex'&&body.runtime!=='codex')fail(409,'worker_profile_required','The paired worker requires the Codex Papers runtime.');tx.set(ref('assistantWorkerHealth',worker.id),{schemaVersion:1,state:body.state,modelReady:body.modelReady,version:text(body.version,100),lastSeenAt:this.iso()});});return {ok:true};
@@ -590,6 +612,7 @@ export class AssistantService {
       const next=expiredJob(j,this.iso());
       tx.set(ref('assistantJobs',id),next);
       if(c?.ownerUid===j.ownerUid&&c.activeNativeTurnId===id)tx.update(ref('assistantConversations',c.id),{activeNativeTurnId:null,updatedAt:next.updatedAt});
+      notifyPaperFailure(tx,j,next.updatedAt);
       this.notifyContent(tx,j.ownerUid);
       return next;
     });
@@ -848,6 +871,7 @@ export class AssistantService {
           const validation=this.domain.validatePaper(input,job.requirements,pinned);
           if(base)this.domain.validateRevision(base,input,job.targetQuestionNumber,pinned);
           paper={...input,id:this.id(),ownerUid:job.ownerUid,conversationId:c.id,requirements:job.requirements,curriculumSnapshot:pinned,rootRequestMessageId:job.rootRequestMessageId,revision:base?(base.revision || 1)+1:1,...(base?{parentPaperId:base.id}:{}),...(c.nativePrivate?{nativePrivate:true}:{}),jobId:id,createdAt:now,validation};
+          paper.examIdentity=publishedExamIdentity(paper,base);
           artifactStudent=this.domain.renderPaper(paper,false);artifactAnswers=this.domain.renderPaper(paper,true);
         }catch(error){fail(400,'invalid_paper',error.message);}
         artifactStudent=encodeArtifact(artifactStudent,now);artifactAnswers=encodeArtifact(artifactAnswers,now);
@@ -877,8 +901,17 @@ export class AssistantService {
       if(job.operation==='check_curriculum'&&body.researchUnavailable===true)final.phase='curriculum_unavailable';
       let curriculumId=null;
       if(checkedCurriculum){curriculumId=this.id();tx.create(ref('assistantCurricula',curriculumId),{id:curriculumId,ownerUid:job.ownerUid,conversationId:c.id,curriculum:checkedCurriculum,jobId:id,createdAt:now});final.phase='curriculum_checked';}
-      if(paper)await stagePaperCatalogue(tx,paper,now);
-      if(paper){tx.create(ref('assistantPapers',paper.id),paper);tx.create(`assistantPapers/${paper.id}/artifacts/student`,artifactStudent);tx.create(`assistantPapers/${paper.id}/artifacts/answers`,artifactAnswers);}
+      if(paper){
+        await stagePaperCatalogue(tx,paper,now);
+        stageExamCandidate(tx,paper.ownerUid,paper,paper.examIdentity);
+      }
+      if(paper){
+        tx.create(ref('assistantPapers',paper.id),paper);
+        tx.create(`assistantPapers/${paper.id}/artifacts/student`,artifactStudent);
+        tx.create(`assistantPapers/${paper.id}/artifacts/answers`,artifactAnswers);
+        enqueueExamUpdate(tx,{kind:'paper-created',entityId:paper.id,version:paper.revision,at:now,
+          ownerUid:paper.ownerUid,conversationId:paper.conversationId});
+      }
       if(resumeTurn){tx.create(ref('assistantJobs',resumeTurn.id),resumeTurn);this.notifyDispatch(tx,job.ownerUid);}
       else this.notifyContent(tx,job.ownerUid);
       const researchOutcome=job.operation==='check_curriculum'?{key:researchKey(job.requirements),status:checkedCurriculum?(checkedCurriculum.paperPattern?'pattern_verified':'syllabus_verified'):'unavailable',curriculumId,jobId:id,checkedAt:now,expiresAt:new Date(this.now().getTime()+86400000).toISOString(),limitations:bounded(body.research?.limitations||[reply],8000)}:null;
@@ -921,6 +954,7 @@ export class AssistantService {
         try{
           const result=nativePaper(this.domain,candidate,submitted);
           paper={...result.paper,id:this.id(),ownerUid:job.ownerUid,conversationId:c.id,nativePrivate:true,requirements:result.requirements,deliveryValidation:result.deliveryValidation,rootRequestMessageId:base?.rootRequestMessageId||original.id,revision:base?(base.revision||1)+1:1,...(base?{parentPaperId:base.id}:{}),jobId:id,createdAt:now};
+          paper.examIdentity=publishedExamIdentity(paper,base);
           let student,answers;
           try{student=this.domain.renderPaper(paper,false);answers=this.domain.renderPaper(paper,true);}
           catch{fail(400,'paper_delivery_invalid','The staged content could not be rendered safely as both printable documents.');}
@@ -933,12 +967,17 @@ export class AssistantService {
       }
       if(Date.parse(job.leaseUntil)<=this.now().getTime())return {active:false};
       const mid=this.id();
-      if(paper)await stagePaperCatalogue(tx,paper,now);
+      if(paper){
+        await stagePaperCatalogue(tx,paper,now);
+        stageExamCandidate(tx,paper.ownerUid,paper,paper.examIdentity);
+      }
       tx.create(messagePath(c.id,mid),{id:mid,conversationId:c.id,role:'assistant',text:reply,createdAt:now,jobId:id,native:true,...(paper?{paperId:paper.id}:{})});
       tx.create(turnPath,{...delivery,jobId:id,requestMessageId:original.id,completedAt:now});
       if(paper){
         tx.create(ref('assistantPapers',paper.id),paper);
         for(const [kind,artifact] of Object.entries(artifacts))tx.create(`assistantPapers/${paper.id}/artifacts/${kind}`,artifact);
+        enqueueExamUpdate(tx,{kind:'paper-created',entityId:paper.id,version:paper.revision,at:now,
+          ownerUid:paper.ownerUid,conversationId:paper.conversationId});
       }
       tx.update(ref('assistantJobs',id),{state:'completed',phase:paper?'paper_ready_for_teacher_review':'reply_ready',updatedAt:now,leaseId:null,leaseUntil:null,nativeCompletion:delivery,completionLeaseSha256:leaseHash,completionRequestSha256:requestHash,completionArtifacts,...(body.metrics?{metrics:bounded(body.metrics)}:{}),...(paper?{paperId:paper.id}:{})});
       tx.update(ref('assistantConversations',c.id),{activeNativeTurnId:null,updatedAt:now,nativeThreadStartedAt:c.nativeThreadStartedAt||now,nativeContextImportedAt:now,nativeLegacyContextPending:false,...(paper?{latestPaperId:paper.id,title:paperConversationTitle(paper),titleSource:'generated-paper'}:{})});
@@ -953,8 +992,10 @@ export class AssistantService {
       const knownErrors=job.kind==='paper'||job.native?{...failedPaperMessages,...failedCodexMessages}:failedCodexMessages;
       const reported=job.native&&nativeDraftRejections.has(body.errorCode)?'paper_draft_invalid':body.errorCode;
       const errorCode=Object.hasOwn(knownErrors,reported)?reported:null;
-      tx.update(ref('assistantJobs',id),{state:'failed',phase:'failed',error:errorCode?knownErrors[errorCode]:text(body.error,2000),errorCode,...(body.metrics?{metrics:bounded(body.metrics)}:{}),retryable:body.retryable!==false&&errorCode!=='paper_scope_infeasible',updatedAt:this.iso(),leaseId:null,leaseUntil:null});
+      const now=this.iso();
+      tx.update(ref('assistantJobs',id),{state:'failed',phase:'failed',error:errorCode?knownErrors[errorCode]:text(body.error,2000),errorCode,...(body.metrics?{metrics:bounded(body.metrics)}:{}),retryable:body.retryable!==false&&errorCode!=='paper_scope_infeasible',updatedAt:now,leaseId:null,leaseUntil:null});
       if(job.native)tx.update(ref('assistantConversations',conversation.id),{activeNativeTurnId:null,updatedAt:this.iso()});
+      if(errorCode!=='paper_scope_infeasible')notifyPaperFailure(tx,job,now);
       this.notifyContent(tx,job.ownerUid);
       return {active:true};
     });

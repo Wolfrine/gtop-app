@@ -125,6 +125,8 @@ jobs:
         if: needs.verify.outputs.directory_required == 'true'
         run: node assistant-service/scripts/deploy-student-directory.mjs
       - name: Deploy assistant gateway using existing runtime permissions
+        env:
+          PAPERS_EXAM_WEB_PUSH_ENABLED: "${{ vars.PAPERS_EXAM_WEB_PUSH_ENABLED }}"
         run: node assistant-service/scripts/deploy.mjs
       - name: Project original papers into their private catalogue once
         if: needs.verify.outputs.catalogue_backfill_required == 'true'

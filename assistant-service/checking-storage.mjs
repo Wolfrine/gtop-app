@@ -15,12 +15,12 @@ export const matchesStudentLabel=(label,name)=>!!name&&normalizedLabel(label)===
 export const currentSheetGrade=sheet=>(sheet.state==='review'||sheet.state==='final'||sheet.state==='completed')&&
   (sheet.gradeRevision??1)===(sheet.gradingRevision??1)?sheet.grade:null;
 export const sheetFields=['id','label','state','createdAt','updatedAt','pageCount','version','grade.awarded','grade.max','grade.pending',
-  'gradeRevision','gradingRevision','gradingPaperId','gradingMax','packetId','packetLabel','studentUid','studentLabel','labelFromStudent','singleStudentBook','automatic','checkingResult.outcome'];
+  'gradeRevision','gradingRevision','gradingPaperId','gradingMax','packetId','packetLabel','studentUid','studentLabel','labelFromStudent','singleStudentBook','automatic','checkingResult.outcome','checkingResult.sha'];
 export function sheetSummary(sheet,max){
   const {id,label,state,createdAt,updatedAt,pageCount,version,packetId,packetLabel,gradingRevision,gradingPaperId,gradingMax,studentUid,studentLabel}=sheet;
   const grade=currentSheetGrade(sheet);
   return {id,label,state,createdAt,updatedAt,pageCount,version,awarded:sheet.checkingResult&&sheet.checkingResult.outcome!=='complete'?null:grade?.awarded??null,pending:grade?.pending??null,
     max:grade?.max??gradingMax??max,...(packetId?{packetId}:{}),...(packetLabel?{packetLabel}:{}),
-    ...(sheet.automatic?{automatic:true,outcome:sheet.checkingResult?.outcome??null}:{}),...(sheet.labelFromStudent?{labelFromStudent:true}:{}),...(sheet.singleStudentBook?{singleStudentBook:true}:{}),
+    ...(sheet.automatic?{automatic:true,outcome:sheet.checkingResult?.outcome??null,reportDigest:sheet.checkingResult?.sha??null}:{}),...(sheet.labelFromStudent?{labelFromStudent:true}:{}),...(sheet.singleStudentBook?{singleStudentBook:true}:{}),
     ...(studentUid?{studentUid,studentLabel}:{}),...(gradingPaperId?{gradingPaperId,gradingRevision}:{})};
 }

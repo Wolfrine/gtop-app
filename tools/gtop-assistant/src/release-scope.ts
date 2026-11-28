@@ -7,25 +7,29 @@ import {isDeepStrictEqual} from 'node:util';
 // A local controller or documentation change needs verification, not a repeat
 // deployment of byte-for-byte unchanged gateway and Hosting sources.
 export function cloudReleasePlan(files:string[]){
-  const scopedPath=/^(?:assistant-service\/|question-papers\/|tools\/gtop-assistant\/|gtop-app\/(?:src\/|angular\.json$)|gtop-v2\/|(?:docs|design|raw|wiki|codex)\/|AGENTS\.md$|\.github\/workflows\/(?:gtop-assistant-release|gt-papers-growth-preview|firebase-deploy|firebase-v2-uat)\.yml$)/;
+  const scopedPath=/^(?:assistant-service\/|question-papers\/|tools\/gtop-assistant\/|gtop-app\/(?:src\/|angular\.json$|firestore\.rules$)|gtop-v2\/|(?:docs|design|raw|wiki|codex)\/|AGENTS\.md$|\.github\/workflows\/(?:gtop-assistant-release|gt-papers-growth-preview|firebase-deploy|firebase-v2-uat)\.yml$)/;
   if(files.length>0&&files.every(file=>scopedPath.test(file))){
     const sharedWithPapers=new Set(['assistant-service/domain/exam-copy.mjs','assistant-service/domain/checking.mjs','assistant-service/domain/checking-limits.mjs','assistant-service/domain/checking-intake.mjs','assistant-service/domain/external-reference.mjs',
-      'assistant-service/domain/checked-return-pdf.mjs','assistant-service/domain/checked-return-marks.mjs']);
-    return {backend:files.some(file=>file.startsWith('assistant-service/')),hosting:files.some(file=>file.startsWith('question-papers/')||sharedWithPapers.has(file))};
+      'assistant-service/domain/checked-return-pdf.mjs','assistant-service/domain/checked-return-marks.mjs',
+      'assistant-service/domain/artifact-filenames.mjs','assistant-service/domain/result-share.mjs']);
+    return {backend:files.some(file=>file.startsWith('assistant-service/')||file==='gtop-app/firestore.rules'),hosting:files.some(file=>file.startsWith('question-papers/')||sharedWithPapers.has(file))};
   }
   return {backend:true,hosting:true};
 }
 export const cloudReleaseRequired=(files:string[])=>{const plan=cloudReleasePlan(files);return plan.backend||plan.hosting;};
 
-function canvasOnlyDependencyChange(before:string){
+function workerIndependentDependencyChange(before:string){
   const manifest='assistant-service/package.json',lockfile='assistant-service/package-lock.json';
   const from=(revision:string,file:string)=>JSON.parse(execFileSync('git',['show',revision+':'+file],{encoding:'utf8'}));
   const withoutCanvas=(revision:string)=>{
     const pkg=from(revision,manifest),lock=from(revision,lockfile);
     delete pkg.dependencies['@napi-rs/canvas'];
     delete lock.packages[''].dependencies['@napi-rs/canvas'];
+    delete pkg.dependencies['qr-image'];
+    delete lock.packages[''].dependencies['qr-image'];
     for(const name of Object.keys(lock.packages)){
-      if(/^node_modules\/@napi-rs\/canvas(?:-[\w-]+)?$/.test(name))delete lock.packages[name];
+      if(/^node_modules\/@napi-rs\/canvas(?:-[\w-]+)?$/.test(name)||name==='node_modules/qr-image')
+        delete lock.packages[name];
     }
     return {pkg,lock};
   };
@@ -42,7 +46,7 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
       plan=cloudReleasePlan(files);
       const directoryCode=files.some(file=>/^assistant-service\/(?:student-(?:directory|index)|runtime\.mjs$|store\.mjs$|scripts\/deploy-student-directory\.mjs$)/.test(file));
       const dependencies=files.some(file=>/^assistant-service\/package(?:-lock)?\.json$/.test(file));
-      directory=directoryCode||dependencies&&!canvasOnlyDependencyChange(before);
+      directory=directoryCode||dependencies&&!workerIndependentDependencyChange(before);
       catalogue=files.some(file=>/^assistant-service\/(?:paper-catalogue\.mjs$|paper-library-facets\.mjs$|scripts\/backfill-paper-(?:catalogue|facets)\.mjs$)/.test(file));
     }
     catch{console.warn('Release history unavailable; retaining cloud deployment.');}

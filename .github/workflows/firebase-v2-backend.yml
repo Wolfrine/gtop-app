@@ -107,7 +107,7 @@ jobs:
         env:
           ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
           PAPER_NOTIFY_ONLY: '1'
-          PAPERS_EXAM_WEB_PUSH_ENABLED: "${{ vars.PAPERS_EXAM_WEB_PUSH_ENABLED }}"
+          PAPERS_EXAM_WEB_PUSH_ENABLED: 'false'
         run: node scripts/deploy-paper-functions.mjs
       - name: Backfill and verify all historical register sources
         timeout-minutes: 45

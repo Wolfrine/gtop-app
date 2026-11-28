@@ -262,13 +262,12 @@ async function deliverExamPush(event,row){
     return true;
   },{maxAttempts:2});
   if(!acquired||Date.now()>=deadline)return;
-  const [secret,pilot,targetCurrent]=await Promise.all([
-    db.doc('paperBackendSecrets/webPush').get(),
+  const [pilot,targetCurrent]=await Promise.all([
     db.doc('assistantConfig/pilot').get(),
     examTargetCurrent(row)
   ]);
-  const vapid=examVapid(secret.data()),allowed=pilot.data()?.allowedOwnerUids;
-  if(!vapid||!targetCurrent||!Array.isArray(allowed)||Date.now()>=deadline)return;
+  const allowed=pilot.data()?.allowedOwnerUids;
+  if(!targetCurrent||!Array.isArray(allowed)||Date.now()>=deadline)return;
   const candidates=row.examStream==='staff'
     ? [...new Set(allowed.filter(examId))].slice(0,8)
     : allowed.includes(row.recipientUid)?[row.recipientUid]:[];
@@ -276,19 +275,22 @@ async function deliverExamPush(event,row){
   const profiles=await db.getAll(...candidates.map(uid=>db.doc('users/'+uid)),{fieldMask:['role']});
   const recipients=profiles.filter(profile=>profile.data()?.role==='admin').slice(0,2).map(profile=>profile.id);
   if(!recipients.length||Date.now()>=deadline)return;
+  const deviceGroups=await Promise.all(recipients.map(async uid=>({uid,devices:(await db
+    .collection('paperPushSubscriptions/'+uid+'/examDevices').orderBy('updatedAt','desc').limit(2).get()).docs})));
+  if(!deviceGroups.some(group=>group.devices.length)||Date.now()>=deadline)return;
+  const secret=await db.doc('paperBackendSecrets/webPush').get();
+  const vapid=examVapid(secret.data());
+  if(!vapid||Date.now()>=deadline)return;
   const url='https://gtop-question-papers.web.app/?update='+event.params.notificationId;
   const payload=JSON.stringify({notification:{
     title:'GT Papers',body:'A staff update is available.',icon:'https://gtop-question-papers.web.app/icons/growth-launcher-192.png',
     tag:'gt-papers-'+event.params.notificationId,data:{examUpdateId:event.params.notificationId,onActionClick:{default:{operation:'focusLastFocusedOrOpen',url}}}
   }});
-  const deliveries=await Promise.all(recipients.map(async uid=>{
-    if(Date.now()>=deadline)return [];
-    const query=await db.collection('paperPushSubscriptions/'+uid+'/examDevices').orderBy('updatedAt','desc').limit(2).get();
-    return Promise.all(query.docs.map(device=>sendExamDevice(uid,device,vapid,payload,deadline,expires).catch(()=> 'failed')));
-  }));
+  const deliveries=await Promise.all(deviceGroups.flatMap(({uid,devices})=>devices.map(device=>
+    sendExamDevice(uid,device,vapid,payload,deadline,expires).catch(()=> 'failed'))));
   if(Date.now()>=deadline)return;
   const totals={accepted:0,expired:0,failed:0,skipped:0};
-  for(const state of deliveries.flat())totals[state]++;
+  for(const state of deliveries)totals[state]++;
   await ref.update({'push.finishedAt':examIso(),'push.totals':totals});
 }
 

@@ -5,6 +5,8 @@ const project='gtop-app';
 const runtime='78765581239-compute@developer.gserviceaccount.com';
 const runtimeOnly=process.env.PAPER_RUNTIME_ONLY==='1';
 const notifyOnly=process.env.PAPER_NOTIFY_ONLY==='1';
+const pushEnabled=process.env.PAPERS_EXAM_WEB_PUSH_ENABLED==='true'?'true':'false';
+const notificationFormat='json(status,runtime,entryPoint,serviceAccountEmail,labels,eventTrigger,minInstances,maxInstances,timeout,availableMemoryMb,environmentVariables.PAPERS_EXAM_WEB_PUSH_ENABLED)';
 const databaseResponse=await fetch('https://firestore.googleapis.com/v1/projects/'+project+'/databases/(default)',{headers:{Authorization:'Bearer '+process.env.ACCESS_TOKEN},signal:AbortSignal.timeout(30000)});
 assert(databaseResponse.ok,'The database location must be verified before trigger deployment.');
 const location=(await databaseResponse.json()).locationId;
@@ -28,22 +30,27 @@ async function deploy(spec){
   const args=['functions','deploy',spec.name,'--project='+project,spec.path?'--no-gen2':'--gen2','--region=us-central1','--runtime=nodejs22','--source=functions','--entry-point='+spec.name,'--service-account='+runtime,'--build-service-account=projects/'+project+'/serviceAccounts/'+runtime,'--memory='+spec.memory,'--timeout='+spec.timeout,'--max-instances='+spec.max,'--update-labels=firebase-functions-codebase=paper-service,gtop-release='+process.env.GITHUB_SHA,'--quiet'];
   if(spec.path)args.push('--trigger-event=providers/cloud.firestore/eventTypes/document.'+spec.type,'--trigger-resource=projects/'+project+'/databases/(default)/documents/'+spec.path,'--retry');
   else args.push('--trigger-http','--allow-unauthenticated');
-  if(notifyOnly)args.push('--update-env-vars=PAPERS_EXAM_WEB_PUSH_ENABLED='+
-    (process.env.PAPERS_EXAM_WEB_PUSH_ENABLED==='true'?'true':'false'));
+  if(notifyOnly)args.push('--update-env-vars=PAPERS_EXAM_WEB_PUSH_ENABLED='+pushEnabled);
   console.log('Deploying reviewed function:',spec.name,'Firestore location:',location);
   await command(args);
-  const fn=JSON.parse(await command(['functions','describe',spec.name,'--project='+project,'--region=us-central1',spec.path?'--no-gen2':'--gen2','--format=json'],true));
+  const fn=JSON.parse(await command(['functions','describe',spec.name,'--project='+project,'--region=us-central1',spec.path?'--no-gen2':'--gen2','--format='+(notifyOnly?notificationFormat:'json')],true));
   assert.equal(spec.path?fn.status:fn.state,'ACTIVE',spec.name+' must be active.');
   assert.equal(spec.path?fn.runtime:fn.buildConfig?.runtime,'nodejs22');assert.equal(spec.path?fn.entryPoint:fn.buildConfig?.entryPoint,spec.name);
   assert.equal(spec.path?fn.serviceAccountEmail:fn.serviceConfig?.serviceAccountEmail,runtime);
   assert.equal(fn.labels?.['gtop-release'],process.env.GITHUB_SHA);
   if(spec.path){assert.equal(fn.eventTrigger?.resource,'projects/'+project+'/databases/(default)/documents/'+spec.path);assert.equal(fn.eventTrigger?.eventType,'providers/cloud.firestore/eventTypes/document.'+spec.type);assert(fn.eventTrigger?.failurePolicy?.retry,'Retry policy must be enabled.');}
+  if(notifyOnly){
+    assert.equal(fn.environmentVariables?.PAPERS_EXAM_WEB_PUSH_ENABLED,pushEnabled);
+    assert.equal(Number(fn.minInstances||0),0);
+    assert.equal(Number(fn.maxInstances),spec.max);
+    console.log('Verified examination device delivery enabled:',pushEnabled);
+  }
   console.log('Verified active function:',spec.name);
 }
 if(notifyOnly){
   const spec=specs.find(entry=>entry.name==='paperChatNotifyAdmin');
   const active=JSON.parse(await command(['functions','describe',spec.name,'--project='+project,
-    '--region=us-central1','--no-gen2','--format=json'],true));
+    '--region=us-central1','--no-gen2','--format='+notificationFormat],true));
   assert.equal(active.status,'ACTIVE','Only an active existing function may be updated.');
   assert.equal(active.serviceAccountEmail,runtime,'Existing notification runtime identity changed.');
   assert.equal(active.eventTrigger?.resource,'projects/'+project+'/databases/(default)/documents/'+spec.path);

@@ -69,7 +69,9 @@ jobs:
           ruleset="$(jq -r .rulesetName <<<"${release}")"
           curl --fail --silent --show-error --header "Authorization: Bearer ${ACCESS_TOKEN}" \
             "https://firebaserules.googleapis.com/v1/${ruleset}" \
-            | jq -r '.source.files[] | select(.name == "firestore.rules") | .content' > /tmp/live-firestore.rules
+            | jq -er '[.source.files[] | select(.name == "firestore.rules" or .name == "gtop-app/firestore.rules") | .content]
+              | if length == 1 and (.[0] | type == "string" and length > 0) then .[0]
+                else error("Expected one active GTOP Firestore rules source") end' > /tmp/live-firestore.rules
           if ! diff --ignore-all-space --ignore-blank-lines gtop-app/firestore.rules /tmp/live-firestore.rules; then
             echo "Checked-in Firestore rules differ from the active shared production backend."
             test "${ALLOW_CHANGE}" = "true"

@@ -124,6 +124,8 @@ jobs:
               assistantOnly=assistantOnlyRelease(files,readAt(before),readAt(process.env.GITHUB_SHA));
               if(assistantOnly)required=false;
             }
+            if(!required && files.length && files.every(file=>file==='.github/workflows/firebase-v2-backend.yml' ||
+              file==='.github/workflows/firebase-deploy.yml')) assistantOnly=true;
             const notificationPaths=new Set(['gtop-app/functions/index.mjs','gtop-app/scripts/deploy-paper-functions.mjs',
               '.github/workflows/firebase-v2-backend.yml','.github/workflows/firebase-deploy.yml']);
             if(files.includes('gtop-app/functions/index.mjs')&&files.every(file=>notificationPaths.has(file))){

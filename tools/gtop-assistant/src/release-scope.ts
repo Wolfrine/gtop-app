@@ -8,7 +8,9 @@ import {isDeepStrictEqual} from 'node:util';
 // deployment of byte-for-byte unchanged gateway and Hosting sources.
 export function cloudReleasePlan(files:string[]){
   const scopedPath=/^(?:assistant-service\/|question-papers\/|tools\/gtop-assistant\/|gtop-app\/(?:src\/|angular\.json$|ngsw-config\.json$|package(?:-lock)?\.json$|firestore\.rules$)|gtop-v2\/|(?:docs|design|raw|wiki|codex)\/|AGENTS\.md$|\.github\/workflows\/(?:gtop-assistant-release|gt-papers-growth-preview|firebase-deploy|firebase-v2-uat)\.yml$)/;
-  if(files.length>0&&files.every(file=>scopedPath.test(file))){
+  const separateBackendPaths=new Set(['.github/workflows/firebase-v2-backend.yml',
+    'gtop-app/functions/index.mjs','gtop-app/scripts/deploy-paper-functions.mjs']);
+  if(files.length>0&&files.every(file=>scopedPath.test(file)||separateBackendPaths.has(file))){
     const sharedWithPapers=new Set(['assistant-service/domain/exam-copy.mjs','assistant-service/domain/checking.mjs','assistant-service/domain/checking-limits.mjs','assistant-service/domain/checking-intake.mjs','assistant-service/domain/external-reference.mjs',
       'assistant-service/domain/checked-return-pdf.mjs','assistant-service/domain/checked-return-marks.mjs',
       'assistant-service/domain/artifact-filenames.mjs','assistant-service/domain/result-share.mjs']);

@@ -1,6 +1,6 @@
 import {maxActive,orderedKey,queue,quota,sheets} from './checking-storage.mjs';
 
-const recheckFields=['id','packetId','scanSource','state','version','queueId'];
+const recheckFields=['id','packetId','scanSource','state','version','queueId','automatic'];
 
 export async function recheckClass(intake,uid,path,body){
   const checker=intake.checking,requestId=checker.id(body.requestId),paperId=checker.id(body.paperId);

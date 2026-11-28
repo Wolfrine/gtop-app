@@ -2,6 +2,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { Component, OnDestroy, OnInit, ElementRef, ViewChild, HostListener, Injector, inject, provideZoneChangeDetection, isDevMode, type Type } from '@angular/core';
 import { provideServiceWorker } from '@angular/service-worker';
 import { GtPwaControls } from './pwa-controls';
+import { ExamUpdatesComponent, type ExamUpdateTarget, resolveExamUpdate, validUpdateId } from './exam-updates.component';
 import { PaperLibraryComponent, type CataloguePaper } from './paper-library.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +14,7 @@ import { OwnerEvents, InvalidationQueue, WorkerHealth, validNotifications, fresh
 import { Conversation, ConversationDetail, ConversationList, Job, Message, PaperSummary, PilotSession, Transport, LibraryKind, LibraryItem, LibraryPage, LibraryFilters, AssistantServiceStatus, libraryMatches, mergeLibraryItems, conversationReadOnly } from './contracts';
 import { getDevTransport } from './dev-transport';
 import { presentArtifact } from './artifact-presentation.mjs';
+import { artifactFilename, saveArtifact } from '../../assistant-service/domain/artifact-filenames.mjs';
 import { ChatMathDirective } from './chat-math.directive';
 import { formatAssistantText, idForRequest, pendingStates, phaseLabel, readableError, visibleJobs, servicePresentation } from './presentation.mjs';
 
@@ -30,11 +32,20 @@ function mergedHistoryCursor<T extends {id:string}>(prior:T[],incoming:T[],prior
 }
 
 @Component({
-  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls,PaperLibraryComponent],templateUrl:'./workspace.html'
+  selector:'gtop-paper-app',standalone:true,imports:[CommonModule,FormsModule,ChatMathDirective,GtPwaControls,PaperLibraryComponent,ExamUpdatesComponent],templateUrl:'./workspace.html',
+  styles:[`
+    @media (min-width:761px) and (max-width:1050px) {
+      .desk-bar.with-updates {grid-template-columns:auto minmax(0,1fr) auto;gap:12px;padding-inline:16px}
+      .desk-bar.with-updates .desk-nav {justify-content:center;gap:2px}
+      .desk-bar.with-updates .desk-nav button {padding-inline:6px;gap:5px}
+      .desk-bar.with-updates .desk-tools {gap:5px}
+    }
+  `]
 })
 export class PaperWorkspace implements OnInit,OnDestroy {
   private api=inject(AssistantApi);private sanitizer=inject(DomSanitizer);
   @ViewChild('messageList') messageList?:ElementRef<HTMLElement>;
+  @ViewChild(ExamUpdatesComponent) private examUpdates?:ExamUpdatesComponent;
   transport:Transport=this.api;session?:PilotSession;conversations:Conversation[]=[];detail?:ConversationDetail;
   loading=true;sending=false;authenticating=false;emailForm=false;email='';password='';error='';draft='';drawer=false;fixture='';
   serviceStarting=false;serviceError='';serviceStale=false;private serviceRequestId='';
@@ -52,7 +63,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   private contentRetryTimer?:ReturnType<typeof setTimeout>;private contentRetryAttempt=0;
   private presenceDenied=false;private capabilityPending?:Promise<void>;private eventConfig='';
   private contentDenied=false;private contentAccessAllowed=false;private contentAccessPending?:Promise<void>;
-  document?:{paper:PaperSummary;kind:'student'|'answers';safe:SafeHtml;adminView:boolean;readOnly:boolean};documentLoading=false;
+  document?:{paper:PaperSummary;kind:'student'|'answers';source:string;safe:SafeHtml;adminView:boolean;readOnly:boolean};documentLoading=false;
   checkingPaperId='';checkingComponent?:Type<unknown>;
   checkingHome=false;
   checkingHubComponent?:Type<unknown>;
@@ -206,7 +217,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       else void this.openConversation(this.openingId,false);
     }else void this.reconnect();
   }
-  private readonly routeKeys=['view','request','shared','checking','check','sheet','packet','reference','scan','printed','q','page','pane','studentUid','submission'];
+  private readonly routeKeys=['view','request','shared','checking','check','sheet','packet','reference','scan','printed','q','page','pane','studentUid','submission','update'];
   private readonly injector=inject(Injector);
   checkingInjector?:Injector;
   private checkedOwner='';
@@ -358,6 +369,41 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     try{this.studentHistoryComponent||=(await import('./student-history.component')).StudentHistoryComponent;}
     catch(error){if(this.current(epoch)&&this.studentsOpen)this.reportError(error);}
     this.scheduleThreadCheck();
+  }
+  readonly openExamUpdate=async(target:ExamUpdateTarget,replace=false):Promise<boolean>=>{
+    if(!this.user||!this.contentAuthorized)return false;
+    if(!replace&&this.checkingOpen&&!window.dispatchEvent(new Event('gtop-checking-may-leave',{cancelable:true})))return false;
+    const epoch=this.authEpoch;
+    if(target.kind==='submission'){
+      if(replace)this.writeRoute({view:'submissions',submission:target.submissionId},true);
+      await this.openSubmissions(target.submissionId,!replace);
+      return this.current(epoch)&&this.submissionsOpen&&this.inboxSubmissionId===target.submissionId;
+    }
+    const {conversationId,paperId}=target;
+    if(replace)this.writeRoute({request:conversationId},true);
+    await this.openConversation(conversationId,!replace);
+    if(!this.current(epoch)||this.detail?.conversation.id!==conversationId)return false;
+    if(paperId){
+      let paper=this.detail.papers.find(item=>item.id===paperId);
+      if(!paper){
+        const response=await this.transport.request<{paper:PaperSummary}>(this.threadPath(conversationId,false,'paper',{paperId}));
+        paper=response.paper;
+      }
+      if(!this.current(epoch)||this.detail?.conversation.id!==conversationId)return false;
+      await this.showDocument(paper,'student',false);
+    }
+    return true;
+  };
+  private async openExamDeepLink(id:string){
+    const epoch=this.authEpoch,url=location.href;
+    try{
+      if(!validUpdateId(id))throw Error('Invalid update');
+      const target=await resolveExamUpdate(this.api,id);
+      if(this.current(epoch)&&url===location.href)await this.openExamUpdate(target,true);
+    }catch{
+      if(!this.current(epoch)||url!==location.href)return;
+      this.writeRoute({},true);this.openHome(false);this.error='This update is no longer available.';
+    }
   }
   async openSubmissions(id='',write=true){
     if(!this.user||!this.contentAuthorized)return;
@@ -544,6 +590,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
   ngOnDestroy(){this.destroyed=true;this.authEpoch++;this.authUnsubscribe?.();this.stopEvents();this.closeDocument();}
   private current(epoch:number){return epoch===this.authEpoch&&!this.destroyed;}
   private get contentAuthorized(){return !this.contentDenied||this.contentAccessAllowed;}
+  get updatesAvailable(){return !this.fixture&&this.contentAuthorized;}
   private acceptSession(session:PilotSession){
     const lostLibrary=!!this.session?.user.libraryAccess&&!session.user.libraryAccess;
     this.session=session;
@@ -569,7 +616,12 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     this.clearLibraryFilters();this.libraryFiltersOpen=false;this.archiveSearch=undefined;this.archiveTail={};this.archiveEarlierError=false;this.libraryPages={papers:{items:[],nextCursor:null,loaded:false},conversations:{items:[],nextCursor:null,loaded:false}};this.closeDocument();
   }
   async login(email=false){this.error='';this.authenticating=true;try{if(email)await this.api.loginEmail(this.email,this.password);else await this.api.login();this.password='';if(!this.loading&&!this.session&&this.api.user)await this.loadSession();}catch(e){this.reportError(e);}finally{this.authenticating=false;}}
-  async logout(){this.writeRoute({},true);this.resetAccount();if(this.fixture)return;try{await this.api.logout();}catch(e){this.reportError(e);}}
+  async logout(){
+    if(this.examUpdates)await this.examUpdates.disconnectDevice();
+    this.writeRoute({},true);this.resetAccount();
+    if(this.fixture)return;
+    try{await this.api.logout();}catch(e){this.reportError(e);}
+  }
   private async loadSession(){
     const epoch=this.authEpoch;this.loading=true;
     try{
@@ -611,6 +663,8 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     }
     const restoredUrl=location.href;
     const epoch=this.authEpoch;
+    const update=params.get('update');
+    if(update&&this.updatesAvailable){await this.openExamDeepLink(update);return;}
     const check=params.get('check'),request=params.get('request');
     if(check)this.openChecking(check,params.get('packet')||'',params.get('sheet')||'',false,params.get('view')==='students'?params.get('studentUid')||'':'',params.get('view')==='submissions'?params.get('submission')||'':'');
     else if(params.get('checking')==='class')this.openCheckingHome(params.get('reference')||'',params.get('packet')||'',false);
@@ -1026,7 +1080,7 @@ export class PaperWorkspace implements OnInit,OnDestroy {
       if(this.document?.paper.id!==paper.id)this.clearStudentLink();
       this.previewReady=false;
       this.printRequest=printOnOpen ? request : 0;
-      this.document={paper,kind,adminView,readOnly:adminView&&paper.ownerUid!==this.user?.uid,safe:this.sanitizer.bypassSecurityTrustHtml(presentArtifact(html,paper.revision))};
+      this.document={paper,kind,source:html,adminView,readOnly:adminView&&paper.ownerUid!==this.user?.uid,safe:this.sanitizer.bypassSecurityTrustHtml(presentArtifact(html,paper.revision))};
       if (!printOnOpen) setTimeout(() => {
         if (this.documentRequest === request) document.querySelector<HTMLElement>('.preview-title')?.focus({preventScroll:true});
       });
@@ -1109,7 +1163,21 @@ export class PaperWorkspace implements OnInit,OnDestroy {
     }};
     apply();void doc.fonts?.ready.then(apply);
   }
-  printDocument(){const frame=document.querySelector<HTMLIFrameElement>('#paper-frame');frame?.contentWindow?.focus();frame?.contentWindow?.print();}
+  private paperFilename(extension:string):string {
+    const doc=this.document;
+    return doc?artifactFilename({label:doc.paper.title,id:doc.paper.id,revision:doc.paper.revision,
+      kind:doc.kind==='student'?'question-paper':'answer-key',extension}):'GT Papers.'+extension;
+  }
+  downloadDocument(){
+    if(!this.document||!this.contentAuthorized||this.documentLoading)return;
+    saveArtifact(new Blob([this.document.source],{type:'text/html;charset=utf-8'}),this.paperFilename('html'));
+  }
+  printDocument(){
+    const frame=document.querySelector<HTMLIFrameElement>('#paper-frame');
+    if(frame?.contentDocument)frame.contentDocument.title=this.paperFilename('pdf').slice(0,-4);
+    frame?.contentWindow?.focus();
+    frame?.contentWindow?.print();
+  }
   revise(paper:PaperSummary){if(this.readOnly||this.view!=='chat')return;const latest=this.currentPaper || paper;this.closeDocument();this.draft='In revision '+latest.revision+', please ';setTimeout(()=>document.querySelector<HTMLTextAreaElement>('#message-input')?.focus(),0);}
   async feedback(rating:'helpful'|'needs_work',paperId?:string){if(!this.contentAuthorized||this.readOnly)return;const epoch=this.authEpoch;this.feedbackMessage='';const messageId=[...(this.detail?.messages||[])].reverse().find(m=>m.role==='assistant')?.id;try{await this.transport.request('/feedback','POST',{conversationId:this.detail!.conversation.id,...(paperId?{paperId}:{}),...(messageId?{messageId}:{}),rating,...(this.feedbackText.trim()?{text:this.feedbackText.trim()}:{})});if(!this.current(epoch))return;this.feedbackMessage='Thank you. Your feedback has been saved.';this.feedbackText='';this.feedbackPaperId='';this.feedbackOpen=false;}catch(e){if(this.current(epoch))this.reportError(e);}}
 }

@@ -76,7 +76,18 @@
                                             <button type="button" class="action" (click)="openPaper(paper.id)">Try again</button>
                                         } @else if (paperResult) {
                                             <h3>{{ paperResult.rubric.title || paper.title }}</h3>
-                                            <p>Teacher-approved · {{ paperResult.sheet.grade.awarded }} / {{ paperResult.sheet.grade.max }} marks</p>
+                                            @if (paperResult.outcome === 'partial' || paperResult.outcome === 'unassessable') {
+                                                <p>{{ paperResult.outcome === 'partial' ? 'Partial assessment' : 'Unable to assess' }} · Final mark unavailable</p>
+                                                @if (paperResult.assessedAwarded != null && paperResult.assessedMax != null) {
+                                                    <p>{{ paperResult.assessedAwarded }} / {{ paperResult.assessedMax }} marks assessed</p>
+                                                }
+                                                @if (paperResult.share?.fullMaximum != null) { <p>{{ paperResult.share?.fullMaximum }} full paper marks</p> }
+                                                @if (paperResult.message) { <p>{{ paperResult.message }}</p> }
+                                            } @else if (paperResult.sheet.grade.awarded != null) {
+                                                <p>{{ paperResult.sheet.grade.awarded }} / {{ paperResult.sheet.grade.max }} marks</p>
+                                            } @else {
+                                                <p>Final mark unavailable</p>
+                                            }
                                             @if (paperResult.sheet.grade.answers.length) {
                                                 <details>
                                                     <summary>Marks by question</summary>
@@ -93,6 +104,7 @@
                                                 </details>
                                             }
                                             <div class="actions">
+                                                @if (paperResult.share) { <button type="button" class="action primary" (click)="sharePaper()">Share result</button> }
                                                 <button type="button" class="action primary" [disabled]="pdfLoading" (click)="downloadPdf()">
                                                     <mat-icon aria-hidden="true">download</mat-icon> {{ pdfLoading ? 'Preparing…' : 'Marked PDF' }}
                                                 </button>

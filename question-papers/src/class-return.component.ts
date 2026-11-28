@@ -8,8 +8,8 @@ import {
   inject,
 } from '@angular/core';
 import { AssistantApi } from './api.service';
+import { artifactFilename } from '../../assistant-service/domain/artifact-filenames.mjs';
 import {
-  fileStem,
   filenames,
   handbackIdentity,
   marksRegister,
@@ -290,7 +290,8 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
     )
       throw Error('The marking key changed. Download again for the latest result.');
     const currentRows = new Map(current.sheets.map((row) => [row.id, row]));
-    const currentNames = filenames(current.sheets.filter((row) => row.state === 'final' || row.state === 'completed'));
+    const title = snapshot.rubric?.title || this.paperTitle;
+    const currentNames = filenames(current.sheets.filter((row) => row.state === 'final' || row.state === 'completed'), title);
     for (const row of selected) {
       const latest = currentRows.get(row.id);
       if (
@@ -322,15 +323,15 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
     this.releaseDownload();
     let archive: ReturnArchive | undefined, writer: FileSystemWritableFileStream | undefined;
     try {
-      const nameFor = (title: string, label?: string) =>
-        label
-          ? fileStem(label, 'Class', 80) + ' — ' + fileStem(title, 'GT Papers', 100) + suffix
-          : fileStem(title, 'GT Papers') + suffix;
-      const suffix = {
-        csv: ' - marks.csv',
-        zip: ' - marked copies.zip',
-        print: ' - class print set.pdf',
-      }[kind];
+      const visible = this.entries.filter(row=>ids.has(row.id));
+      const nameFor = async (title: string, label: string | undefined, rows: RegisterEntry[]) => {
+        const signature = rows.map(row=>[row.id,row.version,row.gradingRevision,row.reportDigest,row.state,row.awarded,row.max]);
+        const hash = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(signature)));
+        const digest = Array.from(new Uint8Array(hash),value=>value.toString(16).padStart(2,'0')).join('');
+        return artifactFilename({label:label?[label,title].join(' - '):title,id:this.scopePacketId||this.paperId,
+          kind:{csv:'marks-register',zip:'marked-copies',print:'class-print-set'}[kind],
+          digest,extension:kind==='print'?'pdf':kind});
+      };
       // For large downloads, write the ZIP directly to disk on browsers that support it.
       const savePicker = (window as Window & { showSaveFilePicker?: SavePicker }).showSaveFilePicker;
       if (
@@ -339,19 +340,22 @@ export class ClassReturnComponent implements OnChanges, OnDestroy {
         this.chosen.filter((row) => row.state === 'final' || row.state === 'completed').reduce((n, r) => n + r.pageCount, 0) > 120
       ) {
         const file = await savePicker.call(window, {
-          suggestedName: nameFor(this.paperTitle, this.classLabel),
+          suggestedName: await nameFor(this.paperTitle, this.classLabel, visible),
           types: [{ description: 'Marked answer sheets', accept: { 'application/zip': ['.zip'] } }],
         });
         this.check(epoch, uid);
         writer = await file.createWritable();
       }
       const snapshot = await this.readEntries(epoch, uid);
-      const name = nameFor(snapshot.rubric?.title || this.paperTitle, snapshot.packetLabel);
       const rows = snapshot.sheets.filter((row) => ids.has(row.id));
       if (rows.length !== ids.size)
         throw Error('A selected sheet was removed. Reopen the panel and select the current sheets.');
       this.entries = snapshot.sheets;
-      const names = filenames(snapshot.sheets.filter((row) => row.state === 'final' || row.state === 'completed'));
+      const title = snapshot.rubric?.title || this.paperTitle;
+      const name = await nameFor(title,snapshot.packetLabel,rows);
+      if (writer && name !== await nameFor(this.paperTitle,this.classLabel,visible))
+        throw Error('The selected files changed. Download again with the latest marks.');
+      const names = filenames(snapshot.sheets.filter((row) => row.state === 'final' || row.state === 'completed'),title);
       if (kind === 'csv') {
         const csv = new Blob([marksRegister(rows, snapshot.rubric?.marks ?? this.paperMaximum, names)], {
           type: 'text/csv;charset=utf-8',

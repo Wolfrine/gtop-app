@@ -265,7 +265,8 @@
         </div>
         @if (current.checkingResult) {
           <div class="actions">
-            <button class="action primary" type="button" (click)="downloadCheckingReport()">Download checking report</button>
+            <button class="action primary" type="button" (click)="shareCheckingReport()">Share result</button>
+            <button class="action" type="button" (click)="downloadCheckingReport()">Download checking report</button>
           </div>
         } @else if (current.grade) {
           <div class="actions">

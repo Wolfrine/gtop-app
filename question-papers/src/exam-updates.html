@@ -1,0 +1,39 @@
+<button #trigger type="button" class="update-trigger" aria-label="Updates" aria-controls="exam-updates-panel" [attr.aria-expanded]="open" (click)="toggle()">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 7H4c0-1 2-2 2-7m4 10a2 2 0 0 0 4 0"/></svg>
+  <span>Updates</span>
+</button>
+<section *ngIf="open" id="exam-updates-panel" class="update-panel" aria-labelledby="exam-updates-heading">
+  <header class="update-header">
+    <h2 #heading id="exam-updates-heading" tabindex="-1">Updates</h2>
+    <button type="button" class="update-close" aria-label="Close Updates" (click)="close()">&times;</button>
+  </header>
+  <div *ngIf="items.length" class="update-actions">
+    <button type="button" class="update-text" *ngIf="newUpdates" (click)="load()">Show new updates</button>
+    <button type="button" class="update-text" [disabled]="marking||!canMark" (click)="markRead()">Mark all read</button>
+  </div>
+  <div class="update-feed" [attr.aria-busy]="loading">
+    <p *ngIf="!loaded&&!error" class="update-message" role="status">Loading updates…</p>
+    <p *ngIf="loaded&&!items.length&&!loading&&!error" class="update-message">No updates yet.</p>
+    <p *ngIf="error" class="update-message" role="alert">{{error}} <button type="button" class="update-text" (click)="load()">Refresh</button></p>
+    <p *ngIf="actionError" class="update-message" role="alert">{{actionError}}</p>
+    <ol *ngIf="items.length" class="update-list" aria-label="Staff updates">
+      <li *ngFor="let row of items; trackBy: track">
+        <button type="button" class="update-row" [class.unread]="row.sortKey>readThrough" [disabled]="!!selected" (click)="select(row.id)">
+          <span class="update-dot" aria-hidden="true"></span>
+          <span class="update-label">{{row.label}}<span class="sr-only" *ngIf="row.sortKey>readThrough">, unread</span></span>
+          <time [attr.datetime]="row.createdAt">{{row.createdAt | date:'d MMM, h:mm a'}}</time>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 5 5-5 5"/></svg>
+        </button>
+      </li>
+    </ol>
+    <button type="button" class="update-text update-older" *ngIf="nextCursor" [disabled]="loading" (click)="load(true)">{{loading?'Loading…':'Earlier updates'}}</button>
+  </div>
+  <footer class="update-device">
+    <span>Device notifications</span>
+    <button *ngIf="deviceConfigured||deviceSubscribed" type="button" class="update-text" [disabled]="deviceBusy||(!deviceSubscribed&&deviceDenied)" (click)="changeDevice()">
+      {{deviceSubscribed?'Turn off on this device':'Turn on for this device'}}
+    </button>
+    <small *ngIf="deviceLoaded&&!deviceConfigured&&!deviceSubscribed&&!deviceNotice">Unavailable</small>
+    <p *ngIf="deviceNotice || (deviceConfigured&&deviceDenied&&!deviceSubscribed)" role="status">{{deviceNotice || 'Notifications are blocked in your browser settings.'}}</p>
+  </footer>
+</section>

@@ -33,7 +33,7 @@
                             <strong>{{ label(request.kind) }}{{ request.page ? ' · page ' + request.page : '' }}</strong>
                             <p>{{ request.reason }}</p>
                             @if (request.page) {
-                                <button type="button" class="text-button" [disabled]="!!busy" (click)="changeReplacement()">{{ replaceWhole ? 'Replace only the requested page' : 'Replace the whole PDF instead' }}</button>
+                                <button type="button" class="text-button" [disabled]="!!busy" (click)="changeReplacement()">{{ replaceWhole ? 'Replace only the requested page' : 'Replace the whole scan instead' }}</button>
                             }
                         </div>
                     }
@@ -59,37 +59,62 @@
                             @for (kind of kinds; track kind) {
                                 <div class="file-card" [class.has-file]="!!fileName(kind)">
                                     <h3>{{ label(kind) }}{{ targetPage(kind) ? ' · page ' + targetPage(kind) : '' }}</h3>
-                                    @if (fileName(kind)) {
-                                        <div class="filename" [title]="fileName(kind)">{{ fileName(kind) }}</div>
-                                        @if (files[kind]) {
-                                            <p>{{ filePages(kind) }} {{ filePages(kind) === 1 ? 'page' : 'pages' }} ready to upload</p>
-                                        } @else {
-                                            @if (saved(kind); as scan) {
-                                                <p>{{ scan.pages.length }} of {{ scan.pageCount }} pages saved</p>
-                                                @if (!complete(scan) && !active?.rescan) { <p>Choose the original PDF to finish uploading.</p> }
-                                            }
-                                        }
+                                    @if (files[kind]) {
+                                        @if (!photos(kind)) { <div class="filename">{{ fileName(kind) }}</div> }
+                                        <p>{{ filePages(kind) }} {{ filePages(kind) === 1 ? 'page' : 'pages' }} ready to upload</p>
                                     } @else {
-                                        <p>{{ kind === 'answer' ? 'Put your handwritten answer pages in one PDF.' : 'Add the question paper if you plan to send your answers for checking.' }}</p>
-                                    }
-                                    <div class="actions">
-                                        <label class="file-pick" [class.disabled]="!!busy">
-                                            <input type="file" accept="application/pdf,.pdf" [disabled]="!!busy" (change)="pick($event, kind)"
-                                                [attr.aria-label]="(fileName(kind) ? 'Choose a different ' : 'Choose ') + label(kind).toLowerCase() + ' PDF'">
-                                            {{ fileName(kind) ? 'Choose PDF' : kind === 'answer' ? 'Choose answer PDF' : 'Choose question PDF' }}
-                                        </label>
-                                        @if (files[kind]) {
-                                            <button type="button" class="text-button" [disabled]="!!busy" (click)="showPreview(kind)">Preview pages</button>
-                                            <button type="button" class="text-button" [disabled]="!!busy" (click)="removeFile(kind)">Remove</button>
-                                        } @else if (saved(kind)?.pages?.length) {
-                                            <button type="button" class="text-button" [disabled]="!!busy" (click)="showPreview(kind, saved(kind)!.pages[0].index)">View saved pages</button>
+                                        @if (saved(kind); as scan) {
+                                            <div class="filename">{{ scan.name }}</div>
+                                            <p>{{ scan.pages.length }} of {{ scan.pageCount }} pages saved</p>
+                                            @if (!complete(scan) && canPick(kind)) {
+                                                <p>Reselect the original PDF or photos to continue.</p>
+                                            }
+                                        } @else if (kind === 'question') {
+                                            <p>Required when sending an unlinked paper for checking.</p>
                                         }
-                                    </div>
-                                    <small class="limit">PDF · up to {{ limit(kind) }} {{ limit(kind) === 1 ? 'page' : 'pages' }} · 64 MB</small>
+                                    }
+                                    @if (!active?.rescan || active?.rescan?.kind === kind) {
+                                        <div class="actions scan-pickers">
+                                            <label class="file-pick" [class.disabled]="!canPick(kind) || photosFull(kind)">
+                                                <input type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                                                    [multiple]="limit(kind) > 1" [disabled]="!canPick(kind) || photosFull(kind)"
+                                                    [attr.aria-label]="'Choose photos for ' + label(kind).toLowerCase()" (change)="pickPhotos($event, kind)">
+                                                <mat-icon aria-hidden="true">photo_library</mat-icon>
+                                                {{ targetPage(kind) ? 'Choose photo' : photos(kind) ? 'Add photos' : 'Choose photos' }}
+                                            </label>
+                                            <label class="file-pick" [class.disabled]="!canPick(kind) || photosFull(kind)">
+                                                <input type="file" accept="image/*" capture="environment" [disabled]="!canPick(kind) || photosFull(kind)"
+                                                    [attr.aria-label]="'Take a photo for ' + label(kind).toLowerCase()" (change)="pickPhotos($event, kind)">
+                                                <mat-icon aria-hidden="true">photo_camera</mat-icon>
+                                                Take photo
+                                            </label>
+                                            <label class="file-pick" [class.disabled]="!canPick(kind)">
+                                                <input type="file" accept="application/pdf,.pdf" [disabled]="!canPick(kind)"
+                                                    [attr.aria-label]="'Choose a PDF for ' + label(kind).toLowerCase()" (change)="pick($event, kind)">
+                                                <mat-icon aria-hidden="true">picture_as_pdf</mat-icon>
+                                                Choose PDF
+                                            </label>
+                                        </div>
+                                        <small class="limit">Up to {{ limit(kind) }} {{ limit(kind) === 1 ? 'page' : 'pages' }} · 64 MB total · 20 MB per photo</small>
+                                    }
+                                    @if (scanBusyKind === kind) { <p class="scan-progress" aria-hidden="true">{{ busy }}</p> }
+                                    @if (files[kind]) {
+                                        <div class="actions">
+                                            @if (previewKind !== kind) {
+                                                <button type="button" class="text-button" [disabled]="!!busy" (click)="showPreview(kind, 1, 'local', true)">Preview pages</button>
+                                            }
+                                            @if (photos(kind)) {
+                                                <button type="button" class="text-button" [disabled]="!!busy" (click)="downloadScanPdf(kind)">Download scan PDF</button>
+                                            }
+                                            <button type="button" class="text-button" [disabled]="!!busy" (click)="removeFile(kind)">Clear selection</button>
+                                        </div>
+                                    } @else if (saved(kind)?.pages?.length) {
+                                        <button type="button" class="text-button" [disabled]="!!busy" (click)="showPreview(kind, saved(kind)!.pages[0].index, 'saved', true)">View saved pages</button>
+                                    }
+                                    @if (previewKind === kind) { <ng-container *ngTemplateOutlet="pagePreview"></ng-container> }
                                 </div>
                             }
                         </div>
-                        <ng-container *ngTemplateOutlet="pagePreview"></ng-container>
                         <div class="submit-bar">
                             @if (!savesEnabled && !error) {
                                 <p>Saving and sending are paused. You can still open your saved work.</p>
@@ -124,15 +149,17 @@
                         <p>Your checking report will appear here automatically when it is ready.</p>
                     } @else if (item.status === 'released') {
                         @if (result; as marked) {
-                            @if (marked.sheet.grade.awarded != null) {
+                            @if (marked.sheet.grade.awarded != null && marked.outcome !== 'partial' && marked.outcome !== 'unassessable') {
                                 <p class="result-score"><strong>{{ marked.sheet.grade.awarded }} / {{ marked.sheet.grade.max }}</strong> marks</p>
                             } @else {
                                 <p class="result-score"><strong>{{ marked.outcome === 'partial' ? 'Partial assessment' : 'Unable to assess' }}</strong> ? No final mark</p>
-                                @if (marked.assessedAwarded != null) {
-                                    <p>Assessed marks counted so far: {{ marked.assessedAwarded }}.</p>
+                                @if (marked.assessedAwarded != null && marked.assessedMax != null) {
+                                    <p>{{ marked.assessedAwarded }} / {{ marked.assessedMax }} marks assessed</p>
                                 }
+                                @if (marked.share?.fullMaximum != null) { <p>{{ marked.share?.fullMaximum }} full paper marks</p> }
                             }
                             @if (marked.message) { <p>{{ marked.message }}</p> }
+                            @if (marked.share) { <button type="button" class="primary" [disabled]="!!busy" (click)="shareResult()">Share result</button> }
                             <button type="button" class="primary" [disabled]="!!busy" (click)="download()">{{ busy || 'Download checking report' }}</button>
                             @if (marked.sheet.grade.answers.length) {
                                 <details class="feedback-details">
@@ -167,7 +194,7 @@
                         <div>
                             <h2 id="upload-heading">{{ checkingAvailable ? 'Ready to submit?' : 'Ready to upload?' }}</h2>
                             @if (savesEnabled) {
-                                <p>{{ checkingAvailable ? 'Send your scans for review or keep a private draft.' : 'Keep an answer sheet PDF in your private drafts.' }}</p>
+                                <p>{{ checkingAvailable ? 'Send your scans for review or keep a private draft.' : 'Keep an answer sheet scan in your private drafts.' }}</p>
                             } @else if (!error) {
                                 <p>Saving is paused. You can still open your saved work.</p>
                             }
@@ -207,17 +234,33 @@
     @if (previewLoading) { <p role="status">Opening scan preview…</p> }
     @if (previewError) { <p class="notice danger" role="alert">{{ previewError }}</p> }
     @if (preview; as scan) {
-        <figure class="scan-preview">
-            <figcaption><strong>{{ label(scan.kind) }} · page {{ scan.page }} of {{ scan.count }}</strong><button type="button" class="text-button" (click)="closePreview()" [disabled]="!!busy">Close preview</button></figcaption>
-            <img [src]="scan.url" [alt]="label(scan.kind) + ', page ' + scan.page">
-            <div class="preview-actions actions">
-                <button type="button" class="secondary" [disabled]="!!busy || previewLoading || scan.page <= 1" (click)="showPreview(scan.kind, scan.page - 1, scan.source)">Previous page</button>
-                <button type="button" class="secondary" [disabled]="!!busy || previewLoading || scan.page >= scan.count" (click)="showPreview(scan.kind, scan.page + 1, scan.source)">Next page</button>
-                @if (scan.source === 'local' && scan.count > 1) {
-                    <button type="button" class="text-button" [disabled]="!!busy || previewLoading || scan.page <= 1" (click)="movePage(-1)">Move earlier</button>
-                    <button type="button" class="text-button" [disabled]="!!busy || previewLoading || scan.page >= scan.count" (click)="movePage(1)">Move later</button>
-                }
-            </div>
+        <figure class="scan-preview" [attr.aria-busy]="previewLoading || scanBusyKind === scan.kind">
+            <figcaption>
+                <div>
+                    <strong #previewCaption tabindex="-1" aria-live="polite">
+                        {{ label(scan.kind) }} · {{ scan.source === 'local' && targetPage(scan.kind) ? 'replacement for page ' + targetPage(scan.kind) : 'page ' + scan.page + ' of ' + scan.count }}
+                    </strong>
+                    @if (photoName(scan); as name) { <small class="photo-name">{{ name }}</small> }
+                </div>
+                <button type="button" class="text-button" (click)="closePreview(true)" [disabled]="!!busy">Close preview</button>
+            </figcaption>
+            @if (scan.count > 1 || (scan.source === 'local' && photos(scan.kind))) {
+                <div class="preview-actions actions">
+                    @if (scan.count > 1) {
+                        <button type="button" class="secondary" [disabled]="!!busy || previewLoading || scan.page <= 1" (click)="showPreview(scan.kind, scan.page - 1, scan.source)">Previous page</button>
+                        <button type="button" class="secondary" [disabled]="!!busy || previewLoading || scan.page >= scan.count" (click)="showPreview(scan.kind, scan.page + 1, scan.source)">Next page</button>
+                    }
+                    @if (scan.source === 'local' && scan.count > 1) {
+                        <button type="button" class="text-button" [disabled]="!!busy || previewLoading || scan.page <= 1" (click)="movePage(-1)">Move earlier</button>
+                        <button type="button" class="text-button" [disabled]="!!busy || previewLoading || scan.page >= scan.count" (click)="movePage(1)">Move later</button>
+                    }
+                    @if (scan.source === 'local' && photos(scan.kind)) {
+                        <button type="button" class="text-button" [disabled]="!!busy || previewLoading" (click)="rotatePhoto()">Rotate right</button>
+                        <button type="button" class="text-button" [disabled]="!!busy || previewLoading" (click)="removePhoto()">Remove page</button>
+                    }
+                </div>
+            }
+            <img [src]="scan.url" [alt]="label(scan.kind) + ', page ' + (scan.source === 'local' && targetPage(scan.kind) ? targetPage(scan.kind) : scan.page)">
         </figure>
     }
 </ng-template>

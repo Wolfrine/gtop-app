@@ -1,13 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { openResultShare } from '../../../../../assistant-service/domain/result-share.mjs';
+import { loadScanPdfWriter } from './answer-sheet-pdf-writer';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
 import {
     CheckingDestination, ScanKind, SavedScan, StudentSubmission, StudentSubmissionsService, SubmissionResult, SubmissionTest, submissionStatusLabels,
 } from '../../services/student-submissions.service';
-import { ScannedPdf, encodeScan, openScan, releaseScan, scanPage } from './answer-sheet-scanner';
+import { artifactFilename } from '../../../../../assistant-service/domain/artifact-filenames.mjs';
+import { maxPhotoBytes, maxScanSourceBytes, preparePhoto } from './answer-sheet-photo';
+import { LocalScan, PhotoScan, encodeScan, openScan, preparedPage, releaseScan, scanPage } from './answer-sheet-scanner';
+import { buildScanPdf } from './answer-sheet-scan-pdf';
 
 type Preview = { kind: ScanKind; page: number; count: number; source: 'local' | 'saved'; url: string };
 const caps: Record<ScanKind, number> = { answer: 32, question: 24 };
@@ -32,6 +37,7 @@ function invitation(): string {
 export class AnswerSheetsComponent implements OnInit, OnDestroy {
     @ViewChild('heading') private heading?: ElementRef<HTMLElement>;
     @ViewChild('historyHeading') private historyHeading?: ElementRef<HTMLElement>;
+    @ViewChild('previewCaption') private previewCaption?: ElementRef<HTMLElement>;
     @ViewChild('addSheet') private addSheet?: ElementRef<HTMLButtonElement>;
     private readonly api = inject(StudentSubmissionsService);
     private readonly auth = inject(Auth);
@@ -42,12 +48,13 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
     private creatingId = '';
     private previewRun = 0;
     private downloadUrl = '';
+    private closeShare?: () => void;
     private resendAvailable?: boolean;
     private resendDestination?: CheckingDestination | null;
     inviteCode = invitation();
     pendingTestCode = this.route.snapshot.queryParamMap.get('test') ?? '';
     composerOpen = !!this.pendingTestCode;
-    readonly files: Partial<Record<ScanKind, ScannedPdf>> = {};
+    readonly files: Partial<Record<ScanKind, LocalScan>> = {};
 
     savesEnabled = false;
     checkingAvailable = false;
@@ -65,6 +72,8 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
     active?: StudentSubmission;
     cursor: string | null = null;
     preview?: Preview;
+    previewKind?: ScanKind;
+    scanBusyKind?: ScanKind;
     previewLoading = false;
     previewError = '';
     result?: SubmissionResult;
@@ -113,6 +122,8 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
     }
 
     private clearPrivateData(): void {
+        this.closeShare?.();
+        this.closeShare = undefined;
         this.controller.abort();
         this.resetFiles();
         this.submissions = [];
@@ -135,6 +146,7 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
             if (!this.closed) this.error = this.message(error);
         } finally {
             this.busy = '';
+            this.scanBusyKind = undefined;
         }
     }
 
@@ -231,6 +243,8 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
         this.active = undefined;
         this.resendAvailable = undefined;
         this.resendDestination = undefined;
+        this.closeShare?.();
+        this.closeShare = undefined;
         this.result = undefined;
         this.title = '';
         this.replaceWhole = false;
@@ -278,7 +292,7 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
     }
 
     confirmLeaving(): boolean {
-        return (!this.files.answer && !this.files.question) || window.confirm('Leave these selected PDFs? Uploaded pages are saved.');
+        return (!this.files.answer && !this.files.question) || window.confirm('Leave these selected pages? Uploaded pages are saved.');
     }
 
     private record(item: StudentSubmission): void {
@@ -298,13 +312,27 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
     complete(scan: SavedScan | null | undefined): boolean { return !!scan && scan.pages.length === scan.pageCount; }
     fileName(kind: ScanKind): string { return this.files[kind]?.name ?? this.saved(kind)?.name ?? ''; }
     filePages(kind: ScanKind): number { return this.files[kind]?.order.length ?? this.saved(kind)?.pageCount ?? 0; }
+    canPick(kind: ScanKind): boolean { return !this.busy && (!this.active?.rescan || this.active.rescan.kind === kind); }
+    photos(kind: ScanKind): PhotoScan | undefined {
+        const source = this.files[kind];
+        return source?.mode === 'photos' ? source : undefined;
+    }
+    photosFull(kind: ScanKind): boolean {
+        return this.limit(kind) > 1 && (this.photos(kind)?.order.length ?? 0) >= this.limit(kind);
+    }
+
+    photoName(view: Preview): string | undefined {
+        const scan = this.photos(view.kind);
+        return view.source === 'local' && scan ? preparedPage(scan, view.page)?.sourceBasename : undefined;
+    }
 
     pick(event: Event, kind: ScanKind): Promise<void> {
         const input = event.target as HTMLInputElement;
         const file = input.files?.item(0);
         input.value = '';
-        if (!file) return Promise.resolve();
+        if (!file || !this.canPick(kind)) return Promise.resolve();
         return this.run('Preparing ' + this.label(kind).toLowerCase() + '…', async () => {
+            this.scanBusyKind = kind;
             const replacement = await openScan(file, this.limit(kind));
             if (this.closed) {
                 await releaseScan(replacement);
@@ -312,13 +340,103 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
             }
             this.removeFile(kind);
             this.files[kind] = replacement;
-            await this.showPreview(kind, 1, 'local');
+            await this.showPreview(kind, 1, 'local', true);
+        });
+    }
+
+    pickPhotos(event: Event, kind: ScanKind): Promise<void> {
+        const input = event.target as HTMLInputElement;
+        const files = Array.from(input.files ?? []);
+        input.value = '';
+        if (!files.length || !this.canPick(kind)) return Promise.resolve();
+        return this.run('Preparing photos…', async () => {
+            this.scanBusyKind = kind;
+            const limit = this.limit(kind);
+            const current = limit > 1 ? this.photos(kind) : undefined;
+            const pages = new Map(current?.pages);
+            const order = current?.order.slice() ?? [];
+            const priorCount = order.length;
+            if (priorCount + files.length > limit) {
+                throw Error(limit === 1 ? 'Choose one photo for the replacement page.' : 'Choose up to ' + limit + ' photos for this scan.');
+            }
+            const sourceBytes = Array.from(pages.values(), page => page.file.size).reduce((a, b) => a + b, 0);
+            if (files.reduce((total, file) => total + file.size, sourceBytes) > maxScanSourceBytes) {
+                throw Error('Choose up to 64 MB of photos for this scan.');
+            }
+
+            const oversized = files.findIndex(file => !file.size || file.size > maxPhotoBytes);
+            if (oversized >= 0) throw Error('Choose a photo up to 20 MB for page ' + (priorCount + oversized + 1) + '.');
+
+            let pageId = Math.max(0, ...order);
+            for (const file of files) {
+                this.busy = 'Preparing photo ' + (order.length + 1) + ' of ' + (priorCount + files.length) + '…';
+                const photo = await preparePhoto(file, order.length + 1, 0, this.signal);
+                const id = ++pageId;
+                pages.set(id, photo);
+                order.push(id);
+            }
+            if (this.closed) return;
+            this.removeFile(kind);
+            this.files[kind] = { mode: 'photos', name: this.label(kind) + ' photos', pages, order };
+            await this.showPreview(kind, priorCount + 1, 'local', true);
+        });
+    }
+
+    rotatePhoto(): Promise<void> {
+        const view = this.preview;
+        if (view?.source !== 'local' || this.previewLoading) return Promise.resolve();
+        const scan = this.photos(view.kind);
+        const id = scan?.order[view.page - 1];
+        const page = id !== undefined ? scan?.pages.get(id) : undefined;
+        if (!scan || id === undefined || !page) return Promise.resolve();
+        return this.run('Rotating page…', async () => {
+            this.scanBusyKind = view.kind;
+            const rotated = await preparePhoto(page.file, view.page, (page.turns + 1) % 4, this.signal);
+            if (this.closed) return;
+            scan.pages.set(id, rotated);
+            await this.showPreview(view.kind, view.page, 'local');
+        });
+    }
+
+    async removePhoto(): Promise<void> {
+        const view = this.preview;
+        if (view?.source !== 'local' || this.previewLoading || this.busy) return;
+        const scan = this.photos(view.kind);
+        if (!scan) return;
+        const [id] = scan.order.splice(view.page - 1, 1);
+        scan.pages.delete(id);
+        if (scan.order.length) {
+            await this.showPreview(view.kind, Math.min(view.page, scan.order.length), 'local');
+        } else {
+            this.removeFile(view.kind);
+            requestAnimationFrame(() => this.heading?.nativeElement.focus());
+        }
+    }
+
+    downloadScanPdf(kind: ScanKind): Promise<void> {
+        const scan = this.photos(kind);
+        if (!scan) return Promise.resolve();
+        return this.run('Preparing your scan PDF…', async () => {
+            this.scanBusyKind = kind;
+            const pages = scan.order.map(id => scan.pages.get(id)!);
+            const blob = await buildScanPdf(pages);
+            if (this.closed) return;
+            const id = this.active?.id ?? (this.creatingId ||= crypto.randomUUID());
+            const name = artifactFilename({
+                label: this.active?.title || this.test?.title || this.title.trim() || this.label(kind),
+                kind: kind === 'answer' ? 'answer-scan' : 'question-scan',
+                id,
+                revision: this.active?.revision ?? 1,
+                page: this.targetPage(kind),
+                extension: 'pdf',
+            });
+            this.downloadFile(blob, name);
         });
     }
 
     removeFile(kind: ScanKind): void {
         const current = this.files[kind];
-        if (this.preview?.kind === kind) this.closePreview();
+        if (this.previewKind === kind) this.closePreview();
         if (current) void releaseScan(current).catch(() => {});
         delete this.files[kind];
     }
@@ -334,8 +452,13 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
         this.replaceWhole = !this.replaceWhole;
     }
 
-    async showPreview(kind: ScanKind, page = 1, source: Preview['source'] = this.files[kind] ? 'local' : 'saved'): Promise<void> {
+    async showPreview(kind: ScanKind, page = 1, source: Preview['source'] = this.files[kind] ? 'local' : 'saved', focus = false): Promise<void> {
         const run = ++this.previewRun;
+        if (this.preview && this.preview.kind !== kind) {
+            URL.revokeObjectURL(this.preview.url);
+            this.preview = undefined;
+        }
+        this.previewKind = kind;
         this.previewLoading = true;
         this.previewError = '';
         try {
@@ -344,13 +467,14 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
             const count = source === 'local' ? file?.order.length : saved?.pageCount;
             if (!count || page < 1 || page > count) return;
             if (source === 'saved' && !saved?.pages.some(item => item.index === page)) {
-                throw Error('This page has not been uploaded yet. Choose the original PDF to continue.');
+                throw Error('This page has not been uploaded yet. Choose the original PDF or photos to continue.');
             }
             const blob = source === 'local' && file ? await scanPage(file, page, true)
                 : await this.api.blob(this.pagePath(kind, page), this.signal);
             if (this.closed || run !== this.previewRun) return;
             if (this.preview?.url) URL.revokeObjectURL(this.preview.url);
             this.preview = { kind, page, count, source, url: URL.createObjectURL(blob) };
+            if (focus) requestAnimationFrame(() => this.previewCaption?.nativeElement.focus());
         } catch (error) {
             if (!this.closed && run === this.previewRun) this.previewError = this.message(error);
         } finally {
@@ -358,12 +482,14 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
         }
     }
 
-    closePreview(): void {
+    closePreview(restoreFocus = false): void {
         ++this.previewRun;
         this.previewLoading = false;
         this.previewError = '';
         if (this.preview) URL.revokeObjectURL(this.preview.url);
         this.preview = undefined;
+        this.previewKind = undefined;
+        if (restoreFocus) this.focusHeading();
     }
 
     movePage(delta: number): void {
@@ -461,18 +587,21 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
             if (this.closed || !this.active) return;
             const index = target + i - 1;
             this.busy = 'Saving ' + this.label(kind).toLowerCase() + ' · page ' + index + ' of ' + saved.pageCount;
-            const jpeg = await encodeScan(await scanPage(file, i));
+            const page = preparedPage(file, i);
+            const jpeg = await encodeScan(page?.jpeg ?? await scanPage(file, i));
             const existing = this.saved(kind)?.pages.find(page => page.index === index);
             if (existing) {
                 if (existing.sha === await this.fingerprint(jpeg)) continue;
                 await this.resetSavedScan(kind, file, replacementPage);
                 return this.upload(kind);
             }
-            this.record(await this.api.submission(this.pagePath(kind, index), { jpeg, version: this.active.version }, this.signal));
+            this.record(await this.api.submission(this.pagePath(kind, index), {
+                jpeg, version: this.active.version, ...(page?.sourceBasename ? { sourceBasename: page.sourceBasename } : {}),
+            }, this.signal));
         }
     }
 
-    private async resetSavedScan(kind: ScanKind, file: ScannedPdf, replacePage?: number): Promise<void> {
+    private async resetSavedScan(kind: ScanKind, file: LocalScan, replacePage?: number): Promise<void> {
         if (!this.active) return;
         this.record(await this.api.submission(this.path() + '/revise', { version: this.active.version,
             answerPageCount: kind === 'answer' && !replacePage ? file.order.length : this.active.answer.pageCount,
@@ -500,17 +629,34 @@ export class AnswerSheetsComponent implements OnInit, OnDestroy {
         return submissionStatusLabels[item.status];
     }
 
+    shareResult(): void {
+        const row = this.active;
+        if (this.closed || row?.status !== 'released' || !this.result?.share) return;
+        this.closeShare?.();
+        this.closeShare = openResultShare({
+            metadata: signal => this.api.shareAssessment(row.id,signal),
+            report: (revision,signal) => this.api.shareReport(row.id,revision,signal),
+            loadPdf: loadScanPdfWriter,
+        });
+    }
+
     download(): Promise<void> {
         return this.run('Preparing your marked copy…', async () => {
             if (!this.active || !this.result || this.active.status !== 'released') return;
-            const pdf = await this.api.blob(this.path() + '/result/pdf', this.signal);
+            const pdf = this.result.share
+                ? await this.api.shareReport(this.active.id,this.result.share.revision,this.signal)
+                : await this.api.blob(this.path() + '/result/pdf', this.signal);
             if (this.closed) return;
-            if (this.downloadUrl) URL.revokeObjectURL(this.downloadUrl);
-            this.downloadUrl = URL.createObjectURL(pdf);
-            const link = document.createElement('a');
-            link.href = this.downloadUrl;
-            link.download = this.result.filename || 'GT-marked-answer-sheet.pdf';
-            link.click();
+            this.downloadFile(pdf, this.result.filename || 'GT-marked-answer-sheet.pdf');
         });
+    }
+
+    private downloadFile(blob: Blob, filename: string): void {
+        if (this.downloadUrl) URL.revokeObjectURL(this.downloadUrl);
+        this.downloadUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = this.downloadUrl;
+        link.download = filename;
+        link.click();
     }
 }

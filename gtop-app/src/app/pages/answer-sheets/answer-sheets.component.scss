@@ -31,6 +31,8 @@ input[type='text'] { box-sizing: border-box; width: 100%; min-height: 44px; bord
 .primary { background: $action; color: #fff; }
 .secondary, .file-pick { background: #fff; border-color: #abbeaf; }
 .file-pick { position: relative; display: inline-flex; align-items: center; box-sizing: border-box; }
+.scan-pickers .file-pick { gap: 6px; }
+.scan-pickers mat-icon { width: 18px; height: 18px; font-size: 18px; }
 .file-pick input { position: absolute; inset: 0; width: 100%; cursor: inherit; opacity: 0; }
 .text-button { padding-inline: 5px; }
 button:disabled, .disabled { opacity: .55; cursor: default; }
@@ -44,9 +46,12 @@ ul { padding: 0; list-style: none; }
 .history-row time { grid-column: 1; }
 .history-row:hover, .history-row[aria-current] { background: var(--lumen-sage); }
 .scan-preview { margin: 8px 0; background: var(--lumen-canvas); padding: 8px; border-radius: 8px; }
+.photo-name { display: block; overflow-wrap: anywhere; }
 .scan-preview img { display: block; margin: 0 auto; width: min(100%, 385px); height: auto; max-height: 62vh; object-fit: contain; }
 .result-score strong { font-size: 1.55rem; color: #166447; }
 .feedback-details li { border-bottom: 1px solid $line; padding: 7px 2px; }
 .sr-only { position: absolute; clip-path: inset(50%); width: 1px; height: 1px; padding: 0; overflow: hidden; white-space: nowrap; }
 .history-jump { display: none; }
 @media (max-width: 960px) { .workspace { grid-template-columns: minmax(0, 1fr); } .submit-bar .actions { width: 100%; } .submit-bar .actions button { flex: 1 1 100%; } .history-jump { display: inline-block; } }
+
+@media (max-width: 520px) { .scan-pickers .file-pick { flex: 1 0 44%; justify-content: center; } }

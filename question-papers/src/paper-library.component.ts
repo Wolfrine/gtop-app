@@ -5,6 +5,7 @@ import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import {AssistantApi} from './api.service';
 import type {Transport} from './contracts';
 import {presentArtifact} from './artifact-presentation.mjs';
+import {artifactFilename,saveArtifact} from '../../assistant-service/domain/artifact-filenames.mjs';
 
 export interface PaperFacet {key:string;label:string}
 export interface CataloguePaper {
@@ -57,6 +58,7 @@ export class PaperLibraryComponent implements OnInit,OnDestroy {
   items:CataloguePaper[]=[];nextCursor:string|null=null;
   loading=false;error='';indexCoverage:'complete'|'building'='building';isPartial=false;loaded=false;
   selected:CataloguePaper|null=null;previewHtml:SafeHtml|null=null;
+  private previewSource='';
   previewLoading=false;previewError='';previewKind:'student'|'answers'='student';
   readonly stages:{key:FilterName;level:'board'|'standard'|'subject'|'chapter';title:string}[]=[
     {key:'boardKey',level:'board',title:'Board'},
@@ -195,15 +197,23 @@ export class PaperLibraryComponent implements OnInit,OnDestroy {
   async loadPreview(kind:'student'|'answers'='student'){
     const paper=this.selected;if(!paper||this.mode!=='library')return;
     const generation=++this.previewGeneration;
-    this.previewHtml=null;this.previewError='';this.previewLoading=true;this.previewKind=kind;
+    this.previewHtml=null;this.previewSource='';this.previewError='';this.previewLoading=true;this.previewKind=kind;
     try{
       const source=this.transport?.adminArtifact?
         await this.transport.adminArtifact(paper.paperId,kind):
         await this.api.adminArtifact(paper.paperId,kind);
       if(this.disposed||generation!==this.previewGeneration||this.selected?.paperId!==paper.paperId)return;
+      this.previewSource=source;
       this.previewHtml=this.sanitizer.bypassSecurityTrustHtml(presentArtifact(source,paper.revision));
     }catch(error){if(!this.disposed&&generation===this.previewGeneration)this.previewError=this.failure(error);}
     finally{if(!this.disposed&&generation===this.previewGeneration)this.previewLoading=false;}
+  }
+  downloadPreview() {
+    const paper=this.selected;
+    if (!paper||!this.previewHtml||!this.previewSource||this.previewLoading) return;
+    const filename=artifactFilename({label:paper.title,id:paper.paperId,revision:paper.revision,
+      kind:this.previewKind==='student'?'question-paper':'answer-key',extension:'html'});
+    saveArtifact(new Blob([this.previewSource],{type:'text/html;charset=utf-8'}),filename);
   }
   openSelected(kind:'student'|'answers'='student',print=false){
     if(this.selected)this.openPaper.emit({paper:this.selected,kind,print});

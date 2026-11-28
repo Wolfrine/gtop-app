@@ -9,6 +9,7 @@ import { PAPER_EXAMPLES, type PaperExample } from '../core/question-paper.exampl
 import { SyllabusItem } from '../core/models';
 import { CurriculumService } from '../../../services/curriculum.service';
 import { SyllabusService } from '../../../services/syllabus.service';
+import { artifactFilename, saveArtifact } from '../../../../../../assistant-service/domain/artifact-filenames.mjs';
 import { applicableChapters, currentAcademicYear, type AssessmentPurpose, type CurriculumSubject, type CurriculumSeed } from '../../../services/curriculum.domain';
 import {
   buildGenerationRules, chapterKey, createPaperPlan, paperPrintHtml, ruleMarks, resizeGenerationRules,
@@ -211,6 +212,8 @@ import {
             <div class="button-row"><button class="btn btn-primary qpg-inline-save" type="button" [disabled]="loading || !!savedDraftId" (click)="saveDraft()">{{ savedDraftId ? 'Draft saved' : 'Save draft' }}</button>
               <button class="btn btn-secondary" type="button" [disabled]="!completePaper" (click)="printPaper(false)">Print paper / Save PDF</button>
               <button class="btn btn-secondary" type="button" [disabled]="!completePaper" (click)="printPaper(true)">Print answer key</button>
+              <button class="btn btn-secondary" type="button" [disabled]="!completePaper" (click)="downloadPaper(false)">Download paper HTML</button>
+              <button class="btn btn-secondary" type="button" [disabled]="!completePaper" (click)="downloadPaper(true)">Download key HTML</button>
             </div>
           }
         </div>
@@ -688,12 +691,26 @@ export class QuestionPaperGeneratorPage implements OnInit, OnDestroy {
     finally { this.loading = false; this.changeDetector.markForCheck(); }
   }
   async useSavedSetup(): Promise<void> { this.resetResults(); await this.loadCurriculum(); this.advanceMobileStep(2); }
+  private async artifactName(html: string, answers: boolean, extension: string): Promise<string> {
+    const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(html));
+    const signature = Array.from(new Uint8Array(digest),value=>value.toString(16).padStart(2,'0')).join('');
+    return artifactFilename({label:this.title,id:this.savedDraftId||'preview',
+      kind:answers?'answer-key':'question-paper',digest:signature,extension});
+  }
+  async downloadPaper(answers: boolean): Promise<void> {
+    if (!this.completePaper) return;
+    const html = paperPrintHtml(this.currentSetup(),this.generatedSections,answers);
+    const name = await this.artifactName(html,answers,'html');
+    saveArtifact(new Blob([html],{type:'text/html;charset=utf-8'}),name);
+  }
   async printPaper(answers: boolean): Promise<void> {
     if (!this.completePaper) return;
     const printWindow = window.open('', '_blank', 'width=900,height=800');
     if (!printWindow) { this.usage.track('operation_failed'); this.errorMessage = 'Allow pop-ups for GTOP to print or save a PDF.'; return; }
     printWindow.opener = null;
-    printWindow.document.open(); printWindow.document.write(paperPrintHtml(this.currentSetup(), this.generatedSections, answers)); printWindow.document.close();
+    const html = paperPrintHtml(this.currentSetup(),this.generatedSections,answers);
+    printWindow.document.open(); printWindow.document.write(html); printWindow.document.close();
+    printWindow.document.title = (await this.artifactName(html,answers,'pdf')).slice(0,-4);
     const pendingImages = Array.from(printWindow.document.images).filter((image) => !image.complete).map((image) => new Promise<void>((resolve) => { image.onload = () => resolve(); image.onerror = () => resolve(); }));
     await Promise.race([Promise.all(pendingImages), new Promise((resolve) => setTimeout(resolve, 8000))]);
     if (!printWindow.closed && Array.from(printWindow.document.images).some((image) => !image.complete || !image.naturalWidth)) {

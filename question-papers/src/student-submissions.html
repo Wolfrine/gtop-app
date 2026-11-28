@@ -79,7 +79,7 @@
           <article class="group">
             <header>
               <h2>{{group.title || 'Uploaded question paper'}}</h2>
-              <p>{{group.count}} {{group.count === 1 ? 'submission' : 'submissions'}}</p>
+              <p>{{group.count}} {{group.count === 1 ? 'submission' : 'submissions'}}@if (group.examCode) { &middot; Exam {{group.examCode}} }</p>
             </header>
             @for (set of group.sets; track set.key) {
               @if (set.batch.length > 1) {
@@ -245,6 +245,7 @@
                   <button class="quiet" type="button" (click)="startRescan()" [disabled]="mutationBusy || showRescan">Request rescan</button>
                 } @else {
                   @if (row.status === 'released') {
+                    <button class="primary" type="button" (click)="shareResult(row)">Share result</button>
                     <button class="quiet" type="button" (click)="toggleReport()" [disabled]="mutationBusy || reportDownloadBusy"
                       [attr.aria-expanded]="reportOpen">{{reportOpen ? 'Hide report' : 'Preview report'}}</button>
                     <button class="quiet" type="button" (click)="downloadReport(row)" [disabled]="reportBusy || reportDownloadBusy || mutationBusy">
@@ -330,7 +331,10 @@
                   @if (scanFile?.name) { <p class="scan-name">{{scanFile?.name}}</p> }
                   @if (scanError) { <div class="notice error" role="alert">{{scanError}} <button type="button" class="link" (click)="loadScan(scanKind, scanPage)">Try again</button></div> }
                   @if (scanBusy) { <p class="notice" role="status">Loading scan…</p> }
-                  @if (scanUrl) { <img [src]="scanUrl" [alt]="(scanKind === 'answer' ? 'Answer sheet' : 'Question paper') + ', page ' + scanPage"> }
+                  @if (scanUrl) {
+                    <button type="button" class="quiet" (click)="downloadScanPage()">Download scan page</button>
+                    <img [src]="scanUrl" [alt]="(scanKind === 'answer' ? 'Answer sheet' : 'Question paper') + ', page ' + scanPage">
+                  }
                 </section>
               }
 

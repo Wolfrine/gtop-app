@@ -161,6 +161,7 @@
           <div class="pl-preview-switch" aria-label="Document type">
             <button type="button" [attr.aria-pressed]="previewKind==='student'" (click)="loadPreview('student')">Question paper</button>
             <button type="button" [attr.aria-pressed]="previewKind==='answers'" (click)="loadPreview('answers')">Worked answers</button>
+            <button *ngIf="previewHtml" type="button" (click)="downloadPreview()">Download HTML</button>
           </div>
           <div class="pl-actual-preview">
             <div *ngIf="previewLoading" class="pl-preview-status" role="status">Opening the original saved {{previewKind==='student'?'question paper':'worked answers'}}…</div>

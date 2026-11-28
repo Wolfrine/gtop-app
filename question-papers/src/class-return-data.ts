@@ -1,4 +1,5 @@
 import type { MappingPoint, MarkStatus, MethodStep } from './checking-scan';
+import { artifactFilename } from '../../assistant-service/domain/artifact-filenames.mjs';
 
 export type SheetState =
   | 'uploading'
@@ -28,6 +29,7 @@ export interface RegisterEntry {
   packetId?: string;
   packetLabel?: string;
   gradingRevision?: number;
+  reportDigest?: string | null;
 }
 export interface ReturnAnswer {
   number: number;
@@ -63,45 +65,9 @@ export function handbackIdentity(row: SheetIdentity) {
   return {name, reference, sheetLabel, classLabel, detail, full: [name, detail].filter(Boolean).join(' · ')};
 }
 
-export function fileStem(input: string, fallback: string, maxBytes = 185) {
-  const stem = input
-    .normalize('NFC')
-    .replace(/[<>:"/\\|?*\x00-\x1f\x7f\u202a-\u202e\u2066-\u2069]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/^[. ]+|[. ]+$/g, '');
-  // Some extraction tools enforce a byte limit, even when a label is short on screen.
-  const encoder = new TextEncoder();
-  let name = '',
-    bytes = 0;
-  for (const char of Array.from(stem).slice(0, 95)) {
-    const length = encoder.encode(char).length;
-    if (bytes + length > maxBytes) break;
-    bytes += length;
-    name += char;
-  }
-  name = name.trimEnd().replace(/[. ]+$/g, '') || fallback;
-  return /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name) ? '_' + name : name;
-}
-
-export function filenames(entries: RegisterEntry[]) {
-  const result = new Map<string, string>();
-  const used = new Set<string>();
-  for (const row of entries) {
-    const {name: student, reference, sheetLabel, classLabel} = handbackIdentity(row);
-    const distinctClass = classLabel && classLabel !== student;
-    const parts = reference
-      ? [fileStem(student, 'Student', 68), reference, ...(sheetLabel ? [fileStem(sheetLabel, 'Sheet', 45)] : [])]
-      : [fileStem(student, 'Sheet', distinctClass ? 110 : 185)];
-    if (distinctClass) parts.push(fileStem(classLabel, 'Class', reference ? 45 : 70));
-    const base = parts.join(' — ');
-    let name = base + '.pdf';
-    let serial = 1;
-    while (used.has(name.toLowerCase())) name = base + ' (' + ++serial + ').pdf';
-    used.add(name.toLowerCase());
-    result.set(row.id, name);
-  }
-  return result;
+export function filenames(entries: RegisterEntry[], title: string) {
+  return new Map(entries.map(row=>[row.id,artifactFilename({label:[handbackIdentity(row).name,title].filter(Boolean).join(' - '),kind:'checked-report',
+    id:row.id,revision:row.version,digest:row.reportDigest,extension:'pdf'})]));
 }
 
 export function registerStatus(row: RegisterEntry) {

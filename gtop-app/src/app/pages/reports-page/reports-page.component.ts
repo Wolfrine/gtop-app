@@ -8,6 +8,8 @@ import { NgChartsModule } from 'ng2-charts';
 import { combineLatest, distinctUntilChanged, map, Subscription } from 'rxjs';
 import { QuizResultPage, QuizService } from '../../services/quiz.service';
 import { StudentSubmissionsService, SubmissionResult } from '../../services/student-submissions.service';
+import { openResultShare } from '../../../../../assistant-service/domain/result-share.mjs';
+import { loadScanPdfWriter } from '../answer-sheets/answer-sheet-pdf-writer';
 import { PaperActivity, QuizActivity, Score, SubjectProgress, paperActivity, percent, quizActivity, subjectProgress, totalScore, trendDays } from './report-data';
 
 @Component({
@@ -27,6 +29,7 @@ export class ReportsPageComponent implements OnInit, OnDestroy {
     private request = new AbortController();
     private paperRequest?: AbortController;
     private downloadUrl?: string;
+    private closeShare?: () => void;
 
     quizzes: QuizActivity[] = [];
     papers: PaperActivity[] = [];
@@ -225,6 +228,8 @@ export class ReportsPageComponent implements OnInit, OnDestroy {
     }
 
     private closePaper(): void {
+        this.closeShare?.();
+        this.closeShare = undefined;
         this.paperRequest?.abort();
         this.paperRequest = undefined;
         if (this.downloadUrl) URL.revokeObjectURL(this.downloadUrl);
@@ -232,6 +237,17 @@ export class ReportsPageComponent implements OnInit, OnDestroy {
         this.paperId = '';
         this.paperResult = undefined;
         this.feedbackLoading = this.feedbackError = this.pdfLoading = this.pdfError = false;
+    }
+
+    sharePaper(): void {
+        const id = this.paperId;
+        if (!this.showPapers || !id || !this.paperResult) return;
+        this.closeShare?.();
+        this.closeShare = openResultShare({
+            metadata: signal => this.papersApi.shareAssessment(id,signal),
+            report: (revision,signal) => this.papersApi.shareReport(id,revision,signal),
+            loadPdf: loadScanPdfWriter,
+        });
     }
 
     async openPaper(id: string): Promise<void> {
@@ -258,7 +274,9 @@ export class ReportsPageComponent implements OnInit, OnDestroy {
         this.pdfLoading = true;
         this.pdfError = false;
         try {
-            const pdf = await this.papersApi.blob('/' + encodeURIComponent(this.paperId) + '/result/pdf', signal);
+            const pdf = result.share
+                ? await this.papersApi.shareReport(this.paperId,result.share.revision,signal)
+                : await this.papersApi.blob('/' + encodeURIComponent(this.paperId) + '/result/pdf', signal);
             if (signal.aborted) return;
             if (this.downloadUrl) URL.revokeObjectURL(this.downloadUrl);
             this.downloadUrl = URL.createObjectURL(pdf);

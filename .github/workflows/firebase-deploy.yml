@@ -69,6 +69,7 @@ jobs:
             // PDF decoding for the student upload is a browser-only dependency.
             const packagePaths = ['gtop-app/package.json','gtop-app/package-lock.json'];
             const buildPath = 'gtop-app/angular.json';
+            const serviceWorkerPath = 'gtop-app/ngsw-config.json';
             if (required && packagePaths.every(path => files.includes(path)) &&
                 files.every(path => frontendOnly.test(path) || packagePaths.includes(path) || path === buildPath)) {
               const read = (sha,path) => JSON.parse(execFileSync('git',['show',sha+':'+path],{encoding:'utf8'}));
@@ -94,11 +95,45 @@ jobs:
                   oldPackagesUnchanged && newPackages.every(path => browserPdfPaths.test(path)) &&
                   isDeepStrictEqual(expectedBuild,read(process.env.GITHUB_SHA,buildPath))) required = false;
             }
+            if (required && [...packagePaths,buildPath,serviceWorkerPath].every(path => files.includes(path)) &&
+                files.every(path => frontendOnly.test(path) || packagePaths.includes(path) || path === buildPath || path === serviceWorkerPath)) {
+              const read = (sha,path) => JSON.parse(execFileSync('git',['show',sha+':'+path],{encoding:'utf8'}));
+              const after=process.env.GITHUB_SHA;
+              const manifest=read(before,packagePaths[0]), next=read(after,packagePaths[0]);
+              const lock=read(before,packagePaths[1]), newLock=read(after,packagePaths[1]);
+              const writer=next.dependencies?.['pdf-lib'];
+              const dependencies={...manifest.dependencies,'pdf-lib':writer};
+              const allow=new Set(['node_modules/pdf-lib','node_modules/@pdf-lib/standard-fonts','node_modules/@pdf-lib/upng',
+                'node_modules/pako','node_modules/pdf-lib/node_modules/tslib']);
+              const pureLock=Object.entries(lock.packages).every(([path,value])=>path===''||isDeepStrictEqual(value,newLock.packages[path])) &&
+                Object.keys(newLock.packages).every(path=>path in lock.packages||allow.has(path));
+              const angular=read(before,buildPath), assets=angular.projects['gtop-app'].architect.build.options.assets;
+              const worker=assets.findIndex(asset=>asset?.input==='node_modules/pdfjs-dist/legacy/build');
+              if(worker>=0)assets.splice(worker+1,0,{glob:'pdf-lib.esm.min.js',input:'node_modules/pdf-lib/dist',output:'answer-sheet-pdf'});
+              const sw=read(before,serviceWorkerPath);
+              sw.assetGroups.splice(1,0,{name:'scan-pdf-writer',installMode:'lazy',updateMode:'lazy',
+                resources:{files:['/answer-sheet-pdf/pdf-lib.esm.min.js']}});
+              if(writer==='1.17.1'&&!manifest.dependencies['pdf-lib']&&pureLock&&worker>=0&&
+                  isDeepStrictEqual(next,{...manifest,dependencies})&&
+                  isDeepStrictEqual(newLock.packages[''],{...lock.packages[''],dependencies})&&
+                  isDeepStrictEqual(angular,read(after,buildPath))&&isDeepStrictEqual(sw,read(after,serviceWorkerPath))) required=false;
+            }
             if(existsSync('assistant-service/scripts/release-scope.mjs')) {
               const {assistantOnlyRelease}=await import(pathToFileURL(process.cwd()+'/assistant-service/scripts/release-scope.mjs'));
               const readAt=revision=>path=>execFileSync('git',['show',revision+':'+path],{encoding:'utf8'});
               assistantOnly=assistantOnlyRelease(files,readAt(before),readAt(process.env.GITHUB_SHA));
               if(assistantOnly)required=false;
+            }
+            const notificationPaths=new Set(['gtop-app/functions/index.mjs','gtop-app/scripts/deploy-paper-functions.mjs',
+              '.github/workflows/firebase-v2-backend.yml','.github/workflows/firebase-deploy.yml']);
+            if(files.includes('gtop-app/functions/index.mjs')&&files.every(file=>notificationPaths.has(file))){
+              const read=sha=>execFileSync('git',['show',sha+':gtop-app/functions/index.mjs'],{encoding:'utf8'});
+              const old=read(before), current=read(process.env.GITHUB_SHA);
+              const legacy=current
+                .replace("import {createECDH, randomUUID} from 'node:crypto';","import {randomUUID} from 'node:crypto';")
+                .replace(/\/\/ Examination updates use the exact existing Gen 1 create trigger\.[\s\S]*?(?=export const notifyPaperAdmin=)/,'')
+                .replace(/const notification=event\.data\?\.data\(\);\n  if\(notification\?\.schema===examPushSchema\)\{[\s\S]*?\n  \}\n  if\(!cleanId/,'const notification=event.data?.data();if(!cleanId');
+              if(legacy===old){required=true;backendScope='paper-notify-only';assistantOnly=true;}
             }
             console.log(`Reviewed release: ${files.length} changed paths; backend required: ${required}`);
           }
@@ -115,7 +150,7 @@ jobs:
     with:
       deploy_backend: true
       deployment_scope: ${{ needs.release-scope.outputs.backend_scope }}
-      allow_planned_rule_change: ${{ needs.release-scope.outputs.backend_scope != 'paper-runtime-only' }}
+      allow_planned_rule_change: ${{ needs.release-scope.outputs.backend_scope != 'paper-runtime-only' && needs.release-scope.outputs.backend_scope != 'paper-notify-only' }}
     secrets: inherit
 
   build-and-verify:

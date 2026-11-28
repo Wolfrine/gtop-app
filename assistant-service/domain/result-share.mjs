@@ -127,7 +127,9 @@ export function openResultShare({metadata, report, loadPdf}) {
     parent.append(node);
     return node;
   };
-  const title = element('h2','Share result');
+  const bar = element('header','');
+  bar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:.6rem;position:sticky;top:-1.3rem;background:#fff;padding:.25rem 0;z-index:1';
+  const title = element('h2','Share result',bar);
   title.style.margin = '0';
   const preview = element('section','');
   preview.setAttribute('aria-label','Result summary preview');
@@ -137,7 +139,7 @@ export function openResultShare({metadata, report, loadPdf}) {
   const actions = element('div','');
   actions.style.cssText = 'display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1rem';
   const style = 'font:inherit;min-height:44px;padding:.52rem .72rem;border:1px solid #8c9d94;border-radius:.5rem;background:#fff;color:#154c38;text-decoration:none;cursor:pointer';
-  const close = element('button','Close',actions);
+  const close = element('button','Close',bar);
   close.type = 'button';
   close.style.cssText = style;
   close.autofocus = true;
@@ -163,12 +165,16 @@ export function openResultShare({metadata, report, loadPdf}) {
       exact = await report(data.revision,signal);
     }
     signal.throwIfAborted();
-    const bytes = await summaryPdf(data,loadPdf,signal);
+    const annotated = new File([exact],data.filename,{type:'application/pdf'});
+    let summary;
+    try {
+      const bytes = await summaryPdf(data,loadPdf,signal);
+      summary = new File([bytes],data.summaryFilename,{type:'application/pdf'});
+    } catch {
+      signal.throwIfAborted();
+    }
     signal.throwIfAborted();
-    const files = [
-      new File([bytes],data.summaryFilename,{type:'application/pdf'}),
-      new File([exact],data.filename,{type:'application/pdf'}),
-    ];
+    const files = summary ? [summary,annotated] : [annotated];
     element('strong',data.title,preview);
     element('p',heading(data),preview);
     for (const [label,value] of summaryLines(data)) element('div',label + ': ' + value,preview);
@@ -182,14 +188,15 @@ export function openResultShare({metadata, report, loadPdf}) {
       }
     }
     announcement.textContent = 'Choose both files to share, or download a copy.';
-    for (const [index,file] of files.entries()) {
+    for (const file of files) {
+      const isReport = file === annotated;
       const url = URL.createObjectURL(file);
       urls.push(url);
-      const download = element('a',index ? 'Download annotated PDF' : 'Download summary',actions);
+      const download = element('a',isReport ? 'Download annotated PDF' : 'Download summary',actions);
       download.href = url;
       download.download = file.name;
       download.style.cssText = style + ';box-sizing:border-box;display:inline-flex;align-items:center';
-      if (index) {
+      if (isReport) {
         const inspect = element('a','Preview annotated PDF',actions);
         inspect.href = url;
         inspect.target = '_blank';
@@ -197,7 +204,8 @@ export function openResultShare({metadata, report, loadPdf}) {
         inspect.style.cssText = download.style.cssText;
       }
     }
-    if (navigator.canShare?.({files}) && typeof navigator.share === 'function') {
+    if (!summary) announcement.textContent = 'The summary could not be generated. The annotated PDF is available below.';
+    else if (navigator.canShare?.({files}) && typeof navigator.share === 'function') {
       const share = element('button','Share both files',actions);
       share.type = 'button';
       share.style.cssText = style + ';background:#154c38;color:white';

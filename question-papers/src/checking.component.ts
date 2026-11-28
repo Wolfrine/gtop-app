@@ -23,6 +23,7 @@ import { maxCheckingPages, rotateScan, scanBase64, scanFiles, type Scan } from '
 import { marginGroups, marksOnPage, positionedMarks, scoreStatus, type MappingPoint, type MarkStatus,
   type MethodStep, type ScanMark } from './checking-scan';
 import { summarizeGrades } from '../../assistant-service/domain/checking.mjs';
+import { openResultShare } from '../../assistant-service/domain/result-share.mjs';
 
 type State = 'uploading' | 'queued' | 'running' | 'failed' | 'review' | 'completed' | 'final' | 'withdrawn' | 'held';
 type Result = MarkStatus;
@@ -447,6 +448,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
     }
   }
   ngOnDestroy() {
+    this.closeResultShare?.();
     this.dead = true;
     this.epoch++;
     this.releaseMarker?.();
@@ -679,6 +681,7 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       return;
     this.epoch++;
     this.opening = '';
+    this.closeResultShare?.();
     this.sheet = undefined;
     this.closeStudentLink();
     this.dirty = false;
@@ -875,6 +878,17 @@ export class PaperCheckingComponent implements OnInit, OnDestroy {
       this.busy = false;
       this.paint();
     }
+  }
+  private closeResultShare?: () => void;
+  shareCheckingReport() {
+    if (!this.sheet?.checkingResult || this.busy) return;
+    this.closeResultShare?.();
+    const endpoint = this.base + '/' + encodeURIComponent(this.sheet.id);
+    this.closeResultShare = openResultShare({
+      metadata: signal => this.api.assessment(endpoint + '/result',signal),
+      report: (revision,signal) => this.api.reportBlob(endpoint + '/result-pdf?revision=' + encodeURIComponent(revision),signal),
+      loadPdf: () => import('pdf-lib'),
+    });
   }
   async downloadCheckingReport() {
     if (!this.sheet || this.busy) return;

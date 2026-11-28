@@ -1,10 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { map } from 'rxjs';
 import { ActiveUsersService } from '../../services/active-users.service';
 import { McqService } from '../../services/mcq.service';
+import { StudentSubmissionsService } from '../../services/student-submissions.service';
 
 import { adminGroups } from './admin-groups';
 
@@ -18,6 +19,8 @@ import { adminGroups } from './admin-groups';
 export class AdminDashboardComponent implements OnInit {
     readonly presence = inject(ActiveUsersService);
     private readonly mcqs = inject(McqService);
+    private readonly papers = inject(StudentSubmissionsService);
+    private readonly destroy = inject(DestroyRef);
     readonly groups = adminGroups;
     readonly group = toSignal(inject(ActivatedRoute).queryParamMap.pipe(
         map(params => adminGroups.find(item => item.key === params.get('section')) ?? null)
@@ -25,8 +28,14 @@ export class AdminDashboardComponent implements OnInit {
 
     totalMCQs: number | null = null;
     countUnavailable = false;
+    pilotResults = false;
 
     async ngOnInit(): Promise<void> {
+        const access = new AbortController();
+        this.destroy.onDestroy(() => access.abort());
+        void this.papers.staffReleasedAccess(access.signal).then(allowed => {
+            if (!access.signal.aborted) this.pilotResults = allowed;
+        }).catch(() => {});
         try {
             this.totalMCQs = await this.mcqs.getTotalMCQCount();
         } catch {

@@ -45,6 +45,11 @@
                                 "output": "answer-sheet-pdf"
                             },
                             {
+                                "glob": "pdf-lib.esm.min.js",
+                                "input": "node_modules/pdf-lib/dist",
+                                "output": "answer-sheet-pdf"
+                            },
+                            {
                                 "glob": "*.bcmap",
                                 "input": "node_modules/pdfjs-dist/cmaps",
                                 "output": "answer-sheet-pdf/cmaps"

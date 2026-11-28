@@ -8,6 +8,8 @@ import { OwnerEvents } from './owner-events';
 import { AssistantApi } from './api.service';
 import { ExternalExamComponent } from './external-exam.component';
 import { useEmulators } from './firebase-environment';
+import { openResultShare } from '../../assistant-service/domain/result-share.mjs';
+import { saveArtifact } from '../../assistant-service/domain/artifact-filenames.mjs';
 
 const base = '/staff/student-submissions';
 const batchLimit = 30;
@@ -57,6 +59,8 @@ interface Submission {
   teacherUpload?: boolean;
   ownerWorkspace?: boolean;
   paperScope?: string;
+  scanScope?: string;
+  examIdentity?: {examId: string; paperRevisionId: string; examCode?: string | null; sourceMaximum?: number | null};
   approvalScope?: string;
   outcome?: Outcome | null;
   score?: Score;
@@ -89,7 +93,7 @@ interface Submission {
 }
 interface SubmissionPage { submissions: Submission[]; nextCursor: string | null; enabled: boolean }
 interface ApprovalSet { key: string; rows: Submission[]; paperId?: string; approvalScope?: string; batch: Submission[] }
-interface SubmissionGroup { key: string; title: string; count: number; sets: ApprovalSet[] }
+interface SubmissionGroup { key: string; title: string; examCode?: string; count: number; sets: ApprovalSet[] }
 interface Invitation { id: string; expiresAt: string; uses: number; used: number; revokedAt?: string }
 interface SavedReference { id: string; title: string; state: string; referenceRevision: number; marks: number | null }
 type Filter = 'all' | Status;
@@ -118,9 +122,11 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
   private detailSequence = 0;
   private requestedId = '';
   private scanSequence = 0;
+  private scanDownload?: File;
   private reportSequence = 0;
   private pdf?: PdfPreview;
-  private reportBytes?: Blob;
+  private reportBytes?: File;
+  private closeShare?: () => void;
   private refreshPending = false;
   private inboxEvents?: OwnerEvents;
   private inboxStartup?: ReturnType<typeof setTimeout>;
@@ -330,15 +336,16 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     const linkedSets = new Map<string, ApprovalSet>();
     for (const row of this.rows) {
       const paperKey = row.paperScope || (row.paperId?.startsWith('ext-') ? null : row.paperId);
-      const key = row.questionFingerprint ? 'scan:' + row.questionFingerprint : paperKey ? 'paper:' + paperKey : 'submission:' + row.id;
+      const key = row.examIdentity?.examId ? 'exam:' + row.examIdentity.examId
+        : row.scanScope ? 'scan:' + row.scanScope : paperKey ? 'paper:' + paperKey : 'submission:' + row.id;
       let exam = exams.get(key);
       if (!exam) {
         exam = {key, title: row.paperTitle || row.title, count: 0, sets: []};
         exams.set(key, exam);
       }
+      if (row.examIdentity?.examCode) exam.examCode ||= row.examIdentity.examCode;
       exam.count++;
-      // A question scan can identify an examination across separate approved papers or owners.
-      // Approval sets follow the server's owner-and-paper scope.
+      // Display lineage can contain more than one exact approval scope.
       const eligible = row.status === 'submitted' && row.paperReady === true && row.paperId && row.approvalScope;
       const setKey = key + '/' + (eligible ? row.approvalScope : 'other');
       let set = linkedSets.get(setKey);
@@ -546,6 +553,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     this.scanSequence++;
     if (this.scanUrl) URL.revokeObjectURL(this.scanUrl);
     this.scanUrl = '';
+    this.scanDownload = undefined;
     this.scanBusy = false;
     this.scanError = '';
   }
@@ -562,6 +570,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     try {
       const blob = await this.api.checkingImage(this.endpoint(row.id, '/pages/' + kind + '/' + this.scanPage));
       if (this.closed || seq !== this.scanSequence || this.selected?.id !== row.id) return;
+      this.scanDownload = blob;
       this.scanUrl = URL.createObjectURL(blob);
     } catch (error) {
       if (seq === this.scanSequence) {
@@ -572,6 +581,9 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     } finally {
       if (seq === this.scanSequence) { this.scanBusy = false; this.paint(); }
     }
+  }
+  downloadScanPage() {
+    if (this.scanDownload && !this.closed) saveArtifact(this.scanDownload,this.scanDownload.name);
   }
   startRescan() {
     this.closeReferencePicker();
@@ -667,6 +679,8 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
     });
   }
   private clearReport() {
+    this.closeShare?.();
+    this.closeShare = undefined;
     this.reportSequence++;
     if (this.reportUrl) URL.revokeObjectURL(this.reportUrl);
     if (this.pdf) void this.pdf.close().catch(() => {});
@@ -733,7 +747,7 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
       try {
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'checking-report.pdf';
+        link.download = blob.name;
         link.click();
       } finally { setTimeout(() => URL.revokeObjectURL(url), 1000); }
     } catch (error) {
@@ -747,6 +761,16 @@ export class StudentSubmissionsComponent implements OnInit, OnChanges, OnDestroy
         this.paint();
       }
     }
+  }
+  shareResult(row: Submission) {
+    if (row.status !== 'released') return;
+    this.closeShare?.();
+    this.closeShare = openResultShare({
+      metadata: signal => this.api.assessment(this.endpoint(row.id,'/result'),signal),
+      report: (revision,signal) => this.api.reportBlob(this.endpoint(row.id,'/report') +
+        '?revision=' + encodeURIComponent(revision),signal),
+      loadPdf: () => import('pdf-lib'),
+    });
   }
   openSheet(row: Submission) {
     if (row.ownerWorkspace && row.paperId && row.sheetId) this.onOpenSheet(row.id, row.paperId, row.sheetId);

@@ -1,13 +1,28 @@
 import type { PDFDocumentProxy } from 'pdfjs-dist';
+import { PhotoPage, PreparedScanPage, encodePageJpeg, maxScanEdge, maxScanSourceBytes } from './answer-sheet-photo';
+import { recoverScanPdf } from './answer-sheet-scan-pdf';
 
 const workerDirectory = '/answer-sheet-pdf/';
-const maxPdfSize = 64 * 1024 * 1024;
-const maxPageBytes = 400_000;
-
-export interface ScannedPdf {
+interface ScannedPdf {
+    mode: 'pdf';
     name: string;
     file: File;
     order: number[];
+    prepared?: PreparedScanPage[];
+}
+
+export interface PhotoScan {
+    mode: 'photos';
+    name: string;
+    order: number[];
+    pages: Map<number, PhotoPage>;
+}
+
+export type LocalScan = ScannedPdf | PhotoScan;
+
+export function preparedPage(source: LocalScan, index: number): PreparedScanPage | undefined {
+    const page = source.order[index - 1];
+    return source.mode === 'photos' ? source.pages.get(page) : source.prepared?.[page - 1];
 }
 
 // PDF.js 5.4 shares the pages mapper across documents in one module instance.
@@ -27,7 +42,8 @@ async function closeActive(): Promise<void> {
     if (prior) await prior.document.destroy();
 }
 
-export function releaseScan(source: ScannedPdf): Promise<void> {
+export function releaseScan(source: LocalScan): Promise<void> {
+    if (source.mode === 'photos') return Promise.resolve();
     return serial(async () => {
         if (source.file === active?.file) await closeActive();
     });
@@ -35,21 +51,29 @@ export function releaseScan(source: ScannedPdf): Promise<void> {
 
 export function openScan(file: File, limit: number): Promise<ScannedPdf> {
     return serial(async () => {
+        validatePdf(file);
+        const prepared = await recoverScanPdf(file, limit);
+        if (prepared) {
+            return { mode: 'pdf', name: file.name, file, prepared, order: prepared.map((_, i) => i + 1) };
+        }
         const document = await openDocument(file);
         if (!document.numPages || document.numPages > limit) {
             await closeActive();
             throw Error(limit === 1 ? 'Choose a PDF containing just the replacement page.' : 'Choose a PDF with up to ' + limit + ' pages.');
         }
-        return { name: file.name, file, order: Array.from({ length: document.numPages }, (_, i) => i + 1) };
+        return { mode: 'pdf', name: file.name, file, order: Array.from({ length: document.numPages }, (_, i) => i + 1) };
     });
+}
+
+function validatePdf(file: File): void {
+    if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') {
+        throw Error('Choose a scanned PDF.');
+    }
+    if (!file.size || file.size > maxScanSourceBytes) throw Error('Choose a PDF up to 64 MB.');
 }
 
 async function openDocument(file: File): Promise<PDFDocumentProxy> {
     if (active?.file === file) return active.document;
-    if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') {
-        throw Error('Choose a scanned PDF.');
-    }
-    if (!file.size || file.size > maxPdfSize) throw Error('Choose a PDF up to 64 MB.');
     await closeActive();
     const bytes = await file.arrayBuffer();
     // Keep the PDF engine out of the PWA's prefetched app chunks. Load it only
@@ -65,7 +89,7 @@ async function openDocument(file: File): Promise<PDFDocumentProxy> {
         cMapUrl: workerDirectory + 'cmaps/',
         cMapPacked: true,
         standardFontDataUrl: workerDirectory + 'standard_fonts/',
-        canvasMaxAreaInBytes: maxPdfSize,
+        canvasMaxAreaInBytes: maxScanSourceBytes,
     });
     let document: PDFDocumentProxy;
     try {
@@ -81,7 +105,10 @@ async function openDocument(file: File): Promise<PDFDocumentProxy> {
     return document;
 }
 
-export function scanPage(source: ScannedPdf, index: number, preview = false): Promise<Blob> {
+export function scanPage(source: LocalScan, index: number, preview = false): Promise<Blob> {
+    const prepared = preparedPage(source, index);
+    if (prepared) return Promise.resolve(prepared.jpeg);
+    if (source.mode === 'photos') return Promise.reject(Error('This photo could not be opened.'));
     const inputPage = source.order[index - 1];
     return serial(async () => {
         const document = await openDocument(source.file);
@@ -94,7 +121,7 @@ async function drawPage(pdf: PDFDocumentProxy, inputPage: number, index: number,
     const canvas = document.createElement('canvas');
     try {
         const bounds = page.getViewport({ scale: 1 });
-        const edge = preview ? 880 : 2200;
+        const edge = preview ? 880 : maxScanEdge;
         const viewport = page.getViewport({ scale: edge / Math.max(bounds.width, bounds.height) });
         canvas.width = Math.round(viewport.width);
         canvas.height = Math.round(viewport.height);
@@ -103,11 +130,7 @@ async function drawPage(pdf: PDFDocumentProxy, inputPage: number, index: number,
             throw Error('Page ' + index + ' is too small to read. Scan it again.');
         }
         await page.render({ canvas, canvasContext: context, viewport, background: '#fff' }).promise;
-        for (const quality of [.92, .82, .72, .62, .52]) {
-            const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
-            if (blob && blob.size <= maxPageBytes) return blob;
-        }
-        throw Error('Page ' + index + ' is too large to save clearly. Crop or rescan it.');
+        return await encodePageJpeg(canvas, index);
     } finally {
         canvas.width = 0;
         page.cleanup();

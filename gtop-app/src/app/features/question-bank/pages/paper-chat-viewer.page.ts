@@ -9,6 +9,7 @@ import { PaperChatRepository } from '../core/paper-chat.repository';
 import type { ChatSavedPaper } from '../core/paper-chat.models';
 import { paperPrintHtml } from '../core/question-paper.domain';
 import { localPaperContentPolicy, useEmulators } from '../../../firebase-environment';
+import { artifactFilename, saveArtifact } from '../../../../../../assistant-service/domain/artifact-filenames.mjs';
 
 @Component({selector:'app-paper-chat-viewer-page',standalone:true,imports:[RouterLink],templateUrl:'./paper-chat-viewer.page.html'})
 export class PaperChatViewerPage implements OnInit, OnDestroy {
@@ -81,9 +82,22 @@ export class PaperChatViewerPage implements OnInit, OnDestroy {
       await Promise.race([Promise.all(pending),new Promise(resolve => setTimeout(resolve,8000))]);
       if (revision !== this.revision || content !== frame.contentDocument||!this.canRead()) return;
       if (images.some(image => !image.complete || !image.naturalWidth)) {this.imageError.set('A question diagram could not load. Reconnect and reload the paper before printing.'); return;}
+      if(content)content.title=this.filename('pdf').slice(0,-4);
       frame.contentWindow?.focus(); frame.contentWindow?.print();this.usage.track('paper_printed');
     } catch {if(revision===this.revision&&this.canRead())this.imageError.set('The print window could not open. Reload the paper and try again.');}
     finally {if(revision===this.revision)this.printing.set(false);}
+  }
+  private filename(extension:string):string {
+    const paper=this.paper();
+    return paper?artifactFilename({label:paper.title,id:paper.id,revision:paper.requestRevision,
+      kind:this.answers()?'answer-key':'question-paper',extension}):'GT Papers.'+extension;
+  }
+  download():void {
+    const paper=this.paper();
+    if(!paper||!this.canRead()||!this.ready())return;
+    const html=(this.answers()?paper.answerHtml:paper.paperHtml)||
+      (paper.sections?.length?paperPrintHtml(paper,paper.sections,this.answers()):'');
+    if(html)saveArtifact(new Blob([html],{type:'text/html;charset=utf-8'}),this.filename('html'));
   }
   private updateDocument(): void {
     const paper = this.paper(); if (!paper||!this.canRead()) return;

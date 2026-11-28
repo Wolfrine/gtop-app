@@ -196,6 +196,12 @@ export const routes: Routes = [
         }
     },
     {
+        path: 'admin/checked-results',
+        loadComponent: () => import('./pages/paper-results/paper-results.component').then(m => m.PaperResultsComponent),
+        canActivate: [AuthGuard, RoleGuard],
+        data: { roles: ['admin'], seo: { title: 'Checked results | GTOP', robots: 'noindex, nofollow' } },
+    },
+    {
         path: 'admin/action-plan',
         loadComponent: () => import('./pages/action-plan/action-plan.component').then(module => module.ActionPlanComponent),
         canActivate: [AuthGuard, RoleGuard],

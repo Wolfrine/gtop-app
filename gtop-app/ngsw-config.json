@@ -16,6 +16,14 @@
       }
     },
     {
+      "name": "scan-pdf-writer",
+      "installMode": "lazy",
+      "updateMode": "lazy",
+      "resources": {
+        "files": ["/answer-sheet-pdf/pdf-lib.esm.min.js"]
+      }
+    },
+    {
       "name": "assets",
       "installMode": "lazy",
       "updateMode": "prefetch",

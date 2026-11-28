@@ -6,6 +6,8 @@ import type { Firestore } from 'firebase/firestore';
 import { Transport } from './contracts';
 import { MarkerSnapshot } from './owner-events';
 import { emulatorConfig, useEmulators } from './firebase-environment';
+import { attachmentName } from '../../assistant-service/domain/artifact-filenames.mjs';
+import type { ShareAssessment } from '../../assistant-service/domain/result-share.mjs';
 
 @Injectable({providedIn:'root'})
 export class AssistantApi implements Transport {
@@ -56,7 +58,9 @@ export class AssistantApi implements Transport {
   observeUser(observer:(user:User|null)=>void){this.observers.add(observer);observer(this.user);return ()=>this.observers.delete(observer);}
   watchMarker(path:string,next:(snapshot:MarkerSnapshot)=>void,error:(error:unknown)=>void):()=>void {
     if(!this.database||!this.firestore||!this.user)throw Error('Notification connection unavailable');
-    if(path!==`assistantUiNotifications/${this.user.uid}`&&path!=='assistantWorkerHealth/sachit-windows'&&path!=='assistantInboxNotifications/submissions')throw Error('Invalid notification path');
+    const markerPaths=[`assistantUiNotifications/${this.user.uid}`,'assistantWorkerHealth/sachit-windows','assistantInboxNotifications/submissions',
+      'assistantExamUpdateMarkers/staff',`assistantExamUpdateMarkers/staff/owners/${this.user.uid}`];
+    if(!markerPaths.includes(path))throw Error('Invalid notification path');
     const epoch=this.authEpoch;
     return this.firestore.onSnapshot(this.firestore.doc(this.database,path),{includeMetadataChanges:true},snapshot=>{if(epoch===this.authEpoch)next({fromCache:snapshot.metadata.fromCache,data:snapshot.exists()?snapshot.data():null});},reason=>{if(epoch===this.authEpoch)error(reason);});
   }
@@ -66,13 +70,14 @@ export class AssistantApi implements Transport {
     await signOut(this.auth!);this.setUser(null);
     await this.cameraCleanup;
   }
-  private async authorized(path:string,method='GET',body?:unknown):Promise<Response> {
+  private async authorized(path:string,method='GET',body?:unknown,signal?:AbortSignal):Promise<Response> {
     const user=this.user,epoch=this.authEpoch;
     if(!user)throw new Error('Unauthenticated');
     const token=await user.getIdToken();
     if(epoch!==this.authEpoch)throw Error('Account changed');
     let response:Response;
-    try{response=await fetch(this.apiBase+path,{method,cache:'no-store',signal:AbortSignal.timeout(20000),headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});}
+    const timeout=AbortSignal.timeout(20000);
+    try{response=await fetch(this.apiBase+path,{method,cache:'no-store',signal:signal?AbortSignal.any([signal,timeout]):timeout,headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});}
     catch(error){if((error as {name?:string})?.name==='TimeoutError')throw Error('This connection took longer than expected. Please try again; saved work remains available.');throw error;}
     if(epoch!==this.authEpoch)throw Error('Account changed');
     if(!response.ok){let reason='Request failed ('+response.status+')';try{const payload=await response.json();reason=payload.error?.message || payload.error || payload.message || reason;}catch{}throw Object.assign(new Error(typeof reason==='string'?reason:JSON.stringify(reason)),{status:response.status});}
@@ -80,28 +85,36 @@ export class AssistantApi implements Transport {
   }
   private async read<T>(path:string,method='GET',body?:unknown,text=false):Promise<T>{const epoch=this.authEpoch;const response=await this.authorized(path,method,body);const result=await (text?response.text():response.json());if(epoch!==this.authEpoch)throw Error('Account changed');return result as T;}
   async request<T>(path:string,method='GET',body?:unknown):Promise<T> {return this.read<T>(path,method,body);}
-  async reportBlob(path:string):Promise<Blob>{
+  async assessment(path:string,signal:AbortSignal):Promise<ShareAssessment>{
     const epoch=this.authEpoch;
-    const response=await this.authorized(path);
+    const response=await this.authorized(path,'GET',undefined,signal);
+    const result=await response.json();
+    if(epoch!==this.authEpoch)throw Error('Account changed');
+    return result.share;
+  }
+  async reportBlob(path:string,signal?:AbortSignal):Promise<File>{
+    const epoch=this.authEpoch;
+    const response=await this.authorized(path,'GET',undefined,signal);
     if(!response.ok||response.headers.get('Content-Type')!=='application/pdf')throw Error('The checking report is unavailable.');
     const blob=await response.blob();
     if(epoch!==this.authEpoch)throw Error('Account changed');
-    return blob;
+    return new File([blob],attachmentName(response.headers.get('Content-Disposition'),'checking-report.pdf'),{type:'application/pdf'});
   }
   async checkingReport(path:string):Promise<void>{
-    const url=URL.createObjectURL(await this.reportBlob(path));
+    const pdf=await this.reportBlob(path);
+    const url=URL.createObjectURL(pdf);
     try{
       const link=document.createElement('a');
-      link.href=url;link.download='checking-report.pdf';link.click();
+      link.href=url;link.download=pdf.name;link.click();
     }finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
   }
-  async checkingImage(path:string):Promise<Blob>{
+  async checkingImage(path:string):Promise<File>{
     const epoch=this.authEpoch;
     const response=await this.authorized(path);
     if(response.headers.get('Content-Type')!=='image/jpeg')throw Error('The saved scan is unavailable.');
     const image=await response.blob();
     if(epoch!==this.authEpoch)throw Error('Account changed');
-    return image;
+    return new File([image],attachmentName(response.headers.get('Content-Disposition'),'original-scan.jpg'),{type:'image/jpeg'});
   }
   async artifact(id:string,kind:'student'|'answers'):Promise<string> {return this.read('/papers/'+encodeURIComponent(id)+'/artifact/'+kind,'GET',undefined,true);}
   async adminArtifact(id:string,kind:'student'|'answers'):Promise<string> {return this.read('/admin/papers/'+encodeURIComponent(id)+'/artifact/'+kind,'GET',undefined,true);}

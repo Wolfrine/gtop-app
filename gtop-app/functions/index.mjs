@@ -1,4 +1,4 @@
-import {randomUUID} from 'node:crypto';
+import {createECDH, randomUUID} from 'node:crypto';
 import {initializeApp} from 'firebase-admin/app';
 import {getAuth} from 'firebase-admin/auth';
 import {getFirestore,FieldValue} from 'firebase-admin/firestore';
@@ -149,9 +149,170 @@ export const registerMessage=onDocumentWritten({document:'paperMessages/{id}',re
   for(const id of new Set([before,after].filter(Boolean)))await refreshRegister(db,id);
 });
 
+// Examination updates use the exact existing Gen 1 create trigger. This branch
+// keeps their recipients, browser subscriptions and payload apart from legacy chat.
+const examPushSchema='gt-papers-exam-update';
+const examPushLifeMs=600_000;
+const examPushBudgetMs=16_000;
+const examId=value=>typeof value==='string'&&/^[A-Za-z0-9_-]{1,160}$/.test(value);
+const examEndpoint=id=>db.doc('paperExamPushEndpoints/'+id);
+const examDevice=(uid,id)=>db.doc('paperPushSubscriptions/'+uid+'/examDevices/'+id);
+const examIso=()=>new Date().toISOString();
+
+function examVapid(keys){
+  const publicKey=keys?.publicKey,privateKey=keys?.privateKey;
+  if(typeof publicKey!=='string'||!/^[A-Za-z0-9_-]{87}$/.test(publicKey)||
+     typeof privateKey!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(privateKey))return null;
+  try{
+    const ecdh=createECDH('prime256v1');
+    ecdh.setPrivateKey(Buffer.from(privateKey,'base64url'));
+    if(!ecdh.getPublicKey().equals(Buffer.from(publicKey,'base64url')))return null;
+    return {subject:'mailto:schttewary@gmail.com',publicKey,privateKey};
+  }catch{return null;}
+}
+function validExamRecipient(row,uid){
+  return row.examStream==='staff'
+    ? row.scope==='submission'&&!row.recipientUid
+    : examId(uid)&&row.examStream==='staff:'+uid&&row.recipientUid===uid&&['submission','paper','job'].includes(row.scope);
+}
+async function examTargetCurrent(row){
+  if(row.scope==='submission'){
+    const [snapshot]=await db.getAll(db.doc('assistantStudentSubmissions/'+row.entityId),{fieldMask:['ownerUid','status','teacherUpload']});
+    const record=snapshot.data();
+    return examId(record?.ownerUid)&&['submitted','needs_rescan','checking','released'].includes(record.status)&& (row.recipientUid?record.ownerUid===row.recipientUid:record.teacherUpload!==true);
+  }
+  if(!examId(row.targetConversationId))return false;
+  const [target,conversation]=await db.getAll(
+    db.doc((row.scope==='paper'?'assistantPapers/':'assistantJobs/')+row.entityId),
+    db.doc('assistantConversations/'+row.targetConversationId),{fieldMask:['ownerUid','conversationId']}
+  );
+  return target.data()?.ownerUid===row.recipientUid&&target.data()?.conversationId===row.targetConversationId&&
+    conversation.data()?.ownerUid===row.recipientUid;
+}
+function safeExamEndpoint(device){
+  if(typeof device?.endpoint!=='string'||device.endpoint.length>2048)return false;
+  try{
+    const url=new URL(device.endpoint);
+    const hosts=['fcm.googleapis.com','updates.push.services.mozilla.com','web.push.apple.com','push.services.mozilla.com'];
+    return url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&!url.hash&&
+      hosts.some(host=>url.hostname===host||(host==='web.push.apple.com'&&url.hostname.endsWith('.'+host)));
+  }catch{return false;}
+}
+async function expireExamDevice(uid,device,deadline){
+  if(Date.now()>=deadline)return;
+  await db.runTransaction(async tx=>{
+    const mapping=examEndpoint(device.id),ref=examDevice(uid,device.id);
+    const [owner,stored]=await tx.getAll(mapping,ref);
+    const before=device.data(),after=stored.data();
+    if(Date.now()>=deadline||owner.data()?.ownerUid!==uid||after?.ownerUid!==uid||
+      !stored.updateTime?.isEqual(device.updateTime)||after.endpoint!==before.endpoint)return;
+    tx.delete(ref);tx.delete(mapping);
+  },{maxAttempts:2});
+}
+async function sendExamDevice(uid,device,vapidDetails,payload,deadline,expires){
+  if(Date.now()>=deadline)return 'skipped';
+  const data=device.data();
+  if(data.ownerUid!==uid||data.publicKey!==vapidDetails.publicKey||!safeExamEndpoint(data)||hash(data.endpoint)!==device.id)return 'skipped';
+  const [mapping,latest]=await db.getAll(examEndpoint(device.id),examDevice(uid,device.id),{fieldMask:['ownerUid']});
+  if(mapping.data()?.ownerUid!==uid||latest.data()?.ownerUid!==uid||!latest.updateTime?.isEqual(device.updateTime))return 'skipped';
+  const subscription={endpoint:data.endpoint,keys:data.keys};
+  for(let attempt=0;attempt<2;attempt++){
+    const remaining=deadline-Date.now();
+    if(remaining<250)return 'skipped';
+    try{
+      const request=webpush.generateRequestDetails(subscription,payload,{
+        TTL:Math.max(0,Math.floor((expires-Date.now())/1000)),vapidDetails,urgency:'normal'
+      });
+      const response=await fetch(request.endpoint,{
+        method:request.method,headers:request.headers,body:request.body,redirect:'error',
+        signal:AbortSignal.timeout(Math.min(4000,remaining))
+      });
+      void response.body?.cancel().catch(()=>{});
+      if(response.ok)return 'accepted';
+      if([404,410].includes(response.status)){
+        await expireExamDevice(uid,device,deadline).catch(()=>{});
+        return 'expired';
+      }
+      if(attempt||![429,500,502,503,504].includes(response.status))return 'failed';
+      const retryAfter=response.headers.get('retry-after');
+      const providerDelay=retryAfter===null?0:/^\d+$/.test(retryAfter)?Number(retryAfter)*1000:Date.parse(retryAfter)-Date.now();
+      const delay=Math.max(300+Math.random()*350,Number.isFinite(providerDelay)?providerDelay:0);
+      if(Date.now()+delay+1000>=deadline)return 'failed';
+      await new Promise(resolve=>setTimeout(resolve,delay));
+    }catch{
+      // A disconnected response is ambiguous. Avoid a possible second delivery.
+      return 'failed';
+    }
+  }
+  return 'failed';
+}
+
+async function deliverExamPush(event,row){
+  if(process.env.PAPERS_EXAM_WEB_PUSH_ENABLED!=='true'||row.schemaVersion!==1||!examId(row.entityId)||
+    !validExamRecipient(row,row.recipientUid)||!/^[a-f0-9]{64}$/.test(event.params.notificationId))return;
+  const started=Date.now(),expires=Date.parse(row.createdAt)+examPushLifeMs;
+  const deadline=Math.min(started+examPushBudgetMs,expires);
+  if(!Number.isFinite(expires)||deadline<=started||expires>started+examPushLifeMs+30_000)return;
+  const ref=event.data.ref,leaseId=randomUUID();
+  const acquired=await db.runTransaction(async tx=>{
+    const snap=await tx.get(ref);
+    if(Date.now()>=deadline||snap.data()?.schema!==examPushSchema||snap.data()?.push)return false;
+    // A consumed claim also fences ambiguous external sends after a process failure.
+    tx.update(ref,{push:{leaseId,leaseUntil:new Date(deadline).toISOString()}});
+    return true;
+  },{maxAttempts:2});
+  if(!acquired||Date.now()>=deadline)return;
+  const [secret,pilot,targetCurrent]=await Promise.all([
+    db.doc('paperBackendSecrets/webPush').get(),
+    db.doc('assistantConfig/pilot').get(),
+    examTargetCurrent(row)
+  ]);
+  const vapid=examVapid(secret.data()),allowed=pilot.data()?.allowedOwnerUids;
+  if(!vapid||!targetCurrent||!Array.isArray(allowed)||Date.now()>=deadline)return;
+  const candidates=row.examStream==='staff'
+    ? [...new Set(allowed.filter(examId))].slice(0,8)
+    : allowed.includes(row.recipientUid)?[row.recipientUid]:[];
+  if(!candidates.length)return;
+  const profiles=await db.getAll(...candidates.map(uid=>db.doc('users/'+uid)),{fieldMask:['role']});
+  const recipients=profiles.filter(profile=>profile.data()?.role==='admin').slice(0,2).map(profile=>profile.id);
+  if(!recipients.length||Date.now()>=deadline)return;
+  const url='https://gtop-question-papers.web.app/?update='+event.params.notificationId;
+  const payload=JSON.stringify({notification:{
+    title:'GT Papers',body:'A staff update is available.',icon:'https://gtop-question-papers.web.app/icons/growth-launcher-192.png',
+    tag:'gt-papers-'+event.params.notificationId,data:{examUpdateId:event.params.notificationId,onActionClick:{default:{operation:'focusLastFocusedOrOpen',url}}}
+  }});
+  const deliveries=await Promise.all(recipients.map(async uid=>{
+    if(Date.now()>=deadline)return [];
+    const query=await db.collection('paperPushSubscriptions/'+uid+'/examDevices').orderBy('updatedAt','desc').limit(2).get();
+    return Promise.all(query.docs.map(device=>sendExamDevice(uid,device,vapid,payload,deadline,expires).catch(()=> 'failed')));
+  }));
+  if(Date.now()>=deadline)return;
+  const totals={accepted:0,expired:0,failed:0,skipped:0};
+  for(const state of deliveries.flat())totals[state]++;
+  await ref.update({'push.finishedAt':examIso(),'push.totals':totals});
+}
+
+async function notifyExamUpdate(event,row){
+  let timeout;
+  try{
+    await Promise.race([
+      deliverExamPush(event,row),
+      new Promise(resolve=>{timeout=setTimeout(resolve,examPushBudgetMs);})
+    ]);
+  }catch{
+    // The saved in-app update is independent of best-effort device delivery.
+    console.warn('GT Papers examination push could not complete.');
+  }finally{clearTimeout(timeout);}
+}
+
 export const notifyPaperAdmin=onDocumentCreated({document:'paperNotifications/{notificationId}',region,timeoutSeconds:60,maxInstances:2,retry:true},async event=>{
   if(localLegacy)return;
-  const notification=event.data?.data();if(!cleanId(notification?.ownerUid)||!cleanId(notification.conversationId))return;
+  const notification=event.data?.data();
+  if(notification?.schema===examPushSchema){
+    if(process.env.PAPERS_EXAM_WEB_PUSH_ENABLED==='true')await notifyExamUpdate(event,notification);
+    return;
+  }
+  if(!cleanId(notification?.ownerUid)||!cleanId(notification.conversationId))return;
   const devices=await db.collection('paperPushSubscriptions/'+notification.ownerUid+'/devices').limit(12).get();if(devices.empty)return;
   const keys=await pushKeys();webpush.setVapidDetails('mailto:schttewary@gmail.com',keys.publicKey,keys.privateKey);
   const url='https://gtop-app.web.app/admin/question-papers/chat/'+notification.conversationId;

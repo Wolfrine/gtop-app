@@ -31,6 +31,7 @@ on:
           - firestore-rules-only
           - paper-chat-backend
           - paper-runtime-only
+          - paper-notify-only
       allow_planned_rule_change:
         description: "Allow the checked-in Firestore rules to differ from the active release"
         required: true
@@ -74,7 +75,7 @@ jobs:
             test "${ALLOW_CHANGE}" = "true"
           fi
       - name: Deploy protected backend configuration
-        if: inputs.deploy_backend && inputs.deployment_scope != 'paper-runtime-only'
+        if: inputs.deploy_backend && inputs.deployment_scope != 'paper-runtime-only' && inputs.deployment_scope != 'paper-notify-only'
         working-directory: gtop-app
         env:
           DEPLOYMENT_SCOPE: "${{ inputs.deployment_scope }}"
@@ -90,13 +91,21 @@ jobs:
             node scripts/deploy-paper-indexes.mjs
           fi
       - uses: google-github-actions/setup-gcloud@v2
-        if: inputs.deploy_backend && (inputs.deployment_scope == 'paper-chat-backend' || inputs.deployment_scope == 'paper-runtime-only')
+        if: inputs.deploy_backend && (inputs.deployment_scope == 'paper-chat-backend' || inputs.deployment_scope == 'paper-runtime-only' || inputs.deployment_scope == 'paper-notify-only')
       - name: Deploy reviewed paper functions using existing runtime permissions
         if: inputs.deploy_backend && (inputs.deployment_scope == 'paper-chat-backend' || inputs.deployment_scope == 'paper-runtime-only')
         working-directory: gtop-app
         env:
           ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
           PAPER_RUNTIME_ONLY: ${{ inputs.deployment_scope == 'paper-runtime-only' && '1' || '0' }}
+        run: node scripts/deploy-paper-functions.mjs
+      - name: Update only the existing examination notification trigger
+        if: inputs.deploy_backend && inputs.deployment_scope == 'paper-notify-only'
+        working-directory: gtop-app
+        env:
+          ACCESS_TOKEN: "${{ steps.auth.outputs.access_token }}"
+          PAPER_NOTIFY_ONLY: '1'
+          PAPERS_EXAM_WEB_PUSH_ENABLED: "${{ vars.PAPERS_EXAM_WEB_PUSH_ENABLED }}"
         run: node scripts/deploy-paper-functions.mjs
       - name: Backfill and verify all historical register sources
         timeout-minutes: 45
